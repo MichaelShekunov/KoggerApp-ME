@@ -153,6 +153,56 @@ Column {
             tgcLinkAtIndex: 2
             onTgcLinkClicked: if (panel.store) panel.store.openTgcSettings()
         }
+
+        // Along-track deconvolution. The angle is the sonar's own along-track
+        // resolution and has to be supplied here: no beam pattern is built in.
+        ParamCard {
+            width: parent.width
+            label: qsTr("Deconvolution, beam °")
+            slotWidth: panel.comboW
+            fillColor: AppPalette.bg
+            checked: panel.vs ? panel.vs.deconvEnabled : false
+            onToggled: function(v) { if (panel.vs) panel.vs.deconvEnabled = v }
+
+            KSpinBox {
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
+                width: panel.comboW
+                from: 1; to: 300; stepSize: 1; divisor: 10; decimals: 1
+                value: panel.vs ? panel.vs.deconvAngle : 10
+                onValueModified: function(val) { if (panel.vs) panel.vs.deconvAngle = val }
+            }
+        }
+
+        Rectangle {
+            width: parent.width
+            implicitHeight: Math.round(38 * AppPalette.scale)
+            radius: Tokens.radiusLg
+            color: AppPalette.bg
+            visible: panel.vs ? panel.vs.deconvEnabled : false
+
+            RowLayout {
+                anchors.fill: parent
+                anchors.leftMargin: Tokens.spaceMd
+                anchors.rightMargin: Tokens.spaceMd
+                spacing: Tokens.spaceMd
+
+                Text {
+                    text: qsTr("Deconvolution iterations")
+                    color: AppPalette.isDark ? "#FFFFFF" : AppPalette.text
+                    font.pixelSize: Tokens.fontLg
+                    Layout.fillWidth: true
+                    verticalAlignment: Text.AlignVCenter
+                }
+
+                KSpinBox {
+                    Layout.preferredWidth: panel.comboW
+                    from: 1; to: 20; stepSize: 1
+                    value: panel.vs ? panel.vs.deconvIterations : 8
+                    onValueModified: function(val) { if (panel.vs) panel.vs.deconvIterations = val }
+                }
+            }
+        }
     }
 
     // ══ Bottom-Track (instruments > 0) ══════════════════════════════════════════

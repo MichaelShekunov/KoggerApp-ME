@@ -351,6 +351,15 @@ plugin's imports with `llvm-objdump -p` before suspecting anything else.
 `api-ms-win-crt-*` entries in that output are OS API-set stubs, not files; they
 are not missing.
 
+**A control added to `Plot2D.qml` alone is invisible.** The settings surface the
+user actually sees is `qml/app/EchogramSettingsPanel.qml`, and it does not touch
+the plot: it reads and writes a view-state object built from `property alias`es
+onto the controls inside `qml/scene2d/Plot2D.qml`. The inline controls are the
+model, the panel is the view. A control added only inline works, persists, and
+never appears — which is how the deconvolution shipped the first time. Three
+edits, not one: the inline control, the alias (plus its `_changeProbe` entry),
+and a row in the panel.
+
 **Adding an icon means editing `resources/icons.qrc`.** `resources/icons/ui/` holds
 208 SVGs; only 180 are registered. A file being on disk does not put it in the
 resource system.

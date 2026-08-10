@@ -789,6 +789,10 @@ WaterFall {
         property alias echogramVisible:    echogramVisible.checked
         property alias echoThemeIndex:     echoTheme.currentIndex
         property alias compensationIndex:  echogramTypesList.currentIndex
+        property alias soundScaleIndex:    echogramSoundScale.currentIndex
+        property alias deconvEnabled:      echogramDeconvEnabled.checked
+        property alias deconvAngle:        echogramDeconvAngle.value
+        property alias deconvIterations:   echogramDeconvIterations.value
         property alias bottomTrackValue:   bottomTrackValueVisible.checked
         property alias bottomTrackLine:    bottomTrackGraphicsVisible.checked
         property alias bottomTrackTheme:   bottomTrackThemeList.currentIndex
@@ -837,6 +841,7 @@ WaterFall {
 
         readonly property var _changeProbe: [
             ch1Index, ch2Index, echogramVisible, echoThemeIndex, compensationIndex,
+            soundScaleIndex, deconvEnabled, deconvAngle, deconvIterations,
             bottomTrackValue, bottomTrackLine, bottomTrackTheme,
             rangefinderValue, rangefinderLine, rangefinderTheme,
             ahrsVisible, temperatureVisible,

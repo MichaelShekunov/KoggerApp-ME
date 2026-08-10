@@ -9,16 +9,34 @@ the difference is not cosmetic — see "What this cannot do".
 
 ## Using it
 
-Echogram settings panel, the "Deconvolution" row:
+Echogram settings panel, under "Source data":
 
 | Control | Meaning |
 | --- | --- |
-| On | enable, off by default |
-| Beam° | the sonar's along-track angular resolution, degrees, 0.1 … 30.0 |
-| Iter | Richardson-Lucy iterations, 1 … 20, default 8 |
+| Deconvolution, beam ° | toggle, plus the sonar's along-track angular resolution in degrees, 0.1 … 30.0 |
+| Deconvolution iterations | Richardson-Lucy iterations, 1 … 20, default 8; shown only while the toggle is on |
 
-Both values persist per plot under `scene2d/plot2d/<indx>`, like the theme and
-compensation settings beside them.
+Off by default. Both values persist per plot under `scene2d/plot2d/<indx>`, like
+the theme and compensation settings beside them.
+
+**Live and recorded data go through the same path.** The pass sits in
+`Plot2DEchogram::updateCash`, which builds the echogram image out of whatever the
+`Dataset` holds; nothing about it distinguishes a streaming device from an
+imported file. The one difference a recording can make is navigation: if the file
+carries no usable positions the kernel falls back to one metre per ping, and the
+angle then reads as a footprint in pings rather than in metres.
+
+### Where the controls live
+
+The visible panel is `qml/app/EchogramSettingsPanel.qml`. It does not talk to the
+plot directly — it reads and writes a view-state object whose properties are
+`property alias`es onto the controls inside `qml/scene2d/Plot2D.qml`. Those inline
+controls hold the value and make the call; the panel is the face.
+
+So a control added only to `Plot2D.qml` works and persists but is invisible, which
+is exactly what happened first time round here. Adding one means three edits:
+the inline control, an alias in the view-state block (and its `_changeProbe`
+entry), and a row in `EchogramSettingsPanel.qml`.
 
 **The beam width is yours to supply.** Nothing in this application knows any
 device's directivity, and nothing here should: KoggerApp is open source, and a
