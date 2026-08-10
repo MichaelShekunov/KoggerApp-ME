@@ -49,6 +49,38 @@ void convolve(const std::vector<float>& src, std::vector<float>& dst,
     }
 }
 
+// Linear interpolation costs more than the geometry correction gains when the
+// signal carries barely one sample per sigma, which echograms routinely do. Both
+// resamplings are therefore cubic.
+
+// Four-point Lagrange through arbitrarily spaced nodes: the footprint positions
+// are not evenly spaced, which is the whole point of the exercise.
+inline float lagrange4(const float* xs, const float* ys, int i0, float x)
+{
+    float acc = 0.0f;
+    for (int i = 0; i < 4; ++i) {
+        float term = ys[i0 + i];
+        for (int j = 0; j < 4; ++j) {
+            if (i == j) { continue; }
+            const float den = xs[i0 + i] - xs[i0 + j];
+            if (std::fabs(den) < 1.0e-9f) { return ys[i0 + i]; }
+            term *= (x - xs[i0 + j]) / den;
+        }
+        acc += term;
+    }
+    return acc;
+}
+
+// Catmull-Rom, for going back onto the even grid where spacing is constant.
+inline float catmullRom(float ym1, float y0, float y1, float y2, float t)
+{
+    const float a0 = 2.0f * y0;
+    const float a1 = -ym1 + y1;
+    const float a2 = 2.0f * ym1 - 5.0f * y0 + 4.0f * y1 - y2;
+    const float a3 = -ym1 + 3.0f * y0 - 3.0f * y1 + y2;
+    return 0.5f * (a0 + a1 * t + a2 * t * t + a3 * t * t * t);
+}
+
 float medianOf(std::vector<float> v)
 {
     if (v.empty()) { return 0.0f; }
@@ -119,8 +151,9 @@ void rowRanges(float from, float to, int height, bool dualChannel, float* out)
 
 
 Stats alongTrack(int16_t* const* columns, int width, int height,
-                 const float* rangeAt, const float* spacingM,
-                 float fallbackSpacingM, const Params& params)
+                 const float* rangeAt, const float* alongTrackM,
+                 const float* pitchRad, float fallbackSpacingM,
+                 const Params& params)
 {
     Stats stats;
     if (!columns || width < 3 || height <= 0 || !rangeAt) {
@@ -130,21 +163,35 @@ Stats alongTrack(int16_t* const* columns, int width, int height,
         return stats;
     }
 
-    // One spacing for the whole window. Sizing the kernel per column would track
-    // acceleration properly, but it breaks the symmetry Richardson-Lucy needs
-    // between its blur and its correction step, so that is a separate job.
-    float spacing = fallbackSpacingM;
-    if (spacingM) {
-        std::vector<float> valid;
-        valid.reserve(size_t(width));
-        for (int c = 1; c < width; ++c) {
-            if (std::isfinite(spacingM[c]) && spacingM[c] > 0.0f) {
-                valid.push_back(spacingM[c]);
-            }
+    // Spatial mode needs a position for every column: a hole in the middle would
+    // silently splice two stretches of track together as if they were adjacent.
+    bool spatial = alongTrackM != nullptr;
+    if (spatial) {
+        for (int c = 0; c < width; ++c) {
+            if (!std::isfinite(alongTrackM[c])) { spatial = false; break; }
         }
-        // Half the window has to carry navigation before it is worth trusting.
-        if (int(valid.size()) * 2 >= width) {
-            spacing = medianOf(std::move(valid));
+    }
+    const bool usePitch = spatial && pitchRad != nullptr;
+    stats.spatial = spatial;
+
+    // Even-ping fallback, and the grid step when there is no navigation.
+    float spacing = fallbackSpacingM;
+    if (spatial) {
+        std::vector<float> steps;
+        steps.reserve(size_t(width));
+        for (int c = 1; c < width; ++c) {
+            const float d = alongTrackM[c] - alongTrackM[c - 1];
+            if (std::isfinite(d) && d > 0.0f) { steps.push_back(d); }
+        }
+        if (int(steps.size()) * 2 >= width) {
+            spacing = medianOf(std::move(steps));
+        }
+        else {
+            // Positions exist but the platform is not advancing - station
+            // keeping, or a recording with a frozen fix. Nothing to deconvolve
+            // along a track that is not moving.
+            spatial = false;
+            stats.spatial = false;
         }
     }
     if (!(spacing > 0.0f)) {
@@ -172,11 +219,50 @@ Stats alongTrack(int16_t* const* columns, int width, int height,
         std::vector<float> ratio(nCols, 0.0f);
         std::vector<float> correction(nCols, 0.0f);
         std::vector<float> kernel;
+        std::vector<float> footprintX(nCols, 0.0f); // where the beam looked, metres
+        std::vector<float> resampled(nCols, 0.0f);
 
         for (int row = rowBegin; row < height; row += rowStride) {
             const float range = rangeAt[row];
+
+            // Where each ping's footprint actually sat along the track. Pitch
+            // moves it by R*tan(pitch) whether or not the vessel moved, so this
+            // is the axis the smear is really along - not the ping index, and
+            // not the vessel's position either.
+            // Positions always set the kernel width; they only reshape the row
+            // when geometry compensation is asked for. See Params.
+            bool rowSpatial = spatial && params.compensateGeometry;
+            float step = spacing;
+            if (rowSpatial) {
+                for (int c = 0; c < width; ++c) {
+                    float x = alongTrackM[c];
+                    if (usePitch && std::isfinite(pitchRad[c])) {
+                        x += range * std::tan(pitchRad[c]);
+                    }
+                    footprintX[size_t(c)] = x;
+                }
+                // Resampling needs the samples ordered. Pitch swinging faster
+                // than the vessel advances walks the footprint backwards, which
+                // is real and cannot be resampled away - fall back for that row.
+                float minStep = footprintX[1] - footprintX[0];
+                for (int c = 2; c < width; ++c) {
+                    minStep = std::min(minStep, footprintX[size_t(c)] - footprintX[size_t(c - 1)]);
+                }
+                if (!(minStep > 0.0f)) {
+                    rowSpatial = false;
+                    ++out.rowsNonMonotonic;
+                }
+                else {
+                    step = (footprintX[size_t(width - 1)] - footprintX[0]) / float(width - 1);
+                }
+            }
+            if (!(step > 0.0f)) {
+                ++out.rowsSkipped;
+                continue;
+            }
+
             const float sigma = footprintMetres(range, params.angularResolutionDeg)
-                                * kFwhmToSigma / spacing;
+                                * kFwhmToSigma / step;
 
             if (!(sigma > params.minSigmaColumns)) {
                 ++out.rowsSkipped;
@@ -217,6 +303,22 @@ Stats alongTrack(int16_t* const* columns, int width, int height,
                 continue;
             }
 
+            // Onto an even grid, so the convolution the solver assumes matches
+            // the one the water performed. Both sequences ascend, so one march
+            // through each is enough.
+            if (rowSpatial) {
+                const float x0 = footprintX[0];
+                int src = 0;
+                for (int j = 0; j < width; ++j) {
+                    const float gx = x0 + float(j) * step;
+                    while (src + 2 < width && footprintX[size_t(src + 1)] < gx) { ++src; }
+                    const int i0 = std::clamp(src - 1, 0, width - 4);
+                    resampled[size_t(j)] = lagrange4(footprintX.data(), observed.data(), i0, gx);
+                }
+                std::copy(resampled.begin(), resampled.end(), observed.begin());
+                std::copy(resampled.begin(), resampled.end(), estimate.begin());
+            }
+
             // Richardson-Lucy. Non-negative and flux-preserving by
             // construction, which is what makes it safe on intensity data: no
             // ringing, no negative lobes to clip into black bands.
@@ -232,6 +334,22 @@ Stats alongTrack(int16_t* const* columns, int width, int height,
                 for (int c = 0; c < width; ++c) {
                     estimate[size_t(c)] *= correction[size_t(c)];
                 }
+            }
+
+            // Back off the even grid onto the columns the screen actually has.
+            if (rowSpatial) {
+                const float x0 = footprintX[0];
+                for (int c = 0; c < width; ++c) {
+                    const float g = (footprintX[size_t(c)] - x0) / step;
+                    const int   j = std::clamp(int(g), 0, width - 2);
+                    const float t = std::clamp(g - float(j), 0.0f, 1.0f);
+                    const float ym1 = estimate[size_t(std::max(j - 1, 0))];
+                    const float y0  = estimate[size_t(j)];
+                    const float y1  = estimate[size_t(j + 1)];
+                    const float y2  = estimate[size_t(std::min(j + 2, width - 1))];
+                    resampled[size_t(c)] = std::max(0.0f, catmullRom(ym1, y0, y1, y2, t));
+                }
+                std::copy(resampled.begin(), resampled.end(), estimate.begin());
             }
 
             for (int c = 0; c < width; ++c) {

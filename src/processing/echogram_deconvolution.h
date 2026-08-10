@@ -35,6 +35,21 @@ struct Params {
     // each is its own 1D problem writing only to its own row - so this scales
     // until the rows run out.
     int threads = 0;
+
+    // Resample each row onto an even along-track grid before deconvolving, using
+    // the measured footprint positions, and back afterwards.
+    //
+    // Off by default, and that is a measurement rather than caution.
+    // `deconv_check` blurs a scene in true pitch-perturbed geometry and asks both
+    // paths to undo it: assuming even pings gathers 90.9 % of a target's energy
+    // within one sigma of the truth, resampling gathers 88.5 %. An echogram
+    // carries barely one sample per sigma, so a resampling round trip costs more
+    // resolution than correcting the kernel width recovers - even with cubic
+    // interpolation, which was worth 6.6 points over linear.
+    //
+    // Positions still improve the pass when this is off: they set the kernel
+    // width in real metres. This flag governs only the resampling.
+    bool compensateGeometry = false;
 };
 
 // Result of one pass, for reporting and for tests.
@@ -42,6 +57,14 @@ struct Stats {
     int rowsProcessed = 0;
     int rowsSkipped   = 0;
     int maxRadius     = 0;
+
+    // Rows that wanted the spatial path but fell back to even sampling because
+    // the footprint positions were not monotonic - pitch swinging faster than
+    // the vessel advances really can walk the footprint backwards.
+    int rowsNonMonotonic = 0;
+
+    // Whether the pass used measured geometry at all, or assumed even pings.
+    bool spatial = false;
 };
 
 // `columns` holds `width` pointers to `height` samples each, in *along-track
@@ -51,13 +74,24 @@ struct Stats {
 // `rangeAt` is `height` slant ranges in metres, one per row, already absolute.
 // A non-positive range marks a row as unusable and skips it.
 //
-// `spacingM` is the along-track distance in metres between consecutive pings,
-// from navigation. The kernel is sized from the median of these, so a column
-// count means the same thing whatever the vessel's speed. Pass nullptr when no
-// navigation is available and the caller supplies `fallbackSpacingM` instead.
+// `alongTrackM` is `width` cumulative along-track positions in metres, one per
+// column - the ping's displacement projected onto the vessel's heading, so a
+// crab angle does not read as forward progress. nullptr means no navigation:
+// the pass then assumes even pings at `fallbackSpacingM`.
+//
+// `pitchRad` is `width` pitch angles. Pitch swings the beam fore and aft, moving
+// the footprint by R*tan(pitch) *independently of the vessel*, and at 50 m one
+// degree is 0.87 m - easily more than a ping's advance. Supplying it turns the
+// column positions from "where the boat was" into "where the beam looked", which
+// is what the convolution is actually over. nullptr skips that correction.
+//
+// With positions in hand the row is resampled onto an even along-track grid,
+// deconvolved there, and resampled back, so uneven speed and pitch oscillation
+// stop being modelled as a single average spacing.
 Stats alongTrack(int16_t* const* columns, int width, int height,
-                 const float* rangeAt, const float* spacingM,
-                 float fallbackSpacingM, const Params& params);
+                 const float* rangeAt, const float* alongTrackM,
+                 const float* pitchRad, float fallbackSpacingM,
+                 const Params& params);
 
 // Exposed for tests: the along-track footprint in metres at a slant range.
 float footprintMetres(float rangeM, float angularResolutionDeg);

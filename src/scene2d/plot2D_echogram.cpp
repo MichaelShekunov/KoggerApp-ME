@@ -301,7 +301,8 @@ bool Plot2DEchogram::applyDeconvolution(Plot2D* parent, Dataset* dataset, int wi
     // navigation spacing between consecutive pings.
     deconvScratch_.resize(width * height);
     deconvColumns_.resize(width);
-    deconvSpacing_.resize(width);
+    deconvAlong_.resize(width);
+    deconvPitch_.resize(width);
 
     auto nedOf = [](Epoch* epoch, double& n, double& e) -> bool {
         if (!epoch) { return false; }
@@ -316,9 +317,11 @@ bool Plot2DEchogram::applyDeconvolution(Plot2D* parent, Dataset* dataset, int wi
         return false;
     };
 
+    bool navComplete = true;
     bool havePrev = false;
     double prevN = 0.0, prevE = 0.0;
-    int navCount = 0;
+    double along = 0.0;
+    int pitchCount = 0;
 
     for (int i = 0; i < width; ++i) {
         int column = i + wrapStartPos;
@@ -334,24 +337,44 @@ bool Plot2DEchogram::applyDeconvolution(Plot2D* parent, Dataset* dataset, int wi
         }
         deconvColumns_[i] = dst;
 
-        deconvSpacing_[i] = 0.0f;
-        double n = 0.0, e = 0.0;
+        deconvAlong_[i] = qQNaN();
+        deconvPitch_[i] = qQNaN();
+
         const int poolIndex = _cash[column].poolIndex;
         Epoch* epoch = poolIndex >= 0 ? dataset->fromIndex(poolIndex) : nullptr;
-        if (nedOf(epoch, n, e)) {
-            if (havePrev) {
-                const double dn = n - prevN;
-                const double de = e - prevE;
-                const float step = float(std::sqrt(dn * dn + de * de));
-                if (std::isfinite(step) && step > 0.0f) {
-                    deconvSpacing_[i] = step;
-                    ++navCount;
-                }
-            }
-            prevN = n; prevE = e; havePrev = true;
-        }
-        else {
+
+        double n = 0.0, e = 0.0;
+        if (!nedOf(epoch, n, e)) {
+            navComplete = false;
             havePrev = false;
+            continue;
+        }
+
+        if (havePrev) {
+            const double dn = n - prevN;
+            const double de = e - prevE;
+            // Project onto the heading, not onto the track: a crabbing vessel
+            // covers ground sideways, and sideways motion does not advance the
+            // beam along its own fore-aft axis. Azimuth convention matches
+            // Plot2D's contact projection - from north, clockwise, dN = cos.
+            const float yawDeg = epoch->tryRetValidYaw();
+            double stepAlong = std::sqrt(dn * dn + de * de);
+            if (std::isfinite(yawDeg)) {
+                const double yawRad = qDegreesToRadians(double(yawDeg));
+                stepAlong = dn * std::cos(yawRad) + de * std::sin(yawRad);
+            }
+            if (!std::isfinite(stepAlong)) {
+                navComplete = false;
+            }
+            along += stepAlong;
+        }
+        prevN = n; prevE = e; havePrev = true;
+        deconvAlong_[i] = float(along);
+
+        const float pitchDeg = epoch->pitch();
+        if (std::isfinite(pitchDeg)) {
+            deconvPitch_[i] = float(qDegreesToRadians(double(pitchDeg)));
+            ++pitchCount;
         }
     }
 
@@ -359,15 +382,18 @@ bool Plot2DEchogram::applyDeconvolution(Plot2D* parent, Dataset* dataset, int wi
     params.angularResolutionDeg = deconvAngularResolutionDeg_;
     params.iterations = deconvIterations_;
 
-    // With no navigation the kernel would have no metric to be sized against.
-    // One metre per ping keeps the control usable on recordings that carry no
-    // position - the angle then reads as "footprint in pings", not in metres.
+    // With no navigation the kernel has no metric to be sized against. One metre
+    // per ping keeps the control usable on recordings that carry no position -
+    // the angle then reads as "footprint in pings", not in metres.
     const float fallbackSpacing = 1.0f;
-    const float* spacing = (navCount * 2 >= width) ? deconvSpacing_.constData() : nullptr;
+    const float* alongPtr = navComplete ? deconvAlong_.constData() : nullptr;
+    // Pitch is only worth applying if most of the window has it; a handful of
+    // corrected columns among uncorrected ones is worse than none.
+    const float* pitchPtr = (alongPtr && pitchCount * 2 >= width) ? deconvPitch_.constData() : nullptr;
 
     const echo_deconv::Stats stats = echo_deconv::alongTrack(
         deconvColumns_.data(), width, height,
-        deconvRange_.constData(), spacing, fallbackSpacing, params);
+        deconvRange_.constData(), alongPtr, pitchPtr, fallbackSpacing, params);
 
     if (stats.rowsProcessed <= 0) {
         return false;

@@ -7,6 +7,7 @@
 
 #include <chrono>
 #include <string>
+#define _USE_MATH_DEFINES
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -112,10 +113,128 @@ bool checkRowRanges()
     return ok;
 }
 
+// Stage 2: does knowing the pitch actually buy anything?
+//
+// The vessel advances evenly, but pitch swings the beam fore and aft, so the
+// footprint samples the bottom at uneven positions. Deconvolving as if the
+// samples were evenly spaced convolves with a kernel that is in the wrong place
+// for most of them. This blurs in the true geometry and then asks both paths to
+// undo it.
+bool checkPitchCompensation()
+{
+    constexpr int   w          = 512;
+    constexpr int   h          = 16;
+    constexpr float spacing    = 0.5f;   // metres per ping
+    constexpr float angleDeg   = 2.0f;
+    constexpr float range      = 40.0f;
+    constexpr float pitchAmpDeg = 2.0f;
+    constexpr float pitchPeriod = 40.0f; // pings
+    constexpr int   targetStep = 64;
+    constexpr float background = 4.0f;
+    constexpr float target     = 220.0f;
+
+    const float sigmaM = echo_deconv::footprintMetres(range, angleDeg) / 2.35482004503f;
+
+    std::vector<float> alongM(size_t(w), 0.0f);
+    std::vector<float> pitchRad(size_t(w), 0.0f);
+    std::vector<float> footX(size_t(w), 0.0f);
+    for (int c = 0; c < w; ++c) {
+        alongM[size_t(c)]   = float(c) * spacing;
+        pitchRad[size_t(c)] = float(pitchAmpDeg * M_PI / 180.0
+                                    * std::sin(2.0 * M_PI * double(c) / pitchPeriod));
+        footX[size_t(c)]    = alongM[size_t(c)] + range * std::tan(pitchRad[size_t(c)]);
+    }
+
+    // Truth is a set of point targets at fixed positions on the bottom. Each
+    // ping sees them through the beam, centred wherever the beam was pointing.
+    std::vector<float> targetsAt;
+    for (int c = targetStep / 2; c < w; c += targetStep) {
+        targetsAt.push_back(float(c) * spacing);
+    }
+
+    std::vector<int16_t> fieldA(size_t(w) * size_t(h), 0);
+    std::vector<int16_t> fieldB(size_t(w) * size_t(h), 0);
+    std::vector<int16_t*> colsA(size_t(w), nullptr), colsB(size_t(w), nullptr);
+    for (int c = 0; c < w; ++c) {
+        colsA[size_t(c)] = fieldA.data() + size_t(c) * size_t(h);
+        colsB[size_t(c)] = fieldB.data() + size_t(c) * size_t(h);
+        float acc = background;
+        for (float tx : targetsAt) {
+            const float d = (footX[size_t(c)] - tx) / sigmaM;
+            acc += (target - background) * std::exp(-0.5f * d * d) / (sigmaM * 2.5066f) * spacing;
+        }
+        for (int r = 0; r < h; ++r) {
+            colsA[size_t(c)][r] = int16_t(std::lround(std::min(acc, 255.0f)));
+            colsB[size_t(c)][r] = colsA[size_t(c)][r];
+        }
+    }
+
+    std::vector<float> ranges(size_t(h), range);
+
+    echo_deconv::Params p;
+    p.angularResolutionDeg = angleDeg;
+    p.iterations = 20;
+
+    // A: told nothing, assumes even pings. B: given position and pitch, and
+    // asked to resample into that geometry.
+    echo_deconv::alongTrack(colsA.data(), w, h, ranges.data(), nullptr, nullptr, spacing, p);
+    echo_deconv::Params pb = p;
+    pb.compensateGeometry = true;
+    const echo_deconv::Stats sb =
+        echo_deconv::alongTrack(colsB.data(), w, h, ranges.data(),
+                                alongM.data(), pitchRad.data(), spacing, pb);
+
+    // Score by how tightly each target's energy is gathered around where it
+    // really is - not by peak height, which over-sharpening inflates on its own.
+    // Fraction of the return landing within one sigma of the true position.
+    auto concentration = [&](int16_t* const* cols, float tx) {
+        double inner = 0.0, outer = 0.0;
+        for (int c = 0; c < w; ++c) {
+            const double d = std::fabs(double(footX[size_t(c)]) - double(tx));
+            if (d > 4.0 * sigmaM) { continue; }
+            const double v = std::max(0.0, double(cols[size_t(c)][h / 2]) - double(background));
+            outer += v;
+            if (d <= sigmaM) { inner += v; }
+        }
+        return outer > 0.0 ? inner / outer : 0.0;
+    };
+
+    double sumA = 0.0, sumB = 0.0;
+    for (float tx : targetsAt) {
+        sumA += concentration(colsA.data(), tx);
+        sumB += concentration(colsB.data(), tx);
+    }
+    const double meanA = 100.0 * sumA / double(targetsAt.size());
+    const double meanB = 100.0 * sumB / double(targetsAt.size());
+
+    std::printf("  pitch +-%.1f deg at %.0f m walks the footprint +-%.2f m (%.1f columns)\n",
+                pitchAmpDeg, range, range * std::tan(pitchAmpDeg * M_PI / 180.0),
+                range * std::tan(pitchAmpDeg * M_PI / 180.0) / spacing);
+    std::printf("  energy within one sigma of the truth: even-ping %.1f %%, position+pitch %.1f %%\n",
+                meanA, meanB);
+    std::printf("  spatial=%s  rows falling back to even sampling=%d\n",
+                sb.spatial ? "yes" : "no", sb.rowsNonMonotonic);
+
+    // Recorded, not asserted as a win. The measurement is why
+    // Params::compensateGeometry defaults off: at echogram sampling density a
+    // resampling round trip costs more resolution than correcting the kernel
+    // width recovers. What is asserted is that the geometry was seen and that
+    // the path stays sane - a regression here means broken, not just unhelpful.
+    const bool ok = sb.spatial && sb.rowsNonMonotonic == 0 && meanB > 0.5 * meanA;
+    std::printf("  %s (resampling %s here: %+.1f points)\n",
+                ok ? "ok" : "BAD - spatial path is broken, not merely unhelpful",
+                meanB > meanA ? "helps" : "does not pay", meanB - meanA);
+    return ok;
+}
+
 int main()
 {
     std::printf("row -> range mapping\n");
     const bool rangesOk = checkRowRanges();
+    std::printf("\n");
+
+    std::printf("pitch compensation\n");
+    const bool pitchOk = checkPitchCompensation();
     std::printf("\n");
 
     // --- truth, then the smeared observation -------------------------------
@@ -182,7 +301,7 @@ int main()
         pp.angularResolutionDeg = kAngleDeg;
         pp.iterations = 20;
         echo_deconv::alongTrack(probeCols.data(), kWidth, kHeight,
-                                ranges.data(), spacing.data(), kSpacingM, pp);
+                                ranges.data(), nullptr, nullptr, kSpacingM, pp);
 
         for (int row : {0, 4, 8, 16, 24, 32, 48, 63}) {
             const float range = rangeOfRow(row);
@@ -204,7 +323,7 @@ int main()
     params.iterations = 8;
 
     const echo_deconv::Stats stats = echo_deconv::alongTrack(
-        columns.data(), kWidth, kHeight, ranges.data(), spacing.data(), kSpacingM, params);
+        columns.data(), kWidth, kHeight, ranges.data(), nullptr, nullptr, kSpacingM, params);
 
     std::printf("rows processed=%d skipped=%d  max kernel radius=%d columns\n",
                 stats.rowsProcessed, stats.rowsSkipped, stats.maxRadius);
@@ -262,7 +381,7 @@ int main()
             pc.threads = t;
             const auto t0 = std::chrono::steady_clock::now();
             echo_deconv::alongTrack(bigCols.data(), w, h, bigRanges.data(),
-                                    bigSpacing.data(), kSpacingM, pc);
+                                    nullptr, nullptr, kSpacingM, pc);
             const auto t1 = std::chrono::steady_clock::now();
             const double ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
             if (t == 1) { serial = ms; }
@@ -287,7 +406,7 @@ int main()
     gp.angularResolutionDeg = kAngleDeg;
     gp.iterations = 20;
     echo_deconv::alongTrack(guardCols.data(), kWidth, kHeight,
-                            ranges.data(), spacing.data(), kSpacingM, gp);
+                            ranges.data(), nullptr, nullptr, kSpacingM, gp);
 
     const double nearRecovered =
         (double(guardCols[size_t(kTargetStep / 2)][0]) - kBackground) / (kTarget - kBackground);
@@ -295,7 +414,7 @@ int main()
                 echo_deconv::footprintMetres(rangeOfRow(0), kAngleDeg) / 2.35482004503f / kSpacingM,
                 100.0 * nearRecovered);
 
-    const bool ok = rangesOk && stats.rowsProcessed > 0 && worsened == 0 && nearRecovered >= 0.80;
+    const bool ok = rangesOk && pitchOk && stats.rowsProcessed > 0 && worsened == 0 && nearRecovered >= 0.80;
     std::printf("%s\n", ok ? "PASS" : "FAIL");
     return ok ? 0 : 1;
 }

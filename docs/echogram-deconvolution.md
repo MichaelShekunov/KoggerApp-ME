@@ -66,18 +66,71 @@ non-negative and flux-preserving by construction, which is what makes it safe on
 intensity data. A linear inverse filter would ring and would clip negative lobes
 into black bands around every bright return.
 
-### Navigation
+### Navigation and attitude
 
 The kernel is in metres; the image is in columns. Navigation supplies the
-conversion: the along-track distance between the epochs behind consecutive
-columns, from `Position::ned`, preferring the sonar position and falling back to
-GNSS. The median across the visible window sizes the kernel, so the same angle
-means the same footprint whether the vessel is fast or slow, and whether or not
-the display is decimating pings.
+conversion: the distance between the epochs behind consecutive columns, from
+`Position::ned`, preferring the sonar position and falling back to GNSS.
 
-If fewer than half the columns carry usable positions the median is not trusted
-and one metre per ping is assumed. The control then reads as a footprint in
-pings rather than in metres — still useful, no longer physical.
+That displacement is **projected onto the heading**, not taken as its own length:
+
+```
+step = dn*cos(yaw) + de*sin(yaw)
+```
+
+A crabbing vessel covers ground sideways, and sideways motion does not advance
+the beam along its own fore-aft axis — which is the axis the smear is along.
+Taking `sqrt(dn² + de²)` counts drift as progress and sizes the kernel too
+narrow. Yaw comes from `Epoch::tryRetValidYaw`, which falls back to the
+artificial attitude; the azimuth convention (from north, clockwise, `dN = cos`)
+matches `Plot2D`'s contact projection.
+
+Heave is deliberately **not** added. Vertical motion does not move the footprint
+along the track — it changes the range to it. That is range-bin migration, a
+different correction, and not done.
+
+If any column lacks a position the pass falls back to one metre per ping. The
+control then reads as a footprint in pings rather than in metres — still useful,
+no longer physical. The requirement is every column, not most: a hole in the
+middle would splice two stretches of track together as though they were adjacent.
+
+### Pitch, and why the resampling is off by default
+
+Pitch swings the beam fore and aft, moving the footprint by `R·tan(pitch)`
+*whether or not the vessel moves*. At 40 m, one degree is 0.7 m — easily more
+than a ping's advance. So the samples along a row are not evenly spaced even at
+constant speed, and a convolution in column space is not the operation the water
+performed.
+
+`Params::compensateGeometry` resamples each row onto an even along-track grid
+built from the measured footprint positions, deconvolves there, and resamples
+back. It is implemented, tested, and **off by default** — that is a measurement,
+not caution.
+
+`deconv_check` blurs a scene in true pitch-perturbed geometry (±2° at 40 m, a
+±1.4 m or ±2.8 column wander) and asks both paths to undo it, scoring by how much
+of a target's energy lands within one sigma of its true position:
+
+| path | energy within one sigma |
+| --- | --- |
+| assume even pings | **90.9 %** |
+| resample into measured geometry | 88.5 % |
+
+The resampling loses. An echogram carries barely one sample per sigma, and a
+round trip through interpolation costs more resolution at that density than
+correcting the kernel width recovers. Cubic interpolation was worth 6.6 points
+over linear here (81.9 % → 88.5 %) and still did not close the gap.
+
+Two things follow, and they are worth keeping in view before anyone tries again:
+
+- The honest fix is a spatially varying kernel applied in place, with the correct
+  adjoint for Richardson-Lucy, so no resampling happens at all. That is real work
+  rather than a tweak.
+- The larger prize from attitude is probably not a better kernel. It is
+  **un-wobbling the image itself**: pitch makes targets wander along the screen by
+  ±2.8 columns in the case above, and nothing here corrects that, because the
+  result is mapped back onto the same columns it came from. That is a
+  display-geometry feature, not a deconvolution one.
 
 ## What this cannot do
 
@@ -223,12 +276,11 @@ is gone, and would break the moment anyone improved the solver.
 
 ## Known simplifications
 
-- **One spacing for the window.** The kernel is sized from the median along-track
-  spacing, not per column. Sizing it per column would track acceleration, but it
-  breaks the symmetry Richardson-Lucy needs between its blur and its correction
-  step, so it is a separate job rather than a tweak.
-- **Attitude is not used yet.** Position gives the along-track spacing; yaw,
-  pitch and roll change where the footprint actually lands and are not accounted
-  for. Item 2 in the backlog still owns that.
+- **Yaw is used; pitch is measured but not applied by default; roll is not used
+  at all.** Roll rotates a side-scan fan across track, changing which ground
+  patch each range bin holds. That is range-bin migration again, and belongs with
+  the mosaic rather than with a display filter.
+- **One spacing for the window.** Without `compensateGeometry` the kernel is
+  sized from the median projected step, so a row is treated as evenly sampled.
 - **The beam is modelled as a Gaussian**, parameterised only by width. A real
   two-way pattern has sidelobes, and they smear differently.

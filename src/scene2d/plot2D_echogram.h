@@ -97,7 +97,8 @@ protected:
     QVector<int16_t>  deconvScratch_;
     QVector<int16_t*> deconvColumns_;
     QVector<float>    deconvRange_;
-    QVector<float>    deconvSpacing_;
+    QVector<float>    deconvAlong_;   // cumulative along-track metres per column
+    QVector<float>    deconvPitch_;   // radians per column, NaN where unknown
 
     // Along-track order, display wrap undone. Returns false if nothing was done.
     bool applyDeconvolution(Plot2D* parent, Dataset* dataset, int width, int height, int wrapStartPos);
