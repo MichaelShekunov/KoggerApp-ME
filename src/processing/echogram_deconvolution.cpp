@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <thread>
 #include <vector>
 
 namespace echo_deconv {
@@ -150,80 +151,118 @@ Stats alongTrack(int16_t* const* columns, int width, int height,
         return stats;
     }
 
-    const size_t nCols = static_cast<size_t>(width);
-    std::vector<float> observed(nCols, 0.0f);
-    std::vector<float> estimate(nCols, 0.0f);
-    std::vector<float> blurred(nCols, 0.0f);
-    std::vector<float> ratio(nCols, 0.0f);
-    std::vector<float> correction(nCols, 0.0f);
-    std::vector<float> kernel;
+    // Each row is an independent 1D problem that writes only to its own row, so
+    // ranges of rows can go to separate threads with no sharing beyond the
+    // read-only inputs. Scratch is per range, not per row.
+    int nThreads = params.threads > 0
+                     ? params.threads
+                     : int(std::thread::hardware_concurrency());
+    if (nThreads < 1) { nThreads = 1; }
+    nThreads = std::min(nThreads, height);
+    // Below this the thread hand-off costs more than the work saved.
+    if (height < 8) { nThreads = 1; }
 
-    for (int row = 0; row < height; ++row) {
-        const float range = rangeAt[row];
-        const float sigma = footprintMetres(range, params.angularResolutionDeg)
-                            * kFwhmToSigma / spacing;
+    std::vector<Stats> partial(static_cast<size_t>(nThreads), Stats{});
 
-        if (!(sigma > params.minSigmaColumns)) {
-            ++stats.rowsSkipped;
-            continue;
-        }
+    auto processRows = [&](int rowBegin, int rowStride, Stats& out) {
+        const size_t nCols = static_cast<size_t>(width);
+        std::vector<float> observed(nCols, 0.0f);
+        std::vector<float> estimate(nCols, 0.0f);
+        std::vector<float> blurred(nCols, 0.0f);
+        std::vector<float> ratio(nCols, 0.0f);
+        std::vector<float> correction(nCols, 0.0f);
+        std::vector<float> kernel;
 
-        int radius = int(std::ceil(3.0f * sigma));
-        radius = std::min(radius, params.maxKernelRadius);
-        radius = std::min(radius, (width - 1) / 2);
-        if (radius < 1) {
-            ++stats.rowsSkipped;
-            continue;
-        }
-        stats.maxRadius = std::max(stats.maxRadius, radius);
+        for (int row = rowBegin; row < height; row += rowStride) {
+            const float range = rangeAt[row];
+            const float sigma = footprintMetres(range, params.angularResolutionDeg)
+                                * kFwhmToSigma / spacing;
 
-        kernel.assign(size_t(2 * radius + 1), 0.0f);
-        float sum = 0.0f;
-        for (int k = -radius; k <= radius; ++k) {
-            const float x = float(k) / sigma;
-            const float w = std::exp(-0.5f * x * x);
-            kernel[size_t(k + radius)] = w;
-            sum += w;
-        }
-        for (float& w : kernel) { w /= sum; }
-
-        float rowMax = 0.0f;
-        for (int c = 0; c < width; ++c) {
-            const float v = float(columns[c][row]);
-            observed[size_t(c)] = v > 0.0f ? v : 0.0f;
-            estimate[size_t(c)] = observed[size_t(c)];
-            rowMax = std::max(rowMax, observed[size_t(c)]);
-        }
-
-        // Water above the surface and everything past the bottom are flat zero
-        // on a real echogram, and there is nothing in a blank row to sharpen.
-        if (rowMax <= 0.0f) {
-            ++stats.rowsSkipped;
-            continue;
-        }
-
-        // Richardson-Lucy. Non-negative and flux-preserving by construction,
-        // which is what makes it safe on intensity data: no ringing, no
-        // negative lobes to clip into black bands.
-        for (int it = 0; it < params.iterations; ++it) {
-            convolve(estimate, blurred, kernel, radius);
-            for (int c = 0; c < width; ++c) {
-                const float b = blurred[size_t(c)];
-                ratio[size_t(c)] = observed[size_t(c)] / (b > kEps ? b : kEps);
+            if (!(sigma > params.minSigmaColumns)) {
+                ++out.rowsSkipped;
+                continue;
             }
-            // The kernel is symmetric, so its transpose is itself and the
-            // correction step is another convolution with the same weights.
-            convolve(ratio, correction, kernel, radius);
-            for (int c = 0; c < width; ++c) {
-                estimate[size_t(c)] *= correction[size_t(c)];
-            }
-        }
 
-        for (int c = 0; c < width; ++c) {
-            const float v = estimate[size_t(c)];
-            columns[c][row] = int16_t(std::lround(std::clamp(v, 0.0f, kMaxValue)));
+            int radius = int(std::ceil(3.0f * sigma));
+            radius = std::min(radius, params.maxKernelRadius);
+            radius = std::min(radius, (width - 1) / 2);
+            if (radius < 1) {
+                ++out.rowsSkipped;
+                continue;
+            }
+            out.maxRadius = std::max(out.maxRadius, radius);
+
+            kernel.assign(size_t(2 * radius + 1), 0.0f);
+            float sum = 0.0f;
+            for (int k = -radius; k <= radius; ++k) {
+                const float x = float(k) / sigma;
+                const float w = std::exp(-0.5f * x * x);
+                kernel[size_t(k + radius)] = w;
+                sum += w;
+            }
+            for (float& w : kernel) { w /= sum; }
+
+            float rowMax = 0.0f;
+            for (int c = 0; c < width; ++c) {
+                const float v = float(columns[c][row]);
+                observed[size_t(c)] = v > 0.0f ? v : 0.0f;
+                estimate[size_t(c)] = observed[size_t(c)];
+                rowMax = std::max(rowMax, observed[size_t(c)]);
+            }
+
+            // Water above the surface and everything past the bottom are flat
+            // zero on a real echogram, and a blank row has nothing to sharpen.
+            if (rowMax <= 0.0f) {
+                ++out.rowsSkipped;
+                continue;
+            }
+
+            // Richardson-Lucy. Non-negative and flux-preserving by
+            // construction, which is what makes it safe on intensity data: no
+            // ringing, no negative lobes to clip into black bands.
+            for (int it = 0; it < params.iterations; ++it) {
+                convolve(estimate, blurred, kernel, radius);
+                for (int c = 0; c < width; ++c) {
+                    const float b = blurred[size_t(c)];
+                    ratio[size_t(c)] = observed[size_t(c)] / (b > kEps ? b : kEps);
+                }
+                // The kernel is symmetric, so its transpose is itself and the
+                // correction step is another convolution with the same weights.
+                convolve(ratio, correction, kernel, radius);
+                for (int c = 0; c < width; ++c) {
+                    estimate[size_t(c)] *= correction[size_t(c)];
+                }
+            }
+
+            for (int c = 0; c < width; ++c) {
+                const float v = estimate[size_t(c)];
+                columns[c][row] = int16_t(std::lround(std::clamp(v, 0.0f, kMaxValue)));
+            }
+            ++out.rowsProcessed;
         }
-        ++stats.rowsProcessed;
+    };
+
+    if (nThreads <= 1) {
+        processRows(0, 1, partial[0]);
+    }
+    else {
+        // Interleave rather than slice: kernel radius grows with range, so
+        // contiguous blocks would hand the far-range worker several times the
+        // work of the near-range one and the pass would wait on it. Scratch is
+        // allocated once per worker, not once per row.
+        std::vector<std::thread> workers;
+        workers.reserve(size_t(nThreads - 1));
+        for (int t = 1; t < nThreads; ++t) {
+            workers.emplace_back([&, t] { processRows(t, nThreads, partial[size_t(t)]); });
+        }
+        processRows(0, nThreads, partial[0]);
+        for (std::thread& w : workers) { w.join(); }
+    }
+
+    for (const Stats& s : partial) {
+        stats.rowsProcessed += s.rowsProcessed;
+        stats.rowsSkipped   += s.rowsSkipped;
+        stats.maxRadius      = std::max(stats.maxRadius, s.maxRadius);
     }
 
     return stats;

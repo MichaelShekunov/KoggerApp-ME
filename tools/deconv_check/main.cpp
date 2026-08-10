@@ -6,6 +6,7 @@
 #include "echogram_deconvolution.h"
 
 #include <chrono>
+#include <string>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -253,13 +254,22 @@ int main()
         }
         std::vector<float> bigSpacing(size_t(w), kSpacingM);
 
-        echo_deconv::Params p3 = params;
-        p3.iterations = 3;
-        const auto t0 = std::chrono::steady_clock::now();
-        echo_deconv::alongTrack(bigCols.data(), w, h, bigRanges.data(), bigSpacing.data(), kSpacingM, p3);
-        const auto t1 = std::chrono::steady_clock::now();
-        std::printf("cost: %dx%d, 3 iterations -> %.0f ms\n", w, h,
-                    std::chrono::duration<double, std::milli>(t1 - t0).count());
+        std::printf("cost, %dx%d, %d iterations (the shipped default)\n", w, h, params.iterations);
+        std::printf("%-10s %-10s %s\n", "threads", "ms", "speedup");
+        double serial = 0.0;
+        for (int t : {1, 2, 4, 8, 16, 0}) {
+            echo_deconv::Params pc = params;
+            pc.threads = t;
+            const auto t0 = std::chrono::steady_clock::now();
+            echo_deconv::alongTrack(bigCols.data(), w, h, bigRanges.data(),
+                                    bigSpacing.data(), kSpacingM, pc);
+            const auto t1 = std::chrono::steady_clock::now();
+            const double ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
+            if (t == 1) { serial = ms; }
+            std::printf("%-10s %-10.0f %.1fx\n",
+                        t == 0 ? "auto" : std::to_string(t).c_str(), ms,
+                        serial > 0.0 ? serial / ms : 1.0);
+        }
     }
 
     // The guard is on the regime where deconvolution is supposed to work at all:

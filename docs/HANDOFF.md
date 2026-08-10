@@ -299,6 +299,14 @@ on the Qt version the project itself specifies it silently produces an `out_x64`
 containing the executable and three runtime DLLs and no Qt at all — 22 MB instead
 of 139 MB. Fixed here; worth reporting upstream.
 
+**A running instance blocks the deploy just as effectively.** If `out_x64\KoggerApp.exe`
+is open, `windeployqt` gets `access denied` on every file it tries to replace and
+the package silently keeps the previous build. Observed 2026-08-10, and easy to
+mistake for the sync-client race below — the symptoms differ: a locked-by-sync
+file reports "being used by another process" and clears on its own, while a
+running application reports "access denied" and never clears. Check with
+`Get-Process KoggerApp` before assuming anything else.
+
 **The sync client fights the deploy.** `out_x64/` is inside the Yandex Disk sync
 root, and rewriting 139 MB makes the client open every file it is uploading. The
 deploy step then hits `The process cannot access the file because it is being used

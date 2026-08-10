@@ -111,19 +111,47 @@ spans several pings. It will not rescue the far edge of a wide-beam side-scan.
 
 ## Cost
 
-Measured on a 2000 x 800 window with every row populated, 3 iterations: **44 ms**
-on one core. Scales linearly in iterations, so the default 8 is about 120 ms,
-and the maximum 20 about 290 ms.
+Rows are independent — each is its own 1D problem writing only to its own row —
+so the pass is split across worker threads. `Params::threads` selects how many;
+0, the default, asks for one per hardware core.
 
-It runs on the GUI thread inside `updateCash`, and only when the cache is
-invalidated — a new ping, a scroll, a zoom, or a parameter change — not on every
-frame. Real echograms are cheaper than the benchmark, because rows that are
-entirely blank are skipped.
+Measured on a 2000 x 800 window with every row populated, 8 iterations:
 
-That is still enough to be felt while scrolling. Two known ways down, neither
-done: a recursive (IIR) Gaussian, which makes a blur cost the same regardless of
-sigma and would remove the kernel-radius term entirely, or moving the pass to a
-worker thread.
+| threads | ms | speedup |
+| --- | --- | --- |
+| 1 | 103 | 1.0x |
+| 2 | 52 | 2.0x |
+| 4 | 42 | 2.5x |
+| 8 | 14 | 7.1x |
+| 16 | 13 | 7.7x |
+| auto (32 cores) | **9** | **12x** |
+
+Scaling is not linear — memory bandwidth, and only 800 rows to divide — but the
+serial figure was what made scrolling drag, and 9 ms is comfortably inside a
+frame.
+
+Rows are handed out **interleaved**, not in contiguous slices. Kernel radius
+grows with range, so a slice-per-thread split would give the far-range worker
+several times the work of the near-range one and the whole pass would wait on it.
+
+The pass still runs on the GUI thread inside `updateCash`, and only when the
+cache is invalidated — a new ping, a scroll, a zoom, or a parameter change — not
+on every frame. Real echograms are cheaper than the benchmark, because blank
+rows are skipped.
+
+### Why threads and not OpenCL
+
+The work is embarrassingly parallel by row, so a thread pool takes it from 103 ms
+to 9 ms with no new dependency. OpenCL would be the first GPU dependency in this
+application — there is none anywhere in `src/` today — and it brings a runtime
+ICD, a deployment story, and a failure path on machines whose ICD is
+misconfigured, which is not a rare state. At this size the transfer of a 3.2 MB
+field each way would also eat a visible share of the gain.
+
+If the pass ever needs to be faster than a thread pool can make it, the next
+lever is algorithmic rather than hardware: a recursive (IIR) Gaussian makes a
+blur cost the same regardless of sigma, removing the kernel-radius term that
+dominates at long range.
 
 ## Implementation
 

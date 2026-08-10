@@ -30,6 +30,11 @@ struct Params {
     // Hard ceiling on kernel half-width in columns. Bounds the cost at long
     // range, where the footprint can exceed the visible window.
     int maxKernelRadius = 64;
+
+    // Worker threads. 0 asks for one per hardware core. Rows are independent -
+    // each is its own 1D problem writing only to its own row - so this scales
+    // until the rows run out.
+    int threads = 0;
 };
 
 // Result of one pass, for reporting and for tests.
