@@ -328,3 +328,65 @@ drawn.
   sprites, and the choice changes what the eye picks out of the volume.
 - Does the cloud persist for the whole session or decay behind the vessel? If it
   decays, that is item 1's machinery again.
+
+## 6. Interface lock
+
+Asked for 2026-08-10 (raised as item 7 in the request sequence).
+
+A padlock icon that has to be held for two seconds to lock the interface, and
+held again to unlock it. Guards against stray input — a deck, gloves, spray and a
+moving boat.
+
+Much the smallest item here, and the only one that is purely UI.
+
+### What exists today
+
+- **Both icons are already drawn.** `resources/icons/ui/lock.svg` and
+  `lock-open.svg` are on disk. **Neither is in `resources/icons.qrc`**, so
+  registering them is step one — a file on disk is not in the resource system,
+  and this fork has already lost time to exactly that (see HANDOFF, "Adding an
+  icon means editing `resources/icons.qrc`").
+- **The control pattern.** `KCircleIconButton` with `iconTintColor` and
+  `fillColor` driven from a state bool is how the sonification speaker button is
+  built (`qml/scene2d/Plot2D.qml`, `settingsRow`).
+- **Hold-to-act.** `longPressTimer` in `Plot2D.qml` already does press-and-hold,
+  at 500 ms, but it is gated on `Qt.platform.os === "android"`.
+- **Input gating**, of a sort. `Plot2D.externalInputRouting` disables a plot's
+  `MouseArea` and is set from `WorkspaceView.qml`. It is per-plot and exists for
+  routing, not for locking — a precedent for the mechanism, not a foundation.
+
+### The part that will be got wrong
+
+**A lock that disables `MouseArea`s is not locked.** Keyboard input arrives by a
+different road — `src/hotkeys_manager.cpp`, plus the `StandardKey` shortcuts in
+`MainWindow.qml` and the page-up/page-down bindings — and none of it passes
+through a `MouseArea`. Whatever gate is chosen has to cover pointer, wheel, touch
+*and* key paths, or the lock will look convincing and stop nothing. Deciding
+where that single gate lives is the whole design; the icon is an afternoon.
+
+Two more that follow from it: the lock control itself must stay live, or there is
+no way back; and if any action must remain reachable while locked — recording
+start/stop is the obvious candidate — that has to be settled before the gate is
+written, not carved out afterwards.
+
+### Smaller decisions
+
+- **Show the hold.** Two seconds with no feedback reads as a dead button; users
+  will let go at one second and conclude it is broken. A ring filling around the
+  icon, both directions.
+- **Do not start locked.** The sonifier deliberately does not persist its on
+  state so the application never starts making noise by itself; the same argument
+  is stronger here, because a user who does not know the gesture cannot recover
+  without being told. If it must persist, the unlock affordance has to be
+  self-explanatory on a cold start.
+
+### Open questions
+
+- Two seconds each way? The two directions are not worth the same: an accidental
+  *lock* is a nuisance, an accidental *unlock* defeats the feature. A slow unlock
+  with a quicker lock may fit the purpose better.
+- Does the lock cover the whole application, or one plot / one pane? The existing
+  input gate is per-plot, and the answer decides whether this is a `Plot2D`
+  property or something owned by `Core`.
+- Should locking also suppress the settings panels and dialogs, or only the
+  chart interactions?
