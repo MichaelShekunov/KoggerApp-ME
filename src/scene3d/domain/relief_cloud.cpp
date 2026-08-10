@@ -50,6 +50,21 @@ void ReliefCloud::setDatasetPtr(Dataset* datasetPtr)
     datasetPtr_ = datasetPtr;
 }
 
+void ReliefCloud::onDatasetGrew()
+{
+    if (!isVisible() || !datasetPtr_) {
+        return;
+    }
+    // Rebuilt as the file loads, but not on every update: the builder walks
+    // every ping, so it waits until the dataset has grown enough to be worth
+    // another pass.
+    const int now = datasetPtr_->size();
+    if (now <= 0 || now < builtAtEpochCount_ + kRebuildGrowth) {
+        return;
+    }
+    rebuild();
+}
+
 bool ReliefCloud::hasPoints() const
 {
     return !cdata().isEmpty();
@@ -74,15 +89,20 @@ void ReliefCloud::clearData()
 void ReliefCloud::rebuild()
 {
     if (!datasetPtr_) {
+        qInfo("ReliefCloud: no dataset");
         SceneObject::clearData();
         return;
     }
 
     const int epochCount = datasetPtr_->size();
     if (epochCount <= 0) {
+        // Says so rather than returning in silence: switching the layer on
+        // before a file has loaded used to do nothing and report nothing.
+        qInfo("ReliefCloud: dataset is empty, nothing to build yet");
         SceneObject::clearData();
         return;
     }
+    builtAtEpochCount_ = epochCount;
 
     constexpr int kProfileSamples = 512;
 
@@ -166,9 +186,16 @@ void ReliefCloud::rebuild()
                 const double across = sign * double(gx[size_t(s)]);
                 const double north  = pos.ned.n + acrossN * across;
                 const double east   = pos.ned.e + acrossE * across;
-                // Depth positive down in NED; relief is positive up.
-                const double down   = altitude - double(gz[size_t(s)]);
-                points.append(QVector3D(float(east), float(north), float(-down)));
+                // Scene convention, taken from BoatTrack and BottomTrack rather
+                // than assumed: QVector3D(north, east, depth), with depth
+                // POSITIVE DOWN - boat_track.cpp writes
+                // QVector3D(posNed.n, posNed.e, 0) and the bottom track writes
+                // the bottom distance straight into z.
+                //
+                // Getting this wrong is silent: the cloud simply lands somewhere
+                // else, mirrored about the diagonal and above the water.
+                const double depth = altitude - double(gz[size_t(s)]);
+                points.append(QVector3D(float(north), float(east), float(depth)));
             }
         }
     }

@@ -407,6 +407,14 @@ Item {
     Component.onCompleted: {
         syncHostRegistration()
         syncActive3DPane()
+        // A 2/3D pane that looked exactly like a 3D pane was the complaint, and
+        // fairly. The mode now means something: it switches the relief layer on.
+        // The layer toggle in Settings stays the owner - this only flips it -
+        // so there is still one place that decides, not two.
+        if (root.reliefOnly && workspaceRoot && workspaceRoot.store
+            && !workspaceRoot.store.reliefCloudVisible) {
+            workspaceRoot.store.reliefCloudVisible = true
+        }
     }
     onWorkspaceRootChanged: { syncHostRegistration(); syncActive3DPane() }
     onLeafIdChanged: syncHostRegistration()

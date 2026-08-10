@@ -47,13 +47,20 @@ public:
     void setAltitudeLimits(float minAltitudeM, float maxAltitudeM);
 
 public Q_SLOTS:
+    // Called as data arrives. Rebuilds only when the dataset has grown by
+    // kRebuildGrowth epochs, because a full pass is not free.
+    void onDatasetGrew();
+
     // Walks the dataset and rebuilds the whole cloud. Cheap enough to call on
     // demand, far too expensive to call per ping.
     void rebuild();
     void clearData() override;
 
 private:
+    static constexpr int kRebuildGrowth = 500;
+
     Dataset* datasetPtr_ = nullptr;
+    int   builtAtEpochCount_ = 0;
     int   pingStride_    = 4;
     float minAltitudeM_  = 1.0f;
     float maxAltitudeM_  = 300.0f;

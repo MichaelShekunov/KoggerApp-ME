@@ -1089,6 +1089,9 @@ function initLayerVisibilityControllers() {
     IsobathsViewControlMenuController.onIsobathsVisibilityCheckBoxCheckedChanged(isobathsVisible)
     MosaicViewControlMenuController.onVisibilityChanged(mosaicVisible)
     MosaicViewControlMenuController.onUpdateStateChanged(mosaicVisible)
+    // Restored like the others. Without this the saved state of the relief
+    // layer was remembered by the checkbox and ignored by the scene.
+    core.setReliefCloudVisible(reliefCloudVisible)
     pushMosaicChannelsFromCore()
 }
 

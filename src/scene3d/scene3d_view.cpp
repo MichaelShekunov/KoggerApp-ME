@@ -2426,6 +2426,8 @@ void GraphicsScene3dView::setDataset(Dataset *dataset)
     boatTrack_->setDatasetPtr(datasetPtr_);
     m_bottomTrack->setDatasetPtr(datasetPtr_);
     reliefCloud_->setDatasetPtr(datasetPtr_);
+    QObject::connect(datasetPtr_, &Dataset::dataUpdate,
+                     reliefCloud_.get(), &ReliefCloud::onDatasetGrew, Qt::UniqueConnection);
     contacts_->setDatasetPtr(datasetPtr_);
 
     forceUpdateDatasetLlaRef();
