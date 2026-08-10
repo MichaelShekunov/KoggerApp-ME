@@ -64,10 +64,32 @@ Along-track only, on purpose. Across-track resolution comes from pulse length,
 not from the beam angle, so applying an angular kernel there would sharpen
 nothing and invent detail.
 
-The kernel is a Gaussian with FWHM = `W(R)`, and the solver is Richardson-Lucy:
-non-negative and flux-preserving by construction, which is what makes it safe on
-intensity data. A linear inverse filter would ring and would clip negative lobes
-into black bands around every bright return.
+### The beam is not uniform across its cone, and that matters twice
+
+The kernel is a **Gaussian**, not a rectangle. That is the point: sensitivity is
+highest on the beam axis and falls away towards the edge of the cone, so a target
+entering the beam fades in rather than switching on. A rectangular kernel would
+assert uniform sensitivity across the cone and a hard edge, and deconvolving with
+it would carve those edges into the image as ringing.
+
+The falloff bites a second time, and this one is easy to miss. The pattern applies
+on **transmit and again on receive**, so a target's echo follows the product of
+the pattern with itself. Squaring a Gaussian narrows it by √2. Since a datasheet
+quotes the one-way −3 dB beamwidth — the number an operator will type — the smear
+is
+
+```
+W(R) = 2 * R * tan(theta / 2) / sqrt(2)
+```
+
+Taking the typed angle as the smear directly makes the kernel **41 % too wide**,
+and an over-wide Richardson-Lucy kernel does not merely under-sharpen: it gathers
+from neighbours that never contributed, and invents structure. That factor was
+missing until 2026-08-10.
+
+The solver is Richardson-Lucy: non-negative and flux-preserving by construction,
+which is what makes it safe on intensity data. A linear inverse filter would ring
+and would clip negative lobes into black bands around every bright return.
 
 ### Navigation and attitude
 
@@ -154,19 +176,23 @@ recovery of the true peak:
 
 | smear (sigma, columns) | peak recovered |
 | --- | --- |
-| 0.7 | 93 % |
-| 1.2 | 68 % |
-| 1.6 | 50 % |
-| 2.4 | 31 % |
-| 3.3 | 23 % |
-| 5.8 | 13 % |
-| 7.4 | 10 % |
+| 0.5 | 98 % |
+| 0.8 | 88 % |
+| 1.1 | 71 % |
+| 1.7 | 45 % |
+| 2.3 | 33 % |
+| 4.1 | 18 % |
+| 5.2 | 13 % |
 
 So: near-complete restoration up to about one column of smear, useful gain to
 about two, and past three it is contrast enhancement rather than resolution
 recovery. This is a property of deconvolution, not of this implementation —
-Richardson-Lucy was run to 400 iterations against the sigma 7.4 case and moved
-the peak from 15.6 to 33 out of 220.
+Richardson-Lucy was run to 400 iterations against a sigma 7.4 case and moved the
+peak from 15.6 to 33 out of 220.
+
+Sigma here is the *smear*, after the two-way narrowing. The same typed beamwidth
+therefore lands a row further up this table than it did before that factor was
+applied, which is why the numbers improved without the solver changing.
 
 The practical consequence: this helps most where the footprint is already small
 — near range, narrow beams, and decimated displays where one column already
@@ -293,4 +319,10 @@ is gone, and would break the moment anyone improved the solver.
 - **One spacing for the window.** Without `compensateGeometry` the kernel is
   sized from the median projected step, so a row is treated as evenly sampled.
 - **The beam is modelled as a Gaussian**, parameterised only by width. A real
-  two-way pattern has sidelobes, and they smear differently.
+  pattern is closer to a sinc in its main lobe and has sidelobes besides;
+  sidelobe energy arrives as faint replicas that a sidelobe-free kernel cannot
+  remove and Richardson-Lucy may sharpen into artefacts.
+- **Only the along-track cut of the beam is used.** Reduced sensitivity towards
+  the edges of the fan *across* track — the grazing-angle falloff that makes the
+  outer swath dimmer — is an amplitude effect, not a resolution one. TVG and the
+  "Source data" compensation modes address it; this pass does not touch it.

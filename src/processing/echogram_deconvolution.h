@@ -14,8 +14,10 @@
 namespace echo_deconv {
 
 struct Params {
-    // Along-track angular resolution of the sonar, degrees. Operator-supplied:
-    // no beam pattern is built into this application.
+    // The sonar's along-track beamwidth, degrees, as a datasheet states it:
+    // one-way, -3 dB. Operator-supplied - no beam pattern is built into this
+    // application. The two-way narrowing is applied internally, see
+    // footprintMetres.
     float angularResolutionDeg = 1.0f;
 
     // Richardson-Lucy iterations. Each one sharpens and amplifies noise a
@@ -98,7 +100,9 @@ Stats alongTrack(int16_t* const* columns, int width, int height,
                  const float* pitchRad, float fallbackSpacingM,
                  const Params& params);
 
-// Exposed for tests: the along-track footprint in metres at a slant range.
+// Exposed for tests: the along-track *smear* in metres at a slant range - the
+// geometric arc the beam subtends, narrowed by the two-way factor because the
+// pattern applies on transmit and again on receive.
 float footprintMetres(float rangeM, float angularResolutionDeg);
 
 // Slant range per row, `height` entries, for the echogram's column layout.

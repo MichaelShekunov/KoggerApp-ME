@@ -12,6 +12,9 @@ namespace {
 constexpr float kDegToRad   = 3.14159265358979323846f / 180.0f;
 constexpr float kFwhmToSigma = 1.0f / 2.35482004503f;
 constexpr float kEps        = 1.0e-3f;
+
+// Two-way narrowing: 1/sqrt(2). See footprintMetres.
+constexpr float kTwoWayNarrowing = 0.70710678f;
 constexpr float kMaxValue   = 255.0f;
 
 // Replicate the edge rather than zero-padding: a dark border would be read as
@@ -97,7 +100,19 @@ float footprintMetres(float rangeM, float angularResolutionDeg)
     if (!(rangeM > 0.0f) || !(angularResolutionDeg > 0.0f)) {
         return 0.0f;
     }
-    return 2.0f * rangeM * std::tan(0.5f * angularResolutionDeg * kDegToRad);
+    // The geometric arc the beam subtends...
+    const float arc = 2.0f * rangeM * std::tan(0.5f * angularResolutionDeg * kDegToRad);
+
+    // ...but the smear is narrower than the beam, because the beam is used
+    // twice. Sensitivity falls off towards the edge of the cone on transmit and
+    // again on receive, so a target's echo follows the *product* of the pattern
+    // with itself. Squaring a Gaussian narrows it by sqrt(2), and a datasheet
+    // quotes the one-way -3 dB width, which is what an operator will type.
+    //
+    // Treating the typed angle as the smear directly makes the kernel 41 % too
+    // wide, and an over-wide Richardson-Lucy kernel does not merely under-sharpen
+    // - it pulls in neighbours that never contributed and invents structure.
+    return arc * kTwoWayNarrowing;
 }
 
 
