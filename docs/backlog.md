@@ -479,3 +479,28 @@ Two levers matter more than engine choice:
 - Is the confirmation a spoken read-back, a spoken acknowledgement, or both?
 - What is the vocabulary? Writing the full command list down first will show
   whether this is ten utterances or a hundred.
+
+## 8. OptiX for the GPU work
+
+Raised 2026-08-10, explicitly for later.
+
+The OpenCL backend added for the deconvolution is compute-shaped: buffers in,
+arithmetic, buffers out. OptiX is ray-tracing-shaped, and the interesting
+question is which backlog items are actually ray problems rather than array
+problems.
+
+Item 5, the echo cloud, is the obvious candidate — placing samples in space and
+asking what a camera sees is literally ray traversal, and the side-scan arc
+ambiguity described there is a geometry query. Item 2's coherent path is not:
+it is dense arithmetic over regular arrays, which is what OpenCL already does.
+
+Two things worth settling before any of it:
+
+- **OptiX is NVIDIA-only and closed.** KoggerApp is GPL-3.0 and open; a hard
+  dependency on a proprietary SDK would exclude every other GPU, and the linking
+  question deserves an answer rather than an assumption. OpenCL was chosen for
+  the deconvolution partly because Apache-2.0 headers and a runtime-loaded ICD
+  raise no such question — see `third_party/opencl/README.md`.
+- **What it would be for.** The deconvolution does not need it: the RTX 5080
+  beats 32 CPU threads by under 2x there, because the pass is transfer-bound
+  rather than arithmetic-bound. More hardware does not fix a bandwidth limit.

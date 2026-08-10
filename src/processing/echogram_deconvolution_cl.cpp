@@ -189,25 +189,47 @@ bool ClBackend::available()
     std::vector<cl_platform_id> platforms(platformCount);
     p_clGetPlatformIDs(platformCount, platforms.data(), nullptr);
 
-    // Prefer a discrete GPU; a CPU device would only be slower than the threads
-    // already in place.
+    // Any device type, ranked. OpenCL is not a GPU API - a CPU device runs the
+    // same kernel across cores with the runtime's own vectorisation, which the
+    // scalar CPU path here does not have, so it is a real candidate rather than
+    // a consolation prize.
+    //
+    // Ranking, and the reasoning behind it:
+    //   discrete GPU  - the whole point, and measured at 15x one core
+    //   CPU device    - vectorised, and independent of any display adapter
+    //   integrated GPU- last, because it shares memory bandwidth with the host
+    //                   and can be tiny: the part on this machine reports one
+    //                   compute unit against 32 CPU cores, a losing trade
+    //                   against the thread pool it would be replacing
+    auto rankOf = [](cl_device_type t, cl_bool unified) -> int {
+        if (t & CL_DEVICE_TYPE_GPU) { return unified ? 1 : 3; }
+        if (t & CL_DEVICE_TYPE_CPU) { return 2; }
+        return 0;
+    };
+
     cl_device_id device = nullptr;
+    int bestRank = 0;
     for (cl_platform_id pf : platforms) {
         cl_uint n = 0;
-        if (p_clGetDeviceIDs(pf, CL_DEVICE_TYPE_GPU, 0, nullptr, &n) != CL_SUCCESS || n == 0) {
+        if (p_clGetDeviceIDs(pf, CL_DEVICE_TYPE_ALL, 0, nullptr, &n) != CL_SUCCESS || n == 0) {
             continue;
         }
         std::vector<cl_device_id> devices(n);
-        p_clGetDeviceIDs(pf, CL_DEVICE_TYPE_GPU, n, devices.data(), nullptr);
+        p_clGetDeviceIDs(pf, CL_DEVICE_TYPE_ALL, n, devices.data(), nullptr);
         for (cl_device_id dev : devices) {
-            cl_bool hostUnified = CL_TRUE;
-            p_clGetDeviceInfo(dev, CL_DEVICE_HOST_UNIFIED_MEMORY, sizeof(hostUnified), &hostUnified, nullptr);
-            if (!hostUnified) { device = dev; break; }   // discrete
-            if (!device) { device = dev; }               // integrated, as a fallback
+            cl_device_type type = 0;
+            cl_bool unified = CL_TRUE;
+            cl_bool availableFlag = CL_FALSE;
+            p_clGetDeviceInfo(dev, CL_DEVICE_TYPE, sizeof(type), &type, nullptr);
+            p_clGetDeviceInfo(dev, CL_DEVICE_HOST_UNIFIED_MEMORY, sizeof(unified), &unified, nullptr);
+            p_clGetDeviceInfo(dev, CL_DEVICE_AVAILABLE, sizeof(availableFlag), &availableFlag, nullptr);
+            if (!availableFlag) { continue; }
+
+            const int rank = rankOf(type, unified);
+            if (rank > bestRank) { bestRank = rank; device = dev; }
         }
-        if (device) { break; }
     }
-    if (!device) { g_reason = "no OpenCL GPU device"; return false; }
+    if (!device) { g_reason = "no usable OpenCL device"; return false; }
 
     cl_int err = CL_SUCCESS;
     cl_context context = p_clCreateContext(nullptr, 1, &device, nullptr, nullptr, &err);
@@ -251,7 +273,13 @@ bool ClBackend::available()
 
     char nameBuf[256] = {};
     p_clGetDeviceInfo(device, CL_DEVICE_NAME, sizeof(nameBuf) - 1, nameBuf, nullptr);
-    impl->name = nameBuf;
+    cl_uint units = 0;
+    p_clGetDeviceInfo(device, CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(units), &units, nullptr);
+    const char* kind = (bestRank == 3) ? "discrete GPU"
+                     : (bestRank == 2) ? "CPU"
+                     : "integrated GPU";
+    impl->name = std::string(nameBuf) + " (" + kind + ", "
+               + std::to_string(units) + " compute units)";
 
     d_ = impl;
     g_reason.clear();

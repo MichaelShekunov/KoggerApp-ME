@@ -272,9 +272,25 @@ backend declines what it cannot do — no runtime, no GPU device, or
 `compensateGeometry`, whose per-row resampling is sequential in a way the kernel
 is not — and the CPU path then runs unchanged.
 
-Device choice prefers a discrete GPU: `CL_DEVICE_HOST_UNIFIED_MEMORY` false wins
-over an integrated part, which would only be slower than the threads already in
-place.
+**Device choice is not GPU-only.** OpenCL is not a GPU API: a CPU device runs the
+same kernel across cores with the runtime's own vectorisation, which the scalar
+CPU path here does not have. Devices of every type are enumerated and ranked:
+
+1. **discrete GPU** — `CL_DEVICE_HOST_UNIFIED_MEMORY` false;
+2. **CPU device** — vectorised, and independent of any display adapter;
+3. **integrated GPU** — last, because it shares memory bandwidth with the host
+   and can be very small.
+
+That last rank is not snobbery. The integrated part on the development machine
+reports **one** compute unit against 32 CPU cores, so choosing it over the thread
+pool would be a pessimisation. The ranking picks it only when nothing else is
+offered.
+
+What is actually enumerable here, for the record: two platforms, NVIDIA CUDA with
+the RTX 5080 (84 compute units, discrete) and AMD Accelerated Parallel Processing
+with gfx1036 (1 compute unit, integrated). **No CPU device on either** — current
+AMD runtimes no longer expose one and no Intel CPU runtime is installed. The code
+path for it exists and is untested for want of a device.
 
 Headers are vendored from Khronos under Apache-2.0, one-way compatible with this
 project's GPL-3.0. See `third_party/opencl/README.md`, including why they are not
