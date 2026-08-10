@@ -168,8 +168,159 @@ bool checkAcrossTrackRelief()
     return true;
 }
 
+// Two sides against one. The seabed tilts across the track and carries bumps;
+// the material varies with range in a way no low-order fit can follow, which is
+// the case that defeated the single-profile method.
+bool checkTwoSidedRelief()
+{
+    constexpr int   n  = 700;
+    constexpr float H  = 15.0f;
+    constexpr float x0 = 3.0f, x1 = 70.0f;
+
+    // Seabed elevation against signed across-track position: positive to
+    // starboard. A steady tilt plus two bumps, one either side.
+    auto trueZ = [](float xi) {
+        const float tilt = 0.045f * xi;
+        const float a = 1.2f * std::exp(-0.5f * std::pow((xi - 35.0f) / 7.0f, 2.0f));
+        const float b = 0.9f * std::exp(-0.5f * std::pow((xi + 45.0f) / 6.0f, 2.0f));
+        return tilt + a + b;
+    };
+    auto slopeAt = [&](float xi) {
+        const float d = 0.01f;
+        return (trueZ(xi + d) - trueZ(xi - d)) / (2.0f * d);
+    };
+
+    // Material against range: a ripple no quadratic can follow. This is what a
+    // beam pattern with structure, or a band of different sediment, looks like.
+    auto material = [](float x) {
+        return 1.0f + 0.35f * std::sin(0.22f * x) + 0.15f * std::sin(0.07f * x);
+    };
+
+    std::vector<int16_t> pS(static_cast<size_t>(n), 0), sS(static_cast<size_t>(n), 0);
+    std::vector<float>   pR(static_cast<size_t>(n), 0.0f), sR(static_cast<size_t>(n), 0.0f);
+
+    bool rendered = true;
+    for (int i = 0; i < n; ++i) {
+        const float x = x0 + (x1 - x0) * float(i) / float(n - 1);
+        const float phi = std::atan2(H, x);
+        pR[size_t(i)] = std::sqrt(x * x + H * H);
+        sR[size_t(i)] = pR[size_t(i)];
+
+        // Outward slope: starboard looks along +xi, port along -xi.
+        const float sStbd =  slopeAt(x);
+        const float sPort = -slopeAt(-x);
+
+        const float base = 150.0f * material(x);
+        const float ip = base * (std::sin(phi) + sPort * std::cos(phi)) / std::sin(phi);
+        const float is = base * (std::sin(phi) + sStbd * std::cos(phi)) / std::sin(phi);
+        if (ip < 0.0f || ip > 255.0f || is < 0.0f || is > 255.0f) { rendered = false; }
+        pS[size_t(i)] = int16_t(std::clamp(ip, 0.0f, 255.0f));
+        sS[size_t(i)] = int16_t(std::clamp(is, 0.0f, 255.0f));
+    }
+    if (!rendered) {
+        std::printf("  render out of range - test scene is wrong\n");
+        return false;
+    }
+
+    echo_relief::ReliefParams rp;
+    std::vector<float> gx(static_cast<size_t>(n), 0.0f), zp(static_cast<size_t>(n), 0.0f), zs(static_cast<size_t>(n), 0.0f);
+    const int m = echo_relief::acrossTrackReliefPair(pS.data(), pR.data(), n,
+                                                     sS.data(), sR.data(), n,
+                                                     H, rp, gx.data(), zp.data(), zs.data(), n);
+    if (m < 32) { std::printf("  produced %d samples\n", m); return false; }
+
+    // Score both sides, tied at the ends as the survey lines tie them.
+    auto residual = [&](const std::vector<float>& z, float sign, double& frac, double& worst) {
+        const double t0 = trueZ(sign * gx[0]), t1 = trueZ(sign * gx[size_t(m - 1)]);
+        const double r0 = z[0], r1 = z[size_t(m - 1)];
+        double err2 = 0, ref2 = 0; worst = 0;
+        for (int i = 0; i < m; ++i) {
+            const double f = (gx[size_t(m - 1)] > gx[0])
+                           ? (gx[size_t(i)] - gx[0]) / (gx[size_t(m - 1)] - gx[0]) : 0.0;
+            const double t = trueZ(sign * gx[size_t(i)]) - (t0 + (t1 - t0) * f);
+            const double r = double(z[size_t(i)]) - (r0 + (r1 - r0) * f);
+            err2 += (t - r) * (t - r);
+            ref2 += t * t;
+            worst = std::max(worst, std::fabs(t - r));
+        }
+        frac = ref2 > 0.0 ? std::sqrt(err2 / ref2) : 1.0;
+    };
+
+    double fp = 1, fs = 1, wp = 0, ws = 0;
+    residual(zp, -1.0f, fp, wp);
+    residual(zs, +1.0f, fs, ws);
+
+    // The same scene through the single-profile method, for comparison.
+    std::vector<float> gx1(static_cast<size_t>(n), 0.0f), z1(static_cast<size_t>(n), 0.0f);
+    const int m1 = echo_relief::acrossTrackRelief(sS.data(), sR.data(), n, H, rp,
+                                                  gx1.data(), z1.data(), n);
+    double f1 = 1.0, w1 = 0.0;
+    if (m1 >= 32) {
+        const double t0 = trueZ(gx1[0]), t1 = trueZ(gx1[size_t(m1 - 1)]);
+        const double r0 = z1[0], r1 = z1[size_t(m1 - 1)];
+        double err2 = 0, ref2 = 0;
+        for (int i = 0; i < m1; ++i) {
+            const double f = (gx1[size_t(m1 - 1)] > gx1[0])
+                           ? (gx1[size_t(i)] - gx1[0]) / (gx1[size_t(m1 - 1)] - gx1[0]) : 0.0;
+            const double t = trueZ(gx1[size_t(i)]) - (t0 + (t1 - t0) * f);
+            const double r = double(z1[size_t(i)]) - (r0 + (r1 - r0) * f);
+            err2 += (t - r) * (t - r); ref2 += t * t;
+            w1 = std::max(w1, std::fabs(t - r));
+        }
+        f1 = ref2 > 0.0 ? std::sqrt(err2 / ref2) : 1.0;
+    }
+
+    std::printf("  material varies with range faster than any low-order fit follows\n");
+    std::printf("  one side  (fitted material) : %.0f %% residual, worst %.2f m\n", 100.0 * f1, w1);
+    std::printf("  two sides (measured material): port %.0f %%, starboard %.0f %%, worst %.2f m\n",
+                100.0 * fp, 100.0 * fs, std::max(wp, ws));
+
+    // The analysis says the geometric mean recovers (s_stbd - s_port)/2, not
+    // each side's own slope. A cross-track tilt is antisymmetric and survives
+    // that whole; a bump sits on one side only, so half of it lands in K and the
+    // other half leaks into the opposite side. Tested directly, because it
+    // decides whether the approach is worth continuing.
+    {
+        std::vector<int16_t> tp(static_cast<size_t>(n), 0), ts(static_cast<size_t>(n), 0);
+        std::vector<float>   tr(static_cast<size_t>(n), 0.0f);
+        constexpr float kTilt = 0.045f;
+        for (int i = 0; i < n; ++i) {
+            const float x   = x0 + (x1 - x0) * float(i) / float(n - 1);
+            const float phi = std::atan2(H, x);
+            tr[size_t(i)]   = std::sqrt(x * x + H * H);
+            const float base = 150.0f * material(x);
+            tp[size_t(i)] = int16_t(std::clamp(base * (std::sin(phi) - kTilt * std::cos(phi)) / std::sin(phi), 0.0f, 255.0f));
+            ts[size_t(i)] = int16_t(std::clamp(base * (std::sin(phi) + kTilt * std::cos(phi)) / std::sin(phi), 0.0f, 255.0f));
+        }
+        std::vector<float> tx(static_cast<size_t>(n), 0.0f), ta(static_cast<size_t>(n), 0.0f), tb(static_cast<size_t>(n), 0.0f);
+        const int mt = echo_relief::acrossTrackReliefPair(tp.data(), tr.data(), n,
+                                                          ts.data(), tr.data(), n,
+                                                          H, rp, tx.data(), ta.data(), tb.data(), n);
+        if (mt >= 32) {
+            const float span = tx[size_t(mt - 1)] - tx[0];
+            const float got  = (tb[size_t(mt - 1)] - tb[0]) / (span > 0.0f ? span : 1.0f);
+            std::printf("  pure cross-track tilt: true %.3f, recovered %.3f  (%.0f %% of it)\n",
+                        kTilt, got, 100.0 * double(got / kTilt));
+        }
+    }
+
+    // Reported, not asserted, for the same reason as the single-sided figure.
+    // The result is decisive rather than disappointing: the component this
+    // recovers reliably - the cross-track tilt - is the one the survey lines
+    // already constrain, and the component it cannot recover is the one the fill
+    // is for. Better than one side, still not usable.
+    (void)fp; (void)fs;
+    std::printf("  measured, not asserted - tilt yes, localised features no;"
+                " see docs/echogram-relief.md\n");
+    return true;
+}
+
 int main()
 {
+    std::printf("two-sided relief\n");
+    const bool pairOk = checkTwoSidedRelief();
+    std::printf("\n");
+
     std::printf("across-track relief from brightness\n");
     const bool reliefOk = checkAcrossTrackRelief();
     std::printf("\n");
@@ -246,7 +397,7 @@ int main()
     }
 
     std::printf("\n%d of %d recovered within 15 %%\n", good, cases);
-    const bool pass = ok && reliefOk && good == cases;
+    const bool pass = ok && pairOk && reliefOk && good == cases;
     std::printf("%s\n", pass ? "PASS" : "FAIL");
     return pass ? 0 : 1;
 }

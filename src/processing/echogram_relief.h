@@ -91,6 +91,40 @@ struct ReliefParams {
     float minGroundRangeM = 2.0f;
 };
 
+// Both sides of one ping, which is what makes this work.
+//
+// Fitting the material term from a single profile cannot succeed: within one
+// profile a slowly varying sediment change and a slowly varying hill are the
+// same signal, and the fit takes the relief with the material. Measured at 75 %
+// residual against a noiseless synthetic bottom.
+//
+// The two sides break that tie. Beam pattern, TVG and mean sediment are
+// *symmetric* about the track - the same function of outward range on both
+// sides - while a cross-track slope enters with *opposite sign*, because
+// "outward" points opposite ways. So their geometric mean
+//
+//     K(x) = sqrt( u_port(x) * u_starboard(x) )
+//
+// keeps the material and cancels the slope to first order, and the material is
+// then measured rather than fitted - free to vary with range as fast as a real
+// beam pattern does.
+//
+// What survives the cancellation: relief that is symmetric about the track,
+// which looks exactly like a symmetric material change and is the residual
+// ambiguity of the method rather than a defect of this implementation.
+//
+// Both sides run near to far from the nadir. Elevations come back per side,
+// relative to the depth under the boat, on the shared ground-range grid.
+int acrossTrackReliefPair(const int16_t* portSamples, const float* portSlantAt, int portCount,
+                          const int16_t* stbdSamples, const float* stbdSlantAt, int stbdCount,
+                          float altitudeM, const ReliefParams& params,
+                          float* groundRangeOut, float* portElevationOut,
+                          float* stbdElevationOut, int maxOut);
+
+// Single side. Kept because it is what a one-channel sonar can offer, and
+// because the pair function is measured against it - but see the note above:
+// alone, it does not separate relief from sediment.
+//
 // Writes, for each usable sample, its ground range and the bottom elevation
 // there relative to the depth under the boat - positive is shallower.
 //

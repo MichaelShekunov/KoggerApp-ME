@@ -143,24 +143,60 @@ That the anchoring makes it worse is the informative part. It says the error is
 not a constant offset the endpoints could absorb, but a shape error distributed
 along the profile.
 
+### Two sides, tried: better, and still not enough
+
+The obvious extra information is the second channel. Beam pattern, TVG and mean
+sediment are **symmetric** about the track — the same function of outward range
+on both sides — while a cross-track slope enters with **opposite sign**, because
+"outward" points opposite ways. So their geometric mean
+
+```
+K(x) = sqrt( u_port(x) * u_starboard(x) )
+```
+
+keeps the material and drops the slope, and the material is then *measured*
+rather than fitted: free to vary with range as fast as a real beam pattern does,
+with no smoothness assumption left for a hill to hide behind.
+
+`acrossTrackReliefPair` does exactly that. Against a scene whose material ripples
+with range faster than any low-order fit could follow:
+
+| method | residual |
+| --- | --- |
+| one side, fitted material | 122 % |
+| two sides, measured material | 97 % port, 102 % starboard |
+| **pure cross-track tilt, two sides** | **recovered 0.048 against a true 0.045** |
+
+The last row is the point. Work the algebra through and the geometric mean does
+not return each side's slope; it returns `(s_stbd - s_port)/2`. A cross-track
+tilt is antisymmetric, so it survives that whole — and it does, to 7 %. A bump
+sits on one side only, so half of it lands in `K` and the other half leaks into
+the opposite side, which is why localised features come back at roughly half
+amplitude and cross-contaminated.
+
+**And that settles it.** The component this recovers reliably is the cross-track
+tilt — which is precisely what the depths on the two survey lines already
+constrain. The component it cannot recover is the localised relief between them,
+which is the entire reason for filling the gap. A real improvement over one side,
+and an improvement to the wrong thing.
+
 ### What would have to change
 
-Not tuning. Three candidates, in the order I would try them:
+Not tuning. Two candidates left, in the order I would try them:
 
-- **Use both sides of the boat.** Port and starboard see the same seabed with
-  opposite slope sign, so a real slope flips sign between them while a sediment
-  change does not. That is an actual discriminator between the two things the
-  single-profile method cannot separate, and it needs no new data.
-- **Use the overlap between adjacent lines.** Where two swaths cover the same
-  ground from opposite directions, the same argument applies over a much longer
-  baseline, and the survey already produces the overlap.
+- **Use the overlap between adjacent lines.** This does not share the flaw above.
+  Two passes over the *same* ground see the same sediment — not a mirrored patch
+  of different sediment — so the material cancels exactly rather than on average,
+  and the slope still flips sign. The same discriminator, without the symmetry
+  assumption that broke the two-sided attempt. The survey already produces the
+  overlap.
 - **Solve the whole grid at once**, as a boundary-value problem over the mosaic
   with the bottom track as hard constraints, instead of integrating each profile
   independently and hoping the ends line up.
 
-The first two are the reason to keep this rather than delete it: the physics is
-right and the estimator is under-determined, which is a different problem from
-the physics being wrong.
+The physics is right and the estimator is under-determined. That is a different
+problem from the physics being wrong, and it is the reason to keep this rather
+than delete it.
 
 ## What is not built at all
 

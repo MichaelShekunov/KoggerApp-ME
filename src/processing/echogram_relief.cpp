@@ -23,6 +23,111 @@ float heightFromShadow(float groundRangeM, float shadowLengthM, float altitudeM)
     return shadowLengthM * altitudeM / (groundRangeM + shadowLengthM);
 }
 
+namespace {
+
+// One side, reduced to u = I/sin(phi) on its ground-range axis. This is the
+// quantity in which the material and the slope separate: u = K(x)*(1 + s*x/H).
+struct Side {
+    std::vector<float>  x;
+    std::vector<double> u;
+};
+
+bool prepareSide(const int16_t* samples, const float* slantAt, int count,
+                 float altitudeM, float minGroundRangeM, Side& out)
+{
+    if (!samples || !slantAt || count < 16) { return false; }
+    out.x.clear();
+    out.u.clear();
+    out.x.reserve(size_t(count));
+    out.u.reserve(size_t(count));
+
+    for (int i = 0; i < count; ++i) {
+        const float g = groundRange(slantAt[i], altitudeM);
+        if (g < minGroundRangeM) { continue; }
+        const double sinPhi = double(altitudeM)
+                            / std::sqrt(double(g) * double(g) + double(altitudeM) * double(altitudeM));
+        if (!(sinPhi > 1.0e-6)) { continue; }
+        out.x.push_back(g);
+        out.u.push_back(double(samples[i]) / sinPhi);
+    }
+    return out.x.size() >= 16;
+}
+
+// Linear sample of a side at an arbitrary ground range; both axes ascend.
+double sampleAt(const Side& s, float x)
+{
+    const int n = int(s.x.size());
+    if (n == 0) { return 0.0; }
+    if (x <= s.x.front()) { return s.u.front(); }
+    if (x >= s.x.back())  { return s.u.back(); }
+    const auto it = std::lower_bound(s.x.begin(), s.x.end(), x);
+    const int i = int(it - s.x.begin());
+    const float xa = s.x[size_t(i - 1)], xb = s.x[size_t(i)];
+    const double t = (xb > xa) ? double((x - xa) / (xb - xa)) : 0.0;
+    return s.u[size_t(i - 1)] * (1.0 - t) + s.u[size_t(i)] * t;
+}
+
+} // namespace
+
+
+int acrossTrackReliefPair(const int16_t* portSamples, const float* portSlantAt, int portCount,
+                          const int16_t* stbdSamples, const float* stbdSlantAt, int stbdCount,
+                          float altitudeM, const ReliefParams& params,
+                          float* groundRangeOut, float* portElevationOut,
+                          float* stbdElevationOut, int maxOut)
+{
+    if (!groundRangeOut || !portElevationOut || !stbdElevationOut || maxOut <= 0) { return 0; }
+    if (!(altitudeM > 0.0f)) { return 0; }
+
+    Side port, stbd;
+    if (!prepareSide(portSamples, portSlantAt, portCount, altitudeM, params.minGroundRangeM, port)) { return 0; }
+    if (!prepareSide(stbdSamples, stbdSlantAt, stbdCount, altitudeM, params.minGroundRangeM, stbd)) { return 0; }
+
+    // Shared outward grid: only where both sides actually reach, since the
+    // cancellation needs a partner at the same range.
+    const float x0 = std::max(port.x.front(), stbd.x.front());
+    const float x1 = std::min(port.x.back(),  stbd.x.back());
+    if (!(x1 > x0)) { return 0; }
+
+    const int n = std::min(maxOut, int(std::min(port.x.size(), stbd.x.size())));
+    if (n < 16) { return 0; }
+
+    float zPort = 0.0f, zStbd = 0.0f;
+    float prevX = x0;
+
+    for (int i = 0; i < n; ++i) {
+        const float x = x0 + (x1 - x0) * float(i) / float(n - 1);
+        const double up = sampleAt(port, x);
+        const double us = sampleAt(stbd, x);
+
+        // The material, measured rather than fitted. A cross-track slope raises
+        // one side by the same factor it lowers the other, so the geometric mean
+        // keeps K and drops the slope - no smoothness assumption, and therefore
+        // no way for the estimate to swallow a hill.
+        const double k = std::sqrt(std::max(up, 0.0) * std::max(us, 0.0));
+
+        float sp = 0.0f, ss = 0.0f;
+        if (k > 1.0e-6 && x > 0.0f) {
+            sp = std::clamp(float((up / k - 1.0) * double(altitudeM) / double(x)),
+                            -params.maxSlope, params.maxSlope);
+            ss = std::clamp(float((us / k - 1.0) * double(altitudeM) / double(x)),
+                            -params.maxSlope, params.maxSlope);
+        }
+
+        if (i > 0) {
+            const float dx = x - prevX;
+            if (dx > 0.0f) { zPort += sp * dx; zStbd += ss * dx; }
+        }
+        prevX = x;
+
+        groundRangeOut[i]    = x;
+        portElevationOut[i]  = zPort;
+        stbdElevationOut[i]  = zStbd;
+    }
+
+    return n;
+}
+
 int acrossTrackRelief(const int16_t* samples, const float* slantRangeAt, int count,
                       float altitudeM, const ReliefParams& params,
                       float* groundRangeOut, float* elevationOut, int maxOut)
