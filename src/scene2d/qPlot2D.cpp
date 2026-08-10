@@ -214,10 +214,12 @@ void qPlot2D::setPlot(Dataset *dataset) {
     if (dataset == nullptr || m_plot == dataset) { return; }
     if (m_plot != nullptr) {
         QObject::disconnect(m_plot, &Dataset::dataUpdate, this, &qPlot2D::dataUpdate);
+        QObject::disconnect(m_plot, &Dataset::chartAdded, this, &qPlot2D::onChartAdded);
     }
     m_plot = dataset;
     setDataset(dataset);
     connect(dataset, &Dataset::dataUpdate, this, &qPlot2D::dataUpdate, Qt::UniqueConnection);
+    connect(dataset, &Dataset::chartAdded, this, &qPlot2D::onChartAdded, Qt::UniqueConnection);
 //    connect(m_plot, &Dataset::updatedImage, this, [&] { updater(); });
 }
 
@@ -658,6 +660,10 @@ void qPlot2D::plotMousePosition(int x, int y, bool isSync)
         }
 
     }
+
+    // cursor_.mouseX/mouseY are already rotated into the horizontal frame by
+    // setMousePosition above.
+    sonifyAtCanvasPos(cursor_.mouseX, cursor_.mouseY);
 }
 
 void qPlot2D::simplePlotMousePosition(int x, int y) {
@@ -680,8 +686,215 @@ void qPlot2D::simplePlotMousePosition(int x, int y) {
 
 void qPlot2D::onCursorMoved(int x, int y)
 {
-    Plot2D::onCursorMoved(x >= 0 ? qRound(x * deviceScale_) : x,
-                          y >= 0 ? qRound(y * deviceScale_) : y);
+    const int sx = x >= 0 ? qRound(x * deviceScale_) : x;
+    const int sy = y >= 0 ? qRound(y * deviceScale_) : y;
+
+    // Sound first, repaint second. Plot2D::onCursorMoved ends in plotUpdate(),
+    // and the audio has nothing to gain by waiting behind a frame. Nothing here
+    // depends on that call: the lookup reads cursor_.indexes and the canvas,
+    // neither of which it touches.
+    //
+    // Plain hovering only ever reaches this slot - plotMousePosition is gated on
+    // a held mouse button - and Plot2D::onCursorMoved does not update
+    // cursor_.mouseX/mouseY, so rotate into the horizontal frame here.
+    if (sx < 0 || sy < 0) {
+        sonifyAtCanvasPos(-1, -1);
+    }
+    else if (_isHorizontal) {
+        sonifyAtCanvasPos(sx, sy);
+    }
+    else {
+        sonifyAtCanvasPos(canvas().width() - 1 - sy, sx);
+    }
+
+    Plot2D::onCursorMoved(sx, sy);
+}
+
+void qPlot2D::setSoundEnabled(bool state)
+{
+    if (state == soundEnabled()) {
+        return;
+    }
+
+    if (!state) {
+        if (sonifier_) {
+            sonifier_->setActive(false);
+        }
+        sonifiedEpochIndx_ = -1;
+        Q_EMIT soundEnabledChanged();
+        return;
+    }
+
+    if (!sonifier_) {
+        sonifier_ = new EchogramSonifier(this);
+    }
+    sonifier_->setFrequencyScale(static_cast<EchogramSonifier::FrequencyScale>(soundScale_));
+    sonifier_->setLevels(Plot2D::getEchogramLowLevel(), Plot2D::getEchogramHighLevel());
+    sonifier_->setActive(true);
+    sonifiedEpochIndx_ = -1;
+    sonifiedColumn_ = -1;
+    Q_EMIT soundEnabledChanged();
+}
+
+void qPlot2D::setSoundFrequencyScale(int scale)
+{
+    soundScale_ = scale == 1 ? 1 : 0;
+    if (sonifier_) {
+        sonifier_->setFrequencyScale(static_cast<EchogramSonifier::FrequencyScale>(soundScale_));
+    }
+}
+
+bool qPlot2D::liveColumnRecent() const
+{
+    return lastLiveColumn_.isValid() && lastLiveColumn_.elapsed() < 1500;
+}
+
+void qPlot2D::onChartAdded(uint64_t indx)
+{
+    if (!soundEnabled()) {
+        return;
+    }
+    lastLiveColumn_.restart();
+    sonifyEpoch(static_cast<int>(indx));
+}
+
+void qPlot2D::sonifyAtCanvasPos(int horizontalX, int horizontalY)
+{
+    if (!soundEnabled() || liveColumnRecent()) {
+        return;
+    }
+
+    const auto& indexes = cursor_.indexes;
+    const int limit = qMin(canvas().width(), int(indexes.size()));
+    const int column = horizontalX;
+
+    if (horizontalX < 0 || horizontalY < 0 || limit <= 0 || column >= limit || indexes[column] < 0) {
+        sonifier_->fadeOut();
+        sonifiedEpochIndx_ = -1;
+        sonifiedColumn_ = -1;
+        return;
+    }
+    if (column == sonifiedColumn_) {
+        return;
+    }
+    sonifiedColumn_ = column;
+
+    // Several columns can share one epoch, and sounding that epoch unchanged
+    // across all of them is what makes a sweep step rather than glide. Blend
+    // linearly between the centres of neighbouring runs instead: the weight then
+    // moves by 1/(centre distance) per column and is continuous across the seam.
+    auto runOf = [&indexes, limit](int c, int& first, int& last) {
+        const int e = indexes[c];
+        first = c;
+        while (first > 0 && indexes[first - 1] == e) { --first; }
+        last = c;
+        while (last + 1 < limit && indexes[last + 1] == e) { ++last; }
+    };
+
+    int first = 0, last = 0;
+    runOf(column, first, last);
+    const float centre = 0.5f * float(first + last);
+
+    int neighbourEpoch = -1;
+    float span = 0.0f;
+    const int probe = float(column) >= centre ? last + 1 : first - 1;
+    if (probe >= 0 && probe < limit && indexes[probe] >= 0) {
+        int nFirst = 0, nLast = 0;
+        runOf(probe, nFirst, nLast);
+        neighbourEpoch = indexes[probe];
+        span = 0.5f * float(nFirst + nLast) - centre;
+    }
+
+    constexpr int bins = EchogramSonifier::kBinCount;
+    int16_t column0[bins] = {};
+    if (!fillEpochColumn(indexes[column], column0, bins)) {
+        return;
+    }
+
+    if (neighbourEpoch >= 0 && !qFuzzyIsNull(span)) {
+        const float u = qBound(0.0f, (float(column) - centre) / span, 1.0f);
+        int16_t column1[bins] = {};
+        if (u > 0.0f && fillEpochColumn(neighbourEpoch, column1, bins)) {
+            for (int k = 0; k < bins; ++k) {
+                column0[k] = int16_t(qRound((1.0f - u) * float(column0[k]) + u * float(column1[k])));
+            }
+        }
+    }
+
+    sonifier_->setLevels(Plot2D::getEchogramLowLevel(), Plot2D::getEchogramHighLevel());
+    sonifier_->pushColumn(column0, bins);
+    sonifiedEpochIndx_ = indexes[column];
+}
+
+bool qPlot2D::fillEpochColumn(int epochIndx, int16_t* column, int bins)
+{
+    if (!datasetPtr_ || !cursor_.distance.isValid() || !column || bins <= 0) {
+        return false;
+    }
+
+    const int safeIndx = datasetPtr_->validIndex(epochIndx);
+    if (safeIndx < 0) {
+        return false;
+    }
+    auto* epoch = datasetPtr_->fromIndex(safeIndx);
+    if (!epoch) {
+        return false;
+    }
+
+    const float from = cursor_.distance.from;
+    const float to = cursor_.distance.to;
+    const int compensation = Plot2D::getEchogramCompensation();
+
+    if (cursor_.channel2 == channelNone()) {
+        epoch->chartTo(cursor_.channel1, cursor_.subChannel1, from, to, column, bins, compensation);
+    }
+    else {
+        // Same near/far split as Plot2DEchogram::updateCash, so a dual-channel
+        // echogram sounds the way it looks.
+        const float fullRange = to - from;
+        float range1 = 0.0f, from1 = 0.0f, to1 = 0.0f, from2 = 0.0f, to2 = 0.0f;
+        if (to >= 0.0f) {
+            range1 = 0.0f - from;
+            from1 = 0.0f;
+            to1 = -from;
+            from2 = from >= 0.0f ? from : 0.0f;
+            to2 = to;
+        }
+        else {
+            range1 = to - from;
+            from1 = -to;
+            to1 = -from;
+        }
+
+        int part1 = qFuzzyIsNull(fullRange) ? 0 : static_cast<int>(bins * (range1 / fullRange));
+        part1 = qBound(0, part1, bins);
+        if (part1 > 0) {
+            epoch->chartTo(cursor_.channel1, cursor_.subChannel1, from1, to1, column, part1, compensation, true);
+        }
+        const int part2 = bins - part1;
+        if (part2 > 0) {
+            epoch->chartTo(cursor_.channel2, cursor_.subChannel2, from2, to2, &column[part1], part2, compensation, false);
+        }
+    }
+
+    return true;
+}
+
+void qPlot2D::sonifyEpoch(int epochIndx)
+{
+    if (!soundEnabled()) {
+        return;
+    }
+
+    constexpr int bins = EchogramSonifier::kBinCount;
+    int16_t column[bins] = {};
+    if (!fillEpochColumn(epochIndx, column, bins)) {
+        return;
+    }
+
+    sonifier_->setLevels(Plot2D::getEchogramLowLevel(), Plot2D::getEchogramHighLevel());
+    sonifier_->pushColumn(column, bins);
+    sonifiedEpochIndx_ = epochIndx;
 }
 
 void qPlot2D::timerUpdater() {

@@ -1,5 +1,8 @@
 #include "plot2D_echogram.h"
 #include "plot2D.h"
+#include "echogram_deconvolution.h"
+
+#include <cmath>
 
 
 Plot2DEchogram::Plot2DEchogram()
@@ -244,6 +247,176 @@ void Plot2DEchogram::addReRenderPlotIndxs(const QSet<int> &indxs)
     reRenderPlotIndxs_.unite(indxs);
 }
 
+bool Plot2DEchogram::getDeconvEnabled() const { return deconvEnabled_; }
+
+void Plot2DEchogram::setDeconvEnabled(bool state)
+{
+    if (deconvEnabled_ == state) { return; }
+    deconvEnabled_ = state;
+    resetCash();
+}
+
+float Plot2DEchogram::getDeconvAngularResolution() const { return deconvAngularResolutionDeg_; }
+
+void Plot2DEchogram::setDeconvAngularResolution(float degrees)
+{
+    const float clamped = qBound(0.1f, degrees, 30.0f);
+    if (qFuzzyCompare(deconvAngularResolutionDeg_, clamped)) { return; }
+    deconvAngularResolutionDeg_ = clamped;
+    if (deconvEnabled_) { resetCash(); }
+}
+
+int Plot2DEchogram::getDeconvIterations() const { return deconvIterations_; }
+
+void Plot2DEchogram::setDeconvIterations(int iterations)
+{
+    const int clamped = qBound(1, iterations, 20);
+    if (deconvIterations_ == clamped) { return; }
+    deconvIterations_ = clamped;
+    if (deconvEnabled_) { resetCash(); }
+}
+
+bool Plot2DEchogram::applyDeconvolution(Plot2D* parent, Dataset* dataset, int width, int height, int wrapStartPos)
+{
+    if (!deconvEnabled_ || !parent || !dataset || width < 3 || height <= 0) {
+        return false;
+    }
+
+    auto& cursor = parent->cursor();
+    const float from = cursor.distance.from;
+    const float to   = cursor.distance.to;
+    if (!(to > from)) {
+        return false;
+    }
+
+    // Row -> slant range. The dual-channel column is laid out
+    // [far ch1 .. nadir][nadir .. far ch2], so its two halves run in opposite
+    // directions and a single linear ramp would be wrong for one of them.
+    deconvRange_.resize(height);
+    if (cursor.channel2 == channelNone()) {
+        for (int row = 0; row < height; ++row) {
+            const float d = from + (to - from) * (float(row) + 0.5f) / float(height);
+            deconvRange_[row] = std::fabs(d);
+        }
+    }
+    else {
+        const float fullrange = to - from;
+        const float range1 = (to >= 0.0f) ? (0.0f - from) : (to - from);
+        int part1 = int(float(height) * (range1 / fullrange));
+        part1 = qBound(0, part1, height);
+
+        const float near1 = 0.0f;
+        const float far1  = -from;
+        const float near2 = (from >= 0.0f) ? from : 0.0f;
+        const float far2  = to;
+
+        for (int row = 0; row < part1; ++row) {
+            // Written with reverse: row 0 is the far edge of channel 1.
+            const float t = (float(row) + 0.5f) / float(part1);
+            deconvRange_[row] = std::fabs(far1 + (near1 - far1) * t);
+        }
+        const int part2 = height - part1;
+        for (int row = part1; row < height; ++row) {
+            const float t = (float(row - part1) + 0.5f) / float(part2 > 0 ? part2 : 1);
+            deconvRange_[row] = std::fabs(near2 + (far2 - near2) * t);
+        }
+    }
+
+    // Columns in along-track order, i.e. with the display wrap undone, plus the
+    // navigation spacing between consecutive pings.
+    deconvScratch_.resize(width * height);
+    deconvColumns_.resize(width);
+    deconvSpacing_.resize(width);
+
+    auto nedOf = [](Epoch* epoch, double& n, double& e) -> bool {
+        if (!epoch) { return false; }
+        const Position sonar = epoch->getSonarPosition();
+        if (std::isfinite(sonar.ned.n) && std::isfinite(sonar.ned.e)) {
+            n = sonar.ned.n; e = sonar.ned.e; return true;
+        }
+        const Position gnss = epoch->getPositionGNSS();
+        if (std::isfinite(gnss.ned.n) && std::isfinite(gnss.ned.e)) {
+            n = gnss.ned.n; e = gnss.ned.e; return true;
+        }
+        return false;
+    };
+
+    bool havePrev = false;
+    double prevN = 0.0, prevE = 0.0;
+    int navCount = 0;
+
+    for (int i = 0; i < width; ++i) {
+        int column = i + wrapStartPos;
+        if (column >= width) { column -= width; }
+
+        int16_t* dst = deconvScratch_.data() + size_t(i) * size_t(height);
+        const auto& src = _cash[column].data;
+        if (src.size() == height) {
+            std::copy(src.constBegin(), src.constEnd(), dst);
+        }
+        else {
+            std::fill(dst, dst + height, int16_t(0));
+        }
+        deconvColumns_[i] = dst;
+
+        deconvSpacing_[i] = 0.0f;
+        double n = 0.0, e = 0.0;
+        const int poolIndex = _cash[column].poolIndex;
+        Epoch* epoch = poolIndex >= 0 ? dataset->fromIndex(poolIndex) : nullptr;
+        if (nedOf(epoch, n, e)) {
+            if (havePrev) {
+                const double dn = n - prevN;
+                const double de = e - prevE;
+                const float step = float(std::sqrt(dn * dn + de * de));
+                if (std::isfinite(step) && step > 0.0f) {
+                    deconvSpacing_[i] = step;
+                    ++navCount;
+                }
+            }
+            prevN = n; prevE = e; havePrev = true;
+        }
+        else {
+            havePrev = false;
+        }
+    }
+
+    echo_deconv::Params params;
+    params.angularResolutionDeg = deconvAngularResolutionDeg_;
+    params.iterations = deconvIterations_;
+
+    // With no navigation the kernel would have no metric to be sized against.
+    // One metre per ping keeps the control usable on recordings that carry no
+    // position - the angle then reads as "footprint in pings", not in metres.
+    const float fallbackSpacing = 1.0f;
+    const float* spacing = (navCount * 2 >= width) ? deconvSpacing_.constData() : nullptr;
+
+    const echo_deconv::Stats stats = echo_deconv::alongTrack(
+        deconvColumns_.data(), width, height,
+        deconvRange_.constData(), spacing, fallbackSpacing, params);
+
+    if (stats.rowsProcessed <= 0) {
+        return false;
+    }
+
+    // Whole image, not just the columns that changed: a deconvolved column
+    // depends on its neighbours, so any new ping invalidates the ones near it.
+    uint8_t* image_data = _image.bits();
+    const int b_scanline = _image.bytesPerLine();
+    for (int i = 0; i < width; ++i) {
+        int column = i + wrapStartPos;
+        if (column >= width) { column -= width; }
+
+        const int16_t* srcCol = deconvColumns_[i];
+        uint8_t* img_data = image_data + column;
+        for (int row = 0; row < height; ++row) {
+            *img_data = uint8_t(srcCol[row]);
+            img_data += b_scanline;
+        }
+    }
+
+    return true;
+}
+
 int Plot2DEchogram::updateCash(Plot2D* parent, Dataset* dataset, int width, int height)
 {
     auto& cursor = parent->cursor();
@@ -426,6 +599,8 @@ int Plot2DEchogram::updateCash(Plot2D* parent, Dataset* dataset, int width, int 
     }
 
     //qInfo("Cash validate %u", cash_validate);
+
+    applyDeconvolution(parent, dataset, width, height, wrap_start_pos);
 
     _lastCursor = cursor;
     _lastWidth = width;

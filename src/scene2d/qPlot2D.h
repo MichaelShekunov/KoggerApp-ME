@@ -6,7 +6,9 @@
 #include <QVariant>
 #include <dataset.h>
 #include <QTimer>
+#include <QElapsedTimer>
 #include "plot2D.h"
+#include "echogram_sonifier.h"
 
 //#define USE_PIXMAP
 
@@ -30,6 +32,7 @@ public:
     Q_PROPERTY(double  contactLon       READ getContactLon /*WRITE setContactLon*/ NOTIFY contactChanged)
     Q_PROPERTY(double  contactDepth     READ getContactDepth /*WRITE setContactLon*/ NOTIFY contactChanged)
     Q_PROPERTY(bool    contactIsActive  READ getContactIsActive NOTIFY contactChanged)
+    Q_PROPERTY(bool    soundEnabled     READ soundEnabled        WRITE setSoundEnabled    NOTIFY soundEnabledChanged)
 
     qPlot2D(QQuickItem* parent = nullptr);
     void paint(QPainter *painter) override;
@@ -141,6 +144,11 @@ public:
     }
     Q_INVOKABLE void setIndx(int indx) { indx_ = indx; }
 
+    bool soundEnabled() const { return sonifier_ != nullptr && sonifier_->active(); }
+    void setSoundEnabled(bool state);
+    Q_INVOKABLE void setSoundFrequencyScale(int scale);
+    Q_INVOKABLE int getSoundFrequencyScale() const { return soundScale_; }
+
 protected:
     Dataset* m_plot = nullptr;
     QTimer* m_updateTimer;
@@ -153,10 +161,12 @@ signals:
     void contactChanged();
     void plotHorizontalChanged();
     void plotEnabledChanged();
+    void soundEnabledChanged();
 
 protected slots:
     void timerUpdater();
     void dataUpdate() { plotUpdate(); }
+    void onChartAdded(uint64_t indx);
 
 public slots:
     void updater();
@@ -200,6 +210,13 @@ public slots:
     void plotEchogramVisible(bool visible) { setEchogramVisible(visible); }
     Q_INVOKABLE void plotEchogramTheme(int theme_id) { setEchogramTheme(theme_id); }
     Q_INVOKABLE void plotEchogramCompensation(int compensation_id) { setEchogramCompensation(compensation_id); }
+
+    Q_INVOKABLE void plotEchogramDeconvEnabled(bool state) { setEchogramDeconvEnabled(state); }
+    Q_INVOKABLE bool getEchogramDeconvEnabled() const { return Plot2D::getEchogramDeconvEnabled(); }
+    Q_INVOKABLE void plotEchogramDeconvAngularResolution(qreal degrees) { setEchogramDeconvAngularResolution(float(degrees)); }
+    Q_INVOKABLE qreal getEchogramDeconvAngularResolution() const { return qreal(Plot2D::getEchogramDeconvAngularResolution()); }
+    Q_INVOKABLE void plotEchogramDeconvIterations(int iterations) { setEchogramDeconvIterations(iterations); }
+    Q_INVOKABLE int getEchogramDeconvIterations() const { return Plot2D::getEchogramDeconvIterations(); }
     Q_INVOKABLE void updateBottomTrackProcessing();
     void plotBottomTrackVisible(bool visible) { setBottomTrackVisible(visible); }
     void plotBottomTrackTheme(int theme_id) { setBottomTrackTheme(theme_id); }
@@ -288,6 +305,17 @@ public slots:
     void setOffsetZ(float value);
 
 private:
+    bool fillEpochColumn(int epochIndx, int16_t* column, int bins);
+    void sonifyEpoch(int epochIndx);
+    void sonifyAtCanvasPos(int horizontalX, int horizontalY);
+    bool liveColumnRecent() const;
+
+    EchogramSonifier* sonifier_ = nullptr;
+    QElapsedTimer lastLiveColumn_;
+    int sonifiedEpochIndx_ = -1;
+    int sonifiedColumn_ = -1;
+    int soundScale_ = 0;
+
     int indx_ = -1;
     bool zoomPreviewMode_ = false;
     int zoomPreviewSourceSize_ = 44;

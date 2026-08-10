@@ -1,9 +1,9 @@
 # myEdition handoff
 
 Everything needed to pick this checkout up on a different machine without
-re-deriving it. Read this first; `build-windows-cli.md` and
-`echogram-sonification.md` are the depth. Accepted-but-unstarted ideas live in
-`backlog.md`.
+re-deriving it. Read this first; `build-windows-cli.md`,
+`echogram-sonification.md` and `echogram-deconvolution.md` are the depth.
+Accepted-but-unstarted ideas live in `backlog.md`.
 
 Written 2026-08-09.
 
@@ -151,8 +151,13 @@ authority; this is the intent behind each.
 | `qml/scene2d/Plot2D.qml` | speaker button in `settingsRow`, "Sound: log/linear" combo in the echogram settings, `onExited` on the MouseArea | the control surface |
 | `resources/icons.qrc` | `+ icons/ui/speakerphone.svg` | the file was on disk but not registered, so the icon would not load |
 | `scripts/win_deploy_windows_release.bat` | `-no-virtualkeyboard` → `--skip-plugin-types virtualkeyboard`, added an `errorlevel` check, `llvm_mingw` path now overridable and defaults to `D:\Qt` | the upstream script is broken on Qt 6.8.3, see field notes |
+| `CMakeLists.txt` | `+ add_subdirectory(src/processing)` | the deconvolution module |
+| `src/scene2d/plot2D_echogram.{h,cpp}` | deconvolution parameters and `applyDeconvolution`, run at the end of `updateCash` | where the along-track pass gets its 2D field |
+| `src/scene2d/plot2D.{h,cpp}` | `getEchogramDeconv*` / `setEchogramDeconv*` passthroughs | matches how compensation is plumbed |
+| `src/scene2d/qPlot2D.h` | `Q_INVOKABLE` deconvolution accessors | QML surface |
+| `qml/scene2d/Plot2D.qml` | "Deconvolution" row in the echogram settings: enable, Beam°, Iter | the control surface |
 
-The `.bat` change is the only edit that is not about the new feature. It is a
+The `.bat` change is the only edit that is not about a new feature. It is a
 genuine upstream bug and a candidate to report back.
 
 ### New
@@ -165,10 +170,28 @@ genuine upstream bug and a candidate to report back.
 | `scripts/win_build_release.ps1` | scripted configure + build |
 | `docs/build-windows-cli.md` | toolchain, install, build, how to debug a startup failure |
 | `docs/echogram-sonification.md` | the feature in detail |
+| `src/processing/echogram_deconvolution.{h,cpp}` | Richardson-Lucy along-track solver, no Qt in it |
+| `src/processing/CMakeLists.txt` | module glue, matches the `src/audio` pattern |
+| `tools/deconv_check/` | standalone program that measures what the deconvolution recovers |
+| `docs/echogram-deconvolution.md` | the feature in detail, with the measured envelope |
+| `docs/backlog.md` | accepted but unstarted ideas |
 | `docs/HANDOFF.md` | this file |
 
-`tools/sonifier_check` is a separate CMake project, not part of the application
-build. Nothing in the app references it.
+`tools/sonifier_check` and `tools/deconv_check` are separate CMake projects, not
+part of the application build. Nothing in the app references them. `deconv_check`
+needs no Qt at all, because the solver it tests has none.
+
+## Feature: echogram deconvolution
+
+Sharpens the echogram along the track by undoing the beam's footprint, which
+grows with range as `W(R) = 2*R*tan(theta/2)`. Richardson-Lucy, one dimension,
+one kernel per row, sized in metres from navigation. The angular resolution is
+typed in by the operator — no beam pattern lives in this repository.
+
+Restores almost all of a one-column smear and about a third of a 2.4-column one;
+past three columns the information is gone rather than attenuated, and no
+iteration count recovers it. Full description and the measured envelope in
+[echogram-deconvolution.md](echogram-deconvolution.md).
 
 ## Feature: echogram sonification
 

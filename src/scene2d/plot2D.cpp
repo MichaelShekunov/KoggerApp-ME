@@ -690,6 +690,33 @@ void Plot2D::setEchogramCompensation(int compensation_id) {
     plotUpdate();
 }
 
+bool Plot2D::getEchogramDeconvEnabled() const {
+    return echogram_.getDeconvEnabled();
+}
+
+void Plot2D::setEchogramDeconvEnabled(bool state) {
+    echogram_.setDeconvEnabled(state);
+    plotUpdate();
+}
+
+float Plot2D::getEchogramDeconvAngularResolution() const {
+    return echogram_.getDeconvAngularResolution();
+}
+
+void Plot2D::setEchogramDeconvAngularResolution(float degrees) {
+    echogram_.setDeconvAngularResolution(degrees);
+    plotUpdate();
+}
+
+int Plot2D::getEchogramDeconvIterations() const {
+    return echogram_.getDeconvIterations();
+}
+
+void Plot2D::setEchogramDeconvIterations(int iterations) {
+    echogram_.setDeconvIterations(iterations);
+    plotUpdate();
+}
+
 void Plot2D::setBottomTrackVisible(bool visible) {
     bottomProcessing_.setVisible(visible);
     plotUpdate();

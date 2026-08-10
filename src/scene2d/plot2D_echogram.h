@@ -40,6 +40,13 @@ public:
     void setCompensation(int compensation_id);
     void setWrapEnabled(bool state);
 
+    bool getDeconvEnabled() const;
+    void setDeconvEnabled(bool state);
+    float getDeconvAngularResolution() const;
+    void setDeconvAngularResolution(float degrees);
+    int getDeconvIterations() const;
+    void setDeconvIterations(int iterations);
+
     void updateColors();
 
     int updateCash(Plot2D* parent, Dataset* dataset, int width, int height);
@@ -81,6 +88,19 @@ protected:
     bool _flagColorChanged = true;
 
     int _compensation_id = 0;
+
+    // Deconvolution runs on a copy: _cash is reused between frames, and
+    // sharpening an already-sharpened column would compound every repaint.
+    bool  deconvEnabled_ = false;
+    float deconvAngularResolutionDeg_ = 1.0f;
+    int   deconvIterations_ = 8;
+    QVector<int16_t>  deconvScratch_;
+    QVector<int16_t*> deconvColumns_;
+    QVector<float>    deconvRange_;
+    QVector<float>    deconvSpacing_;
+
+    // Along-track order, display wrap undone. Returns false if nothing was done.
+    bool applyDeconvolution(Plot2D* parent, Dataset* dataset, int width, int height, int wrapStartPos);
 
     struct {
         bool resetCash = true;

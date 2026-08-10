@@ -112,6 +112,13 @@ public:
     void setEchogramTheme(int theme_id);
     void setEchogramCompensation(int compensation_id);
 
+    bool getEchogramDeconvEnabled() const;
+    void setEchogramDeconvEnabled(bool state);
+    float getEchogramDeconvAngularResolution() const;
+    void setEchogramDeconvAngularResolution(float degrees);
+    int getEchogramDeconvIterations() const;
+    void setEchogramDeconvIterations(int iterations);
+
     void setBottomTrackVisible(bool visible);
     void setBottomTrackTheme(int theme_id);
     void setBottomTrackDepthTextVisible(bool visible);

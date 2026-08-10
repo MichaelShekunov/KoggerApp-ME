@@ -61,7 +61,19 @@ any code.
 
 ## 2. Deconvolution against the beam pattern, using navigation and attitude
 
-Asked for 2026-08-10.
+Asked for 2026-08-10. **The incoherent half is built** — see
+[echogram-deconvolution.md](echogram-deconvolution.md). What remains open here is
+the coherent path, attitude compensation, and per-column kernel sizing; the rest
+of this entry is kept because it still frames those.
+
+The confidentiality question resolved itself the way the entry hoped: the beam
+width is typed in by the operator, so no pattern is stored in this repository.
+
+Worth carrying forward: the measured limit. Deconvolution restores almost all of
+a one-column smear and roughly a third of a 2.4-column one, and past about three
+columns the information is gone rather than attenuated. Anything in this list
+that expects sharpening to rescue the far edge of a wide beam should be costed
+against that table, not against hope.
 
 Sharpen the imagery by deconvolving the sonar's directivity out of it, in the
 spirit of a synthetic aperture: consecutive pings observe the same patch of

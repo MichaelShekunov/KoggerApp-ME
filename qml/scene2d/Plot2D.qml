@@ -534,6 +534,12 @@ WaterFall {
                 plot.handlePointerMove(mouse.buttons, mouse.x, mouse.y, Qt.Key_unknown)
             }
 
+            onExited: {
+                if (plot.soundEnabled) {
+                    plot.onCursorMoved(-1, -1)
+                }
+            }
+
             onWheel: function(wheel) {
                 plot.handlePointerWheel(wheel.buttons, wheel.x, wheel.y, wheel.angleDelta, wheel.modifiers, Qt.Key_unknown)
             }
@@ -735,6 +741,23 @@ WaterFall {
                     }
                 }
             }
+        }
+
+        KCircleIconButton {
+            id: echogramSoundButton
+            Layout.alignment: Qt.AlignHCenter
+            Layout.preferredWidth: plot.controlButtonSize
+            Layout.preferredHeight: plot.controlButtonSize
+            width: plot.controlButtonSize
+            height: plot.controlButtonSize
+            iconSource: "qrc:/icons/ui/speakerphone.svg"
+            iconTintColor: plot.soundEnabled ? AppPalette.accent : AppPalette.text
+            fillColor: plot.soundEnabled ? AppPalette.accentBg : AppPalette.card
+            fillHoverColor: AppPalette.cardHover
+            borderColor: AppPalette.accentBorder
+            borderWidth: plot.soundEnabled ? Tokens.cardBorderWidth : 0
+            toolTipText: plot.soundEnabled ? qsTr("Echogram sound: on") : qsTr("Echogram sound: off")
+            onClicked: plot.soundEnabled = !plot.soundEnabled
         }
 
         KCircleIconButton {
@@ -1080,6 +1103,99 @@ WaterFall {
                                 category: "scene2d/plot2d/" + plot.indx
 
                                 property alias echogramTypesList: echogramTypesList.currentIndex
+                            }
+                        }
+
+                        CCombo {
+                            id: echogramSoundScale
+                            Layout.preferredWidth: 150
+                            model: [qsTr("Sound: log"), qsTr("Sound: linear")]
+                            currentIndex: 0
+
+                            onCurrentIndexChanged: plot.setSoundFrequencyScale(currentIndex)
+                            Component.onCompleted: plot.setSoundFrequencyScale(currentIndex)
+
+                            Settings {
+                                category: "scene2d/plot2d/" + plot.indx
+
+                                property alias echogramSoundScale: echogramSoundScale.currentIndex
+                            }
+                        }
+                    }
+
+                    RowLayout {
+                        CText {
+                            Layout.fillWidth: true
+                            text: qsTr("Deconvolution")
+                        }
+
+                        CCheck {
+                            id: echogramDeconvEnabled
+                            text: qsTr("On")
+                            checked: false
+
+                            onCheckedChanged: plot.plotEchogramDeconvEnabled(checked)
+                            Component.onCompleted: plot.plotEchogramDeconvEnabled(checked)
+
+                            Settings {
+                                category: "scene2d/plot2d/" + plot.indx
+
+                                property alias echogramDeconvEnabled: echogramDeconvEnabled.checked
+                            }
+                        }
+
+                        CText {
+                            text: qsTr("Beam°")
+                        }
+
+                        SpinBoxCustom {
+                            id: echogramDeconvAngle
+                            enabled: echogramDeconvEnabled.checked
+                            // Tenths of a degree: SpinBox is integer-valued.
+                            from: 1
+                            to: 300
+                            stepSize: 1
+                            value: 10
+                            implicitWidth: theme.controlHeight*5
+
+                            textFromValue: function(value, locale) {
+                                return (value / 10).toFixed(1)
+                            }
+                            valueFromText: function(text, locale) {
+                                var n = parseFloat((text || "").toString().replace(",", "."))
+                                return isNaN(n) ? echogramDeconvAngle.value : Math.round(n * 10)
+                            }
+
+                            onValueChanged: plot.plotEchogramDeconvAngularResolution(value / 10)
+                            Component.onCompleted: plot.plotEchogramDeconvAngularResolution(value / 10)
+
+                            Settings {
+                                category: "scene2d/plot2d/" + plot.indx
+
+                                property alias echogramDeconvAngle: echogramDeconvAngle.value
+                            }
+                        }
+
+                        CText {
+                            text: qsTr("Iter")
+                        }
+
+                        SpinBoxCustom {
+                            id: echogramDeconvIterations
+                            enabled: echogramDeconvEnabled.checked
+                            from: 1
+                            to: 20
+                            stepSize: 1
+                            value: 8
+                            implicitWidth: theme.controlHeight*4
+
+                            onValueChanged: plot.plotEchogramDeconvIterations(value)
+                            Component.onCompleted: plot.plotEchogramDeconvIterations(value)
+
+                            Settings {
+                                category: "scene2d/plot2d/" + plot.indx
+
+                                property alias echogramDeconvIterations: echogramDeconvIterations.value
                             }
                         }
                     }
