@@ -41,22 +41,30 @@ struct Params {
     // Resample each row onto an even along-track grid before deconvolving, using
     // the measured footprint positions, and back afterwards.
     //
-    // On by default, but read this before trusting it. `deconv_check` blurs a
-    // scene in true pitch-perturbed geometry and asks both paths to undo it:
-    // assuming even pings gathers 90.9 % of a target's energy within one sigma
-    // of the truth, resampling gathers 88.5 %. An echogram carries barely one
-    // sample per sigma, so the round trip through interpolation costs more
-    // resolution than correcting the kernel width recovers - even with cubic
-    // interpolation, which was worth 6.6 points over linear.
+    // Off, on the evidence of two independent trials.
     //
-    // It ships on anyway, to be judged against real motion rather than against a
-    // synthetic swell that may flatter the even-ping assumption. The UI exposes
-    // it so the comparison can be made by eye; if it does not earn its place at
-    // sea, this is the line to change back.
+    // Synthetic: `deconv_check` blurs a scene in true pitch-perturbed geometry
+    // and asks both paths to undo it. Assuming even pings gathers 90.7 % of a
+    // target's energy within one sigma of the truth; resampling gathers 78.9 %.
+    // An echogram carries barely one sample per sigma, and a round trip through
+    // interpolation costs more resolution than correcting the kernel width
+    // recovers.
+    //
+    // Real data: it tore the far half of a recorded echogram. The pitch term
+    // scales with range, so at long range it crowded the footprint positions
+    // together and the interpolation went unstable - visible as a smear that
+    // began at a particular depth and worsened outward. That instability is
+    // fixed (see kMinStepFraction, and the interpolants), but fixing it removed
+    // the sharpness that made the synthetic numbers look close in the first
+    // place.
+    //
+    // Still exposed in the UI, because the honest fix - a spatially varying
+    // kernel applied in place, with the correct Richardson-Lucy adjoint and no
+    // resampling at all - would be judged against this switch.
     //
     // Positions still improve the pass when this is off: they set the kernel
     // width in real metres. This flag governs only the resampling.
-    bool compensateGeometry = true;
+    bool compensateGeometry = false;
 };
 
 // Result of one pass, for reporting and for tests.

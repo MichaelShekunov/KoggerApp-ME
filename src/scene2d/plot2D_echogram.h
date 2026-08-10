@@ -96,7 +96,7 @@ protected:
     bool  deconvEnabled_ = false;
     float deconvAngularResolutionDeg_ = 1.0f;
     int   deconvIterations_ = 8;
-    bool  deconvGeometry_ = true;
+    bool  deconvGeometry_ = false;
     QVector<int16_t>  deconvScratch_;
     QVector<int16_t*> deconvColumns_;
     QVector<float>    deconvRange_;

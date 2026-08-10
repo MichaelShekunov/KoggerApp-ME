@@ -15,6 +15,13 @@ constexpr float kEps        = 1.0e-3f;
 
 // Two-way narrowing: 1/sqrt(2). See footprintMetres.
 constexpr float kTwoWayNarrowing = 0.70710678f;
+
+// A row is only resampled if its closest pair of footprint positions is still
+// this fraction of the average apart. Interpolating through nodes that nearly
+// coincide produces wild excursions, and the pitch term crowds them together at
+// long range - so without this the far half of an echogram tears while the near
+// half looks correct.
+constexpr float kMinStepFraction = 0.25f;
 constexpr float kMaxValue   = 255.0f;
 
 // Replicate the edge rather than zero-padding: a dark border would be read as
@@ -52,27 +59,9 @@ void convolve(const std::vector<float>& src, std::vector<float>& dst,
     }
 }
 
-// Linear interpolation costs more than the geometry correction gains when the
-// signal carries barely one sample per sigma, which echograms routinely do. Both
-// resamplings are therefore cubic.
-
-// Four-point Lagrange through arbitrarily spaced nodes: the footprint positions
-// are not evenly spaced, which is the whole point of the exercise.
-inline float lagrange4(const float* xs, const float* ys, int i0, float x)
-{
-    float acc = 0.0f;
-    for (int i = 0; i < 4; ++i) {
-        float term = ys[i0 + i];
-        for (int j = 0; j < 4; ++j) {
-            if (i == j) { continue; }
-            const float den = xs[i0 + i] - xs[i0 + j];
-            if (std::fabs(den) < 1.0e-9f) { return ys[i0 + i]; }
-            term *= (x - xs[i0 + j]) / den;
-        }
-        acc += term;
-    }
-    return acc;
-}
+// Resampling: linear going onto the even grid, where node spacing is whatever
+// the vessel and the swell decided, and Catmull-Rom coming back off it, where
+// spacing is constant and a cubic is safe.
 
 // Catmull-Rom, for going back onto the even grid where spacing is constant.
 inline float catmullRom(float ym1, float y0, float y1, float y2, float t)
@@ -256,19 +245,25 @@ Stats alongTrack(int16_t* const* columns, int width, int height,
                     }
                     footprintX[size_t(c)] = x;
                 }
-                // Resampling needs the samples ordered. Pitch swinging faster
-                // than the vessel advances walks the footprint backwards, which
-                // is real and cannot be resampled away - fall back for that row.
+                // Ordered is not enough. The pitch term scales with range, so at
+                // long range it crowds neighbouring samples together, and an
+                // interpolation through nearly coincident nodes is unstable no
+                // matter how ordered they are - that is what smeared the far
+                // half of the image while the near half looked fine.
+                //
+                // Demand real separation, not merely positive separation.
+                const float span = footprintX[size_t(width - 1)] - footprintX[0];
+                const float mean = span / float(width - 1);
                 float minStep = footprintX[1] - footprintX[0];
                 for (int c = 2; c < width; ++c) {
                     minStep = std::min(minStep, footprintX[size_t(c)] - footprintX[size_t(c - 1)]);
                 }
-                if (!(minStep > 0.0f)) {
+                if (!(mean > 0.0f) || !(minStep > kMinStepFraction * mean)) {
                     rowSpatial = false;
                     ++out.rowsNonMonotonic;
                 }
                 else {
-                    step = (footprintX[size_t(width - 1)] - footprintX[0]) / float(width - 1);
+                    step = mean;
                 }
             }
             if (!(step > 0.0f)) {
@@ -322,13 +317,21 @@ Stats alongTrack(int16_t* const* columns, int width, int height,
             // the one the water performed. Both sequences ascend, so one march
             // through each is enough.
             if (rowSpatial) {
+                // Linear, on purpose. A cubic through unevenly spaced nodes is
+                // sharper when the nodes are well conditioned and catastrophic
+                // when they are not, and echogram geometry decides which without
+                // telling us. Linear cannot overshoot; the value always lies
+                // between its two neighbours.
                 const float x0 = footprintX[0];
                 int src = 0;
                 for (int j = 0; j < width; ++j) {
                     const float gx = x0 + float(j) * step;
                     while (src + 2 < width && footprintX[size_t(src + 1)] < gx) { ++src; }
-                    const int i0 = std::clamp(src - 1, 0, width - 4);
-                    resampled[size_t(j)] = lagrange4(footprintX.data(), observed.data(), i0, gx);
+                    const float xa = footprintX[size_t(src)];
+                    const float xb = footprintX[size_t(src + 1)];
+                    const float t  = (xb > xa) ? std::clamp((gx - xa) / (xb - xa), 0.0f, 1.0f) : 0.0f;
+                    resampled[size_t(j)] = observed[size_t(src)] * (1.0f - t)
+                                         + observed[size_t(src + 1)] * t;
                 }
                 std::copy(resampled.begin(), resampled.end(), observed.begin());
                 std::copy(resampled.begin(), resampled.end(), estimate.begin());

@@ -15,7 +15,7 @@ Echogram settings panel, under "Source data":
 | --- | --- |
 | Deconvolution, beam ° | toggle, plus the sonar's along-track angular resolution in degrees, 0.1 … 30.0 |
 | Deconvolution iterations | Richardson-Lucy iterations, 1 … 20, default 8; shown only while the toggle is on |
-| Compensate motion (position + pitch) | resample into the measured geometry rather than assuming even pings; on by default, shown only while the toggle is on |
+| Compensate motion (position + pitch) | resample into the measured geometry rather than assuming even pings; **off** by default, see below |
 
 Deconvolution itself is off by default. All three settings persist per plot
 under `scene2d/plot2d/<indx>`, like the theme and compensation settings beside
@@ -129,40 +129,53 @@ performed.
 
 `Params::compensateGeometry` resamples each row onto an even along-track grid
 built from the measured footprint positions, deconvolves there, and resamples
-back. It is **on by default**, and exposed in the panel as "Compensate motion
-(position + pitch)" so it can be switched off for comparison.
+back. It is **off by default**, and exposed in the panel as "Compensate motion
+(position + pitch)".
 
-It ships on despite the measurement below, which says it loses. The synthetic
-swell may flatter the even-ping assumption in a way real motion does not, and
-that can only be settled against a recording with live attitude. The switch is
-there so the comparison is one click rather than a rebuild.
+It was shipped on, tried against a real recording, and turned back off. Both
+trials say the same thing.
 
-`deconv_check` blurs a scene in true pitch-perturbed geometry (±2° at 40 m, a
-±1.4 m or ±2.8 column wander) and asks both paths to undo it, scoring by how much
-of a target's energy lands within one sigma of its true position:
+**Real data first, because it is the more interesting failure.** The far half of
+a recorded echogram tore into horizontal smear while the near half looked
+correct — the effect appeared to switch on at a particular depth. It did. The
+pitch term is `R·tan(pitch)`, proportional to range, so at long range it crowds
+neighbouring footprint positions together; the interpolation was running through
+nodes that nearly coincided, where a polynomial fit swings wildly. The guard at
+the time only demanded that positions be *ordered*, which a separation of a
+millimetre satisfies.
+
+Fixed two ways: `kMinStepFraction` now demands each gap be at least a quarter of
+the average before a row is resampled at all, and the interpolation onto the grid
+is linear rather than cubic — linear cannot overshoot, and echogram geometry
+decides node conditioning without telling us. Coming back off the grid is still
+Catmull-Rom, where spacing is constant and a cubic is safe.
+
+**Synthetic second.** `deconv_check` blurs a scene in true pitch-perturbed
+geometry (±2° at 40 m, a ±2.8 column wander) and asks both paths to undo it,
+scoring how much of a target's energy lands within one sigma of its true
+position:
 
 | path | energy within one sigma |
 | --- | --- |
-| assume even pings | **90.9 %** |
-| resample into measured geometry | 88.5 % |
+| assume even pings | **90.7 %** |
+| resample into measured geometry | 78.9 % |
 
-The resampling loses **on this synthetic case**. An echogram carries barely one
-sample per sigma, and a round trip through interpolation costs more resolution at
-that density than correcting the kernel width recovers. Cubic interpolation was
-worth 6.6 points over linear here (81.9 % → 88.5 %) and still did not close the
-gap. If it does not earn its place at sea either, the default is one line in
-`Params` and one `checked:` in the panel.
+The stable interpolation is blunter than the unstable one, so the gap widened
+once the tearing was fixed: the sharpness that made these numbers look close was
+the same overshoot that wrecked the real image.
 
-Two things follow, and they are worth keeping in view before anyone tries again:
+Two independent trials against, none in favour. Hence the default.
 
-- The honest fix is a spatially varying kernel applied in place, with the correct
-  adjoint for Richardson-Lucy, so no resampling happens at all. That is real work
-  rather than a tweak.
-- The larger prize from attitude is probably not a better kernel. It is
-  **un-wobbling the image itself**: pitch makes targets wander along the screen by
-  ±2.8 columns in the case above, and nothing here corrects that, because the
-  result is mapped back onto the same columns it came from. That is a
-  display-geometry feature, not a deconvolution one.
+The honest fix remains a **spatially varying kernel applied in place**, with the
+correct adjoint for Richardson-Lucy, so no resampling happens at all. That is
+real work rather than a tweak, and the switch stays in the UI so it has something
+to be judged against.
+
+Worth keeping in view separately: the larger prize from attitude is probably not
+a better kernel at all. It is **un-wobbling the image itself** — pitch walks
+targets along the screen by ±2.8 columns in the case above, and nothing here
+corrects that, because the result is mapped back onto the columns it came from.
+That is a display-geometry feature, not a deconvolution one.
 
 ## What this cannot do
 

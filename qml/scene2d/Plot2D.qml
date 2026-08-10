@@ -1186,7 +1186,7 @@ WaterFall {
                             id: echogramDeconvGeometry
                             enabled: echogramDeconvEnabled.checked
                             text: qsTr("Motion")
-                            checked: true
+                            checked: false
 
                             onCheckedChanged: plot.plotEchogramDeconvGeometry(checked)
                             Component.onCompleted: plot.plotEchogramDeconvGeometry(checked)
