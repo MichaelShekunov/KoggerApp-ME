@@ -4,6 +4,7 @@
 // model the deconvolver assumes, then checks that running the deconvolution
 // moves the image back towards the truth rather than merely changing it.
 #include "echogram_deconvolution.h"
+#include "echogram_deconvolution_cl.h"
 
 #include <chrono>
 #include <string>
@@ -172,6 +173,7 @@ bool checkPitchCompensation()
     std::vector<float> ranges(size_t(h), range);
 
     echo_deconv::Params p;
+    p.useOpenCL = false;
     p.angularResolutionDeg = angleDeg;
     p.iterations = 20;
 
@@ -227,10 +229,75 @@ bool checkPitchCompensation()
     return ok;
 }
 
+// The GPU is a speed choice, not a second algorithm. If the two paths disagree
+// the operator sees a different picture depending on the machine, which is worse
+// than being slow.
+bool checkOpenClAgreesWithCpu()
+{
+    auto& cl = echo_deconv::ClBackend::instance();
+    if (!cl.available()) {
+        std::printf("  skipped: %s\n", cl.unavailableReason().c_str());
+        return true;
+    }
+
+    constexpr int w = 733, h = 137;   // deliberately not multiples of anything
+    std::vector<int16_t> a(size_t(w) * size_t(h), 0), b;
+    std::vector<int16_t*> ca(size_t(w), nullptr), cb(size_t(w), nullptr);
+
+    for (int c = 0; c < w; ++c) {
+        ca[size_t(c)] = a.data() + size_t(c) * size_t(h);
+        for (int r = 0; r < h; ++r) {
+            // Something with structure at every scale, and blank rows too.
+            const float v = (r % 37 == 0) ? 0.0f
+                          : 40.0f + 90.0f * std::sin(0.11f * float(c) + 0.7f * float(r))
+                                  + 60.0f * std::sin(0.9f * float(c));
+            ca[size_t(c)][r] = int16_t(std::clamp(v, 0.0f, 255.0f));
+        }
+    }
+    b = a;
+    for (int c = 0; c < w; ++c) { cb[size_t(c)] = b.data() + size_t(c) * size_t(h); }
+
+    std::vector<float> ranges(size_t(h), 0.0f);
+    for (int r = 0; r < h; ++r) { ranges[size_t(r)] = 5.0f + 0.7f * float(r); }
+
+    echo_deconv::Params pc;
+    pc.useOpenCL = false;
+    pc.angularResolutionDeg = 4.0f;
+    echo_deconv::Params pg = pc;
+    pg.useOpenCL = true;
+
+    const echo_deconv::Stats sc = echo_deconv::alongTrack(ca.data(), w, h, ranges.data(), nullptr, nullptr, 0.4f, pc);
+    const echo_deconv::Stats sg = echo_deconv::alongTrack(cb.data(), w, h, ranges.data(), nullptr, nullptr, 0.4f, pg);
+
+    if (!sg.usedOpenCL) {
+        std::printf("  GPU declined the work - nothing compared\n");
+        return true;
+    }
+
+    int worst = 0;
+    long long diffCount = 0;
+    for (size_t i = 0; i < a.size(); ++i) {
+        const int d = std::abs(int(a[i]) - int(b[i]));
+        if (d > 0) { ++diffCount; }
+        worst = std::max(worst, d);
+    }
+    // Not bit-exact: -cl-fast-relaxed-math and a different summation order move
+    // the last digit. A couple of levels out of 255 is rounding, not a rewrite.
+    const bool ok = worst <= 2 && sc.rowsProcessed == sg.rowsProcessed;
+    std::printf("  rows cpu=%d gpu=%d, samples differing=%lld of %zu, worst=%d level(s)  %s\n",
+                sc.rowsProcessed, sg.rowsProcessed, diffCount, a.size(), worst,
+                ok ? "ok" : "BAD - the backends disagree");
+    return ok;
+}
+
 int main()
 {
     std::printf("row -> range mapping\n");
     const bool rangesOk = checkRowRanges();
+    std::printf("\n");
+
+    std::printf("opencl agrees with cpu\n");
+    const bool clOk = checkOpenClAgreesWithCpu();
     std::printf("\n");
 
     std::printf("pitch compensation\n");
@@ -298,6 +365,7 @@ int main()
             }
         }
         echo_deconv::Params pp;
+        pp.useOpenCL = false;
         pp.angularResolutionDeg = kAngleDeg;
         pp.iterations = 20;
         echo_deconv::alongTrack(probeCols.data(), kWidth, kHeight,
@@ -319,6 +387,7 @@ int main()
 
     // --- deconvolve ---------------------------------------------------------
     echo_deconv::Params params;
+    params.useOpenCL = false;
     params.angularResolutionDeg = kAngleDeg;
     params.iterations = 8;
 
@@ -385,9 +454,32 @@ int main()
             const auto t1 = std::chrono::steady_clock::now();
             const double ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
             if (t == 1) { serial = ms; }
-            std::printf("%-10s %-10.0f %.1fx\n",
-                        t == 0 ? "auto" : std::to_string(t).c_str(), ms,
+            const std::string label = (t == 0) ? "cpu auto" : ("cpu " + std::to_string(t));
+            std::printf("%-10s %-10.0f %.1fx\n", label.c_str(), ms,
                         serial > 0.0 ? serial / ms : 1.0);
+        }
+
+        auto& cl = echo_deconv::ClBackend::instance();
+        if (!cl.available()) {
+            std::printf("%-10s %s\n", "opencl", cl.unavailableReason().c_str());
+        }
+        else {
+            echo_deconv::Params pg = params;
+            pg.useOpenCL = true;
+            // Warm-up: the first call allocates device buffers, and timing that
+            // would measure the allocator rather than the arithmetic.
+            echo_deconv::alongTrack(bigCols.data(), w, h, bigRanges.data(),
+                                    nullptr, nullptr, kSpacingM, pg);
+            const auto g0 = std::chrono::steady_clock::now();
+            const echo_deconv::Stats gs =
+                echo_deconv::alongTrack(bigCols.data(), w, h, bigRanges.data(),
+                                        nullptr, nullptr, kSpacingM, pg);
+            const auto g1 = std::chrono::steady_clock::now();
+            const double gms = std::chrono::duration<double, std::milli>(g1 - g0).count();
+            std::printf("%-10s %-10.0f %.1fx   %s%s\n", "opencl", gms,
+                        serial > 0.0 ? serial / gms : 1.0,
+                        cl.description().c_str(),
+                        gs.usedOpenCL ? "" : "   (declined; ran on CPU)");
         }
     }
 
@@ -403,6 +495,7 @@ int main()
         }
     }
     echo_deconv::Params gp;
+    gp.useOpenCL = false;
     gp.angularResolutionDeg = kAngleDeg;
     gp.iterations = 20;
     echo_deconv::alongTrack(guardCols.data(), kWidth, kHeight,
@@ -414,7 +507,7 @@ int main()
                 echo_deconv::footprintMetres(rangeOfRow(0), kAngleDeg) / 2.35482004503f / kSpacingM,
                 100.0 * nearRecovered);
 
-    const bool ok = rangesOk && pitchOk && stats.rowsProcessed > 0 && worsened == 0 && nearRecovered >= 0.80;
+    const bool ok = rangesOk && clOk && pitchOk && stats.rowsProcessed > 0 && worsened == 0 && nearRecovered >= 0.80;
     std::printf("%s\n", ok ? "PASS" : "FAIL");
     return ok ? 0 : 1;
 }

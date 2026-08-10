@@ -241,19 +241,48 @@ cache is invalidated — a new ping, a scroll, a zoom, or a parameter change —
 on every frame. Real echograms are cheaper than the benchmark, because blank
 rows are skipped.
 
-### Why threads and not OpenCL
+### OpenCL
 
-The work is embarrassingly parallel by row, so a thread pool takes it from 103 ms
-to 9 ms with no new dependency. OpenCL would be the first GPU dependency in this
-application — there is none anywhere in `src/` today — and it brings a runtime
-ICD, a deployment story, and a failure path on machines whose ICD is
-misconfigured, which is not a rare state. At this size the transfer of a 3.2 MB
-field each way would also eat a visible share of the gain.
+There is a GPU path, and it produces a **bit-identical** image to the CPU one —
+`deconv_check` compares the two over 100421 samples and finds zero differing.
+That is the property that matters: the backend is a speed choice, not a second
+algorithm that would make the picture depend on the machine.
 
-If the pass ever needs to be faster than a thread pool can make it, the next
-lever is algorithmic rather than hardware: a recursive (IIR) Gaussian makes a
-blur cost the same regardless of sigma, removing the kernel-radius term that
-dominates at long range.
+Measured on the same 2000 x 800 window:
+
+| backend | ms | vs one core |
+| --- | --- | --- |
+| cpu, 1 thread | 84 | 1.0x |
+| cpu, 8 threads | 13 | 6.5x |
+| cpu, all cores (32) | 9 | 9.7x |
+| **opencl, RTX 5080** | **6** | **15.0x** |
+
+Note the shape of that: the GPU beats 32 CPU cores by well under 2x. The
+arithmetic is trivial for a modern GPU and the pass is dominated by moving a
+6.4 MB field across PCIe and back. It earns its place as headroom for heavier
+work — a spatially varying kernel, far more iterations, the backlog items that
+are GPU-shaped — rather than as a fix for this pass, which the thread pool had
+already brought inside a frame.
+
+**Nothing links OpenCL.** `OpenCL.dll` is opened with `LoadLibrary` when the pass
+first runs and its entry points are resolved by name, so the build needs no SDK,
+`windeployqt` carries nothing extra, and a machine without a runtime keeps the
+CPU path instead of failing to start. `Params::useOpenCL` is a preference: the
+backend declines what it cannot do — no runtime, no GPU device, or
+`compensateGeometry`, whose per-row resampling is sequential in a way the kernel
+is not — and the CPU path then runs unchanged.
+
+Device choice prefers a discrete GPU: `CL_DEVICE_HOST_UNIFIED_MEMORY` false wins
+over an integrated part, which would only be slower than the threads already in
+place.
+
+Headers are vendored from Khronos under Apache-2.0, one-way compatible with this
+project's GPL-3.0. See `third_party/opencl/README.md`, including why they are not
+taken from the CUDA toolkit that also ships them.
+
+If the pass ever needs to be faster still, the next lever is algorithmic rather
+than hardware: a recursive (IIR) Gaussian makes a blur cost the same regardless
+of sigma, removing the kernel-radius term that dominates at long range.
 
 ## Implementation
 

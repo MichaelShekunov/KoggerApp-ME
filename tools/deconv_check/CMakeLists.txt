@@ -12,6 +12,10 @@ set(KOGGER_PROCESSING_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../src/processing)
 add_executable(deconv_check
     main.cpp
     ${KOGGER_PROCESSING_DIR}/echogram_deconvolution.h
-    ${KOGGER_PROCESSING_DIR}/echogram_deconvolution.cpp)
+    ${KOGGER_PROCESSING_DIR}/echogram_deconvolution.cpp
+    ${KOGGER_PROCESSING_DIR}/echogram_deconvolution_cl.h
+    ${KOGGER_PROCESSING_DIR}/echogram_deconvolution_cl.cpp)
 
-target_include_directories(deconv_check PRIVATE ${KOGGER_PROCESSING_DIR})
+target_include_directories(deconv_check PRIVATE
+    ${KOGGER_PROCESSING_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../third_party/opencl)

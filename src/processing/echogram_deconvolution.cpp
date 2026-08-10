@@ -1,4 +1,5 @@
 #include "echogram_deconvolution.h"
+#include "echogram_deconvolution_cl.h"
 
 #include <algorithm>
 #include <cmath>
@@ -165,6 +166,18 @@ Stats alongTrack(int16_t* const* columns, int width, int height,
     }
     if (!(params.angularResolutionDeg > 0.0f) || params.iterations <= 0) {
         return stats;
+    }
+
+    // The GPU runs the same kernel widths and produces the same image; it
+    // declines anything it cannot do and the CPU path continues below.
+    if (params.useOpenCL) {
+        Stats gpu;
+        if (ClBackend::instance().alongTrack(columns, width, height, rangeAt,
+                                             alongTrackM, pitchRad,
+                                             fallbackSpacingM, params, gpu)) {
+            gpu.usedOpenCL = true;
+            return gpu;
+        }
     }
 
     // Spatial mode needs a position for every column: a hole in the middle would

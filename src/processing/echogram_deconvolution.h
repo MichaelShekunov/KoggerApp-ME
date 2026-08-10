@@ -65,6 +65,11 @@ struct Params {
     // Positions still improve the pass when this is off: they set the kernel
     // width in real metres. This flag governs only the resampling.
     bool compensateGeometry = false;
+
+    // Try the GPU first. It declines when there is no runtime, no GPU device, or
+    // the request needs something it does not implement, and the CPU path then
+    // runs unchanged - so this is a preference, never a requirement.
+    bool useOpenCL = true;
 };
 
 // Result of one pass, for reporting and for tests.
@@ -80,6 +85,9 @@ struct Stats {
 
     // Whether the pass used measured geometry at all, or assumed even pings.
     bool spatial = false;
+
+    // Whether the GPU took it, or the CPU did.
+    bool usedOpenCL = false;
 };
 
 // `columns` holds `width` pointers to `height` samples each, in *along-track
