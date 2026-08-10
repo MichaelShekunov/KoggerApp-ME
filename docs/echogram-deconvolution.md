@@ -17,8 +17,9 @@ Echogram settings panel, under "Source data":
 | Deconvolution iterations | Richardson-Lucy iterations, 1 … 20, default 8; shown only while the toggle is on |
 | Compensate motion (position + pitch) | resample into the measured geometry rather than assuming even pings; on by default, shown only while the toggle is on |
 
-Off by default. Both values persist per plot under `scene2d/plot2d/<indx>`, like
-the theme and compensation settings beside them.
+Deconvolution itself is off by default. All three settings persist per plot
+under `scene2d/plot2d/<indx>`, like the theme and compensation settings beside
+them.
 
 **Live and recorded data go through the same path.** The pass sits in
 `Plot2DEchogram::updateCash`, which builds the echogram image out of whatever the
@@ -37,7 +38,8 @@ controls hold the value and make the call; the panel is the face.
 So a control added only to `Plot2D.qml` works and persists but is invisible, which
 is exactly what happened first time round here. Adding one means three edits:
 the inline control, an alias in the view-state block (and its `_changeProbe`
-entry), and a row in `EchogramSettingsPanel.qml`.
+entry), and a row in `EchogramSettingsPanel.qml`. All three deconvolution
+controls went in that way.
 
 **The beam width is yours to supply.** Nothing in this application knows any
 device's directivity, and nothing here should: KoggerApp is open source, and a
@@ -95,7 +97,7 @@ control then reads as a footprint in pings rather than in metres — still usefu
 no longer physical. The requirement is every column, not most: a hole in the
 middle would splice two stretches of track together as though they were adjacent.
 
-### Pitch, and why the resampling is off by default
+### Pitch, and what the resampling is worth
 
 Pitch swings the beam fore and aft, moving the footprint by `R·tan(pitch)`
 *whether or not the vessel moves*. At 40 m, one degree is 0.7 m — easily more
