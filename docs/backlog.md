@@ -504,3 +504,94 @@ Two things worth settling before any of it:
 - **What it would be for.** The deconvolution does not need it: the RTX 5080
   beats 32 CPU threads by under 2x there, because the pass is transfer-bound
   rather than arithmetic-bound. More hardware does not fix a bandwidth limit.
+
+## 9. Relief from the side-scan image
+
+Asked for 2026-08-10.
+
+Infer bottom topography from a side-scan picture: darker reads as a slope facing
+away, lighter as ground facing the sonar, and the shadows behind obstacles are
+matched against their brightness to get height.
+
+### What exists today
+
+Bathymetry already has a home. `SurfaceProcessor` takes a `BottomTrack*` and
+feeds `surface_mesh`, with `isobaths_processor` and `surface_view` /
+`isobaths_view` drawing the result. So there is already a surface built from
+soundings — one depth per ping, at nadir — plus the mosaic beside it.
+
+That matters more than it looks, see "Anchoring" below.
+
+### The difficulty that decides whether this works
+
+**Intensity conflates geometry with material, and the image does not say which.**
+Dark can be a slope facing away, a shadow, soft mud, or the nadir gap. Bright can
+be a slope facing the sonar, or gravel, or rock, or a hard target on flat ground.
+A sand-to-mud boundary on a perfectly flat bottom produces exactly the brightness
+step that "darker = slope" reads as topography.
+
+So the naive mapping will produce a sediment map wearing the costume of a terrain
+map, and it will look plausible, which is the dangerous part. Anything built here
+needs a way to say how much of a given brightness change it attributes to slope
+rather than to bottom type — even if the answer is only a confidence band.
+
+**Before any of that: the image already has a systematic across-track brightness
+gradient** that has nothing to do with relief — beam pattern, grazing angle and
+TVG all vary with range. Reading it as slope would tilt the whole swath. That
+gradient has to be flattened first; the existing "Source data" compensation modes
+are the beginning of an answer rather than the whole of one.
+
+### Shadows are the stronger cue, and should come first
+
+The request names both mechanisms, and they are not equally reliable.
+
+**Shadow length is geometry**, nearly parameter-free. For an obstacle at slant
+range `R` casting a shadow of length `L`, with the sonar at altitude `H`:
+
+```
+h ≈ L * H / (R + L)
+```
+
+No reflectance model, no assumption about sediment. Altitude comes from the
+bottom track that is already computed. This gives quantitative heights for
+discrete objects — wrecks, boulders, pipelines — which is most of what an
+operator wants a height for.
+
+**Shading is ill-posed.** Recovering a surface from brightness needs a backscatter
+model, and the unknowns (sediment type, roughness) affect intensity more strongly
+than a few degrees of slope do.
+
+Recommendation: build the shadow measurement first. It is smaller, it is
+defensible, and it produces a number rather than an impression. Shape-from-shading
+then fills the continuous relief between the objects, with the shadows as
+calibration.
+
+### Anchoring
+
+Shape-from-shading recovers *gradients*, and integrating gradients drifts — error
+accumulates across the swath, so the far edge ends up metres out with nothing to
+catch it.
+
+The fix is already in the tree: the bottom track supplies a measured depth per
+ping. Use the existing surface as the low-frequency constraint and let the image
+supply only the high-frequency detail between soundings. That turns an
+unconstrained integration into an interpolation with known endpoints, which is a
+far better-behaved problem.
+
+### It would improve item 5
+
+Item 5 records that a side-scan sample maps to an arc, not a point, and that
+placing it as a point silently assumes a flat bottom. Real relief removes that
+assumption. If both are wanted, 9 before 5.
+
+### Open questions
+
+- Port and starboard see the same slope with opposite sign. Two channels
+  disagreeing is information, not a problem — but which is trusted where, and
+  what happens on overlapping passes, is a design decision.
+- Is the output a separate layer, or does it merge into the existing surface? The
+  second is more useful and much more dangerous, because inferred relief would
+  then be indistinguishable from measured soundings.
+- What is done where there is no shadow and no texture — flat, featureless mud
+  returns no shape information at all, and the honest output there is "unknown"
+  rather than "flat".
