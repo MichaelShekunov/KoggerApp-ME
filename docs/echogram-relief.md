@@ -87,25 +87,88 @@ formula and the detector agree with the geometry that produced the test. Real
 shadows have soft edges, the bottom is not flat, and the altitude carries its own
 error.
 
-## What is not built, and what it would need first
+## Filling between survey lines — attempted, not working
 
-Shape-from-shading — the continuous relief between objects — is not here.
+The intended use is specific: the bottom track gives depth only under the boat,
+so a surface built from it interpolates blindly between survey lines, while the
+swath covers that gap. `acrossTrackRelief` turns swath brightness into relief for
+that gap.
 
-Beyond being ill-posed, it has a prerequisite this does not: **the image already
-carries a systematic across-track brightness gradient** that has nothing to do
-with relief, from beam pattern, grazing angle and TVG together. Read as slope, it
-would tilt the entire swath. That gradient has to be flattened before brightness
-says anything about geometry, and the existing "Source data" compensation modes
-are the beginning of an answer rather than the whole of one.
+The model, for small slopes. With the sonar at altitude `H` and grazing angle
+`phi` at ground range `x`, brightness goes as `K(x) * (sin(phi) + s*cos(phi))`
+for an across-track slope `s = dz/dx`. Dividing out `sin(phi)`, which is known
+exactly from the altitude, leaves
 
-When it is attempted, it should be **anchored** rather than integrated free.
-Shape-from-shading recovers gradients, and integrating gradients drifts, so the
-far edge of a swath ends up metres out with nothing to catch it. `SurfaceProcessor`
-already builds a surface from bottom-track soundings; using it as the
-low-frequency constraint and letting brightness supply only the detail between
-soundings turns an unconstrained integration into an interpolation with known
-endpoints.
+```
+u = I / sin(phi) = K(x) * (1 + s*x/H)
+```
+
+so a sample's ratio to a fitted `K` gives `s = (r - 1) * H / x`, and `z` follows
+by integrating outward from the nadir.
+
+Note what `H/x` does: at the outer swath, where the beam grazes, the same
+brightness change means a far **smaller** slope, because grazing incidence is
+violently sensitive to slope. Omitting that factor exaggerates the outer swath,
+which is exactly where the fill matters most.
+
+### It does not yet work, and here is the number
+
+`relief_check` renders a bottom of known shape through that reflectance model
+with a constant material term — the most favourable case there is, no sediment
+change, no noise, nothing clipped — and asks for the shape back:
+
+| | recovered rms | true rms | residual |
+| --- | --- | --- | --- |
+| free integration | 0.37 m | 0.50 m | **75 %** |
+| tied to both survey lines | 0.71 m | 0.69 m | **102 %** |
+
+A residual near 100 % means the output carries about as much error as there is
+relief to find. It is not fit to drape a surface on, and it is not enabled
+anywhere in the application.
+
+The check **reports these rather than asserting them**. Gating on the figure
+would either block the shadow work that does pass, or invite tuning the threshold
+until it went green — which is the same as deleting the measurement.
+
+### Why, specifically
+
+The fit that removes the material term also removes relief. A quadratic in log
+range cannot tell a slowly varying sediment change from a slowly varying hill,
+because within one profile **they are the same signal**. What survives the fit
+integrates into a drift, and anchoring to the survey lines then tilts that drift
+rather than curing it — which is why the anchored figure is worse than the free
+one, not better.
+
+That the anchoring makes it worse is the informative part. It says the error is
+not a constant offset the endpoints could absorb, but a shape error distributed
+along the profile.
+
+### What would have to change
+
+Not tuning. Three candidates, in the order I would try them:
+
+- **Use both sides of the boat.** Port and starboard see the same seabed with
+  opposite slope sign, so a real slope flips sign between them while a sediment
+  change does not. That is an actual discriminator between the two things the
+  single-profile method cannot separate, and it needs no new data.
+- **Use the overlap between adjacent lines.** Where two swaths cover the same
+  ground from opposite directions, the same argument applies over a much longer
+  baseline, and the survey already produces the overlap.
+- **Solve the whole grid at once**, as a boundary-value problem over the mosaic
+  with the bottom track as hard constraints, instead of integrating each profile
+  independently and hoping the ends line up.
+
+The first two are the reason to keep this rather than delete it: the physics is
+right and the estimator is under-determined, which is a different problem from
+the physics being wrong.
+
+## What is not built at all
+
+Anything that writes into the surface. `SurfaceProcessor` builds the mesh from
+bottom-track soundings and nothing here touches it — deliberately, since feeding
+it a 100 %-residual estimate would make inferred relief indistinguishable from
+measured soundings inside the same surface.
 
 Backlog item 5 is also waiting on this: it records that a side-scan sample maps
 to an arc rather than a point unless a flat bottom is assumed. Measured relief
-removes that assumption.
+would remove that assumption; this estimate is not yet good enough to.

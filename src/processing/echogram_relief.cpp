@@ -23,6 +23,113 @@ float heightFromShadow(float groundRangeM, float shadowLengthM, float altitudeM)
     return shadowLengthM * altitudeM / (groundRangeM + shadowLengthM);
 }
 
+int acrossTrackRelief(const int16_t* samples, const float* slantRangeAt, int count,
+                      float altitudeM, const ReliefParams& params,
+                      float* groundRangeOut, float* elevationOut, int maxOut)
+{
+    if (!samples || !slantRangeAt || count < 16 || !groundRangeOut || !elevationOut) {
+        return 0;
+    }
+    if (!(altitudeM > 0.0f) || maxOut <= 0) {
+        return 0;
+    }
+
+    // Gather the usable stretch: outside the nadir exclusion, with a real return.
+    std::vector<float> x, v;
+    x.reserve(size_t(count));
+    v.reserve(size_t(count));
+    for (int i = 0; i < count; ++i) {
+        const float g = groundRange(slantRangeAt[i], altitudeM);
+        if (g < params.minGroundRangeM) { continue; }
+        x.push_back(g);
+        v.push_back(float(samples[i]));
+    }
+    const int n = int(x.size());
+    if (n < 16) { return 0; }
+
+    // Divide out the physics before fitting anything. Brightness goes as
+    // K(x) * (sin(phi) + s*cos(phi)), and sin(phi) = H/sqrt(x^2+H^2) is known
+    // exactly from the altitude - no fitting required. What is left,
+    //
+    //     u = I / sin(phi) = K(x) * (1 + s*x/H)
+    //
+    // separates cleanly: K carries TVG, beam pattern and sediment and varies
+    // slowly, while the relief term rides on it.
+    std::vector<double> u(size_t(n), 0.0);
+    for (int i = 0; i < n; ++i) {
+        const double sinPhi = double(altitudeM) / std::sqrt(double(x[size_t(i)]) * double(x[size_t(i)])
+                                                            + double(altitudeM) * double(altitudeM));
+        u[size_t(i)] = (sinPhi > 1.0e-6) ? double(v[size_t(i)]) / sinPhi : 0.0;
+    }
+
+    // Fit K as a low-order curve in log range - low order on purpose. A running
+    // mean wide enough to be a trend is also wide enough to swallow the broad
+    // relief that filling between survey lines is entirely about; a quadratic
+    // cannot follow a hill without being told to.
+    std::vector<double> logK(size_t(n), 0.0);
+    {
+        double s0 = 0, s1 = 0, s2 = 0, s3 = 0, s4 = 0, t0 = 0, t1 = 0, t2 = 0;
+        for (int i = 0; i < n; ++i) {
+            if (!(u[size_t(i)] > 0.0)) { continue; }
+            const double t = std::log(std::max(double(x[size_t(i)]), 1.0e-3));
+            const double y = std::log(u[size_t(i)]);
+            const double t_2 = t * t;
+            s0 += 1; s1 += t; s2 += t_2; s3 += t_2 * t; s4 += t_2 * t_2;
+            t0 += y; t1 += t * y; t2 += t_2 * y;
+        }
+        if (s0 < 8.0) { return 0; }
+
+        double m[3][4] = {{s0, s1, s2, t0}, {s1, s2, s3, t1}, {s2, s3, s4, t2}};
+        for (int c = 0; c < 3; ++c) {
+            int piv = c;
+            for (int r2 = c + 1; r2 < 3; ++r2) {
+                if (std::fabs(m[r2][c]) > std::fabs(m[piv][c])) { piv = r2; }
+            }
+            if (std::fabs(m[piv][c]) < 1.0e-12) { return 0; }
+            if (piv != c) { for (int k = 0; k < 4; ++k) { std::swap(m[c][k], m[piv][k]); } }
+            for (int r2 = 0; r2 < 3; ++r2) {
+                if (r2 == c) { continue; }
+                const double f = m[r2][c] / m[c][c];
+                for (int k = c; k < 4; ++k) { m[r2][k] -= f * m[c][k]; }
+            }
+        }
+        const double a0 = m[0][3] / m[0][0];
+        const double a1 = m[1][3] / m[1][1];
+        const double a2 = m[2][3] / m[2][2];
+        for (int i = 0; i < n; ++i) {
+            const double t = std::log(std::max(double(x[size_t(i)]), 1.0e-3));
+            logK[size_t(i)] = a0 + a1 * t + a2 * t * t;
+        }
+    }
+
+    std::vector<float> trend(size_t(n), 0.0f);
+    for (int i = 0; i < n; ++i) { trend[size_t(i)] = float(std::exp(logK[size_t(i)])); }
+
+    // Integrate the slope outward from the nadir, where the depth is known.
+    int written = 0;
+    float z = 0.0f;
+    for (int i = 0; i < n && written < maxOut; ++i) {
+        const float t = trend[size_t(i)];
+        float s = 0.0f;
+        if (t > 1.0e-3f && x[size_t(i)] > 0.0f) {
+            const float r = float(u[size_t(i)]) / t;   // 1 + s*x/H
+            s = (r - 1.0f) * altitudeM / x[size_t(i)];
+            s = std::clamp(s, -params.maxSlope, params.maxSlope);
+        }
+
+        if (i > 0) {
+            const float dx = x[size_t(i)] - x[size_t(i - 1)];
+            if (dx > 0.0f) { z += s * dx; }
+        }
+
+        groundRangeOut[written] = x[size_t(i)];
+        elevationOut[written]   = z;
+        ++written;
+    }
+
+    return written;
+}
+
 int findShadows(const int16_t* samples, const float* slantRangeAt, int count,
                 float altitudeM, const Params& params, Shadow* out, int maxOut)
 {

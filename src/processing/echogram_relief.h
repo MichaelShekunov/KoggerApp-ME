@@ -54,6 +54,52 @@ float groundRange(float slantRangeM, float altitudeM);
 // backscatter enters it, which is the whole appeal.
 float heightFromShadow(float groundRangeM, float shadowLengthM, float altitudeM);
 
+// ---------------------------------------------------------------------------
+// Across-track relief, for filling the gap between survey lines.
+//
+// The bottom track gives depth only under the boat, so a surface built from it
+// alone interpolates blindly between lines. The swath covers that gap; this
+// turns its brightness into the relief there.
+//
+// The slope model, for small slopes: with the sonar at altitude H and a grazing
+// angle phi at ground range x, brightness goes as sin(phi) + s*cos(phi) for a
+// across-track slope s = dz/dx. So a sample's ratio r to the local trend gives
+//
+//     s = (r - 1) * H / x
+//
+// and z comes from integrating s outward from the nadir, where the bottom track
+// already knows the depth.
+//
+// Note what H/x does: at the far edge, where the beam grazes, the same
+// brightness change means a far *smaller* slope, because grazing incidence is
+// violently sensitive to slope. Reading brightness as slope without that factor
+// exaggerates the outer swath, which is exactly where the fill matters most.
+
+struct ReliefParams {
+    // Width of the trend estimate, as a fraction of the profile. The trend
+    // carries beam pattern, TVG, mean grazing-angle falloff and mean sediment -
+    // everything that is not relief. Wider keeps more real relief in the
+    // residual and more artefact with it.
+    float trendFraction = 0.25f;
+
+    // Slopes beyond this are refused. Brightness that implies a cliff is far
+    // more likely to be a sediment boundary, and letting it through would put a
+    // step in the surface that looks like measurement.
+    float maxSlope = 0.6f;   // ~31 degrees
+
+    // As findShadows: nothing is inferred inside this ground range.
+    float minGroundRangeM = 2.0f;
+};
+
+// Writes, for each usable sample, its ground range and the bottom elevation
+// there relative to the depth under the boat - positive is shallower.
+//
+// Returns how many samples were written. The caller places these across track,
+// perpendicular to the heading, at the depth the bottom track gives for the ping.
+int acrossTrackRelief(const int16_t* samples, const float* slantRangeAt, int count,
+                      float altitudeM, const ReliefParams& params,
+                      float* groundRangeOut, float* elevationOut, int maxOut);
+
 // Finds shadows in one across-track profile running near to far.
 //
 // `samples` are 0..255 amplitudes; `slantRangeAt` gives each sample's slant
