@@ -106,6 +106,7 @@ GraphicsScene3dView::GraphicsScene3dView() :
     geoJsonController_(new GeoJsonController(this)),
     boatTrack_(std::make_shared<BoatTrack>(this, this)),
     m_bottomTrack(std::make_shared<BottomTrack>(this, this)),
+    reliefCloud_(std::make_shared<ReliefCloud>(this, this)),
     m_polygonGroup(std::make_shared<PolygonGroup>()),
     m_pointGroup(std::make_shared<PointGroup>()),
     m_coordAxes(std::make_shared<CoordinateAxes>()),
@@ -212,6 +213,7 @@ GraphicsScene3dView::GraphicsScene3dView() :
     geoJsonLayer_->setVisible(false);
     QObject::connect(boatTrack_.get(), &BoatTrack::changed, this, &QQuickFramebufferObject::update);
     QObject::connect(m_bottomTrack.get(), &BottomTrack::changed, this, &QQuickFramebufferObject::update);
+    QObject::connect(reliefCloud_.get(), &ReliefCloud::changed, this, &QQuickFramebufferObject::update);
     QObject::connect(m_polygonGroup.get(), &PolygonGroup::changed, this, &QQuickFramebufferObject::update);
     QObject::connect(m_pointGroup.get(), &PointGroup::changed, this, &QQuickFramebufferObject::update);
     QObject::connect(m_coordAxes.get(), &CoordinateAxes::changed, this, &QQuickFramebufferObject::update);
@@ -280,6 +282,25 @@ std::shared_ptr<BoatTrack> GraphicsScene3dView::getBoatTrackPtr() const
 std::shared_ptr<BottomTrack> GraphicsScene3dView::bottomTrack() const
 {
     return m_bottomTrack;
+}
+
+std::shared_ptr<ReliefCloud> GraphicsScene3dView::reliefCloud() const
+{
+    return reliefCloud_;
+}
+
+void GraphicsScene3dView::rebuildReliefCloud()
+{
+    if (reliefCloud_) {
+        reliefCloud_->rebuild();
+    }
+}
+
+void GraphicsScene3dView::clearReliefCloud()
+{
+    if (reliefCloud_) {
+        reliefCloud_->clearData();
+    }
 }
 
 //std::shared_ptr<IsobathsView> GraphicsScene3dView::getIsobathsViewPtr() const
@@ -2404,6 +2425,7 @@ void GraphicsScene3dView::setDataset(Dataset *dataset)
 
     boatTrack_->setDatasetPtr(datasetPtr_);
     m_bottomTrack->setDatasetPtr(datasetPtr_);
+    reliefCloud_->setDatasetPtr(datasetPtr_);
     contacts_->setDatasetPtr(datasetPtr_);
 
     forceUpdateDatasetLlaRef();
@@ -3448,6 +3470,9 @@ void GraphicsScene3dView::InFboRenderer::synchronize(QQuickFramebufferObject * f
     m_renderer->m_planeGridRenderImpl       = *(dynamic_cast<PlaneGrid::PlaneGridRenderImplementation*>(view->m_planeGrid->m_renderImpl));
     m_renderer->m_boatTrackRenderImpl       = *(dynamic_cast<BoatTrack::BoatTrackRenderImplementation*>(view->boatTrack_->m_renderImpl));
     m_renderer->m_bottomTrackRenderImpl     = *(dynamic_cast<BottomTrack::BottomTrackRenderImplementation*>(view->m_bottomTrack->m_renderImpl));
+    if (auto* rc = dynamic_cast<ReliefCloud::ReliefCloudRenderImplementation*>(view->reliefCloud_->m_renderImpl)) {
+        m_renderer->reliefCloudRenderImpl_ = *rc;
+    }
     //m_renderer->isobathsViewRenderImpl_     = *(dynamic_cast<IsobathsView::IsobathsViewRenderImplementation*>(view->isobathsView_->m_renderImpl));
     m_renderer->surfaceViewRenderImpl_      = *(dynamic_cast<SurfaceView::SurfaceViewRenderImplementation*>(view->surfaceView_->m_renderImpl));
     m_renderer->imageViewRenderImpl_        = *(dynamic_cast<ImageView::ImageViewRenderImplementation*>(view->imageView_->m_renderImpl));

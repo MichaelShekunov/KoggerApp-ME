@@ -2,6 +2,7 @@ target_sources(KoggerApp PRIVATE
     barycentric_interpolator.h
     boat_track.h            boat_track.cpp
     bottom_track.h          bottom_track.cpp
+    relief_cloud.h          relief_cloud.cpp
     boundary_detector.h
     circle.h
     contour.h               contour.cpp

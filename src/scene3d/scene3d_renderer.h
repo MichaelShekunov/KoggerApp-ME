@@ -3,6 +3,7 @@
 #include "coordinate_axes.h"
 #include "plane_grid.h"
 #include "bottom_track.h"
+#include "relief_cloud.h"
 //#include "isobaths_view.h"
 #include "surface_view.h"
 #include "image_view.h"
@@ -72,6 +73,7 @@ private:
     ImageView::ImageViewRenderImplementation imageViewRenderImpl_;
     MapView::MapViewRenderImplementation mapViewRenderImpl_;
     Contacts::ContactsRenderImplementation contactsRenderImpl_;
+    ReliefCloud::ReliefCloudRenderImplementation reliefCloudRenderImpl_;
     GeoJsonLayer::GeoJsonLayerRenderImplementation geoJsonLayerRenderImpl_;
     RulerTool::RulerToolRenderImplementation rulerToolRenderImpl_;
     BottomTrack::BottomTrackRenderImplementation m_bottomTrackRenderImpl;

@@ -221,6 +221,7 @@ void GraphicsScene3dRenderer::drawObjects()
         surfaceViewRenderImpl_.render(this,      m_projection * view * m_model, m_shaderProgramMap);
         //isobathsViewRenderImpl_.render(this,     m_model, view, m_projection, m_shaderProgramMap);
         m_bottomTrackRenderImpl.render(this,     m_model, view, m_projection, m_shaderProgramMap);
+        reliefCloudRenderImpl_.render(this,      m_projection * view * m_model, m_shaderProgramMap);
         m_boatTrackRenderImpl.render(this,       m_model, view, m_projection, m_shaderProgramMap);
         glDisable(GL_DEPTH_TEST);
 

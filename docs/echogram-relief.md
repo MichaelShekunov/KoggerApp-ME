@@ -254,3 +254,39 @@ ordinary scene: the container exists, its contents do not.
 Nor is there anything to put in it yet. The estimate this pane is for still
 returns 97–102 % residual. The window was built first deliberately, so that
 improving the estimate has somewhere to be looked at.
+
+### The point cloud
+
+`ReliefCloud` (`src/scene3d/domain/relief_cloud.{h,cpp}`) is a `SceneObject`
+holding one point per usable across-track sample, drawn as `GL_POINTS`. The base
+`SceneObject::RenderImplementation` already draws `m_data` with `m_primitiveType`
+through the flat-colour shader, so a cloud needs no renderer of its own.
+
+Per ping, at `pingStride` intervals — a survey holds far more pings than a cloud
+needs:
+
+- **Altitude** from `Epoch::distProccesing()`. Without a bottom under the boat
+  there is no datum to hang relief from, so the ping is skipped.
+- **Position** from `Position::ned`, and **heading** from `tryRetValidYaw()`.
+  Heading decides which way "across track" points; without it the cloud would
+  smear along whatever direction the last valid ping happened to have, which
+  looks like relief and is not. A ping missing either is skipped rather than
+  guessed at.
+- **Elevation** from `echo_relief::acrossTrackRelief` on that channel's profile,
+  added to the bottom-track depth.
+
+The first two channels of an epoch become the two sides, mirrored about the
+heading.
+
+It carries `SceneObjectType::Unknown` on purpose. The type enum is shared with
+hit-testing and the object menus, and giving this an enumerator would let an
+estimate into places that assume measured geometry.
+
+`rebuildReliefCloud()` walks the whole dataset, so it runs when a 2/3D pane
+appears rather than on data arrival, and `clearReliefCloud()` runs when one goes
+away — an ordinary 3D pane is never left with an estimate floating in it.
+
+**What this shows is still the 97–102 % estimate.** The cloud is honest about
+where it puts points; it is not honest about their height, and it cannot be until
+the estimate improves. It exists so that improving it has somewhere to be looked
+at.

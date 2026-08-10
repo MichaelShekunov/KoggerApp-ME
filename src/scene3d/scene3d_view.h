@@ -17,6 +17,7 @@
 #include "contacts.h"
 #include "boat_track.h"
 #include "bottom_track.h"
+#include "relief_cloud.h"
 #include "polygon_group.h"
 #include "point_group.h"
 #include "ray.h"
@@ -216,6 +217,13 @@ public:
     Renderer *createRenderer() const override;
     std::shared_ptr<BoatTrack> getBoatTrackPtr() const;
     std::shared_ptr<BottomTrack> bottomTrack() const;
+    std::shared_ptr<ReliefCloud> reliefCloud() const;
+
+    // Builds the side-scan relief point cloud from the whole dataset. Called
+    // from the 2/3D pane on demand: it walks every ping, so it is not something
+    // to hang off a data-arrival signal.
+    Q_INVOKABLE void rebuildReliefCloud();
+    Q_INVOKABLE void clearReliefCloud();
     //std::shared_ptr<IsobathsView> getIsobathsViewPtr() const;
     std::shared_ptr<SurfaceView> getSurfaceViewPtr() const;
     std::shared_ptr<ImageView> getImageViewPtr() const;
@@ -421,6 +429,7 @@ private:
     GeoJsonController* geoJsonController_{nullptr};
     std::shared_ptr<BoatTrack> boatTrack_;
     std::shared_ptr<BottomTrack> m_bottomTrack;
+    std::shared_ptr<ReliefCloud> reliefCloud_;
     std::shared_ptr<PolygonGroup> m_polygonGroup;
     std::shared_ptr<PointGroup> m_pointGroup;
     std::shared_ptr<CoordinateAxes> m_coordAxes;

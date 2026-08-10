@@ -29,6 +29,7 @@ Item {
     // ordinary scene.
     property bool reliefOnly: false
 
+
     readonly property var scene3dView: workspaceRoot ? workspaceRoot.scene3dViewItem : null
 
     Item {
@@ -400,7 +401,15 @@ Item {
         workspaceRoot.active3DPane = root
     }
 
-    Component.onCompleted: { syncHostRegistration(); syncActive3DPane() }
+    // The cloud is built from the whole dataset, so it is built when a 2/3D pane
+    // appears rather than continuously - walking every ping is not something to
+    // hang off a data-arrival signal.
+    Component.onCompleted: {
+        syncHostRegistration()
+        syncActive3DPane()
+        if (root.reliefOnly && root.scene3dView)
+            root.scene3dView.rebuildReliefCloud()
+    }
     onWorkspaceRootChanged: { syncHostRegistration(); syncActive3DPane() }
     onLeafIdChanged: syncHostRegistration()
 
@@ -410,5 +419,9 @@ Item {
         }
         if (workspaceRoot && workspaceRoot.active3DPane === root)
             workspaceRoot.active3DPane = null
+        // Cleared on the way out, so an ordinary 3D pane is never left with an
+        // estimate floating in it.
+        if (root.reliefOnly && root.scene3dView)
+            root.scene3dView.clearReliefCloud()
     }
 }
