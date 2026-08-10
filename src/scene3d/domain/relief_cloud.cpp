@@ -1,5 +1,6 @@
 #include "relief_cloud.h"
 
+#include <QDebug>
 #include <QOpenGLFunctions>
 #include <QtMath>
 
@@ -49,6 +50,11 @@ void ReliefCloud::setDatasetPtr(Dataset* datasetPtr)
     datasetPtr_ = datasetPtr;
 }
 
+bool ReliefCloud::hasPoints() const
+{
+    return !cdata().isEmpty();
+}
+
 void ReliefCloud::setPingStride(int stride)
 {
     pingStride_ = qBound(1, stride, 512);
@@ -90,19 +96,29 @@ void ReliefCloud::rebuild()
 
     echo_relief::ReliefParams params;
 
+    // Counted rather than guessed at: a cloud that comes back empty should say
+    // which requirement the data failed, not leave it to be inferred from an
+    // empty scene.
+    int considered = 0, noEpoch = 0, noAltitude = 0, noPosition = 0, noHeading = 0;
+    int noChannels = 0, noProfile = 0, noRelief = 0;
+
     for (int i = 0; i < epochCount; i += pingStride_) {
+        ++considered;
         Epoch* epoch = datasetPtr_->fromIndex(i);
         if (!epoch) {
+            ++noEpoch;
             continue;
         }
 
         const double altitude = epoch->distProccesing();
         if (!std::isfinite(altitude) || altitude < double(minAltitudeM_) || altitude > double(maxAltitudeM_)) {
+            ++noAltitude;
             continue; // no bottom under the boat means no datum to hang relief from
         }
 
         const Position pos = epoch->getPositionGNSS();
         if (!std::isfinite(pos.ned.n) || !std::isfinite(pos.ned.e)) {
+            ++noPosition;
             continue;
         }
 
@@ -111,6 +127,7 @@ void ReliefCloud::rebuild()
         // have, which looks like relief and is not.
         const float yawDeg = epoch->tryRetValidYaw();
         if (!std::isfinite(yawDeg)) {
+            ++noHeading;
             continue;
         }
         const double yawRad = qDegreesToRadians(double(yawDeg));
@@ -120,6 +137,7 @@ void ReliefCloud::rebuild()
 
         // Each channel of the epoch is one side of the swath.
         const QList<ChannelId> channels = epoch->chartChannels();
+        if (channels.isEmpty()) { ++noChannels; }
         int side = 0;
         for (const ChannelId& channelId : channels) {
             if (side >= 2) { break; }
@@ -128,6 +146,7 @@ void ReliefCloud::rebuild()
             const float to   = float(altitude) * 8.0f;
 
             if (!epoch->chartTo(channelId, 0, from, to, profile.data(), kProfileSamples, 0)) {
+                ++noProfile;
                 continue;
             }
             for (int s = 0; s < kProfileSamples; ++s) {
@@ -138,6 +157,7 @@ void ReliefCloud::rebuild()
                                                           float(altitude), params,
                                                           gx.data(), gz.data(), kProfileSamples);
             if (n <= 0) {
+                ++noRelief;
                 continue;
             }
 
@@ -152,6 +172,13 @@ void ReliefCloud::rebuild()
             }
         }
     }
+
+    qInfo("ReliefCloud: %d points from %d pings of %d (stride %d). Rejected -"
+          " no epoch %d, no altitude %d, no position %d, no heading %d,"
+          " no channels %d, no profile %d, no relief %d",
+          int(points.size()), considered - noEpoch - noAltitude - noPosition - noHeading,
+          epochCount, pingStride_,
+          noEpoch, noAltitude, noPosition, noHeading, noChannels, noProfile, noRelief);
 
     setData(points, GL_POINTS);
 }

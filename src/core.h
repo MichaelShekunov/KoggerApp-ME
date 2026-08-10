@@ -99,6 +99,10 @@ public:
     void consoleProto(FrameParser& parser, bool isIn = true);
     void saveLLARefToSettings();
     Q_INVOKABLE void saveCameraViewToSettings();
+
+    // Side-scan relief point cloud (backlog item 9). Building walks every ping,
+    // so it happens when the layer is switched on, not as data arrives.
+    Q_INVOKABLE void setReliefCloudVisible(bool state);
     void removeLinkManagerConnections();
 #ifdef SEPARATE_READING
     void removeDeviceManagerConnections();

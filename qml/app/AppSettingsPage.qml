@@ -1120,6 +1120,25 @@ Column {
         }
     }
 
+    // Relief cloud (side-scan brightness -> point cloud). Its own layer, never
+    // merged into the mosaic or the surface: this is an estimate, those are
+    // measurement, and once they share a surface nothing tells them apart.
+    SettingsGroup {
+        id: reliefCloudGroup
+        visible: instruments >= 1
+        width: root.groupWidth
+        preferredWidth: root.groupWidth
+        title: qsTr("Relief cloud")
+        description: qsTr("Seabed relief inferred from side-scan brightness, as a point cloud. An estimate, not a survey.")
+        stateStore: root.store
+        stateKey: "app.reliefCloud"
+        headerActions: ShowIn3DAction {
+            active: root.store ? root.store.reliefCloudVisible : false
+            onClicked: if (root.store) root.store.reliefCloudVisible = !root.store.reliefCloudVisible
+        }
+        collapsedByDefault: true
+    }
+
     // Isobaths
     SettingsGroup {
         id: isobathsGroup

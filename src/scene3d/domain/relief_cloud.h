@@ -35,6 +35,7 @@ public:
     SceneObjectType type() const override;
 
     void setDatasetPtr(Dataset* datasetPtr);
+    bool hasPoints() const;
 
     // How many pings to skip between profiles. A survey holds far more pings
     // than a point cloud needs, and every one of them costs samples.

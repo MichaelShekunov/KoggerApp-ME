@@ -1214,6 +1214,26 @@ void Core::setFixBlackStripesBackwardSteps(int val)
     emit fixBlackStripesBackwardStepsChanged();
 }
 
+void Core::setReliefCloudVisible(bool state)
+{
+    if (!scene3dViewPtr_) {
+        return;
+    }
+    auto cloud = scene3dViewPtr_->reliefCloud();
+    if (!cloud) {
+        return;
+    }
+
+    cloud->setVisible(state);
+    if (state) {
+        // Built here rather than on data arrival: the builder walks every ping.
+        scene3dViewPtr_->rebuildReliefCloud();
+    }
+    else {
+        scene3dViewPtr_->clearReliefCloud();
+    }
+}
+
 void Core::setBottomTrackRealtimeFromSettings(bool state)
 {
     if (dataProcessor_) {

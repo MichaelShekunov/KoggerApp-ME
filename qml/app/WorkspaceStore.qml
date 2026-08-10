@@ -808,11 +808,13 @@ property Settings scene3dLayerVisibility: Settings {
     property bool bottomTrackCheckButton: false
     property bool isobathsCheckButton: false
     property bool mosaicViewCheckButton: false
+    property bool reliefCloudCheckButton: false
 }
 property alias boatTrackVisible:   scene3dLayerVisibility.boatTrackCheckButton
 property alias bottomTrackVisible: scene3dLayerVisibility.bottomTrackCheckButton
 property alias isobathsVisible:    scene3dLayerVisibility.isobathsCheckButton
 property alias mosaicVisible:      scene3dLayerVisibility.mosaicViewCheckButton
+property alias reliefCloudVisible: scene3dLayerVisibility.reliefCloudCheckButton
 
 // Interface pref: hide echogram-settings controls whose data type isn't in the
 // dataset (default on). Toggled from the Interface settings group.
@@ -1064,6 +1066,10 @@ function applyBottomTrackRealtimeToCore() {
         return
     core.setBottomTrackRealtimeFromSettings(bottomTrackVisible)
 }
+// Building the cloud walks every ping, so it is tied to the switch rather than
+// to data arrival. Off clears it, so nothing is left floating in the scene.
+onReliefCloudVisibleChanged: core.setReliefCloudVisible(reliefCloudVisible)
+
 onIsobathsVisibleChanged: {
     if (isobathsVisible) surfaceLayersRefreshRequested()
     IsobathsViewControlMenuController.onProcessStateChanged(isobathsVisible)

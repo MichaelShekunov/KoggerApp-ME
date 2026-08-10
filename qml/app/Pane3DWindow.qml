@@ -407,8 +407,6 @@ Item {
     Component.onCompleted: {
         syncHostRegistration()
         syncActive3DPane()
-        if (root.reliefOnly && root.scene3dView)
-            root.scene3dView.rebuildReliefCloud()
     }
     onWorkspaceRootChanged: { syncHostRegistration(); syncActive3DPane() }
     onLeafIdChanged: syncHostRegistration()
@@ -419,9 +417,5 @@ Item {
         }
         if (workspaceRoot && workspaceRoot.active3DPane === root)
             workspaceRoot.active3DPane = null
-        // Cleared on the way out, so an ordinary 3D pane is never left with an
-        // estimate floating in it.
-        if (root.reliefOnly && root.scene3dView)
-            root.scene3dView.clearReliefCloud()
     }
 }
