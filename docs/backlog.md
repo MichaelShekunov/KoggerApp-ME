@@ -390,3 +390,80 @@ written, not carved out afterwards.
   property or something owned by `Core`.
 - Should locking also suppress the settings panels and dialogs, or only the
   chart interactions?
+
+## 7. Voice commands
+
+Asked for 2026-08-10 (raised as item 8 in the request sequence).
+
+The operator says "частота 500" and the application sets the sonar's transmit
+frequency to 500 kHz, then confirms out loud.
+
+### The two halves are not equally hard
+
+**Speaking is solved.** `qtspeech` is available for the `win64_llvm_mingw` kit —
+confirmed against `aqt list-qt --modules 6.8.3 win64_llvm_mingw` — so
+`QTextToSpeech` costs one more module in the install line, one `find_package`
+component, and nothing else. It is not in the current kit; it would have to be
+added.
+
+**Listening is not.** Qt has no speech recognition, in this kit or in any module
+Qt ships. That half needs an external engine, and it must be **offline**: a boat
+has no connectivity to depend on, and streaming deck audio to a cloud service is
+a question nobody wants to answer. Offline means a model file, in Russian, and
+the portable package is 139 MB today. This is the first dependency in this fork
+that would not come from Qt, and it should be chosen deliberately rather than by
+whichever demo works first.
+
+### What exists to command
+
+The path is already there and already public: `DevDriver::setTransFreq(int freq)`
+and `sendTranscSetup(const ChannelId&, uint16_t freq, uint8_t pulse, uint8_t boost)`
+in `src/device/dev_driver.h`. Nothing confidential has to be added to drive a
+sonar from this application — the protocol is in the open-source tree already.
+
+Note the signature: the command is *per channel*. "Частота 500" does not say which
+one. On a multi-channel device the utterance is incomplete, and the resolution —
+active channel, all channels, or an obligatory channel word — has to be decided.
+
+### The thing that makes this risky rather than fun
+
+**A misrecognition writes to the hardware.** "Частота 500" heard as "частота 100"
+changes the sonar's operating point, on a deck, with engine noise and wind, from
+a speaker who may be shouting.
+
+Confirming *afterwards* — which is how the request is phrased — narrates the
+mistake rather than preventing it. The aviation pattern is read-back before
+execution: the application says "частота 500, подтвердите", and acts on "да".
+That costs a second per command and removes almost the whole class. Whether every
+command deserves it or only the transmit parameters is a real decision; changing
+a display range is not changing what the transducer does.
+
+Two levers matter more than engine choice:
+
+- **A closed grammar, not dictation.** A fixed vocabulary of command words plus
+  numbers is dramatically more robust in noise than open transcription, and it can
+  be checked against what the device will actually accept before anything is sent.
+  `freq` is a `uint16_t`; range-check before transmit, not after.
+- **Push-to-talk, not always listening.** An open microphone on a working deck
+  will fire on crew conversation. A held key or button also gives the operator an
+  unambiguous way to not be heard.
+
+### Interactions with the rest of this list
+
+- **Audio contention.** The sonifier already owns an output stream. Speech output
+  has to mix with it or duck it, and if item 3 ever happens the operator is
+  wearing headphones full of water noise — the confirmation has to cut through
+  that deliberately, not compete with it. Microphone input alongside speaker
+  output on the same device also invites the application hearing itself.
+- **Item 6.** If the interface is locked, is the voice channel still live?
+  Answering "yes" makes voice the way to work with a locked screen, which is
+  arguably the best reason for either feature to exist. Answering "no" is also
+  defensible. It should be answered on purpose.
+
+### Open questions
+
+- Which engine, and what does its Russian model cost in package size and in
+  startup time?
+- Is the confirmation a spoken read-back, a spoken acknowledgement, or both?
+- What is the vocabulary? Writing the full command list down first will show
+  whether this is ten utterances or a hundred.
