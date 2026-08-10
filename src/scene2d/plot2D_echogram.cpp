@@ -289,38 +289,13 @@ bool Plot2DEchogram::applyDeconvolution(Plot2D* parent, Dataset* dataset, int wi
         return false;
     }
 
-    // Row -> slant range. The dual-channel column is laid out
-    // [far ch1 .. nadir][nadir .. far ch2], so its two halves run in opposite
-    // directions and a single linear ramp would be wrong for one of them.
+    // Row -> slant range. Lives in the processing module so deconv_check can
+    // test it: the dual-channel layout is easy to get subtly wrong, and wrong
+    // here is invisible - the image still looks like an echogram.
     deconvRange_.resize(height);
-    if (cursor.channel2 == channelNone()) {
-        for (int row = 0; row < height; ++row) {
-            const float d = from + (to - from) * (float(row) + 0.5f) / float(height);
-            deconvRange_[row] = std::fabs(d);
-        }
-    }
-    else {
-        const float fullrange = to - from;
-        const float range1 = (to >= 0.0f) ? (0.0f - from) : (to - from);
-        int part1 = int(float(height) * (range1 / fullrange));
-        part1 = qBound(0, part1, height);
-
-        const float near1 = 0.0f;
-        const float far1  = -from;
-        const float near2 = (from >= 0.0f) ? from : 0.0f;
-        const float far2  = to;
-
-        for (int row = 0; row < part1; ++row) {
-            // Written with reverse: row 0 is the far edge of channel 1.
-            const float t = (float(row) + 0.5f) / float(part1);
-            deconvRange_[row] = std::fabs(far1 + (near1 - far1) * t);
-        }
-        const int part2 = height - part1;
-        for (int row = part1; row < height; ++row) {
-            const float t = (float(row - part1) + 0.5f) / float(part2 > 0 ? part2 : 1);
-            deconvRange_[row] = std::fabs(near2 + (far2 - near2) * t);
-        }
-    }
+    echo_deconv::rowRanges(from, to, height,
+                           cursor.channel2 != channelNone(),
+                           deconvRange_.data());
 
     // Columns in along-track order, i.e. with the display wrap undone, plus the
     // navigation spacing between consecutive pings.

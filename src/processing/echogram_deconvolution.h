@@ -57,4 +57,17 @@ Stats alongTrack(int16_t* const* columns, int width, int height,
 // Exposed for tests: the along-track footprint in metres at a slant range.
 float footprintMetres(float rangeM, float angularResolutionDeg);
 
+// Slant range per row, `height` entries, for the echogram's column layout.
+//
+// Single channel: rows run linearly from `from` to `to`.
+//
+// Dual channel (side-scan): the visible window is signed and the column is
+// [far ch1 .. nadir][nadir .. far ch2] - Plot2DEchogram writes the first half
+// with chartTo's `reverse`, so row 0 is the *far* edge of channel 1 and the
+// nadir sits at the seam. Range therefore falls to the seam and rises again.
+// Both halves are absolute slant ranges; the sign only says which side.
+//
+// Mirrors the split in Plot2DEchogram::updateCash. If that changes, this must.
+void rowRanges(float from, float to, int height, bool dualChannel, float* out);
+
 } // namespace echo_deconv

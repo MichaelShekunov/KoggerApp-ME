@@ -68,6 +68,55 @@ float footprintMetres(float rangeM, float angularResolutionDeg)
 }
 
 
+void rowRanges(float from, float to, int height, bool dualChannel, float* out)
+{
+    if (!out || height <= 0) {
+        return;
+    }
+
+    if (!dualChannel) {
+        for (int row = 0; row < height; ++row) {
+            const float d = from + (to - from) * (float(row) + 0.5f) / float(height);
+            out[row] = std::fabs(d);
+        }
+        return;
+    }
+
+    const float fullrange = to - from;
+    if (!(fullrange > 0.0f)) {
+        for (int row = 0; row < height; ++row) { out[row] = 0.0f; }
+        return;
+    }
+
+    // Channel 1 spans [from1, to1] and is written reversed, so row 0 holds to1.
+    // With the whole window on one side (to < 0) it starts at -to, not at the
+    // nadir - there is no nadir in view to start from.
+    const float range1 = (to >= 0.0f) ? (0.0f - from) : (to - from);
+    const float near1  = (to >= 0.0f) ? 0.0f : -to;
+    const float far1   = -from;
+
+    int part1 = int(float(height) * (range1 / fullrange));
+    if (part1 < 0)      { part1 = 0; }
+    if (part1 > height) { part1 = height; }
+
+    for (int row = 0; row < part1; ++row) {
+        const float t = (float(row) + 0.5f) / float(part1);
+        out[row] = std::fabs(far1 + (near1 - far1) * t);
+    }
+
+    const int part2 = height - part1;
+    if (part2 <= 0) {
+        return;
+    }
+    const float near2 = (from >= 0.0f) ? from : 0.0f;
+    const float far2  = to;
+    for (int row = part1; row < height; ++row) {
+        const float t = (float(row - part1) + 0.5f) / float(part2);
+        out[row] = std::fabs(near2 + (far2 - near2) * t);
+    }
+}
+
+
 Stats alongTrack(int16_t* const* columns, int width, int height,
                  const float* rangeAt, const float* spacingM,
                  float fallbackSpacingM, const Params& params)

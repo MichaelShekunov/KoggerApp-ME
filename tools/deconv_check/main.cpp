@@ -62,8 +62,61 @@ double rmse(const std::vector<float>& a, const std::vector<float>& b)
 } // namespace
 
 
+// Row -> range for the side-scan column layout. Checked separately because a
+// mistake here is invisible: the image still looks like an echogram, it is just
+// sharpened with the wrong kernel.
+bool checkRowRanges()
+{
+    bool ok = true;
+    constexpr int h = 200;
+    std::vector<float> r(size_t(h), 0.0f);
+
+    auto near = [](float a, float b, float tol) { return std::fabs(a - b) <= tol; };
+
+    // Single channel, 5 m to 60 m: monotonically increasing, endpoints in range.
+    echo_deconv::rowRanges(5.0f, 60.0f, h, false, r.data());
+    for (int i = 1; i < h; ++i) {
+        if (r[size_t(i)] < r[size_t(i - 1)]) { ok = false; }
+    }
+    if (!near(r[0], 5.0f, 0.5f) || !near(r[size_t(h - 1)], 60.0f, 0.5f)) { ok = false; }
+    std::printf("  single  [5..60]      row0=%.1f  rowN=%.1f  %s\n",
+                r[0], r[size_t(h - 1)], ok ? "ok" : "BAD");
+
+    // Side-scan, both sides visible: far port -> nadir -> far starboard, so the
+    // range falls to a minimum near the seam and rises again.
+    echo_deconv::rowRanges(-50.0f, 50.0f, h, true, r.data());
+    int minAt = 0;
+    for (int i = 1; i < h; ++i) {
+        if (r[size_t(i)] < r[size_t(minAt)]) { minAt = i; }
+    }
+    const bool seamCentred = minAt > h / 2 - 5 && minAt < h / 2 + 5;
+    const bool endsFar = near(r[0], 50.0f, 1.0f) && near(r[size_t(h - 1)], 50.0f, 1.0f);
+    if (!seamCentred || !endsFar) { ok = false; }
+    std::printf("  dual    [-50..50]    row0=%.1f  nadir at row %d of %d  rowN=%.1f  %s\n",
+                r[0], minAt, h, r[size_t(h - 1)], (seamCentred && endsFar) ? "ok" : "BAD");
+
+    // Side-scan scrolled entirely onto one side: no nadir in view. Channel 1
+    // covers [-to, -from], so the range runs 40 -> 10 and never reaches zero.
+    echo_deconv::rowRanges(-40.0f, -10.0f, h, true, r.data());
+    const bool oneSided = near(r[0], 40.0f, 1.0f) && near(r[size_t(h - 1)], 10.0f, 1.0f);
+    bool descends = true;
+    for (int i = 1; i < h; ++i) {
+        if (r[size_t(i)] > r[size_t(i - 1)] + 1.0e-3f) { descends = false; }
+    }
+    if (!oneSided || !descends) { ok = false; }
+    std::printf("  dual    [-40..-10]   row0=%.1f  rowN=%.1f  monotone=%s  %s\n",
+                r[0], r[size_t(h - 1)], descends ? "yes" : "no",
+                (oneSided && descends) ? "ok" : "BAD");
+
+    return ok;
+}
+
 int main()
 {
+    std::printf("row -> range mapping\n");
+    const bool rangesOk = checkRowRanges();
+    std::printf("\n");
+
     // --- truth, then the smeared observation -------------------------------
     std::vector<std::vector<float>> truth(size_t(kHeight),
                                           std::vector<float>(size_t(kWidth), kBackground));
@@ -232,7 +285,7 @@ int main()
                 echo_deconv::footprintMetres(rangeOfRow(0), kAngleDeg) / 2.35482004503f / kSpacingM,
                 100.0 * nearRecovered);
 
-    const bool ok = stats.rowsProcessed > 0 && worsened == 0 && nearRecovered >= 0.80;
+    const bool ok = rangesOk && stats.rowsProcessed > 0 && worsened == 0 && nearRecovered >= 0.80;
     std::printf("%s\n", ok ? "PASS" : "FAIL");
     return ok ? 0 : 1;
 }

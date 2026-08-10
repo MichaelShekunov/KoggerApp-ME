@@ -127,18 +127,41 @@ When the pass runs it rewrites the whole image rather than the changed columns,
 because a deconvolved column depends on its neighbours: one new ping invalidates
 everything within a kernel radius of it.
 
-Row-to-range mapping accounts for the dual-channel layout
-`[far ch1 … nadir][nadir … far ch2]`, whose halves run in opposite directions. A
-single linear ramp would be wrong for one of them, and wrong in the way that is
-hardest to notice: plausible, and mirrored.
+## Side-scan
+
+Dual-channel side-scan is the case this helps most — along-track smear is
+exactly what limits a side-scan image — and it needs no separate mode. One pass
+serves both channels, because both are sampled along the same track and the
+kernel depends only on the range at a given row.
+
+The layout is `[far ch1 … nadir][nadir … far ch2]`: `Plot2DEchogram::updateCash`
+writes the first half through `chartTo`'s `reverse`, so row 0 is the *far* edge of
+channel 1 and the nadir sits at the seam. Range falls to the seam and rises
+again, and both halves are absolute slant ranges — the sign only says which side.
+Kernel width follows that curve, so the sharpening is strongest at the nadir and
+weakest at both outer edges, which is what the geometry demands.
+
+Range is *slant* range throughout, which is what the footprint formula wants: the
+beam's angular spread projects at the distance the sound actually travelled, not
+at its horizontal ground projection.
+
+That mapping lives in `echo_deconv::rowRanges` rather than in the echogram, so
+`deconv_check` can test it without Qt. It is there because getting it wrong is
+invisible: the picture still looks like an echogram, it is merely sharpened with
+the wrong kernel. One case was in fact wrong on the first pass — with the window
+scrolled entirely onto one side (`to < 0`) channel 1 covers `[-to, -from]`, not
+`[0, -from]`, so the ranges ran down to zero through a nadir that was not on
+screen. The regression test covers all three cases: single channel, both sides,
+and one side only.
 
 ## Verifying it
 
-`tools/deconv_check` is a standalone program with no Qt dependency. It builds a
-synthetic scene of point targets, smears it with the forward model, deconvolves,
-and asserts that every row moved closer to the truth and that a one-column smear
-recovers at least 80 % of the peak. It prints the recovery table above and the
-cost measurement.
+`tools/deconv_check` is a standalone program with no Qt dependency. It asserts
+three things: that the row-to-range mapping is right for all three window layouts
+(single channel, side-scan with both sides, side-scan on one side only); that
+every row of a deconvolved test scene moved closer to the truth; and that a
+one-column smear recovers at least 80 % of a point target's peak. It prints the
+recovery table above and the cost measurement.
 
 ```
 cmake -S tools/deconv_check -B build/deconv_check -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=D:/Qt/Tools/llvm-mingw1706_64/bin/clang++.exe
