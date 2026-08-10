@@ -411,11 +411,22 @@ Item {
         // fairly. The mode now means something: it switches the relief layer on.
         // The layer toggle in Settings stays the owner - this only flips it -
         // so there is still one place that decides, not two.
-        if (root.reliefOnly && workspaceRoot && workspaceRoot.store
-            && !workspaceRoot.store.reliefCloudVisible) {
-            workspaceRoot.store.reliefCloudVisible = true
+        if (root.reliefOnly && workspaceRoot && workspaceRoot.store) {
+            var s = workspaceRoot.store
+            root._savedMosaic   = s.mosaicVisible
+            root._savedIsobaths = s.isobathsVisible
+            root._savedLayers   = true
+            s.mosaicVisible     = false
+            s.isobathsVisible   = false
+            s.reliefCloudVisible = true
         }
     }
+
+    // What 2/3D suppressed, so leaving it does not silently cost the operator
+    // their mosaic.
+    property bool _savedLayers: false
+    property bool _savedMosaic: false
+    property bool _savedIsobaths: false
     onWorkspaceRootChanged: { syncHostRegistration(); syncActive3DPane() }
     onLeafIdChanged: syncHostRegistration()
 
@@ -425,5 +436,10 @@ Item {
         }
         if (workspaceRoot && workspaceRoot.active3DPane === root)
             workspaceRoot.active3DPane = null
+        if (root._savedLayers && workspaceRoot && workspaceRoot.store) {
+            workspaceRoot.store.mosaicVisible     = root._savedMosaic
+            workspaceRoot.store.isobathsVisible   = root._savedIsobaths
+            workspaceRoot.store.reliefCloudVisible = false
+        }
     }
 }

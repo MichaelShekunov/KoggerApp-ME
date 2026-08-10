@@ -4,6 +4,7 @@
 #include <QOpenGLFunctions>
 #include <QtMath>
 
+#include <algorithm>
 #include <cmath>
 #include <vector>
 
@@ -50,6 +51,41 @@ void ReliefCloud::setDatasetPtr(Dataset* datasetPtr)
     datasetPtr_ = datasetPtr;
 }
 
+namespace {
+
+// Altitude from the echogram itself, for recordings with no computed bottom
+// track. The first strong return along the beam is the bottom under the boat;
+// this is not a bottom tracker and does not pretend to be, but it gives the
+// datum the relief needs and it works on data as recorded.
+float altitudeFromProfile(Epoch* epoch, const ChannelId& channelId,
+                          float maxRangeM, int16_t* buf, int n)
+{
+    if (!epoch || n < 8 || !(maxRangeM > 0.0f)) {
+        return NAN;
+    }
+    if (!epoch->chartTo(channelId, 0, 0.0f, maxRangeM, buf, n, 0)) {
+        return NAN;
+    }
+
+    int peak = 0;
+    for (int i = 0; i < n; ++i) {
+        peak = std::max<int>(peak, buf[i]);
+    }
+    if (peak < 24) {
+        return NAN; // nothing that could be a bottom
+    }
+
+    const int threshold = peak / 2;
+    for (int i = 1; i < n; ++i) {
+        if (buf[i] >= threshold) {
+            return maxRangeM * (float(i) + 0.5f) / float(n);
+        }
+    }
+    return NAN;
+}
+
+} // namespace
+
 void ReliefCloud::onDatasetGrew()
 {
     if (!isVisible() || !datasetPtr_) {
@@ -73,6 +109,11 @@ bool ReliefCloud::hasPoints() const
 void ReliefCloud::setPingStride(int stride)
 {
     pingStride_ = qBound(1, stride, 512);
+}
+
+void ReliefCloud::setSampleStride(int stride)
+{
+    sampleStride_ = qBound(1, stride, 64);
 }
 
 void ReliefCloud::setAltitudeLimits(float minAltitudeM, float maxAltitudeM)
@@ -119,7 +160,7 @@ void ReliefCloud::rebuild()
     // Counted rather than guessed at: a cloud that comes back empty should say
     // which requirement the data failed, not leave it to be inferred from an
     // empty scene.
-    int considered = 0, noEpoch = 0, noAltitude = 0, noPosition = 0, noHeading = 0;
+    int considered = 0, noEpoch = 0, noAltitude = 0, noPosition = 0, noHeading = 0, fromProfile = 0;
     int noChannels = 0, noProfile = 0, noRelief = 0;
 
     for (int i = 0; i < epochCount; i += pingStride_) {
@@ -130,7 +171,16 @@ void ReliefCloud::rebuild()
             continue;
         }
 
-        const double altitude = epoch->distProccesing();
+        // Bottom track first, because it is the better number when it exists.
+        double altitude = epoch->distProccesing();
+        if (!std::isfinite(altitude)) {
+            const QList<ChannelId> firstChannels = epoch->chartChannels();
+            if (!firstChannels.isEmpty()) {
+                altitude = double(altitudeFromProfile(epoch, firstChannels.first(),
+                                                      maxAltitudeM_, profile.data(), kProfileSamples));
+                if (std::isfinite(altitude)) { ++fromProfile; }
+            }
+        }
         if (!std::isfinite(altitude) || altitude < double(minAltitudeM_) || altitude > double(maxAltitudeM_)) {
             ++noAltitude;
             continue; // no bottom under the boat means no datum to hang relief from
@@ -181,8 +231,12 @@ void ReliefCloud::rebuild()
                 continue;
             }
 
+            // Thinned across track as well as along it. The base renderer hands
+            // the whole array to GL from client memory every frame, so the point
+            // count is a frame-rate budget, not just memory: 2.5 million from
+            // this recording was more than the scene could carry.
             const double sign = (side == 1) ? -1.0 : 1.0;
-            for (int s = 0; s < n; ++s) {
+            for (int s = 0; s < n; s += sampleStride_) {
                 const double across = sign * double(gx[size_t(s)]);
                 const double north  = pos.ned.n + acrossN * across;
                 const double east   = pos.ned.e + acrossE * across;
@@ -202,10 +256,10 @@ void ReliefCloud::rebuild()
 
     qInfo("ReliefCloud: %d points from %d pings of %d (stride %d). Rejected -"
           " no epoch %d, no altitude %d, no position %d, no heading %d,"
-          " no channels %d, no profile %d, no relief %d",
+          " no channels %d, no profile %d, no relief %d; altitude from echogram %d",
           int(points.size()), considered - noEpoch - noAltitude - noPosition - noHeading,
           epochCount, pingStride_,
-          noEpoch, noAltitude, noPosition, noHeading, noChannels, noProfile, noRelief);
+          noEpoch, noAltitude, noPosition, noHeading, noChannels, noProfile, noRelief, fromProfile);
 
     setData(points, GL_POINTS);
 }

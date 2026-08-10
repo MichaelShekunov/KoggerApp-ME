@@ -42,6 +42,10 @@ public:
     void setPingStride(int stride);
     int  pingStride() const { return pingStride_; }
 
+    // Same idea across the swath. Both strides exist because the point count is
+    // a frame-rate budget: the base renderer uploads the whole array each frame.
+    void setSampleStride(int stride);
+
     // The sonar's along-track beamwidth, as the deconvolution asks for it. Only
     // used to reject profiles whose geometry cannot support an estimate.
     void setAltitudeLimits(float minAltitudeM, float maxAltitudeM);
@@ -61,7 +65,8 @@ private:
 
     Dataset* datasetPtr_ = nullptr;
     int   builtAtEpochCount_ = 0;
-    int   pingStride_    = 4;
+    int   pingStride_    = 8;
+    int   sampleStride_  = 4;
     float minAltitudeM_  = 1.0f;
     float maxAltitudeM_  = 300.0f;
 };
