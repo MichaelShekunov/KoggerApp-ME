@@ -17,7 +17,7 @@ REM 2. Ask if user wants to archive
 set /p archive=Do you want to archive the output directory? (y/n): 
 
 REM 3. Set local paths
-set llvm_mingw=C:\Qt\Tools\llvm-mingw1706_64
+if not defined llvm_mingw set llvm_mingw=D:\Qt\Tools\llvm-mingw1706_64
 set binPath=build\Desktop_Qt_6_8_3_llvm_mingw_64_bit-Release\KoggerApp.exe
 set qmlPath=qml
 set outPath=out_x64
@@ -47,7 +47,14 @@ if exist "%outPath%" (
 mkdir "%outPath%"
 
 REM 5. Deploy and copy binary file
-windeployqt "%binPath%" -qmldir %qmlPath% -dir "%outPath%" -no-translations -no-virtualkeyboard
+REM Qt 6.8 windeployqt dropped -no-virtualkeyboard; the plugin type is skipped by name now.
+windeployqt "%binPath%" -qmldir %qmlPath% -dir "%outPath%" -no-translations --skip-plugin-types virtualkeyboard
+if errorlevel 1 (
+    echo.
+    echo [ERROR] windeployqt failed - "%outPath%" would be incomplete.
+    pause
+    exit /b 1
+)
 copy /y "%binPath%" "%outPath%\" >nul
 
 REM 6. copy LLVM-MINGW RUNTIME manually
