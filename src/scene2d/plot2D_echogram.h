@@ -46,6 +46,8 @@ public:
     void setDeconvAngularResolution(float degrees);
     int getDeconvIterations() const;
     void setDeconvIterations(int iterations);
+    bool getDeconvGeometry() const;
+    void setDeconvGeometry(bool state);
 
     void updateColors();
 
@@ -94,6 +96,7 @@ protected:
     bool  deconvEnabled_ = false;
     float deconvAngularResolutionDeg_ = 1.0f;
     int   deconvIterations_ = 8;
+    bool  deconvGeometry_ = true;
     QVector<int16_t>  deconvScratch_;
     QVector<int16_t*> deconvColumns_;
     QVector<float>    deconvRange_;

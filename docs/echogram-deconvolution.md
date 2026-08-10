@@ -15,6 +15,7 @@ Echogram settings panel, under "Source data":
 | --- | --- |
 | Deconvolution, beam ° | toggle, plus the sonar's along-track angular resolution in degrees, 0.1 … 30.0 |
 | Deconvolution iterations | Richardson-Lucy iterations, 1 … 20, default 8; shown only while the toggle is on |
+| Compensate motion (position + pitch) | resample into the measured geometry rather than assuming even pings; on by default, shown only while the toggle is on |
 
 Off by default. Both values persist per plot under `scene2d/plot2d/<indx>`, like
 the theme and compensation settings beside them.
@@ -104,8 +105,13 @@ performed.
 
 `Params::compensateGeometry` resamples each row onto an even along-track grid
 built from the measured footprint positions, deconvolves there, and resamples
-back. It is implemented, tested, and **off by default** — that is a measurement,
-not caution.
+back. It is **on by default**, and exposed in the panel as "Compensate motion
+(position + pitch)" so it can be switched off for comparison.
+
+It ships on despite the measurement below, which says it loses. The synthetic
+swell may flatter the even-ping assumption in a way real motion does not, and
+that can only be settled against a recording with live attitude. The switch is
+there so the comparison is one click rather than a rebuild.
 
 `deconv_check` blurs a scene in true pitch-perturbed geometry (±2° at 40 m, a
 ±1.4 m or ±2.8 column wander) and asks both paths to undo it, scoring by how much
@@ -116,10 +122,12 @@ of a target's energy lands within one sigma of its true position:
 | assume even pings | **90.9 %** |
 | resample into measured geometry | 88.5 % |
 
-The resampling loses. An echogram carries barely one sample per sigma, and a
-round trip through interpolation costs more resolution at that density than
-correcting the kernel width recovers. Cubic interpolation was worth 6.6 points
-over linear here (81.9 % → 88.5 %) and still did not close the gap.
+The resampling loses **on this synthetic case**. An echogram carries barely one
+sample per sigma, and a round trip through interpolation costs more resolution at
+that density than correcting the kernel width recovers. Cubic interpolation was
+worth 6.6 points over linear here (81.9 % → 88.5 %) and still did not close the
+gap. If it does not earn its place at sea either, the default is one line in
+`Params` and one `checked:` in the panel.
 
 Two things follow, and they are worth keeping in view before anyone tries again:
 

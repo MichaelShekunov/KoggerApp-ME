@@ -203,6 +203,19 @@ Column {
                 }
             }
         }
+
+        // Resample each row into the geometry navigation and pitch actually
+        // describe, instead of assuming the pings were evenly spaced. On by
+        // default; the synthetic test says it costs more than it gains, so it is
+        // exposed to be judged against real motion.
+        KSwitch {
+            width: parent.width
+            backgroundColor: AppPalette.bg
+            visible: panel.vs ? panel.vs.deconvEnabled : false
+            text: qsTr("Compensate motion (position + pitch)")
+            checked: panel.vs ? panel.vs.deconvGeometry : true
+            onToggled: if (panel.vs) panel.vs.deconvGeometry = checked
+        }
     }
 
     // ══ Bottom-Track (instruments > 0) ══════════════════════════════════════════

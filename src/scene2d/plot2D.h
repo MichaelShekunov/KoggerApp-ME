@@ -118,6 +118,8 @@ public:
     void setEchogramDeconvAngularResolution(float degrees);
     int getEchogramDeconvIterations() const;
     void setEchogramDeconvIterations(int iterations);
+    bool getEchogramDeconvGeometry() const;
+    void setEchogramDeconvGeometry(bool state);
 
     void setBottomTrackVisible(bool visible);
     void setBottomTrackTheme(int theme_id);

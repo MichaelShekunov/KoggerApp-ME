@@ -717,6 +717,15 @@ void Plot2D::setEchogramDeconvIterations(int iterations) {
     plotUpdate();
 }
 
+bool Plot2D::getEchogramDeconvGeometry() const {
+    return echogram_.getDeconvGeometry();
+}
+
+void Plot2D::setEchogramDeconvGeometry(bool state) {
+    echogram_.setDeconvGeometry(state);
+    plotUpdate();
+}
+
 void Plot2D::setBottomTrackVisible(bool visible) {
     bottomProcessing_.setVisible(visible);
     plotUpdate();

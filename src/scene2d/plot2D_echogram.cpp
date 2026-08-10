@@ -276,6 +276,15 @@ void Plot2DEchogram::setDeconvIterations(int iterations)
     if (deconvEnabled_) { resetCash(); }
 }
 
+bool Plot2DEchogram::getDeconvGeometry() const { return deconvGeometry_; }
+
+void Plot2DEchogram::setDeconvGeometry(bool state)
+{
+    if (deconvGeometry_ == state) { return; }
+    deconvGeometry_ = state;
+    if (deconvEnabled_) { resetCash(); }
+}
+
 bool Plot2DEchogram::applyDeconvolution(Plot2D* parent, Dataset* dataset, int width, int height, int wrapStartPos)
 {
     if (!deconvEnabled_ || !parent || !dataset || width < 3 || height <= 0) {
@@ -381,6 +390,7 @@ bool Plot2DEchogram::applyDeconvolution(Plot2D* parent, Dataset* dataset, int wi
     echo_deconv::Params params;
     params.angularResolutionDeg = deconvAngularResolutionDeg_;
     params.iterations = deconvIterations_;
+    params.compensateGeometry = deconvGeometry_;
 
     // With no navigation the kernel has no metric to be sized against. One metre
     // per ping keeps the control usable on recordings that carry no position -

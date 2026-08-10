@@ -39,17 +39,22 @@ struct Params {
     // Resample each row onto an even along-track grid before deconvolving, using
     // the measured footprint positions, and back afterwards.
     //
-    // Off by default, and that is a measurement rather than caution.
-    // `deconv_check` blurs a scene in true pitch-perturbed geometry and asks both
-    // paths to undo it: assuming even pings gathers 90.9 % of a target's energy
-    // within one sigma of the truth, resampling gathers 88.5 %. An echogram
-    // carries barely one sample per sigma, so a resampling round trip costs more
+    // On by default, but read this before trusting it. `deconv_check` blurs a
+    // scene in true pitch-perturbed geometry and asks both paths to undo it:
+    // assuming even pings gathers 90.9 % of a target's energy within one sigma
+    // of the truth, resampling gathers 88.5 %. An echogram carries barely one
+    // sample per sigma, so the round trip through interpolation costs more
     // resolution than correcting the kernel width recovers - even with cubic
     // interpolation, which was worth 6.6 points over linear.
     //
+    // It ships on anyway, to be judged against real motion rather than against a
+    // synthetic swell that may flatter the even-ping assumption. The UI exposes
+    // it so the comparison can be made by eye; if it does not earn its place at
+    // sea, this is the line to change back.
+    //
     // Positions still improve the pass when this is off: they set the kernel
     // width in real metres. This flag governs only the resampling.
-    bool compensateGeometry = false;
+    bool compensateGeometry = true;
 };
 
 // Result of one pass, for reporting and for tests.

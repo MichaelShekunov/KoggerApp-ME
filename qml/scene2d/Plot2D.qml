@@ -793,6 +793,7 @@ WaterFall {
         property alias deconvEnabled:      echogramDeconvEnabled.checked
         property alias deconvAngle:        echogramDeconvAngle.value
         property alias deconvIterations:   echogramDeconvIterations.value
+        property alias deconvGeometry:     echogramDeconvGeometry.checked
         property alias bottomTrackValue:   bottomTrackValueVisible.checked
         property alias bottomTrackLine:    bottomTrackGraphicsVisible.checked
         property alias bottomTrackTheme:   bottomTrackThemeList.currentIndex
@@ -841,7 +842,7 @@ WaterFall {
 
         readonly property var _changeProbe: [
             ch1Index, ch2Index, echogramVisible, echoThemeIndex, compensationIndex,
-            soundScaleIndex, deconvEnabled, deconvAngle, deconvIterations,
+            soundScaleIndex, deconvEnabled, deconvAngle, deconvIterations, deconvGeometry,
             bottomTrackValue, bottomTrackLine, bottomTrackTheme,
             rangefinderValue, rangefinderLine, rangefinderTheme,
             ahrsVisible, temperatureVisible,
@@ -1178,6 +1179,22 @@ WaterFall {
                                 category: "scene2d/plot2d/" + plot.indx
 
                                 property alias echogramDeconvAngle: echogramDeconvAngle.value
+                            }
+                        }
+
+                        CCheck {
+                            id: echogramDeconvGeometry
+                            enabled: echogramDeconvEnabled.checked
+                            text: qsTr("Motion")
+                            checked: true
+
+                            onCheckedChanged: plot.plotEchogramDeconvGeometry(checked)
+                            Component.onCompleted: plot.plotEchogramDeconvGeometry(checked)
+
+                            Settings {
+                                category: "scene2d/plot2d/" + plot.indx
+
+                                property alias echogramDeconvGeometry: echogramDeconvGeometry.checked
                             }
                         }
 

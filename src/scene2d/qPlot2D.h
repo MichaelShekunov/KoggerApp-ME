@@ -217,6 +217,8 @@ public slots:
     Q_INVOKABLE qreal getEchogramDeconvAngularResolution() const { return qreal(Plot2D::getEchogramDeconvAngularResolution()); }
     Q_INVOKABLE void plotEchogramDeconvIterations(int iterations) { setEchogramDeconvIterations(iterations); }
     Q_INVOKABLE int getEchogramDeconvIterations() const { return Plot2D::getEchogramDeconvIterations(); }
+    Q_INVOKABLE void plotEchogramDeconvGeometry(bool state) { setEchogramDeconvGeometry(state); }
+    Q_INVOKABLE bool getEchogramDeconvGeometry() const { return Plot2D::getEchogramDeconvGeometry(); }
     Q_INVOKABLE void updateBottomTrackProcessing();
     void plotBottomTrackVisible(bool visible) { setBottomTrackVisible(visible); }
     void plotBottomTrackTheme(int theme_id) { setBottomTrackTheme(theme_id); }
