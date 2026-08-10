@@ -5,7 +5,22 @@ function normalizedSettingsSide(value) {
 }
 
 function normalizedPaneMode(value) {
-    return value === "3D" ? "3D" : "2D"
+    if (value === "3D")
+        return "3D"
+    if (value === SCENE_MODE_RELIEF)
+        return SCENE_MODE_RELIEF
+    return "2D"
+}
+
+// "2/3D": relief inferred from side-scan brightness, kept out of the mosaic on
+// purpose - an estimate and a survey must not share a surface.
+var SCENE_MODE_RELIEF = "2/3D"
+
+// Both of these drive the one Scene3DView the application owns, so they compete
+// for the same slot and only one may exist at a time. Anything asking "is this
+// pane a 3D pane" wants this, not a comparison against "3D".
+function occupiesScene(mode) {
+    return mode === "3D" || mode === SCENE_MODE_RELIEF
 }
 
 function normalizedPaneRotate3D(value) {

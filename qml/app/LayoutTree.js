@@ -56,11 +56,23 @@ function leafIdByPaneNumber(node, paneNumber) {
     return leafIdByPaneNumber(node.second, paneNumber)
 }
 
+// Mirrors LayoutRules.normalizedPaneMode. Kept here too because this file is a
+// .pragma library and cannot import it.
+function normalizedLeafMode(node) {
+    if (!node || !node.pane)
+        return "2D"
+    if (node.pane.mode === "3D")
+        return "3D"
+    if (node.pane.mode === "2/3D")
+        return "2/3D"
+    return "2D"
+}
+
 function firstLeafIdByMode(node, mode) {
     if (!node)
         return -1
     if (node.type === "leaf")
-        return ((node.pane && node.pane.mode === "3D") ? "3D" : "2D") === mode ? node.leafId : -1
+        return normalizedLeafMode(node) === mode ? node.leafId : -1
 
     var left = firstLeafIdByMode(node.first, mode)
     if (left !== -1)

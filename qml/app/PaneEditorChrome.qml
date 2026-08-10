@@ -9,6 +9,15 @@ Item {
     required property Item paneFrame
 
     readonly property real addInset: paneFrame.edgeSafetyMargin + Math.round(8 * AppPalette.scale)
+
+    // Which leaf currently holds the one Scene3DView, in either of its dresses.
+    // -1 when it is free.
+    readonly property int sceneOwnerLeafId: {
+        if (!paneFrame.store) return -1
+        var a = paneFrame.store.firstLeafIdByMode(paneFrame.store.layoutTree, "3D")
+        if (a !== -1) return a
+        return paneFrame.store.firstLeafIdByMode(paneFrame.store.layoutTree, "2/3D")
+    }
     readonly property string addHoverSide: editableTopActions.hovered ? "top"
                                            : editableBottomActions.hovered ? "bottom"
                                            : editableLeftActions.hovered ? "left"
@@ -271,23 +280,38 @@ Item {
                     onClicked: paneFrame.store.applyPaneModeSelection(paneFrame.leafId, "2D")
                 }
 
+                // "3D" and "2/3D" drive the same single Scene3DView, so the slot
+                // is shared: whichever is taken blocks the other, and a pane may
+                // always re-select the mode it already holds.
                 KButton {
-                    readonly property int existing3DLeaf: paneFrame.store.firstLeafIdByMode(paneFrame.store.layoutTree, "3D")
-                    readonly property bool canChoose3D: (existing3DLeaf === -1 || existing3DLeaf === paneFrame.leafId)
-                                                         && paneFrame.store.globalPopupMode !== "3D"
+                    readonly property int sceneLeaf: root.sceneOwnerLeafId
+                    readonly property bool canChoose: (sceneLeaf === -1 || sceneLeaf === paneFrame.leafId)
+                                                       && paneFrame.store.globalPopupMode !== "3D"
                     text: qsTr("3D")
                     width: Math.max(Math.round(76 * AppPalette.scale), implicitWidth)
                     height: Math.max(Math.round(40 * AppPalette.scale), implicitHeight)
-                    enabled: canChoose3D
+                    enabled: canChoose
                     opacity: enabled ? 1.0 : 0.45
                     onClicked: paneFrame.store.applyPaneModeSelection(paneFrame.leafId, "3D")
+                }
+
+                KButton {
+                    readonly property int sceneLeaf: root.sceneOwnerLeafId
+                    readonly property bool canChoose: (sceneLeaf === -1 || sceneLeaf === paneFrame.leafId)
+                                                       && paneFrame.store.globalPopupMode !== "3D"
+                    text: qsTr("2/3D")
+                    width: Math.max(Math.round(76 * AppPalette.scale), implicitWidth)
+                    height: Math.max(Math.round(40 * AppPalette.scale), implicitHeight)
+                    enabled: canChoose
+                    opacity: enabled ? 1.0 : 0.45
+                    onClicked: paneFrame.store.applyPaneModeSelection(paneFrame.leafId, "2/3D")
                 }
             }
 
             Text {
                 anchors.horizontalCenter: parent.horizontalCenter
-                visible: (paneFrame.store.firstLeafIdByMode(paneFrame.store.layoutTree, "3D") !== -1
-                         && paneFrame.store.firstLeafIdByMode(paneFrame.store.layoutTree, "3D") !== paneFrame.leafId)
+                visible: (root.sceneOwnerLeafId !== -1
+                         && root.sceneOwnerLeafId !== paneFrame.leafId)
                          || paneFrame.store.globalPopupMode === "3D"
                 text: qsTr("3D is already used in another pane")
                 color: "#C7D2FE"

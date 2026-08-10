@@ -18,6 +18,17 @@ Item {
     property bool rotateEnabled: false
     property int lastRegisteredLeafId: -1
 
+    // "2/3D": the same scene, showing relief inferred from side-scan brightness
+    // instead of the mosaic. Kept apart deliberately - an estimate that carries
+    // as much error as signal must not sit in the same surface as measured
+    // soundings, where nothing would tell them apart.
+    //
+    // NOT YET WIRED: the layer switch itself. Visibility is driven through the
+    // scene3d menu controllers rather than a property on the view, and that API
+    // is the next piece. Until then this pane is the container and shows the
+    // ordinary scene.
+    property bool reliefOnly: false
+
     readonly property var scene3dView: workspaceRoot ? workspaceRoot.scene3dViewItem : null
 
     Item {

@@ -12,7 +12,16 @@ Item {
     Loader {
         anchors.fill: parent
         active: root.active
-        sourceComponent: root.paneData && root.paneData.mode === "3D" ? pane3DComponent : pane2DComponent
+        // "2/3D" reuses Pane3DWindow rather than duplicating it: both drive the
+        // same single Scene3DView, and the only difference is which layers it
+        // shows. A separate window file would be four hundred lines of copy
+        // waiting to drift.
+        sourceComponent: {
+            if (!root.paneData) return pane2DComponent
+            if (root.paneData.mode === "3D") return pane3DComponent
+            if (root.paneData.mode === "2/3D") return pane23DComponent
+            return pane2DComponent
+        }
     }
 
     Component {
@@ -34,6 +43,18 @@ Item {
             workspaceRoot: root.workspaceRoot
             leafId: root.leafId
             paneData: root.paneData
+        }
+    }
+
+    Component {
+        id: pane23DComponent
+
+        Pane3DWindow {
+            rotateEnabled: root.rotateEnabled
+            workspaceRoot: root.workspaceRoot
+            leafId: root.leafId
+            paneData: root.paneData
+            reliefOnly: true
         }
     }
 }
