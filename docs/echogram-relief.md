@@ -208,3 +208,49 @@ measured soundings inside the same surface.
 Backlog item 5 is also waiting on this: it records that a side-scan sample maps
 to an arc rather than a point unless a flat bottom is assumed. Measured relief
 would remove that assumption; this estimate is not yet good enough to.
+
+## The 2/3D pane
+
+A third pane mode beside 2D and 3D, for showing relief inferred from side-scan
+brightness **without letting it into the mosaic**. That separation is the point:
+an estimate carrying as much error as signal must not share a surface with
+measured soundings, where nothing on screen would tell them apart.
+
+### Why it is a mode and not a second window
+
+The application owns exactly one `Scene3DView`. `WorkspaceView` exposes it as a
+single `scene3dViewItem`, `Pane3DWindow` is a viewport onto it, `active3DLeafId`
+exists to route that one view to whichever pane holds it, and on the C++ side
+`Core` keeps one `scene3dViewPtr_`, with the menu controllers registered as
+context singletons and a `TextRenderer::instance()` inside the renderer.
+
+Two simultaneous 3D viewports would therefore mean unpicking a singleton, not
+adding a window. "2/3D" instead shares that one slot with "3D": selecting either
+takes it and the other becomes unavailable — the existing "3D is already used in
+another pane" rule, widened to the pair.
+
+`LayoutRules.occupiesScene()` names that family. Anything asking "is this a 3D
+pane" should use it rather than comparing against `"3D"`, which now silently
+misses the new mode.
+
+`PaneContentLoader` routes `"2/3D"` to `Pane3DWindow` with `reliefOnly: true`
+rather than to a new file: both drive the same view and differ only in which
+layers they show, so a separate four-hundred-line window would be a copy waiting
+to drift.
+
+### What is wired, and what is not
+
+Wired: the mode itself. It is selectable from the pane chrome, survives the
+layout normalisers in `LayoutRules.js` and `LayoutTree.js`, takes and releases
+the scene slot correctly, and the application starts and loads its QML with no
+errors — the check that matters, since an unresolved binding in a layout
+normaliser fails at load rather than quietly.
+
+**Not wired: the layer switch.** `reliefOnly` is carried and does nothing yet.
+Layer visibility runs through the scene3d menu controllers rather than a property
+on the view, and that API is the next piece. Until then a 2/3D pane shows the
+ordinary scene: the container exists, its contents do not.
+
+Nor is there anything to put in it yet. The estimate this pane is for still
+returns 97–102 % residual. The window was built first deliberately, so that
+improving the estimate has somewhere to be looked at.
