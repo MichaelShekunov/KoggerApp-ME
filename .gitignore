@@ -30,3 +30,4 @@ AGENTS.md
 .claude/
 docs/KoggerApp-Docs/
 *.py
+docs/*.html
