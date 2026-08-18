@@ -1,4 +1,6 @@
 #include "dev_driver.h"
+
+#include <QDateTime>
 #include <time.h>
 #include <core.h>
 #include <QXmlStreamWriter>
@@ -842,7 +844,30 @@ void DevDriver::receivedRecorderStatus(Parsers::Type type, Parsers::Version ver,
     }
 }
 
+namespace {
+
+// Per-packet trace of a firmware update, off unless KOGGER_FW_TRACE is set.
+// A firmware runs to thousands of packets, so this is not something to leave on
+// in ordinary use - but it is the only way to describe the exchange from what
+// actually happened rather than from what the code appears to do.
+bool fwTraceEnabled()
+{
+    static const bool on = qEnvironmentVariableIsSet("KOGGER_FW_TRACE");
+    return on;
+}
+
+qint64 fwTraceNow()
+{
+    return QDateTime::currentMSecsSinceEpoch();
+}
+
+} // namespace
+
 void DevDriver::sendUpdateFW(QByteArray update_data) {
+    if (fwTraceEnabled()) {
+        qInfo("FWTRACE %lld start size=%lld bytes packet=%d",
+              fwTraceNow(), (long long)update_data.size(), 96);
+    }
     reboot();
     restartState();
 
@@ -1478,12 +1503,20 @@ void DevDriver::receivedBoot(Parsers::Type type, Parsers::Version ver, Parsers::
 }
 
 void DevDriver::fwUpgradeProcess() {
+    if (fwTraceEnabled()) {
+        qInfo("FWTRACE %lld out  packet=%u offset=%d remaining=%d",
+              fwTraceNow(), idUpdate->currentNumPacket(),
+              idUpdate->currentFwOffset(), idUpdate->availSend());
+    }
     bool is_avail_data = idUpdate->putUpdate();
     if(is_avail_data && idUpdate->currentNumPacket() == 3) {
         is_avail_data = idUpdate->putUpdate();
     }
     m_upgrade_status = idUpdate->progress();
     if(!is_avail_data) {
+        if (fwTraceEnabled()) {
+            qInfo("FWTRACE %lld runFW (ID_BOOT v1) - body complete", fwTraceNow());
+        }
         idBoot->runFW();
         m_state.in_update = false;
         m_upgrade_status = successUpgrade;
@@ -1504,9 +1537,18 @@ void DevDriver::receivedUpdate(Parsers::Type type, Parsers::Version ver, Parsers
 
     if(resp == respNone) {
         if(ver == v0) {
+            const bool wasLegacy = m_bootloaderLagacyMode;
             m_bootloaderLagacyMode = false;
             _timeoutUpgradeAnswerTime = 2000;
             IDBinUpdate::ID_UPGRADE_V0 prog = idUpdate->getDeviceProgress();
+            if (fwTraceEnabled()) {
+                qInfo("FWTRACE %lld in   type=%u devMsg=%u devOffset=%u rcv=%u"
+                      " hostMsg=%u hostOffset=%d%s",
+                      fwTraceNow(), prog.type, prog.lastNumMsg, prog.lastOffset,
+                      prog.rcvNumMsg, idUpdate->currentNumPacket(),
+                      idUpdate->currentFwOffset(),
+                      wasLegacy ? "  [leaving legacy mode]" : "");
+            }
 
             if(prog.type <= 2) {
                 _lastUpgradeAnswerTime = QDateTime::currentMSecsSinceEpoch();
@@ -1543,6 +1585,9 @@ void DevDriver::receivedUpdate(Parsers::Type type, Parsers::Version ver, Parsers
     } else {
         if(resp == respOk) {
             if( m_state.in_update && m_bootloaderLagacyMode) {
+                if (fwTraceEnabled()) {
+                    qInfo("FWTRACE %lld in   respOk (legacy acknowledgement)", fwTraceNow());
+                }
                 fwUpgradeProcess();
             }
         } else {
@@ -1758,6 +1803,12 @@ void DevDriver::process() {
 #ifndef SEPARATE_READING
                         core.consoleInfo("Upgrade: timeout error!");
 #endif
+                        if (fwTraceEnabled()) {
+                            qInfo("FWTRACE %lld retransmit packet=%u offset=%d after %lld ms",
+                                  fwTraceNow(), idUpdate->currentNumPacket(),
+                                  idUpdate->currentFwOffset(),
+                                  (long long)(curr_time - _lastUpgradeAnswerTime));
+                        }
                         idUpdate->putUpdate(false);
                     }
                 }
