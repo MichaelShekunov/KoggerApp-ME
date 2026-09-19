@@ -17,9 +17,9 @@ cloned from branch `develop` at `455b049e485e792b766323d489d19c544f5d0277`
 It has **two remotes, and only one of them accepts a push**:
 
 ```
-origin  https://github.com/KoggerTech/KoggerApp.git                 (fetch)
-origin  DISABLED_no_push_myEdition                                  (push)
-mine    https://github.com/MichaelShekunov/KoggerApp-myEdition.git  (fetch, push)
+origin  https://github.com/KoggerTech/KoggerApp.git             (fetch)
+origin  DISABLED_no_push_myEdition                              (push)
+mine    git@github.com:MichaelShekunov/KoggerApp-myEdition.git  (fetch, push)
 ```
 
 `origin` is upstream, fetch-only. Its push URL is deliberately broken so that a
@@ -33,6 +33,13 @@ git remote set-url --push origin https://github.com/KoggerTech/KoggerApp.git
 `mine` is a **private** repository under a personal account. It is where branch
 `myedition` lives and where it is backed up. Private is a deliberate choice, not
 an oversight — see "Why a private repository and not a GitHub fork" below.
+
+It is reached over **SSH**, on a key dedicated to it: `~/.ssh/id_ed25519_github`,
+pinned to `github.com` by `~/.ssh/config` with `IdentitiesOnly yes`. HTTPS works
+just as well by hand, but it asks for credentials interactively, and anything
+running without a terminal cannot answer that prompt. The key is deliberately
+not the one that opens the Repka board — one key, one trust domain. Revoke it
+under Settings → SSH keys.
 
 A private remote does not change what may be written here. Keep firmware-derived
 code, calibration data, and anything a customer gave in confidence out of this
