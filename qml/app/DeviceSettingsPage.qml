@@ -1640,7 +1640,9 @@ Column {
             id: upgradeFileDialog
             title: qsTr("Please choose a file")
             currentFolder: devUpgradeGroup.upgradeFolder
-            nameFilters: ["Upgrade files (*.ufw)"]
+            // *.ufwb — Baikal-sonar; the device tells the two apart by the
+            // marker in the first four bytes, so one filter serves both.
+            nameFilters: ["Upgrade files (*.ufw *.ufwb)"]
             onCurrentFolderChanged: devUpgradeGroup.upgradeFolder = currentFolder
             onAccepted: {
                 devUpgradeGroup.upgradeFolder = upgradeFileDialog.currentFolder

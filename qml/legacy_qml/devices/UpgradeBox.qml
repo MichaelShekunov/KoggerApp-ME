@@ -71,7 +71,7 @@ DevSettingsBox {
         id: fileDialog
         title: qsTr("Please choose a file")
         currentFolder: control.upgradeFolder
-        nameFilters: ["Upgrade files (*.ufw)"]
+        nameFilters: ["Upgrade files (*.ufw *.ufwb)"]
 
         onCurrentFolderChanged: {
             control.upgradeFolder = currentFolder
