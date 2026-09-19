@@ -1449,6 +1449,10 @@ void DevDriver::receivedVersion(Parsers::Type type, Parsers::Version ver, Parser
                 m_devName = "NanoSSS";
                 break;
 
+            case BoardBaikalSonar:
+                m_devName = "Baikal-sonar";
+                break;
+
             case BoardUSBL:
                 m_devName = "USBL";
                 break;

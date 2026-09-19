@@ -28,6 +28,7 @@ enum BoardVersion : int16_t {
     BoardUSBL = 15,
     BoardUSBLBeacon = 16,
     BoardNanoSSS = 17,
+    BoardBaikalSonar = 100,
     BoardPULSEred_2D = 128,
     BoardPULSEblue_DSS = 129
 };
