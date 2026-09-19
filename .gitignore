@@ -31,3 +31,5 @@ AGENTS.md
 docs/KoggerApp-Docs/
 *.py
 docs/*.html
+# packaging output
+/dist/
