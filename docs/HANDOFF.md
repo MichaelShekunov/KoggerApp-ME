@@ -14,29 +14,36 @@ cloned from branch `develop` at `455b049e485e792b766323d489d19c544f5d0277`
 ("Merge remote-tracking branch 'remotes/origin/master' into develop"),
 `resources/version.txt` = 1.0.2. No submodules.
 
-It is **local-only on purpose**. The push URL of `origin` is deliberately broken:
+It has **two remotes, and only one of them accepts a push**:
 
 ```
-origin  https://github.com/KoggerTech/KoggerApp.git   (fetch)
-origin  DISABLED_no_push_myEdition                    (push)
+origin  https://github.com/KoggerTech/KoggerApp.git                 (fetch)
+origin  DISABLED_no_push_myEdition                                  (push)
+mine    https://github.com/MichaelShekunov/KoggerApp-myEdition.git  (fetch, push)
 ```
 
-`fetch` still works, so upstream can be pulled in. A `push` fails loudly instead
-of quietly publishing this fork to a public repository. Undo only if that is what
-you actually want:
+`origin` is upstream, fetch-only. Its push URL is deliberately broken so that a
+stray `push` fails loudly instead of quietly publishing this fork to a public
+repository. Undo only if that is what you actually want:
 
 ```
 git remote set-url --push origin https://github.com/KoggerTech/KoggerApp.git
 ```
 
-KoggerApp is open source. Treat anything committed here as published, and keep
-firmware-derived code out of it.
+`mine` is a **private** repository under a personal account. It is where branch
+`myedition` lives and where it is backed up. Private is a deliberate choice, not
+an oversight — see "Why a private repository and not a GitHub fork" below.
+
+A private remote does not change what may be written here. Keep firmware-derived
+code, calibration data, and anything a customer gave in confidence out of this
+tree: private today is not private forever, a repository is opened with one
+click, and the history goes with it.
 
 ### Working from another machine
 
 The checkout lives under `D:\YandexDisk\`, a Yandex Disk sync root replicated to
 both machines, so there is nothing to transfer — open the same directory and carry
-on. No clone, no bundle, no remote.
+on. A third machine, or a rebuild after a disk failure, clones from `mine`.
 
 It is a *sync folder*, not a network share. The distinction matters: a background
 client (`YandexDisk2.exe`) holds files open while it uploads them, which breaks
@@ -78,12 +85,10 @@ present and useless. Only `out_x64/`, which `windeployqt` fills with its own
 copies of the Qt DLLs, runs anywhere. If you want to hand someone a build without
 handing them a toolchain, that is the directory.
 
-**There is no history.** Nothing has been committed; `git diff` and
-`git ls-files --others --exclude-standard` against the pristine upstream checkout
-are the only record of what this fork changed. That is fine for reading the work
-but gives no undo, no bisect, and no protection against two machines writing the
-same file. Committing to a local branch costs nothing and removes all three
-problems.
+**Sync is not locking.** Branch `myedition` is the record of what this fork
+changed, and two machines can still write the same file between commits. Commit
+before switching machines and push to `mine`; a collision then costs a merge
+rather than an afternoon.
 
 ## Getting to a running build on a new machine
 
@@ -372,6 +377,25 @@ and a row in the panel.
 208 SVGs; only 180 are registered. A file being on disk does not put it in the
 resource system.
 
+## Why a private repository and not a GitHub fork
+
+The Fork button would give a shorter path to pull requests back to KoggerTech.
+Two properties of forks rule it out here.
+
+**A fork of a public repository is public, permanently.** GitHub offers no
+visibility switch on it. The only route to a private copy is the one set up
+here: a separate repository that happens to share history.
+
+**Objects pushed into a fork network stay reachable across it.** A commit pushed
+to one repository in the network can be fetched from another, and deleting the
+branch does not take it back. A separate repository is not in that network.
+
+Nothing is lost by giving the relationship up. It is a web-interface
+convenience with no effect on git: pulling upstream works exactly as described
+below, because it goes through `origin`, which still points at KoggerTech. A
+pull request back to upstream remains possible — it needs a fork made at that
+moment, which costs one click and one push.
+
 ## Staying in sync with upstream
 
 ```
@@ -386,4 +410,5 @@ Expect conflicts in `CMakeLists.txt` (the `Multimedia` component and the
 new files or a one-line addition.
 
 After any merge, rebuild and rerun `tools\sonifier_check` — it is the only
-automated check this fork has.
+automated check this fork has. Then `git push mine myedition`, so the merge does
+not sit on one machine only.
