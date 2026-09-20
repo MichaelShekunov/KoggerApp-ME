@@ -2,6 +2,8 @@
 
 #include <QDateTime>
 #include <QDir>
+#include <QNetworkDatagram>
+#include <QNetworkInterface>
 #include <QSerialPortInfo>
 #include <QtEndian>
 
@@ -50,12 +52,18 @@ UsbTap::UsbTap(QObject* parent) : QObject(parent) {
     connect(&iqClose_, &QTimer::timeout, this, &UsbTap::closeIqWindow);
     connect(&port_, &QSerialPort::readyRead, this, &UsbTap::onReadyRead);
     connect(&port_, &QSerialPort::errorOccurred, this, &UsbTap::onError);
+    connect(&udp_, &QUdpSocket::readyRead, this, &UsbTap::onUdpReadyRead);
 }
 
 UsbTap::~UsbTap() {
     closePort();
     if (fileIq_.isOpen()) fileIq_.close();
     if (fileRaw_.isOpen()) fileRaw_.close();
+}
+
+QString UsbTap::portName() const {
+    if (udpAlive()) return QStringLiteral("UDP ") + deviceIp_.toString();
+    return port_.isOpen() ? port_.portName() : QString();
 }
 
 QString UsbTap::filePath() const {
@@ -90,7 +98,13 @@ void UsbTap::setMode(int mode, const QString& logDir) {
 }
 
 void UsbTap::scan() {
-    if (mode_ == Off || port_.isOpen()) return;
+    if (mode_ == Off) return;
+    udpProbe();
+    if (udpSeen_.isValid() && !udpAlive()) {
+        udpSeen_.invalidate();                          // the network stream stopped: show the port again
+        emit stateChanged();
+    }
+    if (port_.isOpen()) return;
     for (const QSerialPortInfo& info : QSerialPortInfo::availablePorts()) {
         if (!info.hasVendorIdentifier() || !info.hasProductIdentifier()) continue;
         if (info.vendorIdentifier() != kVendorId || info.productIdentifier() != kProductId) continue;
@@ -110,12 +124,39 @@ void UsbTap::scan() {
     }
 }
 
+void UsbTap::udpProbe() {
+    // The device's network is a point-to-point link: only when the host holds
+    // an address in 192.168.7.0/24 is the adapter up. Without it the socket is
+    // closed, so no hello leaves through the default route.
+    QHostAddress local;
+    for (const QHostAddress& a : QNetworkInterface::allAddresses()) {
+        if (a.protocol() != QAbstractSocket::IPv4Protocol) continue;
+        if (a.isInSubnet(deviceIp_, 24) && a != deviceIp_) { local = a; break; }
+    }
+    if (local.isNull()) {
+        if (udp_.state() != QAbstractSocket::UnconnectedState) udp_.close();
+        return;
+    }
+    if (udp_.state() != QAbstractSocket::BoundState) {
+        if (!udp_.bind(local, kTapPort)) {              // busy (another reader) or gone: try again next second
+            udp_.close();
+            return;
+        }
+        udp_.setSocketOption(QAbstractSocket::ReceiveBufferSizeSocketOption, 4 << 20);   // 1.2 MB/s in bursts
+        rxUdp_.clear();
+    }
+    udp_.writeDatagram(QByteArrayLiteral("hello"), deviceIp_, kTapPort);
+}
+
 void UsbTap::closePort() {
     if (port_.isOpen()) {
         port_.setDataTerminalReady(false);
         port_.close();
     }
     rx_.clear();
+    if (udp_.state() != QAbstractSocket::UnconnectedState) udp_.close();
+    rxUdp_.clear();
+    udpSeen_.invalidate();
 }
 
 void UsbTap::onError(QSerialPort::SerialPortError error) {
@@ -134,8 +175,25 @@ void UsbTap::onReadyRead() {
     if (chunk.isEmpty()) return;
     rx_ += chunk;
     tickRate(chunk.size());
-    parseFrames();
+    parseFrames(rx_);
     if (rx_.size() > 65536) rx_ = rx_.right(1024);   // no sync for 64 KB: not our stream
+}
+
+void UsbTap::onUdpReadyRead() {
+    int bytes = 0;
+    while (udp_.hasPendingDatagrams()) {
+        const QNetworkDatagram dg = udp_.receiveDatagram();
+        if (!dg.isValid() || dg.senderAddress() != deviceIp_) continue;   // only the device talks on this port
+        rxUdp_ += dg.data();
+        bytes += dg.data().size();
+    }
+    if (bytes == 0) return;
+    const bool wasAlive = udpAlive();
+    udpSeen_.restart();
+    tickRate(bytes);
+    parseFrames(rxUdp_);
+    if (rxUdp_.size() > 65536) rxUdp_ = rxUdp_.right(1024);
+    if (!wasAlive) emit stateChanged();
 }
 
 void UsbTap::tickRate(int bytes) {
@@ -150,10 +208,10 @@ void UsbTap::tickRate(int bytes) {
 }
 
 /** KLF: BB 55 route mode id len payload c1 c2, Fletcher-8 over route..payload. */
-void UsbTap::parseFrames() {
+void UsbTap::parseFrames(QByteArray& buf) {
     int i = 0;
-    const int n = rx_.size();
-    const uchar* d = reinterpret_cast<const uchar*>(rx_.constData());
+    const int n = buf.size();
+    const uchar* d = reinterpret_cast<const uchar*>(buf.constData());
     while (i + 8 <= n) {
         if (d[i] != 0xBB || d[i + 1] != 0x55) { ++i; continue; }
         const int len = d[i + 5];
@@ -161,10 +219,10 @@ void UsbTap::parseFrames() {
         uint8_t c1 = 0, c2 = 0;
         for (int k = i + 2; k < i + 6 + len; ++k) { c1 = uint8_t(c1 + d[k]); c2 = uint8_t(c2 + c1); }
         if (d[i + 6 + len] != c1 || d[i + 7 + len] != c2) { ++i; continue; }
-        onFrame(d[i + 4], rx_.mid(i + 6, len));
+        onFrame(d[i + 4], buf.mid(i + 6, len));
         i += 8 + len;
     }
-    rx_.remove(0, i);
+    buf.remove(0, i);
 }
 
 void UsbTap::onFrame(uint8_t id, const QByteArray& payload) {
@@ -412,17 +470,17 @@ void UsbTap::finishRaw() {
 
 QString UsbTap::statusText() const {
     if (mode_ == Off) return QString();
-    if (!port_.isOpen()) {
-        return tr("USB tap port (VID 600D) not found: is the second core running?");
+    if (!connected()) {
+        return tr("USB tap not found: no CDC port (VID 600D) and no network adapter in 192.168.7.0/24. Is the second core running?");
     }
     QString s;
     if (mode_ == Raw) {
         s = tr("%1: %2 RAW windows, %3 with gaps, %4 KB/s")
-                .arg(port_.portName()).arg(rawWindows_).arg(rawIncomplete_).arg(kbps_, 0, 'f', 1);
+                .arg(portName()).arg(rawWindows_).arg(rawIncomplete_).arg(kbps_, 0, 'f', 1);
         if (statSeen_) s += tr("; device dropped %1 samples").arg(devRawDropped_);
     } else {
         s = tr("%1: %2 pings, %3 KB/s, %4 incomplete")
-                .arg(port_.portName()).arg(pings_).arg(kbps_, 0, 'f', 1).arg(incomplete_);
+                .arg(portName()).arg(pings_).arg(kbps_, 0, 'f', 1).arg(incomplete_);
         if (statSeen_) s += tr("; device: torn %1, skipped %2, dropped %3 samples").arg(devTorn_).arg(devSkipped_).arg(devIqDropped_);
     }
     if (lastStackFree_) s += tr("; core 0 stack free %1 B").arg(lastStackFree_);

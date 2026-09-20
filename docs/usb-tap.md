@@ -1,9 +1,12 @@
 # USB tap: IQ and RAW capture from the Baikal-sonar
 
-The Baikal-sonar has a second CPU core that owns a USB CDC port of its own.
+The Baikal-sonar has a second CPU core that owns a USB device of its own: a
+CDC serial port and, since firmware 2.6, a CDC-NCM network adapter next to it.
 When the operator selects **IQ** or **RAW** in the echogram switch of the
 device settings page, the sonar keeps ranging as before, sends no echogram
-over the control link, and the second core streams diagnostic data over USB.
+over the control link, and the second core streams diagnostic data over USB —
+as bytes on the serial port or as UDP datagrams over the network adapter,
+whichever the host is listening on.
 The app receives that stream with `UsbTap` (`src/device/usb_tap.*`), writes it
 to a file in the log directory and shows a status line under the switch.
 
@@ -26,6 +29,31 @@ The second core enumerates as a CDC device with `VID 0x600D`, `PID 0x1705`
 mode is selected, opens the first matching port and asserts DTR — the
 firmware streams only while the port is open. Unplugging or a device restart
 closes the port; the scan resumes.
+
+## Network path (CDC-NCM)
+
+Since firmware 2.6 the second core is a composite device: the CDC port above
+plus a CDC-NCM network adapter, which Windows 11 (inbox `UsbNcm`) and Linux
+(`cdc_ncm`) bring up without drivers. The device is 192.168.7.1/24 and leases
+192.168.7.2 to the host by DHCP. It streams to whoever last sent it a UDP
+datagram on port 18020 and goes back to the serial port three seconds after
+the last one.
+
+Next to the serial scan, `UsbTap` looks once a second for a local IPv4 address
+in 192.168.7.0/24. When it finds one it binds UDP port 18020 on that address
+and sends `hello` to 192.168.7.1:18020 every second; the frames then arrive as
+datagrams, each holding up to five whole 256-byte frames, and go through the
+same parser as the serial bytes. Without the adapter nothing is sent, so no
+probe leaves through the default route. With the adapter up the stream comes
+over UDP even while the serial port is open as well, and the status line then
+starts with `UDP 192.168.7.1`. The device sends its datagrams with a zero UDP
+checksum (allowed for IPv4); Windows 11 accepts them. One listener at a time:
+`tapdump.py --udp` from the firmware tools and the app compete for port 18020,
+whoever bound it first gets the stream and the other retries every second.
+
+Checked on Windows 11 only; Linux has not been tried. The app's UDP path was
+built against the same frames the firmware tool `tapdump.py --udp` received
+complete on the board; the GUI itself has not been run against the board.
 
 ## Wire format
 
@@ -132,7 +160,10 @@ were still trickling in.
 ## Status line
 
 IQ: `COM5: 123 pings, 239.0 KB/s, 0 incomplete; device: torn 0, skipped 15,
-dropped 0 samples; core 0 stack free 43888 B` followed by the file path.
+dropped 0 samples; core 0 stack free 43888 B` followed by the file path. Over
+the network the line starts with `UDP 192.168.7.1` instead of the port name.
+When neither the port nor a 192.168.7.x adapter is found the line says so and
+asks whether the second core is running.
 *Skipped* counts pings the device had ready while nobody was reading the port,
 so it grows before the app opens it and stays put afterwards; *dropped* counts
 baseband samples the second core could not take from the ring in time. A

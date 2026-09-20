@@ -3,10 +3,12 @@
 #include <QByteArray>
 #include <QElapsedTimer>
 #include <QFile>
+#include <QHostAddress>
 #include <QObject>
 #include <QSerialPort>
 #include <QString>
 #include <QTimer>
+#include <QUdpSocket>
 #include <QVector>
 
 #include <cstdint>
@@ -22,6 +24,17 @@
  * describes a ping, ID_TAP_IQ (0x79) carries 30 complex float32 samples,
  * ID_TAP_RAW (0x7A) carries up to 156 twelve-bit samples packed two in three
  * bytes, ID_TAP_STAT (0x7B) reports the streamer's counters once a second.
+ *
+ * Two ways in, same frames. The second core is a composite USB device: a CDC
+ * serial port and a CDC-NCM network adapter (Windows 11 and Linux drive it
+ * with their inbox drivers; the device is 192.168.7.1 and hands the host
+ * 192.168.7.2 by DHCP). While a tap mode is selected, UsbTap looks once a
+ * second for the CDC port by VID/PID and for a local address in 192.168.7.0/24;
+ * with the address present it binds UDP port 18020 and sends "hello" to the
+ * device, which then streams the frames as UDP datagrams (whole frames, up to
+ * five per datagram) instead of the serial port, and falls back to the port
+ * three seconds after the last hello. So with the network adapter up the
+ * stream arrives over UDP even if the port is open too; both feed one parser.
  *
  * Kept apart from the device stack on purpose: the port belongs to another
  * core, answers no requests and speaks only these frames, so it is found by
@@ -59,8 +72,9 @@ public:
     Q_INVOKABLE void setMode(int mode, const QString& logDir);
 
     int     mode()       const { return mode_; }
-    bool    connected()  const { return port_.isOpen(); }
-    QString portName()   const { return port_.isOpen() ? port_.portName() : QString(); }
+    bool    connected()  const { return udpAlive() || port_.isOpen(); }
+    /** "UDP 192.168.7.1" while datagrams arrive, else the serial port name, else empty. */
+    QString portName()   const;
     int     pings()      const { return pings_ + rawWindows_; }
     int     incomplete() const { return incomplete_ + rawIncomplete_; }
     QString filePath()   const;
@@ -76,6 +90,7 @@ signals:
 private slots:
     void scan();
     void onReadyRead();
+    void onUdpReadyRead();
     void onError(QSerialPort::SerialPortError error);
     void closeRawWindow();
     void closeIqWindow();
@@ -104,7 +119,7 @@ private:
         bool              valid = false;
     };
 
-    void parseFrames();
+    void parseFrames(QByteArray& buf);
     void onFrame(uint8_t id, const QByteArray& payload);
     void onMeta(const QByteArray& payload);
     void onIq(const QByteArray& payload);
@@ -117,15 +132,25 @@ private:
     bool openFile(QFile& file, const char* suffix, const QByteArray& header);
     void closePort();
     void tickRate(int bytes);
+    /** Binds UDP 18020 on the 192.168.7.x adapter when it exists and greets the device; unbinds when it is gone. */
+    void udpProbe();
+    /** Datagrams arrived within the last kUdpAliveMs: the stream is coming over the network. */
+    bool udpAlive() const { return udpSeen_.isValid() && udpSeen_.elapsed() < kUdpAliveMs; }
 
     static const uint16_t kVendorId  = 0x600D;
     static const uint16_t kProductId = 0x1705;
+    static const uint16_t kTapPort   = 18020;     // UDP port of the tap on the device; the host binds the same
+    static const int      kUdpAliveMs = 3000;     // the device forgets a silent host after the same time
 
     QSerialPort   port_;
+    QUdpSocket    udp_;
+    QHostAddress  deviceIp_ = QHostAddress(QStringLiteral("192.168.7.1"));
+    QElapsedTimer udpSeen_;                       // invalid until the first datagram
     QTimer        scan_;
     QTimer        rawClose_;
     QTimer        iqClose_;
-    QByteArray    rx_;
+    QByteArray    rx_;                            // serial bytes waiting for a whole frame
+    QByteArray    rxUdp_;                         // datagram bytes, kept apart: the two streams never interleave
     QFile         fileIq_;
     QFile         fileRaw_;
     QString       logDir_;
