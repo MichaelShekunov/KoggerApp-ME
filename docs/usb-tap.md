@@ -63,18 +63,22 @@ little-endian. Three identifiers are used:
 first sample), `u8 n` (samples in this frame, at most 30), `u8 fmt` (1 =
 float32 pairs), `u16 total` (= bb_len), then `n` pairs of float32 `I, Q`.
 
-**ID_TAP_RAW (0x7A), 12 + data**, sent *during* the listening window of a
-ping, before its META: `u16 seq`, `u32 first` (index of the first sample in
-the window's interleaved stream), `u32 total` (samples in the window; the
-sonar refines it when the window ends, so the last frame is authoritative),
+**ID_TAP_RAW (0x7A), payload always 248 bytes**, sent *during* the listening
+window of a ping, before its META: `u16 seq`, `u32 first` (index of the first
+sample in the window's interleaved stream), `u32 total` (samples in the window;
+the sonar refines it when the window ends, so the last frame is authoritative),
 `u8 n` (samples in this frame, at most 156), `u8 fmt`, then the samples in
-ADC order `s0 s1 s2 s0 s1 s2 …`. `fmt` 1 is `uint16` per sample; `fmt` 2 packs
-two 12-bit samples into three bytes: `b0 = a[7:0]`, `b1 = a[11:8] | b[3:0] << 4`,
-`b2 = b[11:4]`, an odd tail being one sample in two bytes. Packing is what
-keeps the stream (three ADCs at about 0.93 MS/s each) under the throughput of
-the device's CDC class. Missing indices are gaps: samples the device dropped
-because its buffer filled, or frames lost in transit; the device counts its
-own drops in STAT.
+ADC order `s0 s1 s2 s0 s1 s2 …`, then zero padding up to the fixed payload
+length. Size the data by `n` and `fmt`, never by the payload length: a full
+frame carries two padding bytes, the last frame of a window many more. The
+fixed 256-byte frame keeps every USB transfer word-aligned, which the device's
+DMA requires. `fmt` 1 is `uint16` per sample; `fmt` 2 packs two 12-bit samples
+into three bytes: `b0 = a[7:0]`, `b1 = a[11:8] | b[3:0] << 4`, `b2 = b[11:4]`,
+an odd tail being one sample in two bytes. The device sends RAW frames
+straight to the bulk endpoint in batches of up to 31 frames; the channel
+carries about 13 MB/s, the packed stream needs 4.2 MB/s (5.6 MB/s unpacked).
+Missing indices are gaps: samples the device dropped because its buffer
+filled, or frames lost in transit; the device counts its own drops in STAT.
 
 **ID_TAP_STAT (0x7B), 33 bytes** (29 in older firmware), once a second:
 `u32 tick`, `u32 millis`, `u32 frames`, `u32 torn` (pings abandoned because
@@ -124,6 +128,7 @@ opens it and stays put afterwards.
 
 RAW: `COM5: 28 RAW windows, 2 with gaps, 265.0 KB/s; device dropped 31221
 samples; core 0 stack free 7716 B` followed by the file path. A window of
-1500 cells at 10 mm is 20 ms and 56 673 samples; the device's buffer covers
-the difference between the ADC rate and the USB channel for windows up to
-roughly 30 ms, longer ones lose their tail and say so in the gap table.
+1500 cells at 10 mm is 20 ms and 56 673 samples; 3000 cells is 40 ms and
+112 230 samples, and both arrive complete. The first window after the mode is
+switched, or after the window length changes, is usually partial: the device
+picks the ADC ring up mid-window and counts what it skipped.
