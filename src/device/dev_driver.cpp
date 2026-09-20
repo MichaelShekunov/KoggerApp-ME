@@ -1140,6 +1140,44 @@ void DevDriver::setDatasetChartZ(int ch_param) {
     if(is_changed) { emit datasetChanged(); }
 }
 
+int DevDriver::datasetTapIq() {
+    int ch_param = 0;
+    if(idDataset->getTapIq_v0(1)) {
+        ch_param |= 1;
+    }
+    if(idDataset->getTapIq_v0(2)) {
+        ch_param |= 2;
+    }
+    return ch_param;
+}
+
+void DevDriver::setDatasetTapIq(int ch_param) {
+    if(!m_state.connect) return;
+    bool is_changed = (ch_param != datasetTapIq());
+    idDataset->setTapIq_v0(ch_param);
+    idDataset->commit();
+    if(is_changed) { emit datasetChanged(); }
+}
+
+int DevDriver::datasetTapRaw() {
+    int ch_param = 0;
+    if(idDataset->getTapRaw_v0(1)) {
+        ch_param |= 1;
+    }
+    if(idDataset->getTapRaw_v0(2)) {
+        ch_param |= 2;
+    }
+    return ch_param;
+}
+
+void DevDriver::setDatasetTapRaw(int ch_param) {
+    if(!m_state.connect) return;
+    bool is_changed = (ch_param != datasetTapRaw());
+    idDataset->setTapRaw_v0(ch_param);
+    idDataset->commit();
+    if(is_changed) { emit datasetChanged(); }
+}
+
 int DevDriver::datasetTemp() {
     int ch_param = 0;
     if(idDataset->getTemp_v0(1)) {

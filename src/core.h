@@ -40,6 +40,7 @@
 #include "data_horizon.h"
 #include "mosaic_index_provider.h"
 #include "ui_keepalive.h"
+#include "usb_tap.h"
 
 
 class Core : public QObject
@@ -84,6 +85,7 @@ public:
     void setEngine(QQmlApplicationEngine *engine);
     Console* getConsolePtr();
     Dataset* getDatasetPtr();
+    UsbTap* getUsbTapPtr() { return &usbTap_; }
     DataProcessor* getDataProcessorPtr() const;
     DeviceManagerWrapper* getDeviceManagerWrapperPtr() const;
     LinkManagerWrapper* getLinkManagerWrapperPtr() const;
@@ -361,6 +363,7 @@ private:
     QPointer<GraphicsScene3dView> scene3dViewPtr_;
     ConverterXTF converterXtf_;
     Logger logger_;
+    UsbTap usbTap_;   // IQ / RAW stream from the sonar's second core, see usb_tap.h
     QList<qPlot2D*> plot2dList_;
     bool echogramSyncCursor_ = true;  // default ON  (cursor/click + time/scroll sync)
     bool echogramSyncView_ = false;   // default OFF (vertical zoom + offset sync)

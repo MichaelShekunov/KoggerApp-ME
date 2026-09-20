@@ -67,6 +67,11 @@ public:
     // is a channel mask, not a format.
     int datasetChartZ();
     void setDatasetChartZ(int ch_param);
+    // USB tap (IQ / RAW): only asks the device to publish; the data comes through UsbTap.
+    int datasetTapIq();
+    void setDatasetTapIq(int ch_param);
+    int datasetTapRaw();
+    void setDatasetTapRaw(int ch_param);
     int datasetTemp();
     void setDatasetTemp(int ch_param);
     int datasetEuler();

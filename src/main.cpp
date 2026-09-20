@@ -336,6 +336,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("deviceManagerWrapper", core.getDeviceManagerWrapperPtr());
     engine.rootContext()->setContextProperty("deviceTopology", core.getDeviceTopologyModelPtr());
     engine.rootContext()->setContextProperty("logViewer", core.getConsolePtr());
+    engine.rootContext()->setContextProperty("usbTap", core.getUsbTapPtr());
     engine.rootContext()->setContextProperty("uiStateSerializer", &uiStateSerializer);
     engine.rootContext()->setContextProperty("echogramStateSerializer", &echogramStateSerializer);
     engine.rootContext()->setContextProperty("notifications", &notifications);

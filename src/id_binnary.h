@@ -510,6 +510,24 @@ public:
     void resetChartZ_v0(U1 ch_id) { resetFlag(ch_id, MASK_CHART_Z_V0); }
     bool getChartZ_v0(U1 ch_id) { return flag(ch_id, MASK_CHART_Z_V0); }
 
+    /**
+     * USB tap of the Baikal-sonar. IQ (bit 22) publishes the complex baseband
+     * of the two-pass receiver after every ping, RAW (bit 23) the raw ADC
+     * samples; both leave this link and arrive over the second core's own
+     * CDC port (see UsbTap). Like the compressed echogram they live above the
+     * low byte the published protocol owns.
+     */
+    static constexpr uint32_t MASK_TAP_IQ_V0  = 1u << 22;
+    static constexpr uint32_t MASK_TAP_RAW_V0 = 1u << 23;
+
+    void setTapIq_v0(U1 ch_id) { setFlag(ch_id, MASK_TAP_IQ_V0); }
+    void resetTapIq_v0(U1 ch_id) { resetFlag(ch_id, MASK_TAP_IQ_V0); }
+    bool getTapIq_v0(U1 ch_id) { return flag(ch_id, MASK_TAP_IQ_V0); }
+
+    void setTapRaw_v0(U1 ch_id) { setFlag(ch_id, MASK_TAP_RAW_V0); }
+    void resetTapRaw_v0(U1 ch_id) { resetFlag(ch_id, MASK_TAP_RAW_V0); }
+    bool getTapRaw_v0(U1 ch_id) { return flag(ch_id, MASK_TAP_RAW_V0); }
+
     void setAttitude_v0(U1 ch_id) { setFlag(ch_id, MASK_ATTITUDE_V0); }
     void resetAttitude_v0(U1 ch_id) { resetFlag(ch_id, MASK_ATTITUDE_V0); }
     bool getAttitude_v0(U1 ch_id) { return flag(ch_id, MASK_ATTITUDE_V0); }

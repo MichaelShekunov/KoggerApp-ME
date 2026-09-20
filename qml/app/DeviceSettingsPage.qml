@@ -1101,16 +1101,33 @@ Column {
                 // formats are mutually exclusive: asking for both puts two
                 // pictures of the same ping into one plot, and since the codec
                 // is lossy they do not even agree.
-                options: [{ label: qsTr("Off"), value: 0 }, { label: qsTr("8-bit"), value: 1 }, { label: qsTr("Compressed"), value: 2 }]
-                property int chartModel: dev ? (dev.datasetChartZ === 1 ? 2 : (dev.datasetChart === 1 ? 1 : 0)) : 0
+                // IQ and RAW are not echogram formats but taps: the device keeps
+                // ranging, sends no echogram on this link, and the second core
+                // streams the baseband (IQ) or the raw ADC samples (RAW) over its
+                // own USB port, which UsbTap picks up and records.
+                options: [{ label: qsTr("Off"), value: 0 }, { label: qsTr("8-bit"), value: 1 }, { label: qsTr("Compressed"), value: 2 }, { label: qsTr("IQ"), value: 3 }, { label: qsTr("RAW"), value: 4 }]
+                property int chartModel: dev ? (dev.datasetTapRaw === 1 ? 4 : (dev.datasetTapIq === 1 ? 3 : (dev.datasetChartZ === 1 ? 2 : (dev.datasetChart === 1 ? 1 : 0)))) : 0
                 property bool _g: false
-                onChartModelChanged: { if (currentValue !== chartModel) { _g = true; currentValue = chartModel; _g = false } }
+                onChartModelChanged: {
+                    if (currentValue !== chartModel) { _g = true; currentValue = chartModel; _g = false }
+                    // The device may come up already in a tap mode (the mask is kept in its flash).
+                    if (chartModel >= 3) usbTap.setMode(chartModel - 2, core.logDirectory())
+                }
                 Component.onCompleted: { _g = true; currentValue = chartModel; _g = false }
                 onValueSelected: function(v) {
                     if (_g || !dev) return
                     dev.datasetChart  = (v === 1) ? 1 : 0
                     dev.datasetChartZ = (v === 2) ? 1 : 0
+                    dev.datasetTapIq  = (v === 3) ? 1 : 0
+                    dev.datasetTapRaw = (v === 4) ? 1 : 0
+                    usbTap.setMode(v >= 3 ? v - 2 : 0, core.logDirectory())
                 }
+            }
+            Text {
+                visible: !!(dev && (dev.datasetTapIq === 1 || dev.datasetTapRaw === 1))
+                width: parent.width; wrapMode: Text.Wrap
+                color: AppPalette.textSecond; font.pixelSize: Tokens.fontMd
+                text: usbTap.statusText
             }
             Reveal {
                 open: b2ChartTab.currentValue !== 0
@@ -1405,16 +1422,33 @@ Column {
                 // formats are mutually exclusive: asking for both puts two
                 // pictures of the same ping into one plot, and since the codec
                 // is lossy they do not even agree.
-                options: [{ label: qsTr("Off"), value: 0 }, { label: qsTr("8-bit"), value: 1 }, { label: qsTr("Compressed"), value: 2 }]
-                property int chartModel: dev ? (dev.datasetChartZ === 1 ? 2 : (dev.datasetChart === 1 ? 1 : 0)) : 0
+                // IQ and RAW are not echogram formats but taps: the device keeps
+                // ranging, sends no echogram on this link, and the second core
+                // streams the baseband (IQ) or the raw ADC samples (RAW) over its
+                // own USB port, which UsbTap picks up and records.
+                options: [{ label: qsTr("Off"), value: 0 }, { label: qsTr("8-bit"), value: 1 }, { label: qsTr("Compressed"), value: 2 }, { label: qsTr("IQ"), value: 3 }, { label: qsTr("RAW"), value: 4 }]
+                property int chartModel: dev ? (dev.datasetTapRaw === 1 ? 4 : (dev.datasetTapIq === 1 ? 3 : (dev.datasetChartZ === 1 ? 2 : (dev.datasetChart === 1 ? 1 : 0)))) : 0
                 property bool _g: false
-                onChartModelChanged: { if (currentValue !== chartModel) { _g = true; currentValue = chartModel; _g = false } }
+                onChartModelChanged: {
+                    if (currentValue !== chartModel) { _g = true; currentValue = chartModel; _g = false }
+                    // The device may come up already in a tap mode (the mask is kept in its flash).
+                    if (chartModel >= 3) usbTap.setMode(chartModel - 2, core.logDirectory())
+                }
                 Component.onCompleted: { _g = true; currentValue = chartModel; _g = false }
                 onValueSelected: function(v) {
                     if (_g || !dev) return
                     dev.datasetChart  = (v === 1) ? 1 : 0
                     dev.datasetChartZ = (v === 2) ? 1 : 0
+                    dev.datasetTapIq  = (v === 3) ? 1 : 0
+                    dev.datasetTapRaw = (v === 4) ? 1 : 0
+                    usbTap.setMode(v >= 3 ? v - 2 : 0, core.logDirectory())
                 }
+            }
+            Text {
+                visible: !!(dev && (dev.datasetTapIq === 1 || dev.datasetTapRaw === 1))
+                width: parent.width; wrapMode: Text.Wrap
+                color: AppPalette.textSecond; font.pixelSize: Tokens.fontMd
+                text: usbTap.statusText
             }
         }
 
