@@ -6,6 +6,7 @@
 #include <QtEndian>
 
 #include <cmath>
+#include <cstring>
 
 namespace {
 
@@ -14,10 +15,18 @@ constexpr uint8_t kIdIq   = 0x79;
 constexpr uint8_t kIdRaw  = 0x7A;
 constexpr uint8_t kIdStat = 0x7B;
 
-constexpr int kMetaLen   = 44;
-constexpr int kIqHdrLen  = 8;
-constexpr int kStatLen   = 29;
-constexpr int kMaxSamples = 4096;   // the sonar's baseband buffer; anything bigger is noise
+constexpr int kMetaLen     = 44;
+constexpr int kIqHdrLen    = 8;
+constexpr int kRawHdrLen   = 12;
+constexpr int kStatLen     = 29;          // 33 with the raw-drop counter
+constexpr int kMaxSamples  = 4096;        // the sonar's baseband buffer; anything bigger is noise
+constexpr uint32_t kMaxRaw = 1u << 24;    // raw window: 16M samples is ~6 s of ADC, far beyond any range
+
+constexpr uint16_t kFlagIq  = 1;
+constexpr uint16_t kFlagRaw = 2;
+
+constexpr uint8_t kFmtU16   = 1;
+constexpr uint8_t kFmtU12P  = 2;
 
 uint16_t u16(const QByteArray& b, int at) { return qFromLittleEndian<uint16_t>(reinterpret_cast<const uchar*>(b.constData() + at)); }
 uint32_t u32(const QByteArray& b, int at) { return qFromLittleEndian<uint32_t>(reinterpret_cast<const uchar*>(b.constData() + at)); }
@@ -33,13 +42,23 @@ float    f32(const QByteArray& b, int at) {
 UsbTap::UsbTap(QObject* parent) : QObject(parent) {
     scan_.setInterval(1000);
     connect(&scan_, &QTimer::timeout, this, &UsbTap::scan);
+    rawClose_.setSingleShot(true);
+    rawClose_.setInterval(250);
+    connect(&rawClose_, &QTimer::timeout, this, &UsbTap::closeRawWindow);
     connect(&port_, &QSerialPort::readyRead, this, &UsbTap::onReadyRead);
     connect(&port_, &QSerialPort::errorOccurred, this, &UsbTap::onError);
 }
 
 UsbTap::~UsbTap() {
     closePort();
-    if (file_.isOpen()) file_.close();
+    if (fileIq_.isOpen()) fileIq_.close();
+    if (fileRaw_.isOpen()) fileRaw_.close();
+}
+
+QString UsbTap::filePath() const {
+    if (fileRaw_.isOpen()) return fileRaw_.fileName();
+    if (fileIq_.isOpen()) return fileIq_.fileName();
+    return QString();
 }
 
 void UsbTap::setMode(int mode, const QString& logDir) {
@@ -47,16 +66,17 @@ void UsbTap::setMode(int mode, const QString& logDir) {
     logDir_ = logDir;
     if (mode == mode_) return;
     mode_ = mode;
+    if (fileIq_.isOpen()) fileIq_.close();
+    if (fileRaw_.isOpen()) fileRaw_.close();
     if (mode_ == Off) {
         scan_.stop();
         closePort();
-        if (file_.isOpen()) file_.close();
     } else {
-        // A new capture starts a new file; the counters describe that capture.
-        if (file_.isOpen()) file_.close();
-        pings_ = 0;
-        incomplete_ = 0;
+        // A new capture starts new files; the counters describe that capture.
+        pings_ = incomplete_ = 0;
+        rawWindows_ = rawIncomplete_ = 0;
         cur_ = Ping();
+        raw_ = RawWindow();
         rateBytes_ = 0;
         kbps_ = 0.0;
         rateClock_.start();
@@ -73,6 +93,7 @@ void UsbTap::scan() {
         if (info.vendorIdentifier() != kVendorId || info.productIdentifier() != kProductId) continue;
         port_.setPort(info);
         port_.setBaudRate(QSerialPort::Baud115200);   // CDC ignores it; the streamer waits for DTR
+        port_.setReadBufferSize(0);                    // unlimited: RAW bursts at ~4 MB/s
         if (!port_.open(QIODevice::ReadWrite)) {
             port_.clearError();
             continue;
@@ -80,6 +101,7 @@ void UsbTap::scan() {
         port_.setDataTerminalReady(true);
         rx_.clear();
         cur_ = Ping();
+        raw_ = RawWindow();
         emit stateChanged();
         return;
     }
@@ -146,31 +168,48 @@ void UsbTap::onFrame(uint8_t id, const QByteArray& payload) {
     switch (id) {
     case kIdMeta: onMeta(payload); break;
     case kIdIq:   onIq(payload);   break;
+    case kIdRaw:  onRaw(payload);  break;
     case kIdStat: onStat(payload); break;
-    case kIdRaw:  break;   // firmware step 2: not emitted yet
     default:      break;
     }
 }
 
 void UsbTap::onMeta(const QByteArray& p) {
     if (p.size() < kMetaLen) return;
+    const uint16_t seq = u16(p, 0);
+    const uint16_t flags = u16(p, 42);
+
     if (cur_.valid && cur_.got < cur_.total) {
-        ++incomplete_;   // the device tore the previous ping or frames were lost
+        ++incomplete_;   // the device tore the previous IQ ping or frames were lost
     }
     cur_ = Ping();
-    cur_.meta = p.left(kMetaLen);
-    cur_.seq = u16(p, 0);
-    cur_.total = u16(p, 22);
-    cur_.pingsCounter = u32(p, 32);
-    cur_.distMm = u32(p, 28);
-    cur_.stackFree = u32(p, 36);
-    if (cur_.total == 0 || cur_.total > kMaxSamples) { cur_ = Ping(); return; }
-    cur_.i.fill(0.0f, cur_.total);
-    cur_.q.fill(0.0f, cur_.total);
-    cur_.have.fill(false, cur_.total);
-    cur_.valid = true;
-    lastStackFree_ = cur_.stackFree;
-    lastDistMm_ = cur_.distMm;
+    if (flags & kFlagIq) {
+        cur_.meta = p.left(kMetaLen);
+        cur_.seq = seq;
+        cur_.total = u16(p, 22);
+        cur_.pingsCounter = u32(p, 32);
+        cur_.distMm = u32(p, 28);
+        cur_.stackFree = u32(p, 36);
+        if (cur_.total > 0 && cur_.total <= kMaxSamples) {
+            cur_.i.fill(0.0f, cur_.total);
+            cur_.q.fill(0.0f, cur_.total);
+            cur_.have.fill(false, cur_.total);
+            cur_.valid = true;
+        } else {
+            cur_ = Ping();
+        }
+    }
+    lastStackFree_ = u32(p, 36);
+    lastDistMm_ = u32(p, 28);
+
+    // META closes a RAW window: the device sends it after the last chunk, but the
+    // window stays open a moment longer in case the channel reordered nothing
+    // and simply lagged.
+    if ((flags & kFlagRaw) && raw_.valid && raw_.seq == seq) {
+        raw_.meta = p.left(kMetaLen);
+        if (raw_.got >= int(raw_.total)) finishRaw();
+        else rawClose_.start();
+    }
 }
 
 void UsbTap::onIq(const QByteArray& p) {
@@ -191,28 +230,92 @@ void UsbTap::onIq(const QByteArray& p) {
     if (cur_.got == cur_.total) finishPing();
 }
 
+void UsbTap::resizeRaw(uint32_t total) {
+    // The sonar refines the window length when the window ends; the last frame is right.
+    if (total == raw_.total || total == 0 || total > kMaxRaw) return;
+    raw_.data.resize(int(total));
+    raw_.have.resize(int(total));
+    raw_.total = total;
+    raw_.got = 0;
+    for (bool h : raw_.have) if (h) ++raw_.got;
+}
+
+void UsbTap::onRaw(const QByteArray& p) {
+    if (p.size() < kRawHdrLen) return;
+    const uint16_t seq = u16(p, 0);
+    const uint32_t first = u32(p, 2);
+    const uint32_t total = u32(p, 6);
+    const int n = uchar(p[10]);
+    const int fmt = uchar(p[11]);
+    if (total == 0 || total > kMaxRaw || n == 0) return;
+
+    QVector<uint16_t> s(n);
+    if (fmt == kFmtU16) {
+        if (p.size() < kRawHdrLen + 2 * n) return;
+        for (int k = 0; k < n; ++k) s[k] = u16(p, kRawHdrLen + 2 * k);
+    } else if (fmt == kFmtU12P) {
+        if (p.size() < kRawHdrLen + (3 * n + 1) / 2) return;
+        const uchar* d = reinterpret_cast<const uchar*>(p.constData()) + kRawHdrLen;
+        int k = 0;
+        for (int i = 0; i + 1 < n; i += 2, k += 3) {
+            s[i]     = uint16_t(d[k] | ((d[k + 1] & 0x0F) << 8));
+            s[i + 1] = uint16_t((d[k + 1] >> 4) | (d[k + 2] << 4));
+        }
+        if (n & 1) s[n - 1] = uint16_t(d[k] | ((d[k + 1] & 0x0F) << 8));
+    } else {
+        return;
+    }
+
+    if (!raw_.valid || raw_.seq != seq) {
+        if (raw_.valid) finishRaw();          // the previous window never got its META
+        raw_ = RawWindow();
+        raw_.seq = seq;
+        raw_.total = total;
+        raw_.data.fill(0, int(total));
+        raw_.have.fill(false, int(total));
+        raw_.valid = true;
+    } else {
+        resizeRaw(total);
+    }
+    for (int k = 0; k < n; ++k) {
+        const uint32_t idx = first + uint32_t(k);
+        if (idx >= raw_.total || raw_.have[int(idx)]) continue;
+        raw_.data[int(idx)] = s[k];
+        raw_.have[int(idx)] = true;
+        ++raw_.got;
+    }
+    ++raw_.frames;
+    if (!raw_.meta.isEmpty() && raw_.got >= int(raw_.total)) finishRaw();
+}
+
+void UsbTap::closeRawWindow() {
+    if (raw_.valid && !raw_.meta.isEmpty()) finishRaw();
+}
+
 void UsbTap::onStat(const QByteArray& p) {
     if (p.size() < kStatLen) return;
     devFrames_ = u32(p, 8);
     devTorn_ = u32(p, 12);
     devSkipped_ = u32(p, 16);
     lastStackFree_ = u32(p, 24);
+    if (p.size() >= 33) devRawDropped_ = u32(p, 29);
     statSeen_ = true;
     emit stateChanged();
 }
 
-bool UsbTap::openFile() {
-    if (file_.isOpen()) return true;
+bool UsbTap::openFile(QFile& file, const char* suffix, const QByteArray& header) {
+    if (file.isOpen()) return true;
     QDir dir(logDir_.isEmpty() ? QDir::currentPath() : logDir_);
     if (!dir.exists() && !dir.mkpath(".")) return false;
-    const QString name = QStringLiteral("tap_%1.tapiq")
-                             .arg(QDateTime::currentDateTime().toString(QStringLiteral("yyyyMMdd_HHmmss")));
-    file_.setFileName(dir.filePath(name));
-    if (!file_.open(QIODevice::WriteOnly | QIODevice::Truncate)) return false;
-    QByteArray hdr("TAPIQ1\0\0", 8);
+    const QString name = QStringLiteral("tap_%1.%2")
+                             .arg(QDateTime::currentDateTime().toString(QStringLiteral("yyyyMMdd_HHmmss")))
+                             .arg(QLatin1String(suffix));
+    file.setFileName(dir.filePath(name));
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) return false;
+    QByteArray hdr = header;
     uint32_t words[2] = { qToLittleEndian<uint32_t>(1), 0 };
     hdr.append(reinterpret_cast<const char*>(words), sizeof words);
-    file_.write(hdr);
+    file.write(hdr);
     return true;
 }
 
@@ -222,7 +325,7 @@ void UsbTap::finishPing() {
     for (int k = 0; k < cur_.total; ++k) acc += std::sqrt(double(cur_.i[k]) * cur_.i[k] + double(cur_.q[k]) * cur_.q[k]);
     const float mean = cur_.total ? float(acc / cur_.total) : 0.0f;
 
-    if (openFile()) {
+    if (openFile(fileIq_, "tapiq", QByteArray("TAPIQ1\0\0", 8))) {
         QByteArray body = cur_.meta;
         body.reserve(kMetaLen + 8 * cur_.total);
         for (int k = 0; k < cur_.total; ++k) {
@@ -230,14 +333,50 @@ void UsbTap::finishPing() {
             body.append(reinterpret_cast<const char*>(v), sizeof v);   // host is little-endian, like the wire
         }
         const uint32_t len = qToLittleEndian<uint32_t>(uint32_t(body.size()));
-        file_.write("PING", 4);
-        file_.write(reinterpret_cast<const char*>(&len), 4);
-        file_.write(body);
-        if ((pings_ % 8) == 0) file_.flush();
+        fileIq_.write("PING", 4);
+        fileIq_.write(reinterpret_cast<const char*>(&len), 4);
+        fileIq_.write(body);
+        if ((pings_ % 8) == 0) fileIq_.flush();
     }
     ++pings_;
     emit pingReceived(cur_.seq, cur_.total, mean);
     cur_ = Ping();
+    emit stateChanged();
+}
+
+void UsbTap::finishRaw() {
+    if (!raw_.valid) return;
+    rawClose_.stop();
+    const int total = int(raw_.total);
+    QVector<QPair<uint32_t, uint32_t>> gaps;
+    for (int k = 0; k < total;) {
+        if (raw_.have[k]) { ++k; continue; }
+        int j = k;
+        while (j < total && !raw_.have[j]) ++j;
+        gaps.append(qMakePair(uint32_t(k), uint32_t(j - k)));
+        k = j;
+    }
+    if (openFile(fileRaw_, "tapraw", QByteArray("TAPRAW1\0", 8))) {
+        QByteArray body = raw_.meta.isEmpty() ? QByteArray(kMetaLen, '\0') : raw_.meta;
+        body.reserve(kMetaLen + 12 + 8 * gaps.size() + 2 * total);
+        uint32_t head[3] = { qToLittleEndian<uint32_t>(raw_.total), qToLittleEndian<uint32_t>(uint32_t(raw_.got)),
+                             qToLittleEndian<uint32_t>(uint32_t(gaps.size())) };
+        body.append(reinterpret_cast<const char*>(head), sizeof head);
+        for (const auto& g : gaps) {
+            uint32_t pair[2] = { qToLittleEndian<uint32_t>(g.first), qToLittleEndian<uint32_t>(g.second) };
+            body.append(reinterpret_cast<const char*>(pair), sizeof pair);
+        }
+        body.append(reinterpret_cast<const char*>(raw_.data.constData()), 2 * total);   // little-endian host
+        const uint32_t len = qToLittleEndian<uint32_t>(uint32_t(body.size()));
+        fileRaw_.write("PING", 4);
+        fileRaw_.write(reinterpret_cast<const char*>(&len), 4);
+        fileRaw_.write(body);
+        fileRaw_.flush();
+    }
+    ++rawWindows_;
+    if (raw_.got < total) ++rawIncomplete_;
+    emit rawWindowReceived(raw_.seq, raw_.got, total);
+    raw_ = RawWindow();
     emit stateChanged();
 }
 
@@ -246,19 +385,18 @@ QString UsbTap::statusText() const {
     if (!port_.isOpen()) {
         return tr("USB tap port (VID 600D) not found: is the second core running?");
     }
-    QString s = tr("%1: %2 pings, %3 KB/s, %4 incomplete")
-                    .arg(port_.portName()).arg(pings_).arg(kbps_, 0, 'f', 1).arg(incomplete_);
-    if (statSeen_) {
-        s += tr("; device: torn %1, skipped %2").arg(devTorn_).arg(devSkipped_);
-    }
-    if (lastStackFree_) {
-        s += tr("; core 0 stack free %1 B").arg(lastStackFree_);
-    }
+    QString s;
     if (mode_ == Raw) {
-        s += tr("; RAW frames are not emitted by this firmware yet");
+        s = tr("%1: %2 RAW windows, %3 with gaps, %4 KB/s")
+                .arg(port_.portName()).arg(rawWindows_).arg(rawIncomplete_).arg(kbps_, 0, 'f', 1);
+        if (statSeen_) s += tr("; device dropped %1 samples").arg(devRawDropped_);
+    } else {
+        s = tr("%1: %2 pings, %3 KB/s, %4 incomplete")
+                .arg(port_.portName()).arg(pings_).arg(kbps_, 0, 'f', 1).arg(incomplete_);
+        if (statSeen_) s += tr("; device: torn %1, skipped %2").arg(devTorn_).arg(devSkipped_);
     }
-    if (file_.isOpen()) {
-        s += QStringLiteral("\n") + QDir::toNativeSeparators(file_.fileName());
-    }
+    if (lastStackFree_) s += tr("; core 0 stack free %1 B").arg(lastStackFree_);
+    const QString path = filePath();
+    if (!path.isEmpty()) s += QStringLiteral("\n") + QDir::toNativeSeparators(path);
     return s;
 }

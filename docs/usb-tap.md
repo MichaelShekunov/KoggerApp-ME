@@ -13,7 +13,7 @@ to a file in the log directory and shows a status line under the switch.
 | 8-bit | 1 (`MASK_CHART_V0`) | echogram | control link |
 | Compressed | 21 (`MASK_CHART_Z_V0`) | compressed echogram | control link |
 | IQ | 22 (`MASK_TAP_IQ_V0`) | complex baseband of the two-pass receiver, one block per ping | USB port of the second core |
-| RAW | 23 (`MASK_TAP_RAW_V0`) | raw ADC samples (firmware step 2, not emitted yet) | USB port of the second core |
+| RAW | 23 (`MASK_TAP_RAW_V0`) | raw ADC samples of the listening window, three ADCs interleaved, 12-bit | USB port of the second core |
 
 The five positions are mutually exclusive in the switch; the bits themselves
 are independent in the protocol.
@@ -63,17 +63,34 @@ little-endian. Three identifiers are used:
 first sample), `u8 n` (samples in this frame, at most 30), `u8 fmt` (1 =
 float32 pairs), `u16 total` (= bb_len), then `n` pairs of float32 `I, Q`.
 
-**ID_TAP_STAT (0x7B), 29 bytes**, once a second: `u32 tick`, `u32 millis`,
-`u32 frames`, `u32 torn` (pings abandoned because the sonar started to
-overwrite the buffer), `u32 skipped` (pings not sent: port closed or host not
-reading), `u32 last_seq`, `u32 stack_free`, `u8 state`.
+**ID_TAP_RAW (0x7A), 12 + data**, sent *during* the listening window of a
+ping, before its META: `u16 seq`, `u32 first` (index of the first sample in
+the window's interleaved stream), `u32 total` (samples in the window; the
+sonar refines it when the window ends, so the last frame is authoritative),
+`u8 n` (samples in this frame, at most 156), `u8 fmt`, then the samples in
+ADC order `s0 s1 s2 s0 s1 s2 …`. `fmt` 1 is `uint16` per sample; `fmt` 2 packs
+two 12-bit samples into three bytes: `b0 = a[7:0]`, `b1 = a[11:8] | b[3:0] << 4`,
+`b2 = b[11:4]`, an odd tail being one sample in two bytes. Packing is what
+keeps the stream (three ADCs at about 0.93 MS/s each) under the throughput of
+the device's CDC class. Missing indices are gaps: samples the device dropped
+because its buffer filled, or frames lost in transit; the device counts its
+own drops in STAT.
+
+**ID_TAP_STAT (0x7B), 33 bytes** (29 in older firmware), once a second:
+`u32 tick`, `u32 millis`, `u32 frames`, `u32 torn` (pings abandoned because
+the sonar started to overwrite the buffer), `u32 skipped` (pings not sent:
+port closed or host not reading), `u32 last_seq`, `u32 stack_free`,
+`u8 state`, `u32 raw_dropped` (raw samples the device dropped).
 
 The baseband rate is `3 · rate_hz / decf`; one sample spans
-`sound / 2 / (3 · rate_hz / decf)` of range.
+`sound / 2 / (3 · rate_hz / decf)` of range. The raw stream runs at
+`3 · rate_hz`.
 
-## Recorded file
+## Recorded files
 
-`tap_YYYYMMDD_HHMMSS.tapiq` in the log directory, little-endian:
+Both live in the log directory, little-endian.
+
+`tap_YYYYMMDD_HHMMSS.tapiq`:
 
 ```
 "TAPIQ1\0\0"  u32 version=1  u32 reserved
@@ -84,9 +101,29 @@ Only complete pings are written. A ping with missing frames — torn on the
 device or lost in transit — is dropped and counted as *incomplete* in the
 status line.
 
+`tap_YYYYMMDD_HHMMSS.tapraw`:
+
+```
+"TAPRAW1\0"  u32 version=1  u32 reserved
+repeat: "PING"  u32 length  META[44]  u32 total  u32 got  u32 ngaps
+        ngaps × (u32 first, u32 count)  uint16 × total
+```
+
+Every window is written as received: `total` samples with the missing ones
+zero and listed in the gap table; META is all zeros if it never arrived. A
+window closes on its META (which the device sends after the last chunk), on
+the next window's first frame, or a quarter of a second after META if chunks
+were still trickling in.
+
 ## Status line
 
-`COM5: 123 pings, 41.4 KB/s, 0 incomplete; device: torn 0, skipped 15; core 0
-stack free 7716 B` followed by the file path. *Skipped* counts pings the device
-had ready while nobody was reading the port, so it grows before the app opens
-it and stays put afterwards.
+IQ: `COM5: 123 pings, 41.4 KB/s, 0 incomplete; device: torn 0, skipped 15;
+core 0 stack free 7716 B` followed by the file path. *Skipped* counts pings the
+device had ready while nobody was reading the port, so it grows before the app
+opens it and stays put afterwards.
+
+RAW: `COM5: 28 RAW windows, 2 with gaps, 265.0 KB/s; device dropped 31221
+samples; core 0 stack free 7716 B` followed by the file path. A window of
+1500 cells at 10 mm is 20 ms and 56 673 samples; the device's buffer covers
+the difference between the ADC rate and the USB channel for windows up to
+roughly 30 ms, longer ones lose their tail and say so in the gap table.
