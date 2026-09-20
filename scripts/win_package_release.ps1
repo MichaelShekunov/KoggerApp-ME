@@ -152,6 +152,16 @@ if (-not $NoZip) {
 
 if (-not $NoInstaller) {
     Write-Step 'Building the installer'
+
+    # Inno Setup finalises setup.exe by rewriting its resources, and that fails
+    # with "EndUpdateResource failed (110)" if anything holds the file open.
+    # dist\ sits inside the Yandex Disk sync root, and the client grabs files
+    # the moment they appear — it had just started on the 50 MB zip. So the
+    # installer is built outside the sync root and moved in afterwards; a
+    # rebuilt artifact has no business being synced mid-write anyway.
+    $issOut = Join-Path $env:TEMP "koggerapp-iss-$PID"
+    New-Item -ItemType Directory -Path $issOut -Force | Out-Null
+
     $iscc = "$InnoRoot\ISCC.exe"
     if (-not (Test-Path -LiteralPath $iscc)) {
         $onPath = Get-Command 'ISCC.exe' -ErrorAction SilentlyContinue
@@ -164,11 +174,15 @@ if (-not $NoInstaller) {
         "/DMyAppVersion=$fullVersion" `
         "/DMyAppVersionInfo=$numeric" `
         "/DPayloadDir=$stage" `
-        "/DOutputDir=$dist" `
+        "/DOutputDir=$issOut" `
         "/DOutputBase=$baseName-setup" `
         "/DIconFile=$repo\resources\icons\app\kogger_app.ico" `
         "$repo\packaging\koggerapp.iss"
     if ($LASTEXITCODE -ne 0) { throw "ISCC failed (exit $LASTEXITCODE)" }
+
+    Move-Item -LiteralPath "$issOut\$baseName-setup.exe" `
+              -Destination "$dist\$baseName-setup.exe" -Force
+    Remove-Item -LiteralPath $issOut -Recurse -Force -ErrorAction SilentlyContinue
     $artifacts += "$dist\$baseName-setup.exe"
 }
 
