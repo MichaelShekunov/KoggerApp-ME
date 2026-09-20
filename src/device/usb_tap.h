@@ -15,9 +15,9 @@
  * Receiver of the Baikal-sonar USB tap.
  *
  * The sonar's second core owns a CDC serial port and streams diagnostic data
- * over it as KLF frames: the complex baseband of the two-pass receiver (IQ,
- * one block per ping) or the raw ADC samples of the listening window (RAW,
- * three ADCs interleaved). The frame layout is the contract published in the
+ * over it as KLF frames: the complex baseband of the streaming receiver (IQ)
+ * or the raw ADC samples (RAW, three ADCs interleaved), both sent chunk by
+ * chunk while the listening window runs, followed by the META of the ping. The frame layout is the contract published in the
  * firmware repository (Core1USB/firmware/tap_mbox.h): ID_TAP_META (0x78)
  * describes a ping, ID_TAP_IQ (0x79) carries 30 complex float32 samples,
  * ID_TAP_RAW (0x7A) carries up to 156 twelve-bit samples packed two in three
@@ -78,6 +78,7 @@ private slots:
     void onReadyRead();
     void onError(QSerialPort::SerialPortError error);
     void closeRawWindow();
+    void closeIqWindow();
 
 private:
     struct Ping {
@@ -110,6 +111,7 @@ private:
     void onRaw(const QByteArray& payload);
     void onStat(const QByteArray& payload);
     void finishPing();
+    void resizeIq(uint16_t total);
     void finishRaw();
     void resizeRaw(uint32_t total);
     bool openFile(QFile& file, const char* suffix, const QByteArray& header);
@@ -122,6 +124,7 @@ private:
     QSerialPort   port_;
     QTimer        scan_;
     QTimer        rawClose_;
+    QTimer        iqClose_;
     QByteArray    rx_;
     QFile         fileIq_;
     QFile         fileRaw_;
@@ -143,5 +146,6 @@ private:
     uint32_t devSkipped_ = 0;
     uint32_t devFrames_ = 0;
     uint32_t devRawDropped_ = 0;
+    uint32_t devIqDropped_ = 0;
     bool     statSeen_ = false;
 };

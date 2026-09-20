@@ -19,7 +19,7 @@ constexpr int kMetaLen     = 44;
 constexpr int kIqHdrLen    = 8;
 constexpr int kRawHdrLen   = 12;
 constexpr int kStatLen     = 29;          // 33 with the raw-drop counter
-constexpr int kMaxSamples  = 4096;        // the sonar's baseband buffer; anything bigger is noise
+constexpr int kMaxSamples  = 65535;       // u16 on the wire; a 5000-cell window at 10 mm is about 20 500 samples
 constexpr uint32_t kMaxRaw = 1u << 24;    // raw window: 16M samples is ~6 s of ADC, far beyond any range
 
 constexpr uint16_t kFlagIq  = 1;
@@ -43,8 +43,11 @@ UsbTap::UsbTap(QObject* parent) : QObject(parent) {
     scan_.setInterval(1000);
     connect(&scan_, &QTimer::timeout, this, &UsbTap::scan);
     rawClose_.setSingleShot(true);
+    iqClose_.setSingleShot(true);
     rawClose_.setInterval(250);
+    iqClose_.setInterval(250);
     connect(&rawClose_, &QTimer::timeout, this, &UsbTap::closeRawWindow);
+    connect(&iqClose_, &QTimer::timeout, this, &UsbTap::closeIqWindow);
     connect(&port_, &QSerialPort::readyRead, this, &UsbTap::onReadyRead);
     connect(&port_, &QSerialPort::errorOccurred, this, &UsbTap::onError);
 }
@@ -178,33 +181,30 @@ void UsbTap::onMeta(const QByteArray& p) {
     if (p.size() < kMetaLen) return;
     const uint16_t seq = u16(p, 0);
     const uint16_t flags = u16(p, 42);
-
-    if (cur_.valid && cur_.got < cur_.total) {
-        ++incomplete_;   // the device tore the previous IQ ping or frames were lost
-    }
-    cur_ = Ping();
-    if (flags & kFlagIq) {
-        cur_.meta = p.left(kMetaLen);
-        cur_.seq = seq;
-        cur_.total = u16(p, 22);
-        cur_.pingsCounter = u32(p, 32);
-        cur_.distMm = u32(p, 28);
-        cur_.stackFree = u32(p, 36);
-        if (cur_.total > 0 && cur_.total <= kMaxSamples) {
-            cur_.i.fill(0.0f, cur_.total);
-            cur_.q.fill(0.0f, cur_.total);
-            cur_.have.fill(false, cur_.total);
-            cur_.valid = true;
-        } else {
-            cur_ = Ping();
-        }
-    }
     lastStackFree_ = u32(p, 36);
     lastDistMm_ = u32(p, 28);
 
-    // META closes a RAW window: the device sends it after the last chunk, but the
-    // window stays open a moment longer in case the channel reordered nothing
-    // and simply lagged.
+    // META closes an IQ window: the device streams the chunks while the
+    // listening window runs and sends META after the last one. A META without
+    // chunks (the port opened mid-window) still describes the ping; it is then
+    // closed as incomplete by the timer or by the next window.
+    if (flags & kFlagIq) {
+        if (!cur_.valid || cur_.seq != seq) {
+            if (cur_.valid) finishPing();              // the previous window never got its META
+            cur_ = Ping();
+            cur_.seq = seq;
+            cur_.valid = true;
+            resizeIq(u16(p, 22));
+        }
+        cur_.meta = p.left(kMetaLen);
+        cur_.pingsCounter = u32(p, 32);
+        cur_.distMm = u32(p, 28);
+        cur_.stackFree = u32(p, 36);
+        if (cur_.total > 0 && cur_.got >= cur_.total) finishPing();
+        else iqClose_.start();
+    }
+
+    // Same for a RAW window.
     if ((flags & kFlagRaw) && raw_.valid && raw_.seq == seq) {
         raw_.meta = p.left(kMetaLen);
         if (raw_.got >= int(raw_.total)) finishRaw();
@@ -213,12 +213,20 @@ void UsbTap::onMeta(const QByteArray& p) {
 }
 
 void UsbTap::onIq(const QByteArray& p) {
-    if (!cur_.valid || p.size() < kIqHdrLen) return;
+    if (p.size() < kIqHdrLen) return;
     const uint16_t seq = u16(p, 0);
     const uint16_t first = u16(p, 2);
     const int count = uchar(p[4]);
     const int fmt = uchar(p[5]);
-    if (seq != cur_.seq || fmt != 1 || p.size() < kIqHdrLen + 8 * count) return;
+    const uint16_t total = u16(p, 6);
+    if (fmt != 1 || total == 0 || total > kMaxSamples || p.size() < kIqHdrLen + 8 * count) return;
+    if (!cur_.valid || cur_.seq != seq) {
+        if (cur_.valid) finishPing();                  // the previous window never got its META
+        cur_ = Ping();
+        cur_.seq = seq;
+        cur_.valid = true;
+    }
+    resizeIq(total);                                    // the sonar refines the length when the window ends
     for (int k = 0; k < count; ++k) {
         const int idx = first + k;
         if (idx >= cur_.total || cur_.have[idx]) continue;
@@ -227,7 +235,21 @@ void UsbTap::onIq(const QByteArray& p) {
         cur_.have[idx] = true;
         ++cur_.got;
     }
-    if (cur_.got == cur_.total) finishPing();
+    if (!cur_.meta.isEmpty() && cur_.got >= cur_.total) finishPing();
+}
+
+void UsbTap::resizeIq(uint16_t total) {
+    if (total == cur_.total || total == 0 || total > kMaxSamples) return;
+    cur_.i.resize(total);
+    cur_.q.resize(total);
+    cur_.have.resize(total);
+    cur_.total = total;
+    cur_.got = 0;
+    for (bool h : cur_.have) if (h) ++cur_.got;
+}
+
+void UsbTap::closeIqWindow() {
+    if (cur_.valid) finishPing();
 }
 
 void UsbTap::resizeRaw(uint32_t total) {
@@ -299,6 +321,7 @@ void UsbTap::onStat(const QByteArray& p) {
     devSkipped_ = u32(p, 16);
     lastStackFree_ = u32(p, 24);
     if (p.size() >= 33) devRawDropped_ = u32(p, 29);
+    if (p.size() >= 37) devIqDropped_ = u32(p, 33);
     statSeen_ = true;
     emit stateChanged();
 }
@@ -321,6 +344,13 @@ bool UsbTap::openFile(QFile& file, const char* suffix, const QByteArray& header)
 
 void UsbTap::finishPing() {
     if (!cur_.valid) return;
+    iqClose_.stop();
+    if (cur_.meta.isEmpty() || cur_.total == 0 || cur_.got < cur_.total) {
+        ++incomplete_;                                  // torn on the device, lost in transit, or no META
+        cur_ = Ping();
+        emit stateChanged();
+        return;
+    }
     double acc = 0.0;
     for (int k = 0; k < cur_.total; ++k) acc += std::sqrt(double(cur_.i[k]) * cur_.i[k] + double(cur_.q[k]) * cur_.q[k]);
     const float mean = cur_.total ? float(acc / cur_.total) : 0.0f;
@@ -393,7 +423,7 @@ QString UsbTap::statusText() const {
     } else {
         s = tr("%1: %2 pings, %3 KB/s, %4 incomplete")
                 .arg(port_.portName()).arg(pings_).arg(kbps_, 0, 'f', 1).arg(incomplete_);
-        if (statSeen_) s += tr("; device: torn %1, skipped %2").arg(devTorn_).arg(devSkipped_);
+        if (statSeen_) s += tr("; device: torn %1, skipped %2, dropped %3 samples").arg(devTorn_).arg(devSkipped_).arg(devIqDropped_);
     }
     if (lastStackFree_) s += tr("; core 0 stack free %1 B").arg(lastStackFree_);
     const QString path = filePath();

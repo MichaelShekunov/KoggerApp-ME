@@ -12,8 +12,8 @@ to a file in the log directory and shows a status line under the switch.
 | Off | — | rangefinder only | control link |
 | 8-bit | 1 (`MASK_CHART_V0`) | echogram | control link |
 | Compressed | 21 (`MASK_CHART_Z_V0`) | compressed echogram | control link |
-| IQ | 22 (`MASK_TAP_IQ_V0`) | complex baseband of the two-pass receiver, one block per ping | USB port of the second core |
-| RAW | 23 (`MASK_TAP_RAW_V0`) | raw ADC samples of the listening window, three ADCs interleaved, 12-bit | USB port of the second core |
+| IQ | 22 (`MASK_TAP_IQ_V0`) | complex baseband of the streaming receiver, streamed while the listening window runs | USB port of the second core |
+| RAW | 23 (`MASK_TAP_RAW_V0`) | raw ADC samples of the listening window, three ADCs interleaved, 12-bit, streamed while the window runs | USB port of the second core |
 
 The five positions are mutually exclusive in the switch; the bits themselves
 are independent in the protocol.
@@ -38,7 +38,8 @@ BB 55 route(00) mode(01) id len payload c1 c2
 `c1`/`c2` is Fletcher-8 over `route .. payload`. All integers are
 little-endian. Three identifiers are used:
 
-**ID_TAP_META (0x78), 44 bytes**, one per ping, before its data:
+**ID_TAP_META (0x78), 44 bytes**, one per ping, sent *after* the window's
+IQ and RAW frames and closing them:
 
 | offset | type | field |
 | --- | --- | --- |
@@ -51,7 +52,7 @@ little-endian. Three identifiers are used:
 | 16 | u16 | resol_mm — echogram cell |
 | 18 | u16 | nsamp — echogram cells |
 | 20 | u16 | offset — first echogram cell |
-| 22 | u16 | bb_len — complex samples in this ping |
+| 22 | u16 | bb_len — complex baseband samples in the listening window (the same number the IQ frames carry as `total`) |
 | 24 | u32 | sound — sound speed, mm/s |
 | 28 | u32 | dist_mm — rangefinder distance |
 | 32 | u32 | pings — the sonar's ping counter |
@@ -59,9 +60,15 @@ little-endian. Three identifiers are used:
 | 40 | u16 | pulse — periods in the transmitted pulse; 0 = passive |
 | 42 | u16 | flags — bit 0 IQ requested, bit 1 RAW requested |
 
-**ID_TAP_IQ (0x79), 8 + 8·n bytes**: `u16 seq`, `u16 first` (index of the
-first sample), `u8 n` (samples in this frame, at most 30), `u8 fmt` (1 =
-float32 pairs), `u16 total` (= bb_len), then `n` pairs of float32 `I, Q`.
+**ID_TAP_IQ (0x79), payload always 248 bytes**, sent *during* the listening
+window: `u16 seq`, `u16 first` (index of the first sample in the window),
+`u8 n` (samples in this frame, at most 30), `u8 fmt` (1 = float32 pairs),
+`u16 total` (samples in the window; the sonar refines it when the window
+ends, so the last frame is authoritative), then `n` pairs of float32 `I, Q`
+and zero padding up to the fixed length. Size the data by `n`, never by the
+payload length. The samples are the live baseband of the streaming receiver
+taken from its ring while the window runs; nothing is buffered on the device
+beyond that ring, so a window of any length can be tapped.
 
 **ID_TAP_RAW (0x7A), payload always 248 bytes**, sent *during* the listening
 window of a ping, before its META: `u16 seq`, `u32 first` (index of the first
@@ -80,11 +87,12 @@ carries about 13 MB/s, the packed stream needs 4.2 MB/s (5.6 MB/s unpacked).
 Missing indices are gaps: samples the device dropped because its buffer
 filled, or frames lost in transit; the device counts its own drops in STAT.
 
-**ID_TAP_STAT (0x7B), 33 bytes** (29 in older firmware), once a second:
-`u32 tick`, `u32 millis`, `u32 frames`, `u32 torn` (pings abandoned because
-the sonar started to overwrite the buffer), `u32 skipped` (pings not sent:
-port closed or host not reading), `u32 last_seq`, `u32 stack_free`,
-`u8 state`, `u32 raw_dropped` (raw samples the device dropped).
+**ID_TAP_STAT (0x7B), 37 bytes** (33 or 29 in older firmware), once a
+second: `u32 tick`, `u32 millis`, `u32 frames`, `u32 torn` (unused since the
+streaming receiver; kept for the layout), `u32 skipped` (pings not sent: port
+closed or host not reading), `u32 last_seq`, `u32 stack_free`, `u8 state`,
+`u32 raw_dropped` (raw samples the device dropped because the second core fell
+behind the ADC rings), `u32 iq_dropped` (the same for baseband samples).
 
 The baseband rate is `3 · rate_hz / decf`; one sample spans
 `sound / 2 / (3 · rate_hz / decf)` of range. The raw stream runs at
@@ -101,9 +109,11 @@ Both live in the log directory, little-endian.
 repeat: "PING"  u32 length  META[44]  float32 I,Q × bb_len
 ```
 
-Only complete pings are written. A ping with missing frames — torn on the
-device or lost in transit — is dropped and counted as *incomplete* in the
-status line.
+Only complete pings are written. A window closes on its META if every
+sample has arrived, a quarter of a second after META otherwise, or when the
+next window's first frame arrives; a window with missing samples — dropped on
+the device or lost in transit — or without META is discarded and counted as
+*incomplete* in the status line.
 
 `tap_YYYYMMDD_HHMMSS.tapraw`:
 
@@ -121,10 +131,12 @@ were still trickling in.
 
 ## Status line
 
-IQ: `COM5: 123 pings, 41.4 KB/s, 0 incomplete; device: torn 0, skipped 15;
-core 0 stack free 7716 B` followed by the file path. *Skipped* counts pings the
-device had ready while nobody was reading the port, so it grows before the app
-opens it and stays put afterwards.
+IQ: `COM5: 123 pings, 239.0 KB/s, 0 incomplete; device: torn 0, skipped 15,
+dropped 0 samples; core 0 stack free 43888 B` followed by the file path.
+*Skipped* counts pings the device had ready while nobody was reading the port,
+so it grows before the app opens it and stays put afterwards; *dropped* counts
+baseband samples the second core could not take from the ring in time. A
+1500-cell window at 10 mm is 6297 baseband samples in 210 frames.
 
 RAW: `COM5: 28 RAW windows, 2 with gaps, 265.0 KB/s; device dropped 31221
 samples; core 0 stack free 7716 B` followed by the file path. A window of
