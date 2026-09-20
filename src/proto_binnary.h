@@ -95,6 +95,13 @@ enum ID : uint16_t {
     ID_DVL_VEL = 121,
     ID_DVL_MODE = 122,
 
+    // Compressed echogram, as sent by Baikal-sonar (board id 100). Not part of
+    // the published protocol; 125 was free here and is free upstream. Frames
+    // carrying it are ignored until a decoder is registered for this id, since
+    // dispatch is a hash lookup — an unknown id costs nothing and breaks
+    // nothing.
+    ID_CHART_Z = 0x7D, // 125
+
     ID_NAV = 0x64,
 
     ID_USBL_SOLUTION = 0x65,

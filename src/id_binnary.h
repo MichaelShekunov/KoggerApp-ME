@@ -233,6 +233,35 @@ public:
     uint8_t* logData8() { return m_completeChart; }
     uint8_t* logData28() { return m_completeChart2; }
 
+    /**
+     * Take an echogram that arrived compressed and publish it as if it had been
+     * reassembled from ID_CHART frames.
+     *
+     * Everything downstream — rendering, the dataset, the bottom track — reads
+     * this object, so decoding into it keeps one path instead of two.
+     *
+     * @param data   decoded samples, one byte per cell
+     * @param n      number of samples
+     * @param resol  cell size, mm
+     * @param absOffset  index of the first cell
+     */
+    void acceptDecoded(const uint8_t* data, int n, U2 resol, U2 absOffset) {
+        if (n < 0) {
+            return;
+        }
+        if (n > static_cast<int>(sizeof(m_completeChart))) {
+            n = static_cast<int>(sizeof(m_completeChart));
+        }
+        memcpy(m_completeChart, data, static_cast<size_t>(n));
+        m_chartSize = static_cast<uint32_t>(n);
+        m_sampleResol = resol;
+        m_absOffset = absOffset;
+        // A compressed ping is all-or-nothing, so there is never a partial
+        // range to report as lost.
+        compErrList_.clear();
+        m_isCompleteChart = true;
+    }
+
     QList<Segment> getErrList() {
         if (!compErrList_.empty()) {
             auto retVal = std::move(compErrList_);
@@ -279,6 +308,51 @@ private:
 };
 
 
+
+/**
+ * Compressed echogram (ID_CHART_Z), as sent by Baikal-sonar.
+ *
+ * The device splits one coded ping across frames; each carries the offset of
+ * its slice plus the length of the whole stream, so the stream is reassembled
+ * without relying on frame order. Once it is whole it is decoded and handed to
+ * IDBinChart, which publishes it exactly like an uncompressed ping — nothing
+ * downstream needs to know the difference.
+ *
+ * A lost slice drops the entire ping. That is not laziness: the stream is
+ * arithmetic-coded, so a hole destroys the decoder state for everything after
+ * it. An uncompressed echogram can be drawn with a gap; this one cannot.
+ */
+class IDBinChartZ : public IDBin
+{
+    Q_OBJECT
+public:
+    /** @param sink where decoded pings are published; must outlive this object. */
+    explicit IDBinChartZ(IDBinChart* sink) : IDBin(), sink_(sink) {}
+
+    ID id() override { return ID_CHART_Z; }
+    Resp parsePayload(FrameParser &proto) override;
+
+    /** Pings dropped because a slice went missing, since the last call. */
+    uint32_t takeDropped() {
+        uint32_t v = dropped_;
+        dropped_ = 0;
+        return v;
+    }
+
+private:
+    IDBinChart* sink_ = nullptr;
+
+    QByteArray stream_;          // coded bytes of the ping being reassembled
+    QByteArray decoded_;         // one byte per cell, after decoding
+    int expected_ = 0;           // coded length the device announced, 0 = idle
+    int filled_ = 0;             // contiguous bytes received so far
+    bool holed_ = false;         // a slice was missed: the ping is unusable
+    uint32_t dropped_ = 0;
+
+    U2 resol_ = 0;
+    U2 absOffset_ = 0;
+    U2 samples_ = 0;
+};
 
 class IDBinAttitude : public IDBin
 {
@@ -419,6 +493,22 @@ public:
     }
     void resetChart_v0(U1 ch_id) { resetFlag(ch_id, MASK_CHART_V0); }
     bool getChart_v0(U1 ch_id) { return flag(ch_id, MASK_CHART_V0); }
+
+    /**
+     * Compressed echogram, sent as ID_CHART_Z by Baikal-sonar.
+     *
+     * Bit 21, not one of the low eight: the published protocol owns the low
+     * byte (attitude, temperature, timestamp, SDDBT), and a private mode
+     * sitting there would be switched on by an unrelated checkbox.
+     *
+     * Same channel semantics as the uncompressed chart, so the two are set the
+     * same way and can be told apart only by which one the device sends.
+     */
+    static constexpr uint32_t MASK_CHART_Z_V0 = 1u << 21;
+
+    void setChartZ_v0(U1 ch_id) { setFlag(ch_id, MASK_CHART_Z_V0); }
+    void resetChartZ_v0(U1 ch_id) { resetFlag(ch_id, MASK_CHART_Z_V0); }
+    bool getChartZ_v0(U1 ch_id) { return flag(ch_id, MASK_CHART_Z_V0); }
 
     void setAttitude_v0(U1 ch_id) { setFlag(ch_id, MASK_ATTITUDE_V0); }
     void resetAttitude_v0(U1 ch_id) { resetFlag(ch_id, MASK_ATTITUDE_V0); }

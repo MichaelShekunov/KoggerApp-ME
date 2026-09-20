@@ -14,7 +14,10 @@ list(GET _kvp 1 _kvmin)
 list(GET _kvp 2 _kvpat)
 math(EXPR KOGGER_VERSION_CODE "${_kvmaj} * 10000 + ${_kvmin} * 100 + ${_kvpat}")
 
-project(KoggerApp VERSION ${KOGGER_VERSION} LANGUAGES CXX)
+# C is here for src/kec: the echogram codec is plain C, shared byte-for-byte
+# with the device so the two ends cannot drift apart. Compiling it as C++
+# would fork it.
+project(KoggerApp VERSION ${KOGGER_VERSION} LANGUAGES CXX C)
 
 if(ANDROID)
     set(QT_ANDROID_ABIS "armeabi-v7a;arm64-v8a" CACHE STRING "Android target ABIs" FORCE)
@@ -134,6 +137,13 @@ endif()
 target_link_libraries(KoggerApp PRIVATE
     Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick Qt6::QuickControls2
     Qt6::Network Qt6::Sql Qt6::Concurrent Qt6::Positioning Qt6::Svg Qt6::Multimedia)
+
+# Echogram codec, verbatim from the firmware tree. Only the decoder half is
+# used here; the encoder comes along so the file stays identical to the one
+# the device runs.
+target_sources(KoggerApp PRIVATE
+    src/kec/kec.c src/kec/kec.h src/kec/kec_tab.h)
+target_include_directories(KoggerApp PRIVATE src/kec)
 
 target_sources(KoggerApp PRIVATE
     resources/icons.qrc

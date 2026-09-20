@@ -34,6 +34,9 @@ DevDriver::DevDriver(QObject *parent)
     regID(idDist = new IDBinDist(), &DevDriver::receivedDist);
     regID(idChart = new IDBinChart(), &DevDriver::receivedChart);
     connect(idChart, &IDBinChart::rawDataRecieved, this, &DevDriver::receivedRaw);
+    // Same callback on purpose: IDBinChartZ decodes into idChart, and
+    // receivedChart reads from idChart, so it cannot tell the two apart.
+    regID(idChartZ = new IDBinChartZ(idChart), &DevDriver::receivedChart);
     regID(idAtt = new IDBinAttitude(), &DevDriver::receivedAtt);
     regID(idTemp = new IDBinTemp(), &DevDriver::receivedTemp);
     regID(idEncoder = new IDBinEncoder(), &DevDriver::receivedEncoder);
@@ -1114,6 +1117,25 @@ void DevDriver::setDatasetChart(int ch_param) {
     if(!m_state.connect) return;
     bool is_changed = (ch_param != datasetChart());
     idDataset->setChart_v0(ch_param);
+    idDataset->commit();
+    if(is_changed) { emit datasetChanged(); }
+}
+
+int DevDriver::datasetChartZ() {
+    int ch_param = 0;
+    if(idDataset->getChartZ_v0(1)) {
+        ch_param |= 1;
+    }
+    if(idDataset->getChartZ_v0(2)) {
+        ch_param |= 2;
+    }
+    return ch_param;
+}
+
+void DevDriver::setDatasetChartZ(int ch_param) {
+    if(!m_state.connect) return;
+    bool is_changed = (ch_param != datasetChartZ());
+    idDataset->setChartZ_v0(ch_param);
     idDataset->commit();
     if(is_changed) { emit datasetChanged(); }
 }

@@ -2,6 +2,13 @@
 #include "math.h"
 #include <utility>
 
+// The codec is kept byte-identical to the copy the device runs, so it carries
+// no C++ linkage guard of its own and gets one here instead. Do not "fix" this
+// by editing kec.h: the two copies drifting apart is the failure this avoids.
+extern "C" {
+#include "kec.h"
+}
+
 #include <core.h>
 extern Core core;
 
@@ -203,6 +210,79 @@ Resp IDBinTimestamp::parsePayload(FrameParser &proto) {
 Resp IDBinDist::parsePayload(FrameParser &proto) {
     if(proto.ver() == v0) { m_dist_mm = proto.read<U4>();
     } else {  return respErrorVersion; }
+    return respOk;
+}
+
+Resp IDBinChartZ::parsePayload(FrameParser &proto) {
+    if (proto.ver() != v0) {
+        return respErrorVersion;
+    }
+
+    const U2 seqOffset = proto.read<U2>();
+    const U2 resol     = proto.read<U2>();
+    const U2 absOffset = proto.read<U2>();
+    const U2 samples   = proto.read<U2>();
+    const U2 total     = proto.read<U2>();
+
+    if (total == 0 || samples == 0) {
+        return respErrorPayload;
+    }
+
+    // A slice at offset zero starts a ping; so does any change in the ping's
+    // shape, which means the previous one was cut short.
+    if (seqOffset == 0 || total != expected_ ||
+        resol != resol_ || absOffset != absOffset_ || samples != samples_) {
+        if (expected_ != 0 && filled_ < expected_) {
+            ++dropped_;
+        }
+        stream_.fill(0, total);
+        expected_ = total;
+        filled_ = 0;
+        holed_ = (seqOffset != 0);
+        resol_ = resol;
+        absOffset_ = absOffset;
+        samples_ = samples;
+    }
+
+    const int part = proto.readAvailable();
+    if (part < 0 || seqOffset + part > expected_) {
+        holed_ = true;
+        return respErrorPayload;
+    }
+
+    if (seqOffset != filled_) {
+        holed_ = true;
+    }
+    proto.read(reinterpret_cast<uint8_t*>(stream_.data()) + seqOffset, part);
+    filled_ = seqOffset + part;
+
+    if (filled_ < expected_) {
+        return respOk; // still arriving
+    }
+
+    const int coded = expected_;
+    expected_ = 0; // whatever happens next, the next slice starts a new ping
+
+    if (holed_) {
+        ++dropped_;
+        return respErrorPayload;
+    }
+
+    decoded_.resize(samples_);
+    const int got = kec_decode_ping(reinterpret_cast<const uint8_t*>(stream_.constData()),
+                                    coded,
+                                    reinterpret_cast<uint8_t*>(decoded_.data()),
+                                    static_cast<int>(decoded_.size()));
+    if (got <= 0) {
+        ++dropped_;
+        return respErrorPayload;
+    }
+
+    if (sink_ != nullptr) {
+        sink_->acceptDecoded(reinterpret_cast<const uint8_t*>(decoded_.constData()),
+                             got, resol_, absOffset_);
+    }
+
     return respOk;
 }
 

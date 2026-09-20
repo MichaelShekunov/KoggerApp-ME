@@ -63,6 +63,10 @@ public:
     void setDatasetDist(int ch_param);
     int datasetChart();
     void setDatasetChart(int ch_param);
+    // Compressed echogram: a separate axis from datasetChart, because that one
+    // is a channel mask, not a format.
+    int datasetChartZ();
+    void setDatasetChartZ(int ch_param);
     int datasetTemp();
     void setDatasetTemp(int ch_param);
     int datasetEuler();
@@ -330,6 +334,8 @@ protected:
     IDBinTimestamp* idTimestamp = nullptr;
     IDBinDist* idDist = nullptr;
     IDBinChart* idChart = nullptr;
+    // Decodes compressed pings into idChart, so both paths end in one place.
+    IDBinChartZ* idChartZ = nullptr;
     IDBinAttitude* idAtt = nullptr;
     IDBinTemp* idTemp = nullptr;
     IDBinEncoder* idEncoder = nullptr;

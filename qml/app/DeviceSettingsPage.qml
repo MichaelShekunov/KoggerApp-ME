@@ -1097,15 +1097,23 @@ Column {
             Text { text: qsTr("Echogram"); color: AppPalette.textStrong; font.pixelSize: Tokens.fontLg }
             KTabBar {
                 id: b2ChartTab; width: parent.width
-                options: [{ label: qsTr("Off"), value: 0 }, { label: qsTr("8-bit"), value: 1 }]
-                property int chartModel: dev ? (dev.datasetChart === 1 ? 1 : 0) : 0
+                // Compressed is a third state, not a second channel. The two
+                // formats are mutually exclusive: asking for both puts two
+                // pictures of the same ping into one plot, and since the codec
+                // is lossy they do not even agree.
+                options: [{ label: qsTr("Off"), value: 0 }, { label: qsTr("8-bit"), value: 1 }, { label: qsTr("Compressed"), value: 2 }]
+                property int chartModel: dev ? (dev.datasetChartZ === 1 ? 2 : (dev.datasetChart === 1 ? 1 : 0)) : 0
                 property bool _g: false
                 onChartModelChanged: { if (currentValue !== chartModel) { _g = true; currentValue = chartModel; _g = false } }
                 Component.onCompleted: { _g = true; currentValue = chartModel; _g = false }
-                onValueSelected: function(v) { if (!_g && dev) dev.datasetChart = v }
+                onValueSelected: function(v) {
+                    if (_g || !dev) return
+                    dev.datasetChart  = (v === 1) ? 1 : 0
+                    dev.datasetChartZ = (v === 2) ? 1 : 0
+                }
             }
             Reveal {
-                open: b2ChartTab.currentValue === 1
+                open: b2ChartTab.currentValue !== 0
                 Row {
                     width: parent.width; height: Tokens.controlHMd; spacing: Tokens.spaceMd
                     Text { text: qsTr("Resolution, cm"); color: AppPalette.textStrong; font.pixelSize: Tokens.fontLg; width: Math.max(0, parent.width - parent.spacing - root.spinW); anchors.verticalCenter: parent.verticalCenter; elide: Text.ElideRight}
@@ -1393,12 +1401,20 @@ Column {
             Text { text: qsTr("Echogram"); color: AppPalette.textStrong; font.pixelSize: Tokens.fontLg }
             KTabBar {
                 id: datasetChartTab; width: parent.width
-                options: [{ label: qsTr("Off"), value: 0 }, { label: qsTr("8-bit"), value: 1 }]
-                property int chartModel: dev ? (dev.datasetChart === 1 ? 1 : 0) : 0
+                // Compressed is a third state, not a second channel. The two
+                // formats are mutually exclusive: asking for both puts two
+                // pictures of the same ping into one plot, and since the codec
+                // is lossy they do not even agree.
+                options: [{ label: qsTr("Off"), value: 0 }, { label: qsTr("8-bit"), value: 1 }, { label: qsTr("Compressed"), value: 2 }]
+                property int chartModel: dev ? (dev.datasetChartZ === 1 ? 2 : (dev.datasetChart === 1 ? 1 : 0)) : 0
                 property bool _g: false
                 onChartModelChanged: { if (currentValue !== chartModel) { _g = true; currentValue = chartModel; _g = false } }
                 Component.onCompleted: { _g = true; currentValue = chartModel; _g = false }
-                onValueSelected: function(v) { if (!_g && dev) dev.datasetChart = v }
+                onValueSelected: function(v) {
+                    if (_g || !dev) return
+                    dev.datasetChart  = (v === 1) ? 1 : 0
+                    dev.datasetChartZ = (v === 2) ? 1 : 0
+                }
             }
         }
 
