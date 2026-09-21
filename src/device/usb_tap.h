@@ -26,15 +26,16 @@
  * bytes, ID_TAP_STAT (0x7B) reports the streamer's counters once a second.
  *
  * Two ways in, same frames. The second core is a composite USB device: a CDC
- * serial port and a CDC-NCM network adapter (Windows 11 and Linux drive it
- * with their inbox drivers; the device is 192.168.7.1 and hands the host
- * 192.168.7.2 by DHCP). While a tap mode is selected, UsbTap looks once a
- * second for the CDC port by VID/PID and for a local address in 192.168.7.0/24;
- * with the address present it binds UDP port 18020 and sends "hello" to the
- * device, which then streams the frames as UDP datagrams (whole frames, up to
- * five per datagram) instead of the serial port, and falls back to the port
- * three seconds after the last hello. So with the network adapter up the
- * stream arrives over UDP even if the port is open too; both feed one parser.
+ * serial port and a CDC-NCM network adapter, driven by the inbox drivers of
+ * Windows and Linux. While a tap mode is selected, UsbTap looks once a second
+ * for the CDC port by VID/PID, and at the same time binds UDP port 18020 and
+ * greets the network: the greeting goes out by broadcast to every running
+ * interface, because the device's address is a setting and cannot be assumed.
+ * Whoever answers is the device, and it then streams the frames as UDP
+ * datagrams (whole frames, up to five per datagram) instead of over the serial
+ * port, falling back to the port three seconds after the last greeting. So
+ * with the network adapter up the stream arrives over UDP even if the port is
+ * open too; both feed one parser.
  *
  * Kept apart from the device stack on purpose: the port belongs to another
  * core, answers no requests and speaks only these frames, so it is found by
@@ -144,7 +145,7 @@ private:
 
     QSerialPort   port_;
     QUdpSocket    udp_;
-    QHostAddress  deviceIp_ = QHostAddress(QStringLiteral("192.168.7.1"));
+    QHostAddress  deviceIp_ = QHostAddress(QStringLiteral("192.168.7.1"));   // заводский; уточняется по первому ответу
     QElapsedTimer udpSeen_;                       // invalid until the first datagram
     QTimer        scan_;
     QTimer        rawClose_;

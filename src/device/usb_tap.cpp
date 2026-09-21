@@ -125,27 +125,37 @@ void UsbTap::scan() {
 }
 
 void UsbTap::udpProbe() {
-    // The device's network is a point-to-point link: only when the host holds
-    // an address in 192.168.7.0/24 is the adapter up. Without it the socket is
-    // closed, so no hello leaves through the default route.
-    QHostAddress local;
-    for (const QHostAddress& a : QNetworkInterface::allAddresses()) {
-        if (a.protocol() != QAbstractSocket::IPv4Protocol) continue;
-        if (a.isInSubnet(deviceIp_, 24) && a != deviceIp_) { local = a; break; }
-    }
-    if (local.isNull()) {
-        if (udp_.state() != QAbstractSocket::UnconnectedState) udp_.close();
-        return;
-    }
+    // The greeting goes out by broadcast, to every running interface, rather
+    // than to an address fixed here. The device's address is a setting, so a
+    // fixed one is wrong the moment somebody changes it: the tap would quietly
+    // fall back to the serial port while the rest of the app talks over the
+    // network. Whoever answers becomes the device for the status line.
     if (udp_.state() != QAbstractSocket::BoundState) {
-        if (!udp_.bind(local, kTapPort)) {              // busy (another reader) or gone: try again next second
+        if (!udp_.bind(QHostAddress::AnyIPv4, kTapPort)) {   // busy (another reader): try again next second
             udp_.close();
             return;
         }
         udp_.setSocketOption(QAbstractSocket::ReceiveBufferSizeSocketOption, 4 << 20);   // 1.2 MB/s in bursts
         rxUdp_.clear();
     }
-    udp_.writeDatagram(QByteArrayLiteral("hello"), deviceIp_, kTapPort);
+
+    const QByteArray hello = QByteArrayLiteral("hello");
+    if (udpAlive()) {
+        udp_.writeDatagram(hello, deviceIp_, kTapPort);      // знаем, кто отвечает
+        return;
+    }
+    for (const QNetworkInterface& iface : QNetworkInterface::allInterfaces()) {
+        if (!iface.flags().testFlag(QNetworkInterface::IsUp)
+            || !iface.flags().testFlag(QNetworkInterface::IsRunning)
+            || iface.flags().testFlag(QNetworkInterface::IsLoopBack)) {
+            continue;
+        }
+        for (const QNetworkAddressEntry& entry : iface.addressEntries()) {
+            if (entry.ip().protocol() != QAbstractSocket::IPv4Protocol) continue;
+            if (entry.broadcast().isNull()) continue;
+            udp_.writeDatagram(hello, entry.broadcast(), kTapPort);
+        }
+    }
 }
 
 void UsbTap::closePort() {
@@ -183,7 +193,9 @@ void UsbTap::onUdpReadyRead() {
     int bytes = 0;
     while (udp_.hasPendingDatagrams()) {
         const QNetworkDatagram dg = udp_.receiveDatagram();
-        if (!dg.isValid() || dg.senderAddress() != deviceIp_) continue;   // only the device talks on this port
+        if (!dg.isValid()) continue;
+        // Кто ответил, тот и прибор: адрес у него настраиваемый, зашивать нечего.
+        if (dg.senderAddress() != deviceIp_) deviceIp_ = dg.senderAddress();
         rxUdp_ += dg.data();
         bytes += dg.data().size();
     }
