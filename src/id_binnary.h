@@ -421,6 +421,69 @@ protected:
     Encoder data;
 };
 
+/**
+ * Network settings of the Baikal-sonar (ID_NET).
+ *
+ * The sonar's second core owns a CDC-NCM adapter; these are its addresses.
+ * The sonar stores them in its flash and publishes them to that core, which
+ * applies them while running, so a change takes effect without a reboot.
+ *
+ * Only the three addresses and the DHCP switch travel here. There is no port
+ * to set: the device streams to whatever port the host asked from, and the
+ * discovery port is fixed in the firmware on purpose, because it is the way
+ * back when an address turns out to be wrong. The same frame sent to that
+ * port over UDP, even broadcast, is answered broadcast by the device and can
+ * set the addresses temporarily; that path lives outside this class, which
+ * speaks over the ordinary device link.
+ *
+ * Layout of the 20-byte payload is the firmware contract (tap_mbox.h):
+ * u8 version, u8 flags, u8 mac[6], then device address, mask and host
+ * address, four octets each in reading order.
+ */
+class IDBinNet : public IDBin
+{
+    Q_OBJECT
+public:
+    explicit IDBinNet() : IDBin() {}
+
+    ID id() override { return ID_NET; }
+    Resp parsePayload(FrameParser &proto) override;
+
+    enum Flags : uint8_t {
+        FlagDhcp = 1 << 0,      // the device hands the host an address
+        FlagLive = 1 << 7,      // running on settings that were never saved
+    };
+
+    /** "192.168.7.1", empty until the device has answered. */
+    QString ip() const { return m_valid ? addrText(m_ip) : QString(); }
+    QString mask() const { return m_valid ? addrText(m_mask) : QString(); }
+    QString host() const { return m_valid ? addrText(m_host) : QString(); }
+    QString mac() const { return m_mac; }
+    bool dhcp() const { return (m_flags & FlagDhcp) != 0; }
+    bool live() const { return (m_flags & FlagLive) != 0; }
+    bool valid() const { return m_valid; }
+
+    /**
+     * Sends the three addresses to the device.
+     * @returns false if any of them is not four octets; nothing is sent then.
+     * The device checks them again and refuses a pair that cannot work, so a
+     * typo cannot leave it unreachable.
+     */
+    bool setNet(const QString& ip, const QString& mask, const QString& host, bool dhcp);
+
+protected:
+    static QString addrText(quint32 a) {
+        return QStringLiteral("%1.%2.%3.%4").arg((a >> 24) & 0xFF).arg((a >> 16) & 0xFF)
+                                            .arg((a >> 8) & 0xFF).arg(a & 0xFF);
+    }
+    static bool addrValue(const QString& s, quint32* out);
+
+    quint32 m_ip = 0, m_mask = 0, m_host = 0;
+    uint8_t m_flags = 0;
+    QString m_mac;
+    bool m_valid = false;
+};
+
 class IDBinDataset : public IDBin
 {
     Q_OBJECT

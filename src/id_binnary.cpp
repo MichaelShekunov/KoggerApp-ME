@@ -950,6 +950,61 @@ void IDBinTransc::setTransc(U2 freq, U1 pulse, U1 boost) {
 }
 
 
+bool IDBinNet::addrValue(const QString& s, quint32* out) {
+    const QStringList parts = s.trimmed().split('.');
+    if (parts.size() != 4) return false;
+    quint32 v = 0;
+    for (const QString& part : parts) {
+        bool ok = false;
+        const int o = part.toInt(&ok);
+        if (!ok || o < 0 || o > 255 || part.isEmpty()) return false;
+        v = (v << 8) | quint32(o);
+    }
+    *out = v;
+    return true;
+}
+
+Resp IDBinNet::parsePayload(FrameParser &proto) {
+    if (proto.ver() != v0) return respErrorVersion;
+    if (proto.readAvailable() < 20) return respErrorPayload;
+
+    const uint8_t ver = proto.read<U1>();
+    if (ver != 1) return respErrorVersion;      // a layout we do not know
+    m_flags = proto.read<U1>();
+    QString mac;
+    for (int i = 0; i < 6; ++i) {
+        mac += QStringLiteral("%1").arg(proto.read<U1>(), 2, 16, QLatin1Char('0')).toUpper();
+        if (i < 5) mac += ':';
+    }
+    m_mac = mac;
+    quint32 a[3] = { 0, 0, 0 };
+    for (int k = 0; k < 3; ++k)
+        for (int i = 0; i < 4; ++i) a[k] = (a[k] << 8) | quint32(proto.read<U1>());
+    m_ip = a[0];
+    m_mask = a[1];
+    m_host = a[2];
+    m_valid = true;
+    return respOk;
+}
+
+bool IDBinNet::setNet(const QString& ip, const QString& mask, const QString& host, bool dhcp) {
+    quint32 a = 0, m = 0, h = 0;
+    if (!addrValue(ip, &a) || !addrValue(mask, &m) || !addrValue(host, &h)) return false;
+
+    ProtoBinOut id_out;
+    id_out.create(SETTING, v0, id(), m_address);
+    id_out.write<U1>(1);                        // layout version
+    id_out.write<U1>(dhcp ? FlagDhcp : 0);
+    for (int i = 0; i < 6; ++i) id_out.write<U1>(0xFF);   // any device on the link
+    const quint32 v[3] = { a, m, h };
+    for (int k = 0; k < 3; ++k)
+        for (int i = 3; i >= 0; --i) id_out.write<U1>(uint8_t((v[k] >> (8 * i)) & 0xFF));
+    id_out.end();
+
+    hashBinFrameOut(id_out);
+    return true;
+}
+
 Resp IDBinSoundSpeed::parsePayload(FrameParser &proto)
 {
     if (proto.ver() == v0)

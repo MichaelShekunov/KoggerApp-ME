@@ -55,6 +55,23 @@ Checked on Windows 11 only; Linux has not been tried. The app's UDP path was
 built against the same frames the firmware tool `tapdump.py --udp` received
 complete on the board; the GUI itself has not been run against the board.
 
+## Setting the addresses
+
+The device page has a **Network (USB)** group for the three addresses of that
+link: the device's own, the subnet mask and the one it hands the host by DHCP,
+plus a switch for whether to hand one out. **Apply** sends all three together,
+because one without the others is meaningless, and the device validates them
+again and keeps the old ones if the set cannot work. The change takes effect at
+once, without a reboot; it lives only until the next one unless written with
+**Flash settings** in Actions.
+
+There is no port to set. The device streams to whatever port the host asked
+from, and 18020 is fixed in the firmware because it is the way back: send the
+same frame there, broadcast if need be, and the device answers broadcast with
+its MAC and current addresses even when the subnets do not match. The firmware
+tool `Sonar/tools/netcfg.py` does exactly that and can also put an address back
+temporarily, without the serial link.
+
 ## Wire format
 
 Frames are KLF, the same envelope the control link uses:

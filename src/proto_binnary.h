@@ -100,6 +100,13 @@ enum ID : uint16_t {
     // carrying it are ignored until a decoder is registered for this id, since
     // dispatch is a hash lookup — an unknown id costs nothing and breaks
     // nothing.
+    /* Network settings of the Baikal-sonar's second core: addresses of its
+       CDC-NCM link. Outside the published protocol, like ID_CHART_Z; 0x77 is
+       free there and sits just below the tap frames 0x78..0x7B. The device
+       takes the same frame over UDP on a fixed port, which is how a wrong
+       address is undone without opening the case. */
+    ID_NET = 0x77, // 119
+
     ID_CHART_Z = 0x7D, // 125
 
     ID_NAV = 0x64,

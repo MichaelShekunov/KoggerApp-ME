@@ -105,6 +105,20 @@ public:
     int soundSpeed();
     void setSoundSpeed(int speed);
 
+    // Network settings of the device's own USB link (Baikal-sonar, ID_NET).
+    // Read-only properties plus one call that sends all three at once: an
+    // address, a mask and a host address only make sense together, and the
+    // device refuses a set that cannot work.
+    QString netIp();
+    QString netMask();
+    QString netHost();
+    QString netMac();
+    bool netDhcp();
+    bool netLive();
+    bool netValid();
+    Q_INVOKABLE bool applyNet(const QString& ip, const QString& mask, const QString& host, bool dhcp);
+    Q_INVOKABLE void requestNet();
+
     float yaw();
     float pitch();
     float roll();
@@ -181,6 +195,9 @@ public:
     bool isTransducerSupport() { return m_state.duplex && isSonar(); }
     bool isDatasetSupport() { return m_state.duplex && isSonar(); }
     bool isSoundSpeedSupport() { return m_state.duplex && isSonar(); }
+    // Only the Baikal-sonar has a network of its own; asking anything else
+    // would get an "unknown id" and an empty group in the interface.
+    bool isNetSupport() { return m_state.duplex && boardVersion() == BoardBaikalSonar; }
     bool isAddressSupport() { return m_state.duplex; }
     bool isUpgradeSupport() { return m_state.duplex; }
 
@@ -253,6 +270,7 @@ signals:
     void datasetChanged();
     void transChanged();
     void soundChanged();
+    void netChanged();
     void UARTChanged();
     void servoControlChanged();
     void pwmRouteChanged();
@@ -351,6 +369,7 @@ protected:
     IDBinDSPSetup* idDSPSetup = nullptr;
     IDBinTransc* idTransc = nullptr;
     IDBinSoundSpeed* idSoundSpeed = nullptr;
+    IDBinNet* idNet = nullptr;
     IDBinUART* idUART = nullptr;
 
     IDBinVersion* idVersion = nullptr;
@@ -473,6 +492,7 @@ protected slots:
     void receivedDSPSetup   (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
     void receivedTransc     (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
     void receivedSoundSpeed (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
+    void receivedNet        (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
     void receivedUART       (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
 
     void receivedVersion    (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);

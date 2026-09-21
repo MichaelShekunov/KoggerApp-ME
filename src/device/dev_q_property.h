@@ -49,6 +49,14 @@ public:
     Q_PROPERTY(int soundSpeed READ soundSpeed WRITE setSoundSpeed NOTIFY soundChanged)
     Q_PROPERTY(bool soundState READ getSoundSpeedState NOTIFY soundChanged)
 
+    Q_PROPERTY(QString netIp READ netIp NOTIFY netChanged)
+    Q_PROPERTY(QString netMask READ netMask NOTIFY netChanged)
+    Q_PROPERTY(QString netHost READ netHost NOTIFY netChanged)
+    Q_PROPERTY(QString netMac READ netMac NOTIFY netChanged)
+    Q_PROPERTY(bool netDhcp READ netDhcp NOTIFY netChanged)
+    Q_PROPERTY(bool netLive READ netLive NOTIFY netChanged)
+    Q_PROPERTY(bool netValid READ netValid NOTIFY netChanged)
+
     Q_PROPERTY(int busAddress READ getBusAddress WRITE setBusAddress NOTIFY UARTChanged)
     Q_PROPERTY(int baudrate READ getBaudrate WRITE setBaudrate NOTIFY UARTChanged)
     Q_PROPERTY(int devAddress READ getDevAddress WRITE setDevAddress NOTIFY UARTChanged)
@@ -68,6 +76,7 @@ public:
     Q_PROPERTY(bool isDoppler READ isDoppler NOTIFY deviceVersionChanged)
     Q_PROPERTY(bool isUSBLBeacon READ isUSBLBeacon NOTIFY deviceVersionChanged)
     Q_PROPERTY(bool isUSBL READ isUSBL NOTIFY deviceVersionChanged)
+    Q_PROPERTY(bool isNetSupport READ isNetSupport NOTIFY deviceVersionChanged)
     Q_PROPERTY(bool isChartSupport READ isChartSupport NOTIFY deviceVersionChanged)
     Q_PROPERTY(bool isDistSupport READ isDistSupport NOTIFY deviceVersionChanged)
     Q_PROPERTY(bool isDSPSupport READ isDSPSupport NOTIFY deviceVersionChanged)

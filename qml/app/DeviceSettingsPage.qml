@@ -1499,6 +1499,183 @@ Column {
         }
     }
 
+    // ── Сеть прибора ──────────────────────────────────────────────────────
+
+    DeviceSettingsGroup {
+        id: devNetGroup
+        width: advGroups.width; preferredWidth: advGroups.width
+        title: qsTr("Network (USB)"); titlePixelSize: 13
+        stateKey: "dev.net"; collapsedByDefault: true
+        visible: !!(dev && dev.isNetSupport)
+
+        // Поля показывают значения прибора, пока их не правят: иначе ответ на
+        // применение затирал бы то, что человек печатает.
+        readonly property bool editing: ipField.activeFocus || maskField.activeFocus || hostField.activeFocus
+        readonly property string devIp:   (dev && dev.netValid) ? dev.netIp   : "192.168.7.1"
+        readonly property string devMask: (dev && dev.netValid) ? dev.netMask : "255.255.255.0"
+        readonly property string devHost: (dev && dev.netValid) ? dev.netHost : "192.168.7.2"
+
+        // force обходит защиту от затирания того, что человек печатает: им
+        // пользуется только показ ответа прибора после «Применить», иначе
+        // отвергнутая тройка так и висела бы в полях как принятая.
+        function _sync(force) {
+            if (editing && !force) return
+            if (ipField.text !== devIp) ipField.text = devIp
+            if (maskField.text !== devMask) maskField.text = devMask
+            if (hostField.text !== devHost) hostField.text = devHost
+        }
+        onDevIpChanged: _sync(false)
+        onDevMaskChanged: _sync(false)
+        onDevHostChanged: _sync(false)
+        onVisibleChanged: if (visible && dev) dev.requestNet()
+        Component.onCompleted: { _sync(true); if (visible && dev) dev.requestNet() }
+
+        // Потеря фокуса НЕ возвращает поле к значению прибора: щелчок по
+        // «Применить» её и вызывает, и кнопка прочитала бы уже восстановленное.
+        Timer { id: netReadBack; interval: 700; onTriggered: devNetGroup._sync(true) }
+
+        Row {
+            width: parent.width; height: Tokens.controlHMd; spacing: Tokens.spaceMd
+            Text {
+                text: qsTr("Device address"); color: AppPalette.textStrong; font.pixelSize: Tokens.fontLg
+                width: Math.max(0, parent.width - parent.spacing - root.spinW)
+                anchors.verticalCenter: parent.verticalCenter; elide: Text.ElideRight
+            }
+            Rectangle {
+                width: root.spinW; height: Tokens.controlHMd; radius: Tokens.radiusMd
+                anchors.verticalCenter: parent.verticalCenter
+                color: AppPalette.bg
+                border.width: ipField.activeFocus ? 1 : Tokens.cardBorderWidth
+                border.color: ipField.acceptableInput
+                              ? (ipField.activeFocus ? AppPalette.accentBorder : AppPalette.border)
+                              : AppPalette.dangerBorder
+                TextInput {
+                    id: ipField
+                    activeFocusOnTab: true
+                    anchors.fill: parent
+                    anchors.leftMargin: Tokens.spaceMd; anchors.rightMargin: Tokens.spaceMd
+                    verticalAlignment: TextInput.AlignVCenter
+                    horizontalAlignment: TextInput.AlignRight
+                    color: AppPalette.text; font.pixelSize: Tokens.fontBase
+                    clip: true
+                    // Четыре октета 0..255. Прибор проверяет тройку ещё раз у
+                    // себя и отвергает ту, что не может работать.
+                    validator: RegularExpressionValidator { regularExpression: /((25[0-5]|2[0-4]\d|1?\d?\d)\.){3}(25[0-5]|2[0-4]\d|1?\d?\d)/ }
+                    TapHandler { acceptedButtons: Qt.LeftButton; onDoubleTapped: ipField.selectAll() }
+                }
+            }
+        }
+        Row {
+            width: parent.width; height: Tokens.controlHMd; spacing: Tokens.spaceMd
+            Text {
+                text: qsTr("Subnet mask"); color: AppPalette.textStrong; font.pixelSize: Tokens.fontLg
+                width: Math.max(0, parent.width - parent.spacing - root.spinW)
+                anchors.verticalCenter: parent.verticalCenter; elide: Text.ElideRight
+            }
+            Rectangle {
+                width: root.spinW; height: Tokens.controlHMd; radius: Tokens.radiusMd
+                anchors.verticalCenter: parent.verticalCenter
+                color: AppPalette.bg
+                border.width: maskField.activeFocus ? 1 : Tokens.cardBorderWidth
+                border.color: maskField.acceptableInput
+                              ? (maskField.activeFocus ? AppPalette.accentBorder : AppPalette.border)
+                              : AppPalette.dangerBorder
+                TextInput {
+                    id: maskField
+                    activeFocusOnTab: true
+                    anchors.fill: parent
+                    anchors.leftMargin: Tokens.spaceMd; anchors.rightMargin: Tokens.spaceMd
+                    verticalAlignment: TextInput.AlignVCenter
+                    horizontalAlignment: TextInput.AlignRight
+                    color: AppPalette.text; font.pixelSize: Tokens.fontBase
+                    clip: true
+                    // Четыре октета 0..255. Прибор проверяет тройку ещё раз у
+                    // себя и отвергает ту, что не может работать.
+                    validator: RegularExpressionValidator { regularExpression: /((25[0-5]|2[0-4]\d|1?\d?\d)\.){3}(25[0-5]|2[0-4]\d|1?\d?\d)/ }
+                    TapHandler { acceptedButtons: Qt.LeftButton; onDoubleTapped: maskField.selectAll() }
+                }
+            }
+        }
+        Row {
+            width: parent.width; height: Tokens.controlHMd; spacing: Tokens.spaceMd
+            Text {
+                text: qsTr("Host address"); color: AppPalette.textStrong; font.pixelSize: Tokens.fontLg
+                width: Math.max(0, parent.width - parent.spacing - root.spinW)
+                anchors.verticalCenter: parent.verticalCenter; elide: Text.ElideRight
+            }
+            Rectangle {
+                width: root.spinW; height: Tokens.controlHMd; radius: Tokens.radiusMd
+                anchors.verticalCenter: parent.verticalCenter
+                color: AppPalette.bg
+                border.width: hostField.activeFocus ? 1 : Tokens.cardBorderWidth
+                border.color: hostField.acceptableInput
+                              ? (hostField.activeFocus ? AppPalette.accentBorder : AppPalette.border)
+                              : AppPalette.dangerBorder
+                TextInput {
+                    id: hostField
+                    activeFocusOnTab: true
+                    anchors.fill: parent
+                    anchors.leftMargin: Tokens.spaceMd; anchors.rightMargin: Tokens.spaceMd
+                    verticalAlignment: TextInput.AlignVCenter
+                    horizontalAlignment: TextInput.AlignRight
+                    color: AppPalette.text; font.pixelSize: Tokens.fontBase
+                    clip: true
+                    // Четыре октета 0..255. Прибор проверяет тройку ещё раз у
+                    // себя и отвергает ту, что не может работать.
+                    validator: RegularExpressionValidator { regularExpression: /((25[0-5]|2[0-4]\d|1?\d?\d)\.){3}(25[0-5]|2[0-4]\d|1?\d?\d)/ }
+                    TapHandler { acceptedButtons: Qt.LeftButton; onDoubleTapped: hostField.selectAll() }
+                }
+            }
+        }
+
+        KSwitch {
+            id: dhcpSwitch
+            width: parent.width; text: qsTr("Hand the host its address (DHCP)")
+            property bool wantChecked: !!(dev && dev.netDhcp)
+            property bool _g: false
+            onWantCheckedChanged: { if (checked !== wantChecked) { _g = true; checked = wantChecked; _g = false } }
+            Component.onCompleted: { _g = true; checked = wantChecked; _g = false }
+        }
+
+        Row {
+            width: parent.width; spacing: Tokens.spaceSm
+            readonly property real bw: (width - Tokens.spaceSm) / 2
+            DevButton {
+                width: parent.bw; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
+                text: qsTr("Apply")
+                toolTipText: qsTr("Send the addresses to the device. They take effect at once; write them with Flash settings to survive a reboot.")
+                onClicked: {
+                    if (!dev) return
+                    if (!dev.applyNet(ipField.text, maskField.text, hostField.text, dhcpSwitch.checked)) {
+                        notifications.info(qsTr("Address, mask or host address is not four octets"))
+                        return
+                    }
+                    notifications.info(qsTr("Network settings sent: %1").arg(ipField.text))
+                    netReadBack.restart()       // покажем то, что прибор принял на деле
+                }
+            }
+            DevButton {
+                width: parent.bw; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
+                text: qsTr("Default")
+                toolTipText: qsTr("Put the factory addresses in the fields; Apply sends them")
+                onClicked: { ipField.text = "192.168.7.1"; maskField.text = "255.255.255.0"; hostField.text = "192.168.7.2" }
+            }
+        }
+
+        Text {
+            width: parent.width; wrapMode: Text.Wrap
+            color: AppPalette.textSecond; font.pixelSize: Tokens.fontMd
+            text: {
+                if (!dev || !dev.netValid) return qsTr("Reading the device settings...")
+                var mac = dev.netMac
+                var s = (mac && mac !== "00:00:00:00:00:00") ? qsTr("Adapter MAC %1.").arg(mac) : ""
+                s += (s.length ? " " : "") + qsTr("The device answers a discovery request on UDP port 18020, broadcast included, so it can be found and put back even when the addresses do not match. That port is fixed.")
+                if (dev.netLive) s += " " + qsTr("These settings are not in the device memory: a reboot brings back the stored ones.")
+                return s
+            }
+        }
+    }
+
     DeviceSettingsGroup {
         id: devActionsGroup
         width: advGroups.width; preferredWidth: advGroups.width

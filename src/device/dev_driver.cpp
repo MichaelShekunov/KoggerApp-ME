@@ -47,6 +47,7 @@ DevDriver::DevDriver(QObject *parent)
     regID(idDSPSetup = new IDBinDSPSetup(), &DevDriver::receivedDSPSetup, true);
     regID(idTransc = new IDBinTransc(), &DevDriver::receivedTransc, true);
     regID(idSoundSpeed = new IDBinSoundSpeed(), &DevDriver::receivedSoundSpeed, true);
+    regID(idNet = new IDBinNet(), &DevDriver::receivedNet, true);
     regID(idUART = new IDBinUART(), &DevDriver::receivedUART, true);
     regID(idVersion = new IDBinVersion(), &DevDriver::receivedVersion, true);
 
@@ -932,6 +933,34 @@ void DevDriver::setTransBoost(int boost) {
         emit sendTranscSetup(getChannelId(), idTransc->freq(), idTransc->pulse(), static_cast<uint8_t>(boost));
         emit transChanged();
     }
+}
+
+void DevDriver::receivedNet(Parsers::Type type, Parsers::Version ver, Parsers::Resp resp) {
+    Q_UNUSED(type);
+    Q_UNUSED(ver);
+    Q_UNUSED(resp);
+    emit netChanged();
+}
+
+QString DevDriver::netIp() { return idNet->ip(); }
+QString DevDriver::netMask() { return idNet->mask(); }
+QString DevDriver::netHost() { return idNet->host(); }
+QString DevDriver::netMac() { return idNet->mac(); }
+bool DevDriver::netDhcp() { return idNet->dhcp(); }
+bool DevDriver::netLive() { return idNet->live(); }
+bool DevDriver::netValid() { return idNet->valid(); }
+
+bool DevDriver::applyNet(const QString& ip, const QString& mask, const QString& host, bool dhcp) {
+    if (!m_state.connect) return false;
+    if (!idNet->setNet(ip, mask, host, dhcp)) return false;
+    // Read back rather than believe the write: the device validates the three
+    // addresses itself and keeps the old ones if they cannot work together.
+    idNet->simpleRequest(v0);
+    return true;
+}
+
+void DevDriver::requestNet() {
+    if (m_state.connect) idNet->simpleRequest(v0);
 }
 
 int DevDriver::soundSpeed() {
