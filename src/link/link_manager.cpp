@@ -975,6 +975,32 @@ void LinkManager::createAsUdp(QString address, int sourcePort, int destinationPo
     emit linkCreatedInteractively(newLinkPtr->getUuid());
 }
 
+void LinkManager::createAndOpenAsUdp(QString address, int sourcePort, int destinationPort)
+{
+    const TimerController timerGuard(timer_.get());
+
+    // Тот же прибор мог быть добавлен раньше: второй строкой список только
+    // засоряется, а порт всё равно занят первой.
+    for (auto& itm : list_) {
+        if (itm->getLinkType() == LinkType::kLinkIPUDP && !itm->getIsProxy()
+            && itm->getAddress() == address && itm->getDestinationPort() == destinationPort) {
+            if (!itm->isOpen())
+                itm->openAsUdp();
+            return;
+        }
+    }
+
+    Link* newLinkPtr = createNewLink();
+    newLinkPtr->createAsUdp(address, sourcePort, destinationPort);
+    list_.append(newLinkPtr);
+
+    doEmitAppendModifyModel(newLinkPtr);
+    exportPinnedLinksToXML();
+    emit linkCreatedInteractively(newLinkPtr->getUuid());
+
+    newLinkPtr->openAsUdp();
+}
+
 void LinkManager::createAsTcp(QString address, int sourcePort, int destinationPort)
 {
     const TimerController timerGuard(timer_.get());

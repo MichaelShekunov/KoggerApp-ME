@@ -1,3 +1,4 @@
+#include "link/udp_discovery.h"
 #include <QGuiApplication>
 #include <QQmlContext>
 #include <QQmlApplicationEngine>
@@ -319,6 +320,7 @@ int main(int argc, char *argv[])
     QQuickStyle::setStyle("Basic");
 
     setApplicationDisplayName(app);
+    UdpDiscovery udpDiscovery;   // поиск приборов в сети, кнопка Discover
     QQmlApplicationEngine engine;
     engine.addImportPath("qrc:/");
     engine.addImportPath("qrc:/qml");
@@ -337,6 +339,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("deviceTopology", core.getDeviceTopologyModelPtr());
     engine.rootContext()->setContextProperty("logViewer", core.getConsolePtr());
     engine.rootContext()->setContextProperty("usbTap", core.getUsbTapPtr());
+    engine.rootContext()->setContextProperty("udpDiscovery", &udpDiscovery);
     engine.rootContext()->setContextProperty("uiStateSerializer", &uiStateSerializer);
     engine.rootContext()->setContextProperty("echogramStateSerializer", &echogramStateSerializer);
     engine.rootContext()->setContextProperty("notifications", &notifications);

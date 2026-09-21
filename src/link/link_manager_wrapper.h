@@ -41,6 +41,7 @@ public:
 public slots:
     void openAsSerial(QUuid uuid, LinkAttribute attribute = LinkAttribute::kLinkAttributeNone);
     void createAsUdp(QString address, int sourcePort, int destinationPort);
+    Q_INVOKABLE void createAndOpenAsUdp(QString address, int sourcePort, int destinationPort);
     void openAsUdp(QUuid uuid, QString address, int sourcePort, int destinationPort, LinkAttribute attribute = LinkAttribute::kLinkAttributeNone);
     void createAsTcp(QString address, int sourcePort, int destinationPort);
     void openAsTcp(QUuid uuid, QString address, int sourcePort, int destinationPort, LinkAttribute attribute = LinkAttribute::kLinkAttributeNone);
@@ -73,6 +74,7 @@ signals:
     void linkRemoved(QString uuid);
     void sendOpenAsSerial(QUuid uuid, LinkAttribute attribute = LinkAttribute::kLinkAttributeNone);
     void sendCreateAsUdp(QString address, int sourcePort, int destinationPort);
+    void sendCreateAndOpenAsUdp(QString address, int sourcePort, int destinationPort);
     void sendOpenAsUdp(QUuid uuid, QString address, int sourcePort, int destinationPort, LinkAttribute attribute = LinkAttribute::kLinkAttributeNone);
     void sendCreateAsTcp(QString address, int sourcePort, int destinationPort);
     void sendOpenAsTcp(QUuid uuid, QString address, int sourcePort, int destinationPort, LinkAttribute attribute = LinkAttribute::kLinkAttributeNone);

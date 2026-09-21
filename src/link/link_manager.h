@@ -63,6 +63,7 @@ public slots:
     void updateControlType(QUuid uuid, ControlType controlType);
     void frameInput(Link* link, Parsers::FrameParser frame);
     void createAsUdp(QString address, int sourcePort, int destinationPort);
+    void createAndOpenAsUdp(QString address, int sourcePort, int destinationPort);
     void createAsTcp(QString address, int sourcePort, int destinationPort);
     void importPinnedLinksFromXML();
     void openFLinks();

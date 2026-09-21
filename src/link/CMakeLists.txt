@@ -3,6 +3,7 @@ target_sources(KoggerApp PRIVATE
     link_defs.h
     link_list_model.h         link_list_model.cpp
     link_manager.h            link_manager.cpp
-    link_manager_wrapper.h    link_manager_wrapper.cpp)
+    link_manager_wrapper.h    link_manager_wrapper.cpp
+    udp_discovery.h           udp_discovery.cpp)
 
 target_include_directories(KoggerApp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

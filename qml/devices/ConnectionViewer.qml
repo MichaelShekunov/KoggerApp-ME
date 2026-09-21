@@ -713,6 +713,28 @@ Column {
         }
 
         KButton {
+            width: actionsGrid.cellW; height: Tokens.controlHMd; fontPixelSize: Tokens.fontBase; horizontalPadding: Math.round(8 * AppPalette.scale)
+            text: udpDiscovery.busy ? qsTr("Searching…") : qsTr("Discover")
+            enabled: !udpDiscovery.busy
+            toolTipText: qsTr("Ask Kogger devices on the network to answer, and open a connection to each one found. Works even if the device address is in another subnet.")
+            onClicked: udpDiscovery.start(2000)
+        }
+
+        Connections {
+            target: udpDiscovery
+            function onFound(address, mac) {
+                // Порт управления у прибора зашит; свой порт пусть выберет
+                // система, иначе два прибора подрались бы за один номер.
+                linkManagerWrapper.createAndOpenAsUdp(address, 0, udpDiscovery.controlPort())
+                notifications.info(qsTr("Found device %1 (%2)").arg(address).arg(mac))
+            }
+            function onFinished(count) {
+                if (count === 0)
+                    notifications.info(qsTr("No devices answered on the network"))
+            }
+        }
+
+        KButton {
             id: mavlinkProxy
             width: actionsGrid.cellW; height: Tokens.controlHMd; fontPixelSize: Tokens.fontBase; horizontalPadding: Math.round(8 * AppPalette.scale); checkable: true
             text: qsTr("MAVProxy")
