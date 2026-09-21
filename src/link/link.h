@@ -4,6 +4,8 @@
 #include <QIODevice>
 #include <QByteArray>
 #include <QUuid>
+
+#include <atomic>
 #include <QString>
 #include <QHostAddress>
 #include <QUdpSocket>
@@ -112,6 +114,20 @@ private:
     void deleteDev();
     void toParser(const QByteArray data);
     void resetLastSearchIndx();
+
+public:
+    /**
+     * Bytes read from every open link since the app started.
+     *
+     * One counter for all of them, not one per link: the window title shows
+     * the stream as a whole, and a single atomic can be read from the GUI
+     * thread without touching the link list, which belongs to the link
+     * worker. Wraps only after sixteen exabytes.
+     */
+    static quint64 totalRxBytes() { return s_rxBytes.load(std::memory_order_relaxed); }
+
+private:
+    static std::atomic<quint64> s_rxBytes;
 
     /*data*/
     QPointer<QIODevice> ioDevice_;

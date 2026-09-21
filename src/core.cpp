@@ -1,3 +1,4 @@
+#include "link/link.h"
 #include "core.h"
 
 #include <QSettings>
@@ -69,6 +70,8 @@ Core::Core() :
         bringWindowToFrontEnabled_ = settings.value("main/bringWindowToFrontEnabled", true).toBool();
     }
     logger_.setDatasetPtr(datasetPtr_);
+    rateIdleTimer_.setInterval(1000);
+    connect(&rateIdleTimer_, &QTimer::timeout, this, &Core::updateRateIdle);
     createDeviceManagerConnections();
     createLinkManagerConnections();
     createControllers();
@@ -2749,6 +2752,8 @@ void Core::createLinkManagerConnections()
                                                                                                                                      datasetPtr_->setState(Dataset::DatasetState::kConnection);
 
                                                                                                                                      if (!openLinkOrder_.contains(uuid)) openLinkOrder_.append(uuid);
+                                                                                                                                     rateClock_.invalidate();   // мерить заново: канал новый
+                                                                                                                                     rateShown_ = false;
                                                                                                                                      emit fileTitleChanged();
 
                                                                                                                                      const QString linkName = getLinkNames().value(uuid);
@@ -2849,6 +2854,52 @@ bool Core::getIsAppendMode() const
     return isAppendMode_;
 }
 
+void Core::onEpochForRate()
+{
+    if (!rateClock_.isValid()) {
+        rateClock_.start();
+        rateBytesMark_ = Link::totalRxBytes();
+        rateWindowStartMs_ = 0;
+        rateLastEpochMs_ = 0;
+        return;
+    }
+
+    const qint64 now = rateClock_.elapsed();
+    rateLastEpochMs_ = now;
+    if (!rateIdleTimer_.isActive())
+        rateIdleTimer_.start();
+
+    // Считаем только на границе посылки и только по целому окну.
+    if (now - rateWindowStartMs_ < kRateWindowMs)
+        return;
+
+    const quint64 bytes = Link::totalRxBytes();
+    const double kbps = double(bytes - rateBytesMark_) / 1024.0 * 1000.0 / double(now - rateWindowStartMs_);
+    rateWindowStartMs_ = now;
+    rateBytesMark_ = bytes;
+
+    if (!rateShown_ || qAbs(kbps - rateKbps_) > 0.05) {
+        rateKbps_ = kbps;
+        rateShown_ = true;
+        emit fileTitleChanged();
+    }
+}
+
+void Core::updateRateIdle()
+{
+    // Посылок нет — обнулить цифру некому, кроме этого таймера.
+    if (!rateClock_.isValid())
+        return;
+    if (rateClock_.elapsed() - rateLastEpochMs_ < kRateIdleMs)
+        return;
+    rateIdleTimer_.stop();
+    if (rateShown_) {
+        rateShown_ = false;
+        rateKbps_ = 0.0;
+        emit fileTitleChanged();
+    }
+}
+
 QString Core::getFileTitle() const
 {
     if (!appendedFiles_.isEmpty()) {
@@ -2864,7 +2915,10 @@ QString Core::getFileTitle() const
             const auto it = names.find(uuid);
             if (it != names.end()) result.append(it.value());
         }
-        return result.join(" + ");
+        QString title = result.join(" + ");
+        if (rateShown_ && !title.isEmpty())
+            title += QStringLiteral(" · %1 KB/s").arg(rateKbps_, 0, 'f', 1);
+        return title;
     }
     return {};
 }
@@ -3095,6 +3149,10 @@ void Core::createDatasetConnections()
 {
     QObject::connect(datasetPtr_, &Dataset::channelsUpdated, this,               &Core::onChannelsUpdated);
     QObject::connect(datasetPtr_, &Dataset::redrawEpochs,    this,               &Core::onRedrawEpochs);
+    /* Поток в заголовке пересчитывается по приходу данных, а не по таймеру.
+       Именно dataUpdate, а не epochAdded: эпоху заводит только событийный кадр,
+       которого сонар не шлёт, и по epochAdded цифра не обновлялась бы вовсе. */
+    QObject::connect(datasetPtr_, &Dataset::dataUpdate,      this,               &Core::onEpochForRate);
 }
 
 void Core::createInternetManager()

@@ -665,6 +665,8 @@ void Link::resetLastSearchIndx()
     lastSearchIndx_ = 0;
 }
 
+std::atomic<quint64> Link::s_rxBytes{0};
+
 void Link::readyRead()
 {
     auto dev = ioDevice_;
@@ -684,6 +686,7 @@ void Link::readyRead()
             qint64 slen = socsUdp->readDatagram(datagram.data(), datagram.size(), &sender, &senderPort);
             if (slen == -1)
                 break;
+            s_rxBytes.fetch_add(quint64(slen), std::memory_order_relaxed);
             if(attribute_ == LinkAttribute::kLinkAttributeNone) {
                 toParser(datagram);
             } else {
@@ -693,6 +696,7 @@ void Link::readyRead()
     } else { // tcp, serial
         QByteArray data = dev->readAll();
         if (!data.isEmpty()) {
+            s_rxBytes.fetch_add(quint64(data.size()), std::memory_order_relaxed);
             if(attribute_ == LinkAttribute::kLinkAttributeNone) {
                 toParser(data);
             } else {

@@ -33,6 +33,9 @@
 #include "scene3d_control_menu_controller.h"
 #include "hotkeys_controller.h"
 #include "device_manager_wrapper.h"
+#include <QElapsedTimer>
+#include <QTimer>
+
 #include "link_manager_wrapper.h"
 #include "device_topology_model.h"
 #include "tile_manager.h"
@@ -382,6 +385,31 @@ private:
     bool isAppendMode_ = false;
     QStringList appendedFiles_;
     QList<QUuid> openLinkOrder_;
+
+    /**
+     * Measured stream shown in the window title.
+     *
+     * Recomputed when a ping arrives, never on a timer of its own, so the
+     * number is always an average over whole pings rather than over a window
+     * that cuts one in half. A ping every few milliseconds would make it
+     * unreadable, so the average runs over at least kRateWindowMs and the
+     * update still lands on a ping boundary; with a slower device that is
+     * every single ping. The one timer here only notices that the pings
+     * stopped, because then no ping can come to zero the number.
+     */
+    void onEpochForRate();   // зовётся по каждому приходу данных от прибора
+    void updateRateIdle();
+
+    static constexpr qint64 kRateWindowMs = 500;   // не короче: иначе цифра пляшет
+    static constexpr qint64 kRateIdleMs   = 2000;  // столько без посылок — поток нулевой
+
+    QElapsedTimer rateClock_;
+    QTimer        rateIdleTimer_;
+    quint64       rateBytesMark_ = 0;
+    qint64        rateWindowStartMs_ = 0;
+    qint64        rateLastEpochMs_ = 0;
+    double        rateKbps_ = 0.0;
+    bool          rateShown_ = false;
     QSet<QUuid> receivingLinks_; // links currently receiving data; window is raised on the empty→non-empty edge
 
     bool isGPSAlive_;
