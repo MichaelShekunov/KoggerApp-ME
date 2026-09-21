@@ -18,18 +18,74 @@ Item {
 
     readonly property int optionCount: Array.isArray(options) ? options.length : 0
     readonly property real innerWidth: Math.max(0, width - horizontalPadding * 2)
-    readonly property real segmentWidth: optionCount > 0
-                                       ? Math.max(0, (innerWidth - (optionCount - 1) * buttonSpacing) / optionCount)
-                                       : 0
+    property int labelPadding: Math.round(14 * AppPalette.scale)   // по 7 с каждой стороны ярлыка
+
+    // Мерка для ярлыков: тем же начертанием, каким они рисуются, иначе доля
+    // окажется уже надписи и подсветка съедет с текста.
+    FontMetrics {
+        id: tabFontMetrics
+        font.pixelSize: root.fontPixelSize
+        font.bold: true
+    }
+
+    /*
+     * Доли нарезаны по ширине ярлыков, а не поровну: при равных долях длинное
+     * слово вылезает за свою подсветку (было видно на «Compressed» среди пяти
+     * положений). Что не разошлось по надписям, делится поровну; если надписи
+     * не помещаются вовсе, доли ужимаются пропорционально, а ярлык обрезается
+     * многоточием — он ограничен шириной своей доли.
+     */
+    readonly property var segmentWidths: {
+        var n = optionCount
+        var res = []
+        if (n <= 0)
+            return res
+        var px = tabFontMetrics.font.pixelSize      // зависимость: пересчитать при смене шрифта
+        var pad = labelPadding
+        var avail = Math.max(0, innerWidth - (n - 1) * buttonSpacing)
+        var need = []
+        var total = 0
+        for (var i = 0; i < n; ++i) {
+            var w = Math.ceil(tabFontMetrics.advanceWidth(optionLabelAt(i))) + pad
+            need.push(w)
+            total += w
+        }
+        if (total <= avail) {
+            var extra = (avail - total) / n
+            for (i = 0; i < n; ++i)
+                res.push(need[i] + extra)
+        } else {
+            for (i = 0; i < n; ++i)
+                res.push(avail * need[i] / total)
+        }
+        return res
+    }
+
+    function segmentWidthAt(idx) {
+        var w = segmentWidths
+        return (idx >= 0 && idx < w.length) ? w[idx] : 0
+    }
+
+    function segmentXAt(idx) {
+        var x = horizontalPadding
+        var w = segmentWidths
+        for (var i = 0; i < idx && i < w.length; ++i)
+            x += w[i] + buttonSpacing
+        return x
+    }
     readonly property int selectedIndex: indexOfCurrentValue()
     property int dragPreviewIndex: -1
     readonly property int visualIndex: dragPreviewIndex >= 0 ? dragPreviewIndex : selectedIndex
     property bool syncingFromValue: false
 
-    implicitWidth: Math.max(Math.round(120 * AppPalette.scale),
-                            optionCount * Math.round(92 * AppPalette.scale)
-                            + Math.max(0, optionCount - 1) * buttonSpacing
-                            + horizontalPadding * 2)
+    implicitWidth: {
+        var px = tabFontMetrics.font.pixelSize
+        var sum = 0
+        for (var i = 0; i < optionCount; ++i)
+            sum += Math.ceil(tabFontMetrics.advanceWidth(optionLabelAt(i))) + labelPadding
+        return Math.max(Math.round(120 * AppPalette.scale),
+                        sum + Math.max(0, optionCount - 1) * buttonSpacing + horizontalPadding * 2)
+    }
     implicitHeight: buttonHeight + verticalPadding * 2
 
     function optionAt(idx) {
@@ -74,13 +130,16 @@ Item {
 
         var bestIndex = 0
         var bestDistance = Number.MAX_VALUE
+        var cursor = 0
         for (var i = 0; i < optionCount; ++i) {
-            var centerX = i * (segmentWidth + buttonSpacing) + segmentWidth / 2
+            var w = segmentWidthAt(i)
+            var centerX = cursor + w / 2
             var distance = Math.abs(localX - centerX)
             if (distance < bestDistance) {
                 bestDistance = distance
                 bestIndex = i
             }
+            cursor += w + buttonSpacing
         }
         return bestIndex
     }
@@ -137,9 +196,9 @@ Item {
 
     Rectangle {
         visible: tabMouseArea.hoverIndex >= 0 && tabMouseArea.hoverIndex !== root.visualIndex
-        x: root.horizontalPadding + tabMouseArea.hoverIndex * (root.segmentWidth + root.buttonSpacing)
+        x: root.segmentXAt(tabMouseArea.hoverIndex)
         y: root.verticalPadding
-        width: root.segmentWidth
+        width: root.segmentWidthAt(tabMouseArea.hoverIndex)
         height: root.buttonHeight
         radius: Math.round(6 * AppPalette.scale)
         color: AppPalette.bgHover
@@ -148,9 +207,9 @@ Item {
 
     Rectangle {
         visible: root.visualIndex >= 0 && root.optionCount > 0
-        x: root.horizontalPadding + root.visualIndex * (root.segmentWidth + root.buttonSpacing)
+        x: root.segmentXAt(root.visualIndex)
         y: root.verticalPadding
-        width: root.segmentWidth
+        width: root.segmentWidthAt(root.visualIndex)
         height: root.buttonHeight
         radius: Math.round(6 * AppPalette.scale)
         color: AppPalette.accentBg
@@ -194,7 +253,7 @@ Item {
                 property int optionIndex: index
                 readonly property bool selected: optionIndex === root.visualIndex
 
-                width: root.segmentWidth
+                width: root.segmentWidthAt(optionIndex)
                 height: root.buttonHeight
                 text: root.optionLabelAt(optionIndex)
                 padding: 0
@@ -213,6 +272,10 @@ Item {
                     Text {
                         id: label
                         anchors.centerIn: parent
+                        // Ограничен долей: иначе многоточие не сработает и
+                        // надпись вылезет за подсветку.
+                        width: Math.max(0, tabButton.width - Math.round(4 * AppPalette.scale))
+                        horizontalAlignment: Text.AlignHCenter
                         text: tabButton.text
                         color: selected ? AppPalette.accentText
                                : (tabButton.optionIndex === tabMouseArea.hoverIndex
