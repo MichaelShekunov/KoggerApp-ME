@@ -227,7 +227,11 @@ generic: it works on any touch device and is invisible on a desktop unless switc
   "On-screen keyboard: Auto / On / Off".
 
 Verified by machine: clean Windows build (591/591), app starts with no QML warnings.
-Not yet verified: touch use on the head unit; Cyrillic glyphs rely on the app font.
+Confirmed by the user on the head unit touchscreen (2026-09-25): keys work over the whole
+window. The first build closed the keyboard when a key above a workspace pane was tapped:
+pane overlays call `forceActiveFocus()` on hover enter, and a touch synthesises hover for the
+items behind the panel. Fixed by a hover-enabled MouseArea shield under the keys (commit
+fd301826). Not verified: Cyrillic glyphs rely on the app font.
 To try it on a desktop set the mode to On and tap any text field.
 
 ## Feature: echogram deconvolution
