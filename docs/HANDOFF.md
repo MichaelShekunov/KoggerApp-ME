@@ -276,14 +276,21 @@ that answers `ID_VERSION` with board 87 gets the island. Contract and field mean
   so the boat's devices show up as further devices on the same link (one `DevDriver` per SBP
   address, as always) while the module answers at the configured address (87). A firmware that
   refuses v5 with ERR_VERSION is remembered as "no relay" and the island shows a hint instead.
+- Topology: `DeviceTopologyModel` puts a Wi‑Fi module first in a link's members (node role 3,
+  "bridge"), before the recorder and its port devices, because that is the order the data
+  physically travels: the owner asked for Wi‑Fi → logger → sonar(s) after seeing
+  logger → sonar → Wi‑Fi. The bridge → recorder connector is drawn dashed.
 
 Verified by machine (2026-09-25): Windows build 74/74 after the C++ change and again after the
 QML change; `qmllint` on the page reports nothing new beyond the pre-existing unresolved-import
 noise. Board 87 was probed over the head unit's UART6 at 921600 with the module's own bench
 script before this code was written (identity, v0-v4, report period, scan of 14 networks, saved
 list, error codes: 16/16). Verified on the head unit the same evening: the Wi‑Fi device appears on `ttyS6` and the island
-works (owner). Not yet verified: the boat link against a relaying module (firmware 0.7 was
-released after this code), the `.ufww` upgrade path, 3 and 4 Mbaud.
+works (owner); with module firmware 0.7.0 and the relay set to the boat (10.0.0.10:14444 UDP,
+module at address 87) the boat's logger and its sonar appear on the same link and the stream
+flows (owner saw the three devices; counters and UART rates by machine). Not yet verified: the
+`.ufww` upgrade path from the app (the module was updated with the module project's own updater
+over the same UART), 3 and 4 Mbaud.
 
 ## Feature: echogram deconvolution
 

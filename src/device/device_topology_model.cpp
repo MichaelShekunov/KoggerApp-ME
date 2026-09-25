@@ -11,20 +11,25 @@
 
 namespace {
 
-QVariantMap nodeFor(DevQProperty* dev, DevQProperty* master, bool hasMaster)
+// role: 0 the master (recorder), 1 a device on one of its ports, 2 a device on a link without a
+// master, 3 a bridge — the hop the link physically enters (a Wi-Fi module on the head unit's own
+// UART relaying the boat's stream); the recorder and its sonars sit behind it.
+QVariantMap nodeFor(DevQProperty* dev, DevQProperty* master, bool hasMaster, bool bridge = false)
 {
     QVariantMap node;
     node["device"] = QVariant::fromValue(dev);
 
     int role = 2;
-    if (dev == master)
+    if (bridge)
+        role = 3;
+    else if (dev == master)
         role = 0;
     else if (hasMaster)
         role = 1;
     node["role"] = role;
 
     int port = -1;
-    if (hasMaster && dev != master) {
+    if (hasMaster && dev != master && !bridge) {
         const int addr = dev->getBusAddress();
         if (addr >= 1 && addr <= 8)
             port = addr;
@@ -160,26 +165,38 @@ void DeviceTopologyModel::rebuild()
     for (const QUuid& u : order) {
         const QList<DevQProperty*>& members = byLink[u];
 
+        // Bridges first: the link enters the Wi-Fi module, the recorder and its sonars are behind
+        // the radio. Then the recorder, then whatever hangs on its ports, by address.
+        QList<DevQProperty*> bridges;
         DevQProperty* master = nullptr;
         for (DevQProperty* d : members) {
-            if (d->isRecorder()) {
+            if (d->isWifi())
+                bridges.append(d);
+            else if (!master && d->isRecorder())
                 master = d;
-                break;
-            }
         }
+        std::sort(bridges.begin(), bridges.end(), [](DevQProperty* a, DevQProperty* b) {
+            return a->getBusAddress() < b->getBusAddress();
+        });
 
         const bool hasMaster = (master != nullptr);
 
         QList<DevQProperty*> childDevs;
         for (DevQProperty* d : members)
-            if (d != master)
+            if (d != master && !bridges.contains(d))
                 childDevs.append(d);
         std::sort(childDevs.begin(), childDevs.end(), [](DevQProperty* a, DevQProperty* b) {
             return a->getBusAddress() < b->getBusAddress();
         });
 
+        QVariantList bridgeNodes;
         QVariantList childNodes;
         QVariantList memberNodes;
+        for (DevQProperty* d : bridges) {
+            const QVariant node = nodeFor(d, master, hasMaster, true);
+            bridgeNodes.append(node);
+            memberNodes.append(node);
+        }
         if (master)
             memberNodes.append(nodeFor(master, master, hasMaster));
         for (DevQProperty* d : childDevs) {
@@ -191,6 +208,7 @@ void DeviceTopologyModel::rebuild()
         QVariantMap group = buildLinkMeta(u);
         group["hasMaster"] = hasMaster;
         group["master"]    = master ? nodeFor(master, master, hasMaster) : QVariant();
+        group["bridges"]   = bridgeNodes;
         group["children"]  = childNodes;
         group["members"]   = memberNodes;
         out.append(group);

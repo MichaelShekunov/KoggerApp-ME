@@ -35,6 +35,7 @@ Item {
     // Same mapping as HotActionsPanel.iconForDevice (the hot-actions/"hotkey" panel).
     function _deviceIcon(d) {
         if (!d)                          return "qrc:/icons/ui/device-unknown.svg"
+        if (d.isWifi)                    return "qrc:/icons/ui/wifi.svg"
         if (d.isSonar)                   return "qrc:/icons/ui/device-transducer.svg"
         if (d.isDoppler)                 return "qrc:/icons/ui/device-doppler.svg"
         if (d.isUSBLBeacon || d.isUSBL)  return "qrc:/icons/ui/device-usbl.svg"
@@ -72,8 +73,9 @@ Item {
             var label = _linkLabel(g)
             var masterDev = g.master ? g.master.device : null
             for (var mi = 0; mi < mem.length; ++mi) {
+                // A bridge (role 3) hands over by radio: draw that hop dashed.
                 if (mi > 0)
-                    cells.push({ kind: "conn" })
+                    cells.push({ kind: mem[mi - 1].role === 3 ? "radio" : "conn" })
                 var n = mem[mi]
                 cells.push({ kind: "btn",
                              device: n.device,
@@ -294,6 +296,17 @@ Item {
                             height: Math.max(2, Math.round(2 * AppPalette.scale))
                             color: AppPalette.textMuted
                             visible: parent.cell.kind === "conn"
+                        }
+                        Row {
+                            id: radioRow
+                            anchors.centerIn: parent
+                            spacing: Math.max(1, Math.round(view._gap / 9))
+                            visible: parent.cell.kind === "radio"
+                            readonly property real dashW: Math.max(1, Math.round(view._gap / 5))
+                            readonly property real dashH: Math.max(2, Math.round(2 * AppPalette.scale))
+                            Rectangle { width: radioRow.dashW; height: radioRow.dashH; radius: height / 2; color: AppPalette.textMuted }
+                            Rectangle { width: radioRow.dashW; height: radioRow.dashH; radius: height / 2; color: AppPalette.textMuted }
+                            Rectangle { width: radioRow.dashW; height: radioRow.dashH; radius: height / 2; color: AppPalette.textMuted }
                         }
                     }
                 }

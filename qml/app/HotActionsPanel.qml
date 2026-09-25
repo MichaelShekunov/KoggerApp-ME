@@ -245,6 +245,7 @@ Item {
 
     function iconForDevice(d) {
         if (!d) return "qrc:/icons/ui/device-unknown.svg"
+        if (d.isWifi)                   return "qrc:/icons/ui/wifi.svg"
         if (d.isSonar)                  return "qrc:/icons/ui/device-transducer.svg"
         if (d.isDoppler)                return "qrc:/icons/ui/device-doppler.svg"
         if (d.isUSBLBeacon || d.isUSBL) return "qrc:/icons/ui/device-usbl.svg"

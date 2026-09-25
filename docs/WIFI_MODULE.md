@@ -116,6 +116,10 @@ Firmware before 0.7 answers v5 and v6 with ERR_VERSION; the app remembers that a
   (mode Off / UDP / TCP, module address, boat IP and port, own UDP port, Apply / Read back, live
   counters polled every 2 s while the relay is on). Baud lists extended to 4 000 000; upgrade filter
   takes `*.ufww`.
+- `src/device/device_topology_model.cpp` — a Wi‑Fi module is a *bridge* (node role 3): it is the
+  hop the link physically enters, so it is listed first, then the recorder, then the devices on
+  the recorder's ports by address. `DeviceTopologyView.qml` draws the bridge → recorder hop
+  dashed (radio) and gives the module the Wi‑Fi icon; `HotActionsPanel.qml` uses the same icon.
 - `src/link/link_manager.cpp` — on Linux only USB adapters are listed as serial ports; an on‑board
   UART is opted in by name with the environment variable `KOGGER_SERIAL_PORTS` (comma‑separated
   port names or device paths, e.g. `ttyS6`). The head unit's kiosk service sets it.
@@ -133,3 +137,6 @@ Firmware before 0.7 answers v5 and v6 with ERR_VERSION; the app remembers that a
    verified from the app).
 8. Boat link: mode UDP, address 87, the boat's port → the module reappears as a device at address
    87 with counters, and the boat's logger appears as a device at address 0 on the same link.
+   Verified 2026‑09‑25 with the boat at 10.0.0.10:14444 (UDP): about 35 datagrams and 110 frames
+   per second come down with no drops.
+9. The device chain reads Wi‑Fi → logger → sonar(s), the module first.
