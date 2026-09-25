@@ -152,6 +152,7 @@ Item {
         MouseArea {
             id: keyMouse
             anchors.fill: parent
+            hoverEnabled: true
             preventStealing: true
             onClicked: if (!repeatTimer.fired) key.fire()
             onPressAndHold: if (key.repeatable) { repeatTimer.fired = true; repeatTimer.start() }
@@ -180,6 +181,17 @@ Item {
         border.width: 1
         border.color: AppPalette.borderHover
         readonly property int innerWidth: width - 2 * root.pad
+
+        // Shield under the keys: absorbs presses on the gaps and, being hover-enabled, keeps
+        // hover from reaching items behind the panel. Pane overlays take keyboard focus on
+        // hover enter, which would close the keyboard on every tap over the workspace.
+        MouseArea {
+            anchors.fill: parent
+            hoverEnabled: true
+            acceptedButtons: Qt.AllButtons
+            preventStealing: true
+            onWheel: function(w) { w.accepted = true }
+        }
 
         Column {
             id: content
