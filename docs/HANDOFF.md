@@ -14,6 +14,10 @@ cloned from branch `develop` at `455b049e485e792b766323d489d19c544f5d0277`
 ("Merge remote-tracking branch 'remotes/origin/master' into develop"),
 `resources/version.txt` = 1.0.2. No submodules.
 
+**Merged upstream `v1.0.3`** (`3a7f5266`, released 2026-09-07) on 2026-09-25 as merge commit
+`f95f9845`; `resources/version.txt` is 1.0.3 since then. What that brought and how the ten
+conflicts were resolved is under "Staying in sync with upstream".
+
 It has **two remotes, and only one of them accepts a push**:
 
 ```
@@ -452,10 +456,33 @@ git log --oneline HEAD..origin/develop
 git merge origin/develop
 ```
 
-Expect conflicts in `CMakeLists.txt` (the `Multimedia` component and the
-`src/audio` subdirectory) and in `qml/scene2d/Plot2D.qml` (the button inside
-`settingsRow` and the combo in the echogram settings). Everything else is either
-new files or a one-line addition.
+The v1.0.3 merge (2026-09-25, 116 upstream commits, 393 files) auto-merged 338 files and
+conflicted in ten. Both sides were kept everywhere:
+
+- pane modes: ours `2/3D` (relief) and upstream `Video` now coexist in `LayoutRules.js`,
+  `LayoutTree.js`, `PaneContentLoader.qml`, `PaneEditorChrome.qml` (3D and 2/3D still share
+  the single scene slot, Video is unconstrained);
+- `DeviceSettingsPage.qml`: upstream rewrote device settings as islands; our echogram tab
+  (Off / 8-bit / Compressed / IQ / RAW + USB-tap status) was re-expressed inside
+  `KIslandSection`/`DevStackedRow`/`KIslandRow`, our dataset tab replaces upstream's
+  `dataset.chart` row, our device-network groups sit before the "Settings file" island;
+- `ConnectionViewer.qml`: Discover (ours) next to +RTSP (upstream);
+- `dev_driver.cpp`: upstream reworked the firmware-upgrade retries into
+  `checkUpgradeTimeouts()`; the FWTRACE lines were moved there;
+- `CMakeLists.txt` (kec block kept), `main.cpp` (both includes), `scene3d_renderer.h` (relief
+  and USBL render implementations).
+
+Upstream 1.0.3 links `src/video` against the FFmpeg 7.1 libraries **from the Qt installation**
+(`src/video/CMakeLists.txt`; headers vendored in `third_party/ffmpeg`). The Windows kit under
+`D:\Qt` ships them. A Qt built from source (the head unit) does not: FFmpeg 7.1 is built there
+and linked into `<Qt>/lib` (HeadUnit `deploy_myedition/22_build_ffmpeg.sh`, `23_install_ffmpeg.sh`).
+Verified after the merge: Windows build 680/680 clean, app starts with no QML warnings,
+`sonifier_check` PASS on Windows (22 ms) and on the board (100 ms); the kiosk runs it.
+Not verified: Baikal device path (no board), live sonar device page.
+
+The merge was done in a throwaway worktree (`git worktree add D:\Temp\kogger_merge_test`),
+outside the sync root, and fast-forwarded into `myedition` only after the checks. Recommended
+for the next one too: the sync client and a 300-file merge do not mix.
 
 After any merge, rebuild and rerun `tools\sonifier_check` — it is the only
 automated check this fork has. Then `git push mine myedition`, so the merge does
