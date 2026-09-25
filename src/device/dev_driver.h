@@ -150,6 +150,26 @@ public:
     QVariantList wifiNetworks();
     QStringList wifiSavedNetworks();
 
+    // Relay of the boat's SBP stream through the module (ID_WIFI v5 / v6, firmware 0.6+).
+    int wifiRelaySupport();
+    bool wifiRelayValid();
+    int wifiRelayMode();
+    int wifiRelayAddr();
+    QString wifiRelayIp();
+    int wifiRelayPort();
+    int wifiRelayLocalPort();
+    bool wifiRelayStatsValid();
+    int wifiRelayState();
+    QString wifiRelayPeerIp();
+    int wifiRelayPeerPort();
+    double wifiRelayUpFrames();
+    double wifiRelayUpPackets();
+    double wifiRelayUpDrops();
+    double wifiRelayDownPackets();
+    double wifiRelayDownFrames();
+    double wifiRelayDownDrops();
+    double wifiRelayLocalFrames();
+
     /** Re-reads status and the saved list (GETTING v0 + v4). */
     Q_INVOKABLE void wifiRefresh();
     /** Starts a scan; results arrive over the next seconds and wifiNetworksChanged() follows each. */
@@ -161,6 +181,16 @@ public:
     Q_INVOKABLE void wifiSetAutoConnect(bool on);
     Q_INVOKABLE void wifiForget(const QString& ssid);
     Q_INVOKABLE void wifiForgetAll();
+    /** Re-reads the relay configuration and its statistics (GETTING v5 + v6). */
+    Q_INVOKABLE void wifiRelayRefresh();
+    /** GETTING v6 only: the counters, cheap enough to poll while the island is on screen. */
+    Q_INVOKABLE void wifiRelayStatsRefresh();
+    /**
+     * SETTING v5. The module confirms from its old address and then answers at `addr`, so the
+     * device this was sent to stops being the module: the module reappears as a new device.
+     * @returns false when the address text is not a.b.c.d; nothing is sent then.
+     */
+    Q_INVOKABLE bool wifiSetRelay(int mode, int addr, const QString& ip, int rport, int lport);
 
     float yaw();
     float pitch();
@@ -331,6 +361,8 @@ signals:
     void wifiReportChanged();
     void wifiNetworksChanged();
     void wifiSavedChanged();
+    void wifiRelayChanged();
+    void wifiRelayStatsChanged();
     // The module's answer to a Wi-Fi SETTING (or its refusal of a request): version of the frame
     // and the response code (Parsers::Resp). Only failures matter to the page.
     void wifiCommandResult(int version, int resp);

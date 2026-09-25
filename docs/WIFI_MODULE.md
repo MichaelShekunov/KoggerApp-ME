@@ -7,8 +7,9 @@ the same way sonars do. KoggerApp treats it as a device with **board id 87** and
 does with it. Nothing here depends on how the module is built.
 
 Status: implemented 2026‑09‑25 on branch `myedition`; verified against the module on a head unit
-with the module on an on‑board UART (`/dev/ttyS6`, 921600 baud). Not verified: firmware upgrade of
-the module from the app, 3 and 4 Mbaud.
+with the module on an on‑board UART (`/dev/ttyS6`, 921600 baud): the Wi‑Fi island. The boat link
+(section 2a, module firmware 0.7+) is implemented in the app but not yet exercised against a
+relaying module. Not verified either: firmware upgrade of the module from the app, 3 and 4 Mbaud.
 
 ## 1. How the app sees the module
 
@@ -38,6 +39,8 @@ being confirmed), which `IDBin::checkResponse()` verifies. Codes: 1 OK, 3 ERR_PA
 | v2 | start a scan; one CONTENT v2 per network | same, with a confirmation |
 | v3 | status | join: `{U1 flags (bit0 save), U1 len, SSID, U1 len, password}` |
 | v4 | saved networks, one CONTENT v4 each | action `{0}` leave + auto‑connect off, `{1}` auto‑connect on, `{2, U1 len, SSID}` forget, `{3}` forget all |
+| v5 | relay configuration, 10 bytes | the same 10 bytes; stored by the module and applied at once (firmware 0.7+) |
+| v6 | relay counters, 47 bytes | — |
 
 **CONTENT v0 — status**, 39 bytes + SSID. Also pushed by the module on every state change.
 
@@ -74,6 +77,30 @@ module gives up at once and pushes v0 with reason 2. Hidden networks are joined 
 v3. The module joins with exactly the password it is sent: for a saved network the app asks for
 the password once more (or leaves the join to auto‑connect).
 
+## 2a. Boat link: the module relays the boat's SBP stream (firmware 0.7+)
+
+The boat's devices (a logger, a sonar) sit behind the boat's access point. With the relay on, the
+module parses the port's byte stream into whole SBP frames: frames not addressed to the module go to
+the boat over UDP or TCP (whole frames, packets of at most 512 bytes, longer frames cut into 512‑byte
+pieces), and whatever comes from the boat is written into the port unchanged. KoggerApp keeps one
+device per SBP address on a link, so the boat's devices simply appear as further devices on the
+module's serial link, while the module itself answers only at the address set in v5.
+
+**v5 configuration** (SETTING and GETTING, 10 bytes): `U1 mode` (0 off, 1 UDP, 2 TCP), `U1 addr`
+(the module's own SBP address while relaying; must differ from the boat device's address, usually
+0; 87 is the convention), `ip[4]` (the boat; `0.0.0.0` with UDP = answer whoever sent the last
+datagram), `U2 rport` (the boat's port), `U2 lport` (own UDP port, 0 = same as rport). The
+confirmation comes from the module's **old** address; the CONTENT v5 that follows already carries the
+new one, which is how the module reappears as a new device. Refused with ERR_PAYLOAD when the mode
+is on and the boat port is 0.
+
+**v6 counters** (GETTING, 47 bytes): `U1 state` (0 off, 1 no Wi‑Fi, 2 no peer, 3 ready), `ip[4]` and
+`U2 port` of the peer, then ten `U4`: frames up, bytes up, packets up, drops up, packets down, bytes
+down, frames down, drops down, frames for the module, TCP connects.
+
+Firmware before 0.7 answers v5 and v6 with ERR_VERSION; the app remembers that and shows the
+"no relay in firmware" hint instead of the fields.
+
 ## 3. Where it lives in the app
 
 - `src/proto_binnary.h` — `ID_WIFI`; `src/id_binnary.h/.cpp` — `BoardWiFi = 87` and `IDBinWifi`
@@ -85,8 +112,10 @@ the password once more (or leaves the join to auto‑connect).
   `dev.wifi*` properties.
 - `qml/app/DeviceSettingsPage.qml` — the "Wi‑Fi" island (state chip, current network with RSSI,
   channel, security and address, traffic, auto‑connect switch, Scan / Disconnect / Other…, scan
-  result, join rows with a password field, saved networks with Forget). Baud lists extended to
-  4 000 000; upgrade filter takes `*.ufww`.
+  result, join rows with a password field, saved networks with Forget) and the "Boat link" island
+  (mode Off / UDP / TCP, module address, boat IP and port, own UDP port, Apply / Read back, live
+  counters polled every 2 s while the relay is on). Baud lists extended to 4 000 000; upgrade filter
+  takes `*.ufww`.
 - `src/link/link_manager.cpp` — on Linux only USB adapters are listed as serial ports; an on‑board
   UART is opted in by name with the environment variable `KOGGER_SERIAL_PORTS` (comma‑separated
   port names or device paths, e.g. `ttyS6`). The head unit's kiosk service sets it.
@@ -102,3 +131,5 @@ the password once more (or leaves the join to auto‑connect).
 6. "Set baudrate" 2 000 000 → the link survives; a power cycle returns it to 921600 unless saved.
 7. "Upgrade" with a `.ufww` of a higher minor version → new version after the reboot (not yet
    verified from the app).
+8. Boat link: mode UDP, address 87, the boat's port → the module reappears as a device at address
+   87 with counters, and the boat's logger appears as a device at address 0 on the same link.

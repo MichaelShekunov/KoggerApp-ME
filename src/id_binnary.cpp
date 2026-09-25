@@ -1274,6 +1274,40 @@ Resp IDBinWifi::parsePayload(FrameParser &proto) {
         }
         return respOk;
     }
+    if (proto.ver() == v5) {
+        if (proto.readAvailable() < 10) {
+            return respErrorPayload;
+        }
+        relay_.valid = true;
+        relay_.mode = proto.read<U1>();
+        relay_.addr = proto.read<U1>();
+        relay_.ip = readAddr(proto);
+        relay_.rport = proto.read<U2>();
+        relay_.lport = proto.read<U2>();
+        relaySupport_ = 1;
+        return respOk;
+    }
+    if (proto.ver() == v6) {
+        if (proto.readAvailable() < 47) {
+            return respErrorPayload;
+        }
+        relayStats_.valid = true;
+        relayStats_.state = proto.read<U1>();
+        relayStats_.peerIp = readAddr(proto);
+        relayStats_.peerPort = proto.read<U2>();
+        relayStats_.upFrames = proto.read<U4>();
+        relayStats_.upBytes = proto.read<U4>();
+        relayStats_.upPackets = proto.read<U4>();
+        relayStats_.upDrops = proto.read<U4>();
+        relayStats_.downPackets = proto.read<U4>();
+        relayStats_.downBytes = proto.read<U4>();
+        relayStats_.downFrames = proto.read<U4>();
+        relayStats_.downDrops = proto.read<U4>();
+        relayStats_.localFrames = proto.read<U4>();
+        relayStats_.tcpConnects = proto.read<U4>();
+        relaySupport_ = 1;
+        return respOk;
+    }
     if (proto.ver() == v4) {
         if (proto.readAvailable() < 2) {
             return respErrorPayload;
@@ -1352,6 +1386,32 @@ void IDBinWifi::action(uint8_t code, const QString& ssid) {
     hashBinFrameOut(out);
 }
 
+bool IDBinWifi::setRelay(uint8_t mode, uint8_t addr, const QString& ip, uint16_t rport, uint16_t lport) {
+    const QStringList parts = ip.trimmed().split('.');
+    if (parts.size() != 4) {
+        return false;
+    }
+    uint8_t octets[4];
+    for (int i = 0; i < 4; ++i) {
+        bool ok = false;
+        const int v = parts[i].toInt(&ok);
+        if (!ok || v < 0 || v > 255) {
+            return false;
+        }
+        octets[i] = static_cast<uint8_t>(v);
+    }
+    ProtoBinOut out;
+    out.create(SETTING, v5, id(), m_address);
+    out.write<U1>(mode);
+    out.write<U1>(addr);
+    out.write(octets, 4);
+    out.write<U2>(rport);
+    out.write<U2>(lport);
+    out.end();
+    hashBinFrameOut(out);
+    return true;
+}
+
 void IDBinWifi::setReportPeriod(uint16_t ms) {
     ProtoBinOut out;
     out.create(SETTING, v1, id(), m_address);
@@ -1363,6 +1423,9 @@ void IDBinWifi::setReportPeriod(uint16_t ms) {
 void IDBinWifi::reset() {
     status_ = Status();
     report_ = Report();
+    relay_ = Relay();
+    relayStats_ = RelayStats();
+    relaySupport_ = -1;
     networks_.clear();
     saved_.clear();
     scanTotal_ = -1;

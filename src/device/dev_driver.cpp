@@ -1106,6 +1106,12 @@ void DevDriver::receivedWifi(Parsers::Type type, Parsers::Version ver, Parsers::
         if (ver == v4 && resp == respOk) {
             idWifi->requestAll();
         }
+        // Firmware before 0.6 knows no relay: remember that instead of nagging on every probe.
+        if ((ver == v5 || ver == v6) && resp == respErrorVersion) {
+            idWifi->markRelayUnsupported();
+            emit wifiRelayChanged();
+            return;
+        }
         emit wifiCommandResult(static_cast<int>(ver), static_cast<int>(resp));
         return;
     }
@@ -1132,6 +1138,12 @@ void DevDriver::receivedWifi(Parsers::Type type, Parsers::Version ver, Parsers::
         break;
     case v4:
         emit wifiSavedChanged();
+        break;
+    case v5:
+        emit wifiRelayChanged();
+        break;
+    case v6:
+        emit wifiRelayStatsChanged();
         break;
     default:
         break;
@@ -1188,6 +1200,42 @@ QStringList DevDriver::wifiSavedNetworks() {
         }
     }
     return list;
+}
+
+int DevDriver::wifiRelaySupport() { return idWifi->relaySupport(); }
+bool DevDriver::wifiRelayValid() { return idWifi->relay().valid; }
+int DevDriver::wifiRelayMode() { return idWifi->relay().mode; }
+int DevDriver::wifiRelayAddr() { return idWifi->relay().addr; }
+QString DevDriver::wifiRelayIp() { return idWifi->relay().ip; }
+int DevDriver::wifiRelayPort() { return idWifi->relay().rport; }
+int DevDriver::wifiRelayLocalPort() { return idWifi->relay().lport; }
+bool DevDriver::wifiRelayStatsValid() { return idWifi->relayStats().valid; }
+int DevDriver::wifiRelayState() { return idWifi->relayStats().state; }
+QString DevDriver::wifiRelayPeerIp() { return idWifi->relayStats().peerIp; }
+int DevDriver::wifiRelayPeerPort() { return idWifi->relayStats().peerPort; }
+double DevDriver::wifiRelayUpFrames() { return static_cast<double>(idWifi->relayStats().upFrames); }
+double DevDriver::wifiRelayUpPackets() { return static_cast<double>(idWifi->relayStats().upPackets); }
+double DevDriver::wifiRelayUpDrops() { return static_cast<double>(idWifi->relayStats().upDrops); }
+double DevDriver::wifiRelayDownPackets() { return static_cast<double>(idWifi->relayStats().downPackets); }
+double DevDriver::wifiRelayDownFrames() { return static_cast<double>(idWifi->relayStats().downFrames); }
+double DevDriver::wifiRelayDownDrops() { return static_cast<double>(idWifi->relayStats().downDrops); }
+double DevDriver::wifiRelayLocalFrames() { return static_cast<double>(idWifi->relayStats().localFrames); }
+
+void DevDriver::wifiRelayRefresh() {
+    if (!m_state.connect || idWifi->relaySupport() == 0) return;
+    idWifi->requestRelay();
+    idWifi->requestRelayStats();
+}
+
+void DevDriver::wifiRelayStatsRefresh() {
+    if (m_state.connect && idWifi->relaySupport() == 1) idWifi->requestRelayStats();
+}
+
+bool DevDriver::wifiSetRelay(int mode, int addr, const QString& ip, int rport, int lport) {
+    if (!m_state.connect) return false;
+    if (mode < 0 || mode > 2 || addr < 0 || addr > 255 || rport < 0 || rport > 65535 || lport < 0 || lport > 65535) return false;
+    return idWifi->setRelay(static_cast<uint8_t>(mode), static_cast<uint8_t>(addr), ip,
+                            static_cast<uint16_t>(rport), static_cast<uint16_t>(lport));
 }
 
 void DevDriver::wifiRefresh() {

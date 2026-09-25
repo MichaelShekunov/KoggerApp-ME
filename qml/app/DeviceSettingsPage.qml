@@ -437,8 +437,12 @@ Column {
         property string placeholder: ""
         property bool password: false
         property bool revealed: false
+        property bool numeric: false
+        readonly property bool hasFocus: wfInput.activeFocus
         signal accepted()
+        signal edited()
         function takeFocus() { wfInput.forceActiveFocus() }
+        IntValidator { id: wfIntValidator; bottom: 0; top: 65535 }
         height: Tokens.controlHMd
         radius: Tokens.radiusMd
         color: AppPalette.bg
@@ -456,8 +460,12 @@ Column {
             activeFocusOnTab: true
             selectByMouse: true
             echoMode: (wf.password && !wf.revealed) ? TextInput.Password : TextInput.Normal
-            inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhNoPredictiveText | (wf.password ? Qt.ImhSensitiveData : Qt.ImhNone)
+            inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhNoPredictiveText
+                              | (wf.password ? Qt.ImhSensitiveData : Qt.ImhNone)
+                              | (wf.numeric ? Qt.ImhDigitsOnly : Qt.ImhNone)
+            validator: wf.numeric ? wfIntValidator : null
             onAccepted: wf.accepted()
+            onTextEdited: wf.edited()
         }
         Text {
             anchors.left: parent.left
@@ -1927,6 +1935,261 @@ Column {
                     }
                 }
             }
+        }
+    }
+
+    // ── Boat link: the module relays the boat's SBP stream ────────────────
+    // Module firmware 0.6+ forwards frames not addressed to itself to the boat over UDP or TCP and
+    // writes the boat's frames into this port unchanged, so the boat's devices show up as devices
+    // on the same link while the module answers at the address set here (ID_WIFI v5, counters v6;
+    // docs/WIFI_MODULE.md). The fields show the module's values until the operator edits them.
+    DevIsland {
+        id: relayIsland
+        width: root.groupWidth
+        visible: root._isWifi
+        rowMinHeight: Tokens.controlHMd + Tokens.spaceXs
+
+        readonly property int support: root._isWifi ? dev.wifiRelaySupport : -1   // -1 unknown, 0 none, 1 yes
+        readonly property bool cfgValid: root._isWifi && !!dev.wifiRelayValid
+        readonly property int mode: cfgValid ? dev.wifiRelayMode : 0
+        readonly property bool statsValid: root._isWifi && !!dev.wifiRelayStatsValid
+        readonly property int relayState: statsValid ? dev.wifiRelayState : 0
+        readonly property bool editable: support !== 0
+        readonly property bool showCounters: support === 1 && mode !== 0 && statsValid
+        readonly property bool editing: relayAddrField.hasFocus || relayIpField.hasFocus
+                                        || relayPortField.hasFocus || relayLportField.hasFocus
+        property bool dirty: false
+        property int modeSel: 0
+
+        function stateText(st) {
+            switch (st) {
+            case 3: return qsTr("Ready")
+            case 2: return qsTr("Waiting for the boat")
+            case 1: return qsTr("No Wi‑Fi")
+            }
+            return qsTr("Off")
+        }
+        function chipText() {
+            if (support === 0)
+                return qsTr("No relay in firmware")
+            if (!cfgValid)
+                return qsTr("No data")
+            if (mode === 0)
+                return qsTr("Off")
+            return statsValid ? stateText(relayState) : qsTr("On")
+        }
+        function sync(force) {
+            if (!cfgValid || ((editing || dirty) && !force))
+                return
+            modeSel = dev.wifiRelayMode
+            relayAddrField.text = String(dev.wifiRelayAddr)
+            relayIpField.text = dev.wifiRelayIp
+            relayPortField.text = String(dev.wifiRelayPort)
+            relayLportField.text = String(dev.wifiRelayLocalPort)
+            dirty = false
+        }
+        function apply() {
+            if (!dev)
+                return
+            var addr = parseInt(relayAddrField.text, 10)
+            var rport = parseInt(relayPortField.text, 10)
+            var lport = parseInt(relayLportField.text, 10)
+            if (isNaN(addr) || addr < 0 || addr > 255) {
+                notifications.warning(qsTr("Module address must be 0…255"))
+                return
+            }
+            if (modeSel !== 0 && (isNaN(rport) || rport < 1 || rport > 65535)) {
+                notifications.warning(qsTr("Boat port must be 1…65535"))
+                return
+            }
+            if (isNaN(rport))
+                rport = 0
+            if (isNaN(lport))
+                lport = 0
+            var ip = relayIpField.text.trim()
+            if (!ip.length)
+                ip = "0.0.0.0"
+            if (!dev.wifiSetRelay(modeSel, addr, ip, rport, lport)) {
+                notifications.warning(qsTr("Boat IP address must be four numbers 0…255"))
+                return
+            }
+            dirty = false
+            root.forceActiveFocus()
+            if (modeSel === 0)
+                notifications.info(qsTr("Relay switched off; the module answers at address %1").arg(addr))
+            else
+                notifications.info(qsTr("Relay settings sent; the module now answers at address %1 and shows up as a new device").arg(addr))
+        }
+
+        Connections {
+            target: root._isWifi ? root.dev : null
+            function onWifiRelayChanged() { relayIsland.sync(false) }
+        }
+        onCfgValidChanged: sync(false)
+        onVisibleChanged: if (visible && dev) dev.wifiRelayRefresh()
+        Component.onCompleted: { sync(true); if (visible && dev) dev.wifiRelayRefresh() }
+
+        Timer {
+            interval: 2000
+            repeat: true
+            running: relayIsland.visible && relayIsland.support === 1 && relayIsland.mode !== 0
+            onTriggered: if (dev) dev.wifiRelayStatsRefresh()
+        }
+
+        DevIslandTitle {
+            label: qsTr("Boat link")
+            minHeight: Tokens.rowH
+            verticalPadding: 0
+
+            Rectangle {
+                id: relayChip
+                readonly property bool good: relayIsland.support === 1 && relayIsland.mode !== 0 && relayIsland.relayState === 3
+                readonly property bool bad: relayIsland.support === 0
+                                            || (relayIsland.mode !== 0 && relayIsland.statsValid && relayIsland.relayState !== 3)
+                height: Math.round(24 * AppPalette.scale)
+                width: relayChipText.implicitWidth + 2 * Tokens.spaceMd
+                radius: height / 2
+                color: good ? AppPalette.linkOkBg : (bad ? AppPalette.linkDownBg : AppPalette.linkIdleBg)
+                border.width: Tokens.cardBorderWidth
+                border.color: good ? AppPalette.linkOkBorder : (bad ? AppPalette.linkDownBorder : AppPalette.linkIdleBorder)
+                Text {
+                    id: relayChipText
+                    anchors.centerIn: parent
+                    text: relayIsland.chipText()
+                    color: relayChip.good ? AppPalette.linkOkText : (relayChip.bad ? AppPalette.linkDownText : AppPalette.linkIdleText)
+                    font.pixelSize: Tokens.fontSm
+                    font.bold: true
+                }
+            }
+        }
+
+        KIslandRow {
+            open: relayIsland.support === 0
+            minHeight: 0
+            verticalPadding: Tokens.spaceMd
+            label: qsTr("Module firmware %1 has no relay. Update it to 0.6 or newer with Upgrade below.").arg(dev ? dev.fwVersion : "")
+            labelPixelSize: Tokens.fontSm
+            labelColor: AppPalette.dangerText
+        }
+
+        KIslandRow {
+            open: relayIsland.editable
+            label: qsTr("Mode")
+            KTabBar {
+                width: Math.round(220 * AppPalette.scale)
+                fontPixelSize: Tokens.fontMd
+                options: [
+                    { label: qsTr("Off"), value: 0 },
+                    { label: "UDP", value: 1 },
+                    { label: "TCP", value: 2 }
+                ]
+                currentValue: relayIsland.modeSel
+                onValueSelected: function(v) { relayIsland.modeSel = v; relayIsland.dirty = true }
+            }
+        }
+        DevStackedRow {
+            open: relayIsland.editable
+            label: qsTr("Module address on this port")
+            caption: qsTr("Must differ from the boat device's address, which is usually 0")
+            WifiField {
+                id: relayAddrField
+                width: parent.width
+                numeric: true
+                placeholder: "87"
+                onEdited: relayIsland.dirty = true
+            }
+        }
+        DevStackedRow {
+            open: relayIsland.editable
+            label: qsTr("Boat IP address")
+            caption: qsTr("0.0.0.0 with UDP: the module answers whoever sends to it first")
+            WifiField {
+                id: relayIpField
+                width: parent.width
+                placeholder: "0.0.0.0"
+                onEdited: relayIsland.dirty = true
+            }
+        }
+        DevStackedRow {
+            open: relayIsland.editable
+            label: qsTr("Boat port")
+            caption: qsTr("UDP or TCP port of the boat device")
+            WifiField {
+                id: relayPortField
+                width: parent.width
+                numeric: true
+                placeholder: "0"
+                onEdited: relayIsland.dirty = true
+            }
+        }
+        DevStackedRow {
+            open: relayIsland.editable
+            label: qsTr("Own UDP port")
+            caption: qsTr("The port the boat sends to; 0 = same as the boat port")
+            WifiField {
+                id: relayLportField
+                width: parent.width
+                numeric: true
+                placeholder: "0"
+                onEdited: relayIsland.dirty = true
+            }
+        }
+        DevStackedRow {
+            open: relayIsland.editable
+            Row {
+                width: parent.width
+                spacing: Tokens.spaceMd
+                readonly property real bw: (width - Tokens.spaceMd) / 2
+                DevButton {
+                    width: parent.bw; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
+                    text: qsTr("Apply")
+                    enabled: relayIsland.support === 1
+                    normalBg: AppPalette.accentBg
+                    hoverBg: AppPalette.accentBgHover
+                    normalBorder: AppPalette.accentBorder
+                    hoverBorder: AppPalette.accentBorder
+                    textColor: AppPalette.accentText
+                    toolTipText: qsTr("Send the settings to the module; it stores and applies them at once")
+                    onClicked: relayIsland.apply()
+                }
+                DevButton {
+                    width: parent.bw; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
+                    text: qsTr("Read back")
+                    toolTipText: qsTr("Discard edits and show what the module has")
+                    onClicked: {
+                        relayIsland.dirty = false
+                        relayIsland.sync(true)
+                        if (dev)
+                            dev.wifiRelayRefresh()
+                    }
+                }
+            }
+        }
+
+        KIslandSection {
+            open: relayIsland.support === 1 && relayIsland.mode !== 0
+            label: qsTr("Relay counters")
+        }
+        DevInfoRow {
+            label: qsTr("Peer")
+            value: (relayIsland.showCounters && dev.wifiRelayPeerPort > 0)
+                   ? (dev.wifiRelayPeerIp + ":" + dev.wifiRelayPeerPort) : ""
+        }
+        DevInfoRow {
+            label: qsTr("To the boat")
+            value: relayIsland.showCounters
+                   ? qsTr("%1 frames · %2 packets · %3 dropped").arg(dev.wifiRelayUpFrames).arg(dev.wifiRelayUpPackets).arg(dev.wifiRelayUpDrops)
+                   : ""
+        }
+        DevInfoRow {
+            label: qsTr("From the boat")
+            value: relayIsland.showCounters
+                   ? qsTr("%1 packets · %2 frames · %3 dropped").arg(dev.wifiRelayDownPackets).arg(dev.wifiRelayDownFrames).arg(dev.wifiRelayDownDrops)
+                   : ""
+        }
+        DevInfoRow {
+            label: qsTr("For the module")
+            value: relayIsland.showCounters ? qsTr("%1 frames").arg(dev.wifiRelayLocalFrames) : ""
         }
     }
 

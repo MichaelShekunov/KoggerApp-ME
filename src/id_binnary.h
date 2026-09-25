@@ -1114,6 +1114,7 @@ public:
     void requestAll() override {
         simpleRequest(v0);
         simpleRequest(v4);
+        simpleRequest(v5);
     }
 
     enum State : uint8_t { StateIdle = 0, StateSearching = 1, StateConnecting = 2, StateConnected = 3 };
@@ -1124,6 +1125,8 @@ public:
                               SecWpa3 = 5, SecWpa2Wpa3 = 6, SecEnterprise = 7, SecOwe = 8, SecUnknown = 255 };
     enum NetworkFlag : uint8_t { NetSaved = 1 << 0, NetCurrent = 1 << 1 };
     enum Action : uint8_t { ActDisconnect = 0, ActAutoConnect = 1, ActForget = 2, ActForgetAll = 3 };
+    enum RelayMode : uint8_t { RelayOff = 0, RelayUdp = 1, RelayTcp = 2 };
+    enum RelayState : uint8_t { RelayStateOff = 0, RelayNoWifi = 1, RelayNoPeer = 2, RelayReady = 3 };
 
     struct Status {
         bool valid = false;
@@ -1145,6 +1148,30 @@ public:
         int8_t rssi = 0;
         uint32_t rxBps = 0, txBps = 0, rxTotal = 0, txTotal = 0, uptimeS = 0;
     };
+    /**
+     * Relay of the SBP stream between this port and the boat (firmware 0.6+): frames not addressed
+     * to the module go out over UDP/TCP, frames from the boat come in unchanged, and the module
+     * itself answers at `addr`. GETTING/SETTING v5; the module stores it and applies it at once.
+     */
+    struct Relay {
+        bool valid = false;
+        uint8_t mode = RelayOff;
+        uint8_t addr = 87;
+        QString ip;                   // "a.b.c.d"; 0.0.0.0 with UDP = answer whoever sent last
+        uint16_t rport = 0;           // the boat's port
+        uint16_t lport = 0;           // own UDP port, 0 = same as rport
+    };
+    /** GETTING v6, 47 bytes. Counters run since the relay was switched on. */
+    struct RelayStats {
+        bool valid = false;
+        uint8_t state = RelayStateOff;
+        QString peerIp;
+        uint16_t peerPort = 0;
+        uint32_t upFrames = 0, upBytes = 0, upPackets = 0, upDrops = 0;
+        uint32_t downPackets = 0, downBytes = 0, downFrames = 0, downDrops = 0;
+        uint32_t localFrames = 0, tcpConnects = 0;
+    };
+
     struct Network {
         bool valid = false;           // false for an index whose frame never arrived
         int8_t rssi = 0;
@@ -1162,6 +1189,15 @@ public:
     /** Saved SSIDs; an entry is empty when its frame was lost. */
     const QStringList& savedNetworks() const { return saved_; }
     bool scanning() const { return scanPending_; }
+    const Relay& relay() const { return relay_; }
+    const RelayStats& relayStats() const { return relayStats_; }
+    /** -1 not yet known, 0 the firmware refused v5/v6 (no relay), 1 the module answered. */
+    int relaySupport() const { return relaySupport_; }
+    void markRelayUnsupported() { relaySupport_ = 0; }
+    void requestRelay() { simpleRequest(v5); }
+    void requestRelayStats() { simpleRequest(v6); }
+    /** SETTING v5. @returns false when the address text is not four octets; nothing is sent then. */
+    bool setRelay(uint8_t mode, uint8_t addr, const QString& ip, uint16_t rport, uint16_t lport);
     bool hasData() const { return status_.valid || report_.valid || !networks_.isEmpty() || !saved_.isEmpty(); }
 
     /** GETTING v2. The answer arrives as one frame per network; scanning() drops when all came. */
@@ -1187,6 +1223,9 @@ protected:
     Report report_;
     QVector<Network> networks_;
     QStringList saved_;
+    Relay relay_;
+    RelayStats relayStats_;
+    int relaySupport_ = -1;
     int scanTotal_ = -1;
     int scanFilled_ = 0;
     int savedTotal_ = -1;

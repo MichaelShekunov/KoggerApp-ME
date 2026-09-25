@@ -269,13 +269,21 @@ that answers `ID_VERSION` with board 87 gets the island. Contract and field mean
   island says so in the caption.
 - Linux lists only USB serial adapters. An on-board UART is opted in by name through
   `KOGGER_SERIAL_PORTS` (comma-separated, e.g. `ttyS6`); the head unit's kiosk service sets it.
+- Boat link (module firmware 0.7+): `IDBinWifi` also carries the relay configuration v5 and the
+  counters v6; `DevDriver::wifiSetRelay()` / `wifiRelayRefresh()` / `wifiRelayStatsRefresh()` and
+  the `wifiRelay*` properties feed a second island, "Boat link". With the relay on, the module
+  forwards frames not addressed to itself to the boat and writes the boat's frames into the port,
+  so the boat's devices show up as further devices on the same link (one `DevDriver` per SBP
+  address, as always) while the module answers at the configured address (87). A firmware that
+  refuses v5 with ERR_VERSION is remembered as "no relay" and the island shows a hint instead.
 
 Verified by machine (2026-09-25): Windows build 74/74 after the C++ change and again after the
 QML change; `qmllint` on the page reports nothing new beyond the pre-existing unresolved-import
 noise. Board 87 was probed over the head unit's UART6 at 921600 with the module's own bench
 script before this code was written (identity, v0-v4, report period, scan of 14 networks, saved
-list, error codes: 16/16). Not yet verified: the island against the live module on the head unit,
-the `.ufww` upgrade path, 3 and 4 Mbaud.
+list, error codes: 16/16). Verified on the head unit the same evening: the Wi‑Fi device appears on `ttyS6` and the island
+works (owner). Not yet verified: the boat link against a relaying module (firmware 0.7 was
+released after this code), the `.ufww` upgrade path, 3 and 4 Mbaud.
 
 ## Feature: echogram deconvolution
 
