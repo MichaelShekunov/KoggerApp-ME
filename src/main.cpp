@@ -31,6 +31,7 @@
 #include "scene_object.h"
 #include "bottom_track.h"
 #include "input_device_tracker.h"
+#include "screen_keyboard.h"
 #include "system_battery.h"
 #include "language_controller.h"
 #include "app_utils.h"
@@ -303,6 +304,7 @@ int main(int argc, char *argv[])
 
     LanguageController langController;
     InputDeviceTracker inputDeviceTracker;
+    ScreenKeyboard screenKeyboard(&inputDeviceTracker);
     SystemBattery systemBattery;
     core.initAfterApp();
 
@@ -344,6 +346,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("echogramStateSerializer", &echogramStateSerializer);
     engine.rootContext()->setContextProperty("notifications", &notifications);
     engine.rootContext()->setContextProperty("inputDeviceTracker", &inputDeviceTracker);
+    engine.rootContext()->setContextProperty("screenKeyboard", &screenKeyboard);
     engine.rootContext()->setContextProperty("systemBattery", &systemBattery);
     engine.rootContext()->setContextProperty("langController", &langController);
     engine.rootContext()->setContextProperty("appUtils", &appUtils);

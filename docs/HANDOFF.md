@@ -171,6 +171,10 @@ authority; this is the intent behind each.
 | `src/id_binnary.h` | `+ BoardBaikalSonar = 100` in `BoardVersion` | the Baikal single-chip sonar reports board id 100; 100 was free |
 | `src/device/dev_driver.h` | `+ ver == BoardBaikalSonar` in `isSonar()` | that predicate gates the echogram, ranger, DSP, transducer, dataset and sound-speed controls, so without it the device connects and does nothing |
 | `src/device/dev_driver.cpp` | `+ case BoardBaikalSonar` in the device-name switch | otherwise the default branch names it "Device ID: 100.0" |
+| `CMakeLists.txt`, `src/main.cpp` | `+ src/screen_keyboard.{h,cpp}`, context property `screenKeyboard` | on-screen keyboard controller (see the feature section) |
+| `qml/app/MainWindow.qml` | `+ KScreenKeyboard { }` next to the overlays | the keyboard panel |
+| `qml/app/AppSettingsPage.qml` | Interface → "On-screen keyboard" selector | Auto / On / Off |
+| `qml/kqml_types/ZOrder.qml`, `qml/kqml_types/CMakeLists.txt` | `+ screenKeyboard` layer, `+ KScreenKeyboard.qml` | z-order and module registration |
 
 The `.bat` change is the only edit that is not about a new feature. It is a
 genuine upstream bug and a candidate to report back.
@@ -191,10 +195,40 @@ genuine upstream bug and a candidate to report back.
 | `docs/echogram-deconvolution.md` | the feature in detail, with the measured envelope |
 | `docs/backlog.md` | accepted but unstarted ideas |
 | `docs/HANDOFF.md` | this file |
+| `src/screen_keyboard.{h,cpp}` | on-screen keyboard controller |
+| `qml/kqml_types/KScreenKeyboard.qml` | on-screen keyboard panel |
 
 `tools/sonifier_check` and `tools/deconv_check` are separate CMake projects, not
 part of the application build. Nothing in the app references them. `deconv_check`
 needs no Qt at all, because the solver it tests has none.
+
+## Feature: on-screen keyboard
+
+Added 2026-09-25 for the Orange Pi 5 Max head unit (touchscreen, no physical keyboard), but
+generic: it works on any touch device and is invisible on a desktop unless switched on.
+
+- `src/screen_keyboard.{h,cpp}` — `ScreenKeyboard`, exposed to QML as the context property
+  `screenKeyboard`. Watches `QGuiApplication::focusObject()`; when an editable
+  `TextInput`/`TextField`/`TextEdit`/`TextArea` has focus it reports `inputActive`,
+  `passwordMode` (echoMode), `numericMode` (`inputMethodHints`) and `focusRect` (window
+  coordinates). `sendText()` delivers a `QInputMethodEvent` commit, `sendKey()` a key
+  press/release pair — both through the focus object's own `event()`, so application-wide
+  event filters (`InputDeviceTracker`, hotkeys) never see synthetic keys. Visibility:
+  `mode == On`, or `mode == Auto` and the last physical input was a touch
+  (`InputDeviceTracker::touchMode`); `hide()` dismisses until focus moves. The mode lives in
+  QSettings `main/ui/screenKeyboardMode` (0 auto, 1 on, 2 off).
+- `qml/kqml_types/KScreenKeyboard.qml` — the panel: Latin, Cyrillic (RU/EN key), symbols
+  (`?123`), numeric pad for number fields; shift with caps lock on a double tap, repeating
+  backspace, Done (sends Return and hides), chevron to hide. It opens under the focused field
+  when there is room, above it otherwise, and never takes focus itself. Sized from `Tokens` /
+  `AppPalette.scale`, about 640×190 px at scale 1.
+- `qml/app/MainWindow.qml` instantiates it once (`z: ZOrder.screenKeyboard`, 6600 — above
+  sidebars and popups, below the power-off overlay). `AppSettingsPage.qml` → Interface →
+  "On-screen keyboard: Auto / On / Off".
+
+Verified by machine: clean Windows build (591/591), app starts with no QML warnings.
+Not yet verified: touch use on the head unit; Cyrillic glyphs rely on the app font.
+To try it on a desktop set the mode to On and tap any text field.
 
 ## Feature: echogram deconvolution
 

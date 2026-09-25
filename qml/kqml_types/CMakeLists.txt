@@ -18,6 +18,7 @@ qt_add_qml_module(kogger_kqml_types
         KDragBar.qml
         KFocusRing.qml
         KParamGrid.qml
+        KScreenKeyboard.qml
         KSlider.qml
         KSpinBox.qml
         KSwitch.qml

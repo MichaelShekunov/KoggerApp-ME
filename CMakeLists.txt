@@ -92,6 +92,7 @@ qt_add_executable(KoggerApp
     src/echogram_state_serializer.h src/echogram_state_serializer.cpp
     src/notifications.h            src/notifications.cpp
     src/input_device_tracker.h     src/input_device_tracker.cpp
+    src/screen_keyboard.h          src/screen_keyboard.cpp
     src/system_battery.h           src/system_battery.cpp
     src/xtf_conf.h
     src/location_reader.h          src/location_reader.cpp

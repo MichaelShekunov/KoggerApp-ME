@@ -349,6 +349,33 @@ Column {
         Column {
             width: parent.width
             spacing: Tokens.spaceMd
+            visible: typeof screenKeyboard !== "undefined" && screenKeyboard !== null
+
+            Text { text: qsTr("On-screen keyboard:"); color: AppPalette.textSecond; font.pixelSize: Tokens.fontBase }
+
+            KTabBar {
+                width: parent.width
+                fontPixelSize: Tokens.fontLg
+                options: [
+                    { label: qsTr("Auto"), value: 0 },
+                    { label: qsTr("On"),   value: 1 },
+                    { label: qsTr("Off"),  value: 2 }
+                ]
+                currentValue: (typeof screenKeyboard !== "undefined" && screenKeyboard) ? screenKeyboard.mode : 0
+                onValueSelected: function(v) { if (typeof screenKeyboard !== "undefined" && screenKeyboard) screenKeyboard.mode = v }
+            }
+            Text {
+                width: parent.width
+                wrapMode: Text.WordWrap
+                text: qsTr("Auto shows the keyboard when a text field is tapped on a touchscreen.")
+                color: AppPalette.textMuted
+                font.pixelSize: Tokens.fontSm
+            }
+        }
+
+        Column {
+            width: parent.width
+            spacing: Tokens.spaceMd
 
             Text { text: qsTr("Theme:"); color: AppPalette.textSecond; font.pixelSize: Tokens.fontBase }
 

@@ -29,5 +29,6 @@ QtObject {
     readonly property int fileOpeningOverlay: 5000  // modal "file is opening" banner
     readonly property int splashOverlay:    6000    // startup launch banner (fades out)
     readonly property int welcomeOverlay:   6500    // first-launch welcome / toolset picker (modal)
+    readonly property int screenKeyboard:   6600    // on-screen keyboard (above sidebars and popups, below power-off)
     readonly property int powerOffOverlay:  6700    // slide-to-confirm power off (modal, Ubuntu)
 }

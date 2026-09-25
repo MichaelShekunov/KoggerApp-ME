@@ -1253,6 +1253,8 @@ ApplicationWindow {
 
         SplashOverlay { }
 
+        KScreenKeyboard { }
+
         PowerOffConfirmOverlay {
             id: powerOffOverlay
             onConfirmed: if (typeof core !== "undefined" && core) core.powerOffSystem()
