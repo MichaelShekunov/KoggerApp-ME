@@ -65,6 +65,8 @@ public slots:
     void createAsUdp(QString address, int sourcePort, int destinationPort);
     void createAndOpenAsUdp(QString address, int sourcePort, int destinationPort);
     void createAsTcp(QString address, int sourcePort, int destinationPort);
+    void createAsRtsp(QString address);
+    void openAsRtsp(QUuid uuid, QString address);
     void importPinnedLinksFromXML();
     void openFLinks();
     void createAndOpenAsUdpProxy(QString address, int sourcePort, int destinationPort);
@@ -83,6 +85,9 @@ signals:
     void linkDeleted(QUuid uuid, Link* link);
     void linkRemoved(QUuid uuid); // runtime removal only (deleteLink); NOT shutdown
     void sendDoRequestAll(QUuid uuid);
+
+protected:
+    virtual QStringList currentSerialPortNames() const;
 
 private:
     /*structures*/
@@ -112,10 +117,9 @@ private:
     };
 
     /*methods*/
-    QList<QSerialPortInfo> getCurrentSerialList() const;
-    Link* createSerialPort(const QSerialPortInfo& serialInfo) const;
-    void addNewLinks(const QList<QSerialPortInfo> &currSerialList);
-    void deleteMissingLinks(const QList<QSerialPortInfo> &currSerialList);
+    Link* createSerialPort(const QString& portName) const;
+    void addNewLinks(const QStringList &currSerialList);
+    void deleteMissingLinks(const QStringList &currSerialList);
     void openAutoConnections();
     void update();
     void doEmitAppendModifyModel(Link* linkPtr);

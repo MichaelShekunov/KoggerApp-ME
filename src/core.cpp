@@ -14,6 +14,11 @@
 #include <QDateTime>
 #include <QProcess>
 #include <QDesktopServices>
+#include <QClipboard>
+#include <QGuiApplication>
+#include <QPointer>
+#include <QThreadPool>
+#include "app_log.h"
 #include "bottom_track.h"
 #include "tile_provider_ids.h"
 #include "notifications.h"
@@ -32,6 +37,8 @@ QString channelDisplayName(const DatasetChannel& channel)
 {
     return channel.portName_.isEmpty() ? channel.channelId_.toShortName() : channel.portName_;
 }
+
+constexpr int kUiSettingsWaitMs = 5000;
 }
 
 Core::Core() :
@@ -242,7 +249,6 @@ void Core::setEngine(QQmlApplicationEngine *engine)
     qmlAppEnginePtr_->rootContext()->setContextProperty("NpdFilterControlMenuController",       npdFilterControlMenuController_.get());
     qmlAppEnginePtr_->rootContext()->setContextProperty("Scene3DControlMenuController",         scene3dControlMenuController_.get());
     qmlAppEnginePtr_->rootContext()->setContextProperty("Scene3dToolBarController",             scene3dToolBarController_.get());
-    qmlAppEnginePtr_->rootContext()->setContextProperty("UsblViewControlMenuController",        usblViewControlMenuController_.get());
 
     bool flasherState = false;
 #ifdef FLASHER
@@ -302,6 +308,8 @@ void Core::setConsoleOutputEnabled(bool enabled)
 
 void Core::consoleInfo(QString msg)
 {
+    AppLog::instance().writeRaw(QtMsgType::QtInfoMsg, QStringLiteral("app"), msg);
+
     if (!consoleOutputEnabled_) {
         return;
     }
@@ -310,10 +318,38 @@ void Core::consoleInfo(QString msg)
 
 void Core::consoleWarning(QString msg)
 {
+    AppLog::instance().writeRaw(QtMsgType::QtWarningMsg, QStringLiteral("app"), msg);
+
     if (!consoleOutputEnabled_) {
         return;
     }
     getConsolePtr()->put(QtMsgType::QtWarningMsg, msg);
+}
+
+void Core::consoleStreamInfo(const QString& msg)
+{
+    if (!consoleOutputEnabled_) {
+        return;
+    }
+
+    getConsolePtr()->put(QtMsgType::QtInfoMsg, msg, ConsoleSource::App);
+}
+
+void Core::consoleNotification(const QString& msg, bool isWarning)
+{
+    const QtMsgType type = isWarning ? QtMsgType::QtWarningMsg : QtMsgType::QtInfoMsg;
+    AppLog::instance().writeRaw(type, QStringLiteral("notify"), msg);
+
+    getConsolePtr()->put(type, msg, ConsoleSource::App);
+}
+
+void Core::consoleProtoText(const QString& msg)
+{
+    if (!consoleOutputEnabled_) {
+        return;
+    }
+
+    getConsolePtr()->put(QtMsgType::QtInfoMsg, msg, ConsoleSource::Proto);
 }
 
 void Core::consoleProto(FrameParser &parser, bool isIn)
@@ -384,14 +420,16 @@ void Core::consoleProto(FrameParser &parser, bool isIn)
             str_data += QString("...(+%1B)").arg(frameLen - bytesToDump);
         }
 
-        consoleInfo(
+        getConsolePtr()->put(
+            QtMsgType::QtInfoMsg,
             str_dir % "KG[" % QString::number(route) % "]: id "
             % QString::number(id)
             % " v" % QString::number(ver)
             % ", " % str_mode
             % ", len " % QString::number(payloadLen)
             % "; " % comment
-            % " [ " % str_data % " ]"
+            % " [ " % str_data % " ]",
+            ConsoleSource::Proto
             );
     }
     catch(std::bad_alloc& ex) {
@@ -443,6 +481,47 @@ void Core::restoreRealtimeProcessingFlags()
     if (scene3dViewPtr_) {
         scene3dViewPtr_->setIsOpeningFile(false);
     }
+}
+
+void Core::deferStartupFileOpen(const QString& filePath)
+{
+    startupFilePath_ = filePath;
+
+    if (uiSettingsApplied_) {
+        flushStartupFileOpen();
+        return;
+    }
+
+    QTimer::singleShot(kUiSettingsWaitMs, this, [this]() -> void {
+        if (!startupFilePath_.isEmpty()) {
+            qWarning() << "Core::deferStartupFileOpen: UI settings were not reported within"
+                       << kUiSettingsWaitMs << "ms, opening with current values";
+        }
+        flushStartupFileOpen();
+    });
+}
+
+void Core::notifyUiSettingsApplied()
+{
+    if (uiSettingsApplied_) {
+        return;
+    }
+
+    uiSettingsApplied_ = true;
+    installAppLogStoragePromotion();
+    promoteAppLogStorage();
+    flushStartupFileOpen();
+}
+
+void Core::flushStartupFileOpen()
+{
+    if (startupFilePath_.isEmpty()) {
+        return;
+    }
+
+    const QString filePath = startupFilePath_;
+    startupFilePath_.clear();
+    openLogFile(filePath, false, true);
 }
 
 
@@ -584,11 +663,8 @@ void Core::onFileReadEnough()
 {
     QMetaObject::invokeMethod(dataProcessor_, "setSuppressResults", Qt::QueuedConnection, Q_ARG(bool, false));
     datasetPtr_->setRefPositionByFirstValid();
-    // datasetPtr_->usblProcessing();
     if (scene3dViewPtr_) {
         scene3dViewPtr_->forceUpdateDatasetLlaRef();
-        //scene3dViewPtr_->addPoints(datasetPtr_->beaconTrack(), QColor(255, 0, 0), 10);
-        //scene3dViewPtr_->addPoints(datasetPtr_->beaconTrack1(), QColor(0, 255, 0), 10);
     }
 
     onChannelsUpdated();
@@ -729,12 +805,6 @@ void Core::openLogFile(const QString& filePath, bool isAppend, bool onCustomEven
             scene3dViewPtr_->fitAllInView();
         }
         datasetPtr_->setRefPositionByFirstValid();
-        datasetPtr_->usblProcessing();
-
-        if (scene3dViewPtr_) {
-            scene3dViewPtr_->addPoints(datasetPtr_->beaconTrack(), QColor(255, 0, 0), 10);
-            scene3dViewPtr_->addPoints(datasetPtr_->beaconTrack1(), QColor(0, 255, 0), 10);
-        }
 
         onChannelsUpdated();
     });
@@ -1034,6 +1104,15 @@ QString Core::klfLogFilePath() const
     return logger_.klfLogFilePath();
 }
 
+void Core::copyToClipboard(const QString& text)
+{
+    QClipboard* clipboard = QGuiApplication::clipboard();
+    if (!clipboard)
+        return;
+
+    clipboard->setText(text);
+}
+
 void Core::revealInFolder(const QString& path)
 {
     if (path.isEmpty())
@@ -1053,17 +1132,21 @@ void Core::revealInFolder(const QString& path)
     Q_UNUSED(absPath)
     Q_UNUSED(dir)
 #elif defined(Q_OS_WIN)
-    const QString native = QDir::toNativeSeparators(absPath);
-    const HRESULT coInit = ::CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
-    PIDLIST_ABSOLUTE pidl = nullptr;
-    if (SUCCEEDED(::SHParseDisplayName(reinterpret_cast<PCWSTR>(native.utf16()), nullptr, &pidl, 0, nullptr)) && pidl) {
-        ::SHOpenFolderAndSelectItems(pidl, 0, nullptr, 0);
-        ::CoTaskMemFree(pidl);
-    } else {
-        QDesktopServices::openUrl(QUrl::fromLocalFile(dir));
-    }
-    if (coInit == S_OK || coInit == S_FALSE)
-        ::CoUninitialize();
+    QPointer<Core> self(this);
+    QThreadPool::globalInstance()->start([self, absPath, dir]() {
+        const QString native = QDir::toNativeSeparators(absPath);
+        const HRESULT coInit = ::CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+        bool shown = false;
+        PIDLIST_ABSOLUTE pidl = nullptr;
+        if (SUCCEEDED(::SHParseDisplayName(reinterpret_cast<PCWSTR>(native.utf16()), nullptr, &pidl, 0, nullptr)) && pidl) {
+            shown = SUCCEEDED(::SHOpenFolderAndSelectItems(pidl, 0, nullptr, 0));
+            ::CoTaskMemFree(pidl);
+        }
+        if (coInit == S_OK || coInit == S_FALSE)
+            ::CoUninitialize();
+        if (!shown && self)
+            QMetaObject::invokeMethod(self.data(), [dir]() { QDesktopServices::openUrl(QUrl::fromLocalFile(dir)); }, Qt::QueuedConnection);
+    });
 #elif defined(Q_OS_LINUX)
     const QString uri = QUrl::fromLocalFile(absPath).toString();
     const bool shown = QProcess::startDetached(QStringLiteral("dbus-send"), {
@@ -1086,6 +1169,63 @@ void Core::revealInFolder(const QString& path)
 QString Core::csvLogFilePath() const
 {
     return logger_.csvLogFilePath();
+}
+
+QString Core::appLogDirectory() const
+{
+    return AppLog::instance().directory();
+}
+
+bool Core::promoteAppLogStorage()
+{
+#ifdef Q_OS_ANDROID
+    if (AppLog::instance().directory() == AppLog::defaultDirectory()) {
+        return true;
+    }
+
+    if (!AndroidInterface::checkStoragePermissions()) {
+        return false;
+    }
+
+    if (!AppLog::instance().relocate(AppLog::defaultDirectory())) {
+        return false;
+    }
+
+    emit appLogPathChanged();
+    return true;
+#else
+    return true;
+#endif
+}
+
+void Core::installAppLogStoragePromotion()
+{
+#ifdef Q_OS_ANDROID
+    AndroidInterface::setStoragePermissionHandler(this, [this](bool granted) -> void {
+        if (!granted) {
+            consoleWarning(QStringLiteral("Application log stays in private storage: access to Documents denied"));
+            return;
+        }
+
+        promoteAppLogStorage();
+    });
+#endif
+}
+
+QString Core::appLogFilePath() const
+{
+    return AppLog::instance().currentFilePath();
+}
+
+void Core::revealAppLogFolder()
+{
+    const QString path = AppLog::instance().currentFilePath();
+    if (path.isEmpty()) {
+        consoleWarning(QStringLiteral("App log is not active"));
+        return;
+    }
+
+    revealInFolder(path);
 }
 
 qint64 Core::activeLogSizeBytes() const
@@ -1936,7 +2076,6 @@ void Core::UILoad(QObject* object, const QUrl& url)
     }
     scene3dViewPtr_->setDataset(datasetPtr_);
     scene3dViewPtr_->setDataProcessorPtr(dataProcessor_);
-    datasetPtr_->setScene3D(scene3dViewPtr_);
 
     if (syncLoupePlot3dPtr_) {
         syncLoupePlot3dPtr_->setPlot(datasetPtr_);
@@ -1994,9 +2133,6 @@ void Core::UILoad(QObject* object, const QUrl& url)
 
     scene3dControlMenuController_->setQmlEngine(object);
     scene3dControlMenuController_->setGraphicsSceneView(scene3dViewPtr_);
-
-    usblViewControlMenuController_->setQmlEngine(object);
-    usblViewControlMenuController_->setGraphicsSceneView(scene3dViewPtr_);
 
     scene3dViewPtr_->setActiveZeroing(isActiveZeroing_);
 
@@ -2632,6 +2768,21 @@ ConsoleListModel* Core::consoleList()
     return consolePtr_->listModel();
 }
 
+ConsoleListModel* Core::consoleListApp()
+{
+    return consolePtr_->appModel();
+}
+
+ConsoleListModel* Core::consoleListProto()
+{
+    return consolePtr_->protoModel();
+}
+
+void Core::setConsoleMaxRows(int rows)
+{
+    consolePtr_->setMaxRows(rows);
+}
+
 void Core::createControllers()
 {
     boatTrackControlMenuController_       = std::make_shared<BoatTrackControlMenuController>();
@@ -2647,7 +2798,6 @@ void Core::createControllers()
     polygonGroupControlMenuController_    = std::make_shared<PolygonGroupControlMenuController>();
     scene3dControlMenuController_         = std::make_shared<Scene3DControlMenuController>();
     scene3dToolBarController_             = std::make_shared<Scene3dToolBarController>();
-    usblViewControlMenuController_        = std::make_shared<UsblViewControlMenuController>();
 }
 
 #ifdef SEPARATE_READING

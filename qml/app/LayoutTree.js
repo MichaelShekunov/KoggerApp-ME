@@ -63,6 +63,8 @@ function normalizedLeafMode(node) {
         return "2D"
     if (node.pane.mode === "3D")
         return "3D"
+    if (node.pane.mode === "Video")
+        return "Video"
     if (node.pane.mode === "2/3D")
         return "2/3D"
     return "2D"

@@ -123,7 +123,7 @@ Item {
                 fillPressedColor: paneFrame.menuButtonPressedColor
                 borderColor: paneFrame.menuButtonBorderColor
                 borderHoverColor: paneFrame.menuButtonHoverBorderColor
-                glyph: paneFrame.paneData.mode === "3D" ? "3D" : "2D"
+                glyph: paneFrame.paneData.mode === "3D" ? "3D" : paneFrame.paneData.mode === "Video" ? "VID" : "2D"
                 glyphPixelSize: Math.round(paneFrame.centerQuickIconSize * 0.34)
                 glyphColor: AppPalette.accentBorder
                 z: 33
@@ -270,13 +270,26 @@ Item {
             }
 
             Row {
+                id: paneTypeRow
                 anchors.horizontalCenter: parent.horizontalCenter
                 spacing: Math.round(10 * AppPalette.scale)
 
+                readonly property int cellWidth: Math.max(Math.round(96 * AppPalette.scale),
+                                                          type2DButton.implicitWidth,
+                                                          type3DButton.implicitWidth,
+                                                          type23DButton.implicitWidth,
+                                                          typeVideoButton.implicitWidth)
+                readonly property int cellHeight: Math.max(Math.round(46 * AppPalette.scale),
+                                                           type2DButton.implicitHeight,
+                                                           type3DButton.implicitHeight,
+                                                           type23DButton.implicitHeight,
+                                                           typeVideoButton.implicitHeight)
+
                 KButton {
+                    id: type2DButton
                     text: qsTr("2D")
-                    width: Math.max(Math.round(76 * AppPalette.scale), implicitWidth)
-                    height: Math.max(Math.round(40 * AppPalette.scale), implicitHeight)
+                    width: paneTypeRow.cellWidth
+                    height: paneTypeRow.cellHeight
                     onClicked: paneFrame.store.applyPaneModeSelection(paneFrame.leafId, "2D")
                 }
 
@@ -284,27 +297,37 @@ Item {
                 // is shared: whichever is taken blocks the other, and a pane may
                 // always re-select the mode it already holds.
                 KButton {
+                    id: type3DButton
                     readonly property int sceneLeaf: root.sceneOwnerLeafId
                     readonly property bool canChoose: (sceneLeaf === -1 || sceneLeaf === paneFrame.leafId)
                                                        && paneFrame.store.globalPopupMode !== "3D"
                     text: qsTr("3D")
-                    width: Math.max(Math.round(76 * AppPalette.scale), implicitWidth)
-                    height: Math.max(Math.round(40 * AppPalette.scale), implicitHeight)
+                    width: paneTypeRow.cellWidth
+                    height: paneTypeRow.cellHeight
                     enabled: canChoose
                     opacity: enabled ? 1.0 : 0.45
                     onClicked: paneFrame.store.applyPaneModeSelection(paneFrame.leafId, "3D")
                 }
 
                 KButton {
+                    id: type23DButton
                     readonly property int sceneLeaf: root.sceneOwnerLeafId
                     readonly property bool canChoose: (sceneLeaf === -1 || sceneLeaf === paneFrame.leafId)
                                                        && paneFrame.store.globalPopupMode !== "3D"
                     text: qsTr("2/3D")
-                    width: Math.max(Math.round(76 * AppPalette.scale), implicitWidth)
-                    height: Math.max(Math.round(40 * AppPalette.scale), implicitHeight)
+                    width: paneTypeRow.cellWidth
+                    height: paneTypeRow.cellHeight
                     enabled: canChoose
                     opacity: enabled ? 1.0 : 0.45
                     onClicked: paneFrame.store.applyPaneModeSelection(paneFrame.leafId, "2/3D")
+                }
+
+                KButton {
+                    id: typeVideoButton
+                    text: qsTr("Video")
+                    width: paneTypeRow.cellWidth
+                    height: paneTypeRow.cellHeight
+                    onClicked: paneFrame.store.applyPaneModeSelection(paneFrame.leafId, "Video")
                 }
             }
 
@@ -317,6 +340,7 @@ Item {
                 color: "#C7D2FE"
                 font.pixelSize: Math.round(12 * AppPalette.scale)
             }
+
         }
     }
 

@@ -7,6 +7,8 @@ function normalizedSettingsSide(value) {
 function normalizedPaneMode(value) {
     if (value === "3D")
         return "3D"
+    if (value === "Video")
+        return "Video"
     if (value === SCENE_MODE_RELIEF)
         return SCENE_MODE_RELIEF
     return "2D"

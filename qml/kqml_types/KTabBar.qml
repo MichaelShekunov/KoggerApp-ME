@@ -108,6 +108,13 @@ Item {
         return option
     }
 
+    function optionTipAt(idx) {
+        var option = optionAt(idx)
+        if (option && option.tip !== undefined)
+            return String(option.tip)
+        return ""
+    }
+
     function indexOfCurrentValue() {
         if (!Array.isArray(options))
             return -1
@@ -285,6 +292,12 @@ Item {
                         font.bold: true
                         elide: Text.ElideRight
                     }
+                }
+
+                KToolTip {
+                    text: root.optionTipAt(tabButton.optionIndex)
+                    shown: tabMouseArea.hoverIndex === tabButton.optionIndex
+                           && !tabMouseArea.pressed
                 }
             }
         }
