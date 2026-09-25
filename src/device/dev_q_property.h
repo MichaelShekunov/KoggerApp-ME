@@ -90,6 +90,34 @@ public:
     Q_PROPERTY(bool isAddressSupport READ isAddressSupport NOTIFY deviceVersionChanged)
     Q_PROPERTY(bool isUpgradeSupport READ isUpgradeSupport NOTIFY deviceVersionChanged)
 
+    // Wi-Fi module (board 87). Status fields follow ID_WIFI v0, the rates and totals v1; the
+    // scan result is a list of {ssid, rssi, channel, security, saved, current, bssid} maps.
+    Q_PROPERTY(bool isWifi READ isWifi NOTIFY deviceVersionChanged)
+    Q_PROPERTY(bool wifiStatusValid READ wifiStatusValid NOTIFY wifiStatusChanged)
+    Q_PROPERTY(int wifiState READ wifiState NOTIFY wifiStatusChanged)
+    Q_PROPERTY(bool wifiAutoConnect READ wifiAutoConnect NOTIFY wifiStatusChanged)
+    Q_PROPERTY(bool wifiCurrentSaved READ wifiCurrentSaved NOTIFY wifiStatusChanged)
+    Q_PROPERTY(QString wifiSsid READ wifiSsid NOTIFY wifiStatusChanged)
+    Q_PROPERTY(int wifiRssi READ wifiRssi NOTIFY wifiReportChanged)
+    Q_PROPERTY(int wifiChannel READ wifiChannel NOTIFY wifiStatusChanged)
+    Q_PROPERTY(int wifiSecurity READ wifiSecurity NOTIFY wifiStatusChanged)
+    Q_PROPERTY(int wifiReason READ wifiReason NOTIFY wifiStatusChanged)
+    Q_PROPERTY(int wifiDisconnectCode READ wifiDisconnectCode NOTIFY wifiStatusChanged)
+    Q_PROPERTY(QString wifiBssid READ wifiBssid NOTIFY wifiStatusChanged)
+    Q_PROPERTY(QString wifiIp READ wifiIp NOTIFY wifiStatusChanged)
+    Q_PROPERTY(QString wifiMask READ wifiMask NOTIFY wifiStatusChanged)
+    Q_PROPERTY(QString wifiGateway READ wifiGateway NOTIFY wifiStatusChanged)
+    Q_PROPERTY(QString wifiDns READ wifiDns NOTIFY wifiStatusChanged)
+    Q_PROPERTY(int wifiRxBps READ wifiRxBps NOTIFY wifiReportChanged)
+    Q_PROPERTY(int wifiTxBps READ wifiTxBps NOTIFY wifiReportChanged)
+    Q_PROPERTY(bool wifiReportValid READ wifiReportValid NOTIFY wifiReportChanged)
+    Q_PROPERTY(double wifiRxTotal READ wifiRxTotal NOTIFY wifiReportChanged)
+    Q_PROPERTY(double wifiTxTotal READ wifiTxTotal NOTIFY wifiReportChanged)
+    Q_PROPERTY(int wifiUptime READ wifiUptime NOTIFY wifiReportChanged)
+    Q_PROPERTY(bool wifiScanning READ wifiScanning NOTIFY wifiNetworksChanged)
+    Q_PROPERTY(QVariantList wifiNetworks READ wifiNetworks NOTIFY wifiNetworksChanged)
+    Q_PROPERTY(QStringList wifiSavedNetworks READ wifiSavedNetworks NOTIFY wifiSavedChanged)
+
     Q_PROPERTY(bool isServoSupport READ getServoControlState NOTIFY servoControlChanged)
     // False until a Recorder answers the stand probe, and false again the moment it goes away.
     // The panel kind is hidden everywhere this reads false — palette included.

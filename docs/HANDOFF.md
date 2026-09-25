@@ -179,6 +179,10 @@ authority; this is the intent behind each.
 | `qml/app/MainWindow.qml` | `+ KScreenKeyboard { }` next to the overlays | the keyboard panel |
 | `qml/app/AppSettingsPage.qml` | Interface → "On-screen keyboard" selector | Auto / On / Off |
 | `qml/kqml_types/ZOrder.qml`, `qml/kqml_types/CMakeLists.txt` | `+ screenKeyboard` layer, `+ KScreenKeyboard.qml` | z-order and module registration |
+| `src/proto_binnary.h`, `src/id_binnary.{h,cpp}` | `+ ID_WIFI = 0x57`, `+ BoardWiFi = 87`, `+ IDBinWifi` | the Wi-Fi module (see the feature section) |
+| `src/device/dev_driver.{h,cpp}`, `src/device/dev_q_property.h` | `idWifi`, `isWifi()`, `wifi*` readers, `Q_INVOKABLE wifi*` commands, `wifi*Changed` signals | QML surface of the module |
+| `qml/app/DeviceSettingsPage.qml` | "Wi-Fi" island, `WifiBars` / `WifiField` components, baud lists to 4 000 000, `*.ufww` upgrade filter | the control surface |
+| `src/link/link_manager.cpp`, `src/link/link_defs.h` | `KOGGER_SERIAL_PORTS` opt-in for non-USB ports on Linux; 1 M, 1.5 M, 3 M in `baudrates` | an on-board UART is otherwise never listed |
 
 The `.bat` change is the only edit that is not about a new feature. It is a
 genuine upstream bug and a candidate to report back.
@@ -201,6 +205,7 @@ genuine upstream bug and a candidate to report back.
 | `docs/HANDOFF.md` | this file |
 | `src/screen_keyboard.{h,cpp}` | on-screen keyboard controller |
 | `qml/kqml_types/KScreenKeyboard.qml` | on-screen keyboard panel |
+| `docs/WIFI_MODULE.md` | the Wi-Fi module: protocol contract and what the app does with it |
 
 `tools/sonifier_check` and `tools/deconv_check` are separate CMake projects, not
 part of the application build. Nothing in the app references them. `deconv_check`
@@ -237,6 +242,40 @@ pane overlays call `forceActiveFocus()` on hover enter, and a touch synthesises 
 items behind the panel. Fixed by a hover-enabled MouseArea shield under the keys (commit
 fd301826). Not verified: Cyrillic glyphs rely on the app font.
 To try it on a desktop set the mode to On and tap any text field.
+
+## Feature: Wi-Fi module (board 87)
+
+Added 2026-09-25 for the head unit, which has no Wi-Fi of its own: a small ESP32-C3 module on the
+board's UART speaks Kogger SBP and acts as the Wi-Fi client. Generic in the app: any serial link
+that answers `ID_VERSION` with board 87 gets the island. Contract and field meaning:
+[WIFI_MODULE.md](WIFI_MODULE.md).
+
+- `IDBinWifi` (`src/id_binnary.{h,cpp}`) parses status v0, link report v1, scan frames v2
+  (assembled by index, an 8 s timeout ends a scan whose frames stopped coming) and the saved list
+  v4; sends the report period v1, join v3 and actions v4 through `hashBinFrameOut()`, so the
+  module's `{code, checksum}` confirmations are checked by the existing `IDBin` machinery.
+- `DevDriver` registers `idWifi` as a non-setup id and asks it once per connection for board 87
+  only (`process()`); everything after that is pushed by the module. `receivedWifi()` fans the
+  frames out to `wifiStatusChanged` / `wifiReportChanged` / `wifiNetworksChanged` /
+  `wifiSavedChanged`, re-reads the saved list after a confirmed action and after a join succeeds,
+  clears the scanning state on a refused scan, and reports refusals as `wifiCommandResult(version,
+  resp)`. The connection reset path clears the mirror so a re-plugged device never shows stale data.
+- `DevQProperty` exposes `isWifi` and the `wifi*` properties; the island in
+  `DeviceSettingsPage.qml` is visible for `dev.isWifi` only and, like the basic sonars, gets the
+  "Advanced settings" cut. The join rows use `WifiField` (a `TextInput` with `echoMode` toggled by
+  an eye button), which is what the on-screen keyboard reads to switch into its password layout.
+- The module joins with exactly the password it is sent and never reveals a stored one, so a saved
+  network is rejoined either by its own auto-connect or by typing the password once more; the
+  island says so in the caption.
+- Linux lists only USB serial adapters. An on-board UART is opted in by name through
+  `KOGGER_SERIAL_PORTS` (comma-separated, e.g. `ttyS6`); the head unit's kiosk service sets it.
+
+Verified by machine (2026-09-25): Windows build 74/74 after the C++ change and again after the
+QML change; `qmllint` on the page reports nothing new beyond the pre-existing unresolved-import
+noise. Board 87 was probed over the head unit's UART6 at 921600 with the module's own bench
+script before this code was written (identity, v0-v4, report period, scan of 14 networks, saved
+list, error codes: 16/16). Not yet verified: the island against the live module on the head unit,
+the `.ufww` upgrade path, 3 and 4 Mbaud.
 
 ## Feature: echogram deconvolution
 

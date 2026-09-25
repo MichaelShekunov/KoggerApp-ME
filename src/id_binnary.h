@@ -8,6 +8,7 @@
 #include <QList>
 #include <QMap>
 #include <QVector>
+#include <QStringList>
 #include <QTimer>
 #include "dataset_defs.h"
 #include "proto_binnary.h"
@@ -31,6 +32,7 @@ enum BoardVersion : int16_t {
     BoardUSBL = 15,
     BoardUSBLBeacon = 16,
     BoardNanoSSS = 17,
+    BoardWiFi = 87,           // Wi-Fi module (ESP32-C3), docs/WIFI_MODULE.md
     BoardBaikalSonar = 100,
     BoardPULSEred_2D = 128,
     BoardPULSEblue_DSS = 129
@@ -1089,6 +1091,108 @@ protected:
             proto_out.write<U1>(1);
         }
     }
+};
+
+/**
+ * Wi-Fi module (board 87), command ID_WIFI. The module is a Wi-Fi client for the host: it scans,
+ * joins the boat's access point and reports the link. Contract: docs/WIFI_MODULE.md.
+ *
+ * GETTING v0 -> CONTENT v0 status (also pushed by the module on every state change); GETTING v2
+ * starts a scan answered by one CONTENT v2 frame per network; GETTING v4 lists the saved networks,
+ * one frame each. CONTENT v1 is the link report the module sends once a second. SETTING v1 sets
+ * that period, v3 connects, v4 carries an action. Every SETTING is confirmed with the usual
+ * {code, checksum} frame, which the IDBin base verifies like for any other device.
+ */
+class IDBinWifi : public IDBin
+{
+    Q_OBJECT
+public:
+    explicit IDBinWifi() : IDBin() {}
+
+    ID id() override { return ID_WIFI; }
+    Resp parsePayload(FrameParser &proto) override;
+    void requestAll() override {
+        simpleRequest(v0);
+        simpleRequest(v4);
+    }
+
+    enum State : uint8_t { StateIdle = 0, StateSearching = 1, StateConnecting = 2, StateConnected = 3 };
+    enum StatusFlag : uint8_t { FlagAutoConnect = 1 << 0, FlagScanning = 1 << 1, FlagCurrentSaved = 1 << 2 };
+    enum Reason : uint8_t { ReasonNone = 0, ReasonNotFound = 1, ReasonWrongPassword = 2,
+                            ReasonAssociation = 3, ReasonLinkLost = 4, ReasonOther = 5 };
+    enum Security : uint8_t { SecOpen = 0, SecWep = 1, SecWpa = 2, SecWpa2 = 3, SecWpaWpa2 = 4,
+                              SecWpa3 = 5, SecWpa2Wpa3 = 6, SecEnterprise = 7, SecOwe = 8, SecUnknown = 255 };
+    enum NetworkFlag : uint8_t { NetSaved = 1 << 0, NetCurrent = 1 << 1 };
+    enum Action : uint8_t { ActDisconnect = 0, ActAutoConnect = 1, ActForget = 2, ActForgetAll = 3 };
+
+    struct Status {
+        bool valid = false;
+        uint8_t state = StateIdle;
+        uint8_t flags = 0;
+        int8_t rssi = 0;
+        uint8_t channel = 0;
+        uint8_t security = SecUnknown;
+        uint8_t disconnectCode = 0;   // ESP-IDF reason code of the last disconnect
+        uint8_t reason = ReasonNone;
+        QString bssid;
+        QString ip, mask, gateway, dns;
+        uint32_t rxBps = 0, txBps = 0;
+        QString ssid;
+    };
+    struct Report {
+        bool valid = false;
+        uint8_t state = StateIdle;
+        int8_t rssi = 0;
+        uint32_t rxBps = 0, txBps = 0, rxTotal = 0, txTotal = 0, uptimeS = 0;
+    };
+    struct Network {
+        bool valid = false;           // false for an index whose frame never arrived
+        int8_t rssi = 0;
+        uint8_t channel = 0;
+        uint8_t security = SecUnknown;
+        uint8_t flags = 0;
+        QString bssid;
+        QString ssid;
+    };
+
+    const Status& status() const { return status_; }
+    const Report& report() const { return report_; }
+    /** Networks of the last scan, strongest first, sized by the module's total. */
+    const QVector<Network>& networks() const { return networks_; }
+    /** Saved SSIDs; an entry is empty when its frame was lost. */
+    const QStringList& savedNetworks() const { return saved_; }
+    bool scanning() const { return scanPending_; }
+    bool hasData() const { return status_.valid || report_.valid || !networks_.isEmpty() || !saved_.isEmpty(); }
+
+    /** GETTING v2. The answer arrives as one frame per network; scanning() drops when all came. */
+    void scan();
+    void cancelScan() { scanPending_ = false; }
+    /** SETTING v3. @returns false when the SSID is empty or a string is too long; nothing is sent then. */
+    bool connectTo(const QString& ssid, const QString& password, bool save);
+    /** SETTING v4: Action code, SSID only for ActForget. */
+    void action(uint8_t code, const QString& ssid = QString());
+    /** SETTING v1: link-report period, 0 stops it, 100..60000 ms otherwise. */
+    void setReportPeriod(uint16_t ms);
+
+    /** For the driver's polling loop: ends a scan whose frames stopped coming. @returns true once. */
+    bool expireScan(int64_t nowMs);
+    void reset();
+
+protected:
+    static QString readAddr(FrameParser& proto);
+    static QString readMac(FrameParser& proto);
+    static QString readSsid(FrameParser& proto);
+
+    Status status_;
+    Report report_;
+    QVector<Network> networks_;
+    QStringList saved_;
+    int scanTotal_ = -1;
+    int scanFilled_ = 0;
+    int savedTotal_ = -1;
+    bool scanPending_ = false;
+    int64_t scanStartedMs_ = 0;
+    static constexpr int64_t scanTimeoutMs = 8000;
 };
 
 class IDBinVersion : public IDBin

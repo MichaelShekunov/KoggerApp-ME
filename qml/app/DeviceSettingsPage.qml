@@ -39,7 +39,7 @@ Column {
     }
 
     readonly property var baudrateOptions: [9600, 19200, 38400, 57600, 115200,
-                                            230400, 460800, 921600, 1200000, 2000000]
+                                            230400, 460800, 921600, 1000000, 1200000, 1500000, 2000000, 3000000, 4000000]
     property int baudrateIndex: baudrateOptions.indexOf(115200)
 
     function applyBaudrate() {
@@ -234,12 +234,14 @@ Column {
     readonly property bool _isBasicSonar: _isBasic2D || _isNanoSSS
     readonly property bool _isRecorder: !!(dev && dev.isRecorder)
     readonly property bool _isUsbl: !!(dev && (dev.isUSBL || dev.isUSBLBeacon))
+    readonly property bool _isWifi: !!(dev && dev.isWifi)
     // Without a cut the panel has no header and advReveal.open is permanently true, so
     // Actions / Settings file / Upgrade sit open below the operating groups and the
     // "Advanced settings" row is a zero-height, unclickable ghost. USBL gets the cut for
     // the same reason the basic sonars do: those three are firmware and maintenance
     // actions, not operating controls.
-    readonly property bool _hasCut: _isBasicSonar || _isRecorder || _isUsbl
+    // The Wi-Fi module gets the cut too: its island is the operating control, the rest is upkeep.
+    readonly property bool _hasCut: _isBasicSonar || _isRecorder || _isUsbl || _isWifi
     property bool _engExpanded: false
 
     function _linkUuidOfDev() {
@@ -399,6 +401,90 @@ Column {
             color: AppPalette.textSecond
             font.pixelSize: Tokens.fontMd
             elide: Text.ElideRight
+        }
+    }
+
+    // Signal-strength glyph: four bars lit by RSSI (dBm), the way phones draw it.
+    component WifiBars: Item {
+        id: bars
+        property int rssi: -100
+        property real size: Tokens.iconMd
+        readonly property int level: rssi >= -55 ? 4 : rssi >= -65 ? 3 : rssi >= -75 ? 2 : rssi >= -90 ? 1 : 0
+        width: size
+        height: size
+        Row {
+            anchors.bottom: parent.bottom
+            anchors.horizontalCenter: parent.horizontalCenter
+            spacing: Math.max(1, Math.round(bars.size * 0.09))
+            Repeater {
+                model: 4
+                Rectangle {
+                    width: Math.max(2, Math.round(bars.size * 0.16))
+                    height: Math.round(bars.size * (0.34 + 0.22 * index))
+                    anchors.bottom: parent.bottom
+                    radius: Math.max(1, Math.round(AppPalette.scale))
+                    color: index < bars.level ? AppPalette.accent : AppPalette.trackOff
+                }
+            }
+        }
+    }
+
+    // One-line text field in the island style. echoMode is what the on-screen keyboard reads to
+    // switch to its password layout, so the eye button flips it rather than masking by hand.
+    component WifiField: Rectangle {
+        id: wf
+        property alias text: wfInput.text
+        property string placeholder: ""
+        property bool password: false
+        property bool revealed: false
+        signal accepted()
+        function takeFocus() { wfInput.forceActiveFocus() }
+        height: Tokens.controlHMd
+        radius: Tokens.radiusMd
+        color: AppPalette.bg
+        border.width: wfInput.activeFocus ? 1 : Tokens.cardBorderWidth
+        border.color: wfInput.activeFocus ? AppPalette.accentBorder : AppPalette.border
+        TextInput {
+            id: wfInput
+            anchors.fill: parent
+            anchors.leftMargin: Tokens.spaceMd
+            anchors.rightMargin: wf.password ? Tokens.controlHMd + Tokens.spaceXs : Tokens.spaceMd
+            verticalAlignment: TextInput.AlignVCenter
+            color: AppPalette.text
+            font.pixelSize: Tokens.fontBase
+            clip: true
+            activeFocusOnTab: true
+            selectByMouse: true
+            echoMode: (wf.password && !wf.revealed) ? TextInput.Password : TextInput.Normal
+            inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhNoPredictiveText | (wf.password ? Qt.ImhSensitiveData : Qt.ImhNone)
+            onAccepted: wf.accepted()
+        }
+        Text {
+            anchors.left: parent.left
+            anchors.leftMargin: Tokens.spaceMd
+            anchors.verticalCenter: parent.verticalCenter
+            visible: wfInput.text.length === 0
+            text: wf.placeholder
+            color: AppPalette.textMuted
+            font.pixelSize: Tokens.fontBase
+        }
+        KCircleIconButton {
+            visible: wf.password
+            anchors.right: parent.right
+            anchors.rightMargin: Tokens.spaceXs
+            anchors.verticalCenter: parent.verticalCenter
+            width: Tokens.controlHMd - 2 * Tokens.spaceXs
+            height: width
+            rounded: false
+            cornerRadius: Tokens.radiusMd
+            borderWidth: 0
+            fillColor: "transparent"
+            fillHoverColor: AppPalette.bgHover
+            fillPressedColor: AppPalette.bgHover
+            iconSource: wf.revealed ? "qrc:/icons/ui/eye-off.svg" : "qrc:/icons/ui/eye.svg"
+            iconTintColor: AppPalette.textSecond
+            toolTipText: wf.revealed ? qsTr("Hide password") : qsTr("Show password")
+            onClicked: wf.revealed = !wf.revealed
         }
     }
 
@@ -1429,6 +1515,421 @@ Column {
         }
     }
 
+    // ── Wi‑Fi module ───────────────────────────────────────────────────────
+    // Board 87 is a Wi‑Fi client on the head unit's own UART: it joins the boat's access point and
+    // reports the link. The island mirrors dev.wifi* (DevQProperty) and sends the ID_WIFI commands;
+    // contract in docs/WIFI_MODULE.md. The password field brings up the on-screen keyboard on a
+    // touch screen like any other input.
+    DevIsland {
+        id: wifiIsland
+        width: root.groupWidth
+        visible: root._isWifi
+        rowMinHeight: Tokens.controlHMd + Tokens.spaceXs
+
+        readonly property bool live: root._isWifi && !!dev.wifiStatusValid
+        readonly property int wifiState: live ? dev.wifiState : 0
+        readonly property bool connected: live && wifiState === 3
+        readonly property bool busy: live && (wifiState === 1 || wifiState === 2)
+        readonly property string ssid: live ? dev.wifiSsid : ""
+        readonly property int rssi: live ? dev.wifiRssi : 0
+        readonly property int channel: live ? dev.wifiChannel : 0
+        readonly property int security: live ? dev.wifiSecurity : 0
+        readonly property int reason: live ? dev.wifiReason : 0
+        readonly property string ip: live ? dev.wifiIp : ""
+        readonly property int rxBps: live ? dev.wifiRxBps : 0
+        readonly property int txBps: live ? dev.wifiTxBps : 0
+        readonly property real rxTotal: live ? dev.wifiRxTotal : 0
+        readonly property real txTotal: live ? dev.wifiTxTotal : 0
+        readonly property int uptime: live ? dev.wifiUptime : 0
+        readonly property bool autoConnect: live && !!dev.wifiAutoConnect
+        readonly property bool currentSaved: live && !!dev.wifiCurrentSaved
+        readonly property bool scanning: root._isWifi && !!dev.wifiScanning
+        readonly property var networks: root._isWifi ? dev.wifiNetworks : []
+        readonly property var savedList: root._isWifi ? dev.wifiSavedNetworks : []
+
+        // The network the operator tapped; the join rows stay open while it is set. The module
+        // never reveals a stored password and joins with exactly what it is sent, so a saved
+        // network is joined by its auto-connect or by typing the password once more.
+        property string pickSsid: ""
+        property int pickSecurity: 0
+        property bool pickSaved: false
+        property bool pickHidden: false
+        readonly property bool pickActive: pickSsid.length > 0 || pickHidden
+        // A join was sent for this SSID; the module's next status frames carry the verdict.
+        property string awaitingSsid: ""
+
+        function stateText(st) {
+            switch (st) {
+            case 3: return qsTr("Connected")
+            case 2: return qsTr("Connecting…")
+            case 1: return qsTr("Searching…")
+            }
+            return qsTr("Not connected")
+        }
+        function securityText(sec) {
+            switch (sec) {
+            case 0: return qsTr("Open")
+            case 1: return "WEP"
+            case 2: return "WPA"
+            case 3: return "WPA2"
+            case 4: return "WPA/WPA2"
+            case 5: return "WPA3"
+            case 6: return "WPA2/WPA3"
+            case 7: return qsTr("Enterprise")
+            case 8: return "OWE"
+            }
+            return qsTr("Secured")
+        }
+        function reasonText(r) {
+            switch (r) {
+            case 1: return qsTr("network not found")
+            case 2: return qsTr("wrong password")
+            case 3: return qsTr("association failed")
+            case 4: return qsTr("connection lost")
+            case 5: return qsTr("disconnected")
+            }
+            return ""
+        }
+        function rateText(bps) {
+            if (bps >= 1048576) return (bps / 1048576).toFixed(2) + " " + qsTr("MB/s")
+            if (bps >= 1024) return (bps / 1024).toFixed(1) + " " + qsTr("KB/s")
+            return bps + " " + qsTr("B/s")
+        }
+        function sizeText(bytes) {
+            if (bytes >= 1073741824) return (bytes / 1073741824).toFixed(2) + " " + qsTr("GB")
+            if (bytes >= 1048576) return (bytes / 1048576).toFixed(1) + " " + qsTr("MB")
+            if (bytes >= 1024) return Math.round(bytes / 1024) + " " + qsTr("KB")
+            return bytes + " " + qsTr("B")
+        }
+        function uptimeText(sec) {
+            var h = Math.floor(sec / 3600)
+            var m = Math.floor((sec % 3600) / 60)
+            return h > 0 ? qsTr("%1 h %2 min").arg(h).arg(m) : qsTr("%1 min").arg(m)
+        }
+        function pick(ssid, security, saved, hidden) {
+            pickSsid = ssid
+            pickSecurity = security
+            pickSaved = saved
+            pickHidden = hidden
+            wifiPassField.text = ""
+            wifiSsidField.text = hidden ? "" : ssid
+            wifiRemember.checked = !saved
+            if (hidden)
+                wifiSsidField.takeFocus()
+            else if (security !== 0)
+                wifiPassField.takeFocus()
+        }
+        function closePick() {
+            pickSsid = ""
+            pickHidden = false
+            wifiPassField.text = ""
+            root.forceActiveFocus()
+        }
+        function doConnect() {
+            if (!dev)
+                return
+            var ssid = pickHidden ? wifiSsidField.text : pickSsid
+            if (!ssid.length) {
+                notifications.warning(qsTr("Enter the network name"))
+                return
+            }
+            var pass = pickSecurity !== 0 ? wifiPassField.text : ""
+            if (dev.wifiConnect(ssid, pass, wifiRemember.checked)) {
+                awaitingSsid = ssid
+                notifications.info(qsTr("Connecting to %1…").arg(ssid))
+                closePick()
+            } else {
+                notifications.warning(qsTr("Network name or password is too long"))
+            }
+        }
+
+        onVisibleChanged: if (visible && dev) dev.wifiRefresh()
+        Component.onCompleted: if (visible && dev) dev.wifiRefresh()
+
+        Connections {
+            target: root._isWifi ? root.dev : null
+            function onWifiStatusChanged() {
+                if (!wifiIsland.awaitingSsid.length || !wifiIsland.live)
+                    return
+                if (wifiIsland.wifiState === 3 && wifiIsland.ssid === wifiIsland.awaitingSsid) {
+                    notifications.info(qsTr("Wi‑Fi connected: %1").arg(wifiIsland.ssid))
+                    wifiIsland.awaitingSsid = ""
+                } else if (wifiIsland.wifiState === 0 && wifiIsland.reason !== 0) {
+                    notifications.warning(qsTr("Wi‑Fi: %1 (%2)").arg(wifiIsland.awaitingSsid).arg(wifiIsland.reasonText(wifiIsland.reason)))
+                    wifiIsland.awaitingSsid = ""
+                }
+            }
+            function onWifiCommandResult(version, resp) {
+                if (resp === 1 || version === 0)
+                    return
+                var why = resp === 8 ? qsTr("the module is busy, try again in a moment")
+                        : resp === 3 ? qsTr("the module rejected the request")
+                                     : qsTr("response code %1").arg(resp)
+                notifications.warning(qsTr("Wi‑Fi command failed: %1").arg(why))
+                if (version === 3)
+                    wifiIsland.awaitingSsid = ""
+            }
+        }
+
+        DevIslandTitle {
+            label: "Wi‑Fi"
+            minHeight: Tokens.rowH
+            verticalPadding: 0
+
+            Rectangle {
+                id: wifiChip
+                readonly property color fg: wifiIsland.connected ? AppPalette.linkOkText
+                                          : (wifiIsland.busy ? AppPalette.linkIdleText : AppPalette.linkDownText)
+                height: Math.round(24 * AppPalette.scale)
+                width: wifiChipText.implicitWidth + 2 * Tokens.spaceMd
+                radius: height / 2
+                color: wifiIsland.connected ? AppPalette.linkOkBg
+                     : (wifiIsland.busy ? AppPalette.linkIdleBg : AppPalette.linkDownBg)
+                border.width: Tokens.cardBorderWidth
+                border.color: wifiIsland.connected ? AppPalette.linkOkBorder
+                            : (wifiIsland.busy ? AppPalette.linkIdleBorder : AppPalette.linkDownBorder)
+                Text {
+                    id: wifiChipText
+                    anchors.centerIn: parent
+                    text: wifiIsland.live ? wifiIsland.stateText(wifiIsland.wifiState) : qsTr("No data")
+                    color: wifiChip.fg
+                    font.pixelSize: Tokens.fontSm
+                    font.bold: true
+                }
+            }
+        }
+
+        // Current network
+        KIslandRow {
+            label: (wifiIsland.connected || wifiIsland.wifiState === 2) ? wifiIsland.ssid : qsTr("Not connected")
+            labelBold: wifiIsland.connected
+            caption: {
+                if (!wifiIsland.live)
+                    return qsTr("Waiting for the module…")
+                if (wifiIsland.connected)
+                    return wifiIsland.rssi + " " + qsTr("dBm") + " · " + qsTr("ch %1").arg(wifiIsland.channel)
+                         + " · " + wifiIsland.securityText(wifiIsland.security)
+                         + (wifiIsland.ip.length ? " · " + wifiIsland.ip : "")
+                if (wifiIsland.wifiState === 2)
+                    return qsTr("Connecting…")
+                if (wifiIsland.wifiState === 1)
+                    return qsTr("Looking for a saved network…")
+                var r = wifiIsland.reasonText(wifiIsland.reason)
+                if (r.length)
+                    return qsTr("Last attempt: %1").arg(r)
+                return wifiIsland.savedList.length ? qsTr("Auto-connect is off") : qsTr("No saved networks yet")
+            }
+            captionColor: (wifiIsland.live && wifiIsland.wifiState === 0 && wifiIsland.reason !== 0)
+                          ? AppPalette.dangerText : AppPalette.textSecond
+            leading: WifiBars { rssi: wifiIsland.connected ? wifiIsland.rssi : -200 }
+
+            Column {
+                visible: wifiIsland.connected
+                spacing: Tokens.spaceXxs
+                Text {
+                    anchors.right: parent.right
+                    text: "↓ " + wifiIsland.rateText(wifiIsland.rxBps)
+                    color: AppPalette.textSecond
+                    font.pixelSize: Tokens.fontSm
+                }
+                Text {
+                    anchors.right: parent.right
+                    text: "↑ " + wifiIsland.rateText(wifiIsland.txBps)
+                    color: AppPalette.textSecond
+                    font.pixelSize: Tokens.fontSm
+                }
+            }
+        }
+
+        DevInfoRow {
+            label: qsTr("Traffic")
+            value: wifiIsland.connected
+                   ? qsTr("%1 received, %2 sent").arg(wifiIsland.sizeText(wifiIsland.rxTotal)).arg(wifiIsland.sizeText(wifiIsland.txTotal))
+                   : ""
+            caption: wifiIsland.connected ? qsTr("Module up %1").arg(wifiIsland.uptimeText(wifiIsland.uptime)) : ""
+        }
+
+        KIslandRow {
+            open: wifiIsland.live
+            label: qsTr("Auto-connect")
+            caption: qsTr("Join the strongest saved network at power-up and after a loss")
+            KSwitch {
+                id: wifiAutoSwitch
+                flat: true
+                property bool wantChecked: wifiIsland.autoConnect
+                property bool _g: false
+                onWantCheckedChanged: { if (checked !== wantChecked) { _g = true; checked = wantChecked; _g = false } }
+                Component.onCompleted: { _g = true; checked = wantChecked; _g = false }
+                onToggled: {
+                    if (_g || !dev)
+                        return
+                    dev.wifiSetAutoConnect(checked)
+                    if (!checked)
+                        notifications.info(qsTr("Auto-connect off: the module leaves the network"))
+                }
+            }
+        }
+
+        DevStackedRow {
+            open: wifiIsland.live
+            Row {
+                width: parent.width
+                spacing: Tokens.spaceMd
+                readonly property real bw: (width - 2 * Tokens.spaceMd) / 3
+                DevButton {
+                    width: parent.bw; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
+                    text: wifiIsland.scanning ? qsTr("Scanning…") : qsTr("Scan")
+                    enabled: !wifiIsland.scanning
+                    toolTipText: qsTr("Look for networks nearby (takes a few seconds)")
+                    onClicked: if (dev) dev.wifiScan()
+                }
+                DevButton {
+                    width: parent.bw; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
+                    text: qsTr("Disconnect")
+                    enabled: wifiIsland.connected || wifiIsland.busy
+                    toolTipText: qsTr("Leave the network and switch auto-connect off")
+                    onClicked: {
+                        if (!dev)
+                            return
+                        dev.wifiDisconnect()
+                        notifications.info(qsTr("Wi‑Fi disconnected, auto-connect off"))
+                    }
+                }
+                DevButton {
+                    width: parent.bw; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
+                    text: qsTr("Other…")
+                    toolTipText: qsTr("Join a network that hides its name")
+                    onClicked: wifiIsland.pick("", 3, false, true)
+                }
+            }
+        }
+
+        // Join rows: open for the tapped network or a hidden one
+        KIslandSection {
+            open: wifiIsland.pickActive
+            label: wifiIsland.pickHidden ? qsTr("Join a hidden network") : qsTr("Join %1").arg(wifiIsland.pickSsid)
+        }
+        DevStackedRow {
+            open: wifiIsland.pickActive && wifiIsland.pickHidden
+            label: qsTr("Network name (SSID)")
+            WifiField {
+                id: wifiSsidField
+                width: parent.width
+                placeholder: qsTr("SSID")
+                onAccepted: wifiPassField.takeFocus()
+            }
+        }
+        DevStackedRow {
+            open: wifiIsland.pickActive && wifiIsland.pickSecurity !== 0
+            label: qsTr("Password")
+            caption: wifiIsland.pickSaved ? qsTr("Saved network: the module keeps its password to itself, type it once more")
+                                          : (wifiIsland.pickHidden ? qsTr("Leave empty for an open network") : "")
+            WifiField {
+                id: wifiPassField
+                width: parent.width
+                password: true
+                placeholder: qsTr("Password")
+                onAccepted: wifiIsland.doConnect()
+            }
+        }
+        KIslandRow {
+            open: wifiIsland.pickActive
+            label: qsTr("Remember this network")
+            caption: qsTr("Stored in the module once an address is obtained")
+            KSwitch { id: wifiRemember; flat: true; checked: true }
+        }
+        DevStackedRow {
+            open: wifiIsland.pickActive
+            Row {
+                width: parent.width
+                spacing: Tokens.spaceMd
+                readonly property real bw: (width - Tokens.spaceMd) / 2
+                DevButton {
+                    width: parent.bw; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
+                    text: qsTr("Connect")
+                    normalBg: AppPalette.accentBg
+                    hoverBg: AppPalette.accentBgHover
+                    normalBorder: AppPalette.accentBorder
+                    hoverBorder: AppPalette.accentBorder
+                    textColor: AppPalette.accentText
+                    onClicked: wifiIsland.doConnect()
+                }
+                DevButton {
+                    width: parent.bw; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
+                    text: qsTr("Cancel")
+                    onClicked: wifiIsland.closePick()
+                }
+            }
+        }
+
+        // Scan result
+        KIslandSection {
+            open: wifiIsland.live
+            label: wifiIsland.scanning ? qsTr("Networks nearby (searching…)") : qsTr("Networks nearby")
+        }
+        Repeater {
+            model: wifiIsland.networks
+            delegate: KIslandRow {
+                interactive: true
+                chevron: true
+                label: modelData.ssid.length ? modelData.ssid : qsTr("(hidden network)")
+                labelBold: modelData.current === true
+                caption: wifiIsland.securityText(modelData.security) + " · " + qsTr("ch %1").arg(modelData.channel)
+                         + (modelData.current ? " · " + qsTr("connected") : (modelData.saved ? " · " + qsTr("saved") : ""))
+                leading: WifiBars { rssi: modelData.rssi }
+                Text {
+                    text: modelData.rssi + " " + qsTr("dBm")
+                    color: AppPalette.textMuted
+                    font.pixelSize: Tokens.fontSm
+                }
+                onClicked: wifiIsland.pick(modelData.ssid, modelData.security, modelData.saved === true, false)
+            }
+        }
+        KIslandRow {
+            open: wifiIsland.live && !wifiIsland.scanning && wifiIsland.networks.length === 0
+            minHeight: 0
+            verticalPadding: Tokens.spaceMd
+            label: qsTr("Nothing found yet. Tap Scan.")
+            labelPixelSize: Tokens.fontSm
+            labelColor: AppPalette.textMuted
+        }
+
+        // Saved networks
+        KIslandSection {
+            open: wifiIsland.savedList.length > 0
+            label: qsTr("Saved networks")
+        }
+        Repeater {
+            model: wifiIsland.savedList
+            delegate: KIslandRow {
+                label: modelData
+                labelBold: wifiIsland.connected && modelData === wifiIsland.ssid
+                caption: (wifiIsland.connected && modelData === wifiIsland.ssid) ? qsTr("connected") : ""
+                KCircleIconButton {
+                    implicitWidth: Tokens.controlHMd
+                    implicitHeight: Tokens.controlHMd
+                    rounded: false
+                    cornerRadius: Tokens.radiusMd
+                    iconSource: "qrc:/icons/ui/x.svg"
+                    iconTintColor: AppPalette.dangerText
+                    fillColor: AppPalette.controlRaised
+                    fillHoverColor: Qt.lighter(AppPalette.controlRaised, 1.2)
+                    fillPressedColor: AppPalette.controlRaised
+                    borderWidth: Tokens.cardBorderWidth
+                    borderColor: AppPalette.border
+                    borderHoverColor: AppPalette.borderHover
+                    toolTipText: qsTr("Forget")
+                    onClicked: {
+                        if (!dev)
+                            return
+                        dev.wifiForget(modelData)
+                        notifications.info(qsTr("Forgotten: %1").arg(modelData))
+                    }
+                }
+            }
+        }
+    }
+
     // ── Advanced settings ("Расширенные настройки") ────────────────────────
     Rectangle {
         id: advancedPanel
@@ -1878,7 +2379,7 @@ Column {
         confirmed: !(dev && dev.uartState === false)
 
         readonly property var baudrateOptions: [9600, 19200, 38400, 57600, 115200,
-                                                230400, 460800, 921600, 1200000, 2000000]
+                                                230400, 460800, 921600, 1000000, 1200000, 1500000, 2000000, 3000000, 4000000]
 
         Row {
             width: parent.width; spacing: Tokens.spaceSm
@@ -2044,9 +2545,9 @@ Column {
             id: upgradeFileDialog
             title: qsTr("Please choose a file")
             currentFolder: devUpgradeGroup.upgradeFolder
-            // *.ufwb — Baikal-sonar; the device tells the two apart by the
-            // marker in the first four bytes, so one filter serves both.
-            nameFilters: ["Upgrade files (*.ufw *.ufwb)"]
+            // *.ufwb — Baikal-sonar, *.ufww — the Wi-Fi module; the device tells them
+            // apart by the marker in the first four bytes, so one filter serves all.
+            nameFilters: ["Upgrade files (*.ufw *.ufwb *.ufww)"]
             onCurrentFolderChanged: devUpgradeGroup.upgradeFolder = currentFolder
             onAccepted: {
                 devUpgradeGroup.upgradeFolder = upgradeFileDialog.currentFolder

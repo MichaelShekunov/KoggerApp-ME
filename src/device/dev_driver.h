@@ -6,6 +6,8 @@
 #include <QTimer>
 #include <QUuid>
 #include <QVariantMap>
+#include <QVariantList>
+#include <QStringList>
 #include "proto_binnary.h"
 #include "id_binnary.h"
 
@@ -120,6 +122,46 @@ public:
     Q_INVOKABLE bool applyNet(const QString& ip, const QString& mask, const QString& host, bool dhcp);
     Q_INVOKABLE void requestNet();
 
+    // Wi-Fi module (board 87), ID_WIFI: mirrors of the module's last frames and the commands the
+    // Wi-Fi island sends. Field meaning: docs/WIFI_MODULE.md. Readers are cheap; the lists are
+    // rebuilt on every call, which is fine for a dozen networks.
+    bool wifiStatusValid();
+    int wifiState();
+    bool wifiAutoConnect();
+    bool wifiCurrentSaved();
+    QString wifiSsid();
+    int wifiRssi();
+    int wifiChannel();
+    int wifiSecurity();
+    int wifiReason();
+    int wifiDisconnectCode();
+    QString wifiBssid();
+    QString wifiIp();
+    QString wifiMask();
+    QString wifiGateway();
+    QString wifiDns();
+    int wifiRxBps();
+    int wifiTxBps();
+    bool wifiReportValid();
+    double wifiRxTotal();
+    double wifiTxTotal();
+    int wifiUptime();
+    bool wifiScanning();
+    QVariantList wifiNetworks();
+    QStringList wifiSavedNetworks();
+
+    /** Re-reads status and the saved list (GETTING v0 + v4). */
+    Q_INVOKABLE void wifiRefresh();
+    /** Starts a scan; results arrive over the next seconds and wifiNetworksChanged() follows each. */
+    Q_INVOKABLE void wifiScan();
+    /** @returns false when the strings do not fit the frame; nothing is sent then. */
+    Q_INVOKABLE bool wifiConnect(const QString& ssid, const QString& password, bool save);
+    /** Leaves the network and switches auto-connect off (the module has no plain "leave"). */
+    Q_INVOKABLE void wifiDisconnect();
+    Q_INVOKABLE void wifiSetAutoConnect(bool on);
+    Q_INVOKABLE void wifiForget(const QString& ssid);
+    Q_INVOKABLE void wifiForgetAll();
+
     float yaw();
     float pitch();
     float roll();
@@ -193,6 +235,8 @@ public:
         BoardVersion ver = boardVersion();
         return ver == BoardUSBL;
     }
+
+    bool isWifi() { return boardVersion() == BoardWiFi; }
 
     bool isChartSupport() { return m_state.duplex && isSonar(); }
     bool isDistSupport() { return m_state.duplex && isSonar(); }
@@ -283,6 +327,13 @@ signals:
     void transChanged();
     void soundChanged();
     void netChanged();
+    void wifiStatusChanged();
+    void wifiReportChanged();
+    void wifiNetworksChanged();
+    void wifiSavedChanged();
+    // The module's answer to a Wi-Fi SETTING (or its refusal of a request): version of the frame
+    // and the response code (Parsers::Resp). Only failures matter to the page.
+    void wifiCommandResult(int version, int resp);
     void UARTChanged();
     void servoControlChanged();
     void standChanged();
@@ -412,6 +463,7 @@ protected:
     IDBinSoundSpeed* idSoundSpeed = nullptr;
     IDBinNet* idNet = nullptr;
     IDBinUART* idUART = nullptr;
+    IDBinWifi* idWifi = nullptr;
 
     IDBinVersion* idVersion = nullptr;
     IDBinMark* idMark = nullptr;
@@ -554,6 +606,7 @@ protected slots:
     void receivedSoundSpeed (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
     void receivedNet        (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
     void receivedUART       (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
+    void receivedWifi       (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
 
     void receivedVersion    (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
     void receivedMark       (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
@@ -592,6 +645,9 @@ private:
     // servo one. Both flags reset with the connection — a device may come back reflashed.
     bool standSupported_ = false;
     bool standProbeSent_ = false;
+    // The Wi-Fi module is asked once per connection, then it pushes; see process().
+    bool wifiProbeSent_ = false;
+    int wifiLastState_ = -1;
     bool pwmRouteState_ = false;
     bool devSyncState_ = false;
     QTimer m_devSyncDebounceTimer;

@@ -138,12 +138,29 @@ QStringList LinkManager::currentSerialPortNames() const
     QStringList names;
     for (const auto& portInfo : allPorts) {
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
+        // Only USB adapters are listed: a Linux box also enumerates eight ttyS* ports of which
+        // most have no hardware. A UART wired on the board itself (a head unit with a module on
+        // its 40-pin header) is opted in by name through KOGGER_SERIAL_PORTS, a comma-separated
+        // list of port names or device paths, e.g. "ttyS6".
+        static const QStringList optedInPorts = [] {
+            QStringList names;
+            const QStringList raw = qEnvironmentVariable("KOGGER_SERIAL_PORTS").split(',', Qt::SkipEmptyParts);
+            for (const QString& item : raw) {
+                const QString name = item.trimmed();
+                if (!name.isEmpty()) {
+                    names.append(name);
+                }
+            }
+            return names;
+        }();
+
         const QString systemLocation = portInfo.systemLocation();
         const bool hasUsbIdentifiers = portInfo.hasVendorIdentifier() || portInfo.hasProductIdentifier();
         const bool hasUsbLikeName = systemLocation.startsWith("/dev/ttyUSB")
                                  || systemLocation.startsWith("/dev/ttyACM");
+        const bool optedIn = optedInPorts.contains(portInfo.portName()) || optedInPorts.contains(systemLocation);
 
-        if (!hasUsbIdentifiers && !hasUsbLikeName) {
+        if (!hasUsbIdentifiers && !hasUsbLikeName && !optedIn) {
             continue;
         }
 #endif

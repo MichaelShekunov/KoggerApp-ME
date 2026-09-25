@@ -91,6 +91,10 @@ enum ID : uint16_t {
 
     ID_STREAM = 0x40,
 
+    // Wi-Fi module (board 87): status, link report, scan, connect, saved networks.
+    // Contract in docs/WIFI_MODULE.md. 0x57 = 87 is free upstream.
+    ID_WIFI = 0x57,
+
     ID_DVL_BEAM = 120,
     ID_DVL_VEL = 121,
     ID_DVL_MODE = 122,

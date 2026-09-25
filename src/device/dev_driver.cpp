@@ -52,6 +52,7 @@ DevDriver::DevDriver(QObject *parent)
     regID(idSoundSpeed = new IDBinSoundSpeed(), &DevDriver::receivedSoundSpeed, true);
     regID(idNet = new IDBinNet(), &DevDriver::receivedNet, true);
     regID(idUART = new IDBinUART(), &DevDriver::receivedUART, true);
+    regID(idWifi = new IDBinWifi(), &DevDriver::receivedWifi);
     regID(idVersion = new IDBinVersion(), &DevDriver::receivedVersion, true);
 
     regID(idMark = new IDBinMark(), &DevDriver::receivedMark);
@@ -177,6 +178,10 @@ QList<QTimer *> DevDriver::getChildTimers()
     if (idUART) {
         timers.append(idUART->getSetTimer());
         timers.append(idUART->getColdStartTimer());
+    }
+    if (idWifi) {
+        timers.append(idWifi->getSetTimer());
+        timers.append(idWifi->getColdStartTimer());
     }
     if (idVersion) {
         timers.append(idVersion->getSetTimer());
@@ -773,6 +778,9 @@ void DevDriver::initChildsTimersConnects()
     if (idUART) {
         idUART->initTimersConnects();
     }
+    if (idWifi) {
+        idWifi->initTimersConnects();
+    }
     if (idVersion) {
         idVersion->initTimersConnects();
     }
@@ -877,6 +885,8 @@ void DevDriver::stopConnection() {
     m_processTimer.stop();
     m_devName = "...";
     standProbeSent_ = false;
+    wifiProbeSent_ = false;
+    wifiLastState_ = -1;
     if (standSupported_) {
         standSupported_ = false;
         emit standChanged();
@@ -1080,6 +1090,135 @@ void DevDriver::receivedNet(Parsers::Type type, Parsers::Version ver, Parsers::R
     Q_UNUSED(ver);
     Q_UNUSED(resp);
     emit netChanged();
+}
+
+void DevDriver::receivedWifi(Parsers::Type type, Parsers::Version ver, Parsers::Resp resp) {
+    Q_UNUSED(type);
+
+    if (resp != respNone) {
+        // Confirmation of a SETTING, or the module refusing a request. A refused scan (the module
+        // is busy joining) must not leave the island in its "scanning" state.
+        if (ver == v2 && resp != respOk) {
+            idWifi->cancelScan();
+            emit wifiNetworksChanged();
+        }
+        // The saved list is never pushed, so read it back after an action on it.
+        if (ver == v4 && resp == respOk) {
+            idWifi->requestAll();
+        }
+        emit wifiCommandResult(static_cast<int>(ver), static_cast<int>(resp));
+        return;
+    }
+
+    switch (ver) {
+    case v0: {
+        const int state = idWifi->status().state;
+        if (state != wifiLastState_) {
+            wifiLastState_ = state;
+            // A network joined with "save" is stored only once an address arrived: now.
+            if (state == IDBinWifi::StateConnected) {
+                idWifi->simpleRequest(v4);
+            }
+        }
+        emit wifiStatusChanged();
+        emit wifiReportChanged();   // RSSI and rates live in both frames
+        break;
+    }
+    case v1:
+        emit wifiReportChanged();
+        break;
+    case v2:
+        emit wifiNetworksChanged();
+        break;
+    case v4:
+        emit wifiSavedChanged();
+        break;
+    default:
+        break;
+    }
+}
+
+bool DevDriver::wifiStatusValid() { return idWifi->status().valid; }
+int DevDriver::wifiState() { return idWifi->status().state; }
+bool DevDriver::wifiAutoConnect() { return (idWifi->status().flags & IDBinWifi::FlagAutoConnect) != 0; }
+bool DevDriver::wifiCurrentSaved() { return (idWifi->status().flags & IDBinWifi::FlagCurrentSaved) != 0; }
+QString DevDriver::wifiSsid() { return idWifi->status().ssid; }
+int DevDriver::wifiRssi() { return idWifi->report().valid ? idWifi->report().rssi : idWifi->status().rssi; }
+int DevDriver::wifiChannel() { return idWifi->status().channel; }
+int DevDriver::wifiSecurity() { return idWifi->status().security; }
+int DevDriver::wifiReason() { return idWifi->status().reason; }
+int DevDriver::wifiDisconnectCode() { return idWifi->status().disconnectCode; }
+QString DevDriver::wifiBssid() { return idWifi->status().bssid; }
+QString DevDriver::wifiIp() { return idWifi->status().ip; }
+QString DevDriver::wifiMask() { return idWifi->status().mask; }
+QString DevDriver::wifiGateway() { return idWifi->status().gateway; }
+QString DevDriver::wifiDns() { return idWifi->status().dns; }
+int DevDriver::wifiRxBps() { return static_cast<int>(idWifi->report().valid ? idWifi->report().rxBps : idWifi->status().rxBps); }
+int DevDriver::wifiTxBps() { return static_cast<int>(idWifi->report().valid ? idWifi->report().txBps : idWifi->status().txBps); }
+bool DevDriver::wifiReportValid() { return idWifi->report().valid; }
+double DevDriver::wifiRxTotal() { return static_cast<double>(idWifi->report().rxTotal); }
+double DevDriver::wifiTxTotal() { return static_cast<double>(idWifi->report().txTotal); }
+int DevDriver::wifiUptime() { return static_cast<int>(idWifi->report().uptimeS); }
+bool DevDriver::wifiScanning() { return idWifi->scanning(); }
+
+QVariantList DevDriver::wifiNetworks() {
+    QVariantList list;
+    for (const IDBinWifi::Network& n : idWifi->networks()) {
+        if (!n.valid) {
+            continue;
+        }
+        QVariantMap m;
+        m["ssid"] = n.ssid;
+        m["rssi"] = static_cast<int>(n.rssi);
+        m["channel"] = static_cast<int>(n.channel);
+        m["security"] = static_cast<int>(n.security);
+        m["saved"] = (n.flags & IDBinWifi::NetSaved) != 0;
+        m["current"] = (n.flags & IDBinWifi::NetCurrent) != 0;
+        m["bssid"] = n.bssid;
+        list.append(m);
+    }
+    return list;
+}
+
+QStringList DevDriver::wifiSavedNetworks() {
+    QStringList list;
+    for (const QString& s : idWifi->savedNetworks()) {
+        if (!s.isEmpty()) {
+            list.append(s);
+        }
+    }
+    return list;
+}
+
+void DevDriver::wifiRefresh() {
+    if (m_state.connect) idWifi->requestAll();
+}
+
+void DevDriver::wifiScan() {
+    if (!m_state.connect) return;
+    idWifi->scan();
+    emit wifiNetworksChanged();
+}
+
+bool DevDriver::wifiConnect(const QString& ssid, const QString& password, bool save) {
+    if (!m_state.connect) return false;
+    return idWifi->connectTo(ssid, password, save);
+}
+
+void DevDriver::wifiDisconnect() {
+    if (m_state.connect) idWifi->action(IDBinWifi::ActDisconnect);
+}
+
+void DevDriver::wifiSetAutoConnect(bool on) {
+    if (m_state.connect) idWifi->action(on ? IDBinWifi::ActAutoConnect : IDBinWifi::ActDisconnect);
+}
+
+void DevDriver::wifiForget(const QString& ssid) {
+    if (m_state.connect) idWifi->action(IDBinWifi::ActForget, ssid);
+}
+
+void DevDriver::wifiForgetAll() {
+    if (m_state.connect) idWifi->action(IDBinWifi::ActForgetAll);
 }
 
 QString DevDriver::netIp() { return idNet->ip(); }
@@ -1710,6 +1849,10 @@ void DevDriver::receivedVersion(Parsers::Type type, Parsers::Version ver, Parser
                 m_devName = "Baikal-sonar";
                 break;
 
+            case BoardWiFi:
+                m_devName = "Wi-Fi";
+                break;
+
             case BoardUSBL:
                 m_devName = "USBL";
                 break;
@@ -2140,6 +2283,16 @@ void DevDriver::process() {
                     if(idStandScan) idStandScan->probe();
                 }
 
+                // Wi-Fi module only: nothing else knows ID_WIFI. Asked once per connection; from
+                // then on the module pushes its status on every change and a report each second.
+                if(isWifi() && !wifiProbeSent_) {
+                    wifiProbeSent_ = true;
+                    idWifi->requestAll();
+                }
+                if(isWifi() && idWifi->expireScan(curr_time)) {
+                    emit wifiNetworksChanged();
+                }
+
                 if(m_state.in_boot && idVersion->bootMode() == IDBinVersion::BootModeFirmware) {
                     idVersion->requestAll();
                 }
@@ -2171,6 +2324,15 @@ void DevDriver::process() {
             restartState();
             streamListRequested_ = false;
             standProbeSent_ = false;
+            wifiProbeSent_ = false;
+            wifiLastState_ = -1;
+            if(idWifi->hasData()) {
+                idWifi->reset();
+                emit wifiStatusChanged();
+                emit wifiReportChanged();
+                emit wifiNetworksChanged();
+                emit wifiSavedChanged();
+            }
             if(standSupported_) {
                 standSupported_ = false;
                 emit standChanged();

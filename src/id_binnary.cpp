@@ -1,5 +1,6 @@
 #include "id_binnary.h"
 #include "math.h"
+#include <QDateTime>
 #include <utility>
 
 // The codec is kept byte-identical to the copy the device runs, so it carries
@@ -1166,6 +1167,208 @@ QVector<IDBinUART::UART> IDBinUART::getUart() const {
     for (uint16_t i = 0; i < uartSize; ++i)
         retVal.push_back(m_uart[i]);
     return retVal;
+}
+
+QString IDBinWifi::readAddr(FrameParser& proto) {
+    const U1 a = proto.read<U1>();
+    const U1 b = proto.read<U1>();
+    const U1 c = proto.read<U1>();
+    const U1 d = proto.read<U1>();
+    return QString("%1.%2.%3.%4").arg(a).arg(b).arg(c).arg(d);
+}
+
+QString IDBinWifi::readMac(FrameParser& proto) {
+    uint8_t mac[6] = {0, 0, 0, 0, 0, 0};
+    proto.read(mac, 6);
+    return QString::fromLatin1(QByteArray(reinterpret_cast<const char*>(mac), 6).toHex(':'));
+}
+
+QString IDBinWifi::readSsid(FrameParser& proto) {
+    int len = proto.read<U1>();
+    if (len > proto.readAvailable()) {
+        len = proto.readAvailable();
+    }
+    if (len <= 0) {
+        return QString();
+    }
+    QByteArray raw(len, 0);
+    proto.read(reinterpret_cast<uint8_t*>(raw.data()), static_cast<int16_t>(len));
+    return QString::fromUtf8(raw);
+}
+
+Resp IDBinWifi::parsePayload(FrameParser &proto) {
+    if (proto.ver() == v0) {
+        if (proto.readAvailable() < 39) {
+            return respErrorPayload;
+        }
+        Status s;
+        s.valid = true;
+        s.state = proto.read<U1>();
+        s.flags = proto.read<U1>();
+        s.rssi = proto.read<S1>();
+        s.channel = proto.read<U1>();
+        s.security = proto.read<U1>();
+        s.disconnectCode = proto.read<U1>();
+        s.reason = proto.read<U1>();
+        proto.read<U1>();                       // reserved
+        s.bssid = readMac(proto);
+        s.ip = readAddr(proto);
+        s.mask = readAddr(proto);
+        s.gateway = readAddr(proto);
+        s.dns = readAddr(proto);
+        s.rxBps = proto.read<U4>();
+        s.txBps = proto.read<U4>();
+        s.ssid = readSsid(proto);
+        status_ = s;
+        return respOk;
+    }
+    if (proto.ver() == v1) {
+        if (proto.readAvailable() < 22) {
+            return respErrorPayload;
+        }
+        report_.valid = true;
+        report_.state = proto.read<U1>();
+        report_.rssi = proto.read<S1>();
+        report_.rxBps = proto.read<U4>();
+        report_.txBps = proto.read<U4>();
+        report_.rxTotal = proto.read<U4>();
+        report_.txTotal = proto.read<U4>();
+        report_.uptimeS = proto.read<U4>();
+        return respOk;
+    }
+    if (proto.ver() == v2) {
+        if (proto.readAvailable() < 2) {
+            return respErrorPayload;
+        }
+        const int index = proto.read<U1>();
+        const int total = proto.read<U1>();
+        if (total == 0) {                       // nothing around: a single {0, 0} frame
+            networks_.clear();
+            scanTotal_ = 0;
+            scanFilled_ = 0;
+            scanPending_ = false;
+            return respOk;
+        }
+        if (index >= total || proto.readAvailable() < 11) {
+            return respErrorPayload;
+        }
+        if (scanTotal_ != total) {              // first frame of this scan
+            scanTotal_ = total;
+            scanFilled_ = 0;
+            networks_ = QVector<Network>(total);
+        }
+        Network n;
+        n.valid = true;
+        n.rssi = proto.read<S1>();
+        n.channel = proto.read<U1>();
+        n.security = proto.read<U1>();
+        n.flags = proto.read<U1>();
+        n.bssid = readMac(proto);
+        n.ssid = readSsid(proto);
+        if (!networks_[index].valid) {
+            ++scanFilled_;
+        }
+        networks_[index] = n;
+        if (scanFilled_ >= total) {
+            scanPending_ = false;
+        }
+        return respOk;
+    }
+    if (proto.ver() == v4) {
+        if (proto.readAvailable() < 2) {
+            return respErrorPayload;
+        }
+        const int index = proto.read<U1>();
+        const int total = proto.read<U1>();
+        if (total == 0) {
+            saved_.clear();
+            savedTotal_ = 0;
+            return respOk;
+        }
+        if (index >= total) {
+            return respErrorPayload;
+        }
+        if (savedTotal_ != total || saved_.size() != total) {
+            savedTotal_ = total;
+            saved_ = QStringList();
+            for (int i = 0; i < total; ++i) {
+                saved_.append(QString());
+            }
+        }
+        saved_[index] = readSsid(proto);
+        return respOk;
+    }
+    return respErrorVersion;
+}
+
+void IDBinWifi::scan() {
+    scanPending_ = true;
+    scanStartedMs_ = QDateTime::currentMSecsSinceEpoch();
+    scanTotal_ = -1;
+    scanFilled_ = 0;
+    simpleRequest(v2);
+}
+
+bool IDBinWifi::expireScan(int64_t nowMs) {
+    if (!scanPending_ || nowMs - scanStartedMs_ < scanTimeoutMs) {
+        return false;
+    }
+    scanPending_ = false;
+    return true;
+}
+
+bool IDBinWifi::connectTo(const QString& ssid, const QString& password, bool save) {
+    const QByteArray s = ssid.toUtf8();
+    const QByteArray p = password.toUtf8();
+    if (s.isEmpty() || s.size() > 32 || p.size() > 64) {
+        return false;
+    }
+    ProtoBinOut out;
+    out.create(SETTING, v3, id(), m_address);
+    out.write<U1>(save ? 1 : 0);
+    out.write<U1>(static_cast<U1>(s.size()));
+    out.write(const_cast<char*>(s.constData()), static_cast<uint16_t>(s.size()));
+    out.write<U1>(static_cast<U1>(p.size()));
+    if (!p.isEmpty()) {
+        out.write(const_cast<char*>(p.constData()), static_cast<uint16_t>(p.size()));
+    }
+    out.end();
+    hashBinFrameOut(out);
+    return true;
+}
+
+void IDBinWifi::action(uint8_t code, const QString& ssid) {
+    ProtoBinOut out;
+    out.create(SETTING, v4, id(), m_address);
+    out.write<U1>(code);
+    if (code == ActForget) {
+        const QByteArray s = ssid.toUtf8().left(32);
+        out.write<U1>(static_cast<U1>(s.size()));
+        if (!s.isEmpty()) {
+            out.write(const_cast<char*>(s.constData()), static_cast<uint16_t>(s.size()));
+        }
+    }
+    out.end();
+    hashBinFrameOut(out);
+}
+
+void IDBinWifi::setReportPeriod(uint16_t ms) {
+    ProtoBinOut out;
+    out.create(SETTING, v1, id(), m_address);
+    out.write<U2>(ms);
+    out.end();
+    hashBinFrameOut(out);
+}
+
+void IDBinWifi::reset() {
+    status_ = Status();
+    report_ = Report();
+    networks_.clear();
+    saved_.clear();
+    scanTotal_ = -1;
+    scanFilled_ = 0;
+    savedTotal_ = -1;
+    scanPending_ = false;
 }
 
 Resp IDBinVersion::parsePayload(FrameParser &proto) {
