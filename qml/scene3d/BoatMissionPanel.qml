@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import QtCore
 import kqml_types 1.0
 
 // Boat mission panel for the 3D pane: the autopilot's state, the waypoint plan and the commands.
@@ -14,6 +15,9 @@ Rectangle {
     property bool addMode: false
     property int selectedIndex: -1
     property real maxHeight: Math.round(600 * _s)
+    property bool pointsExpanded: true
+
+    Settings { category: "boatMissionPanel"; property alias pointsExpanded: panel.pointsExpanded }
     signal closeRequested()
 
     readonly property real _s: AppPalette.scale
@@ -286,9 +290,46 @@ Rectangle {
                       : qsTr("Turn on \"Add points\" to place points by tapping the map.")
             }
 
+            // The point list folds away; the route stays on the map either way.
+            Item {
+                width: parent.width
+                height: Tokens.controlHMd
+                visible: !!panel.vehicle && panel.vehicle.planCount > 0
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: panel.pointsExpanded = !panel.pointsExpanded
+                }
+                KCircleIconButton {
+                    id: foldBtn
+                    anchors.left: parent.left
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: Math.round(26 * panel._s)
+                    height: width
+                    rounded: false
+                    cornerRadius: Tokens.radiusSm
+                    iconSource: panel.pointsExpanded ? "qrc:/icons/ui/chevron-down.svg" : "qrc:/icons/ui/chevron-right.svg"
+                    iconTintColor: AppPalette.textSecond
+                    fillColor: "transparent"
+                    fillHoverColor: AppPalette.cardHover
+                    borderWidth: 0
+                    toolTipText: panel.pointsExpanded ? qsTr("Hide the points") : qsTr("Show the points")
+                    onClicked: panel.pointsExpanded = !panel.pointsExpanded
+                }
+                Text {
+                    anchors.left: foldBtn.right
+                    anchors.leftMargin: Tokens.spaceSm
+                    anchors.verticalCenter: parent.verticalCenter
+                    color: AppPalette.textSecond
+                    font.pixelSize: Tokens.fontSm
+                    font.bold: true
+                    text: qsTr("Points: %1").arg(panel.vehicle ? panel.vehicle.planCount : 0)
+                }
+            }
+
             Column {
                 width: parent.width
                 spacing: Tokens.spaceXxs
+                visible: panel.pointsExpanded
                 Repeater {
                     model: panel.vehicle ? panel.vehicle.plan : []
                     delegate: Rectangle {
@@ -385,15 +426,25 @@ Rectangle {
                 width: parent.width
                 fontPixelSize: Tokens.fontSm
                 options: [
-                    { label: qsTr("Boat"), value: 0 },
                     { label: "0.5", value: 0.5 },
+                    { label: "0.8", value: 0.8 },
                     { label: "1", value: 1 },
                     { label: "1.5", value: 1.5 },
-                    { label: "2", value: 2 },
-                    { label: "3", value: 3 }
+                    { label: "2", value: 2 }
                 ]
                 currentValue: panel.vehicle ? panel.vehicle.planSpeed : 0
                 onValueSelected: function(v) { if (panel.vehicle) panel.vehicle.planSpeed = v }
+            }
+            // A plan from before these five, or loaded from the boat, can hold another speed: say which.
+            Text {
+                width: parent.width
+                readonly property real v: panel.vehicle ? panel.vehicle.planSpeed : 0
+                visible: !!panel.vehicle && [0.5, 0.8, 1, 1.5, 2].indexOf(v) < 0
+                wrapMode: Text.WordWrap
+                color: AppPalette.textMuted
+                font.pixelSize: Tokens.fontSm
+                text: v > 0 ? qsTr("Now %1 m/s, not one of the speeds above").arg(v.toFixed(1))
+                            : qsTr("Now the boat's own speed (WP_SPEED); pick one above to set it in the mission")
             }
 
             KSwitch {
@@ -424,6 +475,26 @@ Rectangle {
                     label: qsTr("Clear route")
                     enabled: !!panel.vehicle && panel.vehicle.planCount > 0
                     onConfirmed: { panel.selectedIndex = -1; panel.vehicle.clearPlan() }
+                }
+            }
+            // The boat's mission back into the plan; it replaces the plan, so a second tap when there is one.
+            Item {
+                width: parent.width
+                height: Tokens.controlHLg
+                readonly property bool can: panel.linked && panel.vehicle.transferState !== 1 && panel.vehicle.transferState !== 2
+                PanelButton {
+                    anchors.fill: parent
+                    visible: !panel.vehicle || panel.vehicle.planCount === 0
+                    text: qsTr("Load from boat")
+                    enabled: parent.can
+                    onClicked: { panel.selectedIndex = -1; panel.vehicle.loadPlanFromVehicle() }
+                }
+                ConfirmButton {
+                    anchors.fill: parent
+                    visible: !!panel.vehicle && panel.vehicle.planCount > 0
+                    label: qsTr("Load from boat (replaces the route)")
+                    enabled: parent.can
+                    onConfirmed: { panel.selectedIndex = -1; panel.vehicle.loadPlanFromVehicle() }
                 }
             }
 
@@ -518,14 +589,64 @@ Rectangle {
                     enabled: panel.linked && !!panel.vehicle && panel.vehicle.homeValid
                     onConfirmed: panel.vehicle.returnHome()
                 }
+                // Disarm stops the boat: one tap. Arm asks twice.
+                Item {
+                    width: parent.bw
+                    height: Tokens.controlHLg
+                    PanelButton {
+                        anchors.fill: parent
+                        visible: !!panel.vehicle && panel.vehicle.armed
+                        text: qsTr("Disarm")
+                        danger: true
+                        enabled: panel.linked
+                        onClicked: panel.vehicle.disarm()
+                    }
+                    ConfirmButton {
+                        anchors.fill: parent
+                        visible: !panel.vehicle || !panel.vehicle.armed
+                        label: qsTr("Arm")
+                        enabled: panel.linked
+                        onConfirmed: panel.vehicle.arm()
+                    }
+                }
+            }
+
+            // ── heading source ──────────────────────────────────────────────────
+            SectionTitle { text: qsTr("Heading source") }
+            Row {
+                width: parent.width
+                spacing: Tokens.spaceSm
+                readonly property real bw: (width - spacing) / 2
+                readonly property int src: panel.vehicle ? panel.vehicle.headingSource : -1
+                readonly property bool can: panel.linked && !panel.vehicle.armed && !panel.vehicle.busy && src >= 0
                 ConfirmButton {
                     width: parent.bw
-                    label: panel.vehicle && panel.vehicle.armed ? qsTr("Disarm") : qsTr("Arm")
-                    enabled: panel.linked
-                    onConfirmed: {
-                        if (panel.vehicle.armed) panel.vehicle.disarm()
-                        else panel.vehicle.arm()
-                    }
+                    label: qsTr("GPS, 2 antennas")
+                    enabled: parent.can && parent.src !== 3
+                    normalBg: parent.src === 3 ? AppPalette.accentBgStrong : AppPalette.controlRaised
+                    normalBorder: parent.src === 3 ? AppPalette.accentBorder : AppPalette.border
+                    onConfirmed: panel.vehicle.setHeadingSource(3)
+                }
+                ConfirmButton {
+                    width: parent.bw
+                    label: qsTr("Compass")
+                    enabled: parent.can && parent.src !== 1
+                    normalBg: parent.src === 1 ? AppPalette.accentBgStrong : AppPalette.controlRaised
+                    normalBorder: parent.src === 1 ? AppPalette.accentBorder : AppPalette.border
+                    onConfirmed: panel.vehicle.setHeadingSource(1)
+                }
+            }
+            Text {
+                width: parent.width
+                wrapMode: Text.WordWrap
+                color: AppPalette.textMuted
+                font.pixelSize: Tokens.fontSm
+                text: {
+                    var v = panel.vehicle
+                    if (!v || !v.detected) return ""
+                    var now = qsTr("On the boat: %1.").arg(v.headingSourceName(v.headingSource))
+                    if (v.armed) return now + " " + qsTr("Disarm to change it.")
+                    return now + " " + qsTr("GPS: from the antenna pair, needs open sky (RTK fixed). Compass: works at once, but motors and steel bend it.")
                 }
             }
             Text {

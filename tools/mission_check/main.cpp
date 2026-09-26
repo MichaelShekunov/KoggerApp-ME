@@ -274,6 +274,16 @@ int main(int argc, char* argv[])
                                                             || v.transferState() == MavVehicle::TransferFailed; }, 30000)
           && v.planOnVehicle(), v.transferText());
 
+    // The boat's mission back into the plan (the panel's "Load from boat").
+    v.clearPlan();
+    v.loadPlanFromVehicle();
+    check("load from boat: the plan comes back from the boat's mission",
+          waitFor([&] { return v.transferState() == MavVehicle::TransferDone
+                               || v.transferState() == MavVehicle::TransferFailed; }, 30000)
+              && v.transferState() == MavVehicle::TransferDone && v.planCount() == 3 && qAbs(v.planSpeed() - 2.0) < 1e-9
+              && v.planReturnHome() && v.planOnVehicle(),
+          v.transferText());
+
     // An EKF without a position (a made-up report between two real ones): no start, and nothing armed.
     v.feed(fakeEkf(kEkfBase | EKF_CONST_POS_MODE, 0.1f, 0.1f, 0.1f));
     check("start blocked while the navigation is not ready", v.startBlocker().contains(QStringLiteral("navigation")),
@@ -302,6 +312,9 @@ int main(int argc, char* argv[])
     v.startMission();
     check("start mission: armed and AUTO", waitFor([&] { return results > before; }, 20000) && lastOk && v.armed()
           && v.mode() == MavVehicle::ModeAuto, lastResult);
+    before = results;
+    v.setHeadingSource(MavVehicle::HeadingGpsCompassFallback);
+    check("heading source: refused while armed", results > before && !lastOk && v.headingSource() != 3, lastResult);
     check("heading for the first point", waitFor([&] { return v.currentPlanIndex() == 0; }, 10000),
           QStringLiteral("mission item %1").arg(v.missionCurrent()));
     check("first point reached, heading for the second", waitFor([&] { return v.currentPlanIndex() == 1; }, 180000),
@@ -322,6 +335,21 @@ int main(int argc, char* argv[])
     before = results;
     v.disarm();
     check("disarm", waitFor([&] { return results > before; }, 10000) && lastOk && !v.armed(), lastResult);
+
+    // Heading source there and back (SITL starts with 1, compass).
+    const int src0 = v.headingSource();
+    const int other = src0 == MavVehicle::HeadingGpsCompassFallback ? MavVehicle::HeadingCompass
+                                                                    : MavVehicle::HeadingGpsCompassFallback;
+    before = results;
+    v.setHeadingSource(other);
+    check("heading source: written and confirmed by the autopilot",
+          waitFor([&] { return results > before; }, 10000) && lastOk && v.headingSource() == other,
+          QStringLiteral("%1 -> %2: %3").arg(src0).arg(v.headingSource()).arg(lastResult));
+    before = results;
+    v.setHeadingSource(src0 == MavVehicle::HeadingGpsCompassFallback ? src0 : MavVehicle::HeadingCompass);
+    check("heading source: back again",
+          waitFor([&] { return results > before; }, 10000) && lastOk && v.headingSource() == src0,
+          QStringLiteral("now %1: %2").arg(v.headingSource()).arg(lastResult));
 
     std::printf("\n%d checks, %d failed\nMISSION_CHECK_%s\n", g_checks, g_failed, g_failed ? "FAILED" : "DONE");
     return g_failed ? 1 : 0;

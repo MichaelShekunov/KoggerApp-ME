@@ -68,6 +68,7 @@ class MavVehicle : public QObject
     Q_PROPERTY(QString healthText READ healthText NOTIFY healthChanged)
     Q_PROPERTY(int gpsHeadingState READ gpsHeadingState NOTIFY gpsChanged)
     Q_PROPERTY(QString gpsHeadingText READ gpsHeadingText NOTIFY gpsChanged)
+    Q_PROPERTY(int headingSource READ headingSource NOTIFY settingsChanged)
 
     Q_PROPERTY(double batteryVoltage READ batteryVoltage NOTIFY batteryChanged)
     Q_PROPERTY(int batteryRemaining READ batteryRemaining NOTIFY batteryChanged)
@@ -109,6 +110,11 @@ public:
      *  65535 configured but unavailable, else centidegrees), the best of the two receivers. */
     enum GpsHeadingState { GpsHeadingUnknown = 0, GpsHeadingNotConfigured, GpsHeadingUnavailable, GpsHeadingOk };
     Q_ENUM(GpsHeadingState)
+
+    /** EK3_SRC1_YAW values of ArduPilot 4.4 (AP_NavEKF_Source). */
+    enum HeadingSource { HeadingNone = 0, HeadingCompass = 1, HeadingGps = 2, HeadingGpsCompassFallback = 3,
+                         HeadingExtNav = 6, HeadingGsf = 8 };
+    Q_ENUM(HeadingSource)
 
     /** ArduPilot Rover custom modes (HEARTBEAT.custom_mode, MAV_CMD_DO_SET_MODE param 2). */
     enum RoverMode { ModeManual = 0, ModeAcro = 1, ModeSteering = 3, ModeHold = 4, ModeLoiter = 5,
@@ -154,6 +160,9 @@ public:
     QString healthText() const { return healthText_; }
     int gpsHeadingState() const { return gpsHeadingState_; }
     QString gpsHeadingText() const { return gpsHeadingText_; }
+    /** EK3_SRC1_YAW as last read from the autopilot, -1 before it is read. */
+    int headingSource() const;
+    Q_INVOKABLE static QString headingSourceName(int source);
     /** For tools: the navigation settings (AHRS_EKF_TYPE, EK3_*, COMPASS_*, ARMING_CHECK, FS_EKF_*) went to the log. */
     bool settingsLogged() const { return settingsLogged_; }
 
@@ -198,6 +207,9 @@ public:
     Q_INVOKABLE void uploadPlan();
     /** Reads the vehicle's mission back and compares it with the plan. */
     Q_INVOKABLE void readBack();
+    /** Reads the vehicle's mission and makes it the plan: waypoints, speed, return home. Other items are
+     *  reported and left out. */
+    Q_INVOKABLE void loadPlanFromVehicle();
 
     /** Empty when startMission() may run, otherwise the reason, ready to show. */
     Q_INVOKABLE QString startBlocker() const;
@@ -208,6 +220,9 @@ public:
     Q_INVOKABLE void returnHome();
     Q_INVOKABLE void arm();
     Q_INVOKABLE void disarm();
+    /** Writes EK3_SRC1_YAW (HeadingGpsCompassFallback or HeadingCompass) and waits for the autopilot to
+     *  report the new value; refused while armed. EKF3 picks up the change without a reboot. */
+    Q_INVOKABLE void setHeadingSource(int source);
 
     /** Great-circle distance in metres. */
     Q_INVOKABLE static double distanceM(double lat1, double lon1, double lat2, double lon2);
@@ -231,6 +246,7 @@ signals:
     void gpsChanged();
     void navChanged();
     void healthChanged();
+    void settingsChanged();
     void batteryChanged();
     void homeChanged();
     void missionStateChanged();
@@ -269,6 +285,8 @@ private:
                          float p5 = 0, float p6 = 0, float p7 = 0);
     void requestMessage(uint32_t messageId);
     void requestParam(const char* id);
+    void sendParamSet(const char* id, float value, int type);
+    bool importVehicleItems();
     void requestStreams();
     void updateNav();
     void updateGpsHeading();
@@ -330,6 +348,8 @@ private:
     QMap<QString, double> settings_;
     bool settingsLogged_ = false;
     int settingsCursor_ = 0;
+    QMap<QString, int> settingTypes_;    // MAV_PARAM_TYPE from PARAM_VALUE, for PARAM_SET
+    bool importAfterDownload_ = false;
     int gpsYaw_[2] = { -1, -1 };     // raw yaw field per receiver, -1 before its first message
     int gps2Fix_ = -1, gps2Sats_ = -1;
     int gpsHeadingState_ = GpsHeadingUnknown;

@@ -204,6 +204,18 @@ void MavVehicle::requestMessage(uint32_t messageId)
     sendCommandLong(MAV_CMD_REQUEST_MESSAGE, float(messageId));
 }
 
+void MavVehicle::sendParamSet(const char* id, float value, int type)
+{
+    if (!detected())
+        return;
+    char name[16] = {};                 // the packer copies all 16 bytes
+    std::strncpy(name, id, sizeof(name));
+    mavlink_message_t msg;
+    mavlink_msg_param_set_pack_chan(kGcsSystemId, kGcsComponentId, kTxChan, &msg, uint8_t(vehicleSysId_),
+                                    uint8_t(vehicleCompId_), name, value, uint8_t(type));
+    sendMessage(&msg);
+}
+
 void MavVehicle::requestParam(const char* id)
 {
     if (!detected())
@@ -392,7 +404,14 @@ void MavVehicle::handleMessage(const void* p)
                 wanted = wanted || key == QLatin1String(x.name);
             if (!wanted)
                 break;
+            const bool hadIt = settings_.contains(key);
+            const double before = settings_.value(key);
             settings_[key] = pv.param_value;
+            settingTypes_[key] = pv.param_type;
+            emit settingsChanged();
+            if (key == QLatin1String("EK3_SRC1_YAW") && hadIt && before != pv.param_value)
+                addMessage(tr("Heading source on the boat: %1 (EK3_SRC1_YAW %2)")
+                               .arg(headingSourceName(int(pv.param_value))).arg(pv.param_value));
             if (key == QLatin1String("FS_EKF_THRESH")) {
                 ekfThresh_ = pv.param_value;
                 ekfThreshKnown_ = true;
@@ -565,6 +584,11 @@ void MavVehicle::handleMessage(const void* p)
                 vehicleItems_.clear();
                 vehicleItemsValid_ = true;
                 updatePlanOnVehicle();
+                if (importAfterDownload_) {
+                    importAfterDownload_ = false;
+                    finishTransfer(false, tr("No mission on the boat: nothing to load, the plan is unchanged"));
+                    break;
+                }
                 finishTransfer(!verifyAfterUpload_, verifyAfterUpload_ ? tr("Read-back is empty") : tr("No mission on the boat"));
             } else {
                 requestDownloadItem(0);
@@ -607,6 +631,11 @@ void MavVehicle::handleMessage(const void* p)
                 sendMessage(&ack);
                 vehicleItems_ = downItems_;
                 vehicleItemsValid_ = true;
+                if (importAfterDownload_) {
+                    importAfterDownload_ = false;
+                    importVehicleItems();          // sets the plan, reports, and finishes the transfer
+                    break;
+                }
                 updatePlanOnVehicle();
                 if (verifyAfterUpload_) {
                     finishTransfer(planOnVehicle_, planOnVehicle_
@@ -811,6 +840,8 @@ void MavVehicle::setTransfer(int state, int progress, const QString& text)
 void MavVehicle::finishTransfer(bool ok, const QString& text)
 {
     transferTimer_.stop();
+    if (!ok)
+        importAfterDownload_ = false;
     setTransfer(ok ? TransferDone : TransferFailed, ok ? 100 : transferProgress_, text);
     addMessage(text);
 }
@@ -848,6 +879,58 @@ void MavVehicle::readBack()
         return;
     }
     startDownload(false);
+}
+
+void MavVehicle::loadPlanFromVehicle()
+{
+    if (transferState_ == TransferUploading || transferState_ == TransferDownloading)
+        return;
+    if (!connected()) {
+        finishTransfer(false, tr("No link to the boat"));
+        return;
+    }
+    importAfterDownload_ = true;
+    startDownload(false);
+}
+
+bool MavVehicle::importVehicleItems()
+{
+    // Item 0 is the vehicle's home. What the plan can hold: waypoints, one speed, a return home at the end.
+    QVector<Point> pts;
+    double speed = 0.0;
+    bool rtl = false;
+    bool holds = false;
+    QStringList skipped;
+    for (int i = 1; i < vehicleItems_.size(); ++i) {
+        const Item& it = vehicleItems_[i];
+        if (it.command == MAV_CMD_NAV_WAYPOINT && (it.x != 0 || it.y != 0)) {
+            pts.append(Point{ it.x * 1e-7, it.y * 1e-7 });
+            holds = holds || it.p1 > 0.0f;
+        } else if (it.command == MAV_CMD_DO_CHANGE_SPEED && it.p2 > 0.0f && speed <= 0.0) {
+            speed = std::round(double(it.p2) * 100.0) / 100.0;   // 0.8f is 0.800000011... as a double
+        } else if (it.command == MAV_CMD_NAV_RETURN_TO_LAUNCH && i == vehicleItems_.size() - 1) {
+            rtl = true;
+        } else {
+            skipped << tr("item %1 (command %2)").arg(i).arg(it.command);
+        }
+    }
+    if (pts.isEmpty()) {
+        finishTransfer(false, tr("The boat's mission has no waypoints to load; the plan is unchanged"));
+        return false;
+    }
+    plan_ = pts;
+    planSpeed_ = speed;
+    planReturnHome_ = rtl;
+    savePlan();                        // emits planChanged, compares with the items just read
+    QString text = tr("Loaded from the boat: %1 points").arg(pts.size());
+    text += speed > 0.0 ? tr(", speed %1 m/s").arg(speed, 0, 'f', 1) : tr(", the boat's own speed");
+    text += rtl ? tr(", return home at the end") : QString();
+    if (holds)
+        text += tr("; waypoint hold times are not kept");
+    if (!skipped.isEmpty())
+        text += tr("; left out: %1").arg(skipped.join(QStringLiteral(", ")));
+    finishTransfer(true, text);
+    return true;
 }
 
 void MavVehicle::sendMissionItem(int seq)
@@ -1210,6 +1293,55 @@ void MavVehicle::arm()
     }
     sequenceWhat_ = tr("Arm");
     runSteps({ stepArm(true) });
+}
+
+int MavVehicle::headingSource() const
+{
+    const auto it = settings_.constFind(QStringLiteral("EK3_SRC1_YAW"));
+    return it == settings_.constEnd() ? -1 : int(*it);
+}
+
+QString MavVehicle::headingSourceName(int source)
+{
+    switch (source) {
+    case HeadingNone: return tr("none");
+    case HeadingCompass: return tr("compass");
+    case HeadingGps: return tr("GPS, two antennas");
+    case HeadingGpsCompassFallback: return tr("GPS, two antennas, compass fallback");
+    case HeadingExtNav: return tr("external navigation");
+    case HeadingGsf: return tr("GPS track (GSF)");
+    }
+    return source < 0 ? tr("not read yet") : tr("source %1").arg(source);
+}
+
+void MavVehicle::setHeadingSource(int source)
+{
+    sequenceWhat_ = tr("Heading source");
+    QString why;
+    if (source != HeadingCompass && source != HeadingGpsCompassFallback)
+        why = tr("not offered here: %1").arg(source);
+    else if (!connected())
+        why = tr("No link to the boat");
+    else if (armed_)
+        why = tr("Disarm the boat first");         // a yaw reset under way would turn the boat
+    else if (busy())
+        why = tr("Another command is running");
+    else if (headingSource() < 0)
+        why = tr("The boat's settings are not read yet");
+    if (!why.isEmpty()) {
+        emit commandResult(sequenceWhat_, false, why);
+        return;
+    }
+    if (headingSource() == source) {
+        emit commandResult(sequenceWhat_, true, QString());
+        return;
+    }
+    const int type = settingTypes_.value(QStringLiteral("EK3_SRC1_YAW"), MAV_PARAM_TYPE_INT8);
+    Step s;
+    s.what = tr("Setting the heading source: %1").arg(headingSourceName(source));
+    s.send = [this, source, type]() { sendParamSet("EK3_SRC1_YAW", float(source), type); };
+    s.done = [this, source]() { return headingSource() == source; };
+    runSteps({ s });
 }
 
 void MavVehicle::disarm()
