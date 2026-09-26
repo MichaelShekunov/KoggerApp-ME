@@ -374,7 +374,8 @@ after N s" (it never logged restores before). That showed the module on the head
 
 "Port speed" island on the Wi-Fi module's page (WIFI_MODULE.md §2c): set, follow with the link, verify an
 answer at the new speed, save with ID_FLASH, or roll the link back. The Actions island's "Set baudrate" moves
-the link as well (it used to change only the device). Not yet pressed on the head unit.
+the link as well (it used to change only the device). On the head unit the owner went 2M → 3M → 4M → 2M: each
+step answered at the new speed within 1.4 s and was saved (log, 2026-09-26 03:19-03:21).
 
 ## Feature: echogram deconvolution
 
