@@ -126,6 +126,15 @@ The module project calls this contract version 2. Everything below is in its doc
   islands Radio, Role and access point, Access point address and DHCP, Lines in `DeviceSettingsPage.qml`.
   The app log gets one `wifi-net:` / `wifi-radio:` line whenever a reported setting changes.
 
+## 2b'. The Radio island shows what is in effect
+
+The selections show the values in effect while the module has a link: power in use (the driver's step: asking
+21 dBm gives 20, so 20 is the top option), protocols in use, and the width taken from the negotiated PHY (HT40
+= 40 MHz, anything else 20). The module's own "width in use" field is the driver's setting and read 40 on an
+HT20 link (2026-09-26), so it is not used for that. Captions add the saved value when it differs. After Apply
+the island waits for the link, compares, and when the module could not do what was asked (a power between
+steps, 40 MHz from an access point that gives 20) it saves what is in effect and says so (`wifi-radio:` line).
+
 ## 2c. Port speed of the module (line 0)
 
 The module's line 0 runs at any speed from 9600 to 4 000 000 (`ID_UART` v0 `{KEY, 1, U4 baud}`, answered at the

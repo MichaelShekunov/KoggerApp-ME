@@ -377,6 +377,13 @@ answer at the new speed, save with ID_FLASH, or roll the link back. The Actions 
 the link as well (it used to change only the device). On the head unit the owner went 2M → 3M → 4M → 2M: each
 step answered at the new speed within 1.4 s and was saved (log, 2026-09-26 03:19-03:21).
 
+## Wi-Fi Radio island: menu = what is in effect (2026-09-26)
+
+Owner: what the menu shows must always be real. The Radio island now syncs to the values in effect (width from
+the negotiated PHY), marks unapplied selections, and after Apply saves what is in effect when the module could
+not do what was asked (WIFI_MODULE.md §2b'). The module on the head unit was set to 20 dBm / b/g/n / 20 MHz the
+same day (`wifi_radio_set.py`): saved and in effect agree.
+
 ## Feature: echogram deconvolution
 
 Sharpens the echogram along the track by undoing the beam's footprint, which
