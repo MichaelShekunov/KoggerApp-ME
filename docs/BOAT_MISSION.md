@@ -7,7 +7,7 @@ its MAVLink frames; on the head unit that is the serial link of the Wi-Fi module
 boat's stream (see WIFI_MODULE.md).
 
 Status 2026-09-26: implemented on branch `myedition`. Verified by machine with `tools/mission_check`:
-41/41 (15 readiness, heading and health rules on made-up reports, 26 steps against ArduPilot SITL, ArduRover
+45/45 (15 readiness, heading and health rules on made-up reports, 30 steps against ArduPilot SITL, ArduRover
 4.4.0, the same commit as the boat's autopilot). On the head unit the owner placed and dragged points
 and uploaded a mission to the boat. The first start on the boat was refused by the autopilot (its
 EKF had no position: its two-antenna GPS never gave a heading, see "ArduPilot facts"); a mission on
@@ -60,9 +60,13 @@ water is not yet verified.
   `mapTapped(lat, lon)`: while enabled, a left tap without a drag is a map position and nothing else.
 - `qml/scene3d/BoatMissionLayer.qml` — route, numbered markers (drag to move), home, the leg from
   the boat to its target and the way home, drawn with Qt Quick Shapes over the scene.
-- `qml/scene3d/BoatMissionPanel.qml` — status, "Add points", point list, speed, return home, upload,
-  clear, start, HOLD, return home, arm/disarm, heartbeat switch, last messages. Moving commands ask
-  for a second tap within 3 s; HOLD never does.
+- `qml/scene3d/BoatMissionPanel.qml` — status, "Add points", point list (folds away under
+  "Points: N", state kept), speed (0.5 / 0.8 / 1 / 1.5 / 2 m/s), return home, upload, clear, "Load
+  from boat" (the autopilot's mission becomes the plan: waypoints, the first DO_CHANGE_SPEED, a closing
+  RTL; anything else is named and left out), start, HOLD, return home, arm/disarm, heading source
+  ("GPS, 2 antennas" = EK3_SRC1_YAW 3, "Compass" = 1; PARAM_SET confirmed by PARAM_VALUE, refused
+  while armed), heartbeat switch, last messages. Moving commands, Arm, a heading-source change and a
+  plan-replacing load ask for a second tap within 3 s; HOLD and Disarm never do.
 - `qml/scene3d/Scene3DRightToolbar.qml` — the boat button (shown once an autopilot is heard or a
   route exists); `qml/app/Pane3DWindow.qml` hosts the layer and the panel and binds
   `mapTapEnabled`; `qml/app/MainWindow.qml` turns command results and autopilot warnings into

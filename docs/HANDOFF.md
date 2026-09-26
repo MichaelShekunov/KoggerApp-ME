@@ -361,6 +361,15 @@ RTK fixed solution. So the fix is at the boat (sky view, antennas, interference)
 report alternates between two lanes (0x0000 / 0x0400): one reason for both, and a new reason within the
 same state is logged at most once a minute. `tools/mission_check` 41/41; details in BOAT_MISSION.md.
 
+## Boat panel after the first indoor tests (2026-09-26)
+
+Owner's requests: heading source switch (`MavVehicle::setHeadingSource`, EK3_SRC1_YAW 3 or 1, refused
+while armed), folding point list, one-tap Disarm, speeds 0.5/0.8/1/1.5/2, "Load from boat"
+(`loadPlanFromVehicle`). mission_check 45/45 on SITL. Field diagnosis added at the same time: every
+station change of the Wi-Fi module and its restarts are `wifi:` lines, and the boat link logs "restored
+after N s" (it never logged restores before). That showed the module on the head unit restarting every
+~36 s with its UART at the 921600 ceiling (HeadUnit docs/UART_ESP32.md) — a module firmware matter.
+
 ## Feature: echogram deconvolution
 
 Sharpens the echogram along the track by undoing the beam's footprint, which
