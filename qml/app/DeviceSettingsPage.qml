@@ -2342,6 +2342,120 @@ Column {
         }
     }
 
+    // ── Wi‑Fi module: speed of its port to this host (line 0, ID_UART + ID_FLASH) ──
+    // The module answers a speed change at the old speed and then switches. The link follows, the module has
+    // to answer a status request at the new speed, and only then the speed is saved in the module; with no
+    // answer the link goes back (the unsaved speed is gone at the module's next reboot). Steps go to the log.
+    DevIsland {
+        id: portIsland
+        width: root.groupWidth
+        visible: root._isWifi
+        rowMinHeight: Tokens.controlHMd + Tokens.spaceXs
+
+        readonly property int now: root._isWifi ? dev.baudrate : 0
+        property int sel: 0
+        property int oldBaud: 0
+        property int newBaud: 0
+        property string linkUuid: ""
+        property int phase: 0            // 0 idle, 1 module switching, 2 waiting for its answer at the new speed
+        property int tries: 0
+        property bool answered: false
+
+        Component.onCompleted: if (now > 0) sel = now
+        onNowChanged: if (phase === 0 && now > 0) sel = now
+
+        function start() {
+            linkUuid = root._linkUuidOfDev()
+            if (!linkUuid.length || typeof linkManagerWrapper === "undefined" || !linkManagerWrapper) {
+                notifications.error(qsTr("The module's link is not known: nothing changed"))
+                return
+            }
+            if (sel <= 0 || sel === now)
+                return
+            oldBaud = now > 0 ? now : 921600
+            newBaud = sel
+            phase = 1
+            console.info("wifi-port: set " + newBaud + " (was " + oldBaud + ")")
+            dev.baudrate = newBaud
+            portSwitchTimer.restart()
+        }
+        function done(ok) {
+            portVerifyTimer.stop()
+            phase = 0
+            if (ok) {
+                dev.flashSettings()
+                console.info("wifi-port: the module answered at " + newBaud + ", saved in the module")
+                notifications.info(qsTr("Port speed %1 set, the module saved it").arg(newBaud))
+            } else {
+                linkManagerWrapper.updateBaudrateFor(linkUuid, oldBaud)
+                console.info("wifi-port: no answer at " + newBaud + ", link back at " + oldBaud)
+                notifications.error(qsTr("No answer from the module at %1: the link is back at %2. An unsaved speed is gone after the module's next reboot.").arg(newBaud).arg(oldBaud))
+            }
+        }
+        Timer {
+            id: portSwitchTimer
+            interval: 400
+            onTriggered: {
+                linkManagerWrapper.updateBaudrateFor(portIsland.linkUuid, portIsland.newBaud)
+                console.info("wifi-port: link at " + portIsland.newBaud)
+                portIsland.tries = 0
+                portIsland.phase = 2
+                portIsland.answered = false
+                portVerifyTimer.restart()
+            }
+        }
+        // Every tick forgets what came before and asks again, so a frame decoded from the old speed never counts.
+        Timer {
+            id: portVerifyTimer
+            interval: 700
+            repeat: true
+            onTriggered: {
+                if (portIsland.answered && portIsland.tries > 0) {
+                    portIsland.done(true)
+                    return
+                }
+                if (++portIsland.tries > 8) {
+                    portIsland.done(false)
+                    return
+                }
+                portIsland.answered = false
+                dev.wifiRefresh()
+            }
+        }
+        Connections {
+            target: root._isWifi ? root.dev : null
+            ignoreUnknownSignals: true
+            function onWifiStatusChanged() { if (portIsland.phase === 2) portIsland.answered = true }
+        }
+
+        DevIslandTitle { label: qsTr("Port speed") }
+
+        DevStackedRow {
+            label: qsTr("Module port to this device, bit/s")
+            caption: portIsland.phase === 0
+                     ? qsTr("Now %1. The module keeps the speed it is given here; this device's port follows.").arg(portIsland.now > 0 ? portIsland.now : "—")
+                     : qsTr("Changing to %1…").arg(portIsland.newBaud)
+            KTabBar {
+                width: parent.width
+                fontPixelSize: Tokens.fontSm
+                options: [ { label: "460k", value: 460800 }, { label: "921k", value: 921600 }, { label: "1M", value: 1000000 },
+                           { label: "1.5M", value: 1500000 }, { label: "2M", value: 2000000 }, { label: "3M", value: 3000000 },
+                           { label: "4M", value: 4000000 } ]
+                currentValue: portIsland.sel
+                onValueSelected: function(v) { portIsland.sel = v }
+            }
+        }
+        DevStackedRow {
+            caption: qsTr("The boat stream is about 92 KB/s: 921k is full, 2M leaves half free. Both ends must do the speed (the head unit's UART6: up to 4M).")
+            ConfirmDevButton {
+                width: parent.width
+                label: qsTr("Apply %1").arg(portIsland.sel)
+                enabled: portIsland.phase === 0 && portIsland.sel > 0 && portIsland.sel !== portIsland.now
+                onConfirmed: portIsland.start()
+            }
+        }
+    }
+
     // ── Wi‑Fi module: role and access point (firmware 0.10, ID_WIFI_NET v0, v1, v5) ──
     DevIsland {
         id: apIsland
@@ -3317,9 +3431,9 @@ Column {
                 toolTipText: qsTr("Apply the selected baud rate")
                 onClicked: {
                     if (dev) {
-                        var b = devActionsGroup.baudrateOptions[baudrateCombo.currentIndex]
-                        dev.baudrate = b
-                        notifications.info(qsTr("Baudrate set: %1").arg(b))
+                        // the device and this app's link together, as applyBaudrate() does
+                        root.baudrateIndex = root.baudrateOptions.indexOf(devActionsGroup.baudrateOptions[baudrateCombo.currentIndex])
+                        root.applyBaudrate()
                     }
                 }
             }
