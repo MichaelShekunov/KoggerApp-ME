@@ -2237,20 +2237,66 @@ Column {
 
         readonly property var r: root._isWifi ? dev.wifiRadio : ({})
         readonly property bool valid: !!r && r.valid === true
-        property real selPower: 21
+        readonly property bool linkUp: valid && r.phyNow !== 255
+        // What the link really uses. The width comes from the negotiated PHY: the module's own "width in use" is
+        // the driver's setting and said 40 on an HT20 link. The power in use is the driver's step.
+        readonly property int widthNow: linkUp ? (r.phyNow === 5 ? 40 : 20) : 0
+        readonly property real powerNow: valid && r.powerNowDbm > 0 ? r.powerNowDbm : 0
+        property real selPower: 20
         property int selProto: 7
         property int selBw: 20
         property int selPs: 0
         property bool dirty: false
+        // After Apply: what was asked, compared with what is in effect once the link is back.
+        property bool verifying: false
+        property real askPower: 0
+        property int askProto: 7
+        property int askBw: 20
+        property int askPs: 0
+        property double applyAt: 0
 
+        // The menu shows what is in effect; the saved values only while the module has no link.
         function sync(force) {
             if (!valid || (dirty && !force))
                 return
-            selPower = r.powerDbm
-            selProto = r.protocols
-            selBw = r.bandwidthMhz
+            selPower = powerNow > 0 ? powerNow : r.powerDbm
+            selProto = r.protocolsNow > 0 ? r.protocolsNow : r.protocols
+            selBw = widthNow > 0 ? widthNow : r.bandwidthMhz
             selPs = r.powerSave
             dirty = false
+        }
+        // The module could not do what was asked (a power between the driver's steps, 40 MHz from an access point
+        // that gives 20): save what is in effect, so the module's settings, the link and this menu say the same.
+        function check() {
+            if (!verifying || !linkUp || Date.now() - applyAt < 1500)
+                return
+            verifying = false
+            var diffs = []
+            if (Math.abs(powerNow - askPower) >= 0.25)
+                diffs.push(qsTr("%1 dBm instead of %2 (the driver's step)").arg(powerNow).arg(askPower))
+            if (widthNow !== askBw)
+                diffs.push(qsTr("%1 MHz instead of %2 (the access point gives no 40 MHz)").arg(widthNow).arg(askBw))
+            if (diffs.length === 0) {
+                console.info("wifi-radio: in effect as asked: " + askPower + " dBm, " + askBw + " MHz")
+                return
+            }
+            console.info("wifi-radio: asked " + askPower + " dBm " + askBw + " MHz, in effect " + powerNow + " dBm "
+                         + widthNow + " MHz: saving what is in effect")
+            dev.wifiSetRadio(powerNow, askProto, widthNow, askPs)
+            notifications.info(qsTr("The module uses %1: saved like that").arg(diffs.join(", ")))
+        }
+        Timer {
+            interval: 1000
+            repeat: true
+            running: radioIsland.verifying
+            onTriggered: {
+                if (Date.now() - radioIsland.applyAt > 30000) {
+                    radioIsland.verifying = false
+                    notifications.error(qsTr("No link to the access point after the radio change: the result could not be checked"))
+                } else {
+                    radioIsland.check()
+                }
+            }
         }
         function phyText(p) {
             switch (p) {
@@ -2263,23 +2309,28 @@ Column {
             return qsTr("no link")
         }
         onValidChanged: sync(false)
+        onLinkUpChanged: sync(false)
         Component.onCompleted: sync(true)
         Connections {
             target: root._isWifi ? root.dev : null
             ignoreUnknownSignals: true
-            function onWifiRadioChanged() { radioIsland.sync(false) }
+            function onWifiRadioChanged() { radioIsland.sync(false); radioIsland.check() }
         }
 
         DevIslandTitle { label: qsTr("Radio") }
 
         DevStackedRow {
             label: qsTr("Transmit power limit, dBm")
-            caption: radioIsland.valid ? qsTr("In use: %1 dBm (the driver works in steps)").arg(radioIsland.r.powerNowDbm) : ""
+            caption: !radioIsland.valid ? ""
+                     : qsTr("In use: %1 dBm").arg(radioIsland.powerNow)
+                       + (Math.abs(radioIsland.r.powerDbm - radioIsland.powerNow) >= 0.25
+                          ? qsTr(" (saved %1 dBm; the driver works in steps)").arg(radioIsland.r.powerDbm) : "")
             KTabBar {
                 width: parent.width
                 fontPixelSize: Tokens.fontSm
+                // the driver's steps: asking 21 gives 20
                 options: [ { label: "2", value: 2 }, { label: "8.5", value: 8.5 }, { label: "11", value: 11 },
-                           { label: "15", value: 15 }, { label: "18", value: 18 }, { label: "21", value: 21 } ]
+                           { label: "15", value: 15 }, { label: "18", value: 18 }, { label: "20", value: 20 } ]
                 currentValue: radioIsland.selPower
                 onValueSelected: function(v) { radioIsland.selPower = v; radioIsland.dirty = true }
             }
@@ -2297,8 +2348,13 @@ Column {
                 onValueSelected: function(v) { radioIsland.selProto = v; radioIsland.dirty = true }
             }
         }
-        KIslandRow {
+        DevStackedRow {
             label: qsTr("Channel width")
+            caption: !radioIsland.valid ? ""
+                     : !radioIsland.linkUp ? qsTr("No link: the saved width is shown")
+                     : qsTr("In use: %1 MHz").arg(radioIsland.widthNow)
+                       + (radioIsland.r.bandwidthMhz !== radioIsland.widthNow
+                          ? qsTr(" (saved %1 MHz; the access point gives no 40 MHz)").arg(radioIsland.r.bandwidthMhz) : "")
             KTabBar {
                 width: Math.round(170 * AppPalette.scale)
                 fontPixelSize: Tokens.fontSm
@@ -2318,7 +2374,8 @@ Column {
             }
         }
         DevStackedRow {
-            caption: qsTr("Protocol and width changes make the module reconnect: the boat link drops for a few seconds. 40 MHz needs 802.11n.")
+            caption: (radioIsland.dirty ? qsTr("Not applied yet: the menu differs from what the module uses. ") : "")
+                     + qsTr("Protocol and width changes make the module reconnect: the boat link drops for a few seconds. 40 MHz needs 802.11n and an access point that gives it.")
             Row {
                 width: parent.width
                 spacing: Tokens.spaceMd
@@ -2328,6 +2385,12 @@ Column {
                     label: qsTr("Apply")
                     enabled: radioIsland.valid
                     onConfirmed: {
+                        radioIsland.askPower = radioIsland.selPower
+                        radioIsland.askProto = radioIsland.selProto
+                        radioIsland.askBw = radioIsland.selBw
+                        radioIsland.askPs = radioIsland.selPs
+                        radioIsland.applyAt = Date.now()
+                        radioIsland.verifying = true
                         dev.wifiSetRadio(radioIsland.selPower, radioIsland.selProto, radioIsland.selBw, radioIsland.selPs)
                         radioIsland.dirty = false
                         notifications.info(qsTr("Radio settings sent to the module"))
