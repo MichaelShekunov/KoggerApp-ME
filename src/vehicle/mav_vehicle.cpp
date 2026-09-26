@@ -251,7 +251,10 @@ void MavVehicle::onSecondTick()
     const bool now = connected();
     if (now != wasConnected_) {
         wasConnected_ = now;
-        addMessage(now ? tr("Link to the boat restored") : tr("Link to the boat lost"));
+        if (!now) {
+            addMessage(tr("Link to the boat lost"));
+            linkLostAt_.start();
+        }
     }
     emit linkChanged();   // heartbeatAgeS moves every second
 
@@ -338,6 +341,11 @@ void MavVehicle::handleMessage(const void* p)
         }
         if (!wasConn) {
             wasConnected_ = true;
+            if (linkLostAt_.isValid()) {
+                // the loss was logged kConnectedMs after the last heartbeat before it
+                addMessage(tr("Link to the boat restored after %1 s").arg((linkLostAt_.elapsed() + kConnectedMs) / 1000.0, 0, 'f', 1));
+                linkLostAt_.invalidate();
+            }
             emit linkChanged();
         }
     } else {

@@ -317,6 +317,7 @@ private:
     int vehicleCompId_ = -1;
     QElapsedTimer lastHeartbeat_;
     bool wasConnected_ = false;
+    QElapsedTimer linkLostAt_;           // running while a logged loss has not been followed by a heartbeat
     bool controlEnabled_ = true;
     QString autopilotText_;
     QString firmwareText_;

@@ -1132,8 +1132,18 @@ void DevDriver::receivedWifi(Parsers::Type type, Parsers::Version ver, Parsers::
 
     switch (ver) {
     case v0: {
-        const int state = idWifi->status().state;
+        const auto& st = idWifi->status();
+        const int state = st.state;
         if (state != wifiLastState_) {
+            // Every change of the station state goes to the log: link drops to the boat are read from it.
+            static const char* const names[] = { "idle", "searching", "connecting", "connected", "access point" };
+            static const char* const reasons[] = { "none", "not found", "wrong password", "association", "link lost", "other" };
+            const auto name = [](int s) { return (s >= 0 && s <= 4) ? QString::fromLatin1(names[s]) : QString::number(s); };
+            qInfo().noquote() << QStringLiteral("wifi: %1 (was %2), ssid '%3' ch %4 rssi %5 dBm; last disconnect: %6, code %7")
+                                     .arg(name(state), wifiLastState_ < 0 ? QStringLiteral("-") : name(wifiLastState_), st.ssid)
+                                     .arg(st.channel).arg(st.rssi)
+                                     .arg(st.reason <= 5 ? QString::fromLatin1(reasons[st.reason]) : QString::number(st.reason))
+                                     .arg(st.disconnectCode);
             wifiLastState_ = state;
             // A network joined with "save" is stored only once an address arrived: now.
             if (state == IDBinWifi::StateConnected) {
@@ -1144,9 +1154,16 @@ void DevDriver::receivedWifi(Parsers::Type type, Parsers::Version ver, Parsers::
         emit wifiReportChanged();   // RSSI and rates live in both frames
         break;
     }
-    case v1:
+    case v1: {
+        const auto& r = idWifi->report();
+        if (r.valid && wifiLastUptimeS_ > 0 && r.uptimeS + 5 < wifiLastUptimeS_) {
+            qInfo().noquote() << QStringLiteral("wifi: the module restarted (uptime %1 s, was %2 s)").arg(r.uptimeS).arg(wifiLastUptimeS_);
+        }
+        if (r.valid)
+            wifiLastUptimeS_ = r.uptimeS;
         emit wifiReportChanged();
         break;
+    }
     case v2:
         emit wifiNetworksChanged();
         break;

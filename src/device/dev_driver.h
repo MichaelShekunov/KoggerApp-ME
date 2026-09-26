@@ -722,6 +722,7 @@ private:
     QString lastWifiNetLog_[8];       // last logged line per ID_WIFI_NET version (7 = radio)
     int64_t wifiNetAskedAt_ = 0;      // when ID_WIFI_NET was first asked; silence for 4 s = firmware before 0.10
     int wifiLastState_ = -1;
+    uint32_t wifiLastUptimeS_ = 0;     // module uptime from the last report, to see a restart
     bool pwmRouteState_ = false;
     bool devSyncState_ = false;
     QTimer m_devSyncDebounceTimer;
