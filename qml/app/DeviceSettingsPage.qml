@@ -2285,18 +2285,32 @@ Column {
             dev.wifiSetRadio(powerNow, askProto, widthNow, askPs)
             notifications.info(qsTr("The module uses %1: saved like that").arg(diffs.join(", ")))
         }
+        // The check asks for the radio state itself: the module does not push it after a reconnect.
         Timer {
-            interval: 1000
+            interval: 2000
             repeat: true
             running: radioIsland.verifying
             onTriggered: {
                 if (Date.now() - radioIsland.applyAt > 30000) {
                     radioIsland.verifying = false
-                    notifications.error(qsTr("No link to the access point after the radio change: the result could not be checked"))
+                    radioIsland.sync(true)
+                    notifications.warning(qsTr("No link to the access point after the radio change: the result could not be checked"))
                 } else {
                     radioIsland.check()
+                    if (radioIsland.verifying)
+                        dev.wifiRefresh()
                 }
             }
+        }
+        // A selection left unapplied goes back to what is in effect.
+        function edited() {
+            dirty = true
+            radioRevertTimer.restart()
+        }
+        Timer {
+            id: radioRevertTimer
+            interval: 30000
+            onTriggered: if (radioIsland.dirty) { radioIsland.dirty = false; radioIsland.sync(true) }
         }
         function phyText(p) {
             switch (p) {
@@ -2332,7 +2346,7 @@ Column {
                 options: [ { label: "2", value: 2 }, { label: "8.5", value: 8.5 }, { label: "11", value: 11 },
                            { label: "15", value: 15 }, { label: "18", value: 18 }, { label: "20", value: 20 } ]
                 currentValue: radioIsland.selPower
-                onValueSelected: function(v) { radioIsland.selPower = v; radioIsland.dirty = true }
+                onValueSelected: function(v) { radioIsland.selPower = v; radioIsland.edited() }
             }
         }
         DevStackedRow {
@@ -2345,7 +2359,7 @@ Column {
                 options: [ { label: "b", value: 1 }, { label: "b/g", value: 3 }, { label: "b/g/n", value: 7 },
                            { label: "LR", value: 8 }, { label: "b/g/n+LR", value: 15 } ]
                 currentValue: radioIsland.selProto
-                onValueSelected: function(v) { radioIsland.selProto = v; radioIsland.dirty = true }
+                onValueSelected: function(v) { radioIsland.selProto = v; radioIsland.edited() }
             }
         }
         DevStackedRow {
@@ -2360,7 +2374,7 @@ Column {
                 fontPixelSize: Tokens.fontSm
                 options: [ { label: qsTr("20 MHz"), value: 20 }, { label: qsTr("40 MHz"), value: 40 } ]
                 currentValue: radioIsland.selBw
-                onValueSelected: function(v) { radioIsland.selBw = v; radioIsland.dirty = true }
+                onValueSelected: function(v) { radioIsland.selBw = v; radioIsland.edited() }
             }
         }
         KIslandRow {
@@ -2370,11 +2384,11 @@ Column {
                 fontPixelSize: Tokens.fontSm
                 options: [ { label: qsTr("Off"), value: 0 }, { label: qsTr("Min"), value: 1 }, { label: qsTr("Max"), value: 2 } ]
                 currentValue: radioIsland.selPs
-                onValueSelected: function(v) { radioIsland.selPs = v; radioIsland.dirty = true }
+                onValueSelected: function(v) { radioIsland.selPs = v; radioIsland.edited() }
             }
         }
         DevStackedRow {
-            caption: (radioIsland.dirty ? qsTr("Not applied yet: the menu differs from what the module uses. ") : "")
+            caption: (radioIsland.dirty ? qsTr("Not applied yet: the menu differs from what the module uses; it goes back in 30 s. ") : "")
                      + qsTr("Protocol and width changes make the module reconnect: the boat link drops for a few seconds. 40 MHz needs 802.11n and an access point that gives it.")
             Row {
                 width: parent.width
@@ -2393,6 +2407,7 @@ Column {
                         radioIsland.verifying = true
                         dev.wifiSetRadio(radioIsland.selPower, radioIsland.selProto, radioIsland.selBw, radioIsland.selPs)
                         radioIsland.dirty = false
+                        radioRevertTimer.stop()
                         notifications.info(qsTr("Radio settings sent to the module"))
                     }
                 }
@@ -2430,7 +2445,7 @@ Column {
         function start() {
             linkUuid = root._linkUuidOfDev()
             if (!linkUuid.length || typeof linkManagerWrapper === "undefined" || !linkManagerWrapper) {
-                notifications.error(qsTr("The module's link is not known: nothing changed"))
+                notifications.warning(qsTr("The module's link is not known: nothing changed"))
                 return
             }
             if (sel <= 0 || sel === now)
@@ -2452,7 +2467,7 @@ Column {
             } else {
                 linkManagerWrapper.updateBaudrateFor(linkUuid, oldBaud)
                 console.info("wifi-port: no answer at " + newBaud + ", link back at " + oldBaud)
-                notifications.error(qsTr("No answer from the module at %1: the link is back at %2. An unsaved speed is gone after the module's next reboot.").arg(newBaud).arg(oldBaud))
+                notifications.warning(qsTr("No answer from the module at %1: the link is back at %2. An unsaved speed is gone after the module's next reboot.").arg(newBaud).arg(oldBaud))
             }
         }
         Timer {

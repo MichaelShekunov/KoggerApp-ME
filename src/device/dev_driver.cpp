@@ -1145,6 +1145,11 @@ void DevDriver::receivedWifi(Parsers::Type type, Parsers::Version ver, Parsers::
                                      .arg(st.reason <= 5 ? QString::fromLatin1(reasons[st.reason]) : QString::number(st.reason))
                                      .arg(st.disconnectCode);
             wifiLastState_ = state;
+            // The module does not push its radio state after it reconnects: ask, so what the app shows
+            // (the negotiated PHY, the width in use) is what the link runs now.
+            if (idWifi->radioSupport() != 0) {
+                idWifi->simpleRequest(v7);
+            }
             // A network joined with "save" is stored only once an address arrived: now.
             if (state == IDBinWifi::StateConnected) {
                 idWifi->simpleRequest(v4);
