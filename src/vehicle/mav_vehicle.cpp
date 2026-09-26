@@ -9,15 +9,15 @@
 #include <cmath>
 #include <cstring>
 
-// The official generated MAVLink C library (MIT, third_party/mavlink), common dialect. ArduPilot's
-// own messages are not needed here; the library drops them on the CRC check like any unknown id.
+// The official generated MAVLink C library (MIT, third_party/mavlink), ArduPilot's dialect (it includes
+// common): EKF_STATUS_REPORT is an ArduPilot message.
 #if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Waddress-of-packed-member"
 #pragma GCC diagnostic ignored "-Wcast-align"
 #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 #endif
-#include "mavlink/common/mavlink.h"
+#include "mavlink/ardupilotmega/mavlink.h"
 #if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
@@ -31,6 +31,21 @@ constexpr int kHeartbeatKeepMs = 10000;   // stop our heartbeat when the boat ha
 constexpr int kTransferTimeoutMs = 1500;
 constexpr int kTransferRetries = 6;
 constexpr int kMaxMessages = 40;
+constexpr int kEkfStaleMs = 5000;     // an EKF report older than this says nothing
+constexpr int kEkfPollMs = 2500;      // ask for one when none came for this long
+
+QString gpsFixText(int fix)
+{
+    switch (fix) {
+    case 0: case 1: return QObject::tr("no fix");
+    case 2: return QStringLiteral("2D");
+    case 3: return QStringLiteral("3D");
+    case 4: return QStringLiteral("DGPS");
+    case 5: return QStringLiteral("RTK float");
+    case 6: return QStringLiteral("RTK fixed");
+    }
+    return QString::number(fix);
+}
 const char kSettingsGroup[] = "boatMission";
 
 QString commandResultText(int r)
@@ -82,6 +97,7 @@ MavVehicle::MavVehicle(QObject* parent, bool persist)
 
     if (persist_)
         loadSettings();
+    updateNav();
 }
 
 MavVehicle::~MavVehicle() = default;
@@ -170,6 +186,18 @@ void MavVehicle::requestMessage(uint32_t messageId)
     sendCommandLong(MAV_CMD_REQUEST_MESSAGE, float(messageId));
 }
 
+void MavVehicle::requestParam(const char* id)
+{
+    if (!detected())
+        return;
+    char name[16] = {};                 // the packer copies all 16 bytes
+    std::strncpy(name, id, sizeof(name));
+    mavlink_message_t msg;
+    mavlink_msg_param_request_read_pack_chan(kGcsSystemId, kGcsComponentId, kTxChan, &msg, uint8_t(vehicleSysId_),
+                                             uint8_t(vehicleCompId_), name, -1);
+    sendMessage(&msg);
+}
+
 void MavVehicle::requestStreams()
 {
     // Only for a vehicle that streams nothing on its own (SITL on a fresh EEPROM). The boat's autopilot
@@ -204,6 +232,14 @@ void MavVehicle::onSecondTick()
         requestStreams();
     if (!homeValid_ && secondsSinceDetect_ % 10 == 0)
         requestMessage(MAVLINK_MSG_ID_HOME_POSITION);
+    if (now) {
+        // The boat may stream EKF_STATUS_REPORT (SRx_EXTRA3); if not, it is asked for, without touching its rates.
+        if ((!ekfSeen_.isValid() || ekfSeen_.elapsed() >= kEkfPollMs) && secondsSinceDetect_ % 2 == 0)
+            requestMessage(MAVLINK_MSG_ID_EKF_STATUS_REPORT);
+        if (!ekfThreshKnown_ && secondsSinceDetect_ % 10 == 3)
+            requestParam("FS_EKF_THRESH");
+    }
+    updateNav();   // a report that stops coming turns the state to unknown
 }
 
 // ---- incoming --------------------------------------------------------------------------------------
@@ -289,6 +325,32 @@ void MavVehicle::handleMessage(const void* p)
                 gpsSats_ = sats;
                 gpsHdop_ = hdop;
                 emit gpsChanged();
+            }
+            break;
+        }
+        case MAVLINK_MSG_ID_EKF_STATUS_REPORT: {
+            mavlink_ekf_status_report_t e;
+            mavlink_msg_ekf_status_report_decode(&msg, &e);
+            ekfFlags_ = e.flags;
+            ekfVelVar_ = e.velocity_variance;
+            ekfPosVar_ = e.pos_horiz_variance;
+            ekfMagVar_ = e.compass_variance;
+            ekfSeen_.start();
+            updateNav();
+            break;
+        }
+        case MAVLINK_MSG_ID_PARAM_VALUE: {
+            mavlink_param_value_t pv;
+            mavlink_msg_param_value_decode(&msg, &pv);
+            char name[17] = {};
+            std::memcpy(name, pv.param_id, 16);
+            if (std::strcmp(name, "FS_EKF_THRESH") == 0) {
+                const bool first = !ekfThreshKnown_;
+                ekfThresh_ = pv.param_value;
+                ekfThreshKnown_ = true;
+                if (first)
+                    addMessage(tr("FS_EKF_THRESH on the boat: %1").arg(ekfThresh_, 0, 'f', 2));
+                updateNav();
             }
             break;
         }
@@ -851,11 +913,75 @@ void MavVehicle::finishSteps(bool ok, const QString& detail)
     stepTimer_.stop();
     const bool hadSteps = !steps_.isEmpty() || ok;
     steps_.clear();
+    std::function<void()> onFail;
+    onFail.swap(onSequenceFail_);      // it belongs to this sequence only
     emit busyChanged();
     if (hadSteps) {
         addMessage(ok ? tr("%1: done").arg(sequenceWhat_) : tr("%1: %2").arg(sequenceWhat_, detail));
         emit commandResult(sequenceWhat_, ok, detail);
     }
+    if (!ok && onFail)
+        onFail();
+}
+
+void MavVehicle::interruptSequence()
+{
+    onSequenceFail_ = nullptr;         // the user's HOLD / RTL / disarm replaces the start: no disarm of our own
+    if (busy())
+        finishSteps(false, tr("interrupted"));
+}
+
+// ---- navigation readiness --------------------------------------------------------------------------
+
+void MavVehicle::updateNav()
+{
+    // Rover 4.4 once armed: Mode::enter() needs ekf_position_ok() (horizontal position, absolute or relative,
+    // not constant-position mode) and no EKF failsafe; ekf_over_threshold() fires that failsafe when the
+    // velocity variance reaches FS_EKF_THRESH (it is counted twice) or when two of velocity, position and
+    // compass do. The report gives the compass variance as its largest axis where Rover takes the vector
+    // length, so the compass part here is a little more lenient than Rover's.
+    const bool fresh = ekfFlags_ >= 0 && ekfSeen_.isValid() && ekfSeen_.elapsed() < kEkfStaleMs;
+    int reason;
+    QString text;
+    if (!fresh) {
+        reason = NavReasonNoReport;
+        text = tr("no EKF status from the boat");
+    } else if (ekfFlags_ & EKF_UNINITIALIZED) {
+        reason = NavReasonUninitialised;
+        text = tr("the EKF is not initialised");
+    } else if (!(ekfFlags_ & (EKF_POS_HORIZ_ABS | EKF_POS_HORIZ_REL)) || (ekfFlags_ & EKF_CONST_POS_MODE)) {
+        reason = NavReasonNoPosition;
+        text = (ekfFlags_ & EKF_CONST_POS_MODE) ? tr("no position: the EKF is not using GPS (constant position mode)")
+                                                : tr("no position estimate in the EKF");
+    } else if (ekfThresh_ > 0 && (ekfVelVar_ >= ekfThresh_ || (ekfPosVar_ >= ekfThresh_ && ekfMagVar_ >= ekfThresh_))) {
+        reason = NavReasonVariance;
+        text = tr("EKF variances over %1: velocity %2, position %3, compass %4")
+                   .arg(ekfThresh_, 0, 'f', 2).arg(ekfVelVar_, 0, 'f', 2).arg(ekfPosVar_, 0, 'f', 2).arg(ekfMagVar_, 0, 'f', 2);
+    } else {
+        reason = NavReasonReady;
+        text = tr("ready");
+    }
+    const int state = reason == NavReasonReady ? NavReady : reason == NavReasonNoReport ? NavUnknown : NavNotReady;
+    if (state != navState_ || text != navText_) {
+        navState_ = state;
+        navText_ = text;
+        emit navChanged();
+    }
+    if (reason == navLoggedReason_)
+        return;
+    const bool first = navLoggedReason_ < 0;
+    navLoggedReason_ = reason;
+    if (reason == NavReasonNoReport) {
+        if (!first)
+            addMessage(tr("Navigation: %1").arg(text));
+        return;
+    }
+    const QString head = state == NavReady ? tr("Navigation ready") : tr("Navigation not ready: %1").arg(text);
+    addMessage(tr("%1 (EKF flags 0x%2, variances: velocity %3, position %4, compass %5; GPS %6, %7 sat, HDOP %8)")
+                   .arg(head)
+                   .arg(ekfFlags_, 4, 16, QLatin1Char('0'))
+                   .arg(ekfVelVar_, 0, 'f', 2).arg(ekfPosVar_, 0, 'f', 2).arg(ekfMagVar_, 0, 'f', 2)
+                   .arg(gpsFixText(gpsFix_)).arg(gpsSats_).arg(gpsHdop_, 0, 'f', 1));
 }
 
 QString MavVehicle::startBlocker() const
@@ -870,6 +996,8 @@ QString MavVehicle::startBlocker() const
         return tr("Upload the mission to the boat first");
     if (gpsFix_ < 3)
         return tr("No GPS fix on the boat");
+    if (navState_ == NavNotReady)
+        return tr("The boat's navigation is not ready: %1").arg(navText_);
     if (!homeValid_)
         return tr("The boat has no home position yet");
     if (busy())
@@ -898,8 +1026,18 @@ void MavVehicle::startMission()
     };
     current.done = [this, firstNav]() { return missionCurrentFresh_ && (missionCurrent_ == 1 || missionCurrent_ == firstNav); };
     s.append(current);
-    if (!armed_)
+    if (!armed_) {
         s.append(stepArm(true));
+        // Armed by this start: if it fails from here on (Rover refuses AUTO without a position estimate once
+        // armed, or no answer), the boat must not stay armed in HOLD.
+        onSequenceFail_ = [this]() {
+            if (armed_ && mode_ != ModeAuto) {
+                addMessage(tr("The start failed after arming (navigation: %1): disarming").arg(navText_));
+                sequenceWhat_ = tr("Disarm after the failed start");
+                runSteps({ stepArm(false) });
+            }
+        };
+    }
     s.append(stepSetMode(ModeAuto, tr("Switching to AUTO")));
     runSteps(s);
 }
@@ -907,16 +1045,14 @@ void MavVehicle::startMission()
 void MavVehicle::hold()
 {
     // HOLD, RTL and disarm pre-empt whatever else is running: they are the ways to stop the boat.
-    if (busy())
-        finishSteps(false, tr("interrupted"));
+    interruptSequence();
     sequenceWhat_ = tr("Hold");
     runSteps({ stepSetMode(ModeHold, tr("Switching to HOLD")) });
 }
 
 void MavVehicle::returnHome()
 {
-    if (busy())
-        finishSteps(false, tr("interrupted"));
+    interruptSequence();
     sequenceWhat_ = tr("Return home");
     runSteps({ stepSetMode(ModeRtl, tr("Switching to RTL")) });
 }
@@ -933,8 +1069,7 @@ void MavVehicle::arm()
 
 void MavVehicle::disarm()
 {
-    if (busy())
-        finishSteps(false, tr("interrupted"));
+    interruptSequence();
     sequenceWhat_ = tr("Disarm");
     runSteps({ stepArm(false) });
 }

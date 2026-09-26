@@ -211,6 +211,18 @@ Rectangle {
                                                  .arg(panel.metres(panel.vehicle ? panel.vehicle.wpDistance : -1))
                 }
             }
+            // Whether the autopilot could navigate in AUTO once armed (its EKF), not just whether GPS has a fix.
+            StatusText {
+                width: parent.width
+                visible: !!panel.vehicle && panel.vehicle.detected
+                elide: Text.ElideNone
+                wrapMode: Text.WordWrap
+                text: qsTr("Navigation: %1").arg(panel.vehicle && panel.vehicle.navText.length ? panel.vehicle.navText : "—")
+                color: !panel.vehicle ? AppPalette.textMuted
+                       : panel.vehicle.navState === 1 ? AppPalette.text
+                       : panel.vehicle.navState === 2 ? AppPalette.dangerText
+                       : AppPalette.textMuted
+            }
             StatusText {
                 width: parent.width
                 visible: !!panel.vehicle && panel.vehicle.detected
@@ -439,6 +451,7 @@ Rectangle {
                 function onLinkChanged() { contentCol._blockerTick++ }
                 function onTransferChanged() { contentCol._blockerTick++ }
                 function onGpsChanged() { contentCol._blockerTick++ }
+                function onNavChanged() { contentCol._blockerTick++ }
                 function onHomeChanged() { contentCol._blockerTick++ }
                 function onBusyChanged() { contentCol._blockerTick++ }
                 function onPlanChanged() { contentCol._blockerTick++ }

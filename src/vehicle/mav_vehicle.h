@@ -28,6 +28,14 @@
  * The plan is a list of points; uploadPlan() turns it into a mission (item 0 = home placeholder,
  * optional speed change, one NAV_WAYPOINT per point, optional return-to-launch), uploads it, reads
  * it back and compares, so planOnVehicle is only ever true for a mission the vehicle really holds.
+ *
+ * Navigation readiness (navState, navText) comes from ArduPilot's EKF_STATUS_REPORT, judged the way
+ * Rover 4.4 judges it once armed: AUTO needs a horizontal position (absolute or relative) outside
+ * constant-position mode, and the EKF failsafe fires when the velocity variance, or both the position
+ * and compass variances, reach FS_EKF_THRESH (read from the autopilot, 0.8 until then). The report is
+ * polled with REQUEST_MESSAGE when the autopilot does not stream it. startMission() refuses while the
+ * navigation is not ready, and when a start that armed the boat fails afterwards (AUTO refused, no
+ * answer) it disarms again instead of leaving the boat armed in HOLD.
  */
 class MavVehicle : public QObject
 {
@@ -53,6 +61,9 @@ class MavVehicle : public QObject
     Q_PROPERTY(int gpsFix READ gpsFix NOTIFY gpsChanged)
     Q_PROPERTY(int gpsSats READ gpsSats NOTIFY gpsChanged)
     Q_PROPERTY(double gpsHdop READ gpsHdop NOTIFY gpsChanged)
+
+    Q_PROPERTY(int navState READ navState NOTIFY navChanged)
+    Q_PROPERTY(QString navText READ navText NOTIFY navChanged)
 
     Q_PROPERTY(double batteryVoltage READ batteryVoltage NOTIFY batteryChanged)
     Q_PROPERTY(int batteryRemaining READ batteryRemaining NOTIFY batteryChanged)
@@ -85,6 +96,10 @@ class MavVehicle : public QObject
 public:
     enum TransferState { TransferIdle = 0, TransferUploading, TransferDownloading, TransferDone, TransferFailed };
     Q_ENUM(TransferState)
+
+    /** navState: no fresh EKF report / the boat could navigate in AUTO once armed / it could not. */
+    enum NavState { NavUnknown = 0, NavReady, NavNotReady };
+    Q_ENUM(NavState)
 
     /** ArduPilot Rover custom modes (HEARTBEAT.custom_mode, MAV_CMD_DO_SET_MODE param 2). */
     enum RoverMode { ModeManual = 0, ModeAcro = 1, ModeSteering = 3, ModeHold = 4, ModeLoiter = 5,
@@ -120,6 +135,12 @@ public:
     int gpsFix() const { return gpsFix_; }
     int gpsSats() const { return gpsSats_; }
     double gpsHdop() const { return gpsHdop_; }
+
+    int navState() const { return navState_; }
+    /** "ready" or the reason it is not, ready to show. */
+    QString navText() const { return navText_; }
+    /** For tools: FS_EKF_THRESH has been read from the autopilot (until then ArduPilot's default 0.8). */
+    bool ekfThresholdKnown() const { return ekfThreshKnown_; }
 
     double batteryVoltage() const { return batteryVoltage_; }
     int batteryRemaining() const { return batteryRemaining_; }
@@ -165,7 +186,8 @@ public:
 
     /** Empty when startMission() may run, otherwise the reason, ready to show. */
     Q_INVOKABLE QString startBlocker() const;
-    /** From the first point: set mission item 1 current, arm if needed, switch to AUTO. */
+    /** From the first point: set mission item 1 current, arm if needed, switch to AUTO. A start that armed
+     *  the boat and then fails disarms it again. */
     Q_INVOKABLE void startMission();
     Q_INVOKABLE void hold();
     Q_INVOKABLE void returnHome();
@@ -192,6 +214,7 @@ signals:
     void stateChanged();
     void positionChanged();
     void gpsChanged();
+    void navChanged();
     void batteryChanged();
     void homeChanged();
     void missionStateChanged();
@@ -229,7 +252,9 @@ private:
     void sendCommandLong(uint16_t command, float p1 = 0, float p2 = 0, float p3 = 0, float p4 = 0,
                          float p5 = 0, float p6 = 0, float p7 = 0);
     void requestMessage(uint32_t messageId);
+    void requestParam(const char* id);
     void requestStreams();
+    void updateNav();
 
     QVector<Item> buildItems() const;
     static bool itemsMatch(const QVector<Item>& planned, const QVector<Item>& onVehicle);
@@ -243,6 +268,7 @@ private:
     void runSteps(const QList<Step>& steps);
     void startStep();
     void finishSteps(bool ok, const QString& detail);
+    void interruptSequence();
     Step stepSetMode(int mode, const QString& what);
     Step stepArm(bool on);
 
@@ -269,6 +295,16 @@ private:
     double lat_ = 0, lon_ = 0, headingDeg_ = 0, groundSpeed_ = 0;
     int gpsFix_ = 0, gpsSats_ = -1;
     double gpsHdop_ = -1;
+
+    enum NavReason { NavReasonNoReport = 0, NavReasonReady, NavReasonUninitialised, NavReasonNoPosition, NavReasonVariance };
+    int ekfFlags_ = -1;              // EKF_STATUS_REPORT.flags, -1 before the first report
+    float ekfVelVar_ = 0, ekfPosVar_ = 0, ekfMagVar_ = 0;
+    QElapsedTimer ekfSeen_;
+    double ekfThresh_ = 0.8;         // FS_EKF_THRESH
+    bool ekfThreshKnown_ = false;
+    int navState_ = NavUnknown;
+    QString navText_;
+    int navLoggedReason_ = -1;
     double batteryVoltage_ = -1;
     int batteryRemaining_ = -1;
     bool homeValid_ = false;
@@ -299,6 +335,7 @@ private:
 
     QList<Step> steps_;
     QString sequenceWhat_;     // name of the running sequence, for commandResult
+    std::function<void()> onSequenceFail_;   // runs once if the running sequence fails (not when interrupted)
     int stepTry_ = 0;
     QTimer stepTimer_;
 
