@@ -1,5 +1,6 @@
 #include "mav_vehicle.h"
 
+#include <QDebug>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QSettings>
@@ -937,6 +938,7 @@ void MavVehicle::disarm()
 
 void MavVehicle::addMessage(const QString& text)
 {
+    qInfo().noquote() << "boat:" << text;   // the kiosk's journal keeps the session for field diagnosis
     messages_.prepend(QTime::currentTime().toString(QStringLiteral("HH:mm:ss")) + QStringLiteral("  ") + text);
     while (messages_.size() > kMaxMessages)
         messages_.removeLast();
