@@ -170,6 +170,20 @@ public:
     double wifiRelayDownDrops();
     double wifiRelayLocalFrames();
 
+    // Firmware 0.10: access-point role, radio (ID_WIFI v7) and the network setup (ID_WIFI_NET 0x58).
+    // Structured values go to QML as maps and lists; field names are listed in docs/WIFI_MODULE.md.
+    int wifiClients();
+    int wifiRadioSupport();
+    QVariantMap wifiRadio();
+    int wifiNetSupport();
+    QVariantMap wifiNetRole();
+    QVariantMap wifiNetAp();
+    QVariantMap wifiNetIp();
+    QVariantList wifiNetLines();
+    QVariantList wifiNetLineStats();
+    QVariantList wifiNetClients();
+    int wifiNetOwnAddr();
+
     /** Re-reads status and the saved list (GETTING v0 + v4). */
     Q_INVOKABLE void wifiRefresh();
     /** Starts a scan; results arrive over the next seconds and wifiNetworksChanged() follows each. */
@@ -191,6 +205,23 @@ public:
      * @returns false when the address text is not a.b.c.d; nothing is sent then.
      */
     Q_INVOKABLE bool wifiSetRelay(int mode, int addr, const QString& ip, int rport, int lport);
+    /** ID_WIFI v7. power in dBm (2..21); protocols 0x01/0x03/0x07/0x08/0x0F; bandwidth 20 or 40; powerSave 0..2. */
+    Q_INVOKABLE void wifiSetRadio(double powerDbm, int protocols, int bandwidthMhz, int powerSave);
+    /** Re-reads role, access point, address, lines and own address (ID_WIFI_NET v0, v1, v2, v3, v6). */
+    Q_INVOKABLE void wifiNetRefresh();
+    Q_INVOKABLE void wifiNetRefreshStats();
+    Q_INVOKABLE void wifiNetRefreshClients();
+    /** role 0 station, 1 access point. The module answers, then restarts when reboot is set. */
+    Q_INVOKABLE void wifiNetSetRole(int role, bool reboot, bool forgetLines);
+    /** auth 0 open, 1 WPA2, 2 WPA2/WPA3. An empty password with security keeps the current one. */
+    Q_INVOKABLE bool wifiNetSetAp(int channel, bool hidden, int maxClients, int auth, const QString& ssid,
+                                  const QString& password);
+    Q_INVOKABLE bool wifiNetSetIp(const QString& ip, const QString& mask, bool dhcp, const QString& poolStart,
+                                  const QString& poolEnd, int leaseMin, bool offerGateway, bool offerDns);
+    /** mode 0 off, 1 UDP, 2 TCP; dest 0 fixed, 1 senders, 2 broadcast. Line 0 ignores baud and pins. */
+    Q_INVOKABLE bool wifiNetSetLine(int line, int mode, int dest, const QString& ip, int rport, int lport, int baud,
+                                    int txPin, int rxPin);
+    Q_INVOKABLE void wifiNetSetOwnAddr(int addr);
 
     float yaw();
     float pitch();
@@ -363,6 +394,12 @@ signals:
     void wifiSavedChanged();
     void wifiRelayChanged();
     void wifiRelayStatsChanged();
+    void wifiRadioChanged();
+    void wifiNetChanged();
+    void wifiNetStatsChanged();
+    void wifiNetClientsChanged();
+    // Answer to an ID_WIFI_NET SETTING (or a refusal): version and response code (Parsers::Resp).
+    void wifiNetCommandResult(int version, int resp);
     // The module's answer to a Wi-Fi SETTING (or its refusal of a request): version of the frame
     // and the response code (Parsers::Resp). Only failures matter to the page.
     void wifiCommandResult(int version, int resp);
@@ -496,6 +533,7 @@ protected:
     IDBinNet* idNet = nullptr;
     IDBinUART* idUART = nullptr;
     IDBinWifi* idWifi = nullptr;
+    IDBinWifiNet* idWifiNet = nullptr;
 
     IDBinVersion* idVersion = nullptr;
     IDBinMark* idMark = nullptr;
@@ -639,6 +677,8 @@ protected slots:
     void receivedNet        (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
     void receivedUART       (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
     void receivedWifi       (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
+    void receivedWifiNet    (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
+    void logWifiNet(int ver);
 
     void receivedVersion    (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
     void receivedMark       (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
@@ -679,6 +719,8 @@ private:
     bool standProbeSent_ = false;
     // The Wi-Fi module is asked once per connection, then it pushes; see process().
     bool wifiProbeSent_ = false;
+    QString lastWifiNetLog_[8];       // last logged line per ID_WIFI_NET version (7 = radio)
+    int64_t wifiNetAskedAt_ = 0;      // when ID_WIFI_NET was first asked; silence for 4 s = firmware before 0.10
     int wifiLastState_ = -1;
     bool pwmRouteState_ = false;
     bool devSyncState_ = false;

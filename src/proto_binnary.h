@@ -94,6 +94,8 @@ enum ID : uint16_t {
     // Wi-Fi module (board 87): status, link report, scan, connect, saved networks.
     // Contract in docs/WIFI_MODULE.md. 0x57 = 87 is free upstream.
     ID_WIFI = 0x57,
+    // Wi-Fi module network setup (firmware 0.10+): role, access point, address/DHCP, UART lines.
+    ID_WIFI_NET = 0x58,
 
     ID_DVL_BEAM = 120,
     ID_DVL_VEL = 121,

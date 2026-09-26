@@ -101,6 +101,31 @@ down, frames down, drops down, frames for the module, TCP connects.
 Firmware before 0.7 answers v5 and v6 with ERR_VERSION; the app remembers that and shows the
 "no relay in firmware" hint instead of the fields.
 
+## 2b. Firmware 0.10: radio, role, access point, address, two lines
+
+The module project calls this contract version 2. Everything below is in its docs/SBP_WIFI.md
+(§3, §3a) and docs/NETWORK.md; the app follows it field by field.
+
+- **`ID_WIFI` v7 radio** (0.8+). SETTING `{U1 power in 0.25 dBm 8..84, U1 protocols 0x01 b / 0x03 b/g /
+  0x07 b/g/n / 0x08 LR / 0x0F b/g/n+LR, U1 width 1 = 20 MHz / 2 = 40 MHz, U1 power save 0/1/2}`; CONTENT
+  adds what is in effect: power in use, negotiated mode (0 LR, 1 11b, 2 11g, 4 HT20, 5 HT40, 0xFF none),
+  protocols and width in use. Protocol and width changes make the module reconnect. Firmware before 0.8
+  answers ERR_VERSION; the app then hides the Radio island.
+- **`ID_WIFI` v0**: state 4 = the module runs as an access point; byte 7 = number of its clients.
+- **`ID_WIFI_NET` = 0x58** (0.10). Every SETTING starts with the key 0xC96B5D4A. v0 role `{saved, running}`
+  (0 station, 1 access point; SETTING `{role, flags bit0 reboot now, bit1 forget lines}`); v1 access point
+  `{channel, hidden, max clients, auth 0 open / 1 WPA2 / 2 WPA2+WPA3, len, SSID, len, password}` (the
+  password never reads back; empty keeps it); v2 address and DHCP (20 bytes); v3 one line per frame
+  `{line, mode 0 off / 1 UDP / 2 TCP, dest 0 fixed / 1 senders / 2 broadcast, ip, rport, lport, baud,
+  TX pin, RX pin, uart}`; v4 line counters (57 bytes); v5 access-point clients; v6 the module's own address
+  while a line relays. The ID_WIFI v5/v6 relay record is line 0's view. The app asks v0, v1, v2, v3, v6
+  once per connection; four seconds of silence (or ERR_ID) mean firmware before 0.10, and the old Boat
+  link island stays.
+- Where: `IDBinWifi` (v7, AP state), `IDBinWifiNet` (`src/id_binnary.*`), `DevDriver::receivedWifiNet`,
+  the `wifiRadio`, `wifiNet*` properties (maps and lists) and `wifiSetRadio`, `wifiNetSet*` invokables;
+  islands Radio, Role and access point, Access point address and DHCP, Lines in `DeviceSettingsPage.qml`.
+  The app log gets one `wifi-net:` / `wifi-radio:` line whenever a reported setting changes.
+
 ## 3. Where it lives in the app
 
 - `src/proto_binnary.h` — `ID_WIFI`; `src/id_binnary.h/.cpp` — `BoardWiFi = 87` and `IDBinWifi`

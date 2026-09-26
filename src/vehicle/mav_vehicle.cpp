@@ -522,6 +522,8 @@ void MavVehicle::insertPoint(int index, double lat, double lon)
         return;
     index = qBound(0, index, int(plan_.size()));
     plan_.insert(index, Point{lat, lon});
+    qInfo().noquote() << QStringLiteral("boat: point %1 of %2 at %3, %4").arg(index + 1).arg(plan_.size())
+                             .arg(lat, 0, 'f', 7).arg(lon, 0, 'f', 7);
     savePlan();
 }
 

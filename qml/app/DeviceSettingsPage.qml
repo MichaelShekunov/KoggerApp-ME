@@ -438,11 +438,13 @@ Column {
         property bool password: false
         property bool revealed: false
         property bool numeric: false
+        property int minValue: 0
+        property int maxValue: 65535
         readonly property bool hasFocus: wfInput.activeFocus
         signal accepted()
         signal edited()
         function takeFocus() { wfInput.forceActiveFocus() }
-        IntValidator { id: wfIntValidator; bottom: 0; top: 65535 }
+        IntValidator { id: wfIntValidator; bottom: wf.minValue; top: wf.maxValue }
         height: Tokens.controlHMd
         radius: Tokens.radiusMd
         color: AppPalette.bg
@@ -494,6 +496,30 @@ Column {
             toolTipText: wf.revealed ? qsTr("Hide password") : qsTr("Show password")
             onClicked: wf.revealed = !wf.revealed
         }
+    }
+
+    // Two taps within three seconds: for settings that can cut the module off or reboot it.
+    component ConfirmDevButton: DevButton {
+        id: cdb
+        property string label: ""
+        property bool pending: false
+        signal confirmed()
+        height: Tokens.controlHMd
+        fontPixelSize: Tokens.fontMd
+        text: pending ? qsTr("Tap again") : label
+        danger: pending
+        onEnabledChanged: if (!enabled) pending = false
+        onClicked: {
+            if (pending) {
+                pending = false
+                cdbTimer.stop()
+                cdb.confirmed()
+            } else {
+                pending = true
+                cdbTimer.restart()
+            }
+        }
+        Timer { id: cdbTimer; interval: 3000; onTriggered: cdb.pending = false }
     }
 
     component FlashButton: DevButton {
@@ -1538,6 +1564,9 @@ Column {
         readonly property int wifiState: live ? dev.wifiState : 0
         readonly property bool connected: live && wifiState === 3
         readonly property bool busy: live && (wifiState === 1 || wifiState === 2)
+        // firmware 0.10: the module is an access point; station controls answer ERR_RUNTIME then
+        readonly property bool apRole: live && wifiState === 4
+        readonly property int clients: live ? dev.wifiClients : 0
         readonly property string ssid: live ? dev.wifiSsid : ""
         readonly property int rssi: live ? dev.wifiRssi : 0
         readonly property int channel: live ? dev.wifiChannel : 0
@@ -1568,6 +1597,7 @@ Column {
 
         function stateText(st) {
             switch (st) {
+            case 4: return qsTr("Access point")
             case 3: return qsTr("Connected")
             case 2: return qsTr("Connecting…")
             case 1: return qsTr("Searching…")
@@ -1686,15 +1716,15 @@ Column {
 
             Rectangle {
                 id: wifiChip
-                readonly property color fg: wifiIsland.connected ? AppPalette.linkOkText
+                readonly property color fg: (wifiIsland.connected || wifiIsland.apRole) ? AppPalette.linkOkText
                                           : (wifiIsland.busy ? AppPalette.linkIdleText : AppPalette.linkDownText)
                 height: Math.round(24 * AppPalette.scale)
                 width: wifiChipText.implicitWidth + 2 * Tokens.spaceMd
                 radius: height / 2
-                color: wifiIsland.connected ? AppPalette.linkOkBg
+                color: (wifiIsland.connected || wifiIsland.apRole) ? AppPalette.linkOkBg
                      : (wifiIsland.busy ? AppPalette.linkIdleBg : AppPalette.linkDownBg)
                 border.width: Tokens.cardBorderWidth
-                border.color: wifiIsland.connected ? AppPalette.linkOkBorder
+                border.color: (wifiIsland.connected || wifiIsland.apRole) ? AppPalette.linkOkBorder
                             : (wifiIsland.busy ? AppPalette.linkIdleBorder : AppPalette.linkDownBorder)
                 Text {
                     id: wifiChipText
@@ -1709,11 +1739,15 @@ Column {
 
         // Current network
         KIslandRow {
-            label: (wifiIsland.connected || wifiIsland.wifiState === 2) ? wifiIsland.ssid : qsTr("Not connected")
-            labelBold: wifiIsland.connected
+            label: (wifiIsland.connected || wifiIsland.apRole || wifiIsland.wifiState === 2) ? wifiIsland.ssid : qsTr("Not connected")
+            labelBold: wifiIsland.connected || wifiIsland.apRole
             caption: {
                 if (!wifiIsland.live)
                     return qsTr("Waiting for the module…")
+                if (wifiIsland.apRole)
+                    return qsTr("Own access point · ch %1 · %2 · clients: %3").arg(wifiIsland.channel)
+                           .arg(wifiIsland.securityText(wifiIsland.security)).arg(wifiIsland.clients)
+                         + (wifiIsland.ip.length ? " · " + wifiIsland.ip : "")
                 if (wifiIsland.connected)
                     return wifiIsland.rssi + " " + qsTr("dBm") + " · " + qsTr("ch %1").arg(wifiIsland.channel)
                          + " · " + wifiIsland.securityText(wifiIsland.security)
@@ -1758,7 +1792,7 @@ Column {
         }
 
         KIslandRow {
-            open: wifiIsland.live
+            open: wifiIsland.live && !wifiIsland.apRole
             label: qsTr("Auto-connect")
             caption: qsTr("Join the strongest saved network at power-up and after a loss")
             KSwitch {
@@ -1779,7 +1813,7 @@ Column {
         }
 
         DevStackedRow {
-            open: wifiIsland.live
+            open: wifiIsland.live && !wifiIsland.apRole
             Row {
                 width: parent.width
                 spacing: Tokens.spaceMd
@@ -1872,11 +1906,11 @@ Column {
 
         // Scan result
         KIslandSection {
-            open: wifiIsland.live
+            open: wifiIsland.live && !wifiIsland.apRole
             label: wifiIsland.scanning ? qsTr("Networks nearby (searching…)") : qsTr("Networks nearby")
         }
         Repeater {
-            model: wifiIsland.networks
+            model: wifiIsland.apRole ? [] : wifiIsland.networks
             delegate: KIslandRow {
                 interactive: true
                 chevron: true
@@ -1894,7 +1928,7 @@ Column {
             }
         }
         KIslandRow {
-            open: wifiIsland.live && !wifiIsland.scanning && wifiIsland.networks.length === 0
+            open: wifiIsland.live && !wifiIsland.apRole && !wifiIsland.scanning && wifiIsland.networks.length === 0
             minHeight: 0
             verticalPadding: Tokens.spaceMd
             label: qsTr("Nothing found yet. Tap Scan.")
@@ -1946,7 +1980,8 @@ Column {
     DevIsland {
         id: relayIsland
         width: root.groupWidth
-        visible: root._isWifi
+        // firmware 0.10 shows this as line 0 of the Lines island (ID_WIFI_NET v3); kept for 0.7/0.8
+        visible: root._isWifi && dev.wifiNetSupport !== 1
         rowMinHeight: Tokens.controlHMd + Tokens.spaceXs
 
         readonly property int support: root._isWifi ? dev.wifiRelaySupport : -1   // -1 unknown, 0 none, 1 yes
@@ -2190,6 +2225,606 @@ Column {
         DevInfoRow {
             label: qsTr("For the module")
             value: relayIsland.showCounters ? qsTr("%1 frames").arg(dev.wifiRelayLocalFrames) : ""
+        }
+    }
+
+    // ── Wi‑Fi module: radio (firmware 0.8+, ID_WIFI v7) ───────────────────
+    DevIsland {
+        id: radioIsland
+        width: root.groupWidth
+        visible: root._isWifi && dev.wifiRadioSupport !== 0
+        rowMinHeight: Tokens.controlHMd + Tokens.spaceXs
+
+        readonly property var r: root._isWifi ? dev.wifiRadio : ({})
+        readonly property bool valid: !!r && r.valid === true
+        property real selPower: 21
+        property int selProto: 7
+        property int selBw: 20
+        property int selPs: 0
+        property bool dirty: false
+
+        function sync(force) {
+            if (!valid || (dirty && !force))
+                return
+            selPower = r.powerDbm
+            selProto = r.protocols
+            selBw = r.bandwidthMhz
+            selPs = r.powerSave
+            dirty = false
+        }
+        function phyText(p) {
+            switch (p) {
+            case 0: return "LR"
+            case 1: return "802.11b"
+            case 2: return "802.11g"
+            case 4: return "802.11n HT20"
+            case 5: return "802.11n HT40"
+            }
+            return qsTr("no link")
+        }
+        onValidChanged: sync(false)
+        Component.onCompleted: sync(true)
+        Connections {
+            target: root._isWifi ? root.dev : null
+            ignoreUnknownSignals: true
+            function onWifiRadioChanged() { radioIsland.sync(false) }
+        }
+
+        DevIslandTitle { label: qsTr("Radio") }
+
+        DevStackedRow {
+            label: qsTr("Transmit power limit, dBm")
+            caption: radioIsland.valid ? qsTr("In use: %1 dBm (the driver works in steps)").arg(radioIsland.r.powerNowDbm) : ""
+            KTabBar {
+                width: parent.width
+                fontPixelSize: Tokens.fontSm
+                options: [ { label: "2", value: 2 }, { label: "8.5", value: 8.5 }, { label: "11", value: 11 },
+                           { label: "15", value: 15 }, { label: "18", value: 18 }, { label: "21", value: 21 } ]
+                currentValue: radioIsland.selPower
+                onValueSelected: function(v) { radioIsland.selPower = v; radioIsland.dirty = true }
+            }
+        }
+        DevStackedRow {
+            label: qsTr("Protocols")
+            caption: radioIsland.valid ? qsTr("Link now: %1").arg(radioIsland.phyText(radioIsland.r.phyNow))
+                                         + qsTr(". LR works only with an Espressif access point that has LR on.") : ""
+            KTabBar {
+                width: parent.width
+                fontPixelSize: Tokens.fontSm
+                options: [ { label: "b", value: 1 }, { label: "b/g", value: 3 }, { label: "b/g/n", value: 7 },
+                           { label: "LR", value: 8 }, { label: "b/g/n+LR", value: 15 } ]
+                currentValue: radioIsland.selProto
+                onValueSelected: function(v) { radioIsland.selProto = v; radioIsland.dirty = true }
+            }
+        }
+        KIslandRow {
+            label: qsTr("Channel width")
+            KTabBar {
+                width: Math.round(170 * AppPalette.scale)
+                fontPixelSize: Tokens.fontSm
+                options: [ { label: qsTr("20 MHz"), value: 20 }, { label: qsTr("40 MHz"), value: 40 } ]
+                currentValue: radioIsland.selBw
+                onValueSelected: function(v) { radioIsland.selBw = v; radioIsland.dirty = true }
+            }
+        }
+        KIslandRow {
+            label: qsTr("Power save")
+            KTabBar {
+                width: Math.round(170 * AppPalette.scale)
+                fontPixelSize: Tokens.fontSm
+                options: [ { label: qsTr("Off"), value: 0 }, { label: qsTr("Min"), value: 1 }, { label: qsTr("Max"), value: 2 } ]
+                currentValue: radioIsland.selPs
+                onValueSelected: function(v) { radioIsland.selPs = v; radioIsland.dirty = true }
+            }
+        }
+        DevStackedRow {
+            caption: qsTr("Protocol and width changes make the module reconnect: the boat link drops for a few seconds. 40 MHz needs 802.11n.")
+            Row {
+                width: parent.width
+                spacing: Tokens.spaceMd
+                readonly property real bw: (width - Tokens.spaceMd) / 2
+                ConfirmDevButton {
+                    width: parent.bw
+                    label: qsTr("Apply")
+                    enabled: radioIsland.valid
+                    onConfirmed: {
+                        dev.wifiSetRadio(radioIsland.selPower, radioIsland.selProto, radioIsland.selBw, radioIsland.selPs)
+                        radioIsland.dirty = false
+                        notifications.info(qsTr("Radio settings sent to the module"))
+                    }
+                }
+                DevButton {
+                    width: parent.bw; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
+                    text: qsTr("Read back")
+                    onClicked: { radioIsland.dirty = false; radioIsland.sync(true); dev.wifiRefresh() }
+                }
+            }
+        }
+    }
+
+    // ── Wi‑Fi module: role and access point (firmware 0.10, ID_WIFI_NET v0, v1, v5) ──
+    DevIsland {
+        id: apIsland
+        width: root.groupWidth
+        visible: root._isWifi && dev.wifiNetSupport === 1
+        rowMinHeight: Tokens.controlHMd + Tokens.spaceXs
+
+        readonly property var role: root._isWifi ? dev.wifiNetRole : ({})
+        readonly property var ap: root._isWifi ? dev.wifiNetAp : ({})
+        readonly property var clients: root._isWifi ? dev.wifiNetClients : []
+        readonly property bool roleValid: !!role && role.valid === true
+        readonly property bool apValid: !!ap && ap.valid === true
+        readonly property bool apRunning: roleValid && role.running === 1
+        readonly property bool editing: apSsidField.hasFocus || apPassField.hasFocus || apChannelField.hasFocus
+                                        || apClientsField.hasFocus
+        property int selRole: 0
+        property int selAuth: 1
+        property bool dirty: false
+
+        function roleText(r) { return r === 1 ? qsTr("access point") : qsTr("station") }
+        function sync(force) {
+            if (roleValid && (!dirty || force))
+                selRole = role.saved
+            if (!apValid || ((editing || dirty) && !force))
+                return
+            apSsidField.text = ap.ssid
+            apChannelField.text = String(ap.channel)
+            apClientsField.text = String(ap.maxClients)
+            selAuth = ap.auth
+            apHiddenSwitch.checked = ap.hidden
+            apPassField.text = ""
+            dirty = false
+        }
+        onVisibleChanged: if (visible && dev) dev.wifiNetRefreshClients()
+        Component.onCompleted: sync(true)
+        Connections {
+            target: root._isWifi ? root.dev : null
+            ignoreUnknownSignals: true
+            function onWifiNetChanged() { apIsland.sync(false) }
+        }
+
+        DevIslandTitle { label: qsTr("Role and access point") }
+
+        KIslandRow {
+            label: qsTr("Role")
+            caption: !apIsland.roleValid ? ""
+                   : apIsland.role.saved !== apIsland.role.running
+                     ? qsTr("Running: %1, after a reboot: %2").arg(apIsland.roleText(apIsland.role.running)).arg(apIsland.roleText(apIsland.role.saved))
+                     : qsTr("Running: %1").arg(apIsland.roleText(apIsland.role.running))
+            KTabBar {
+                width: Math.round(220 * AppPalette.scale)
+                fontPixelSize: Tokens.fontSm
+                options: [ { label: qsTr("Station"), value: 0 }, { label: qsTr("Access point"), value: 1 } ]
+                currentValue: apIsland.selRole
+                onValueSelected: function(v) { apIsland.selRole = v; apIsland.dirty = true }
+            }
+        }
+        DevStackedRow {
+            caption: apIsland.selRole === 1
+                     ? qsTr("As an access point the module stops joining the boat's network, so this head unit loses the boat link until the role is switched back. With a relaying line it answers at its relay address (88 by default).")
+                     : qsTr("As a station the module joins saved networks, as before.")
+            Row {
+                width: parent.width
+                spacing: Tokens.spaceMd
+                readonly property real bw: (width - Tokens.spaceMd) / 2
+                ConfirmDevButton {
+                    width: parent.bw
+                    label: qsTr("Apply and reboot")
+                    enabled: apIsland.roleValid
+                    onConfirmed: {
+                        dev.wifiNetSetRole(apIsland.selRole, true, false)
+                        apIsland.dirty = false
+                        notifications.info(qsTr("Role sent; the module restarts"))
+                    }
+                }
+                DevButton {
+                    width: parent.bw; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
+                    text: qsTr("Save for next boot")
+                    enabled: apIsland.roleValid
+                    onClicked: { dev.wifiNetSetRole(apIsland.selRole, false, false); apIsland.dirty = false }
+                }
+            }
+        }
+
+        KIslandSection { label: qsTr("Access point network") }
+        DevStackedRow {
+            label: qsTr("Network name (SSID)")
+            WifiField { id: apSsidField; width: parent.width; placeholder: "Kogger-XXXX"; onEdited: apIsland.dirty = true }
+        }
+        DevStackedRow {
+            label: qsTr("Password")
+            caption: qsTr("8–63 characters. Leave it empty to keep the current password.")
+            WifiField { id: apPassField; width: parent.width; password: true; placeholder: qsTr("unchanged"); onEdited: apIsland.dirty = true }
+        }
+        DevStackedRow {
+            label: qsTr("Security")
+            KTabBar {
+                width: parent.width
+                fontPixelSize: Tokens.fontSm
+                options: [ { label: qsTr("Open"), value: 0 }, { label: "WPA2", value: 1 }, { label: "WPA2/WPA3", value: 2 } ]
+                currentValue: apIsland.selAuth
+                onValueSelected: function(v) { apIsland.selAuth = v; apIsland.dirty = true }
+            }
+        }
+        KIslandRow {
+            label: qsTr("Channel (1–13)")
+            WifiField { id: apChannelField; width: Math.round(90 * AppPalette.scale); numeric: true; minValue: 1; maxValue: 13; onEdited: apIsland.dirty = true }
+        }
+        KIslandRow {
+            label: qsTr("Clients at most (1–10)")
+            WifiField { id: apClientsField; width: Math.round(90 * AppPalette.scale); numeric: true; minValue: 1; maxValue: 10; onEdited: apIsland.dirty = true }
+        }
+        KIslandRow {
+            label: qsTr("Hidden network")
+            KSwitch { id: apHiddenSwitch; flat: true; onToggled: apIsland.dirty = true }
+        }
+        DevStackedRow {
+            caption: apIsland.apRunning
+                     ? qsTr("The access point restarts with the new settings; its clients reconnect.")
+                     : qsTr("Stored now, used once the module runs as an access point.")
+            Row {
+                width: parent.width
+                spacing: Tokens.spaceMd
+                readonly property real bw: (width - Tokens.spaceMd) / 2
+                ConfirmDevButton {
+                    width: parent.bw
+                    label: qsTr("Apply")
+                    enabled: apIsland.apValid
+                    onConfirmed: {
+                        var ok = dev.wifiNetSetAp(parseInt(apChannelField.text, 10), apHiddenSwitch.checked,
+                                                  parseInt(apClientsField.text, 10), apIsland.selAuth,
+                                                  apSsidField.text, apPassField.text)
+                        if (!ok)
+                            notifications.warning(qsTr("Check the fields: name 1–32 bytes, password 8–63 characters (none for an open network), channel 1–13, clients 1–10"))
+                        else {
+                            apIsland.dirty = false
+                            apPassField.text = ""
+                        }
+                    }
+                }
+                DevButton {
+                    width: parent.bw; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
+                    text: qsTr("Read back")
+                    onClicked: { apIsland.dirty = false; dev.wifiNetRefresh(); apIsland.sync(true) }
+                }
+            }
+        }
+
+        KIslandSection {
+            open: apIsland.apRunning
+            label: qsTr("Clients: %1").arg(apIsland.clients.length)
+        }
+        Repeater {
+            model: apIsland.apRunning ? apIsland.clients : []
+            delegate: DevInfoRow {
+                required property var modelData
+                label: modelData.mac
+                value: modelData.ip + " · " + modelData.rssi + " " + qsTr("dBm")
+            }
+        }
+        DevStackedRow {
+            open: apIsland.apRunning
+            DevButton {
+                width: parent.width; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
+                text: qsTr("Refresh clients")
+                onClicked: dev.wifiNetRefreshClients()
+            }
+        }
+    }
+
+    // ── Wi‑Fi module: address and DHCP of the access point (ID_WIFI_NET v2) ──
+    DevIsland {
+        id: ipIsland
+        width: root.groupWidth
+        visible: root._isWifi && dev.wifiNetSupport === 1
+        rowMinHeight: Tokens.controlHMd + Tokens.spaceXs
+
+        readonly property var c: root._isWifi ? dev.wifiNetIp : ({})
+        readonly property bool valid: !!c && c.valid === true
+        readonly property bool editing: ipAddrField.hasFocus || ipMaskField.hasFocus || ipPoolStartField.hasFocus
+                                        || ipPoolEndField.hasFocus || ipLeaseField.hasFocus
+        property bool dirty: false
+
+        function sync(force) {
+            if (!valid || ((editing || dirty) && !force))
+                return
+            ipAddrField.text = c.ip
+            ipMaskField.text = c.mask
+            ipDhcpSwitch.checked = c.dhcp
+            ipPoolStartField.text = c.poolStart
+            ipPoolEndField.text = c.poolEnd
+            ipLeaseField.text = String(c.leaseMin)
+            ipGwSwitch.checked = c.offerGateway
+            ipDnsSwitch.checked = c.offerDns
+            dirty = false
+        }
+        Component.onCompleted: sync(true)
+        Connections {
+            target: root._isWifi ? root.dev : null
+            ignoreUnknownSignals: true
+            function onWifiNetChanged() { ipIsland.sync(false) }
+        }
+
+        DevIslandTitle { label: qsTr("Access point address and DHCP") }
+        DevStackedRow {
+            label: qsTr("Module address")
+            WifiField { id: ipAddrField; width: parent.width; placeholder: "10.0.0.10"; onEdited: ipIsland.dirty = true }
+        }
+        DevStackedRow {
+            label: qsTr("Mask")
+            WifiField { id: ipMaskField; width: parent.width; placeholder: "255.255.255.0"; onEdited: ipIsland.dirty = true }
+        }
+        KIslandRow {
+            label: qsTr("DHCP server")
+            KSwitch { id: ipDhcpSwitch; flat: true; onToggled: ipIsland.dirty = true }
+        }
+        DevStackedRow {
+            open: ipDhcpSwitch.checked
+            label: qsTr("Address pool")
+            caption: qsTr("Inside the subnet, without the module's own address, at most 100 addresses")
+            Row {
+                width: parent.width
+                spacing: Tokens.spaceMd
+                readonly property real fw: (width - Tokens.spaceMd) / 2
+                WifiField { id: ipPoolStartField; width: parent.fw; placeholder: "10.0.0.11"; onEdited: ipIsland.dirty = true }
+                WifiField { id: ipPoolEndField; width: parent.fw; placeholder: "10.0.0.30"; onEdited: ipIsland.dirty = true }
+            }
+        }
+        KIslandRow {
+            open: ipDhcpSwitch.checked
+            label: qsTr("Lease, minutes (1–2880)")
+            WifiField { id: ipLeaseField; width: Math.round(90 * AppPalette.scale); numeric: true; minValue: 1; maxValue: 2880; onEdited: ipIsland.dirty = true }
+        }
+        KIslandRow {
+            open: ipDhcpSwitch.checked
+            label: qsTr("Offer a gateway")
+            caption: qsTr("Off by default: the module has no internet, a phone would route all traffic to it")
+            KSwitch { id: ipGwSwitch; flat: true; onToggled: ipIsland.dirty = true }
+        }
+        KIslandRow {
+            open: ipDhcpSwitch.checked
+            label: qsTr("Offer DNS")
+            KSwitch { id: ipDnsSwitch; flat: true; onToggled: ipIsland.dirty = true }
+        }
+        DevStackedRow {
+            caption: qsTr("Used by the access point. In that role a change applies at once and every client takes a new lease.")
+            Row {
+                width: parent.width
+                spacing: Tokens.spaceMd
+                readonly property real bw: (width - Tokens.spaceMd) / 2
+                ConfirmDevButton {
+                    width: parent.bw
+                    label: qsTr("Apply")
+                    enabled: ipIsland.valid
+                    onConfirmed: {
+                        var ok = dev.wifiNetSetIp(ipAddrField.text, ipMaskField.text, ipDhcpSwitch.checked,
+                                                  ipPoolStartField.text, ipPoolEndField.text,
+                                                  parseInt(ipLeaseField.text, 10), ipGwSwitch.checked, ipDnsSwitch.checked)
+                        if (!ok)
+                            notifications.warning(qsTr("Addresses must be four numbers a.b.c.d, the lease 1–2880 minutes"))
+                        else
+                            ipIsland.dirty = false
+                    }
+                }
+                DevButton {
+                    width: parent.bw; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
+                    text: qsTr("Read back")
+                    onClicked: { ipIsland.dirty = false; dev.wifiNetRefresh(); ipIsland.sync(true) }
+                }
+            }
+        }
+    }
+
+    // ── Wi‑Fi module: UART lines and their network ports (ID_WIFI_NET v3, v4, v6) ──
+    // Line 0 is this very port (X1): frames not addressed to the module go to the network and back.
+    // Line 1 is the second connector (X2). Each maps to its own UDP port or TCP client.
+    DevIsland {
+        id: linesIsland
+        width: root.groupWidth
+        visible: root._isWifi && dev.wifiNetSupport === 1
+        rowMinHeight: Tokens.controlHMd + Tokens.spaceXs
+
+        readonly property var lines: root._isWifi ? dev.wifiNetLines : []
+        readonly property var stats: root._isWifi ? dev.wifiNetLineStats : []
+        property int sel: 0
+        readonly property var cur: lines && lines.length > sel ? lines[sel] : null
+        readonly property var curStats: stats && stats.length > sel ? stats[sel] : null
+        readonly property bool valid: !!cur && cur.valid === true
+        readonly property bool editing: lnIpField.hasFocus || lnRportField.hasFocus || lnLportField.hasFocus
+                                        || lnBaudField.hasFocus || lnTxField.hasFocus || lnRxField.hasFocus
+                                        || lnOwnField.hasFocus
+        property int selMode: 0
+        property int selDest: 1
+        property bool dirty: false
+
+        function sync(force) {
+            if (!valid || ((editing || dirty) && !force))
+                return
+            selMode = cur.mode
+            selDest = cur.dest
+            lnIpField.text = cur.ip
+            lnRportField.text = String(cur.rport)
+            lnLportField.text = String(cur.lport)
+            lnBaudField.text = String(cur.baud)
+            lnTxField.text = String(cur.txPin)
+            lnRxField.text = String(cur.rxPin)
+            if (dev.wifiNetOwnAddr >= 0)
+                lnOwnField.text = String(dev.wifiNetOwnAddr)
+            dirty = false
+        }
+        function stateText(st) {
+            switch (st) {
+            case 3: return qsTr("ready")
+            case 2: return qsTr("no peer")
+            case 1: return qsTr("no Wi‑Fi")
+            }
+            return qsTr("off")
+        }
+        onSelChanged: { dirty = false; sync(true) }
+        onValidChanged: sync(false)
+        Component.onCompleted: sync(true)
+        Connections {
+            target: root._isWifi ? root.dev : null
+            ignoreUnknownSignals: true
+            function onWifiNetChanged() { linesIsland.sync(false) }
+            function onWifiNetCommandResult(version, resp) {
+                if (resp === 1)
+                    notifications.info(qsTr("Wi‑Fi module: settings applied"))
+                else
+                    notifications.warning(qsTr("Wi‑Fi module refused the settings: %1")
+                                          .arg(resp === 3 ? qsTr("invalid values")
+                                             : resp === 7 ? qsTr("wrong key")
+                                             : resp === 8 ? qsTr("not possible now or in this role")
+                                             : qsTr("code %1").arg(resp)))
+            }
+        }
+        Timer {
+            interval: 2000
+            repeat: true
+            running: linesIsland.visible
+            triggeredOnStart: true
+            onTriggered: if (dev) dev.wifiNetRefreshStats()
+        }
+
+        DevIslandTitle { label: qsTr("Lines") }
+
+        KIslandRow {
+            label: qsTr("Line")
+            KTabBar {
+                width: Math.round(250 * AppPalette.scale)
+                fontPixelSize: Tokens.fontSm
+                options: [ { label: qsTr("0 · X1, this port"), value: 0 }, { label: qsTr("1 · X2"), value: 1 } ]
+                currentValue: linesIsland.sel
+                onValueSelected: function(v) { linesIsland.sel = v }
+            }
+        }
+        KIslandRow {
+            label: qsTr("Mode")
+            KTabBar {
+                width: Math.round(200 * AppPalette.scale)
+                fontPixelSize: Tokens.fontSm
+                options: [ { label: qsTr("Off"), value: 0 }, { label: "UDP", value: 1 }, { label: "TCP", value: 2 } ]
+                currentValue: linesIsland.selMode
+                onValueSelected: function(v) { linesIsland.selMode = v; linesIsland.dirty = true }
+            }
+        }
+        DevStackedRow {
+            open: linesIsland.selMode === 1
+            label: qsTr("Send to")
+            caption: linesIsland.selDest === 0 ? qsTr("The peer below")
+                   : linesIsland.selDest === 1 ? qsTr("Whoever sent to this port (up to 4, forgotten after 60 s of silence)")
+                                               : qsTr("Broadcast in the subnet to the peer port")
+            KTabBar {
+                width: parent.width
+                fontPixelSize: Tokens.fontSm
+                options: [ { label: qsTr("Fixed"), value: 0 }, { label: qsTr("Senders"), value: 1 }, { label: qsTr("Broadcast"), value: 2 } ]
+                currentValue: linesIsland.selDest
+                onValueSelected: function(v) { linesIsland.selDest = v; linesIsland.dirty = true }
+            }
+        }
+        DevStackedRow {
+            open: linesIsland.selMode === 2 || (linesIsland.selMode === 1 && linesIsland.selDest === 0)
+            label: qsTr("Peer IP address")
+            WifiField { id: lnIpField; width: parent.width; placeholder: "10.0.0.10"; onEdited: linesIsland.dirty = true }
+        }
+        KIslandRow {
+            open: linesIsland.selMode !== 0
+            label: qsTr("Peer port")
+            WifiField { id: lnRportField; width: Math.round(110 * AppPalette.scale); numeric: true; onEdited: linesIsland.dirty = true }
+        }
+        KIslandRow {
+            open: linesIsland.selMode === 1
+            label: qsTr("Own UDP port")
+            caption: qsTr("0 = the peer port")
+            WifiField { id: lnLportField; width: Math.round(110 * AppPalette.scale); numeric: true; onEdited: linesIsland.dirty = true }
+        }
+        KIslandRow {
+            open: linesIsland.sel === 1
+            label: qsTr("Baud rate")
+            caption: qsTr("9600–4000000; line 0 uses the device baud rate below")
+            WifiField { id: lnBaudField; width: Math.round(130 * AppPalette.scale); numeric: true; minValue: 0; maxValue: 4000000; onEdited: linesIsland.dirty = true }
+        }
+        KIslandRow {
+            open: linesIsland.sel === 1
+            label: qsTr("TX / RX pins")
+            caption: qsTr("Allowed 0, 1, 3, 4, 5, 6, 7, 10; −1 switches UART1 off; new pins start after a reboot")
+            Row {
+                spacing: Tokens.spaceSm
+                WifiField { id: lnTxField; width: Math.round(64 * AppPalette.scale); numeric: true; minValue: -1; maxValue: 21; onEdited: linesIsland.dirty = true }
+                WifiField { id: lnRxField; width: Math.round(64 * AppPalette.scale); numeric: true; minValue: -1; maxValue: 21; onEdited: linesIsland.dirty = true }
+            }
+        }
+        DevStackedRow {
+            caption: linesIsland.sel === 0
+                     ? qsTr("Line 0 is this port: switching it off ends the boat link, and the module goes back to address 0.")
+                     : ""
+            Row {
+                width: parent.width
+                spacing: Tokens.spaceMd
+                readonly property real bw: (width - Tokens.spaceMd) / 2
+                ConfirmDevButton {
+                    width: parent.bw
+                    label: qsTr("Apply")
+                    enabled: linesIsland.valid
+                    onConfirmed: {
+                        var ip = lnIpField.text.trim().length ? lnIpField.text.trim() : "0.0.0.0"
+                        var ok = dev.wifiNetSetLine(linesIsland.sel, linesIsland.selMode, linesIsland.selDest, ip,
+                                                    parseInt(lnRportField.text, 10) || 0, parseInt(lnLportField.text, 10) || 0,
+                                                    parseInt(lnBaudField.text, 10) || 0,
+                                                    isNaN(parseInt(lnTxField.text, 10)) ? -1 : parseInt(lnTxField.text, 10),
+                                                    isNaN(parseInt(lnRxField.text, 10)) ? -1 : parseInt(lnRxField.text, 10))
+                        if (!ok)
+                            notifications.warning(qsTr("Check the fields: IP a.b.c.d, ports 0–65535"))
+                        else
+                            linesIsland.dirty = false
+                    }
+                }
+                DevButton {
+                    width: parent.bw; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
+                    text: qsTr("Read back")
+                    onClicked: { linesIsland.dirty = false; dev.wifiNetRefresh(); linesIsland.sync(true) }
+                }
+            }
+        }
+
+        KIslandSection { label: qsTr("Line %1 counters").arg(linesIsland.sel) }
+        DevInfoRow {
+            label: qsTr("State")
+            value: linesIsland.curStats && linesIsland.curStats.valid
+                   ? linesIsland.stateText(linesIsland.curStats.state) + (linesIsland.curStats.state >= 2 ? " · " + linesIsland.curStats.peer : "")
+                     + (linesIsland.curStats.senders > 0 ? " · " + qsTr("senders: %1").arg(linesIsland.curStats.senders) : "")
+                   : ""
+        }
+        DevInfoRow {
+            label: qsTr("To the network")
+            value: linesIsland.curStats && linesIsland.curStats.valid
+                   ? qsTr("%1 frames · %2 packets · %3 dropped").arg(linesIsland.curStats.upFrames).arg(linesIsland.curStats.upPackets).arg(linesIsland.curStats.upDrops) : ""
+        }
+        DevInfoRow {
+            label: qsTr("From the network")
+            value: linesIsland.curStats && linesIsland.curStats.valid
+                   ? qsTr("%1 packets · %2 frames · %3 dropped").arg(linesIsland.curStats.downPackets).arg(linesIsland.curStats.downFrames).arg(linesIsland.curStats.downDrops) : ""
+        }
+        DevInfoRow {
+            label: qsTr("UART")
+            value: linesIsland.curStats && linesIsland.curStats.valid
+                   ? qsTr("%1 receive overflows · %2 transmit drops · %3 frames for the module")
+                     .arg(linesIsland.curStats.uartOverflows).arg(linesIsland.curStats.uartDrops).arg(linesIsland.curStats.localFrames) : ""
+        }
+
+        KIslandRow {
+            label: qsTr("Module address while relaying")
+            caption: qsTr("Must differ from the devices behind the lines (a sonar is usually 0). The module then reappears as a new device.")
+            Row {
+                spacing: Tokens.spaceSm
+                WifiField { id: lnOwnField; width: Math.round(64 * AppPalette.scale); numeric: true; minValue: 0; maxValue: 255 }
+                ConfirmDevButton {
+                    width: Math.round(96 * AppPalette.scale)
+                    label: qsTr("Set")
+                    enabled: lnOwnField.text.length > 0
+                    onConfirmed: dev.wifiNetSetOwnAddr(parseInt(lnOwnField.text, 10))
+                }
+            }
         }
     }
 

@@ -1210,7 +1210,7 @@ Resp IDBinWifi::parsePayload(FrameParser &proto) {
         s.security = proto.read<U1>();
         s.disconnectCode = proto.read<U1>();
         s.reason = proto.read<U1>();
-        proto.read<U1>();                       // reserved
+        s.clients = proto.read<U1>();           // AP clients (0.10); reserved before
         s.bssid = readMac(proto);
         s.ip = readAddr(proto);
         s.mask = readAddr(proto);
@@ -1285,6 +1285,22 @@ Resp IDBinWifi::parsePayload(FrameParser &proto) {
         relay_.rport = proto.read<U2>();
         relay_.lport = proto.read<U2>();
         relaySupport_ = 1;
+        return respOk;
+    }
+    if (proto.ver() == v7) {
+        if (proto.readAvailable() < 8) {
+            return respErrorPayload;
+        }
+        radio_.valid = true;
+        radio_.powerQ = proto.read<U1>();
+        radio_.protocols = proto.read<U1>();
+        radio_.bandwidth = proto.read<U1>();
+        radio_.powerSave = proto.read<U1>();
+        radio_.powerNowQ = proto.read<U1>();
+        radio_.phyNow = proto.read<U1>();
+        radio_.protocolsNow = proto.read<U1>();
+        radio_.bandwidthNow = proto.read<U1>();
+        radioSupport_ = 1;
         return respOk;
     }
     if (proto.ver() == v6) {
@@ -1412,6 +1428,17 @@ bool IDBinWifi::setRelay(uint8_t mode, uint8_t addr, const QString& ip, uint16_t
     return true;
 }
 
+void IDBinWifi::setRadio(uint8_t powerQ, uint8_t protocols, uint8_t bandwidth, uint8_t powerSave) {
+    ProtoBinOut out;
+    out.create(SETTING, v7, id(), m_address);
+    out.write<U1>(powerQ);
+    out.write<U1>(protocols);
+    out.write<U1>(bandwidth);
+    out.write<U1>(powerSave);
+    out.end();
+    hashBinFrameOut(out);
+}
+
 void IDBinWifi::setReportPeriod(uint16_t ms) {
     ProtoBinOut out;
     out.create(SETTING, v1, id(), m_address);
@@ -1423,6 +1450,8 @@ void IDBinWifi::setReportPeriod(uint16_t ms) {
 void IDBinWifi::reset() {
     status_ = Status();
     report_ = Report();
+    radio_ = Radio();
+    radioSupport_ = -1;
     relay_ = Relay();
     relayStats_ = RelayStats();
     relaySupport_ = -1;
@@ -1432,6 +1461,243 @@ void IDBinWifi::reset() {
     scanFilled_ = 0;
     savedTotal_ = -1;
     scanPending_ = false;
+}
+
+QString IDBinWifiNet::addrText(quint32 a) {
+    return QStringLiteral("%1.%2.%3.%4").arg((a >> 24) & 0xFF).arg((a >> 16) & 0xFF).arg((a >> 8) & 0xFF).arg(a & 0xFF);
+}
+
+bool IDBinWifiNet::addrValue(const QString& s, quint32* out) {
+    const QStringList parts = s.trimmed().split('.');
+    if (parts.size() != 4) {
+        return false;
+    }
+    quint32 v = 0;
+    for (const QString& p : parts) {
+        bool ok = false;
+        const int b = p.toInt(&ok);
+        if (!ok || b < 0 || b > 255) {
+            return false;
+        }
+        v = (v << 8) | quint32(b);
+    }
+    *out = v;
+    return true;
+}
+
+quint32 IDBinWifiNet::readAddr(FrameParser& proto) {
+    quint32 v = 0;
+    for (int i = 0; i < 4; ++i) {
+        v = (v << 8) | proto.read<U1>();
+    }
+    return v;
+}
+
+void IDBinWifiNet::writeAddr(ProtoBinOut& out, quint32 a) {
+    out.write<U1>(U1((a >> 24) & 0xFF));
+    out.write<U1>(U1((a >> 16) & 0xFF));
+    out.write<U1>(U1((a >> 8) & 0xFF));
+    out.write<U1>(U1(a & 0xFF));
+}
+
+Resp IDBinWifiNet::parsePayload(FrameParser &proto) {
+    switch (proto.ver()) {
+    case v0:
+        if (proto.readAvailable() < 2) return respErrorPayload;
+        role_.saved = proto.read<U1>();
+        role_.running = proto.read<U1>();
+        role_.valid = true;
+        break;
+    case v1: {
+        if (proto.readAvailable() < 6) return respErrorPayload;
+        Ap a;
+        a.channel = proto.read<U1>();
+        a.hidden = proto.read<U1>();
+        a.maxClients = proto.read<U1>();
+        a.auth = proto.read<U1>();
+        int len = proto.read<U1>();
+        len = qMin(len, int(proto.readAvailable()));
+        QByteArray raw(len, 0);
+        if (len > 0) proto.read(reinterpret_cast<uint8_t*>(raw.data()), int16_t(len));
+        a.ssid = QString::fromUtf8(raw);
+        a.valid = true;
+        ap_ = a;                                  // the trailing password length is always 0
+        break;
+    }
+    case v2:
+        if (proto.readAvailable() < 20) return respErrorPayload;
+        ipCfg_.ip = readAddr(proto);
+        ipCfg_.mask = readAddr(proto);
+        ipCfg_.dhcp = proto.read<U1>() != 0;
+        ipCfg_.poolStart = readAddr(proto);
+        ipCfg_.poolEnd = readAddr(proto);
+        ipCfg_.leaseMin = proto.read<U2>();
+        ipCfg_.offer = proto.read<U1>();
+        ipCfg_.valid = true;
+        break;
+    case v3: {
+        if (proto.readAvailable() < 18) return respErrorPayload;
+        const int i = proto.read<U1>();
+        if (i < 0 || i >= kLines) return respErrorPayload;
+        Line& l = lines_[i];
+        l.mode = proto.read<U1>();
+        l.dest = proto.read<U1>();
+        l.ip = readAddr(proto);
+        l.rport = proto.read<U2>();
+        l.lport = proto.read<U2>();
+        l.baud = proto.read<U4>();
+        l.txPin = proto.read<S1>();
+        l.rxPin = proto.read<S1>();
+        l.uart = proto.read<U1>();
+        l.valid = true;
+        break;
+    }
+    case v4: {
+        if (proto.readAvailable() < 57) return respErrorPayload;
+        const int i = proto.read<U1>();
+        if (i < 0 || i >= kLines) return respErrorPayload;
+        LineStats& st = stats_[i];
+        st.state = proto.read<U1>();
+        st.peerIp = readAddr(proto);
+        st.peerPort = proto.read<U2>();
+        st.senders = proto.read<U1>();
+        for (uint32_t& c : st.counters) c = proto.read<U4>();
+        st.valid = true;
+        break;
+    }
+    case v5: {
+        if (proto.readAvailable() < 2) return respErrorPayload;
+        const int index = proto.read<U1>();
+        const int total = proto.read<U1>();
+        if (total == 0) {
+            clients_.clear();
+            clientsTotal_ = 0;
+            break;
+        }
+        if (index >= total || proto.readAvailable() < 11) return respErrorPayload;
+        if (clientsTotal_ != total || index == 0) {
+            clientsTotal_ = total;
+            clients_.clear();
+        }
+        Client c;
+        uint8_t mac[6] = {0, 0, 0, 0, 0, 0};
+        proto.read(mac, 6);
+        c.mac = QString::fromLatin1(QByteArray(reinterpret_cast<const char*>(mac), 6).toHex(':'));
+        c.ip = readAddr(proto);
+        c.rssi = proto.read<S1>();
+        clients_.append(c);
+        break;
+    }
+    case v6:
+        if (proto.readAvailable() < 1) return respErrorPayload;
+        ownAddress_ = proto.read<U1>();
+        break;
+    default:
+        return respErrorVersion;
+    }
+    support_ = 1;
+    return respOk;
+}
+
+void IDBinWifiNet::setRole(uint8_t role, bool reboot, bool forgetLines) {
+    ProtoBinOut out;
+    out.create(SETTING, v0, id(), m_address);
+    appendKey(out);
+    out.write<U1>(role);
+    out.write<U1>(U1((reboot ? 1 : 0) | (forgetLines ? 2 : 0)));
+    out.end();
+    hashBinFrameOut(out);
+}
+
+bool IDBinWifiNet::setAp(uint8_t channel, bool hidden, uint8_t maxClients, uint8_t auth, const QString& ssid,
+                         const QString& password) {
+    const QByteArray s = ssid.toUtf8();
+    const QByteArray p = password.toUtf8();
+    if (s.isEmpty() || s.size() > 32 || channel < 1 || channel > 13 || maxClients < 1 || maxClients > 10 || auth > ApWpa2Wpa3
+        || (auth == ApOpen ? !p.isEmpty() : (!p.isEmpty() && (p.size() < 8 || p.size() > 63)))) {
+        return false;
+    }
+    ProtoBinOut out;
+    out.create(SETTING, v1, id(), m_address);
+    appendKey(out);
+    out.write<U1>(channel);
+    out.write<U1>(hidden ? 1 : 0);
+    out.write<U1>(maxClients);
+    out.write<U1>(auth);
+    out.write<U1>(U1(s.size()));
+    out.write(const_cast<char*>(s.constData()), uint16_t(s.size()));
+    out.write<U1>(U1(p.size()));
+    if (!p.isEmpty()) out.write(const_cast<char*>(p.constData()), uint16_t(p.size()));
+    out.end();
+    hashBinFrameOut(out);
+    return true;
+}
+
+bool IDBinWifiNet::setIpCfg(const QString& ip, const QString& mask, bool dhcp, const QString& poolStart,
+                            const QString& poolEnd, uint16_t leaseMin, bool offerGateway, bool offerDns) {
+    quint32 a = 0, m = 0, ps = 0, pe = 0;
+    if (!addrValue(ip, &a) || !addrValue(mask, &m) || !addrValue(poolStart, &ps) || !addrValue(poolEnd, &pe)) {
+        return false;
+    }
+    ProtoBinOut out;
+    out.create(SETTING, v2, id(), m_address);
+    appendKey(out);
+    writeAddr(out, a);
+    writeAddr(out, m);
+    out.write<U1>(dhcp ? 1 : 0);
+    writeAddr(out, ps);
+    writeAddr(out, pe);
+    out.write<U2>(leaseMin);
+    out.write<U1>(U1((offerGateway ? 1 : 0) | (offerDns ? 2 : 0)));
+    out.end();
+    hashBinFrameOut(out);
+    return true;
+}
+
+bool IDBinWifiNet::setLine(uint8_t line, uint8_t mode, uint8_t dest, const QString& ip, uint16_t rport, uint16_t lport,
+                           uint32_t baud, int8_t txPin, int8_t rxPin) {
+    quint32 a = 0;
+    if (line >= kLines || mode > LineTcp || dest > DestBroadcast || !addrValue(ip, &a)) {
+        return false;
+    }
+    ProtoBinOut out;
+    out.create(SETTING, v3, id(), m_address);
+    appendKey(out);
+    out.write<U1>(line);
+    out.write<U1>(mode);
+    out.write<U1>(dest);
+    writeAddr(out, a);
+    out.write<U2>(rport);
+    out.write<U2>(lport);
+    out.write<U4>(baud);
+    out.write<S1>(txPin);
+    out.write<S1>(rxPin);
+    out.end();
+    hashBinFrameOut(out);
+    return true;
+}
+
+void IDBinWifiNet::setOwnAddress(uint8_t addr) {
+    ProtoBinOut out;
+    out.create(SETTING, v6, id(), m_address);
+    appendKey(out);
+    out.write<U1>(addr);
+    out.end();
+    hashBinFrameOut(out);
+}
+
+void IDBinWifiNet::reset() {
+    support_ = -1;
+    role_ = RoleInfo();
+    ap_ = Ap();
+    ipCfg_ = IpCfg();
+    for (int i = 0; i < kLines; ++i) {
+        lines_[i] = Line();
+        stats_[i] = LineStats();
+    }
+    clients_.clear();
+    clientsTotal_ = -1;
+    ownAddress_ = -1;
 }
 
 Resp IDBinVersion::parsePayload(FrameParser &proto) {

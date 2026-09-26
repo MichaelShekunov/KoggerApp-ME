@@ -831,11 +831,16 @@ void GraphicsScene3dView::mouseReleaseTrigger(Qt::MouseButtons mouseButton, qrea
     // Waypoint placement: a tap is a map position and nothing else; a drag stays a camera move.
     if (mapTapEnabled_ && !wasMoved_ && mouseButton.testFlag(Qt::LeftButton)) {
         QVector3D p;
+        bool placed = false;
         if (tryProjectScreenToPlane(x, y, 0.0f, p)) {
             const GeoJsonCoord c = sceneToGeojson(p);
             if (std::isfinite(c.lat) && std::isfinite(c.lon)) {
                 emit mapTapped(c.lat, c.lon);
+                placed = true;
             }
+        }
+        if (!placed) {
+            qInfo().noquote() << QStringLiteral("scene: map tap at %1,%2 is not on the map plane").arg(x).arg(y);
         }
         switchedToBottomTrackVertexComboSelectionMode_ = false;
         wasMoved_ = false;
@@ -2767,6 +2772,7 @@ void GraphicsScene3dView::setMapTapEnabled(bool on)
         return;
     }
     mapTapEnabled_ = on;
+    qInfo().noquote() << "scene: map taps place points:" << (on ? "on" : "off");
     emit mapTapEnabledChanged();
 }
 

@@ -212,7 +212,10 @@ Item {
 
                 // Manual double-tap recognizer (touch-friendly distance via
                 // AppPalette.doubleTapDistancePx; interval = canonical 320ms).
-                if (mouse.button === Qt.LeftButton) {
+                // While the boat panel places points, quick taps are points, not a fullscreen toggle.
+                var placingPoints = root.paneKind === "3D" && root.workspaceRoot && root.workspaceRoot.scene3dViewItem
+                                    && root.workspaceRoot.scene3dViewItem.mapTapEnabled === true
+                if (mouse.button === Qt.LeftButton && !placingPoints) {
                     var now = Date.now()
                     var dx = mouse.x - pointerArea._lastPressPos.x
                     var dy = mouse.y - pointerArea._lastPressPos.y

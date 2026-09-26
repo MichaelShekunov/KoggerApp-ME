@@ -1115,9 +1115,11 @@ public:
         simpleRequest(v0);
         simpleRequest(v4);
         simpleRequest(v5);
+        simpleRequest(v7);
     }
 
-    enum State : uint8_t { StateIdle = 0, StateSearching = 1, StateConnecting = 2, StateConnected = 3 };
+    enum State : uint8_t { StateIdle = 0, StateSearching = 1, StateConnecting = 2, StateConnected = 3,
+                           StateAp = 4 /* firmware 0.10: the module is an access point */ };
     enum StatusFlag : uint8_t { FlagAutoConnect = 1 << 0, FlagScanning = 1 << 1, FlagCurrentSaved = 1 << 2 };
     enum Reason : uint8_t { ReasonNone = 0, ReasonNotFound = 1, ReasonWrongPassword = 2,
                             ReasonAssociation = 3, ReasonLinkLost = 4, ReasonOther = 5 };
@@ -1137,6 +1139,7 @@ public:
         uint8_t security = SecUnknown;
         uint8_t disconnectCode = 0;   // ESP-IDF reason code of the last disconnect
         uint8_t reason = ReasonNone;
+        uint8_t clients = 0;          // access-point clients (firmware 0.10, AP role)
         QString bssid;
         QString ip, mask, gateway, dns;
         uint32_t rxBps = 0, txBps = 0;
@@ -1172,6 +1175,17 @@ public:
         uint32_t localFrames = 0, tcpConnects = 0;
     };
 
+    /**
+     * Radio (firmware 0.8+), ID_WIFI v7: the four settings and what is in effect. Power is in 0.25 dBm
+     * steps (8..84); protocols 0x01 b, 0x03 b/g, 0x07 b/g/n, 0x08 LR, 0x0F b/g/n+LR; bandwidth 1 = 20 MHz,
+     * 2 = 40 MHz; power save 0 off, 1 min, 2 max. phyNow: 0 LR, 1 11b, 2 11g, 4 HT20, 5 HT40, 0xFF none.
+     */
+    struct Radio {
+        bool valid = false;
+        uint8_t powerQ = 84, protocols = 0x07, bandwidth = 1, powerSave = 0;
+        uint8_t powerNowQ = 0, phyNow = 0xFF, protocolsNow = 0, bandwidthNow = 0;
+    };
+
     struct Network {
         bool valid = false;           // false for an index whose frame never arrived
         int8_t rssi = 0;
@@ -1198,6 +1212,13 @@ public:
     void requestRelayStats() { simpleRequest(v6); }
     /** SETTING v5. @returns false when the address text is not four octets; nothing is sent then. */
     bool setRelay(uint8_t mode, uint8_t addr, const QString& ip, uint16_t rport, uint16_t lport);
+    const Radio& radio() const { return radio_; }
+    /** -1 not yet known, 0 the firmware refused v7 (before 0.8), 1 the module answered. */
+    int radioSupport() const { return radioSupport_; }
+    void markRadioUnsupported() { radioSupport_ = 0; }
+    void requestRadio() { simpleRequest(v7); }
+    /** SETTING v7. Protocol and width changes make the module reconnect. */
+    void setRadio(uint8_t powerQ, uint8_t protocols, uint8_t bandwidth, uint8_t powerSave);
     bool hasData() const { return status_.valid || report_.valid || !networks_.isEmpty() || !saved_.isEmpty(); }
 
     /** GETTING v2. The answer arrives as one frame per network; scanning() drops when all came. */
@@ -1226,12 +1247,125 @@ protected:
     Relay relay_;
     RelayStats relayStats_;
     int relaySupport_ = -1;
+    Radio radio_;
+    int radioSupport_ = -1;
     int scanTotal_ = -1;
     int scanFilled_ = 0;
     int savedTotal_ = -1;
     bool scanPending_ = false;
     int64_t scanStartedMs_ = 0;
     static constexpr int64_t scanTimeoutMs = 8000;
+};
+
+/**
+ * Wi-Fi module network setup (firmware 0.10+), command ID_WIFI_NET 0x58: the role (station or access
+ * point), the access point's network, its address and DHCP, the two UART lines and where each maps
+ * to on the network, their counters, the access point's clients and the module's own SBP address
+ * while a line relays. Every SETTING starts with the key 0xC96B5D4A, like ID_UART, because these
+ * settings can cut the module off; each is confirmed, then the module sends the values in force.
+ * Contract: the module project's docs/SBP_WIFI.md §3a and docs/NETWORK.md.
+ */
+class IDBinWifiNet : public IDBin
+{
+    Q_OBJECT
+public:
+    explicit IDBinWifiNet() : IDBin() {}
+
+    ID id() override { return ID_WIFI_NET; }
+    Resp parsePayload(FrameParser &proto) override;
+    void requestAll() override {
+        simpleRequest(v0);
+        simpleRequest(v1);
+        simpleRequest(v2);
+        simpleRequest(v3);            // no payload: both lines
+        simpleRequest(v6);
+    }
+
+    enum Role : uint8_t { RoleStation = 0, RoleAccessPoint = 1 };
+    enum ApAuth : uint8_t { ApOpen = 0, ApWpa2 = 1, ApWpa2Wpa3 = 2 };
+    enum LineMode : uint8_t { LineOff = 0, LineUdp = 1, LineTcp = 2 };
+    enum LineDest : uint8_t { DestFixed = 0, DestSenders = 1, DestBroadcast = 2 };
+    enum LineState : uint8_t { LineStateOff = 0, LineNoWifi = 1, LineNoPeer = 2, LineReady = 3 };
+    static constexpr int kLines = 2;
+
+    struct RoleInfo { bool valid = false; uint8_t saved = RoleStation, running = RoleStation; };
+    struct Ap {
+        bool valid = false;
+        uint8_t channel = 6, hidden = 0, maxClients = 4, auth = ApWpa2;
+        QString ssid;
+    };
+    struct IpCfg {
+        bool valid = false;
+        quint32 ip = 0, mask = 0, poolStart = 0, poolEnd = 0;
+        bool dhcp = true;
+        uint16_t leaseMin = 120;
+        uint8_t offer = 0;            // bit0 gateway, bit1 DNS
+    };
+    struct Line {
+        bool valid = false;
+        uint8_t mode = LineOff, dest = DestSenders;
+        quint32 ip = 0;
+        uint16_t rport = 0, lport = 0;
+        uint32_t baud = 0;
+        int8_t txPin = -1, rxPin = -1;
+        uint8_t uart = 0;             // 0 off, 1 running on these pins, 2 saved pins start after a reboot
+    };
+    struct LineStats {
+        bool valid = false;
+        uint8_t state = LineStateOff;
+        quint32 peerIp = 0;
+        uint16_t peerPort = 0;
+        uint8_t senders = 0;
+        // frames up, bytes up, packets up, drops up, packets down, bytes down, frames down, drops down,
+        // frames for the module, TCP connects, UART receive overflows, UART transmit drops
+        uint32_t counters[12] = {};
+    };
+    struct Client { QString mac; quint32 ip = 0; int8_t rssi = 0; };
+
+    /** -1 not yet known, 0 no answer / refused (firmware before 0.10), 1 the module answered. */
+    int support() const { return support_; }
+    void markUnsupported() { support_ = 0; }
+    const RoleInfo& role() const { return role_; }
+    const Ap& ap() const { return ap_; }
+    const IpCfg& ipCfg() const { return ipCfg_; }
+    const Line& line(int i) const { return lines_[qBound(0, i, kLines - 1)]; }
+    const LineStats& lineStats(int i) const { return stats_[qBound(0, i, kLines - 1)]; }
+    const QVector<Client>& clients() const { return clients_; }
+    int ownAddress() const { return ownAddress_; }
+
+    void requestStats() { simpleRequest(v4); }
+    void requestClients() { clientsTotal_ = -1; simpleRequest(v5); }
+
+    /** SETTING v0. The role takes effect at boot; with reboot the module restarts right after the answer. */
+    void setRole(uint8_t role, bool reboot, bool forgetLines);
+    /** SETTING v1. An empty password with security on keeps the current one. @returns false if invalid. */
+    bool setAp(uint8_t channel, bool hidden, uint8_t maxClients, uint8_t auth, const QString& ssid, const QString& password);
+    /** SETTING v2. @returns false when an address is not a.b.c.d; the module checks the rest. */
+    bool setIpCfg(const QString& ip, const QString& mask, bool dhcp, const QString& poolStart, const QString& poolEnd,
+                  uint16_t leaseMin, bool offerGateway, bool offerDns);
+    /** SETTING v3 for one line. Line 0 ignores baud and pins (ID_UART sets its rate). */
+    bool setLine(uint8_t line, uint8_t mode, uint8_t dest, const QString& ip, uint16_t rport, uint16_t lport,
+                 uint32_t baud, int8_t txPin, int8_t rxPin);
+    /** SETTING v6: the module's SBP address while a line relays; confirmed from the old address. */
+    void setOwnAddress(uint8_t addr);
+
+    static QString addrText(quint32 a);
+    static bool addrValue(const QString& s, quint32* out);
+    void reset();
+
+protected:
+    static quint32 readAddr(FrameParser& proto);
+    static void writeAddr(ProtoBinOut& out, quint32 a);
+
+    int support_ = -1;
+    RoleInfo role_;
+    Ap ap_;
+    IpCfg ipCfg_;
+    Line lines_[kLines];
+    LineStats stats_[kLines];
+    QVector<Client> clients_;
+    int clientsTotal_ = -1;
+    int ownAddress_ = -1;
 };
 
 class IDBinVersion : public IDBin

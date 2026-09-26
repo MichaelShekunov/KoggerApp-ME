@@ -136,6 +136,18 @@ public:
     Q_PROPERTY(double wifiRelayDownFrames READ wifiRelayDownFrames NOTIFY wifiRelayStatsChanged)
     Q_PROPERTY(double wifiRelayDownDrops READ wifiRelayDownDrops NOTIFY wifiRelayStatsChanged)
     Q_PROPERTY(double wifiRelayLocalFrames READ wifiRelayLocalFrames NOTIFY wifiRelayStatsChanged)
+    // Firmware 0.10: AP clients, radio and the network setup (maps / lists, see docs/WIFI_MODULE.md).
+    Q_PROPERTY(int wifiClients READ wifiClients NOTIFY wifiStatusChanged)
+    Q_PROPERTY(int wifiRadioSupport READ wifiRadioSupport NOTIFY wifiRadioChanged)
+    Q_PROPERTY(QVariantMap wifiRadio READ wifiRadio NOTIFY wifiRadioChanged)
+    Q_PROPERTY(int wifiNetSupport READ wifiNetSupport NOTIFY wifiNetChanged)
+    Q_PROPERTY(QVariantMap wifiNetRole READ wifiNetRole NOTIFY wifiNetChanged)
+    Q_PROPERTY(QVariantMap wifiNetAp READ wifiNetAp NOTIFY wifiNetChanged)
+    Q_PROPERTY(QVariantMap wifiNetIp READ wifiNetIp NOTIFY wifiNetChanged)
+    Q_PROPERTY(QVariantList wifiNetLines READ wifiNetLines NOTIFY wifiNetChanged)
+    Q_PROPERTY(int wifiNetOwnAddr READ wifiNetOwnAddr NOTIFY wifiNetChanged)
+    Q_PROPERTY(QVariantList wifiNetLineStats READ wifiNetLineStats NOTIFY wifiNetStatsChanged)
+    Q_PROPERTY(QVariantList wifiNetClients READ wifiNetClients NOTIFY wifiNetClientsChanged)
 
     Q_PROPERTY(bool isServoSupport READ getServoControlState NOTIFY servoControlChanged)
     // False until a Recorder answers the stand probe, and false again the moment it goes away.

@@ -53,6 +53,7 @@ DevDriver::DevDriver(QObject *parent)
     regID(idNet = new IDBinNet(), &DevDriver::receivedNet, true);
     regID(idUART = new IDBinUART(), &DevDriver::receivedUART, true);
     regID(idWifi = new IDBinWifi(), &DevDriver::receivedWifi);
+    regID(idWifiNet = new IDBinWifiNet(), &DevDriver::receivedWifiNet);
     regID(idVersion = new IDBinVersion(), &DevDriver::receivedVersion, true);
 
     regID(idMark = new IDBinMark(), &DevDriver::receivedMark);
@@ -182,6 +183,10 @@ QList<QTimer *> DevDriver::getChildTimers()
     if (idWifi) {
         timers.append(idWifi->getSetTimer());
         timers.append(idWifi->getColdStartTimer());
+    }
+    if (idWifiNet) {
+        timers.append(idWifiNet->getSetTimer());
+        timers.append(idWifiNet->getColdStartTimer());
     }
     if (idVersion) {
         timers.append(idVersion->getSetTimer());
@@ -781,6 +786,9 @@ void DevDriver::initChildsTimersConnects()
     if (idWifi) {
         idWifi->initTimersConnects();
     }
+    if (idWifiNet) {
+        idWifiNet->initTimersConnects();
+    }
     if (idVersion) {
         idVersion->initTimersConnects();
     }
@@ -886,6 +894,7 @@ void DevDriver::stopConnection() {
     m_devName = "...";
     standProbeSent_ = false;
     wifiProbeSent_ = false;
+    wifiNetAskedAt_ = 0;
     wifiLastState_ = -1;
     if (standSupported_) {
         standSupported_ = false;
@@ -1112,6 +1121,11 @@ void DevDriver::receivedWifi(Parsers::Type type, Parsers::Version ver, Parsers::
             emit wifiRelayChanged();
             return;
         }
+        if (ver == v7 && resp == respErrorVersion) {    // radio control came with 0.8
+            idWifi->markRadioUnsupported();
+            emit wifiRadioChanged();
+            return;
+        }
         emit wifiCommandResult(static_cast<int>(ver), static_cast<int>(resp));
         return;
     }
@@ -1145,8 +1159,74 @@ void DevDriver::receivedWifi(Parsers::Type type, Parsers::Version ver, Parsers::
     case v6:
         emit wifiRelayStatsChanged();
         break;
+    case v7: {
+        const auto& r = idWifi->radio();
+        const QString line = QStringLiteral("power %1 dBm (now %2) protocols %3 bw %4 ps %5 phy %6").arg(r.powerQ / 4.0).arg(r.powerNowQ / 4.0)
+                                 .arg(r.protocols).arg(r.bandwidth).arg(r.powerSave).arg(r.phyNow);
+        if (line != lastWifiNetLog_[7]) {
+            lastWifiNetLog_[7] = line;
+            qInfo().noquote() << "wifi-radio:" << line;
+        }
+        emit wifiRadioChanged();
+        break;
+    }
     default:
         break;
+    }
+}
+
+void DevDriver::receivedWifiNet(Parsers::Type type, Parsers::Version ver, Parsers::Resp resp) {
+    Q_UNUSED(type);
+
+    if (resp != respNone) {
+        if (resp == respErrorID) {                // the module predates 0.10
+            idWifiNet->markUnsupported();
+            emit wifiNetChanged();
+            return;
+        }
+        emit wifiNetCommandResult(static_cast<int>(ver), static_cast<int>(resp));
+        return;
+    }
+    switch (ver) {
+    case v4:
+        emit wifiNetStatsChanged();
+        break;
+    case v5:
+        emit wifiNetClientsChanged();
+        break;
+    default:
+        logWifiNet(ver);
+        emit wifiNetChanged();
+        break;
+    }
+}
+
+void DevDriver::logWifiNet(int ver) {
+    // One line per changed setting in the app log: the field record of what the module reported.
+    QString line;
+    if (ver == v0) {
+        const auto& r = idWifiNet->role();
+        line = QStringLiteral("role saved %1 running %2").arg(r.saved).arg(r.running);
+    } else if (ver == v1) {
+        const auto& a = idWifiNet->ap();
+        line = QStringLiteral("ap '%1' ch %2 auth %3 max %4 hidden %5").arg(a.ssid).arg(a.channel).arg(a.auth).arg(a.maxClients).arg(a.hidden);
+    } else if (ver == v2) {
+        const auto& c = idWifiNet->ipCfg();
+        line = QStringLiteral("ip %1/%2 dhcp %3 pool %4-%5 lease %6").arg(IDBinWifiNet::addrText(c.ip), IDBinWifiNet::addrText(c.mask))
+                   .arg(c.dhcp).arg(IDBinWifiNet::addrText(c.poolStart), IDBinWifiNet::addrText(c.poolEnd)).arg(c.leaseMin);
+    } else if (ver == v3) {
+        for (int i = 0; i < IDBinWifiNet::kLines; ++i) {
+            const auto& l = idWifiNet->line(i);
+            if (!l.valid) continue;
+            line += QStringLiteral("line%1 mode %2 dest %3 %4:%5 lport %6 baud %7 pins %8/%9 uart %10; ").arg(i).arg(l.mode).arg(l.dest)
+                        .arg(IDBinWifiNet::addrText(l.ip)).arg(l.rport).arg(l.lport).arg(l.baud).arg(l.txPin).arg(l.rxPin).arg(l.uart);
+        }
+    } else if (ver == v6) {
+        line = QStringLiteral("own address %1").arg(idWifiNet->ownAddress());
+    }
+    if (!line.isEmpty() && line != lastWifiNetLog_[ver & 7]) {
+        lastWifiNetLog_[ver & 7] = line;
+        qInfo().noquote() << "wifi-net:" << line;
     }
 }
 
@@ -1220,6 +1300,162 @@ double DevDriver::wifiRelayDownPackets() { return static_cast<double>(idWifi->re
 double DevDriver::wifiRelayDownFrames() { return static_cast<double>(idWifi->relayStats().downFrames); }
 double DevDriver::wifiRelayDownDrops() { return static_cast<double>(idWifi->relayStats().downDrops); }
 double DevDriver::wifiRelayLocalFrames() { return static_cast<double>(idWifi->relayStats().localFrames); }
+
+int DevDriver::wifiClients() { return idWifi->status().clients; }
+int DevDriver::wifiRadioSupport() { return idWifi->radioSupport(); }
+
+QVariantMap DevDriver::wifiRadio() {
+    const IDBinWifi::Radio& r = idWifi->radio();
+    QVariantMap m;
+    m["valid"] = r.valid;
+    m["powerDbm"] = r.powerQ / 4.0;
+    m["protocols"] = int(r.protocols);
+    m["bandwidthMhz"] = r.bandwidth == 2 ? 40 : 20;
+    m["powerSave"] = int(r.powerSave);
+    m["powerNowDbm"] = r.powerNowQ / 4.0;
+    m["phyNow"] = int(r.phyNow);
+    m["protocolsNow"] = int(r.protocolsNow);
+    m["bandwidthNowMhz"] = r.bandwidthNow == 2 ? 40 : 20;
+    return m;
+}
+
+int DevDriver::wifiNetSupport() { return idWifiNet->support(); }
+
+QVariantMap DevDriver::wifiNetRole() {
+    const IDBinWifiNet::RoleInfo& r = idWifiNet->role();
+    QVariantMap m;
+    m["valid"] = r.valid;
+    m["saved"] = int(r.saved);
+    m["running"] = int(r.running);
+    return m;
+}
+
+QVariantMap DevDriver::wifiNetAp() {
+    const IDBinWifiNet::Ap& a = idWifiNet->ap();
+    QVariantMap m;
+    m["valid"] = a.valid;
+    m["channel"] = int(a.channel);
+    m["hidden"] = a.hidden != 0;
+    m["maxClients"] = int(a.maxClients);
+    m["auth"] = int(a.auth);
+    m["ssid"] = a.ssid;
+    return m;
+}
+
+QVariantMap DevDriver::wifiNetIp() {
+    const IDBinWifiNet::IpCfg& c = idWifiNet->ipCfg();
+    QVariantMap m;
+    m["valid"] = c.valid;
+    m["ip"] = IDBinWifiNet::addrText(c.ip);
+    m["mask"] = IDBinWifiNet::addrText(c.mask);
+    m["dhcp"] = c.dhcp;
+    m["poolStart"] = IDBinWifiNet::addrText(c.poolStart);
+    m["poolEnd"] = IDBinWifiNet::addrText(c.poolEnd);
+    m["leaseMin"] = int(c.leaseMin);
+    m["offerGateway"] = (c.offer & 1) != 0;
+    m["offerDns"] = (c.offer & 2) != 0;
+    return m;
+}
+
+QVariantList DevDriver::wifiNetLines() {
+    QVariantList list;
+    for (int i = 0; i < IDBinWifiNet::kLines; ++i) {
+        const IDBinWifiNet::Line& l = idWifiNet->line(i);
+        QVariantMap m;
+        m["line"] = i;
+        m["valid"] = l.valid;
+        m["mode"] = int(l.mode);
+        m["dest"] = int(l.dest);
+        m["ip"] = IDBinWifiNet::addrText(l.ip);
+        m["rport"] = int(l.rport);
+        m["lport"] = int(l.lport);
+        m["baud"] = int(l.baud);
+        m["txPin"] = int(l.txPin);
+        m["rxPin"] = int(l.rxPin);
+        m["uart"] = int(l.uart);
+        list.append(m);
+    }
+    return list;
+}
+
+QVariantList DevDriver::wifiNetLineStats() {
+    static const char* names[12] = { "upFrames", "upBytes", "upPackets", "upDrops", "downPackets", "downBytes",
+                                     "downFrames", "downDrops", "localFrames", "tcpConnects", "uartOverflows",
+                                     "uartDrops" };
+    QVariantList list;
+    for (int i = 0; i < IDBinWifiNet::kLines; ++i) {
+        const IDBinWifiNet::LineStats& s = idWifiNet->lineStats(i);
+        QVariantMap m;
+        m["line"] = i;
+        m["valid"] = s.valid;
+        m["state"] = int(s.state);
+        m["peer"] = IDBinWifiNet::addrText(s.peerIp) + QStringLiteral(":") + QString::number(s.peerPort);
+        m["senders"] = int(s.senders);
+        for (int k = 0; k < 12; ++k)
+            m[names[k]] = static_cast<double>(s.counters[k]);
+        list.append(m);
+    }
+    return list;
+}
+
+QVariantList DevDriver::wifiNetClients() {
+    QVariantList list;
+    for (const IDBinWifiNet::Client& c : idWifiNet->clients()) {
+        QVariantMap m;
+        m["mac"] = c.mac;
+        m["ip"] = IDBinWifiNet::addrText(c.ip);
+        m["rssi"] = int(c.rssi);
+        list.append(m);
+    }
+    return list;
+}
+
+int DevDriver::wifiNetOwnAddr() { return idWifiNet->ownAddress(); }
+
+void DevDriver::wifiSetRadio(double powerDbm, int protocols, int bandwidthMhz, int powerSave) {
+    if (!m_state.connect) return;
+    const int q = qBound(8, int(std::lround(powerDbm * 4.0)), 84);
+    idWifi->setRadio(uint8_t(q), uint8_t(protocols), bandwidthMhz == 40 ? 2 : 1, uint8_t(qBound(0, powerSave, 2)));
+}
+
+void DevDriver::wifiNetRefresh() {
+    if (m_state.connect) idWifiNet->requestAll();
+}
+
+void DevDriver::wifiNetRefreshStats() {
+    if (m_state.connect && idWifiNet->support() == 1) idWifiNet->requestStats();
+}
+
+void DevDriver::wifiNetRefreshClients() {
+    if (m_state.connect && idWifiNet->support() == 1) idWifiNet->requestClients();
+}
+
+void DevDriver::wifiNetSetRole(int role, bool reboot, bool forgetLines) {
+    if (m_state.connect && (role == 0 || role == 1)) idWifiNet->setRole(uint8_t(role), reboot, forgetLines);
+}
+
+bool DevDriver::wifiNetSetAp(int channel, bool hidden, int maxClients, int auth, const QString& ssid, const QString& password) {
+    if (!m_state.connect || channel < 1 || channel > 13 || maxClients < 1 || maxClients > 10 || auth < 0 || auth > 2) return false;
+    return idWifiNet->setAp(uint8_t(channel), hidden, uint8_t(maxClients), uint8_t(auth), ssid, password);
+}
+
+bool DevDriver::wifiNetSetIp(const QString& ip, const QString& mask, bool dhcp, const QString& poolStart,
+                             const QString& poolEnd, int leaseMin, bool offerGateway, bool offerDns) {
+    if (!m_state.connect || leaseMin < 1 || leaseMin > 2880) return false;
+    return idWifiNet->setIpCfg(ip, mask, dhcp, poolStart, poolEnd, uint16_t(leaseMin), offerGateway, offerDns);
+}
+
+bool DevDriver::wifiNetSetLine(int line, int mode, int dest, const QString& ip, int rport, int lport, int baud,
+                               int txPin, int rxPin) {
+    if (!m_state.connect || line < 0 || line > 1 || rport < 0 || rport > 65535 || lport < 0 || lport > 65535
+        || baud < 0 || txPin < -1 || txPin > 127 || rxPin < -1 || rxPin > 127) return false;
+    return idWifiNet->setLine(uint8_t(line), uint8_t(mode), uint8_t(dest), ip, uint16_t(rport), uint16_t(lport),
+                              uint32_t(baud), int8_t(txPin), int8_t(rxPin));
+}
+
+void DevDriver::wifiNetSetOwnAddr(int addr) {
+    if (m_state.connect && addr >= 0 && addr <= 255) idWifiNet->setOwnAddress(uint8_t(addr));
+}
 
 void DevDriver::wifiRelayRefresh() {
     if (!m_state.connect || idWifi->relaySupport() == 0) return;
@@ -2336,6 +2572,13 @@ void DevDriver::process() {
                 if(isWifi() && !wifiProbeSent_) {
                     wifiProbeSent_ = true;
                     idWifi->requestAll();
+                    idWifiNet->requestAll();
+                    wifiNetAskedAt_ = curr_time;
+                }
+                // Firmware before 0.10 does not know ID_WIFI_NET and may not answer at all.
+                if(isWifi() && idWifiNet->support() < 0 && wifiNetAskedAt_ > 0 && curr_time - wifiNetAskedAt_ > 4000) {
+                    idWifiNet->markUnsupported();
+                    emit wifiNetChanged();
                 }
                 if(isWifi() && idWifi->expireScan(curr_time)) {
                     emit wifiNetworksChanged();
@@ -2374,6 +2617,13 @@ void DevDriver::process() {
             standProbeSent_ = false;
             wifiProbeSent_ = false;
             wifiLastState_ = -1;
+            wifiNetAskedAt_ = 0;
+            if(idWifiNet->support() >= 0) {
+                idWifiNet->reset();
+                emit wifiNetChanged();
+                emit wifiNetStatsChanged();
+                emit wifiNetClientsChanged();
+            }
             if(idWifi->hasData()) {
                 idWifi->reset();
                 emit wifiStatusChanged();

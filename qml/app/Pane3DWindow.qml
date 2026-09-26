@@ -4,6 +4,7 @@ import WaterFall 1.0
 import scene3d
 import scene2d
 import controls
+import kqml_types 1.0
 
 Item {
     id: root
@@ -117,7 +118,38 @@ Item {
             vehicle: typeof boat !== "undefined" ? boat : null
             visible: root.missionActive
             onCloseRequested: rightToolbar.missionOpen = false
-            onVisibleChanged: if (!visible) addMode = false
+            // Opening the panel means planning: taps go to points at once (a drag still pans).
+            onVisibleChanged: addMode = visible
+        }
+
+        // What a tap does right now, and what the H marker is: the panel alone did not say it.
+        Rectangle {
+            id: boatMissionHint
+            visible: root.missionActive
+            anchors.top: parent.top
+            anchors.topMargin: Tokens.spaceMd
+            anchors.left: boatMissionPanel.right
+            anchors.leftMargin: Tokens.spaceMd
+            anchors.right: rightToolbar.left
+            anchors.rightMargin: Tokens.spaceMd
+            height: hintText.implicitHeight + 2 * Tokens.spaceSm
+            radius: Tokens.radiusMd
+            color: boatMissionPanel.addMode ? "#D9143A5C" : "#CC1B1F24"
+            border.width: 1
+            border.color: boatMissionPanel.addMode ? AppPalette.accentBorder : "#66FFFFFF"
+            Text {
+                id: hintText
+                anchors.fill: parent
+                anchors.margins: Tokens.spaceSm
+                wrapMode: Text.WordWrap
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                color: "#FFFFFF"
+                font.pixelSize: Tokens.fontMd
+                text: boatMissionPanel.addMode
+                      ? qsTr("Tap the map to add a point · drag a numbered point to move it · H is home, where the boat returns")
+                      : qsTr("Turn on “Add points” in the panel to place points on the map")
+            }
         }
 
         // Surface-quality label: right of the dataset toolbar, left of the scale bar.

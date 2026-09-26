@@ -312,6 +312,22 @@ on SITL) and how to run the check: [BOAT_MISSION.md](BOAT_MISSION.md).
   invalidation, start, waypoint progress, HOLD, RTL home, disarm); Windows build and start clean.
   Not verified: the panel on the touchscreen, a mission on water.
 
+## Wi-Fi module firmware 0.10 in the app (2026-09-26)
+
+The module project added radio control (`ID_WIFI` v7), an access-point role and `ID_WIFI_NET` 0x58 (role,
+access point, address/DHCP, two UART lines with counters, clients, own address). The app decodes and
+edits all of it: `IDBinWifiNet` in `src/id_binnary.*`, properties `wifiRadio`, `wifiNet*` on
+`DevQProperty`, four islands on the Wi-Fi module's settings page, the Wi-Fi island aware of the AP
+state. Contract as implemented: WIFI_MODULE.md §2b. The module on the head unit was updated 0.7.0 →
+0.10.0 over its own serial link the same day (module project's `sbp_update.py --sbp-only --route 87`);
+the relay record carried over into line 0 and the boat link came back.
+
+Boat panel fixes after the owner's first try (taps on the map did nothing visible): `Pane3DWindow.qml`
+lacked `import kqml_types` (ReferenceError on Tokens/AppPalette in the panel's bindings), point
+placement is now on as soon as the panel opens, a banner on the map says what a tap does and what H is,
+the pane's double-tap fullscreen is off while points are placed, and taps and added points go to the
+app log (`scene:` / `boat:` lines).
+
 ## Feature: echogram deconvolution
 
 Sharpens the echogram along the track by undoing the beam's footprint, which
