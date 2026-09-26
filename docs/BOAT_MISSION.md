@@ -7,7 +7,7 @@ its MAVLink frames; on the head unit that is the serial link of the Wi-Fi module
 boat's stream (see WIFI_MODULE.md).
 
 Status 2026-09-26: implemented on branch `myedition`. Verified by machine with `tools/mission_check`:
-36/36 (11 readiness and health rules on made-up reports, 25 steps against ArduPilot SITL, ArduRover
+37/37 (12 readiness and health rules on made-up reports, 25 steps against ArduPilot SITL, ArduRover
 4.4.0, the same commit as the boat's autopilot). On the head unit the owner placed and dragged points
 and uploaded a mission to the boat. The first start on the boat was refused by the autopilot (its
 EKF had no position, see "ArduPilot facts"); a mission on water is not yet verified.

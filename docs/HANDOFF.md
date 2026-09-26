@@ -355,7 +355,9 @@ without an EKF position; the app had only looked at the GPS fix. Now:
 On the boat this showed at once: GPS 3D with 27–30 satellites, EKF flags 0 and variances 0, AHRS/EKF
 unhealthy, EK3_SRC1_YAW = 3 (GPS yaw with compass fallback). With a one-antenna GPS that yaw source
 never aligns (BOAT_MISSION.md, "ArduPilot facts"); the fix is on the boat (EK3_SRC1_YAW = 1 and a
-calibrated compass), the owner decides. `tools/mission_check` 36/36; details in BOAT_MISSION.md.
+calibrated compass), the owner decides. The report alternates between two EKF lanes on the boat
+(0x0000 / 0x0400): one reason for both, and a new reason within the same state is logged at most once a
+minute. `tools/mission_check` 37/37; details in BOAT_MISSION.md.
 
 ## Feature: echogram deconvolution
 
