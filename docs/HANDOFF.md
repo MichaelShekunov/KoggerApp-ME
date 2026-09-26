@@ -353,11 +353,13 @@ without an EKF position; the app had only looked at the GPS fix. Now:
 - the autopilot's own sensor health (SYS_STATUS) and its navigation settings go to the log and the
   panel, because the boat's ARMING_CHECK = 0 silences every "PreArm" reason.
 On the boat this showed at once: GPS 3D with 27–30 satellites, EKF flags 0 and variances 0, AHRS/EKF
-unhealthy, EK3_SRC1_YAW = 3 (GPS yaw with compass fallback). With a one-antenna GPS that yaw source
-never aligns (BOAT_MISSION.md, "ArduPilot facts"); the fix is on the boat (EK3_SRC1_YAW = 1 and a
-calibrated compass), the owner decides. The report alternates between two EKF lanes on the boat
-(0x0000 / 0x0400): one reason for both, and a new reason within the same state is logged at most once a
-minute. `tools/mission_check` 37/37; details in BOAT_MISSION.md.
+unhealthy, EK3_SRC1_YAW = 3 (GPS yaw with compass fallback: the first yaw alignment needs a GPS heading).
+The boat has a two-antenna u-blox moving baseline (GPS_TYPE 17/18, antennas 0.52 m apart; a first guess of
+a one-antenna GPS was wrong), and the app now reads the GPS heading itself (yaw fields of GPS_RAW_INT /
+GPS2_RAW) and the GPS settings: the rover sits in RTK float, and ArduPilot takes the heading only from an
+RTK fixed solution. So the fix is at the boat (sky view, antennas, interference), not in the app. The EKF
+report alternates between two lanes (0x0000 / 0x0400): one reason for both, and a new reason within the
+same state is logged at most once a minute. `tools/mission_check` 41/41; details in BOAT_MISSION.md.
 
 ## Feature: echogram deconvolution
 

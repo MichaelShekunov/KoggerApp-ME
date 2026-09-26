@@ -7,10 +7,11 @@ its MAVLink frames; on the head unit that is the serial link of the Wi-Fi module
 boat's stream (see WIFI_MODULE.md).
 
 Status 2026-09-26: implemented on branch `myedition`. Verified by machine with `tools/mission_check`:
-37/37 (12 readiness and health rules on made-up reports, 25 steps against ArduPilot SITL, ArduRover
+41/41 (15 readiness, heading and health rules on made-up reports, 26 steps against ArduPilot SITL, ArduRover
 4.4.0, the same commit as the boat's autopilot). On the head unit the owner placed and dragged points
 and uploaded a mission to the boat. The first start on the boat was refused by the autopilot (its
-EKF had no position, see "ArduPilot facts"); a mission on water is not yet verified.
+EKF had no position: its two-antenna GPS never gave a heading, see "ArduPilot facts"); a mission on
+water is not yet verified.
 
 ## What the app does
 
@@ -29,7 +30,12 @@ EKF had no position, see "ArduPilot facts"); a mission on water is not yet verif
     STATUSTEXT, AUTOPILOT_VERSION, EKF_STATUS_REPORT (asked for with REQUEST_MESSAGE every 2 s when
     the autopilot does not stream it), PARAM_VALUE for a fixed list of settings read once
     (AHRS_EKF_TYPE, EK3_ENABLE, EK3_SRC1_POSXY/VELXY/YAW, EK3_GPS_CHECK, COMPASS_ENABLE/USE,
-    ARMING_CHECK, FS_EKF_ACTION, FS_EKF_THRESH), logged in one line.
+    ARMING_CHECK, FS_EKF_ACTION, FS_EKF_THRESH; GPS_TYPE/TYPE2, GPS_AUTO_SWITCH, GPS_PRIMARY,
+    GPS_AUTO_CONFIG, GPS_DRV_OPTIONS, GPS_POS1/2_*, GPS_MB1/2_TYPE and _OFS_*), six requests a second,
+    logged one line per group; GPS2_RAW.
+  - GPS heading (`gpsHeadingState`, `gpsHeadingText`, panel line "GPS heading: ..."): from the yaw
+    field of GPS_RAW_INT and GPS2_RAW — not configured / configured but none now / degrees — with the
+    second receiver's fix (RTK float or fixed). With EK3_SRC1_YAW 2 or 3 the EKF has no yaw without it.
   - Navigation readiness (`navState`, `navText`, panel line "Navigation: ..."): from
     EKF_STATUS_REPORT, the way Rover 4.4 judges it once armed — a horizontal position (absolute or
     relative) outside constant-position mode, and no EKF failsafe (velocity variance, or position and
@@ -93,6 +99,15 @@ EKF had no position, see "ArduPilot facts"); a mission on water is not yet verif
   one-antenna GPS the yaw never aligns, the EKF never uses GPS, and it reports flags 0.
 - ARMING_CHECK = 0 skips every pre-arm check (`AP_Arming_Rover::pre_arm_checks` returns at once), so
   the autopilot never reports "PreArm: ..." reasons; SYS_STATUS health still comes.
+- GPS heading over MAVLink (`AP_GPS::gps_yaw_cdeg`): the yaw field of GPS_RAW_INT / GPS2_RAW is 0 when
+  that GPS is not configured for yaw, 65535 when it is but has none, else centidegrees (36000 = north).
+- u-blox moving baseline (GPS_TYPE 17 base / 18 rover, `AP_GPS_UBLOX.cpp`): the heading comes from the
+  rover's RELPOSNED only with an RTK fixed carrier solution (carrSolnFixed; float is rejected on
+  purpose), then `calculate_moving_base_yaw` checks the antenna offsets: at least 5 cm, and the measured
+  baseline not more than 20 % shorter than the configured one (GPS_POS1/2_* with GPS_MBn_TYPE 0).
+- The boat (2026-09-26): GPS_TYPE 17/18, GPS_POS1_X −0.52, rover in RTK float with 28 satellites and
+  yaw 65535 for minutes on end — so no heading, no EKF yaw, no navigation. Not an app matter: sky view,
+  antennas, cables or interference at the boat.
 
 ## How to run the SITL check
 
