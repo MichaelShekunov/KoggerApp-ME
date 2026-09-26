@@ -341,6 +341,22 @@ Second round (owner: "the menu at the top covers the icons"):
 - `MavVehicle` logs the first mode and arm state it sees (`boat: Mode HOLD, disarmed`), so the log tells
   whether the boat is armed before the head unit is restarted.
 
+## Boat start: navigation readiness, failed-start disarm, autopilot diagnostics (2026-09-26)
+
+The owner's first start on the boat: the app armed it, DO_SET_MODE AUTO came back FAILED ("Flight
+mode change failed"), and the boat stayed armed in HOLD. Rover 4.4 refuses a position mode once armed
+without an EKF position; the app had only looked at the GPS fix. Now:
+- the MAVLink library uses ArduPilot's dialect (`third_party/mavlink/ardupilotmega` and what it
+  includes, same c_library_v2 commit) for EKF_STATUS_REPORT;
+- `MavVehicle` judges navigation readiness from it like Rover does (`navState`, `navText`, panel line),
+  refuses to start without it, and disarms again after a start it armed fails;
+- the autopilot's own sensor health (SYS_STATUS) and its navigation settings go to the log and the
+  panel, because the boat's ARMING_CHECK = 0 silences every "PreArm" reason.
+On the boat this showed at once: GPS 3D with 27–30 satellites, EKF flags 0 and variances 0, AHRS/EKF
+unhealthy, EK3_SRC1_YAW = 3 (GPS yaw with compass fallback). With a one-antenna GPS that yaw source
+never aligns (BOAT_MISSION.md, "ArduPilot facts"); the fix is on the boat (EK3_SRC1_YAW = 1 and a
+calibrated compass), the owner decides. `tools/mission_check` 36/36; details in BOAT_MISSION.md.
+
 ## Feature: echogram deconvolution
 
 Sharpens the echogram along the track by undoing the beam's footprint, which

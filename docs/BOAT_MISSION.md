@@ -6,9 +6,11 @@ mission is started, held, sent home or stopped. The autopilot is reached over wh
 its MAVLink frames; on the head unit that is the serial link of the Wi-Fi module, which relays the
 boat's stream (see WIFI_MODULE.md).
 
-Status 2026-09-26: implemented on branch `myedition`. Verified by machine against ArduPilot SITL
-(ArduRover 4.4.0, the same commit as the boat's autopilot) with `tools/mission_check`: 17/17.
-Not yet verified: the panel and the map layer on the head unit's touchscreen, a mission on water.
+Status 2026-09-26: implemented on branch `myedition`. Verified by machine with `tools/mission_check`:
+36/36 (11 readiness and health rules on made-up reports, 25 steps against ArduPilot SITL, ArduRover
+4.4.0, the same commit as the boat's autopilot). On the head unit the owner placed and dragged points
+and uploaded a mission to the boat. The first start on the boat was refused by the autopilot (its
+EKF had no position, see "ArduPilot facts"); a mission on water is not yet verified.
 
 ## What the app does
 
@@ -22,8 +24,18 @@ Not yet verified: the panel and the map layer on the head unit's touchscreen, a 
     HOME_POSITION, reads the stored mission back and compares it with the plan. Streams are only
     requested when the vehicle sends no position of its own within 5 s (SITL): a real autopilot
     streams at its SRx_ rates and a request would overwrite them.
-  - Telemetry: HEARTBEAT (armed, mode), GLOBAL_POSITION_INT, GPS_RAW_INT, SYS_STATUS, HOME_POSITION,
-    MISSION_CURRENT, MISSION_ITEM_REACHED, NAV_CONTROLLER_OUTPUT, STATUSTEXT, AUTOPILOT_VERSION.
+  - Telemetry: HEARTBEAT (armed, mode), GLOBAL_POSITION_INT, GPS_RAW_INT, SYS_STATUS (battery and
+    sensor health), HOME_POSITION, MISSION_CURRENT, MISSION_ITEM_REACHED, NAV_CONTROLLER_OUTPUT,
+    STATUSTEXT, AUTOPILOT_VERSION, EKF_STATUS_REPORT (asked for with REQUEST_MESSAGE every 2 s when
+    the autopilot does not stream it), PARAM_VALUE for a fixed list of settings read once
+    (AHRS_EKF_TYPE, EK3_ENABLE, EK3_SRC1_POSXY/VELXY/YAW, EK3_GPS_CHECK, COMPASS_ENABLE/USE,
+    ARMING_CHECK, FS_EKF_ACTION, FS_EKF_THRESH), logged in one line.
+  - Navigation readiness (`navState`, `navText`, panel line "Navigation: ..."): from
+    EKF_STATUS_REPORT, the way Rover 4.4 judges it once armed — a horizontal position (absolute or
+    relative) outside constant-position mode, and no EKF failsafe (velocity variance, or position and
+    compass variances together, at FS_EKF_THRESH). Changes go to the log with the flags, variances and
+    GPS. `healthText` (panel line "Autopilot: not healthy: ...") lists the sensors the autopilot has
+    and uses but reports unhealthy in SYS_STATUS.
   - Plan: list of points, speed (0 = the boat's WP_SPEED), return home at the end; stored in
     QSettings `boatMission/*`.
   - Mission built as: item 0 home slot, optional DO_CHANGE_SPEED, one NAV_WAYPOINT per point
@@ -34,7 +46,9 @@ Not yet verified: the panel and the map layer on the head unit's touchscreen, a 
     any edit of the plan clears it.
   - Commands as sequences with retries (4 × 1.5 s) and COMMAND_ACK checking: start (MISSION_SET_CURRENT
     1, arm if needed, DO_SET_MODE AUTO), HOLD, RTL, arm, disarm. HOLD, RTL and disarm interrupt a
-    running sequence. Start is refused without link, points, a verified upload, a 3D fix or a home.
+    running sequence. Start is refused without link, points, a verified upload, a 3D fix, a ready
+    navigation or a home. A start that armed the boat and then fails (AUTO refused, no answer) disarms
+    it again ("Disarm after the failed start"); HOLD, RTL or disarm pressed meanwhile cancel that.
 - `src/scene3d/scene3d_view.*` — `geoToScreen(lat, lon)`, `screenToGeo(x, y)`, signal
   `cameraChanged()` (emitted at the top of `onCameraMoved()`), property `mapTapEnabled` and signal
   `mapTapped(lat, lon)`: while enabled, a left tap without a drag is a map position and nothing else.
@@ -62,6 +76,23 @@ Not yet verified: the panel and the map layer on the head unit's touchscreen, a 
   radio check runs more often (source of Rover 4.4 and of master, 2026-09-26; SITL run). Once an
   RC failsafe has triggered, a later GCS loss does not act at all. A mission that must come back on
   its own therefore ends with NAV_RETURN_TO_LAUNCH (the panel's default).
+- Mode changes while armed (Rover `Mode::enter`): a mode that needs a position (AUTO, RTL, GUIDED,
+  ...) is refused ("Flight mode change failed") unless `ekf_position_ok()` — armed: horizontal
+  position absolute or relative, not constant-position mode — and no EKF failsafe. Disarmed, every
+  mode is accepted. `ekf_check` (armed only, 10 Hz) raises the EKF failsafe ("EKF variance") after
+  1 s of `ekf_over_threshold()`: velocity variance ≥ FS_EKF_THRESH counts twice, position and compass
+  once each, two or more trips it, and so does the lack of a position.
+- EKF_STATUS_REPORT comes from the configured EKF (AHRS_EKF_TYPE); nothing at all is sent for DCM.
+  EKF3 sets every flag only when the filter is healthy and aligned (`filterHealthy` = healthy, tilt
+  aligned, yaw aligned when a compass is in use), so flags 0 without UNINITIALIZED means an EKF that
+  was once healthy and now is not, or is not aligned. The variances are the square roots of the
+  innovation test ratios: all 0 means nothing is being fused.
+- EK3_SRC1_YAW = 3 ("GPS with compass fallback", `AP_NavEKF3_MagFusion.cpp`): the first yaw
+  alignment comes from GPS yaw only (a moving-baseline, two-antenna GPS); the compass fallback needs
+  GPS yaw to have worked before (`learnMagBiasFromGPS`) and the vehicle to be moving. With a
+  one-antenna GPS the yaw never aligns, the EKF never uses GPS, and it reports flags 0.
+- ARMING_CHECK = 0 skips every pre-arm check (`AP_Arming_Rover::pre_arm_checks` returns at once), so
+  the autopilot never reports "PreArm: ..." reasons; SYS_STATUS health still comes.
 
 ## How to run the SITL check
 
