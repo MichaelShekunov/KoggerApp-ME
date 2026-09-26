@@ -324,9 +324,22 @@ the relay record carried over into line 0 and the boat link came back.
 
 Boat panel fixes after the owner's first try (taps on the map did nothing visible): `Pane3DWindow.qml`
 lacked `import kqml_types` (ReferenceError on Tokens/AppPalette in the panel's bindings), point
-placement is now on as soon as the panel opens, a banner on the map says what a tap does and what H is,
-the pane's double-tap fullscreen is off while points are placed, and taps and added points go to the
-app log (`scene:` / `boat:` lines).
+placement is now on as soon as the panel opens, the pane's double-tap fullscreen is off while points
+are placed, and taps and added points go to the app log (`scene:` / `boat:` lines).
+
+Second round (owner: "the menu at the top covers the icons"):
+- The app's quick-actions bar (`HotActionsPanel` in `MainWindow.qml`, z above the panes) covered the
+  panel's header. `WorkspaceView.hotActionsItem` now carries the bar; `Pane3DWindow.hotActionsInset`
+  measures how far it reaches into the pane's top-left corner and the panel starts below it. The map
+  banner from the first round is gone; the hint ("tap the map to add a point, drag a numbered point to
+  move it, H is home") sits in the panel under "Add points".
+- The waypoint markers never worked: the layer's root id was `layer`, and inside the Repeater delegate
+  `layer` resolves to the delegate's own `Item.layer` (the scope object is searched before the outer
+  component's ids). Markers had zero size at 0,0 and every plan change logged TypeErrors; the route line
+  was fine. The id is `missionLayer` now. `qmllint` catches this class of bug (`Member "_pts" not found on
+  type "QQuickItemLayer"`): run it with `-I <build>/qml` on changed QML before a deploy.
+- `MavVehicle` logs the first mode and arm state it sees (`boat: Mode HOLD, disarmed`), so the log tells
+  whether the boat is armed before the head unit is restarted.
 
 ## Feature: echogram deconvolution
 
