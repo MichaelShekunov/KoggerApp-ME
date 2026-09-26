@@ -8,7 +8,9 @@ import kqml_types 1.0
 // view.cameraChanged, on plan / telemetry changes and by a slow timer that covers camera
 // animations. Only the markers take input; the rest lets touches through to the scene.
 Item {
-    id: layer
+    id: missionLayer
+    // Not "layer": every Item has a layer property, and inside the waypoint delegate that property
+    // is found before this id.
 
     property var view: null          // GraphicsScene3dView
     property var vehicle: null       // MavVehicle (context property "boat")
@@ -28,23 +30,23 @@ Item {
     property point _dragPos: Qt.point(0, 0)
 
     Connections {
-        target: layer.view
+        target: missionLayer.view
         ignoreUnknownSignals: true
-        function onCameraChanged() { layer.refresh() }
+        function onCameraChanged() { missionLayer.refresh() }
     }
     Connections {
-        target: layer.vehicle
+        target: missionLayer.vehicle
         ignoreUnknownSignals: true
-        function onPlanChanged() { layer.refresh() }
-        function onPositionChanged() { layer.refresh() }
-        function onHomeChanged() { layer.refresh() }
-        function onMissionStateChanged() { layer.refresh() }
+        function onPlanChanged() { missionLayer.refresh() }
+        function onPositionChanged() { missionLayer.refresh() }
+        function onHomeChanged() { missionLayer.refresh() }
+        function onMissionStateChanged() { missionLayer.refresh() }
     }
     Timer {
         interval: 250
         repeat: true
-        running: layer.visible
-        onTriggered: layer.refresh()
+        running: missionLayer.visible
+        onTriggered: missionLayer.refresh()
     }
     onWidthChanged: refresh()
     onHeightChanged: refresh()
@@ -91,22 +93,22 @@ Item {
     Shape {
         anchors.fill: parent
         preferredRendererType: Shape.CurveRenderer
-        visible: layer._pts.length >= 2
+        visible: missionLayer._pts.length >= 2
         ShapePath {
             strokeColor: "#E6FFFFFF"
-            strokeWidth: Math.max(4, Math.round(5 * layer._s))
+            strokeWidth: Math.max(4, Math.round(5 * missionLayer._s))
             fillColor: "transparent"
             capStyle: ShapePath.RoundCap
             joinStyle: ShapePath.RoundJoin
-            PathPolyline { path: layer._polyline(layer._pts) }
+            PathPolyline { path: missionLayer._polyline(missionLayer._pts) }
         }
         ShapePath {
             strokeColor: AppPalette.accent
-            strokeWidth: Math.max(2, Math.round(3 * layer._s))
+            strokeWidth: Math.max(2, Math.round(3 * missionLayer._s))
             fillColor: "transparent"
             capStyle: ShapePath.RoundCap
             joinStyle: ShapePath.RoundJoin
-            PathPolyline { path: layer._polyline(layer._pts) }
+            PathPolyline { path: missionLayer._polyline(missionLayer._pts) }
         }
     }
 
@@ -115,12 +117,12 @@ Item {
         id: legShape
         anchors.fill: parent
         preferredRendererType: Shape.CurveRenderer
-        readonly property var from: layer._boat
-        readonly property var to: layer._pts.length > 0 ? layer._pts[Math.max(0, layer._target)] : null
+        readonly property var from: missionLayer._boat
+        readonly property var to: missionLayer._pts.length > 0 ? missionLayer._pts[Math.max(0, missionLayer._target)] : null
         visible: from.ok && to !== null && to.ok
         ShapePath {
-            strokeColor: layer._running ? AppPalette.accent : AppPalette.textSecond
-            strokeWidth: Math.max(2, Math.round(2 * layer._s))
+            strokeColor: missionLayer._running ? AppPalette.accent : AppPalette.textSecond
+            strokeWidth: Math.max(2, Math.round(2 * missionLayer._s))
             strokeStyle: ShapePath.DashLine
             dashPattern: [3, 3]
             fillColor: "transparent"
@@ -136,12 +138,12 @@ Item {
         id: returnShape
         anchors.fill: parent
         preferredRendererType: Shape.CurveRenderer
-        readonly property var from: layer._pts.length > 0 ? layer._pts[layer._pts.length - 1] : null
-        readonly property var to: layer._home
-        visible: !!layer.vehicle && layer.vehicle.planReturnHome && from !== null && from.ok && to.ok
+        readonly property var from: missionLayer._pts.length > 0 ? missionLayer._pts[missionLayer._pts.length - 1] : null
+        readonly property var to: missionLayer._home
+        visible: !!missionLayer.vehicle && missionLayer.vehicle.planReturnHome && from !== null && from.ok && to.ok
         ShapePath {
             strokeColor: AppPalette.textSecond
-            strokeWidth: Math.max(2, Math.round(2 * layer._s))
+            strokeWidth: Math.max(2, Math.round(2 * missionLayer._s))
             strokeStyle: ShapePath.DashLine
             dashPattern: [1, 3]
             fillColor: "transparent"
@@ -154,14 +156,14 @@ Item {
 
     // home
     Rectangle {
-        visible: layer._home.ok
-        width: Math.round(24 * layer._s)
+        visible: missionLayer._home.ok
+        width: Math.round(24 * missionLayer._s)
         height: width
-        radius: Math.round(5 * layer._s)
-        x: layer._home.ok ? Math.round(layer._home.x - width / 2) : 0
-        y: layer._home.ok ? Math.round(layer._home.y - height / 2) : 0
+        radius: Math.round(5 * missionLayer._s)
+        x: missionLayer._home.ok ? Math.round(missionLayer._home.x - width / 2) : 0
+        y: missionLayer._home.ok ? Math.round(missionLayer._home.y - height / 2) : 0
         color: "#CC1B1F24"
-        border.width: Math.max(1, Math.round(2 * layer._s))
+        border.width: Math.max(1, Math.round(2 * missionLayer._s))
         border.color: "#FFFFFF"
         Text {
             anchors.centerIn: parent
@@ -174,28 +176,28 @@ Item {
 
     // waypoints
     Repeater {
-        model: layer._pts.length
+        model: missionLayer._pts.length
         delegate: Item {
             id: wp
             required property int index
-            readonly property var pt: index < layer._pts.length ? layer._pts[index] : null
-            readonly property bool isTarget: layer._running && index === layer._target
-            readonly property bool isSelected: index === layer.selectedIndex
-            readonly property bool done: layer._running && index < layer._target
+            readonly property var pt: index < missionLayer._pts.length ? missionLayer._pts[index] : null
+            readonly property bool isTarget: missionLayer._running && index === missionLayer._target
+            readonly property bool isSelected: index === missionLayer.selectedIndex
+            readonly property bool done: missionLayer._running && index < missionLayer._target
             visible: pt !== null && pt.ok
-            width: layer.hitSize
-            height: layer.hitSize
+            width: missionLayer.hitSize
+            height: missionLayer.hitSize
             x: (pt && pt.ok) ? Math.round(pt.x - width / 2) : 0
             y: (pt && pt.ok) ? Math.round(pt.y - height / 2) : 0
             z: isSelected || isTarget ? 2 : 1
 
             Rectangle {
                 anchors.centerIn: parent
-                width: wp.isSelected || wp.isTarget ? Math.round(layer.markerSize * 1.15) : layer.markerSize
+                width: wp.isSelected || wp.isTarget ? Math.round(missionLayer.markerSize * 1.15) : missionLayer.markerSize
                 height: width
                 radius: width / 2
                 color: wp.isTarget ? AppPalette.accent : (wp.done ? "#CC5B6470" : "#E61B1F24")
-                border.width: Math.max(2, Math.round((wp.isSelected ? 3 : 2) * layer._s))
+                border.width: Math.max(2, Math.round((wp.isSelected ? 3 : 2) * missionLayer._s))
                 border.color: wp.isSelected ? AppPalette.accent : "#FFFFFF"
                 Behavior on width { NumberAnimation { duration: 120 } }
                 Text {
@@ -211,7 +213,7 @@ Item {
                 id: wpMouse
                 anchors.fill: parent
                 enabled: true
-                cursorShape: layer.editable ? Qt.OpenHandCursor : Qt.PointingHandCursor
+                cursorShape: missionLayer.editable ? Qt.OpenHandCursor : Qt.PointingHandCursor
                 preventStealing: true
                 property point pressPos
                 property bool dragging: false
@@ -220,35 +222,35 @@ Item {
                     dragging = false
                 }
                 onPositionChanged: function(mouse) {
-                    if (!layer.editable)
+                    if (!missionLayer.editable)
                         return
                     var dx = mouse.x - pressPos.x, dy = mouse.y - pressPos.y
                     if (!dragging && dx * dx + dy * dy > 64)
                         dragging = true
                     if (dragging) {
-                        var p = mapToItem(layer, mouse.x, mouse.y)
-                        layer._dragIndex = wp.index
-                        layer._dragPos = p
-                        layer.refresh()
+                        var p = mapToItem(missionLayer, mouse.x, mouse.y)
+                        missionLayer._dragIndex = wp.index
+                        missionLayer._dragPos = p
+                        missionLayer.refresh()
                     }
                 }
                 onReleased: function(mouse) {
-                    if (dragging && layer.view && layer.vehicle) {
-                        var p = mapToItem(layer, mouse.x, mouse.y)
-                        var g = layer.view.screenToGeo(p.x, p.y)
+                    if (dragging && missionLayer.view && missionLayer.vehicle) {
+                        var p = mapToItem(missionLayer, mouse.x, mouse.y)
+                        var g = missionLayer.view.screenToGeo(p.x, p.y)
                         if (g.valid)
-                            layer.vehicle.movePoint(wp.index, g.lat, g.lon)
+                            missionLayer.vehicle.movePoint(wp.index, g.lat, g.lon)
                     } else {
-                        layer.pointClicked(wp.index)
+                        missionLayer.pointClicked(wp.index)
                     }
                     dragging = false
-                    layer._dragIndex = -1
-                    layer.refresh()
+                    missionLayer._dragIndex = -1
+                    missionLayer.refresh()
                 }
                 onCanceled: {
                     dragging = false
-                    layer._dragIndex = -1
-                    layer.refresh()
+                    missionLayer._dragIndex = -1
+                    missionLayer.refresh()
                 }
             }
         }

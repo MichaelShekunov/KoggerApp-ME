@@ -246,6 +246,9 @@ void MavVehicle::handleMessage(const void* p)
         const bool nowArmed = (hb.base_mode & MAV_MODE_FLAG_SAFETY_ARMED) != 0;
         const int nowMode = (hb.base_mode & MAV_MODE_FLAG_CUSTOM_MODE_ENABLED) ? int(hb.custom_mode) : -1;
         if (nowArmed != armed_ || nowMode != mode_) {
+            // The first state seen goes to the log too, so the log alone tells whether the boat is armed.
+            if (mode_ < 0 && nowMode >= 0)
+                addMessage(tr("Mode %1, %2").arg(modeNameOf(nowMode), nowArmed ? tr("armed") : tr("disarmed")));
             if (mode_ >= 0 && nowMode != mode_)
                 addMessage(tr("Mode %1").arg(modeNameOf(nowMode)));
             if (mode_ >= 0 && nowArmed != armed_)
