@@ -126,6 +126,16 @@ The module project calls this contract version 2. Everything below is in its doc
   islands Radio, Role and access point, Access point address and DHCP, Lines in `DeviceSettingsPage.qml`.
   The app log gets one `wifi-net:` / `wifi-radio:` line whenever a reported setting changes.
 
+## 2c. Port speed of the module (line 0)
+
+The module's line 0 runs at any speed from 9600 to 4 000 000 (`ID_UART` v0 `{KEY, 1, U4 baud}`, answered at the
+old speed, then it switches; kept only after `ID_FLASH` v0). The Wi-Fi module's page has a "Port speed" island
+(460k … 4M): the app sets the module, moves its own link (`linkManagerWrapper.updateBaudrateFor`, which also
+rewrites the pinned record), asks for the status until the module answers at the new speed (each check forgets
+frames from before it), and only then saves in the module; no answer within about 6 s puts the link back.
+Steps are `wifi-port:` lines in the log. The head unit runs at 2 000 000 since 2026-09-26 (the boat stream is
+~92 KB/s, a full 921600 port). The Actions island's "Set baudrate" now moves the app's link with the device too.
+
 ## 3. Where it lives in the app
 
 - `src/proto_binnary.h` — `ID_WIFI`; `src/id_binnary.h/.cpp` — `BoardWiFi = 87` and `IDBinWifi`

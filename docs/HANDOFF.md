@@ -370,6 +370,12 @@ station change of the Wi-Fi module and its restarts are `wifi:` lines, and the b
 after N s" (it never logged restores before). That showed the module on the head unit restarting every
 ~36 s with its UART at the 921600 ceiling (HeadUnit docs/UART_ESP32.md) — a module firmware matter.
 
+## Wi-Fi module port speed from the app (2026-09-26)
+
+"Port speed" island on the Wi-Fi module's page (WIFI_MODULE.md §2c): set, follow with the link, verify an
+answer at the new speed, save with ID_FLASH, or roll the link back. The Actions island's "Set baudrate" moves
+the link as well (it used to change only the device). Not yet pressed on the head unit.
+
 ## Feature: echogram deconvolution
 
 Sharpens the echogram along the track by undoing the beam's footprint, which
