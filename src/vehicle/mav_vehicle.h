@@ -304,7 +304,7 @@ private:
     int gpsFix_ = 0, gpsSats_ = -1;
     double gpsHdop_ = -1;
 
-    enum NavReason { NavReasonNoReport = 0, NavReasonReady, NavReasonUninitialised, NavReasonNoPosition, NavReasonVariance };
+    enum NavReason { NavReasonNoReport = 0, NavReasonReady, NavReasonNoPosition, NavReasonVariance };
     int ekfFlags_ = -1;              // EKF_STATUS_REPORT.flags, -1 before the first report
     float ekfVelVar_ = 0, ekfPosVar_ = 0, ekfMagVar_ = 0;
     QElapsedTimer ekfSeen_;
@@ -313,6 +313,8 @@ private:
     int navState_ = NavUnknown;
     QString navText_;
     int navLoggedReason_ = -1;
+    int navLoggedState_ = -1;
+    QElapsedTimer navLoggedAt_;
     QString healthText_;
     bool healthSeen_ = false;
     QMap<QString, double> settings_;

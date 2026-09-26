@@ -152,6 +152,15 @@ void navRules()
         check(c.name, u.navState() == c.want, u.navText());
     }
 
+    // The boat's report alternated between two lanes (0x0000 / 0x0400): one text, no new log line each time.
+    u.feed(fakeEkf(0, 0, 0, 0));
+    const QString t0 = u.navText();
+    const int n0 = u.messages().size();
+    for (int i = 0; i < 6; ++i)
+        u.feed(fakeEkf(i % 2 ? EKF_UNINITIALIZED : 0, 0, 0.05f * (i % 2), 0));
+    check("nav: alternating lanes -> same text, no extra log lines", u.navText() == t0 && u.messages().size() == n0,
+          QStringLiteral("%1 new lines").arg(u.messages().size() - n0));
+
     const uint32_t present = MAV_SYS_STATUS_SENSOR_3D_GYRO | MAV_SYS_STATUS_SENSOR_3D_ACCEL | MAV_SYS_STATUS_SENSOR_3D_MAG
                            | MAV_SYS_STATUS_SENSOR_GPS | MAV_SYS_STATUS_AHRS;
     u.feed(fakeSysStatus(present, present));

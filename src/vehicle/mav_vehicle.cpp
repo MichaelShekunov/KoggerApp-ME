@@ -33,6 +33,7 @@ constexpr int kTransferRetries = 6;
 constexpr int kMaxMessages = 40;
 constexpr int kEkfStaleMs = 5000;     // an EKF report older than this says nothing
 constexpr int kEkfPollMs = 2500;      // ask for one when none came for this long
+constexpr int kNavRelogMs = 60000;    // a new reason within the same state is logged at most this often
 
 // Read once and logged in one line: what decides whether the autopilot's EKF navigates (and whether it
 // would say why: ARMING_CHECK 0 silences its pre-arm reports).
@@ -1008,10 +1009,10 @@ void MavVehicle::updateNav()
     if (!fresh) {
         reason = NavReasonNoReport;
         text = tr("no EKF status from the boat");
-    } else if (ekfFlags_ & EKF_UNINITIALIZED) {
-        reason = NavReasonUninitialised;
-        text = tr("the EKF is not initialised");
-    } else if (!(ekfFlags_ & (EKF_POS_HORIZ_ABS | EKF_POS_HORIZ_REL)) || (ekfFlags_ & EKF_CONST_POS_MODE)) {
+    } else if ((ekfFlags_ & EKF_UNINITIALIZED) || !(ekfFlags_ & (EKF_POS_HORIZ_ABS | EKF_POS_HORIZ_REL))
+               || (ekfFlags_ & EKF_CONST_POS_MODE)) {
+        // One reason and one text for all of these: with two EKF lanes taking turns as primary the report
+        // alternates between them (seen on the boat: 0x0000 / 0x0400 every few seconds).
         reason = NavReasonNoPosition;
         text = (ekfFlags_ & EKF_CONST_POS_MODE) ? tr("no position: the EKF is not using GPS (constant position mode)")
                                                 : tr("no position estimate in the EKF");
@@ -1031,8 +1032,12 @@ void MavVehicle::updateNav()
     }
     if (reason == navLoggedReason_)
         return;
+    if (state == navLoggedState_ && navLoggedAt_.isValid() && navLoggedAt_.elapsed() < kNavRelogMs)
+        return;      // same state, another reason: not worth a line every few seconds
     const bool first = navLoggedReason_ < 0;
     navLoggedReason_ = reason;
+    navLoggedState_ = state;
+    navLoggedAt_.start();
     if (reason == NavReasonNoReport) {
         if (!first)
             addMessage(tr("Navigation: %1").arg(text));
