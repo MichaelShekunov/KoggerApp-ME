@@ -23,6 +23,9 @@ Item {
     property int active3DLeafId: -1
     onActive3DLeafIdChanged: if (store) store.active3DLeafId = active3DLeafId
     property var active3DPane: null   // current Pane3DWindow, for ESC routing
+    // The quick-actions bar floats over the workspace's top-left corner (MainWindow, z above panes).
+    // Pane overlays that sit in a top corner read it to stay out from under it.
+    property var hotActionsItem: null
     readonly property alias scene3dViewItem: scene3dView
 
     property var primaryPlotItem: null

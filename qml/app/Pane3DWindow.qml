@@ -35,6 +35,24 @@ Item {
     readonly property bool isActive3DPane: workspaceRoot !== null && workspaceRoot.active3DPane === root
     readonly property bool missionActive: isActive3DPane && rightToolbar.missionOpen
 
+    // How far the app's quick-actions bar reaches down into this pane's top-left corner (0 when it is
+    // elsewhere): the bar floats above the panes, so a panel in that corner goes below it.
+    property int _geomTick: 0
+    Timer { interval: 700; repeat: true; running: root.missionActive; onTriggered: root._geomTick++ }
+    readonly property real hotActionsInset: {
+        _geomTick; width; height; x; y
+        var hot = workspaceRoot ? workspaceRoot.hotActionsItem : null
+        if (!hot || !hot.visible || hot.width <= 0)
+            return 0
+        hot.x; hot.y; hot.width; hot.height
+        var p = hot.mapToItem(root, 0, 0)
+        var bottom = p.y + hot.height
+        var right = p.x + hot.width
+        if (bottom <= 0 || right <= 0 || p.y >= height || p.x >= Math.round(320 * AppPalette.scale))
+            return 0
+        return Math.ceil(bottom)
+    }
+
     // One view serves every 3D pane, so only the active pane with its mission panel open may turn
     // map taps into waypoints; the binding lets go (restoring false) as soon as that stops.
     Binding {
@@ -113,43 +131,15 @@ Item {
             id: boatMissionPanel
             anchors.left: parent.left
             anchors.top: parent.top
-            anchors.margins: Tokens.spaceMd
-            maxHeight: Math.max(Math.round(160 * AppPalette.scale), root.height - 2 * Tokens.spaceMd - scene3dToolbar.height - Tokens.spaceLg)
+            anchors.leftMargin: Tokens.spaceMd
+            anchors.topMargin: Tokens.spaceMd + root.hotActionsInset
+            maxHeight: Math.max(Math.round(160 * AppPalette.scale),
+                                root.height - Tokens.spaceMd * 2 - root.hotActionsInset - scene3dToolbar.height - Tokens.spaceLg)
             vehicle: typeof boat !== "undefined" ? boat : null
             visible: root.missionActive
             onCloseRequested: rightToolbar.missionOpen = false
             // Opening the panel means planning: taps go to points at once (a drag still pans).
             onVisibleChanged: addMode = visible
-        }
-
-        // What a tap does right now, and what the H marker is: the panel alone did not say it.
-        Rectangle {
-            id: boatMissionHint
-            visible: root.missionActive
-            anchors.top: parent.top
-            anchors.topMargin: Tokens.spaceMd
-            anchors.left: boatMissionPanel.right
-            anchors.leftMargin: Tokens.spaceMd
-            anchors.right: rightToolbar.left
-            anchors.rightMargin: Tokens.spaceMd
-            height: hintText.implicitHeight + 2 * Tokens.spaceSm
-            radius: Tokens.radiusMd
-            color: boatMissionPanel.addMode ? "#D9143A5C" : "#CC1B1F24"
-            border.width: 1
-            border.color: boatMissionPanel.addMode ? AppPalette.accentBorder : "#66FFFFFF"
-            Text {
-                id: hintText
-                anchors.fill: parent
-                anchors.margins: Tokens.spaceSm
-                wrapMode: Text.WordWrap
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-                color: "#FFFFFF"
-                font.pixelSize: Tokens.fontMd
-                text: boatMissionPanel.addMode
-                      ? qsTr("Tap the map to add a point · drag a numbered point to move it · H is home, where the boat returns")
-                      : qsTr("Turn on “Add points” in the panel to place points on the map")
-            }
         }
 
         // Surface-quality label: right of the dataset toolbar, left of the scale bar.

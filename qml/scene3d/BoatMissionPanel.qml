@@ -237,11 +237,21 @@ Rectangle {
 
             PanelButton {
                 width: parent.width
-                text: panel.addMode ? qsTr("Tap the map to add points") : qsTr("Add points")
+                text: panel.addMode ? qsTr("Adding points: on") : qsTr("Add points")
                 normalBg: panel.addMode ? AppPalette.accentBgStrong : AppPalette.controlRaised
                 normalBorder: panel.addMode ? AppPalette.accentBorder : AppPalette.border
                 borderWidth: panel.addMode ? 2 : Tokens.cardBorderWidth
                 onClicked: panel.addMode = !panel.addMode
+            }
+
+            Text {
+                width: parent.width
+                wrapMode: Text.WordWrap
+                color: panel.addMode ? AppPalette.accentText : AppPalette.textMuted
+                font.pixelSize: Tokens.fontSm
+                text: panel.addMode
+                      ? qsTr("Tap the map to add a point, drag a numbered point to move it. H is home, where the boat returns.")
+                      : qsTr("Turn on \"Add points\" to place points by tapping the map.")
             }
 
             Column {
@@ -331,15 +341,6 @@ Rectangle {
                         }
                     }
                 }
-            }
-
-            Text {
-                width: parent.width
-                visible: !!panel.vehicle && panel.vehicle.planCount === 0
-                wrapMode: Text.WordWrap
-                color: AppPalette.textMuted
-                font.pixelSize: Tokens.fontSm
-                text: qsTr("No points yet. Turn on \"Add points\" and tap the map; drag a point to move it.")
             }
 
             Text {
