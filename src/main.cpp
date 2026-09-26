@@ -33,6 +33,7 @@
 #include "bottom_track.h"
 #include "input_device_tracker.h"
 #include "screen_keyboard.h"
+#include "vehicle/mav_vehicle.h"
 #ifndef Q_OS_ANDROID
 #include "instance_lock.h"
 #endif
@@ -375,6 +376,9 @@ int main(int argc, char *argv[])
     LanguageController langController;
     InputDeviceTracker inputDeviceTracker;
     ScreenKeyboard screenKeyboard(&inputDeviceTracker);
+    // The boat's autopilot over MAVLink (HeadUnit docs/BOAT_MISSION.md). DeviceManager lives on this
+    // thread in the default build; the connections queue by themselves if it ever moves.
+    MavVehicle boat;
     SystemBattery systemBattery;
     core.initAfterApp();
 
@@ -417,6 +421,11 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("notifications", &notifications);
     engine.rootContext()->setContextProperty("inputDeviceTracker", &inputDeviceTracker);
     engine.rootContext()->setContextProperty("screenKeyboard", &screenKeyboard);
+    engine.rootContext()->setContextProperty("boat", &boat);
+    if (DeviceManager* dm = core.getDeviceManagerWrapperPtr()->getWorker()) {
+        QObject::connect(dm, &DeviceManager::mavlinkFrameReceived, &boat, &MavVehicle::feed);
+        QObject::connect(&boat, &MavVehicle::sendBytes, dm, &DeviceManager::sendMavlinkBytes);
+    }
     engine.rootContext()->setContextProperty("systemBattery", &systemBattery);
     engine.rootContext()->setContextProperty("langController", &langController);
     engine.rootContext()->setContextProperty("appUtils", &appUtils);

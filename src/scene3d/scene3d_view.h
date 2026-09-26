@@ -1,6 +1,8 @@
 #ifndef GRAPHICSSCENE3DVIEW_H
 #define GRAPHICSSCENE3DVIEW_H
 
+#include <QPointF>
+#include <QVariantMap>
 #include <array>
 #include <cstdint>
 #include <memory>
@@ -61,6 +63,9 @@ class GraphicsScene3dView : public QQuickFramebufferObject
     Q_PROPERTY(float verticalScale READ verticalScale NOTIFY verticalScaleChanged)
     Q_PROPERTY(int syncLoupeZoom READ syncLoupeZoom NOTIFY syncLoupeStateChanged)
     Q_PROPERTY(bool syncLoupeZoomAdjusting READ syncLoupeZoomAdjusting NOTIFY syncLoupeStateChanged)
+    // While true, a left tap (no drag) on the map is reported as mapTapped(lat, lon) and does
+    // nothing else. The boat-mission panel uses it to place waypoints.
+    Q_PROPERTY(bool mapTapEnabled READ mapTapEnabled WRITE setMapTapEnabled NOTIFY mapTapEnabledChanged)
 
 public:
     //Camera
@@ -296,6 +301,15 @@ public:
     Q_INVOKABLE void returnToBoatNow();
     Q_INVOKABLE void flyToLastPosition();
     Q_INVOKABLE void zoomButtonAnimated(qreal steps);
+    /**
+     * Screen position (item coordinates) of a geographic point on the z = 0 plane of the current view,
+     * or (NaN, NaN) when it is behind the camera. Pair it with cameraChanged() to follow the view.
+     */
+    Q_INVOKABLE QPointF geoToScreen(double lat, double lon) const;
+    /** Geographic point under a screen position on the z = 0 plane: {valid, lat, lon}. */
+    Q_INVOKABLE QVariantMap screenToGeo(qreal x, qreal y) const;
+    bool mapTapEnabled() const { return mapTapEnabled_; }
+    void setMapTapEnabled(bool on);
 
     void setTrackLastData(bool state);
     void setTextureIdByTileIndx(const map::TileIndex& tileIndx, GLuint textureId);
@@ -386,6 +400,10 @@ signals:
     void syncLoupeStateChanged();
     void verticalScaleChanged();
     void followReturnStateChanged();
+    void mapTapEnabledChanged();
+    void mapTapped(double lat, double lon);
+    /** The view moved, zoomed, turned or resized: anything projected with geoToScreen() is stale. */
+    void cameraChanged();
 
 private:
     void updateBounds();
@@ -455,6 +473,7 @@ private:
     QRect m_comboSelectionRect = { 0, 0, 0, 0 };
     Ray m_ray;
     float m_verticalScale = 1.0f;
+    bool mapTapEnabled_ = false;
     bool m_isSceneBoundingBoxVisible = true;
     Dataset* datasetPtr_ = nullptr;
     DataProcessor* dataProcessorPtr_ = nullptr;

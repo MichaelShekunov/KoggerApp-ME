@@ -37,6 +37,8 @@ public:
     int calcAverageChartLosses();
 
 public slots:
+    /** Writes MAVLink bytes into the link the autopilot was last heard on; dropped when there is none. */
+    void sendMavlinkBytes(const QByteArray& data) { emit writeMavlinkBytes(data); }
     Q_INVOKABLE bool isCreatedId(int id);
     Q_INVOKABLE StreamListModel* streamsList();
     Q_INVOKABLE void startStreamDownload(int id);
@@ -107,6 +109,10 @@ signals:
     void vruChanged();
     void writeProxyFrame(Parsers::FrameParser frame);
     void writeMavlinkFrame(Parsers::FrameParser frame);
+    // Every MAVLink frame that arrived on a live link, as raw bytes (for MavVehicle), and bytes to
+    // write into the link the autopilot talks on (connected to that Link::write).
+    void mavlinkFrameReceived(QByteArray frame);
+    void writeMavlinkBytes(QByteArray data);
     void eventComplete(int timestamp, int id, int unixt);
     void rangefinderComplete(const ChannelId& channelId, float distance);
     void positionComplete(double lat, double lon, uint32_t date, uint32_t time);

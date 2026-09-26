@@ -13,6 +13,11 @@ Item {
     property var view: null
     property var store: null
     property bool geometryOpen: false
+    // Boat mission panel of this pane (BoatMissionPanel); the button shows once an autopilot is heard
+    // or a route exists.
+    property bool missionOpen: false
+    readonly property bool missionAvailable: typeof boat !== "undefined" && boat !== null
+                                             && (boat.detected || boat.planCount > 0)
     property real buttonSize: Math.round(40 * (theme ? theme.resCoeff : 1.0))
     property bool toolbarHovered: buttonColumnHoverHandler.hovered
     property bool toolbarPressed: rulerToolButton.pressed || navArrowButton.pressed || vScaleToolButton.pressed
@@ -90,7 +95,7 @@ Item {
 
         opacity: buttonColumnFade.value
         Behavior on opacity { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
-        IdleFade { id: buttonColumnFade; hovered: buttonColumnHoverHandler.hovered || rulerControl.menuOpen || vScaleControl.menuOpen || (root.view && root.view.followReturnPending) }
+        IdleFade { id: buttonColumnFade; hovered: buttonColumnHoverHandler.hovered || rulerControl.menuOpen || vScaleControl.menuOpen || root.missionOpen || (root.view && root.view.followReturnPending) }
 
         HoverHandler {
             id: buttonColumnHoverHandler
@@ -462,6 +467,28 @@ Item {
                 borderWidth: rulerControl.hasGeometry ? 2 : 0
                 toolTipText: qsTr("Ruler")
                 onClicked: rulerControl._setOpen(true)
+            }
+        }
+
+        KCircleIconButton {
+            id: boatMissionButton
+            objectName: "boatMissionButton"
+            width: root.buttonSize
+            height: root.buttonSize
+            Layout.preferredWidth: root.buttonSize
+            Layout.preferredHeight: root.buttonSize
+            visible: root.missionAvailable || root.missionOpen
+            iconSource: "qrc:/icons/ui/speedboat.svg"
+            iconTintColor: AppPalette.text
+            fillColor: root.missionOpen ? AppPalette.accentBgStrong : AppPalette.card
+            fillHoverColor: root.missionOpen ? AppPalette.accentBgHover : AppPalette.cardHover
+            fillPressedColor: root.missionOpen ? AppPalette.accentBgPressed : AppPalette.bgDeep
+            borderColor: root.missionOpen ? AppPalette.accentBorder : AppPalette.border
+            borderWidth: root.missionOpen ? 2 : 0
+            toolTipText: qsTr("Boat mission")
+            onClicked: {
+                root.cancelRuler(); root.closePills()
+                root.missionOpen = !root.missionOpen
             }
         }
 

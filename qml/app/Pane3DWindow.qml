@@ -31,6 +31,26 @@ Item {
 
 
     readonly property var scene3dView: workspaceRoot ? workspaceRoot.scene3dViewItem : null
+    readonly property bool isActive3DPane: workspaceRoot !== null && workspaceRoot.active3DPane === root
+    readonly property bool missionActive: isActive3DPane && rightToolbar.missionOpen
+
+    // One view serves every 3D pane, so only the active pane with its mission panel open may turn
+    // map taps into waypoints; the binding lets go (restoring false) as soon as that stops.
+    Binding {
+        target: root.scene3dView
+        property: "mapTapEnabled"
+        value: boatMissionPanel.addMode
+        when: root.scene3dView !== null && root.missionActive
+        restoreMode: Binding.RestoreBindingOrValue
+    }
+    Connections {
+        target: (root.missionActive && boatMissionPanel.addMode) ? root.scene3dView : null
+        ignoreUnknownSignals: true
+        function onMapTapped(lat, lon) {
+            if (typeof boat !== "undefined" && boat)
+                boat.addPoint(lat, lon)
+        }
+    }
 
     Item {
         id: hostSurface
@@ -43,6 +63,23 @@ Item {
         anchors.fill: parent
         clip: true
         z: 1
+
+        // Boat mission route and markers: under the toolbars and the menu-closing area, above the
+        // input bridge, so a marker takes its own drag while the empty map still pans.
+        BoatMissionLayer {
+            id: boatMissionLayer
+            anchors.fill: parent
+            view: root.scene3dView
+            vehicle: typeof boat !== "undefined" ? boat : null
+            visible: root.missionActive || (root.isActive3DPane && typeof boat !== "undefined" && boat !== null
+                                            && boat.planCount > 0 && rightToolbar.missionAvailable)
+            editable: root.missionActive
+            selectedIndex: boatMissionPanel.selectedIndex
+            onPointClicked: function(index) {
+                if (root.missionActive)
+                    boatMissionPanel.selectedIndex = (boatMissionPanel.selectedIndex === index ? -1 : index)
+            }
+        }
 
         MouseArea {
             anchors.fill: parent
@@ -69,6 +106,18 @@ Item {
             view: root.scene3dView
             geo: root.scene3dView ? root.scene3dView.geoJsonController : null
             store: root.workspaceRoot ? root.workspaceRoot.store : null
+        }
+
+        BoatMissionPanel {
+            id: boatMissionPanel
+            anchors.left: parent.left
+            anchors.top: parent.top
+            anchors.margins: Tokens.spaceMd
+            maxHeight: Math.max(Math.round(160 * AppPalette.scale), root.height - 2 * Tokens.spaceMd - scene3dToolbar.height - Tokens.spaceLg)
+            vehicle: typeof boat !== "undefined" ? boat : null
+            visible: root.missionActive
+            onCloseRequested: rightToolbar.missionOpen = false
+            onVisibleChanged: if (!visible) addMode = false
         }
 
         // Surface-quality label: right of the dataset toolbar, left of the scale bar.
@@ -288,6 +337,7 @@ Item {
     }
 
     readonly property bool hasTransientUi: contextMenu3D.visible
+                                         || rightToolbar.missionOpen
                                          || (root.scene3dView !== null && root.scene3dView.ruler
                                              && (root.scene3dView.ruler.drawing || root.scene3dView.ruler.enabled))
                                          || rightToolbar.geometryOpen
@@ -312,6 +362,10 @@ Item {
         }
         if (rightToolbar.geometryOpen) {
             rightToolbar.geometryOpen = false
+            handled = true
+        }
+        if (rightToolbar.missionOpen) {
+            rightToolbar.missionOpen = false
             handled = true
         }
         return handled

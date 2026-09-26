@@ -359,9 +359,15 @@ void DeviceManager::frameInput(QUuid uuid, Link* link, Parsers::FrameParser fram
                     mavlinUuid_ = uuid;
                     if(mavlinkLink_ != nullptr) {
                         disconnect(this, &DeviceManager::writeMavlinkFrame,  mavlinkLink_, &Link::writeFrame);
+                        disconnect(this, &DeviceManager::writeMavlinkBytes,  mavlinkLink_, &Link::write);
                     }
                     mavlinkLink_ = link;
                     connect(this, &DeviceManager::writeMavlinkFrame, mavlinkLink_, &Link::writeFrame, Qt::UniqueConnection);
+                    connect(this, &DeviceManager::writeMavlinkBytes, mavlinkLink_, &Link::write, Qt::UniqueConnection);
+                }
+
+                if (link != nullptr) {   // live links only: a replayed log must not look like a boat
+                    emit mavlinkFrameReceived(QByteArray(reinterpret_cast<const char*>(frame.frame()), frame.frameLen()));
                 }
 
                 ProtoMAVLink& mavlink_frame = (ProtoMAVLink&)frame;
@@ -595,6 +601,7 @@ void DeviceManager::onLinkClosed(QUuid uuid, Link *link)
         otherProtocolStat_.remove(uuid);
         if(uuid == mavlinUuid_) {
             mavlinUuid_ = QUuid();
+            mavlinkLink_ = nullptr;   // disconnect(link) above already cut both MAVLink write paths
         }
     }
 }
@@ -609,6 +616,7 @@ void DeviceManager::onLinkDeleted(QUuid uuid, Link *link)
         otherProtocolStat_.remove(uuid);
         if(uuid == mavlinUuid_) {
             mavlinUuid_ = QUuid();
+            mavlinkLink_ = nullptr;   // the Link is going away; never touch the old pointer again
         }
     }
 }

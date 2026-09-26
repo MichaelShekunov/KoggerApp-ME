@@ -1,4 +1,5 @@
 #include "scene3d_view.h"
+#include <QVector4D>
 #include <cmath>
 #include <algorithm>
 #include <memory.h>
@@ -826,6 +827,22 @@ void GraphicsScene3dView::mouseReleaseTrigger(Qt::MouseButtons mouseButton, qrea
     clearComboSelectionRect();
 
     m_lastMousePos = { x, y };
+
+    // Waypoint placement: a tap is a map position and nothing else; a drag stays a camera move.
+    if (mapTapEnabled_ && !wasMoved_ && mouseButton.testFlag(Qt::LeftButton)) {
+        QVector3D p;
+        if (tryProjectScreenToPlane(x, y, 0.0f, p)) {
+            const GeoJsonCoord c = sceneToGeojson(p);
+            if (std::isfinite(c.lat) && std::isfinite(c.lon)) {
+                emit mapTapped(c.lat, c.lon);
+            }
+        }
+        switchedToBottomTrackVertexComboSelectionMode_ = false;
+        wasMoved_ = false;
+        wasMovedMouseButton_ = Qt::MouseButton::NoButton;
+        QQuickFramebufferObject::update();
+        return;
+    }
 
     if (geoJsonEnabled_) {
         if (mouseButton.testFlag(Qt::LeftButton)) {
@@ -2703,6 +2720,56 @@ QVector3D GraphicsScene3dView::geojsonToScene(const GeoJsonCoord& c) const
     return QVector3D(static_cast<float>(ned.n), static_cast<float>(ned.e), static_cast<float>(-ned.d));
 }
 
+QPointF GraphicsScene3dView::geoToScreen(double lat, double lon) const
+{
+    const QPointF none(qQNaN(), qQNaN());
+    if (!m_camera || width() <= 0.0 || height() <= 0.0 || !std::isfinite(lat) || !std::isfinite(lon)) {
+        return none;
+    }
+    GeoJsonCoord c;
+    c.lat = lat;
+    c.lon = lon;
+    c.z = 0.0;
+    c.hasZ = false;
+    const QVector3D world = geojsonToScene(c);
+    QMatrix4x4 liveModel;
+    liveModel.scale(1.0f, 1.0f, m_verticalScale);
+    const QVector4D clip = m_projection * (m_camera->m_view * liveModel) * QVector4D(world, 1.0f);
+    if (!(clip.w() > 1e-6f)) {
+        return none;   // behind the camera
+    }
+    const QVector3D ndc = clip.toVector3DAffine();
+    if (!std::isfinite(ndc.x()) || !std::isfinite(ndc.y())) {
+        return none;
+    }
+    return QPointF((ndc.x() * 0.5 + 0.5) * width(), (0.5 - ndc.y() * 0.5) * height());
+}
+
+QVariantMap GraphicsScene3dView::screenToGeo(qreal x, qreal y) const
+{
+    QVariantMap out;
+    QVector3D p;
+    bool valid = tryProjectScreenToPlane(x, y, 0.0f, p);
+    GeoJsonCoord c;
+    if (valid) {
+        c = sceneToGeojson(p);
+        valid = std::isfinite(c.lat) && std::isfinite(c.lon);
+    }
+    out.insert(QStringLiteral("valid"), valid);
+    out.insert(QStringLiteral("lat"), valid ? c.lat : 0.0);
+    out.insert(QStringLiteral("lon"), valid ? c.lon : 0.0);
+    return out;
+}
+
+void GraphicsScene3dView::setMapTapEnabled(bool on)
+{
+    if (on == mapTapEnabled_) {
+        return;
+    }
+    mapTapEnabled_ = on;
+    emit mapTapEnabledChanged();
+}
+
 GeoJsonCoord GraphicsScene3dView::sceneToGeojson(const QVector3D& p) const
 {
     NED ned(static_cast<double>(p.x()), static_cast<double>(p.y()), static_cast<double>(-p.z()));
@@ -3254,6 +3321,8 @@ std::tuple<float, float, float, float> GraphicsScene3dView::getFieldViewDim() co
 
 void GraphicsScene3dView::onCameraMoved()
 {    
+    emit cameraChanged();   // first, before the early returns below
+
     const bool forceSingleZoom = core.getNeedForceZooming() && forceSingleZoomEnabled_;
     int forcedZoom = forceSingleZoomValue_;
     if (forceSingleZoom) {

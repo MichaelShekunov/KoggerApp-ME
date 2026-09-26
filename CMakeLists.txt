@@ -118,6 +118,7 @@ qt_add_executable(KoggerApp
     src/notifications.h            src/notifications.cpp
     src/input_device_tracker.h     src/input_device_tracker.cpp
     src/screen_keyboard.h          src/screen_keyboard.cpp
+    src/vehicle/mav_vehicle.h      src/vehicle/mav_vehicle.cpp
     src/system_battery.h           src/system_battery.cpp
     src/xtf_conf.h
     src/location_reader.h          src/location_reader.cpp
@@ -135,6 +136,7 @@ configure_file(src/kogger_revision.h.in
 target_include_directories(KoggerApp PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR}/generated
     ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/third_party
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/freetype/include)
 
 # C++ modules (each appends target_sources + include dirs to KoggerApp)

@@ -9,6 +9,7 @@ the application and is readable from *Settings → Interface → About*.
 | [Qt](https://www.qt.io/) | 6.8.3 | dynamic | GNU LGPL v3 | [COPYING.LGPLv3](resources/licenses/COPYING.LGPLv3) | [download.qt.io](https://download.qt.io/archive/qt/6.8/6.8.3/single/) |
 | [FFmpeg](https://ffmpeg.org/) | 7.1 | dynamic | GNU LGPL v2.1 or later | [COPYING.LGPLv2.1](third_party/ffmpeg/COPYING.LGPLv2.1) | [ffmpeg-7.1.tar.xz](https://ffmpeg.org/releases/ffmpeg-7.1.tar.xz) |
 | [FreeType](https://freetype.org/) | 2.13.2 | **static** | The FreeType License (FTL) | [FTL.TXT](third_party/freetype/FTL.TXT) | [freetype-2.13.2.tar.xz](https://downloads.sourceforge.net/project/freetype/freetype2/2.13.2/freetype-2.13.2.tar.xz) |
+| [MAVLink C library](https://github.com/mavlink/c_library_v2) | c1fd65e (2026-09-24) | header-only, compiled in | MIT | [LICENSE-MIT.txt](third_party/mavlink/LICENSE-MIT.txt) | [c_library_v2](https://github.com/mavlink/c_library_v2/tree/c1fd65eb702106097a4253c259aba34a18235848) |
 
 **Qt** and **FFmpeg** are used unmodified from a stock Qt installation and can be replaced with any
 compatible build of the same version. The FFmpeg libraries are an LGPL build: the configure line
@@ -22,4 +23,4 @@ the product documentation:
 > (<https://www.freetype.org>). All rights reserved.
 
 Provenance and what exactly is vendored: [third_party/ffmpeg/README.md](third_party/ffmpeg/README.md),
-[third_party/freetype/README.md](third_party/freetype/README.md).
+[third_party/freetype/README.md](third_party/freetype/README.md), [third_party/mavlink/README.md](third_party/mavlink/README.md).

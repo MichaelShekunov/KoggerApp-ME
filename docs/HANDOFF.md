@@ -292,6 +292,26 @@ flows (owner saw the three devices; counters and UART rates by machine). Not yet
 `.ufww` upgrade path from the app (the module was updated with the module project's own updater
 over the same UART), 3 and 4 Mbaud.
 
+## Feature: boat mission (MAVLink)
+
+Added 2026-09-26 for the head unit: waypoints placed on the map in the 3D pane go to the boat's
+ArduPilot Rover autopilot as a mission, are read back and compared, and the mission is started,
+held, sent home or stopped from the same panel. Details, the ArduPilot facts it rests on (measured
+on SITL) and how to run the check: [BOAT_MISSION.md](BOAT_MISSION.md).
+
+- `src/vehicle/mav_vehicle.{h,cpp}` (`MavVehicle`, context property `boat`) owns the MAVLink side and
+  is transport-agnostic; `DeviceManager` feeds it every MAVLink frame of a live link and writes its
+  bytes back into the autopilot's link. The official MAVLink C library is vendored in
+  `third_party/mavlink` (MIT, listed on the About page).
+- The 3D view got `geoToScreen`, `screenToGeo`, `cameraChanged`, `mapTapEnabled` and `mapTapped`; the
+  route and markers are Qt Quick Shapes in `qml/scene3d/BoatMissionLayer.qml`, the panel is
+  `qml/scene3d/BoatMissionPanel.qml`, opened from the boat button of the right 3D toolbar.
+- `DeviceManager` now forgets `mavlinkLink_` when that link closes or is deleted (it used to keep the
+  pointer).
+- Verified: `tools/mission_check` against ArduRover 4.4.0 SITL, 17/17 (upload + read-back, edit
+  invalidation, start, waypoint progress, HOLD, RTL home, disarm); Windows build and start clean.
+  Not verified: the panel on the touchscreen, a mission on water.
+
 ## Feature: echogram deconvolution
 
 Sharpens the echogram along the track by undoing the beam's footprint, which

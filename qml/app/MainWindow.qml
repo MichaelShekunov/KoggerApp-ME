@@ -1550,6 +1550,24 @@ ApplicationWindow {
 
         KScreenKeyboard { }
 
+        // Boat autopilot outcomes and warnings reach the operator even with the mission panel closed.
+        Connections {
+            target: typeof boat !== "undefined" ? boat : null
+            ignoreUnknownSignals: true
+            function onCommandResult(what, ok, detail) {
+                if (typeof notifications === "undefined" || !notifications)
+                    return
+                if (ok)
+                    notifications.info(qsTr("Boat: %1 — done").arg(what))
+                else
+                    notifications.warning(qsTr("Boat: %1 — %2").arg(what).arg(detail))
+            }
+            function onVehicleWarning(text) {
+                if (typeof notifications !== "undefined" && notifications)
+                    notifications.warning(qsTr("Boat: %1").arg(text))
+            }
+        }
+
         PowerOffConfirmOverlay {
             id: powerOffOverlay
             onConfirmed: if (typeof core !== "undefined" && core) core.powerOffSystem()
