@@ -134,6 +134,9 @@ The selections show the values in effect while the module has a link: power in u
 HT20 link (2026-09-26), so it is not used for that. Captions add the saved value when it differs. After Apply
 the island waits for the link, compares, and when the module could not do what was asked (a power between
 steps, 40 MHz from an access point that gives 20) it saves what is in effect and says so (`wifi-radio:` line).
+The module does not push its radio state after a reconnect, so `DevDriver` asks for v7 at every station state
+change and the check calls `wifiRefresh` every 2 s until the link is back (first version waited and gave up).
+An unapplied selection returns to what is in effect after 30 s.
 
 ## 2c. Port speed of the module (line 0)
 
