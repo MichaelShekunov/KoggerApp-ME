@@ -225,6 +225,14 @@ Rectangle {
             }
             StatusText {
                 width: parent.width
+                visible: !!panel.vehicle && panel.vehicle.detected && panel.vehicle.healthText.length > 0
+                elide: Text.ElideNone
+                wrapMode: Text.WordWrap
+                color: AppPalette.dangerText
+                text: qsTr("Autopilot: %1").arg(panel.vehicle ? panel.vehicle.healthText : "")
+            }
+            StatusText {
+                width: parent.width
                 visible: !!panel.vehicle && panel.vehicle.detected
                 color: AppPalette.textMuted
                 font.pixelSize: Tokens.fontXs

@@ -34,6 +34,13 @@ constexpr int kMaxMessages = 40;
 constexpr int kEkfStaleMs = 5000;     // an EKF report older than this says nothing
 constexpr int kEkfPollMs = 2500;      // ask for one when none came for this long
 
+// Read once and logged in one line: what decides whether the autopilot's EKF navigates (and whether it
+// would say why: ARMING_CHECK 0 silences its pre-arm reports).
+const char* const kSettingsToRead[] = { "AHRS_EKF_TYPE", "EK3_ENABLE", "EK3_SRC1_POSXY", "EK3_SRC1_VELXY", "EK3_SRC1_YAW",
+                                        "EK3_GPS_CHECK", "COMPASS_ENABLE", "COMPASS_USE", "ARMING_CHECK", "FS_EKF_ACTION",
+                                        "FS_EKF_THRESH" };
+constexpr int kSettingsCount = int(sizeof(kSettingsToRead) / sizeof(kSettingsToRead[0]));
+
 QString gpsFixText(int fix)
 {
     switch (fix) {
@@ -236,9 +243,15 @@ void MavVehicle::onSecondTick()
         // The boat may stream EKF_STATUS_REPORT (SRx_EXTRA3); if not, it is asked for, without touching its rates.
         if ((!ekfSeen_.isValid() || ekfSeen_.elapsed() >= kEkfPollMs) && secondsSinceDetect_ % 2 == 0)
             requestMessage(MAVLINK_MSG_ID_EKF_STATUS_REPORT);
-        if (!ekfThreshKnown_ && secondsSinceDetect_ % 10 == 3)
-            requestParam("FS_EKF_THRESH");
+        if (!settingsLogged_ && (secondsSinceDetect_ == 3 || secondsSinceDetect_ == 13 || secondsSinceDetect_ == 23)) {
+            for (const char* name : kSettingsToRead) {
+                if (!settings_.contains(QLatin1String(name)))
+                    requestParam(name);
+            }
+        }
     }
+    if (!settingsLogged_ && secondsSinceDetect_ == 33 && !settings_.isEmpty())
+        logSettings();   // with whatever came; names this firmware lacks never answer
     updateNav();   // a report that stops coming turns the state to unknown
 }
 
@@ -344,14 +357,20 @@ void MavVehicle::handleMessage(const void* p)
             mavlink_msg_param_value_decode(&msg, &pv);
             char name[17] = {};
             std::memcpy(name, pv.param_id, 16);
-            if (std::strcmp(name, "FS_EKF_THRESH") == 0) {
-                const bool first = !ekfThreshKnown_;
+            const QString key = QString::fromLatin1(name);
+            bool wanted = false;
+            for (const char* n : kSettingsToRead)
+                wanted = wanted || key == QLatin1String(n);
+            if (!wanted)
+                break;
+            settings_[key] = pv.param_value;
+            if (key == QLatin1String("FS_EKF_THRESH")) {
                 ekfThresh_ = pv.param_value;
                 ekfThreshKnown_ = true;
-                if (first)
-                    addMessage(tr("FS_EKF_THRESH on the boat: %1").arg(ekfThresh_, 0, 'f', 2));
                 updateNav();
             }
+            if (!settingsLogged_ && settings_.size() == kSettingsCount)
+                logSettings();
             break;
         }
         case MAVLINK_MSG_ID_SYS_STATUS: {
@@ -360,6 +379,32 @@ void MavVehicle::handleMessage(const void* p)
             batteryVoltage_ = s.voltage_battery == UINT16_MAX ? -1.0 : s.voltage_battery / 1000.0;
             batteryRemaining_ = s.battery_remaining;
             emit batteryChanged();
+            // The autopilot's own verdict on what it has and uses; it holds whether pre-arm checks run or not.
+            struct Sensor { uint32_t bit; const char* name; };
+            static const Sensor sensors[] = {
+                { MAV_SYS_STATUS_SENSOR_3D_GYRO, QT_TR_NOOP("gyro") },
+                { MAV_SYS_STATUS_SENSOR_3D_ACCEL, QT_TR_NOOP("accelerometer") },
+                { MAV_SYS_STATUS_SENSOR_3D_MAG, QT_TR_NOOP("compass") },
+                { MAV_SYS_STATUS_SENSOR_ABSOLUTE_PRESSURE, QT_TR_NOOP("barometer") },
+                { MAV_SYS_STATUS_SENSOR_GPS, QT_TR_NOOP("GPS") },
+                { MAV_SYS_STATUS_AHRS, QT_TR_NOOP("AHRS/EKF") },
+                { MAV_SYS_STATUS_SENSOR_RC_RECEIVER, QT_TR_NOOP("RC receiver") },
+                { MAV_SYS_STATUS_SENSOR_BATTERY, QT_TR_NOOP("battery") },
+                { MAV_SYS_STATUS_PREARM_CHECK, QT_TR_NOOP("pre-arm checks") },
+            };
+            const uint32_t used = s.onboard_control_sensors_present & s.onboard_control_sensors_enabled;
+            QStringList bad;
+            for (const Sensor& x : sensors) {
+                if ((used & x.bit) && !(s.onboard_control_sensors_health & x.bit))
+                    bad << tr(x.name);
+            }
+            const QString health = bad.isEmpty() ? QString() : tr("not healthy: %1").arg(bad.join(QStringLiteral(", ")));
+            if (!healthSeen_ || health != healthText_) {
+                healthSeen_ = true;
+                healthText_ = health;
+                emit healthChanged();
+                addMessage(health.isEmpty() ? tr("Autopilot sensors: all healthy") : tr("Autopilot sensors %1").arg(health));
+            }
             break;
         }
         case MAVLINK_MSG_ID_HOME_POSITION: {
@@ -932,6 +977,23 @@ void MavVehicle::interruptSequence()
 }
 
 // ---- navigation readiness --------------------------------------------------------------------------
+
+void MavVehicle::logSettings()
+{
+    settingsLogged_ = true;
+    QStringList parts;
+    QStringList missing;
+    for (const char* n : kSettingsToRead) {
+        const QString key = QLatin1String(n);
+        if (settings_.contains(key))
+            parts << QStringLiteral("%1 %2").arg(key).arg(settings_.value(key), 0, 'g', 6);
+        else
+            missing << key;
+    }
+    addMessage(tr("Autopilot settings: %1%2").arg(parts.join(QStringLiteral(", ")),
+                                                  missing.isEmpty() ? QString()
+                                                                    : tr(" (no answer for %1)").arg(missing.join(QStringLiteral(", ")))));
+}
 
 void MavVehicle::updateNav()
 {

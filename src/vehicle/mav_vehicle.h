@@ -3,6 +3,7 @@
 #include <QByteArray>
 #include <QElapsedTimer>
 #include <QList>
+#include <QMap>
 #include <QObject>
 #include <QStringList>
 #include <QTimer>
@@ -64,6 +65,7 @@ class MavVehicle : public QObject
 
     Q_PROPERTY(int navState READ navState NOTIFY navChanged)
     Q_PROPERTY(QString navText READ navText NOTIFY navChanged)
+    Q_PROPERTY(QString healthText READ healthText NOTIFY healthChanged)
 
     Q_PROPERTY(double batteryVoltage READ batteryVoltage NOTIFY batteryChanged)
     Q_PROPERTY(int batteryRemaining READ batteryRemaining NOTIFY batteryChanged)
@@ -141,6 +143,10 @@ public:
     QString navText() const { return navText_; }
     /** For tools: FS_EKF_THRESH has been read from the autopilot (until then ArduPilot's default 0.8). */
     bool ekfThresholdKnown() const { return ekfThreshKnown_; }
+    /** Sensors the autopilot has and uses but calls unhealthy (SYS_STATUS), empty when all are fine. */
+    QString healthText() const { return healthText_; }
+    /** For tools: the navigation settings (AHRS_EKF_TYPE, EK3_*, COMPASS_*, ARMING_CHECK, FS_EKF_*) went to the log. */
+    bool settingsLogged() const { return settingsLogged_; }
 
     double batteryVoltage() const { return batteryVoltage_; }
     int batteryRemaining() const { return batteryRemaining_; }
@@ -215,6 +221,7 @@ signals:
     void positionChanged();
     void gpsChanged();
     void navChanged();
+    void healthChanged();
     void batteryChanged();
     void homeChanged();
     void missionStateChanged();
@@ -255,6 +262,7 @@ private:
     void requestParam(const char* id);
     void requestStreams();
     void updateNav();
+    void logSettings();
 
     QVector<Item> buildItems() const;
     static bool itemsMatch(const QVector<Item>& planned, const QVector<Item>& onVehicle);
@@ -305,6 +313,10 @@ private:
     int navState_ = NavUnknown;
     QString navText_;
     int navLoggedReason_ = -1;
+    QString healthText_;
+    bool healthSeen_ = false;
+    QMap<QString, double> settings_;
+    bool settingsLogged_ = false;
     double batteryVoltage_ = -1;
     int batteryRemaining_ = -1;
     bool homeValid_ = false;

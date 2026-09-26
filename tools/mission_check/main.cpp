@@ -93,6 +93,13 @@ QByteArray fakeEkf(uint16_t flags, float vel, float pos, float mag)
     return frame(m);
 }
 
+QByteArray fakeSysStatus(uint32_t present, uint32_t health)
+{
+    mavlink_message_t m;
+    mavlink_msg_sys_status_pack_chan(1, 1, kFakeChan, &m, present, present, health, 0, 12000, -1, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    return frame(m);
+}
+
 QByteArray fakeAck(uint16_t command, uint8_t result)
 {
     mavlink_message_t m;
@@ -144,6 +151,14 @@ void navRules()
         u.feed(fakeEkf(c.flags, c.vel, c.pos, c.mag));
         check(c.name, u.navState() == c.want, u.navText());
     }
+
+    const uint32_t present = MAV_SYS_STATUS_SENSOR_3D_GYRO | MAV_SYS_STATUS_SENSOR_3D_ACCEL | MAV_SYS_STATUS_SENSOR_3D_MAG
+                           | MAV_SYS_STATUS_SENSOR_GPS | MAV_SYS_STATUS_AHRS;
+    u.feed(fakeSysStatus(present, present));
+    check("health: all healthy -> empty", u.healthText().isEmpty(), u.healthText());
+    u.feed(fakeSysStatus(present, present & ~uint32_t(MAV_SYS_STATUS_SENSOR_3D_MAG | MAV_SYS_STATUS_AHRS)));
+    check("health: compass and AHRS unhealthy -> named", u.healthText().contains(QStringLiteral("compass"))
+          && u.healthText().contains(QStringLiteral("AHRS")), u.healthText());
 }
 
 } // namespace
@@ -199,6 +214,8 @@ int main(int argc, char* argv[])
     check("navigation ready (EKF status from the autopilot)", waitFor([&] { return v.navState() == MavVehicle::NavReady; }, 60000),
           v.navText());
     check("FS_EKF_THRESH read from the autopilot", waitFor([&] { return v.ekfThresholdKnown(); }, 30000));
+    check("navigation settings read and logged", waitFor([&] { return v.settingsLogged(); }, 45000)
+          && v.messages().join(QLatin1Char('\n')).contains(QStringLiteral("AHRS_EKF_TYPE")));
     // the connect-time read-back of the vehicle's mission has to finish before we transfer
     waitFor([&] { return v.transferState() != MavVehicle::TransferDownloading; }, 15000);
 
