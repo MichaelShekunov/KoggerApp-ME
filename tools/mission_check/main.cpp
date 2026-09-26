@@ -78,11 +78,19 @@ QByteArray fakeHeartbeat(bool armed, int mode)
     return frame(m);
 }
 
-QByteArray fakeGps(int fix, int sats)
+QByteArray fakeGps(int fix, int sats, uint16_t yaw = 0)
 {
     mavlink_message_t m;
     mavlink_msg_gps_raw_int_pack_chan(1, 1, kFakeChan, &m, 0, uint8_t(fix), 402000000, 445360000, 1300000, 90, 120, 0, 0,
-                                      uint8_t(sats), 0, 0, 0, 0, 0, 0);
+                                      uint8_t(sats), 0, 0, 0, 0, 0, yaw);
+    return frame(m);
+}
+
+QByteArray fakeGps2(int fix, int sats, uint16_t yaw)
+{
+    mavlink_message_t m;
+    mavlink_msg_gps2_raw_pack_chan(1, 1, kFakeChan, &m, 0, uint8_t(fix), 402000000, 445360000, 1300000, 90, 120, 0, 0,
+                                   uint8_t(sats), 0, 0, yaw, 0, 0, 0, 0, 0);
     return frame(m);
 }
 
@@ -161,6 +169,16 @@ void navRules()
     check("nav: alternating lanes -> same text, no extra log lines", u.navText() == t0 && u.messages().size() == n0,
           QStringLiteral("%1 new lines").arg(u.messages().size() - n0));
 
+    // GPS heading from the yaw fields (ArduPilot: 0 not configured, 65535 configured but none, else cdeg).
+    u.feed(fakeGps(3, 12, 0));
+    check("heading: yaw 0 -> not configured", u.gpsHeadingState() == MavVehicle::GpsHeadingNotConfigured, u.gpsHeadingText());
+    u.feed(fakeGps2(5, 20, 65535));
+    check("heading: GPS 2 yaw 65535 -> configured, none now", u.gpsHeadingState() == MavVehicle::GpsHeadingUnavailable
+          && u.gpsHeadingText().contains(QStringLiteral("GPS 2")), u.gpsHeadingText());
+    u.feed(fakeGps2(6, 20, 12345));
+    check("heading: GPS 2 yaw 12345 -> 123.5 degrees", u.gpsHeadingState() == MavVehicle::GpsHeadingOk
+          && u.gpsHeadingText().startsWith(QStringLiteral("123.5")), u.gpsHeadingText());
+
     const uint32_t present = MAV_SYS_STATUS_SENSOR_3D_GYRO | MAV_SYS_STATUS_SENSOR_3D_ACCEL | MAV_SYS_STATUS_SENSOR_3D_MAG
                            | MAV_SYS_STATUS_SENSOR_GPS | MAV_SYS_STATUS_AHRS;
     u.feed(fakeSysStatus(present, present));
@@ -224,7 +242,10 @@ int main(int argc, char* argv[])
           v.navText());
     check("FS_EKF_THRESH read from the autopilot", waitFor([&] { return v.ekfThresholdKnown(); }, 30000));
     check("navigation settings read and logged", waitFor([&] { return v.settingsLogged(); }, 45000)
-          && v.messages().join(QLatin1Char('\n')).contains(QStringLiteral("AHRS_EKF_TYPE")));
+          && v.messages().join(QLatin1Char('\n')).contains(QStringLiteral("AHRS_EKF_TYPE"))
+          && v.messages().join(QLatin1Char('\n')).contains(QStringLiteral("GPS_TYPE ")));
+    check("GPS heading state known (SITL: no heading configured)",
+          v.gpsHeadingState() == MavVehicle::GpsHeadingNotConfigured, v.gpsHeadingText());
     // the connect-time read-back of the vehicle's mission has to finish before we transfer
     waitFor([&] { return v.transferState() != MavVehicle::TransferDownloading; }, 15000);
 

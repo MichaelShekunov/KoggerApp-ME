@@ -35,12 +35,22 @@ constexpr int kEkfStaleMs = 5000;     // an EKF report older than this says noth
 constexpr int kEkfPollMs = 2500;      // ask for one when none came for this long
 constexpr int kNavRelogMs = 60000;    // a new reason within the same state is logged at most this often
 
-// Read once and logged in one line: what decides whether the autopilot's EKF navigates (and whether it
-// would say why: ARMING_CHECK 0 silences its pre-arm reports).
-const char* const kSettingsToRead[] = { "AHRS_EKF_TYPE", "EK3_ENABLE", "EK3_SRC1_POSXY", "EK3_SRC1_VELXY", "EK3_SRC1_YAW",
-                                        "EK3_GPS_CHECK", "COMPASS_ENABLE", "COMPASS_USE", "ARMING_CHECK", "FS_EKF_ACTION",
-                                        "FS_EKF_THRESH" };
+// Read once and logged one line per group: what decides whether the autopilot's EKF navigates (and whether
+// it would say why: ARMING_CHECK 0 silences its pre-arm reports), and whether it gets a GPS heading from two
+// antennas (moving baseline: receiver types, which one is used, antenna offsets; AP_GPS of Rover 4.4). The
+// GPS_MBn_OFS_* only exist while GPS_MBn_TYPE is 1, so "no answer" for them is normal otherwise.
+struct Setting { const char* name; int group; };
+const Setting kSettingsToRead[] = {
+    { "AHRS_EKF_TYPE", 0 }, { "EK3_ENABLE", 0 }, { "EK3_SRC1_POSXY", 0 }, { "EK3_SRC1_VELXY", 0 }, { "EK3_SRC1_YAW", 0 },
+    { "EK3_GPS_CHECK", 0 }, { "COMPASS_ENABLE", 0 }, { "COMPASS_USE", 0 }, { "ARMING_CHECK", 0 }, { "FS_EKF_ACTION", 0 },
+    { "FS_EKF_THRESH", 0 },
+    { "GPS_TYPE", 1 }, { "GPS_TYPE2", 1 }, { "GPS_AUTO_SWITCH", 1 }, { "GPS_PRIMARY", 1 }, { "GPS_AUTO_CONFIG", 1 },
+    { "GPS_DRV_OPTIONS", 1 }, { "GPS_POS1_X", 1 }, { "GPS_POS1_Y", 1 }, { "GPS_POS1_Z", 1 }, { "GPS_POS2_X", 1 },
+    { "GPS_POS2_Y", 1 }, { "GPS_POS2_Z", 1 }, { "GPS_MB1_TYPE", 1 }, { "GPS_MB1_OFS_X", 1 }, { "GPS_MB1_OFS_Y", 1 },
+    { "GPS_MB1_OFS_Z", 1 }, { "GPS_MB2_TYPE", 1 }, { "GPS_MB2_OFS_X", 1 }, { "GPS_MB2_OFS_Y", 1 }, { "GPS_MB2_OFS_Z", 1 },
+};
 constexpr int kSettingsCount = int(sizeof(kSettingsToRead) / sizeof(kSettingsToRead[0]));
+constexpr int kSettingsPerTick = 6;   // the autopilot queues parameter requests; a burst of 30 would overflow it
 
 QString gpsFixText(int fix)
 {
@@ -244,10 +254,17 @@ void MavVehicle::onSecondTick()
         // The boat may stream EKF_STATUS_REPORT (SRx_EXTRA3); if not, it is asked for, without touching its rates.
         if ((!ekfSeen_.isValid() || ekfSeen_.elapsed() >= kEkfPollMs) && secondsSinceDetect_ % 2 == 0)
             requestMessage(MAVLINK_MSG_ID_EKF_STATUS_REPORT);
-        if (!settingsLogged_ && (secondsSinceDetect_ == 3 || secondsSinceDetect_ == 13 || secondsSinceDetect_ == 23)) {
-            for (const char* name : kSettingsToRead) {
-                if (!settings_.contains(QLatin1String(name)))
-                    requestParam(name);
+        const int s = secondsSinceDetect_;
+        const bool window = (s >= 3 && s < 9) || (s >= 13 && s < 19) || (s >= 23 && s < 29);
+        if (!settingsLogged_ && window) {
+            int sent = 0;
+            for (int k = 0; k < kSettingsCount && sent < kSettingsPerTick; ++k) {
+                const int i = (settingsCursor_ + k) % kSettingsCount;
+                if (!settings_.contains(QLatin1String(kSettingsToRead[i].name))) {
+                    requestParam(kSettingsToRead[i].name);
+                    ++sent;
+                    settingsCursor_ = (i + 1) % kSettingsCount;
+                }
             }
         }
     }
@@ -340,6 +357,17 @@ void MavVehicle::handleMessage(const void* p)
                 gpsHdop_ = hdop;
                 emit gpsChanged();
             }
+            gpsYaw_[0] = g.yaw;        // a MAVLink 1 frame or an old firmware leaves the extension at 0
+            updateGpsHeading();
+            break;
+        }
+        case MAVLINK_MSG_ID_GPS2_RAW: {
+            mavlink_gps2_raw_t g;
+            mavlink_msg_gps2_raw_decode(&msg, &g);
+            gps2Fix_ = g.fix_type;
+            gps2Sats_ = g.satellites_visible == 255 ? -1 : int(g.satellites_visible);
+            gpsYaw_[1] = g.yaw;
+            updateGpsHeading();
             break;
         }
         case MAVLINK_MSG_ID_EKF_STATUS_REPORT: {
@@ -360,8 +388,8 @@ void MavVehicle::handleMessage(const void* p)
             std::memcpy(name, pv.param_id, 16);
             const QString key = QString::fromLatin1(name);
             bool wanted = false;
-            for (const char* n : kSettingsToRead)
-                wanted = wanted || key == QLatin1String(n);
+            for (const Setting& x : kSettingsToRead)
+                wanted = wanted || key == QLatin1String(x.name);
             if (!wanted)
                 break;
             settings_[key] = pv.param_value;
@@ -982,18 +1010,68 @@ void MavVehicle::interruptSequence()
 void MavVehicle::logSettings()
 {
     settingsLogged_ = true;
-    QStringList parts;
-    QStringList missing;
-    for (const char* n : kSettingsToRead) {
-        const QString key = QLatin1String(n);
-        if (settings_.contains(key))
-            parts << QStringLiteral("%1 %2").arg(key).arg(settings_.value(key), 0, 'g', 6);
-        else
-            missing << key;
+    const QString groupName[] = { tr("EKF"), tr("GPS") };
+    for (int group = 0; group < 2; ++group) {
+        QStringList parts;
+        QStringList missing;
+        for (const Setting& x : kSettingsToRead) {
+            if (x.group != group)
+                continue;
+            const QString key = QLatin1String(x.name);
+            if (settings_.contains(key))
+                parts << QStringLiteral("%1 %2").arg(key).arg(settings_.value(key), 0, 'g', 6);
+            else
+                missing << key;
+        }
+        addMessage(tr("Autopilot settings (%1): %2%3")
+                       .arg(groupName[group], parts.join(QStringLiteral(", ")),
+                            missing.isEmpty() ? QString() : tr(" (no answer for %1)").arg(missing.join(QStringLiteral(", ")))));
     }
-    addMessage(tr("Autopilot settings: %1%2").arg(parts.join(QStringLiteral(", ")),
-                                                  missing.isEmpty() ? QString()
-                                                                    : tr(" (no answer for %1)").arg(missing.join(QStringLiteral(", ")))));
+}
+
+void MavVehicle::updateGpsHeading()
+{
+    // Best of the two receivers: a heading beats "configured but none now", which beats "not configured".
+    int state = GpsHeadingUnknown;
+    int which = -1;
+    for (int i = 0; i < 2; ++i) {
+        const int yaw = gpsYaw_[i];
+        const int st = yaw < 0 ? GpsHeadingUnknown
+                     : yaw == 0 ? GpsHeadingNotConfigured
+                     : yaw == 65535 ? GpsHeadingUnavailable
+                                    : GpsHeadingOk;
+        if (st > state) {
+            state = st;
+            which = i;
+        }
+    }
+    QString text;
+    switch (state) {
+    case GpsHeadingOk:
+        text = tr("%1° from GPS %2").arg((gpsYaw_[which] % 36000) / 100.0, 0, 'f', 1).arg(which + 1);
+        break;
+    case GpsHeadingUnavailable:
+        text = tr("configured on GPS %1, none now").arg(which + 1);
+        break;
+    case GpsHeadingNotConfigured:
+        text = tr("no GPS is set up to give a heading");
+        break;
+    default:
+        text = tr("no GPS report yet");
+        break;
+    }
+    if (gps2Fix_ >= 0)
+        text += tr(" (GPS 2: %1, %2 sat)").arg(gpsFixText(gps2Fix_)).arg(gps2Sats_);
+    if (state != gpsHeadingState_ || text != gpsHeadingText_) {
+        gpsHeadingState_ = state;
+        gpsHeadingText_ = text;
+        emit gpsChanged();
+    }
+    if (state != gpsHeadingLogged_ && state != GpsHeadingUnknown) {
+        gpsHeadingLogged_ = state;
+        addMessage(tr("GPS heading: %1 (yaw fields: GPS 1 %2, GPS 2 %3)")
+                       .arg(text).arg(gpsYaw_[0]).arg(gpsYaw_[1] < 0 ? tr("no report") : QString::number(gpsYaw_[1])));
+    }
 }
 
 void MavVehicle::updateNav()

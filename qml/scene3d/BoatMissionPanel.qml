@@ -223,6 +223,18 @@ Rectangle {
                        : panel.vehicle.navState === 2 ? AppPalette.dangerText
                        : AppPalette.textMuted
             }
+            // A two-antenna GPS gives the heading the EKF aligns to (EK3_SRC1_YAW 2 or 3); without it, no navigation.
+            StatusText {
+                width: parent.width
+                visible: !!panel.vehicle && panel.vehicle.detected
+                elide: Text.ElideNone
+                wrapMode: Text.WordWrap
+                text: qsTr("GPS heading: %1").arg(panel.vehicle ? panel.vehicle.gpsHeadingText : "—")
+                color: !panel.vehicle ? AppPalette.textMuted
+                       : panel.vehicle.gpsHeadingState === 3 ? AppPalette.text
+                       : panel.vehicle.gpsHeadingState === 2 ? AppPalette.dangerText
+                       : AppPalette.textMuted
+            }
             StatusText {
                 width: parent.width
                 visible: !!panel.vehicle && panel.vehicle.detected && panel.vehicle.healthText.length > 0

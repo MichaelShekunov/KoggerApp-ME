@@ -66,6 +66,8 @@ class MavVehicle : public QObject
     Q_PROPERTY(int navState READ navState NOTIFY navChanged)
     Q_PROPERTY(QString navText READ navText NOTIFY navChanged)
     Q_PROPERTY(QString healthText READ healthText NOTIFY healthChanged)
+    Q_PROPERTY(int gpsHeadingState READ gpsHeadingState NOTIFY gpsChanged)
+    Q_PROPERTY(QString gpsHeadingText READ gpsHeadingText NOTIFY gpsChanged)
 
     Q_PROPERTY(double batteryVoltage READ batteryVoltage NOTIFY batteryChanged)
     Q_PROPERTY(int batteryRemaining READ batteryRemaining NOTIFY batteryChanged)
@@ -102,6 +104,11 @@ public:
     /** navState: no fresh EKF report / the boat could navigate in AUTO once armed / it could not. */
     enum NavState { NavUnknown = 0, NavReady, NavNotReady };
     Q_ENUM(NavState)
+
+    /** gpsHeadingState: from the yaw field of GPS_RAW_INT / GPS2_RAW (ArduPilot: 0 not configured,
+     *  65535 configured but unavailable, else centidegrees), the best of the two receivers. */
+    enum GpsHeadingState { GpsHeadingUnknown = 0, GpsHeadingNotConfigured, GpsHeadingUnavailable, GpsHeadingOk };
+    Q_ENUM(GpsHeadingState)
 
     /** ArduPilot Rover custom modes (HEARTBEAT.custom_mode, MAV_CMD_DO_SET_MODE param 2). */
     enum RoverMode { ModeManual = 0, ModeAcro = 1, ModeSteering = 3, ModeHold = 4, ModeLoiter = 5,
@@ -145,6 +152,8 @@ public:
     bool ekfThresholdKnown() const { return ekfThreshKnown_; }
     /** Sensors the autopilot has and uses but calls unhealthy (SYS_STATUS), empty when all are fine. */
     QString healthText() const { return healthText_; }
+    int gpsHeadingState() const { return gpsHeadingState_; }
+    QString gpsHeadingText() const { return gpsHeadingText_; }
     /** For tools: the navigation settings (AHRS_EKF_TYPE, EK3_*, COMPASS_*, ARMING_CHECK, FS_EKF_*) went to the log. */
     bool settingsLogged() const { return settingsLogged_; }
 
@@ -262,6 +271,7 @@ private:
     void requestParam(const char* id);
     void requestStreams();
     void updateNav();
+    void updateGpsHeading();
     void logSettings();
 
     QVector<Item> buildItems() const;
@@ -319,6 +329,12 @@ private:
     bool healthSeen_ = false;
     QMap<QString, double> settings_;
     bool settingsLogged_ = false;
+    int settingsCursor_ = 0;
+    int gpsYaw_[2] = { -1, -1 };     // raw yaw field per receiver, -1 before its first message
+    int gps2Fix_ = -1, gps2Sats_ = -1;
+    int gpsHeadingState_ = GpsHeadingUnknown;
+    QString gpsHeadingText_;
+    int gpsHeadingLogged_ = -1;
     double batteryVoltage_ = -1;
     int batteryRemaining_ = -1;
     bool homeValid_ = false;
