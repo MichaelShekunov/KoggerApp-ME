@@ -6,6 +6,7 @@
 #include <QDateTime>
 #include <QFile>
 #include <QThread>
+#include <type_traits>
 #include <QVariant>
 #include <QXmlStreamWriter>
 #include "notifications.h"
@@ -134,15 +135,17 @@ DevDriver::DevDriver(QObject *parent)
                               .arg(newBaud).arg(oldBaud));
         }
     });
-    // The module port this app is not connected through: its line record goes back with only the rate changed.
-    wifiLine_ = new WifiLineBaudChange({
+    // A line's record (ID_WIFI_NET v3): read, sent back with only the edited fields changed, read back. Used for
+    // the network side of either line and for the rate of the port this app is not connected through.
+    wifiLine_ = new WifiLineChange({
         [this](int) { if (m_state.connect) idWifiNet->simpleRequest(v3); },
-        [this](int line, int baud) {
+        [this](int line, const WifiLineEdit& edit) {
             const IDBinWifiNet::Line& l = idWifiNet->line(line);
             if (!m_state.connect || !l.valid)
                 return false;
-            return idWifiNet->setLine(uint8_t(line), l.mode, l.dest, IDBinWifiNet::addrText(l.ip), l.rport, l.lport,
-                                      uint32_t(baud), l.txPin, l.rxPin);
+            const WifiLineRecord r = edit.appliedTo({ l.mode, l.dest, l.ip, l.rport, l.lport, l.baud, l.txPin, l.rxPin });
+            return idWifiNet->setLine(uint8_t(line), r.mode, r.dest, IDBinWifiNet::addrText(r.ip), r.rport, r.lport,
+                                      r.baud, r.txPin, r.rxPin);
         },
         [this](int) {
             if (!m_state.connect)
@@ -151,32 +154,37 @@ DevDriver::DevDriver(QObject *parent)
             if (idWifiNet->portSupport() != 0)
                 idWifiNet->requestPorts();
         }
-    }, WifiLineBaudChange::Timing(), this);
-    connect(wifiLine_, &WifiLineBaudChange::activeChanged, this, &DevDriver::wifiPortChanged);
-    connect(wifiLine_, &WifiLineBaudChange::finished, this, [](int outcome, int line, int baud, int resp) {
+    }, WifiLineChange::Timing(), this);
+    connect(wifiLine_, &WifiLineChange::activeChanged, this, &DevDriver::wifiPortChanged);
+    connect(wifiLine_, &WifiLineChange::finished, this, [this](int outcome, int line, int resp) {
         const QString port = line == 0 ? QStringLiteral("X1") : QStringLiteral("X2");
+        const bool rate = wifiLine_->edit().rateOnly();
+        const QString what = rate ? QStringLiteral("rate %1").arg(wifiLine_->target()) : QStringLiteral("line settings");
         switch (outcome) {
-        case WifiLineBaudChange::Done:
-            qInfo().noquote() << QStringLiteral("wifi-port: %1 set to %2 through its line record, saved in the module").arg(port).arg(baud);
-            notifyInfo(tr("Port %1: %2 bit/s set, the module saved it").arg(port).arg(baud));
+        case WifiLineChange::Done:
+            qInfo().noquote() << QStringLiteral("wifi-port: %1 %2 applied through its line record, saved in the module").arg(port, what);
+            notifyInfo(rate ? tr("Port %1: %2 bit/s set, the module saved it").arg(port).arg(wifiLine_->target())
+                            : tr("Port %1: line settings applied").arg(port));
             break;
-        case WifiLineBaudChange::NoRecord:
-            qInfo().noquote() << QStringLiteral("wifi-port: %1: no line record from the module, nothing sent").arg(port);
+        case WifiLineChange::NoRecord:
+            qInfo().noquote() << QStringLiteral("wifi-port: %1 %2: no line record from the module, nothing sent").arg(port, what);
             notifyWarning(tr("Port %1: the module did not send the line's settings, nothing changed").arg(port));
             break;
-        case WifiLineBaudChange::NotSent:
-            qInfo().noquote() << QStringLiteral("wifi-port: %1: the line record is not usable, nothing sent").arg(port);
+        case WifiLineChange::NotSent:
+            qInfo().noquote() << QStringLiteral("wifi-port: %1 %2: the line record is not usable, nothing sent").arg(port, what);
             notifyWarning(tr("Port %1: the line's settings are not known, nothing changed").arg(port));
             break;
-        case WifiLineBaudChange::Refused:
-            qInfo().noquote() << QStringLiteral("wifi-port: %1: the module refused %2 (code %3)").arg(port).arg(baud).arg(resp);
-            notifyWarning(tr("Port %1: the module refused %2 bit/s (code %3)").arg(port).arg(baud).arg(resp));
+        case WifiLineChange::Refused:
+            qInfo().noquote() << QStringLiteral("wifi-port: %1 %2: refused by the module (code %3)").arg(port, what).arg(resp);
+            notifyWarning(rate ? tr("Port %1: the module refused %2 bit/s (code %3)").arg(port).arg(wifiLine_->target()).arg(resp)
+                               : tr("Port %1: the module refused the line settings (code %2)").arg(port).arg(resp));
             break;
         default:
-            qInfo().noquote() << QStringLiteral("wifi-port: %1: no answer to %2, read back").arg(port).arg(baud);
-            notifyWarning(tr("Port %1: no answer to %2 bit/s; the rate shown is what the module reports").arg(port).arg(baud));
+            qInfo().noquote() << QStringLiteral("wifi-port: %1 %2: no answer, read back").arg(port, what);
+            notifyWarning(tr("Port %1: no answer from the module; what is shown is what it reports").arg(port));
             break;
         }
+        emit wifiLineChangeFinished(line, outcome, resp, rate);
     });
     wifiRadioCheck_ = new WifiRadioCheck({
         [this]() { if (m_state.connect) idWifi->simpleRequest(v7); },
@@ -1817,8 +1825,51 @@ bool DevDriver::wifiSetLineBaud(int line, int baud) {
     }
     // Another port: through its line record. Before 0.12 the module ignores line 0's rate there.
     if (idWifiNet->support() != 1 || (line == 0 && idWifiNet->portSupport() != 1)) return false;
-    if (!wifiLine_->start(line, baud)) return false;
+    WifiLineEdit edit;
+    edit.baud = uint32_t(baud);
+    if (!wifiLine_->start(line, edit)) return false;
     qInfo().noquote() << QStringLiteral("wifi-port: set X%1 to %2 through its line record (not this app's port)").arg(line + 1).arg(baud);
+    return true;
+}
+
+bool DevDriver::wifiSetLineConfig(int line, const QVariantMap& edits) {
+    // Firmware 0.12: the cards of the Ports island. The rate is not taken here (wifiSetLineBaud): for the line of
+    // this app's port 0.12 ignores it in v3, and the fresh record carries the rate in effect for the other line.
+    if (!m_state.connect || line < 0 || line > 1 || idWifiNet->support() != 1 || wifiPortBusy() || edits.contains(QStringLiteral("baud")))
+        return false;
+    WifiLineEdit edit;
+    bool ok = true;
+    const auto number = [&](const char* key, int lo, int hi, auto& field) {
+        const QVariant v = edits.value(QString::fromLatin1(key));
+        if (!v.isValid())
+            return;
+        bool okNum = false;
+        const int n = v.toInt(&okNum);
+        if (!okNum || n < lo || n > hi)
+            ok = false;
+        else
+            field = static_cast<typename std::decay_t<decltype(field)>::value_type>(n);
+    };
+    number("mode", 0, 2, edit.mode);
+    number("dest", 0, 2, edit.dest);
+    number("rport", 0, 65535, edit.rport);
+    number("lport", 0, 65535, edit.lport);
+    if (edits.contains(QStringLiteral("txPin")) || edits.contains(QStringLiteral("rxPin"))) {
+        if (line != 1)            // line 0's pins are fixed by the module's build
+            return false;
+        number("txPin", -1, 127, edit.txPin);
+        number("rxPin", -1, 127, edit.rxPin);
+    }
+    if (edits.contains(QStringLiteral("ip"))) {
+        quint32 a = 0;
+        if (!IDBinWifiNet::addrValue(edits.value(QStringLiteral("ip")).toString(), &a))
+            return false;
+        edit.ip = a;
+    }
+    if (!ok || !wifiLine_->start(line, edit))
+        return false;
+    qInfo().noquote() << QStringLiteral("wifi-port: X%1 line settings: %2").arg(line + 1)
+                             .arg(QStringList(edits.keys()).join(QStringLiteral(", ")));
     return true;
 }
 
@@ -1834,6 +1885,9 @@ void DevDriver::wifiNetRefreshPorts() {
         idWifiNet->requestPortPage(uint8_t(p), 1);
         idWifiNet->requestPortPage(uint8_t(p), 2);
     }
+    // The cards also carry each line's record and counters (the Lines island is hidden with 0.12).
+    idWifiNet->simpleRequest(v3);
+    idWifiNet->requestStats();
 }
 
 void DevDriver::wifiNetRefreshStats() {

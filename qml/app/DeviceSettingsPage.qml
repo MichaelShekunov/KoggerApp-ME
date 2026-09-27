@@ -238,6 +238,12 @@ Column {
     // Firmware 0.12 reports its physical ports (ID_WIFI_NET v7): the Ports island replaces the fixed
     // "line 0 is this port" wording; 0.11 and older keep the islands as they were.
     readonly property bool _wifiPorts: _isWifi && dev.wifiNetSupport === 1 && dev.wifiNetPortSupport === 1
+    // The role the module RUNS in (ID_WIFI_NET v0 "running", firmware 0.10+): 0 station, 1 access point, -1 not known
+    // (older firmware, or not read yet). Only a known role hides the other role's settings; before 0.10 the page
+    // stays as it was (the access-point state of ID_WIFI v0 still hides the station controls, as before).
+    readonly property int _wifiRole: (_isWifi && dev.wifiNetSupport === 1 && !!dev.wifiNetRole && dev.wifiNetRole.valid === true)
+                                     ? dev.wifiNetRole.running : -1
+    readonly property bool _wifiAp: _wifiRole === 1 || (_wifiRole < 0 && _isWifi && !!dev.wifiStatusValid && dev.wifiState === 4)
     // Without a cut the panel has no header and advReveal.open is permanently true, so
     // Actions / Settings file / Upgrade sit open below the operating groups and the
     // "Advanced settings" row is a zero-height, unclickable ghost. USBL gets the cut for
@@ -1591,8 +1597,9 @@ Column {
         readonly property int wifiState: live ? dev.wifiState : 0
         readonly property bool connected: live && wifiState === 3
         readonly property bool busy: live && (wifiState === 1 || wifiState === 2)
-        // firmware 0.10: the module is an access point; station controls answer ERR_RUNTIME then
-        readonly property bool apRole: live && wifiState === 4
+        // The module runs as an access point (the running role from ID_WIFI_NET, else the AP state of v0): the
+        // station-only parts (auto-connect, scan, networks, join, saved networks) are hidden, only the AP state shows.
+        readonly property bool apRole: root._wifiAp
         readonly property int clients: live ? dev.wifiClients : 0
         readonly property string ssid: live ? dev.wifiSsid : ""
         readonly property int rssi: live ? dev.wifiRssi : 0
@@ -1619,7 +1626,7 @@ Column {
         property int pickSecurity: 0
         property bool pickSaved: false
         property bool pickHidden: false
-        readonly property bool pickActive: pickSsid.length > 0 || pickHidden
+        readonly property bool pickActive: (pickSsid.length > 0 || pickHidden) && !apRole
         // A join was sent for this SSID; the module's next status frames carry the verdict.
         property string awaitingSsid: ""
 
@@ -1967,11 +1974,11 @@ Column {
 
         // Saved networks
         KIslandSection {
-            open: wifiIsland.savedList.length > 0
+            open: wifiIsland.savedList.length > 0 && !wifiIsland.apRole
             label: qsTr("Saved networks")
         }
         Repeater {
-            model: wifiIsland.savedList
+            model: wifiIsland.apRole ? [] : wifiIsland.savedList
             delegate: KIslandRow {
                 label: modelData
                 labelBold: wifiIsland.connected && modelData === wifiIsland.ssid
@@ -2463,11 +2470,13 @@ Column {
     }
 
     // ── Wi‑Fi module: its two physical ports X1 and X2 (firmware 0.12, ID_WIFI_NET v7) ──
-    // The ports are equal: the module answers on either, each has its own rate. While this island is on screen
-    // the module is asked every 2 s for both port summaries (page 0) and each port's devices (page 1) and network
-    // side (page 2); the byte rates come from successive summaries (DevDriver). A rate change runs in the driver
-    // (DevDriver::wifiSetLineBaud): the port this device is connected through takes the checked sequence of the
-    // old Port speed island, the other one gets its line record back with only the rate changed.
+    // The ports are equal: the module answers on either, each has its own rate and its own line to the network
+    // (X1 = line 0, X2 = line 1). While this island is on screen the module is asked every 2 s for both port
+    // summaries (page 0), each port's devices (page 1) and network side (page 2), the line records (v3) and counters
+    // (v4); the byte rates come from successive summaries (DevDriver). Changes run in the driver, so they finish
+    // when the page is left: a rate (DevDriver::wifiSetLineBaud: this device's port through the checked ID_UART
+    // sequence, the other one through its line record) and the line settings (DevDriver::wifiSetLineConfig: the
+    // record is read, only the edited fields change, then it is read back). With 0.12 this island replaces Lines.
     DevIsland {
         id: portsIsland
         width: root.groupWidth
@@ -2477,6 +2486,8 @@ Column {
         readonly property var ports: root._isWifi ? dev.wifiNetPorts : []
         readonly property var devices: root._isWifi ? dev.wifiNetPortDevices : []
         readonly property var peers: root._isWifi ? dev.wifiNetPortPeers : []
+        readonly property var lines: root._isWifi ? dev.wifiNetLines : []          // line 0 = X1, line 1 = X2 (v3)
+        readonly property var stats: root._isWifi ? dev.wifiNetLineStats : []      // v4
         readonly property int ownPort: root._isWifi ? dev.wifiNetOwnPort : -1
         readonly property bool busy: root._isWifi && dev.wifiPortBusy
         readonly property int busyLine: root._isWifi ? dev.wifiPortLine : -1
@@ -2485,6 +2496,57 @@ Column {
         readonly property bool wide: width >= Math.round(660 * AppPalette.scale)
 
         function portName(i) { return i === 0 ? "X1" : "X2" }
+        // "UDP 14445 · senders" / "TCP → 10.0.0.10:14444" / "line off": the network end of a connector
+        function lineSummary(l) {
+            if (!l || l.valid !== true)
+                return ""
+            if (l.mode === 0)
+                return qsTr("line off")
+            if (l.mode === 2)
+                return "TCP → " + l.ip + ":" + l.rport
+            var local = l.lport > 0 ? l.lport : l.rport
+            var dest = l.dest === 0 ? "→ " + l.ip + ":" + l.rport
+                     : l.dest === 1 ? qsTr("senders") : qsTr("broadcast :%1").arg(l.rport)
+            return "UDP " + local + " · " + dest
+        }
+        function lineStateText(s) {
+            switch (s) {
+            case 3: return qsTr("ready")
+            case 2: return qsTr("no peer")
+            case 1: return qsTr("no Wi‑Fi")
+            }
+            return qsTr("off")
+        }
+        function swapHint() {
+            return qsTr("Two UDP lines cannot share a local port: to swap the ports of X1 and X2, first move one line to a free port, then give the other line the freed one.")
+        }
+        // Inline text for the end of a line-record change (WifiLineChange::Outcome); resp = the module's code
+        function outcomeText(outcome, resp, rate) {
+            switch (outcome) {
+            case 1: return qsTr("The module did not send the line's settings: nothing changed.")
+            case 2: return qsTr("The line's settings are not known yet: nothing changed. Read back and try again.")
+            case 3:
+                if (resp === 3)
+                    return rate ? qsTr("The module refused the rate: invalid value.")
+                                : qsTr("The module refused these settings: invalid values.") + " " + swapHint()
+                if (resp === 7) return qsTr("The module refused: wrong key.")
+                if (resp === 8) return qsTr("The module refused: not possible now or in this role.")
+                return qsTr("The module refused (code %1).").arg(resp)
+            case 4: return qsTr("No answer from the module: the fields show what it reports now.")
+            }
+            return ""
+        }
+        function syncOwnAddr() {
+            if (root._isWifi && !portsOwnField.hasFocus && dev.wifiNetOwnAddr >= 0)
+                portsOwnField.text = String(dev.wifiNetOwnAddr)
+        }
+        Component.onCompleted: syncOwnAddr()
+        Connections {
+            target: root._isWifi ? root.dev : null
+            ignoreUnknownSignals: true
+            function onWifiNetChanged() { portsIsland.syncOwnAddr() }
+        }
+
         function connectedText(c) {
             switch (c) {
             case 0: return qsTr("nothing")
@@ -2587,9 +2649,116 @@ Column {
                         readonly property bool netValid: !!net && net.valid === true
                         readonly property bool here: valid && info.here === true
                         readonly property bool changing: portsIsland.busy && portsIsland.busyLine === index
+                        readonly property bool rateChanging: changing && dev.wifiPortTarget > 0
+                        readonly property bool netChanging: changing && dev.wifiPortTarget === 0
                         readonly property int baudNow: valid ? info.baud : 0
                         property int selBaud: 0
                         property bool dirty: false
+                        property string rateError: ""
+
+                        // This port's line record (v3) and counters (v4): the network side, edited here.
+                        readonly property var rec: portsIsland.lines.length > index ? portsIsland.lines[index] : null
+                        readonly property bool recValid: !!rec && rec.valid === true
+                        readonly property var otherRec: portsIsland.lines.length > 1 - index ? portsIsland.lines[1 - index] : null
+                        readonly property var st: portsIsland.stats.length > index ? portsIsland.stats[index] : null
+                        readonly property bool stValid: !!st && st.valid === true
+                        readonly property bool netEditing: cardIpField.hasFocus || cardRportField.hasFocus || cardLportField.hasFocus
+                                                           || cardTxField.hasFocus || cardRxField.hasFocus
+                        property int selMode: 0
+                        property int selDest: 1
+                        property var synced: null      // the record the fields were filled from
+                        property bool netDirty: false
+                        property string netError: ""
+
+                        // The fields follow the module's record until the operator edits them.
+                        function syncNet(force) {
+                            if (!recValid || netChanging || ((netEditing || netDirty) && !force))
+                                return
+                            selMode = rec.mode
+                            selDest = rec.dest
+                            cardIpField.text = rec.ip
+                            cardRportField.text = String(rec.rport)
+                            cardLportField.text = String(rec.lport)
+                            cardTxField.text = String(rec.txPin)
+                            cardRxField.text = String(rec.rxPin)
+                            synced = { mode: rec.mode, dest: rec.dest, ip: rec.ip, rport: rec.rport, lport: rec.lport,
+                                       txPin: rec.txPin, rxPin: rec.rxPin }
+                            netDirty = false
+                        }
+                        function markNetDirty() { netDirty = true; netError = "" }
+                        // Only what the operator changed: the driver takes the rest from the record it reads just before sending.
+                        function netEdits() {
+                            var e = {}
+                            if (!synced)
+                                return e
+                            if (selMode !== synced.mode) e.mode = selMode
+                            if (selDest !== synced.dest) e.dest = selDest
+                            var ip = cardIpField.text.trim()
+                            if (ip.length && ip !== synced.ip) e.ip = ip
+                            var n = parseInt(cardRportField.text, 10)
+                            if (!isNaN(n) && n !== synced.rport) e.rport = n
+                            n = parseInt(cardLportField.text, 10)
+                            if (!isNaN(n) && n !== synced.lport) e.lport = n
+                            if (index === 1) {
+                                n = parseInt(cardTxField.text, 10)
+                                if (!isNaN(n) && n !== synced.txPin) e.txPin = n
+                                n = parseInt(cardRxField.text, 10)
+                                if (!isNaN(n) && n !== synced.rxPin) e.rxPin = n
+                            }
+                            return e
+                        }
+                        // The other port's line listening on the same local UDP port: the local port, 0 when none.
+                        function localPortClash(e) {
+                            var mode = e.mode !== undefined ? e.mode : synced.mode
+                            var o = otherRec
+                            if (mode !== 1 || !o || o.valid !== true || o.mode !== 1)
+                                return 0
+                            var rport = e.rport !== undefined ? e.rport : synced.rport
+                            var lport = e.lport !== undefined ? e.lport : synced.lport
+                            var mine = lport > 0 ? lport : rport
+                            var theirs = o.lport > 0 ? o.lport : o.rport
+                            return mine === theirs ? mine : 0
+                        }
+                        function applyNet() {
+                            var e = netEdits()
+                            if (Object.keys(e).length === 0) {
+                                netDirty = false
+                                return
+                            }
+                            var clash = localPortClash(e)
+                            if (clash > 0) {
+                                netError = qsTr("%1 already listens on UDP %2.").arg(portsIsland.portName(1 - index)).arg(clash)
+                                           + " " + portsIsland.swapHint()
+                                return
+                            }
+                            if (!dev.wifiSetLineConfig(index, e))
+                                netError = qsTr("Not sent: check the fields (IP a.b.c.d, ports 0–65535, pins −1…127), or wait for the running change.")
+                            else
+                                netError = ""
+                        }
+                        onRecChanged: syncNet(false)
+                        onNetChangingChanged: if (!netChanging && !netDirty) syncNet(false)
+
+                        Connections {
+                            target: root._isWifi ? root.dev : null
+                            ignoreUnknownSignals: true
+                            function onWifiLineChangeFinished(line, outcome, resp, rate) {
+                                if (line !== card.index)
+                                    return
+                                var text = outcome === 0 ? "" : portsIsland.outcomeText(outcome, resp, rate)
+                                if (rate) {
+                                    card.rateError = text
+                                } else {
+                                    card.netError = text
+                                    // done, or no answer (the read-back shows what the module has): refill the fields;
+                                    // a refusal keeps the edits so they can be corrected
+                                    if (outcome === 0 || outcome === 4) {
+                                        card.netDirty = false
+                                        card.syncNet(true)
+                                    }
+                                }
+                            }
+                        }
 
                         fillColor: here ? Qt.tint(AppPalette.card, Qt.rgba(AppPalette.accent.r, AppPalette.accent.g, AppPalette.accent.b, 0.10))
                                         : AppPalette.rowRaised
@@ -2607,20 +2776,32 @@ Column {
                         onBaudNowChanged: syncBaud(false)
                         onValidChanged: syncBaud(false)
                         onChangingChanged: if (!changing) syncBaud(true)
-                        Component.onCompleted: syncBaud(true)
+                        Component.onCompleted: { syncBaud(true); syncNet(true) }
                         Timer { id: cardDirtyTimer; interval: 30000; onTriggered: card.syncBaud(true) }
 
+                        // "X2 · UDP 14445 · senders": which network port this connector maps to, at a glance
                         KIslandRow {
-                            label: portsIsland.portName(card.index)
+                            label: portsIsland.portName(card.index) + (card.recValid ? " · " + portsIsland.lineSummary(card.rec) : "")
                             labelBold: true
                             labelPixelSize: Tokens.fontLg
-                            Row {
+                        }
+                        KIslandRow {
+                            readonly property bool anyBadge: card.here || !card.valid
+                                                             || (card.valid && (card.info.provisional === true || card.info.usb === true
+                                                                                || card.info.slip === true || card.info.uartRunning !== true))
+                            open: anyBadge
+                            stacked: true
+                            minHeight: 0
+                            verticalPadding: Tokens.spaceXs
+                            showSeparator: false
+                            Flow {
+                                width: parent.width
                                 spacing: Tokens.spaceXs
                                 WifiBadge { visible: card.here; tone: 1; text: qsTr("this device") }
                                 WifiBadge { visible: card.valid && card.info.provisional === true; tone: 2; text: qsTr("provisional") }
                                 WifiBadge { visible: card.valid && card.info.usb === true; text: "USB" }
                                 WifiBadge { visible: card.valid && card.info.slip === true; text: "SLIP" }
-                                WifiBadge { visible: card.valid && card.info.uartRunning !== true; tone: 3; text: qsTr("off") }
+                                WifiBadge { visible: card.valid && card.info.uartRunning !== true; tone: 3; text: qsTr("UART off") }
                                 WifiBadge { visible: !card.valid; text: qsTr("no data") }
                             }
                         }
@@ -2699,13 +2880,13 @@ Column {
                             labelColor: AppPalette.textMuted
                         }
 
-                        // The network side of this port's line (page 2)
-                        KIslandSection { label: qsTr("Network side") }
+                        // The network side of this port's line: its state and peers (page 2), counters (v4) and settings (v3)
+                        KIslandSection { label: qsTr("Network side (line %1)").arg(card.index) }
                         DevInfoRow {
-                            label: qsTr("Line")
+                            label: qsTr("State")
                             value: !card.netValid ? ""
                                    : (card.net.mode === 1 ? "UDP" : card.net.mode === 2 ? "TCP" : qsTr("off"))
-                                     + (card.net.mode !== 0 ? " · " + linesIsland.stateText(card.net.state) : "")
+                                     + (card.net.mode !== 0 ? " · " + portsIsland.lineStateText(card.net.state) : "")
                         }
                         Repeater {
                             model: card.netValid ? card.net.peers : []
@@ -2716,11 +2897,102 @@ Column {
                                 caption: qsTr("last data %1").arg(portsIsland.ageText(modelData.age))
                             }
                         }
+                        DevInfoRow {
+                            label: qsTr("To the network")
+                            value: card.stValid && card.recValid && card.rec.mode !== 0
+                                   ? qsTr("%1 frames · %2 packets · %3 dropped").arg(card.st.upFrames).arg(card.st.upPackets).arg(card.st.upDrops) : ""
+                        }
+                        DevInfoRow {
+                            label: qsTr("From the network")
+                            value: card.stValid && card.recValid && card.rec.mode !== 0
+                                   ? qsTr("%1 packets · %2 frames · %3 dropped").arg(card.st.downPackets).arg(card.st.downFrames).arg(card.st.downDrops) : ""
+                        }
+                        KIslandRow {
+                            open: card.recValid
+                            label: qsTr("Mode")
+                            KTabBar {
+                                width: Math.round(170 * AppPalette.scale)
+                                fontPixelSize: Tokens.fontSm
+                                options: [ { label: qsTr("Off"), value: 0 }, { label: "UDP", value: 1 }, { label: "TCP", value: 2 } ]
+                                currentValue: card.selMode
+                                onValueSelected: function(v) { card.selMode = v; card.markNetDirty() }
+                            }
+                        }
+                        DevStackedRow {
+                            open: card.recValid && card.selMode === 1
+                            label: qsTr("Send to")
+                            caption: card.selDest === 0 ? qsTr("The peer below")
+                                   : card.selDest === 1 ? qsTr("Whoever sent to this UDP port (up to 4, forgotten after 60 s of silence)")
+                                                        : qsTr("Broadcast in the subnet to the peer port")
+                            KTabBar {
+                                width: parent.width
+                                fontPixelSize: Tokens.fontSm
+                                options: [ { label: qsTr("Fixed"), value: 0 }, { label: qsTr("Senders"), value: 1 }, { label: qsTr("Broadcast"), value: 2 } ]
+                                currentValue: card.selDest
+                                onValueSelected: function(v) { card.selDest = v; card.markNetDirty() }
+                            }
+                        }
+                        DevStackedRow {
+                            open: card.recValid && (card.selMode === 2 || (card.selMode === 1 && card.selDest === 0))
+                            label: qsTr("Peer IP address")
+                            WifiField { id: cardIpField; width: parent.width; placeholder: "10.0.0.10"; onEdited: card.markNetDirty() }
+                        }
+                        KIslandRow {
+                            open: card.recValid && card.selMode !== 0
+                            label: qsTr("Peer port")
+                            WifiField { id: cardRportField; width: Math.round(100 * AppPalette.scale); numeric: true; onEdited: card.markNetDirty() }
+                        }
+                        KIslandRow {
+                            open: card.recValid && card.selMode === 1
+                            label: qsTr("Own UDP port")
+                            caption: qsTr("0 = the peer port. Each UDP line needs a port of its own: to swap the ports of X1 and X2, move one line to a free port first.")
+                            WifiField { id: cardLportField; width: Math.round(100 * AppPalette.scale); numeric: true; onEdited: card.markNetDirty() }
+                        }
+                        KIslandRow {
+                            open: card.recValid && card.index === 1     // line 0's pins are fixed by the module's build
+                            label: qsTr("TX / RX pins")
+                            caption: qsTr("Allowed 0, 1, 3, 4, 5, 6, 7, 10; −1 switches the UART off; new pins start after a reboot")
+                            Row {
+                                spacing: Tokens.spaceSm
+                                WifiField { id: cardTxField; width: Math.round(56 * AppPalette.scale); numeric: true; minValue: -1; maxValue: 21; onEdited: card.markNetDirty() }
+                                WifiField { id: cardRxField; width: Math.round(56 * AppPalette.scale); numeric: true; minValue: -1; maxValue: 21; onEdited: card.markNetDirty() }
+                            }
+                        }
+                        DevStackedRow {
+                            open: card.recValid
+                            caption: card.netChanging ? qsTr("Applying… (it finishes even if this page is closed)")
+                                   : card.here ? qsTr("This device's port: switching its line off ends the network (boat) link through it; the module keeps answering here.")
+                                               : qsTr("Only the fields changed here are sent; the module keeps the rest as it has them.")
+                            Row {
+                                width: parent.width
+                                spacing: Tokens.spaceSm
+                                readonly property real bw: (width - Tokens.spaceSm) / 2
+                                ConfirmDevButton {
+                                    width: parent.bw
+                                    label: qsTr("Apply")
+                                    enabled: card.recValid && card.netDirty && !portsIsland.busy
+                                    onConfirmed: card.applyNet()
+                                }
+                                DevButton {
+                                    width: parent.bw; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
+                                    text: qsTr("Read back")
+                                    onClicked: { card.netDirty = false; card.netError = ""; dev.wifiNetRefresh(); card.syncNet(true) }
+                                }
+                            }
+                        }
+                        KIslandRow {
+                            open: card.netError.length > 0
+                            minHeight: 0
+                            verticalPadding: Tokens.spaceSm
+                            showSeparator: false
+                            caption: card.netError
+                            captionColor: AppPalette.dangerText
+                        }
 
                         // Rate of this port
                         DevStackedRow {
                             label: qsTr("Set the rate")
-                            caption: card.changing ? qsTr("Changing to %1… (it finishes even if this page is closed)").arg(dev.wifiPortTarget)
+                            caption: card.rateChanging ? qsTr("Changing to %1… (it finishes even if this page is closed)").arg(dev.wifiPortTarget)
                                    : card.here ? qsTr("This device's port: the link here follows, the module has to answer at the new rate, then it is saved.")
                                                : qsTr("Not this device's port: saved in the module at once.")
                             Row {
@@ -2747,8 +3019,9 @@ Column {
                                     enabled: card.valid && !portsIsland.busy && card.selBaud > 0 && card.selBaud !== card.baudNow
                                     onConfirmed: {
                                         if (!dev.wifiSetLineBaud(card.index, card.selBaud)) {
-                                            notifications.warning(qsTr("The rate of %1 could not be changed now: nothing changed").arg(portsIsland.portName(card.index)))
+                                            card.rateError = qsTr("The rate of %1 could not be changed now: nothing changed").arg(portsIsland.portName(card.index))
                                         } else {
+                                            card.rateError = ""
                                             card.dirty = false
                                             cardDirtyTimer.stop()
                                         }
@@ -2756,7 +3029,32 @@ Column {
                                 }
                             }
                         }
+                        KIslandRow {
+                            open: card.rateError.length > 0
+                            minHeight: 0
+                            verticalPadding: Tokens.spaceSm
+                            showSeparator: false
+                            caption: card.rateError
+                            captionColor: AppPalette.dangerText
+                        }
                     }
+                }
+            }
+        }
+
+        // The module's own SBP address: one for both ports and the network (Lines island before 0.12)
+        KIslandRow {
+            label: qsTr("Module address")
+            caption: qsTr("Must differ from the devices behind the ports (a sonar is usually 0); 1…254. The module then reappears as a new device.")
+            Row {
+                spacing: Tokens.spaceSm
+                WifiField { id: portsOwnField; width: Math.round(64 * AppPalette.scale); numeric: true; minValue: 1; maxValue: 254 }
+                ConfirmDevButton {
+                    width: Math.round(96 * AppPalette.scale)
+                    label: qsTr("Set")
+                    enabled: portsOwnField.text.length > 0
+                    onConfirmed: if (!dev.wifiNetSetOwnAddr(parseInt(portsOwnField.text, 10)))
+                                     notifications.warning(qsTr("Module address must be 1…254: 0 is where devices sit, 255 is refused"))
                 }
             }
         }
@@ -2775,6 +3073,9 @@ Column {
         readonly property bool roleValid: !!role && role.valid === true
         readonly property bool apValid: !!ap && ap.valid === true
         readonly property bool apRunning: roleValid && role.running === 1
+        // The access point's settings only while the module runs as one (or its role is not known yet): in the
+        // station role they are not shown; the role selector stays, so the switch to AP remains possible.
+        readonly property bool showAp: root._wifiRole !== 0
         readonly property bool editing: apSsidField.hasFocus || apPassField.hasFocus || apChannelField.hasFocus
                                         || apClientsField.hasFocus
         property int selRole: 0
@@ -2803,14 +3104,11 @@ Column {
             function onWifiNetChanged() { apIsland.sync(false) }
         }
 
-        DevIslandTitle { label: qsTr("Role and access point") }
+        DevIslandTitle { label: apIsland.showAp ? qsTr("Role and access point") : qsTr("Role") }
 
         KIslandRow {
             label: qsTr("Role")
-            caption: !apIsland.roleValid ? ""
-                   : apIsland.role.saved !== apIsland.role.running
-                     ? qsTr("Running: %1, after a reboot: %2").arg(apIsland.roleText(apIsland.role.running)).arg(apIsland.roleText(apIsland.role.saved))
-                     : qsTr("Running: %1").arg(apIsland.roleText(apIsland.role.running))
+            caption: apIsland.roleValid ? qsTr("Running: %1").arg(apIsland.roleText(apIsland.role.running)) : ""
             KTabBar {
                 width: Math.round(220 * AppPalette.scale)
                 fontPixelSize: Tokens.fontSm
@@ -2818,6 +3116,14 @@ Column {
                 currentValue: apIsland.selRole
                 onValueSelected: function(v) { apIsland.selRole = v; apIsland.dirty = true }
             }
+        }
+        KIslandRow {
+            open: apIsland.roleValid && apIsland.role.saved !== apIsland.role.running
+            minHeight: 0
+            verticalPadding: Tokens.spaceSm
+            label: qsTr("Saved role: %1 — takes effect after a reboot").arg(apIsland.roleText(apIsland.role.saved))
+            labelPixelSize: Tokens.fontSm
+            labelColor: AppPalette.linkIdleText
         }
         DevStackedRow {
             caption: apIsland.selRole === 1
@@ -2848,17 +3154,20 @@ Column {
             }
         }
 
-        KIslandSection { label: qsTr("Access point network") }
+        KIslandSection { open: apIsland.showAp; label: qsTr("Access point network") }
         DevStackedRow {
+            open: apIsland.showAp
             label: qsTr("Network name (SSID)")
             WifiField { id: apSsidField; width: parent.width; placeholder: "Kogger-XXXX"; onEdited: apIsland.dirty = true }
         }
         DevStackedRow {
+            open: apIsland.showAp
             label: qsTr("Password")
             caption: qsTr("8–63 characters. Leave it empty to keep the current password.")
             WifiField { id: apPassField; width: parent.width; password: true; placeholder: qsTr("unchanged"); onEdited: apIsland.dirty = true }
         }
         DevStackedRow {
+            open: apIsland.showAp
             label: qsTr("Security")
             KTabBar {
                 width: parent.width
@@ -2869,18 +3178,22 @@ Column {
             }
         }
         KIslandRow {
+            open: apIsland.showAp
             label: qsTr("Channel (1–11)")
             WifiField { id: apChannelField; width: Math.round(90 * AppPalette.scale); numeric: true; minValue: 1; maxValue: 11; onEdited: apIsland.dirty = true }
         }
         KIslandRow {
+            open: apIsland.showAp
             label: qsTr("Clients at most (1–10)")
             WifiField { id: apClientsField; width: Math.round(90 * AppPalette.scale); numeric: true; minValue: 1; maxValue: 10; onEdited: apIsland.dirty = true }
         }
         KIslandRow {
+            open: apIsland.showAp
             label: qsTr("Hidden network")
             KSwitch { id: apHiddenSwitch; flat: true; onToggled: apIsland.dirty = true }
         }
         DevStackedRow {
+            open: apIsland.showAp
             caption: apIsland.apRunning
                      ? qsTr("The access point restarts with the new settings; its clients reconnect.")
                      : qsTr("Stored now, used once the module runs as an access point.")
@@ -2938,7 +3251,8 @@ Column {
     DevIsland {
         id: ipIsland
         width: root.groupWidth
-        visible: root._isWifi && dev.wifiNetSupport === 1
+        // the access point's address and DHCP: not shown while the module runs as a station
+        visible: root._isWifi && dev.wifiNetSupport === 1 && root._wifiRole !== 0
         rowMinHeight: Tokens.controlHMd + Tokens.spaceXs
 
         readonly property var c: root._isWifi ? dev.wifiNetIp : ({})
@@ -3038,13 +3352,14 @@ Column {
     }
 
     // ── Wi‑Fi module: UART lines and their network ports (ID_WIFI_NET v3, v4, v6) ──
-    // Line 0 is connector X1, line 1 connector X2; each maps to its own UDP port or TCP client, and frames not
-    // addressed to the module go to the network and back. Before firmware 0.12 this host is taken to sit on X1;
-    // from 0.12 the module says which port it is (Ports island) and the rates are set there.
+    // Firmware 0.10/0.11 only: with 0.12 (ID_WIFI_NET v7) the Ports island carries the lines in its X1/X2 cards.
+    // Line 0 is this very port (X1): frames not addressed to the module go to the network and back.
+    // Line 1 is the second connector (X2). Each maps to its own UDP port or TCP client. The Connections below
+    // also report the answers to every ID_WIFI_NET SETTING of the page, so the island exists while hidden.
     DevIsland {
         id: linesIsland
         width: root.groupWidth
-        visible: root._isWifi && dev.wifiNetSupport === 1
+        visible: root._isWifi && dev.wifiNetSupport === 1 && !root._wifiPorts
         rowMinHeight: Tokens.controlHMd + Tokens.spaceXs
 
         readonly property var lines: root._isWifi ? dev.wifiNetLines : []
@@ -3116,10 +3431,7 @@ Column {
             KTabBar {
                 width: Math.round(250 * AppPalette.scale)
                 fontPixelSize: Tokens.fontSm
-                options: root._wifiPorts
-                         ? [ { label: "0 · X1" + (portsIsland.ownPort === 0 ? qsTr(", this port") : ""), value: 0 },
-                             { label: "1 · X2" + (portsIsland.ownPort === 1 ? qsTr(", this port") : ""), value: 1 } ]
-                         : [ { label: qsTr("0 · X1, this port"), value: 0 }, { label: qsTr("1 · X2"), value: 1 } ]
+                options: [ { label: qsTr("0 · X1, this port"), value: 0 }, { label: qsTr("1 · X2"), value: 1 } ]
                 currentValue: linesIsland.sel
                 onValueSelected: function(v) { linesIsland.sel = v }
             }
@@ -3165,7 +3477,7 @@ Column {
             WifiField { id: lnLportField; width: Math.round(110 * AppPalette.scale); numeric: true; onEdited: linesIsland.dirty = true }
         }
         KIslandRow {
-            open: linesIsland.sel === 1 && !root._wifiPorts     // 0.12: both rates are set in the Ports island
+            open: linesIsland.sel === 1
             label: qsTr("Baud rate")
             caption: qsTr("9600–4000000; line 0 uses the device baud rate below")
             WifiField { id: lnBaudField; width: Math.round(130 * AppPalette.scale); numeric: true; minValue: 0; maxValue: 4000000; onEdited: linesIsland.dirty = true }
@@ -3181,13 +3493,9 @@ Column {
             }
         }
         DevStackedRow {
-            caption: root._wifiPorts
-                     ? (linesIsland.sel === portsIsland.ownPort
-                        ? qsTr("This device is connected through this line's port: switching the line off ends the network (boat) link through it; the module keeps answering here.")
-                        : "")
-                     : (linesIsland.sel === 0
-                        ? qsTr("Line 0 is this port: switching it off ends the boat link, and the module goes back to address 0.")
-                        : "")
+            caption: linesIsland.sel === 0
+                     ? qsTr("Line 0 is this port: switching it off ends the boat link, and the module goes back to address 0.")
+                     : ""
             Row {
                 width: parent.width
                 spacing: Tokens.spaceMd
@@ -3198,11 +3506,9 @@ Column {
                     enabled: linesIsland.valid
                     onConfirmed: {
                         var ip = lnIpField.text.trim().length ? lnIpField.text.trim() : "0.0.0.0"
-                        // 0.12 takes the rate for both lines: send the one in effect (the Ports island changes it)
-                        var baud = root._wifiPorts ? (linesIsland.cur ? linesIsland.cur.baud : 0) : (parseInt(lnBaudField.text, 10) || 0)
                         var ok = dev.wifiNetSetLine(linesIsland.sel, linesIsland.selMode, linesIsland.selDest, ip,
                                                     parseInt(lnRportField.text, 10) || 0, parseInt(lnLportField.text, 10) || 0,
-                                                    baud,
+                                                    parseInt(lnBaudField.text, 10) || 0,
                                                     isNaN(parseInt(lnTxField.text, 10)) ? -1 : parseInt(lnTxField.text, 10),
                                                     isNaN(parseInt(lnRxField.text, 10)) ? -1 : parseInt(lnRxField.text, 10))
                         if (!ok)
@@ -3245,21 +3551,17 @@ Column {
         }
 
         KIslandRow {
-            // 0.12: the module answers at its own address whether or not a line relays, and refuses 255 as well
-            label: root._wifiPorts ? qsTr("Module address") : qsTr("Module address while relaying")
-            caption: root._wifiPorts
-                     ? qsTr("Must differ from the devices behind the ports (a sonar is usually 0); 1…254. The module then reappears as a new device.")
-                     : qsTr("Must differ from the devices behind the lines (a sonar is usually 0). The module then reappears as a new device.")
+            label: qsTr("Module address while relaying")
+            caption: qsTr("Must differ from the devices behind the lines (a sonar is usually 0). The module then reappears as a new device.")
             Row {
                 spacing: Tokens.spaceSm
-                WifiField { id: lnOwnField; width: Math.round(64 * AppPalette.scale); numeric: true; minValue: 1; maxValue: root._wifiPorts ? 254 : 255 }
+                WifiField { id: lnOwnField; width: Math.round(64 * AppPalette.scale); numeric: true; minValue: 1; maxValue: 255 }
                 ConfirmDevButton {
                     width: Math.round(96 * AppPalette.scale)
                     label: qsTr("Set")
                     enabled: lnOwnField.text.length > 0
                     onConfirmed: if (!dev.wifiNetSetOwnAddr(parseInt(lnOwnField.text, 10)))
-                                     notifications.warning(root._wifiPorts ? qsTr("Module address must be 1…254: 0 is where devices sit, 255 is refused")
-                                                                           : qsTr("Module address must be 1…255: 0 is where devices sit"))
+                                     notifications.warning(qsTr("Module address must be 1…255: 0 is where devices sit"))
                 }
             }
         }

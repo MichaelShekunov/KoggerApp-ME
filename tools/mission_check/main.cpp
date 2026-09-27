@@ -321,6 +321,8 @@ void wifiOpsRules()
     check("radio: a refused setting cancels the check", !apCheck.active());
 }
 
+bool target0(const WifiLineChange& c) { return c.target() == 0; }
+
 // Firmware 0.12 port information (ID_WIFI_NET v7), decoded from payloads laid out byte by byte as the ports
 // contract's tables, and the rate change of the port this host is not on (ID_WIFI_NET v3 record).
 void wifiPortsRules()
@@ -453,54 +455,76 @@ void wifiPortsRules()
     p.reset();
     check("ports: reset forgets everything", !p.summary(0).valid && !p.devices(1).valid && !p.network(0).valid && p.askedPort() == -1);
 
+    // A line record: only the edited fields change, the rest is what the module sent last.
+    const WifiLineRecord fresh{ 1, 1, 0x0A00000Au, 14444, 0, 921600, 4, 5 };
+    WifiLineEdit ed;
+    ed.lport = 14446;
+    ed.dest = 0;
+    const WifiLineRecord out = ed.appliedTo(fresh);
+    check("edit: only lport and dest change", out.mode == 1 && out.dest == 0 && out.ip == 0x0A00000Au && out.rport == 14444
+          && out.lport == 14446 && out.baud == 921600 && out.txPin == 4 && out.rxPin == 5 && !ed.rateOnly() && !ed.empty());
+    WifiLineEdit rateEd;
+    rateEd.baud = 115200;
+    check("edit: a rate alone is the port-rate path", rateEd.rateOnly() && rateEd.appliedTo(fresh).baud == 115200
+          && rateEd.appliedTo(fresh).lport == 0 && WifiLineEdit().empty());
+
     QStringList lc;
     bool sendOk = true;
-    WifiLineBaudChange line({
+    WifiLineChange line({
         [&](int l) { lc << QStringLiteral("ask %1").arg(l); },
-        [&](int l, int b) { lc << QStringLiteral("send %1 %2").arg(l).arg(b); return sendOk; },
+        [&](int l, const WifiLineEdit& e) {
+            const WifiLineRecord r = e.appliedTo(fresh);
+            lc << QStringLiteral("send %1 mode %2 lport %3 baud %4").arg(l).arg(r.mode).arg(r.lport).arg(r.baud);
+            return sendOk;
+        },
         [&](int l) { lc << QStringLiteral("readback %1").arg(l); }
-    }, WifiLineBaudChange::Timing{ 150 });
+    }, WifiLineChange::Timing{ 150 });
     int lcOutcome = -1;
     int lcResp = -1;
-    QObject::connect(&line, &WifiLineBaudChange::finished, [&](int o, int, int, int r) { lcOutcome = o; lcResp = r; });
-    check("line: refuses line 2 and 5000000", !line.start(2, 115200) && !line.start(1, 5000000) && lc.isEmpty());
-    check("line: X2 -> 115200 reads the record first", line.start(1, 115200) && lc == QStringList{ QStringLiteral("ask 1") }
-          && !line.awaitingAnswer(), lc.join(QStringLiteral(", ")));
-    check("line: a second change is refused while one runs", !line.start(0, 9600));
+    QObject::connect(&line, &WifiLineChange::finished, [&](int o, int, int r) { lcOutcome = o; lcResp = r; });
+    WifiLineEdit tooFast;
+    tooFast.baud = 5000000;
+    check("line: refuses line 2, 5000000 and an empty edit", !line.start(2, rateEd) && !line.start(1, tooFast)
+          && !line.start(1, WifiLineEdit()) && lc.isEmpty());
+    check("line: X2 -> 115200 reads the record first", line.start(1, rateEd) && lc == QStringList{ QStringLiteral("ask 1") }
+          && !line.awaitingAnswer() && line.target() == 115200, lc.join(QStringLiteral(", ")));
+    check("line: a second change is refused while one runs", !line.start(0, ed));
     line.onRecord(0);
     check("line: the other line's record is not used", lc.size() == 1);
     line.onRecord(1);
-    check("line: the record came -> sent back with the new rate, waiting for the answer",
-          lc.value(1) == QStringLiteral("send 1 115200") && line.awaitingAnswer(), lc.join(QStringLiteral(", ")));
+    check("line: the record came -> sent back with the new rate only, waiting for the answer",
+          lc.value(1) == QStringLiteral("send 1 mode 1 lport 0 baud 115200") && line.awaitingAnswer(), lc.join(QStringLiteral(", ")));
     line.onAnswer(1);
-    check("line: OK -> read back, done", lcOutcome == WifiLineBaudChange::Done && lc.value(2) == QStringLiteral("readback 1")
+    check("line: OK -> read back, done", lcOutcome == WifiLineChange::Done && lc.value(2) == QStringLiteral("readback 1")
           && !line.active(), lc.join(QStringLiteral(", ")));
     lc.clear();
     lcOutcome = -1;
-    line.start(0, 921600);
+    line.start(0, ed);
     waitFor([&] { return lcOutcome >= 0; }, 2000);
-    check("line: no record -> nothing sent", lcOutcome == WifiLineBaudChange::NoRecord
+    check("line: no record -> nothing sent", lcOutcome == WifiLineChange::NoRecord
           && !lc.join(QStringLiteral(",")).contains(QStringLiteral("send")), lc.join(QStringLiteral(", ")));
     lc.clear();
     lcOutcome = -1;
-    line.start(1, 4000000);
+    line.start(1, ed);
     line.onRecord(1);
-    line.onAnswer(3);
-    check("line: refused -> reported with its code, read back", lcOutcome == WifiLineBaudChange::Refused && lcResp == 3
-          && lc.contains(QStringLiteral("readback 1")), lc.join(QStringLiteral(", ")));
+    check("line: settings edit -> the fresh record with lport changed, the rate as the module had it",
+          lc.value(1) == QStringLiteral("send 1 mode 1 lport 14446 baud 921600") && target0(line), lc.join(QStringLiteral(", ")));
+    line.onAnswer(3);                                          // ERR_PAYLOAD: two UDP lines on one local port
+    check("line: refused -> reported with its code, read back", lcOutcome == WifiLineChange::Refused && lcResp == 3
+          && lc.contains(QStringLiteral("readback 1")) && !line.edit().rateOnly(), lc.join(QStringLiteral(", ")));
     lc.clear();
     lcOutcome = -1;
-    line.start(1, 9600);
+    line.start(1, rateEd);
     line.onRecord(1);
     waitFor([&] { return lcOutcome >= 0; }, 2000);
-    check("line: no answer -> read back, reported", lcOutcome == WifiLineBaudChange::NoAnswer && lc.contains(QStringLiteral("readback 1")),
+    check("line: no answer -> read back, reported", lcOutcome == WifiLineChange::NoAnswer && lc.contains(QStringLiteral("readback 1")),
           lc.join(QStringLiteral(", ")));
     sendOk = false;
     lc.clear();
     lcOutcome = -1;
-    line.start(1, 9600);
+    line.start(1, rateEd);
     line.onRecord(1);
-    check("line: a record that cannot be sent -> over, nothing waits", lcOutcome == WifiLineBaudChange::NotSent && !line.active());
+    check("line: a record that cannot be sent -> over, nothing waits", lcOutcome == WifiLineChange::NotSent && !line.active());
 }
 
 } // namespace

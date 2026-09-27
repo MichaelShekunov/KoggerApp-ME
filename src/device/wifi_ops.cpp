@@ -74,23 +74,36 @@ void WifiPortChange::finish(bool ok)
     emit finished(ok, newBaud_, oldBaud_);
 }
 
-// ---- WifiLineBaudChange ---------------------------------------------------------------------------
+// ---- WifiLineEdit / WifiLineChange ---------------------------------------------------------------
 
-WifiLineBaudChange::WifiLineBaudChange(Hooks hooks, Timing timing, QObject* parent)
+WifiLineRecord WifiLineEdit::appliedTo(WifiLineRecord r) const
+{
+    if (mode) r.mode = *mode;
+    if (dest) r.dest = *dest;
+    if (ip) r.ip = *ip;
+    if (rport) r.rport = *rport;
+    if (lport) r.lport = *lport;
+    if (baud) r.baud = *baud;
+    if (txPin) r.txPin = *txPin;
+    if (rxPin) r.rxPin = *rxPin;
+    return r;
+}
+
+WifiLineChange::WifiLineChange(Hooks hooks, Timing timing, QObject* parent)
     : QObject(parent),
       hooks_(std::move(hooks)),
       timing_(timing)
 {
     timer_.setSingleShot(true);
-    connect(&timer_, &QTimer::timeout, this, &WifiLineBaudChange::onTimeout);
+    connect(&timer_, &QTimer::timeout, this, &WifiLineChange::onTimeout);
 }
 
-bool WifiLineBaudChange::start(int line, int baud)
+bool WifiLineChange::start(int line, const WifiLineEdit& edit)
 {
-    if (phase_ != Idle || line < 0 || line > 1 || baud < 9600 || baud > 4000000)
+    if (phase_ != Idle || line < 0 || line > 1 || edit.empty() || (edit.baud && (*edit.baud < 9600 || *edit.baud > 4000000)))
         return false;
     line_ = line;
-    baud_ = baud;
+    edit_ = edit;
     phase_ = Reading;
     emit activeChanged();
     hooks_.askRecord(line_);
@@ -98,12 +111,12 @@ bool WifiLineBaudChange::start(int line, int baud)
     return true;
 }
 
-void WifiLineBaudChange::onRecord(int line)
+void WifiLineChange::onRecord(int line)
 {
     if (phase_ != Reading || line != line_)
         return;
     timer_.stop();
-    if (!hooks_.sendRecord(line_, baud_)) {
+    if (!hooks_.sendRecord(line_, edit_)) {
         finish(NotSent);
         return;
     }
@@ -111,7 +124,7 @@ void WifiLineBaudChange::onRecord(int line)
     timer_.start(timing_.answerMs);
 }
 
-void WifiLineBaudChange::onAnswer(int resp)
+void WifiLineChange::onAnswer(int resp)
 {
     if (phase_ != Sent)
         return;
@@ -120,22 +133,22 @@ void WifiLineBaudChange::onAnswer(int resp)
     finish(resp == 1 ? Done : Refused, resp == 1 ? 0 : resp);
 }
 
-void WifiLineBaudChange::onTimeout()
+void WifiLineChange::onTimeout()
 {
     if (phase_ == Reading) {
         finish(NoRecord);
     } else if (phase_ == Sent) {
-        hooks_.readBack(line_);   // the rate may have changed all the same: show what the module says
+        hooks_.readBack(line_);   // the change may have happened all the same: show what the module says
         finish(NoAnswer);
     }
 }
 
-void WifiLineBaudChange::finish(int outcome, int resp)
+void WifiLineChange::finish(int outcome, int resp)
 {
     timer_.stop();
     phase_ = Idle;
     emit activeChanged();
-    emit finished(outcome, line_, baud_, resp);
+    emit finished(outcome, line_, resp);
 }
 
 // ---- WifiByteRate ---------------------------------------------------------------------------------

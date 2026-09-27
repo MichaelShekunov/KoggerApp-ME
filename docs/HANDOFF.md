@@ -418,7 +418,7 @@ A full review of d5f4c100..c83968ef found ten issues, all fixed in afd16b68:
 
 The module's 0.12 contract makes X1 and X2 equal (discovery on either, rates for both, `ID_WIFI_NET` v7 port pages).
 The app side, WIFI_MODULE.md §2e:
-- `WifiPorts`, `WifiByteRate`, `WifiLineBaudChange` in `src/device/wifi_ops.*` (pure, driven by `tools/mission_check`);
+- `WifiPorts`, `WifiByteRate`, `WifiLineChange` (+ `WifiLineEdit`) in `src/device/wifi_ops.*` (pure, driven by `tools/mission_check`);
   `IDBinWifiNet` decodes v7 through `WifiPorts` and sends the v7 requests; `DevDriver` probes v7 once per connection,
   treats ERR_VERSION or 4 s of silence as "firmware before 0.12", exposes `wifiNetPorts`, `wifiNetPortDevices`,
   `wifiNetPortPeers`, `wifiNetOwnPort`, `wifiNetPortSupport`, `wifiPortLine` and `wifiNetRefreshPorts()`.
@@ -431,6 +431,13 @@ The app side, WIFI_MODULE.md §2e:
 - `tools/mission_check --offline` runs only the checks on made-up events (no SITL): 67/67 with the new 28.
 - Verified by machine: build clean, mission_check offline 67/67 (mutants caught), qmllint nothing new, `dev.*` names all
   declared; the page rendered with a mock device in a scratch harness. Not verified: real 0.12 firmware, the head unit.
+- Second round, after the owner's first try with a real 0.12 module: each card carries its line's network settings
+  (mode, destination, peer, own UDP port, X2 pins; header `X2 · UDP 14445 · senders`), applied with
+  `wifiSetLineConfig(line, edits)` — only the edited fields over a freshly read record — with the refusal shown in the
+  card (two UDP lines on one local port: ERR_PAYLOAD, and how to swap). The module address moved into the Ports island;
+  with v7 the Lines island is gone. The page follows the running role: station hides the access point's settings and
+  address island, access point hides the station controls; a pending role says "takes effect after a reboot". 0.12 was
+  changed to ignore the v3 rate of the requester's own line; the app never relied on it. mission_check offline 70/70.
 
 ## Feature: echogram deconvolution
 
