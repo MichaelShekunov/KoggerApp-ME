@@ -185,6 +185,19 @@ public:
     QVariantList wifiNetLineStats();
     QVariantList wifiNetClients();
     int wifiNetOwnAddr();
+    // Firmware 0.12: the two physical ports X1 (0) and X2 (1), ID_WIFI_NET v7. Field names: docs/WIFI_MODULE.md §2e.
+    /** -1 not yet known, 0 not in this firmware (before 0.12), 1 the module reports its ports. */
+    int wifiNetPortSupport();
+    /** Two maps (X1, X2): the port summary (page 0) with byte rates from successive summaries. */
+    QVariantList wifiNetPorts();
+    /** Two lists (X1, X2) of the devices heard from each port (page 1), most recent first. */
+    QVariantList wifiNetPortDevices();
+    /** Two maps (X1, X2): mode, state and peers of each port's line (page 2). */
+    QVariantList wifiNetPortPeers();
+    /** The port this app's requests come through by the module's latest summaries; -1 the network or unknown. */
+    int wifiNetOwnPort();
+    /** The name of a Kogger board id (ID_VERSION v0 byte 1) as the device list shows it; empty when unknown. */
+    static QString knownBoardName(int board);
 
     /** Re-reads status and the saved list (GETTING v0 + v4). */
     Q_INVOKABLE void wifiRefresh();
@@ -211,16 +224,29 @@ public:
     /** False without a connection, or for LR only on an access point (refused by 0.11). Also starts the
      *  check of what is in effect (WifiRadioCheck). */
     Q_INVOKABLE bool wifiSetRadio(double powerDbm, int protocols, int bandwidthMhz, int powerSave);
-    /** Moves the module's port (line 0) and this app's link to it to another speed, checks that the module
-     *  answers there and saves it in the module (WifiPortChange); false when it cannot start. */
-    Q_INVOKABLE bool wifiSetPortBaud(int baud);
-    bool wifiPortBusy() const { return wifiPort_ && wifiPort_->active(); }
-    int wifiPortTarget() const { return wifiPort_ ? wifiPort_->target() : 0; }
+    /**
+     * Sets the rate of the module's port `line` (0 = X1, 1 = X2), 9600..4000000. The port this app is connected
+     * through (the module's latest summary says so; before firmware 0.12 a serial link is on line 0) moves
+     * together with this app's link, the module has to answer at the new rate, and only then is it saved
+     * (WifiPortChange). The other port gets its line record back with only the rate changed (ID_WIFI_NET v3,
+     * WifiLineBaudChange; before 0.12 line 1 only). False when nothing was started.
+     */
+    Q_INVOKABLE bool wifiSetLineBaud(int line, int baud);
+    bool wifiPortBusy() const { return (wifiPort_ && wifiPort_->active()) || (wifiLine_ && wifiLine_->active()); }
+    int wifiPortTarget() const {
+        return (wifiPort_ && wifiPort_->active()) ? wifiPort_->target() : ((wifiLine_ && wifiLine_->active()) ? wifiLine_->target() : 0);
+    }
+    /** The port whose rate is being changed; -1 while none is. */
+    int wifiPortLine() const {
+        return (wifiPort_ && wifiPort_->active()) ? wifiPortLine_ : ((wifiLine_ && wifiLine_->active()) ? wifiLine_->line() : -1);
+    }
     bool wifiRadioChecking() const { return wifiRadioCheck_ && wifiRadioCheck_->active(); }
     /** Re-reads role, access point, address, lines and own address (ID_WIFI_NET v0, v1, v2, v3, v6). */
     Q_INVOKABLE void wifiNetRefresh();
     Q_INVOKABLE void wifiNetRefreshStats();
     Q_INVOKABLE void wifiNetRefreshClients();
+    /** Firmware 0.12: both port summaries (v7 page 0) and each port's devices and network side (pages 1, 2). */
+    Q_INVOKABLE void wifiNetRefreshPorts();
     /** role 0 station, 1 access point. The module answers, then restarts when reboot is set. */
     Q_INVOKABLE void wifiNetSetRole(int role, bool reboot, bool forgetLines);
     /** auth 0 open, 1 WPA2, 2 WPA2/WPA3. An empty password with security keeps the current one. */
@@ -228,10 +254,11 @@ public:
                                   const QString& password);
     Q_INVOKABLE bool wifiNetSetIp(const QString& ip, const QString& mask, bool dhcp, const QString& poolStart,
                                   const QString& poolEnd, int leaseMin, bool offerGateway, bool offerDns);
-    /** mode 0 off, 1 UDP, 2 TCP; dest 0 fixed, 1 senders, 2 broadcast. Line 0 ignores baud and pins. */
+    /** mode 0 off, 1 UDP, 2 TCP; dest 0 fixed, 1 senders, 2 broadcast. Line 0's pins are fixed; before 0.12 line 0
+     *  ignores baud as well (from 0.12 the rate applies to both lines). */
     Q_INVOKABLE bool wifiNetSetLine(int line, int mode, int dest, const QString& ip, int rport, int lport, int baud,
                                     int txPin, int rxPin);
-    /** False without a connection or outside 1..255 (0 is where devices sit; refused by 0.11). */
+    /** False without a connection or outside 1..255 (0 is where devices sit; refused by 0.11), 1..254 from 0.12. */
     Q_INVOKABLE bool wifiNetSetOwnAddr(int addr);
 
     float yaw();
@@ -411,6 +438,9 @@ signals:
     void wifiNetChanged();
     void wifiNetStatsChanged();
     void wifiNetClientsChanged();
+    void wifiNetPortsChanged();           // v7 page 0 (and the port support)
+    void wifiNetPortDevicesChanged();     // v7 page 1
+    void wifiNetPortPeersChanged();       // v7 page 2
     // Answer to an ID_WIFI_NET SETTING (or a refusal): version and response code (Parsers::Resp).
     void wifiNetCommandResult(int version, int resp);
     // The module's answer to a Wi-Fi SETTING (or its refusal of a request): version of the frame
@@ -692,6 +722,12 @@ protected slots:
     void receivedWifi       (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
     void receivedWifiNet    (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
     void logWifiNet(int ver);
+    void logWifiPort(int port, int page);
+    /** The rate of this app's own link to the module when it is a serial link; 0 otherwise or unknown. */
+    int wifiLinkBaud() const;
+    /** The module port (line) this app is connected through: firmware 0.12 says so (v7 flag b2); before it a
+     *  serial link is on line 0, as it always was. -1 when not known (the network). */
+    int wifiOwnLine() const;
 
     void receivedVersion    (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
     void receivedMark       (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
@@ -738,6 +774,9 @@ private:
     WifiRestartWatch wifiRestart_;     // module uptime reports, to see a restart
     QElapsedTimer wifiClock_;          // the monotonic time those reports are compared with
     WifiPortChange* wifiPort_ = nullptr;
+    int wifiPortLine_ = -1;            // the line wifiPort_ is changing
+    WifiLineBaudChange* wifiLine_ = nullptr;
+    QString lastWifiPortLog_[WifiPorts::kPorts][3];   // last logged line per port and v7 page
     WifiRadioCheck* wifiRadioCheck_ = nullptr;
     bool pwmRouteState_ = false;
     bool devSyncState_ = false;

@@ -12,6 +12,7 @@
 #include <QTimer>
 #include "dataset_defs.h"
 #include "proto_binnary.h"
+#include "device/wifi_ops.h"
 
 
 using namespace Parsers;
@@ -1264,13 +1265,15 @@ protected:
  * to on the network, their counters, the access point's clients and the module's own SBP address
  * while a line relays. Every SETTING starts with the key 0xC96B5D4A, like ID_UART, because these
  * settings can cut the module off; each is confirmed, then the module sends the values in force.
- * Contract: the module project's docs/SBP_WIFI.md §3a and docs/NETWORK.md.
+ * Firmware 0.12 adds v7 (GETTING only): per physical port X1/X2 a summary, the devices heard from it and the
+ * network side of its line, decoded by WifiPorts (src/device/wifi_ops.h); 0.11 refuses v7 with ERR_VERSION.
+ * Contract: the module project's docs/SBP_WIFI.md §3a and docs/NETWORK.md; docs/WIFI_MODULE.md §2e.
  */
 class IDBinWifiNet : public IDBin
 {
     Q_OBJECT
 public:
-    explicit IDBinWifiNet() : IDBin() {}
+    explicit IDBinWifiNet() : IDBin() { portClock_.start(); }
 
     ID id() override { return ID_WIFI_NET; }
     Resp parsePayload(FrameParser &proto) override;
@@ -1325,7 +1328,17 @@ public:
 
     /** -1 not yet known, 0 no answer / refused (firmware before 0.10), 1 the module answered. */
     int support() const { return support_; }
-    void markUnsupported() { support_ = 0; }
+    void markUnsupported() { support_ = 0; portSupport_ = 0; }
+    /** Port information (v7): -1 not yet known, 0 refused or no answer (firmware before 0.12), 1 answered. */
+    int portSupport() const { return portSupport_; }
+    void markPortsUnsupported() { portSupport_ = 0; }
+    const WifiPorts& ports() const { return ports_; }
+    /** GETTING v7 without payload: the summary (page 0) of both ports, one CONTENT each. */
+    void requestPorts();
+    /** GETTING v7 {port, page}: port 0 = X1, 1 = X2; page 0 summary, 1 devices, 2 network side. */
+    void requestPortPage(uint8_t port, uint8_t page);
+    /** The line of the last v3 record parsed; -1 before one. */
+    int lastLine() const { return lastLine_; }
     const RoleInfo& role() const { return role_; }
     const Ap& ap() const { return ap_; }
     const IpCfg& ipCfg() const { return ipCfg_; }
@@ -1344,7 +1357,7 @@ public:
     /** SETTING v2. @returns false when an address is not a.b.c.d; the module checks the rest. */
     bool setIpCfg(const QString& ip, const QString& mask, bool dhcp, const QString& poolStart, const QString& poolEnd,
                   uint16_t leaseMin, bool offerGateway, bool offerDns);
-    /** SETTING v3 for one line. Line 0 ignores baud and pins (ID_UART sets its rate). */
+    /** SETTING v3 for one line. Before 0.12 line 0 ignores baud (ID_UART sets its rate); line 0's pins are fixed. */
     bool setLine(uint8_t line, uint8_t mode, uint8_t dest, const QString& ip, uint16_t rport, uint16_t lport,
                  uint32_t baud, int8_t txPin, int8_t rxPin);
     /** SETTING v6: the module's SBP address while a line relays; confirmed from the old address. */
@@ -1367,6 +1380,10 @@ protected:
     QVector<Client> clients_;
     int clientsTotal_ = -1;
     int ownAddress_ = -1;
+    int lastLine_ = -1;
+    int portSupport_ = -1;
+    WifiPorts ports_;
+    QElapsedTimer portClock_;         // monotonic time of the port summaries, for their byte rates
 };
 
 class IDBinVersion : public IDBin

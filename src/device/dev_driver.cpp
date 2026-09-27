@@ -5,6 +5,7 @@
 #include <core.h>
 #include <QDateTime>
 #include <QFile>
+#include <QThread>
 #include <QVariant>
 #include <QXmlStreamWriter>
 #include "notifications.h"
@@ -131,6 +132,50 @@ DevDriver::DevDriver(QObject *parent)
             qInfo().noquote() << QStringLiteral("wifi-port: no answer at %1, link back at %2").arg(newBaud).arg(oldBaud);
             notifyWarning(tr("No answer from the module at %1: the link is back at %2. An unsaved speed is gone after the module's next reboot.")
                               .arg(newBaud).arg(oldBaud));
+        }
+    });
+    // The module port this app is not connected through: its line record goes back with only the rate changed.
+    wifiLine_ = new WifiLineBaudChange({
+        [this](int) { if (m_state.connect) idWifiNet->simpleRequest(v3); },
+        [this](int line, int baud) {
+            const IDBinWifiNet::Line& l = idWifiNet->line(line);
+            if (!m_state.connect || !l.valid)
+                return false;
+            return idWifiNet->setLine(uint8_t(line), l.mode, l.dest, IDBinWifiNet::addrText(l.ip), l.rport, l.lport,
+                                      uint32_t(baud), l.txPin, l.rxPin);
+        },
+        [this](int) {
+            if (!m_state.connect)
+                return;
+            idWifiNet->simpleRequest(v3);
+            if (idWifiNet->portSupport() != 0)
+                idWifiNet->requestPorts();
+        }
+    }, WifiLineBaudChange::Timing(), this);
+    connect(wifiLine_, &WifiLineBaudChange::activeChanged, this, &DevDriver::wifiPortChanged);
+    connect(wifiLine_, &WifiLineBaudChange::finished, this, [](int outcome, int line, int baud, int resp) {
+        const QString port = line == 0 ? QStringLiteral("X1") : QStringLiteral("X2");
+        switch (outcome) {
+        case WifiLineBaudChange::Done:
+            qInfo().noquote() << QStringLiteral("wifi-port: %1 set to %2 through its line record, saved in the module").arg(port).arg(baud);
+            notifyInfo(tr("Port %1: %2 bit/s set, the module saved it").arg(port).arg(baud));
+            break;
+        case WifiLineBaudChange::NoRecord:
+            qInfo().noquote() << QStringLiteral("wifi-port: %1: no line record from the module, nothing sent").arg(port);
+            notifyWarning(tr("Port %1: the module did not send the line's settings, nothing changed").arg(port));
+            break;
+        case WifiLineBaudChange::NotSent:
+            qInfo().noquote() << QStringLiteral("wifi-port: %1: the line record is not usable, nothing sent").arg(port);
+            notifyWarning(tr("Port %1: the line's settings are not known, nothing changed").arg(port));
+            break;
+        case WifiLineBaudChange::Refused:
+            qInfo().noquote() << QStringLiteral("wifi-port: %1: the module refused %2 (code %3)").arg(port).arg(baud).arg(resp);
+            notifyWarning(tr("Port %1: the module refused %2 bit/s (code %3)").arg(port).arg(baud).arg(resp));
+            break;
+        default:
+            qInfo().noquote() << QStringLiteral("wifi-port: %1: no answer to %2, read back").arg(port).arg(baud);
+            notifyWarning(tr("Port %1: no answer to %2 bit/s; the rate shown is what the module reports").arg(port).arg(baud));
+            break;
         }
     });
     wifiRadioCheck_ = new WifiRadioCheck({
@@ -1274,6 +1319,23 @@ void DevDriver::receivedWifiNet(Parsers::Type type, Parsers::Version ver, Parser
         if (resp == respErrorID) {                // the module predates 0.10
             idWifiNet->markUnsupported();
             emit wifiNetChanged();
+            emit wifiNetPortsChanged();
+            return;
+        }
+        // v7 is only ever asked for. 0.11 and older refuse it with ERR_VERSION: that means "no port information",
+        // not a failed command, so it goes nowhere near the page's notices; other refusals of a page are dropped too.
+        if (ver == v7) {
+            if (resp == respErrorVersion && idWifiNet->portSupport() != 1) {
+                if (idWifiNet->portSupport() != 0)
+                    qInfo().noquote() << "wifi-net: no port information (ID_WIFI_NET v7) in this firmware: before 0.12";
+                idWifiNet->markPortsUnsupported();
+                emit wifiNetPortsChanged();
+            }
+            return;
+        }
+        // The answer to a rate change of a port this app is not on belongs to that sequence.
+        if (ver == v3 && wifiLine_->awaitingAnswer()) {
+            wifiLine_->onAnswer(static_cast<int>(resp));
             return;
         }
         emit wifiNetCommandResult(static_cast<int>(ver), static_cast<int>(resp));
@@ -1286,10 +1348,55 @@ void DevDriver::receivedWifiNet(Parsers::Type type, Parsers::Version ver, Parser
     case v5:
         emit wifiNetClientsChanged();
         break;
+    case v7: {
+        const WifiPorts& p = idWifiNet->ports();
+        logWifiPort(p.lastPort(), p.lastPage());
+        if (p.lastPage() == 1)
+            emit wifiNetPortDevicesChanged();
+        else if (p.lastPage() == 2)
+            emit wifiNetPortPeersChanged();
+        else
+            emit wifiNetPortsChanged();
+        break;
+    }
     default:
         logWifiNet(ver);
         emit wifiNetChanged();
+        if (ver == v3)
+            wifiLine_->onRecord(idWifiNet->lastLine());
         break;
+    }
+}
+
+void DevDriver::logWifiPort(int port, int page) {
+    // One line per changed port state (not its counters): which port the app is on, rates, what is connected.
+    if (port < 0 || port >= WifiPorts::kPorts || page < 0 || page > 2)
+        return;
+    const WifiPorts& p = idWifiNet->ports();
+    const QString name = port == 0 ? QStringLiteral("X1") : QStringLiteral("X2");
+    QString line;
+    if (page == 0) {
+        const WifiPorts::Summary& s = p.summary(port);
+        line = QStringLiteral("port %1: flags 0x%2 rate %3 saved %4 connected %5").arg(name).arg(uint(s.flags), 2, 16, QLatin1Char('0'))
+                   .arg(s.baud).arg(s.baudSaved).arg(int(s.connected));
+    } else if (page == 1) {
+        QStringList devs;
+        for (const WifiPorts::Device& d : p.devices(port).list)
+            devs << (d.kind == WifiPorts::KindMavlink
+                         ? QStringLiteral("MAVLink %1/%2 type %3").arg(int(d.addr)).arg(int(d.board)).arg(int(d.major))
+                         : QStringLiteral("SBP %1 board %2").arg(int(d.addr)).arg(int(d.board)));
+        line = QStringLiteral("port %1 devices: %2").arg(name, devs.isEmpty() ? QStringLiteral("none") : devs.join(QStringLiteral(", ")));
+    } else {
+        const WifiPorts::Network& n = p.network(port);
+        QStringList peers;
+        for (const WifiPorts::Peer& peer : n.peers)
+            peers << IDBinWifiNet::addrText(peer.ip) + QStringLiteral(":") + QString::number(peer.port);
+        line = QStringLiteral("port %1 line: mode %2 state %3 peers %4").arg(name).arg(int(n.mode)).arg(int(n.state))
+                   .arg(peers.isEmpty() ? QStringLiteral("none") : peers.join(QStringLiteral(", ")));
+    }
+    if (line != lastWifiPortLog_[port][page]) {
+        lastWifiPortLog_[port][page] = line;
+        qInfo().noquote() << "wifi-net:" << line;
     }
 }
 
@@ -1508,6 +1615,158 @@ QVariantList DevDriver::wifiNetClients() {
 
 int DevDriver::wifiNetOwnAddr() { return idWifiNet->ownAddress(); }
 
+int DevDriver::wifiNetPortSupport() { return idWifiNet->portSupport(); }
+
+namespace {
+// Ages of the port pages are in 0.1 s, 0xFFFF = never: seconds for QML, -1 for never.
+double wifiAgeS(uint16_t age) { return age == WifiPorts::kAgeNever ? -1.0 : age / 10.0; }
+} // namespace
+
+QVariantList DevDriver::wifiNetPorts() {
+    static const char* const protocolNames[WifiPorts::kProtocols] = { "KP1", "KP2", "UBX", "MAVLink 1", "MAVLink 2", "raw" };
+    const WifiPorts& p = idWifiNet->ports();
+    QVariantList list;
+    for (int i = 0; i < WifiPorts::kPorts; ++i) {
+        const WifiPorts::Summary& s = p.summary(i);
+        QVariantMap m;
+        m["port"] = i;
+        m["valid"] = s.valid;
+        m["flags"] = int(s.flags);
+        m["uartRunning"] = (s.flags & WifiPorts::FlagUartRunning) != 0;
+        m["bridging"] = (s.flags & WifiPorts::FlagBridging) != 0;
+        m["here"] = (s.flags & WifiPorts::FlagAskedHere) != 0;
+        m["reports"] = (s.flags & WifiPorts::FlagGetsReports) != 0;
+        m["slip"] = (s.flags & WifiPorts::FlagSlip) != 0;
+        m["provisional"] = (s.flags & WifiPorts::FlagProvisional) != 0;
+        m["usb"] = (s.flags & WifiPorts::FlagUsb) != 0;
+        m["baud"] = int(s.baud);
+        m["baudSaved"] = int(s.baudSaved);
+        m["connected"] = int(s.connected);
+        m["rxBytes"] = double(s.rxBytes);
+        m["txBytes"] = double(s.txBytes);
+        m["rxAge"] = wifiAgeS(s.rxAge);
+        m["txAge"] = wifiAgeS(s.txAge);
+        m["rxBps"] = s.rxBps;
+        m["txBps"] = s.txBps;
+        QVariantList protocols;
+        for (int k = 0; k < WifiPorts::kProtocols; ++k) {
+            QVariantMap pm;
+            pm["name"] = QString::fromLatin1(protocolNames[k]);
+            pm["fromPort"] = double(s.protocols[k].fromPort);
+            pm["toPort"] = double(s.protocols[k].toPort);
+            pm["age"] = wifiAgeS(s.protocols[k].ageFrom);
+            protocols.append(QVariant(pm));
+        }
+        m["protocols"] = protocols;
+        m["sbpRequestsFrom"] = double(s.sbpRequestsFrom);
+        m["sbpContentFrom"] = double(s.sbpContentFrom);
+        m["sbpRequestsTo"] = double(s.sbpRequestsTo);
+        m["sbpContentTo"] = double(s.sbpContentTo);
+        m["moduleRequests"] = double(s.moduleRequests);
+        m["moduleFrames"] = double(s.moduleFrames);
+        m["rxOverflows"] = double(s.rxOverflows);
+        m["txDrops"] = double(s.txDrops);
+        list.append(QVariant(m));
+    }
+    return list;
+}
+
+QVariantList DevDriver::wifiNetPortDevices() {
+    const WifiPorts& p = idWifiNet->ports();
+    QVariantList out;
+    for (int i = 0; i < WifiPorts::kPorts; ++i) {
+        QVariantList list;
+        for (const WifiPorts::Device& d : p.devices(i).list) {
+            QVariantMap m;
+            m["kind"] = int(d.kind);
+            m["age"] = wifiAgeS(d.age);
+            if (d.kind == WifiPorts::KindMavlink) {
+                m["sysid"] = int(d.addr);
+                m["compid"] = int(d.board);
+                m["heartbeat"] = (d.flags & WifiPorts::DevHeartbeat) != 0;
+                m["mavType"] = int(d.major);
+                m["autopilot"] = int(d.minor);
+                m["frames"] = double(d.serial);
+            } else {
+                const bool known = (d.flags & WifiPorts::DevVersionKnown) != 0;
+                m["addr"] = int(d.addr);
+                m["board"] = int(d.board);
+                m["name"] = d.board ? knownBoardName(d.board) : QString();
+                m["fw"] = known ? QStringLiteral("%1.%2").arg(int(d.major)).arg(int(d.minor)) : QString();
+                m["serial"] = double(d.serial);
+            }
+            list.append(QVariant(m));
+        }
+        out.append(QVariant(list));   // one element per port, not the entries themselves
+    }
+    return out;
+}
+
+QVariantList DevDriver::wifiNetPortPeers() {
+    const WifiPorts& p = idWifiNet->ports();
+    QVariantList out;
+    for (int i = 0; i < WifiPorts::kPorts; ++i) {
+        const WifiPorts::Network& n = p.network(i);
+        QVariantMap m;
+        m["valid"] = n.valid;
+        m["mode"] = int(n.mode);
+        m["state"] = int(n.state);
+        QVariantList peers;
+        for (const WifiPorts::Peer& peer : n.peers) {
+            QVariantMap pm;
+            pm["ip"] = IDBinWifiNet::addrText(peer.ip);
+            pm["port"] = int(peer.port);
+            pm["age"] = wifiAgeS(peer.age);
+            peers.append(QVariant(pm));
+        }
+        m["peers"] = peers;
+        out.append(QVariant(m));
+    }
+    return out;
+}
+
+int DevDriver::wifiNetOwnPort() {
+    return idWifiNet->portSupport() == 1 ? idWifiNet->ports().askedPort() : -1;
+}
+
+QString DevDriver::knownBoardName(int board) {
+    switch (board) {
+    case BoardEnhanced:
+    case BoardNEnhanced:
+        return QStringLiteral("2D-Enhanced");
+    case BoardChirp:
+        return QStringLiteral("2D-Chirp");
+    case BoardBase:
+    case BoardNBase:
+        return QStringLiteral("2D-Base");
+    case BoardAssist:
+    case BoardRecorderMini:
+        return QStringLiteral("Recorder");
+    case BoardSideEnhanced:
+        return QStringLiteral("Side-Enhanced");
+    case BoardDVL:
+        return QStringLiteral("DVL");
+    case BoardBasic2D:
+        return QStringLiteral("Basic2D");
+    case BoardNanoSSS:
+        return QStringLiteral("NanoSSS");
+    case BoardBaikalSonar:
+        return QStringLiteral("Baikal-sonar");
+    case BoardWiFi:
+        return QStringLiteral("Wi-Fi");
+    case BoardUSBL:
+        return QStringLiteral("USBL");
+    case BoardUSBLBeacon:
+        return QStringLiteral("Beacon");
+    case BoardPULSEred_2D:
+        return QStringLiteral("PULSEred 2D DSP");
+    case BoardPULSEblue_DSS:
+        return QStringLiteral("PULSEblue DSS");
+    default:
+        return QString();
+    }
+}
+
 bool DevDriver::wifiSetRadio(double powerDbm, int protocols, int bandwidthMhz, int powerSave) {
     // An access point refuses LR only (0.11: no phone or laptop could join it); 20 dBm is the driver's top.
     const bool ap = idWifiNet->role().valid && idWifiNet->role().running == 1;
@@ -1519,16 +1778,62 @@ bool DevDriver::wifiSetRadio(double powerDbm, int protocols, int bandwidthMhz, i
     return true;
 }
 
-bool DevDriver::wifiSetPortBaud(int baud) {
-    if (!m_state.connect || linkUuid_.isNull()) return false;
-    const int now = getBaudrate() > 0 ? getBaudrate() : 921600;
-    if (!wifiPort_->start(baud, now)) return false;
-    qInfo().noquote() << QStringLiteral("wifi-port: set %1 (was %2)").arg(baud).arg(now);
+int DevDriver::wifiLinkBaud() const {
+    LinkManagerWrapper* links = core.getLinkManagerWrapperPtr();
+    if (!links || linkUuid_.isNull()) return 0;
+    const QUuid link = linkUuid_;
+    int baud = 0;
+    const auto read = [links, link, &baud]() {
+        LinkListModel* m = links->getModelPtr();
+        if (m && m->containsUuid(link)
+            && m->valueForUuid(link, LinkListModel::Roles::LinkType).toInt() == static_cast<int>(LinkType::kLinkSerial))
+            baud = m->valueForUuid(link, LinkListModel::Roles::Baudrate).toInt();
+    };
+    // The link list lives on the GUI thread; the driver does too unless reading runs in its own thread.
+    if (links->thread() == QThread::currentThread())
+        read();
+    else
+        QMetaObject::invokeMethod(links, read, Qt::BlockingQueuedConnection);
+    return baud;
+}
+
+int DevDriver::wifiOwnLine() const {
+    if (idWifiNet->portSupport() == 1)
+        return idWifiNet->ports().askedPort();
+    return wifiLinkBaud() > 0 ? 0 : -1;
+}
+
+bool DevDriver::wifiSetLineBaud(int line, int baud) {
+    if (!m_state.connect || line < 0 || line > 1 || baud < 9600 || baud > 4000000 || wifiPortBusy()) return false;
+    if (line == wifiOwnLine()) {
+        // The old rate is the one this app's link runs at now: the ID_UART mirror starts at 115200 and would
+        // send the link back somewhere it never was after a failed change.
+        const int now = wifiLinkBaud();
+        if (linkUuid_.isNull() || now <= 0) return false;
+        wifiPortLine_ = line;
+        if (!wifiPort_->start(baud, now)) return false;
+        qInfo().noquote() << QStringLiteral("wifi-port: set X%1 (this app's port) to %2 (was %3)").arg(line + 1).arg(baud).arg(now);
+        return true;
+    }
+    // Another port: through its line record. Before 0.12 the module ignores line 0's rate there.
+    if (idWifiNet->support() != 1 || (line == 0 && idWifiNet->portSupport() != 1)) return false;
+    if (!wifiLine_->start(line, baud)) return false;
+    qInfo().noquote() << QStringLiteral("wifi-port: set X%1 to %2 through its line record (not this app's port)").arg(line + 1).arg(baud);
     return true;
 }
 
 void DevDriver::wifiNetRefresh() {
     if (m_state.connect) idWifiNet->requestAll();
+}
+
+void DevDriver::wifiNetRefreshPorts() {
+    if (!m_state.connect || idWifiNet->support() != 1 || idWifiNet->portSupport() == 0) return;
+    idWifiNet->requestPorts();
+    if (idWifiNet->portSupport() != 1) return;
+    for (int p = 0; p < WifiPorts::kPorts; ++p) {
+        idWifiNet->requestPortPage(uint8_t(p), 1);
+        idWifiNet->requestPortPage(uint8_t(p), 2);
+    }
 }
 
 void DevDriver::wifiNetRefreshStats() {
@@ -1556,18 +1861,20 @@ bool DevDriver::wifiNetSetIp(const QString& ip, const QString& mask, bool dhcp, 
 
 bool DevDriver::wifiNetSetLine(int line, int mode, int dest, const QString& ip, int rport, int lport, int baud,
                                int txPin, int rxPin) {
-    // Line 0's speed and pins are the module's own (ID_UART, build): ignored there. Line 1 needs a real speed,
-    // or the module refuses the whole line with ERR_PAYLOAD.
+    // Line 0's pins are fixed by the module's build; before 0.12 its speed is ignored here too (ID_UART sets it).
+    // A line whose speed counts needs a real one, or the module refuses the whole line with ERR_PAYLOAD.
+    const bool rateCounts = line == 1 || idWifiNet->portSupport() == 1;
     if (!m_state.connect || line < 0 || line > 1 || rport < 0 || rport > 65535 || lport < 0 || lport > 65535
-        || baud < 0 || (line == 1 && (baud < 9600 || baud > 4000000))
+        || baud < 0 || (rateCounts && (baud < 9600 || baud > 4000000))
         || txPin < -1 || txPin > 127 || rxPin < -1 || rxPin > 127) return false;
     return idWifiNet->setLine(uint8_t(line), uint8_t(mode), uint8_t(dest), ip, uint16_t(rport), uint16_t(lport),
                               uint32_t(baud), int8_t(txPin), int8_t(rxPin));
 }
 
 bool DevDriver::wifiNetSetOwnAddr(int addr) {
-    // 0 is where devices sit by default: the module would take their frames (0.11 refuses it)
-    if (!m_state.connect || addr < 1 || addr > 255) return false;
+    // 0 is where devices sit by default: the module would take their frames (0.11 refuses it); 0.12 refuses 255 too
+    const int top = idWifiNet->portSupport() == 1 ? 254 : 255;
+    if (!m_state.connect || addr < 1 || addr > top) return false;
     idWifiNet->setOwnAddress(uint8_t(addr));
     return true;
 }
@@ -2202,72 +2509,14 @@ void DevDriver::receivedVersion(Parsers::Type type, Parsers::Version ver, Parser
 
     if(resp == respNone) {
         if(ver == v0) {
-            switch (idVersion->boardVersion()) {
-            case BoardNone:
-                if(idVersion->boardVersionMinor() == BoardAssist) {
-                    m_devName = "Assist";
-                } else {
-                    m_devName = QString("Device ID: %1.%2").arg(idVersion->boardVersion()).arg(idVersion->boardVersionMinor());
-                }
-                break;
-            case BoardEnhanced:
-                m_devName = "2D-Enhanced";
-                break;
-            case BoardChirp:
-                m_devName = "2D-Chirp";
-                break;
-            case BoardBase:
-                [[fallthrough]];
-            case BoardNBase:
-                m_devName = "2D-Base";
-                break;
-
-            case BoardAssist:
-            case BoardRecorderMini:
-                m_devName = "Recorder";
-                break;
-
-            case BoardNEnhanced:
-                m_devName = "2D-Enhanced";
-                break;
-            case BoardSideEnhanced:
-                m_devName = "Side-Enhanced";
-                break;
-            case BoardDVL:
-                m_devName = "DVL";
-                break;
-            case BoardBasic2D:
-                m_devName = "Basic2D";
-                break;
-
-            case BoardNanoSSS:
-                m_devName = "NanoSSS";
-                break;
-
-            case BoardBaikalSonar:
-                m_devName = "Baikal-sonar";
-                break;
-
-            case BoardWiFi:
-                m_devName = "Wi-Fi";
-                break;
-
-            case BoardUSBL:
-                m_devName = "USBL";
-                break;
-
-            case BoardUSBLBeacon:
-                m_devName = "Beacon";
-                break;
-
-            case BoardPULSEred_2D:
-                m_devName = "PULSEred 2D DSP";
-                break;
-
-            case BoardPULSEblue_DSS:
-                m_devName = "PULSEblue DSS";
-                break;
-            default:
+            // The board names live in knownBoardName(), which the Wi-Fi module's port list uses as well.
+            const int board = idVersion->boardVersion();
+            const QString known = knownBoardName(board);
+            if(board == BoardNone && idVersion->boardVersionMinor() == BoardAssist) {
+                m_devName = "Assist";
+            } else if(board != BoardNone && !known.isEmpty()) {
+                m_devName = known;
+            } else {
                 m_devName = QString("Device ID: %1.%2").arg(idVersion->boardVersion()).arg(idVersion->boardVersionMinor());
             }
 
@@ -2688,12 +2937,21 @@ void DevDriver::process() {
                     wifiProbeSent_ = true;
                     idWifi->requestAll();
                     idWifiNet->requestAll();
+                    idWifiNet->requestPorts();        // 0.12 port information; 0.11 answers ERR_VERSION
                     wifiNetAskedAt_ = curr_time;
                 }
-                // Firmware before 0.10 does not know ID_WIFI_NET and may not answer at all.
-                if(isWifi() && idWifiNet->support() < 0 && wifiNetAskedAt_ > 0 && curr_time - wifiNetAskedAt_ > 4000) {
-                    idWifiNet->markUnsupported();
-                    emit wifiNetChanged();
+                // Firmware before 0.10 does not know ID_WIFI_NET and may not answer at all; before 0.12 the
+                // module may say nothing to v7 either. Both fall back to what the page did before.
+                if(isWifi() && wifiNetAskedAt_ > 0 && curr_time - wifiNetAskedAt_ > 4000) {
+                    if(idWifiNet->support() < 0) {
+                        idWifiNet->markUnsupported();
+                        emit wifiNetChanged();
+                        emit wifiNetPortsChanged();
+                    } else if(idWifiNet->portSupport() < 0) {
+                        qInfo().noquote() << "wifi-net: no answer to ID_WIFI_NET v7 in 4 s: no port information (firmware before 0.12)";
+                        idWifiNet->markPortsUnsupported();
+                        emit wifiNetPortsChanged();
+                    }
                 }
                 if(isWifi() && idWifi->expireScan(curr_time)) {
                     emit wifiNetworksChanged();
@@ -2738,6 +2996,9 @@ void DevDriver::process() {
                 emit wifiNetChanged();
                 emit wifiNetStatsChanged();
                 emit wifiNetClientsChanged();
+                emit wifiNetPortsChanged();
+                emit wifiNetPortDevicesChanged();
+                emit wifiNetPortPeersChanged();
             }
             if(idWifi->hasData()) {
                 idWifi->reset();

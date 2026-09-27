@@ -1552,6 +1552,7 @@ Resp IDBinWifiNet::parsePayload(FrameParser &proto) {
         l.rxPin = proto.read<S1>();
         l.uart = proto.read<U1>();
         l.valid = true;
+        lastLine_ = i;
         break;
     }
     case v4: {
@@ -1594,11 +1595,34 @@ Resp IDBinWifiNet::parsePayload(FrameParser &proto) {
         if (proto.readAvailable() < 1) return respErrorPayload;
         ownAddress_ = proto.read<U1>();
         break;
+    case v7: {                                    // firmware 0.12: port information, one page per frame
+        const int16_t n = proto.readAvailable();
+        if (n < 2) return respErrorPayload;
+        QByteArray raw(n, 0);
+        proto.read(reinterpret_cast<uint8_t*>(raw.data()), n);
+        if (ports_.apply(reinterpret_cast<const uint8_t*>(raw.constData()), int(n), portClock_.elapsed()) < 0)
+            return respErrorPayload;
+        portSupport_ = 1;
+        break;
+    }
     default:
         return respErrorVersion;
     }
     support_ = 1;
     return respOk;
+}
+
+void IDBinWifiNet::requestPorts() {
+    simpleRequest(v7);
+}
+
+void IDBinWifiNet::requestPortPage(uint8_t port, uint8_t page) {
+    ProtoBinOut out;
+    out.create(GETTING, v7, id(), m_address);
+    out.write<U1>(port);
+    out.write<U1>(page);
+    out.end();
+    emit binFrameOut(out);
 }
 
 void IDBinWifiNet::setRole(uint8_t role, bool reboot, bool forgetLines) {
@@ -1701,6 +1725,9 @@ void IDBinWifiNet::reset() {
     clients_.clear();
     clientsTotal_ = -1;
     ownAddress_ = -1;
+    lastLine_ = -1;
+    portSupport_ = -1;
+    ports_.reset();
 }
 
 Resp IDBinVersion::parsePayload(FrameParser &proto) {

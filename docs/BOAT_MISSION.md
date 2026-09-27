@@ -138,6 +138,8 @@ chmod +x ardurover
 cmake -G Ninja -S tools/mission_check -B build/mission_check -DCMAKE_PREFIX_PATH=D:/Qt/6.8.3/llvm-mingw_64
 cmake --build build/mission_check
 build/mission_check/mission_check.exe --host 127.0.0.1 --port 5760
+# without SITL: only the checks on made-up events (navigation rules, Wi-Fi module sequences and port pages)
+build/mission_check/mission_check.exe --offline
 ```
 
 Start SITL as a child of a shell that stays alive (as above). Started with `exec` or `setsid nohup`

@@ -1,10 +1,11 @@
 // mission_check - drives MavVehicle (the app's MAVLink vehicle class) through a whole boat mission against
 // ArduPilot SITL over TCP and reports PASS/FAIL per step. Exit code 0 = every check passed.
 //
-//   mission_check [--host 127.0.0.1] [--port 5760] [--wall-timeout-scale 1.0]
+//   mission_check [--host 127.0.0.1] [--port 5760] [--wall-timeout-scale 1.0] [--offline]
 //
 // SITL (ArduRover, model motorboat) must already listen on the port; see docs/BOAT_MISSION.md.
-// Before SITL it checks the navigation-readiness rules on made-up EKF reports (no SITL needed).
+// Before SITL it checks the navigation-readiness rules on made-up EKF reports and the Wi-Fi module's
+// sequences and port-page decoding on made-up frames (no SITL needed); --offline stops after those.
 
 #include <QCommandLineParser>
 #include <QCoreApplication>
@@ -320,6 +321,188 @@ void wifiOpsRules()
     check("radio: a refused setting cancels the check", !apCheck.active());
 }
 
+// Firmware 0.12 port information (ID_WIFI_NET v7), decoded from payloads laid out byte by byte as the ports
+// contract's tables, and the rate change of the port this host is not on (ID_WIFI_NET v3 record).
+void wifiPortsRules()
+{
+    const auto put16 = [](QByteArray& b, int at, uint16_t v) {
+        b[at] = char(v & 0xFF);
+        b[at + 1] = char(v >> 8);
+    };
+    const auto put32 = [](QByteArray& b, int at, uint32_t v) {
+        for (int i = 0; i < 4; ++i)
+            b[at + i] = char((v >> (8 * i)) & 0xFF);
+    };
+    // Page 0 with 3 bytes a later firmware might append (ignored by the minimum-length rule).
+    const auto summary = [&](int port, uint8_t flags, uint32_t baud, uint32_t saved, uint8_t connected, uint32_t rx, uint32_t tx) {
+        QByteArray b(WifiPorts::kSummaryBytes, char(0));
+        b[0] = char(port);
+        b[1] = 0;
+        b[2] = char(flags);
+        put32(b, 3, baud);
+        put32(b, 7, saved);
+        b[11] = char(connected);
+        put32(b, 12, rx);
+        put32(b, 16, tx);
+        put16(b, 20, 5);            // RX 0.5 s ago
+        put16(b, 22, 0xFFFF);       // TX never
+        for (int k = 0; k < WifiPorts::kProtocols; ++k)
+            put16(b, 24 + 10 * k + 8, 0xFFFF);
+        put32(b, 24, 40);           // KP1: 40 from the port, 12 to it, last 0.3 s ago
+        put32(b, 28, 12);
+        put16(b, 32, 3);
+        put32(b, 24 + 40, 7);       // MAVLink 2 (the fifth): 7 from the port
+        put32(b, 84, 11);
+        put32(b, 88, 22);
+        put32(b, 92, 33);
+        put32(b, 96, 44);
+        put32(b, 100, 55);
+        put32(b, 104, 66);
+        put32(b, 108, 1);
+        put32(b, 112, 2);
+        b.append(QByteArray(3, char(0xAA)));
+        return b;
+    };
+    const auto apply = [](WifiPorts& p, const QByteArray& b, qint64 t) {
+        return p.apply(reinterpret_cast<const uint8_t*>(b.constData()), int(b.size()), t);
+    };
+    const auto near = [](double a, double b) { return a > b - 0.01 && a < b + 0.01; };
+
+    WifiPorts p;
+    const int page0 = apply(p, summary(0, 0x0F, 3000000, 2000000, 2, 1000, 500), 0);
+    const WifiPorts::Summary& x1 = p.summary(0);
+    check("ports: page 0 of X1, every field at its offset", page0 == 0 && x1.valid && x1.flags == 0x0F && x1.baud == 3000000
+          && x1.baudSaved == 2000000 && x1.connected == WifiPorts::ConnSbpHost && x1.rxBytes == 1000 && x1.txBytes == 500
+          && x1.rxAge == 5 && x1.txAge == WifiPorts::kAgeNever && x1.protocols[0].fromPort == 40 && x1.protocols[0].toPort == 12
+          && x1.protocols[0].ageFrom == 3 && x1.protocols[4].fromPort == 7 && x1.protocols[5].ageFrom == WifiPorts::kAgeNever
+          && x1.sbpRequestsFrom == 11 && x1.sbpContentFrom == 22 && x1.sbpRequestsTo == 33 && x1.sbpContentTo == 44
+          && x1.moduleRequests == 55 && x1.moduleFrames == 66 && x1.rxOverflows == 1 && x1.txDrops == 2);
+    check("ports: flag b2 on X1 -> this host is on X1", p.askedPort() == 0);
+    check("ports: the first summary has no byte rate yet", p.summary(0).rxBps < 0 && p.summary(0).txBps < 0);
+    apply(p, summary(0, 0x0F, 3000000, 2000000, 2, 21000, 2500), 2000);
+    check("ports: 20000 / 2000 bytes more 2 s later -> 10000 / 1000 B/s", near(p.summary(0).rxBps, 10000) && near(p.summary(0).txBps, 1000),
+          QStringLiteral("%1 / %2").arg(p.summary(0).rxBps).arg(p.summary(0).txBps));
+    apply(p, summary(0, 0x0F, 3000000, 2000000, 2, 21100, 2500), 2300);
+    check("ports: a second answer 0.3 s later keeps the rate", near(p.summary(0).rxBps, 10000));
+    apply(p, summary(0, 0x0F, 3000000, 2000000, 2, 50, 10), 4300);
+    check("ports: a counter that went back (module restart) -> rate unknown again", p.summary(0).rxBps < 0);
+    apply(p, summary(0, 0x0F, 3000000, 2000000, 2, 50, 10), 30000);
+    apply(p, summary(0, 0x0F, 3000000, 2000000, 2, 5050, 10), 32000);
+    check("ports: after a long gap the next pair gives the rate again", near(p.summary(0).rxBps, 2500),
+          QString::number(p.summary(0).rxBps));
+    apply(p, summary(1, 0x03, 115200, 115200, 5, 0, 0), 32000);
+    check("ports: X2 without b2 -> this host stays on X1", p.askedPort() == 0 && p.summary(1).connected == WifiPorts::ConnMavlink);
+    apply(p, summary(0, 0x0B, 3000000, 3000000, 3, 0, 0), 34000);
+    apply(p, summary(1, 0x27, 115200, 115200, 4, 0, 0), 34000);
+    check("ports: b2 on X2 -> this host is on X2 (and b5 = provisional)", p.askedPort() == 1
+          && (p.summary(1).flags & WifiPorts::FlagProvisional) != 0);
+    apply(p, summary(1, 0x23, 115200, 115200, 4, 0, 0), 36000);
+    check("ports: b2 on neither -> the network (-1)", p.askedPort() == -1);
+    check("ports: a summary one byte short is refused and changes nothing",
+          apply(p, summary(0, 0x0F, 9600, 9600, 0, 0, 0).left(WifiPorts::kSummaryBytes - 1), 38000) < 0 && p.summary(0).baud == 3000000);
+    check("ports: port 2 is refused", apply(p, summary(2, 0x0F, 9600, 9600, 0, 0, 0), 38000) < 0);
+
+    QByteArray dev(3 + 2 * 12, char(0));
+    dev[0] = 1;
+    dev[1] = 1;
+    dev[2] = 2;
+    dev[3] = char(WifiPorts::KindSbp);                          // SBP device at address 0, Basic2D (12), fw 3.4
+    dev[4] = 0;
+    dev[5] = 12;
+    dev[6] = 3;
+    dev[7] = 4;
+    dev[8] = char(WifiPorts::DevVersionKnown);
+    put16(dev, 9, 7);
+    put32(dev, 11, 0x01020304);
+    dev[15] = char(WifiPorts::KindMavlink);                     // MAVLink 1/1, boat (11), ArduPilot (3), 250 frames
+    dev[16] = 1;
+    dev[17] = 1;
+    dev[18] = 11;
+    dev[19] = 3;
+    dev[20] = char(WifiPorts::DevHeartbeat);
+    put16(dev, 21, 0xFFFF);
+    put32(dev, 23, 250);
+    const int page1 = apply(p, dev, 38000);
+    const QVector<WifiPorts::Device>& dl = p.devices(1).list;
+    check("ports: page 1 of X2, an SBP device and a MAVLink system", page1 == 1 && p.devices(1).valid && dl.size() == 2
+          && dl[0].kind == WifiPorts::KindSbp && dl[0].addr == 0 && dl[0].board == 12 && dl[0].major == 3 && dl[0].minor == 4
+          && dl[0].flags == WifiPorts::DevVersionKnown && dl[0].age == 7 && dl[0].serial == 0x01020304
+          && dl[1].kind == WifiPorts::KindMavlink && dl[1].addr == 1 && dl[1].board == 1 && dl[1].major == 11 && dl[1].minor == 3
+          && dl[1].age == WifiPorts::kAgeNever && dl[1].serial == 250 && !p.devices(0).valid);
+    check("ports: page 1 shorter than its count is refused", apply(p, dev.left(3 + 12 + 5), 38000) < 0 && p.devices(1).list.size() == 2);
+    check("ports: page 1 with no devices", apply(p, QByteArray("\x01\x01\x00", 3), 38000) == 1 && p.devices(1).valid
+          && p.devices(1).list.isEmpty());
+
+    QByteArray net(5 + 8, char(0));
+    net[0] = 0;
+    net[1] = 2;
+    net[2] = 1;                                                 // UDP
+    net[3] = 3;                                                 // ready
+    net[4] = 1;
+    net[5] = 10;
+    net[6] = 0;
+    net[7] = 0;
+    net[8] = 10;
+    put16(net, 9, 14444);
+    put16(net, 11, 4);
+    const int page2 = apply(p, net, 38000);
+    const WifiPorts::Network& n0 = p.network(0);
+    check("ports: page 2 of X1, UDP ready, peer 10.0.0.10:14444 0.4 s ago", page2 == 2 && n0.valid && n0.mode == 1 && n0.state == 3
+          && n0.peers.size() == 1 && n0.peers[0].ip == 0x0A00000Au && n0.peers[0].port == 14444 && n0.peers[0].age == 4);
+    check("ports: an unknown page is refused", apply(p, QByteArray("\x00\x03\x00\x00\x00", 5), 38000) < 0 && p.lastPage() == 2);
+    p.reset();
+    check("ports: reset forgets everything", !p.summary(0).valid && !p.devices(1).valid && !p.network(0).valid && p.askedPort() == -1);
+
+    QStringList lc;
+    bool sendOk = true;
+    WifiLineBaudChange line({
+        [&](int l) { lc << QStringLiteral("ask %1").arg(l); },
+        [&](int l, int b) { lc << QStringLiteral("send %1 %2").arg(l).arg(b); return sendOk; },
+        [&](int l) { lc << QStringLiteral("readback %1").arg(l); }
+    }, WifiLineBaudChange::Timing{ 150 });
+    int lcOutcome = -1;
+    int lcResp = -1;
+    QObject::connect(&line, &WifiLineBaudChange::finished, [&](int o, int, int, int r) { lcOutcome = o; lcResp = r; });
+    check("line: refuses line 2 and 5000000", !line.start(2, 115200) && !line.start(1, 5000000) && lc.isEmpty());
+    check("line: X2 -> 115200 reads the record first", line.start(1, 115200) && lc == QStringList{ QStringLiteral("ask 1") }
+          && !line.awaitingAnswer(), lc.join(QStringLiteral(", ")));
+    check("line: a second change is refused while one runs", !line.start(0, 9600));
+    line.onRecord(0);
+    check("line: the other line's record is not used", lc.size() == 1);
+    line.onRecord(1);
+    check("line: the record came -> sent back with the new rate, waiting for the answer",
+          lc.value(1) == QStringLiteral("send 1 115200") && line.awaitingAnswer(), lc.join(QStringLiteral(", ")));
+    line.onAnswer(1);
+    check("line: OK -> read back, done", lcOutcome == WifiLineBaudChange::Done && lc.value(2) == QStringLiteral("readback 1")
+          && !line.active(), lc.join(QStringLiteral(", ")));
+    lc.clear();
+    lcOutcome = -1;
+    line.start(0, 921600);
+    waitFor([&] { return lcOutcome >= 0; }, 2000);
+    check("line: no record -> nothing sent", lcOutcome == WifiLineBaudChange::NoRecord
+          && !lc.join(QStringLiteral(",")).contains(QStringLiteral("send")), lc.join(QStringLiteral(", ")));
+    lc.clear();
+    lcOutcome = -1;
+    line.start(1, 4000000);
+    line.onRecord(1);
+    line.onAnswer(3);
+    check("line: refused -> reported with its code, read back", lcOutcome == WifiLineBaudChange::Refused && lcResp == 3
+          && lc.contains(QStringLiteral("readback 1")), lc.join(QStringLiteral(", ")));
+    lc.clear();
+    lcOutcome = -1;
+    line.start(1, 9600);
+    line.onRecord(1);
+    waitFor([&] { return lcOutcome >= 0; }, 2000);
+    check("line: no answer -> read back, reported", lcOutcome == WifiLineBaudChange::NoAnswer && lc.contains(QStringLiteral("readback 1")),
+          lc.join(QStringLiteral(", ")));
+    sendOk = false;
+    lc.clear();
+    lcOutcome = -1;
+    line.start(1, 9600);
+    line.onRecord(1);
+    check("line: a record that cannot be sent -> over, nothing waits", lcOutcome == WifiLineBaudChange::NotSent && !line.active());
+}
+
 } // namespace
 
 int main(int argc, char* argv[])
@@ -331,12 +514,18 @@ int main(int argc, char* argv[])
     cli.addOption({ QStringLiteral("port"), QStringLiteral("SITL TCP port"), QStringLiteral("port"), QStringLiteral("5760") });
     cli.addOption({ QStringLiteral("wall-timeout-scale"), QStringLiteral("multiply every wait by this"), QStringLiteral("k"),
                     QStringLiteral("1.0") });
+    cli.addOption({ QStringLiteral("offline"), QStringLiteral("only the checks on made-up events (no SITL needed)") });
     cli.process(app);
     g_scale = qMax(0.1, cli.value(QStringLiteral("wall-timeout-scale")).toDouble());
 
     navRules();
     sequenceAndLogRules();
     wifiOpsRules();
+    wifiPortsRules();
+    if (cli.isSet(QStringLiteral("offline"))) {
+        std::printf("\n%d checks, %d failed (offline)\nMISSION_CHECK_%s\n", g_checks, g_failed, g_failed ? "FAILED" : "DONE");
+        return g_failed ? 1 : 0;
+    }
 
     QTcpSocket sock;
     MavVehicle v(nullptr, false);
