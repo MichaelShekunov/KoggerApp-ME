@@ -403,7 +403,10 @@ A full review of d5f4c100..c83968ef found ten issues, all fixed in afd16b68:
 - Wi-Fi module firmware 0.11 (2026-09-27, 7691d851; WIFI_MODULE.md §2d): reset reason from v1, power up to 80,
   access-point channel 1–11, own address 1–255, LR only not offered and no PHY wait in the access-point role.
   mission_check 72/72. The head unit's module was updated to 0.11.0 the same day (HeadUnit docs); the kiosk branch
-  with this support (`headunit` 23bcf614) is built on the board, not yet switched to.
+  with this support (`headunit` 23bcf614) is on the kiosk since 2026-09-27 (log: `wifi: module up 1297 s, last reset:
+  software: update, role change or reboot (3)`, no QML errors). Open, not an app matter: on 0.11 the boat's stream
+  through the module's relay mostly stopped ~2 min after it joined the access point (module up, associated, its own
+  frames arriving); on 0.10 with the same settings it had run 9 minutes clean (HeadUnit docs/STATE.md).
 - On the head unit since 2026-09-27 (`headunit` 74b5afee), with the live boat (Verified, kogger.log): autopilot
   found 0.4 s after start, settings read 14 s after detection, the heading line held and logged once ("after 2
   changes"), no QML errors, no "module restarted" line in 3 minutes of once-a-second uptime reports. Not yet
