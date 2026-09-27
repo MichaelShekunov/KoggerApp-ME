@@ -1547,7 +1547,7 @@ ApplicationWindow {
 
         FileOpeningOverlay { }
 
-        SplashOverlay { }
+        // SplashOverlay { }  // Head Unit: faster startup, boot logo comes from Plymouth
 
         KScreenKeyboard { }
 

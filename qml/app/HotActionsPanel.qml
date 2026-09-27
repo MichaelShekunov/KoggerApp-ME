@@ -112,7 +112,7 @@ Item {
     signal secondWindowToggleRequested()
     property bool secondWindowOpen: false
     property bool secondWindowButtonEnabled: true
-    readonly property bool _secondWindowAvailable: Qt.platform.os !== "android" && Qt.platform.os !== "ios"
+    readonly property bool _secondWindowAvailable: false  // Head Unit: single display
     readonly property bool _secondWindowRevealOverride: _revealActiveKey === "secondWindow"
     readonly property bool _showSecondWindow: _secondWindowAvailable && (secondWindowButtonEnabled || _secondWindowRevealOverride)
 

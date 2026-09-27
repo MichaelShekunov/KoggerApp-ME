@@ -111,8 +111,8 @@ property bool quickActionBottomTrackEnabled: true
 property bool quickActionProfilesEnabled: true
 property bool quickActionWidgetsEnabled: true
 property bool quickActionConsoleEnabled: true
-property bool quickActionSecondWindowEnabled: true
-property bool quickActionPowerOffEnabled: false
+property bool quickActionSecondWindowEnabled: false
+property bool quickActionPowerOffEnabled: true
 property bool quickActionInputLockEnabled: true
 
 property bool inputLocked: false
@@ -129,8 +129,7 @@ property string quickActionDraggingKey: ""
 
 readonly property var quickActionKeys: {
     var base = ["connections", "logging", "layouts", "widgets", "console", "bottomTrack", "profiles", "inputLock"]
-    if (Qt.platform.os !== "android" && Qt.platform.os !== "ios")
-        base.push("secondWindow")   // desktop-only; mobile drops it on normalize
+    // Head Unit: no "secondWindow" quick action, the kiosk has a single display
     if (Qt.platform.os === "linux" || (typeof manualTesting !== "undefined" && manualTesting === true))
         base.push("powerOff")       // Ubuntu build (or any platform under MANUAL_TESTING)
     return base
@@ -1694,8 +1693,8 @@ property Settings layoutStore: Settings {
     property string standPanelConfigJson: ""
     property bool quickActionWidgetsEnabledStored: true
     property bool quickActionConsoleEnabledStored: true
-    property bool quickActionSecondWindowEnabledStored: true
-    property bool quickActionPowerOffEnabledStored: false
+    property bool quickActionSecondWindowEnabledStored: false
+    property bool quickActionPowerOffEnabledStored: true
     property bool quickActionInputLockEnabledStored: true
     property bool secondaryWindowOpenStored: false
     property string secondaryWindowModeStored: ""
@@ -3877,15 +3876,15 @@ function restoreLayoutState() {
     quickActionProfilesEnabled = layoutStore.quickActionProfilesEnabledStored
     quickActionWidgetsEnabled = layoutStore.quickActionWidgetsEnabledStored
     quickActionConsoleEnabled = layoutStore.quickActionConsoleEnabledStored
-    quickActionSecondWindowEnabled = layoutStore.quickActionSecondWindowEnabledStored
-    quickActionPowerOffEnabled = layoutStore.quickActionPowerOffEnabledStored
+    quickActionSecondWindowEnabled = false  // Head Unit: single display
+    quickActionPowerOffEnabled = true  // Head Unit: the power button is never hidden
     quickActionInputLockEnabled = layoutStore.quickActionInputLockEnabledStored
     applyQuickActionOrder((layoutStore.quickActionOrderStored || "").split(","))
     selectedConnectionFilePath = layoutStore.selectedConnectionFilePathStored
     var storedSecondaryMode = layoutStore.secondaryWindowModeStored
     secondaryWindowMode = (storedSecondaryMode === "2D" || storedSecondaryMode === "3D"
                            || storedSecondaryMode === "Video") ? storedSecondaryMode : ""
-    secondaryWindowOpen = layoutStore.secondaryWindowOpenStored
+    secondaryWindowOpen = false  // Head Unit: single display
 
     if (layouts.length === 0)
         return false
