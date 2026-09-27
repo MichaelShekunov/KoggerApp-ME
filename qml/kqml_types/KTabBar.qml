@@ -108,6 +108,13 @@ Item {
         return option
     }
 
+    // An option may carry `enabled: false`: shown dimmed, never selected (click, drag or keys). Options without the
+    // key are enabled, as before.
+    function optionEnabledAt(idx) {
+        var option = optionAt(idx)
+        return !(option && option.enabled === false)
+    }
+
     function optionTipAt(idx) {
         var option = optionAt(idx)
         if (option && option.tip !== undefined)
@@ -152,7 +159,7 @@ Item {
     }
 
     function applyIndex(indexToApply) {
-        if (indexToApply < 0 || indexToApply >= optionCount)
+        if (indexToApply < 0 || indexToApply >= optionCount || !optionEnabledAt(indexToApply))
             return
 
         if (tabBar.currentIndex !== indexToApply) {
@@ -203,6 +210,7 @@ Item {
 
     Rectangle {
         visible: tabMouseArea.hoverIndex >= 0 && tabMouseArea.hoverIndex !== root.visualIndex
+                 && root.optionEnabledAt(tabMouseArea.hoverIndex)
         x: root.segmentXAt(tabMouseArea.hoverIndex)
         y: root.verticalPadding
         width: root.segmentWidthAt(tabMouseArea.hoverIndex)
@@ -285,6 +293,8 @@ Item {
                         horizontalAlignment: Text.AlignHCenter
                         text: tabButton.text
                         color: selected ? AppPalette.accentText
+                               : !root.optionEnabledAt(tabButton.optionIndex)
+                                 ? Qt.rgba(AppPalette.textStrong.r, AppPalette.textStrong.g, AppPalette.textStrong.b, 0.32)
                                : (tabButton.optionIndex === tabMouseArea.hoverIndex
                                   ? AppPalette.textStrong
                                   : Qt.rgba(AppPalette.textStrong.r, AppPalette.textStrong.g, AppPalette.textStrong.b, 0.78))
@@ -317,8 +327,10 @@ Item {
             pressX = mouse.x
             dragging = false
             root._ringSuppressed = true
-            if (root.dragSelectEnabled)
-                root.dragPreviewIndex = root.indexFromPosition(mouse.x)
+            if (root.dragSelectEnabled) {
+                var pressIdx = root.indexFromPosition(mouse.x)
+                root.dragPreviewIndex = root.optionEnabledAt(pressIdx) ? pressIdx : -1
+            }
         }
 
         onPositionChanged: function(mouse) {
@@ -327,8 +339,10 @@ Item {
                 return
             if (!dragging && Math.abs(mouse.x - pressX) > Math.round(6 * AppPalette.scale))
                 dragging = true
-            if (dragging)
-                root.dragPreviewIndex = root.indexFromPosition(mouse.x)
+            if (dragging) {
+                var dragIdx = root.indexFromPosition(mouse.x)
+                root.dragPreviewIndex = root.optionEnabledAt(dragIdx) ? dragIdx : -1
+            }
         }
 
         onExited: tabMouseArea.hoverIndex = -1

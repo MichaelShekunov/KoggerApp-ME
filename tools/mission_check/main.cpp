@@ -323,6 +323,21 @@ void wifiOpsRules()
 
 bool target0(const WifiLineChange& c) { return c.target() == 0; }
 
+// The module's radio rules (ERR_PAYLOAD otherwise): 40 MHz only with 802.11n; LR only for an access point from 0.12.
+void wifiRadioRules()
+{
+    check("radio rule: 40 MHz with b/g/n and b/g/n+LR only", WifiRadioRules::allows40(0x07) && WifiRadioRules::allows40(0x0F)
+          && !WifiRadioRules::allows40(0x01) && !WifiRadioRules::allows40(0x03) && !WifiRadioRules::allows40(0x08));
+    check("radio rule: LR, b and b/g asked at 40 MHz go at 20", WifiRadioRules::widthFor(0x08, 40) == 20
+          && WifiRadioRules::widthFor(0x01, 40) == 20 && WifiRadioRules::widthFor(0x03, 40) == 20);
+    check("radio rule: b/g/n and b/g/n+LR keep the width asked", WifiRadioRules::widthFor(0x07, 40) == 40
+          && WifiRadioRules::widthFor(0x0F, 40) == 40 && WifiRadioRules::widthFor(0x07, 20) == 20 && WifiRadioRules::widthFor(0x08, 20) == 20);
+    check("radio rule: LR only for an access point: 0.11 no, 0.12 and 1.0 yes, 0.0 unknown",
+          WifiRadioRules::lrOnlyApSupport(0, 11) == 0 && WifiRadioRules::lrOnlyApSupport(0, 12) == 1
+          && WifiRadioRules::lrOnlyApSupport(0, 13) == 1 && WifiRadioRules::lrOnlyApSupport(1, 0) == 1
+          && WifiRadioRules::lrOnlyApSupport(0, 0) == -1);
+}
+
 // Firmware 0.12 port information (ID_WIFI_NET v7), decoded from payloads laid out byte by byte as the ports
 // contract's tables, and the rate change of the port this host is not on (ID_WIFI_NET v3 record).
 void wifiPortsRules()
@@ -546,6 +561,7 @@ int main(int argc, char* argv[])
     sequenceAndLogRules();
     wifiOpsRules();
     wifiPortsRules();
+    wifiRadioRules();
     if (cli.isSet(QStringLiteral("offline"))) {
         std::printf("\n%d checks, %d failed (offline)\nMISSION_CHECK_%s\n", g_checks, g_failed, g_failed ? "FAILED" : "DONE");
         return g_failed ? 1 : 0;
