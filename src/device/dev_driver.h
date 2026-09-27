@@ -229,9 +229,16 @@ public:
      * through (the module's latest summary says so; before firmware 0.12 a serial link is on line 0) moves
      * together with this app's link, the module has to answer at the new rate, and only then is it saved
      * (WifiPortChange). The other port gets its line record back with only the rate changed (ID_WIFI_NET v3,
-     * WifiLineBaudChange; before 0.12 line 1 only). False when nothing was started.
+     * WifiLineChange; before 0.12 line 1 only). False when nothing was started.
      */
     Q_INVOKABLE bool wifiSetLineBaud(int line, int baud);
+    /**
+     * Firmware 0.12: changes the network side of line `line` (0 = X1, 1 = X2) through its record (ID_WIFI_NET v3):
+     * read first, sent back with only the keys of `edits` changed, read back with v3 and v7 (WifiLineChange). Keys:
+     * mode 0..2, dest 0..2, ip "a.b.c.d", rport and lport 0..65535, txPin and rxPin -1..127 (line 1 only). No rate
+     * here (wifiSetLineBaud). The outcome arrives as wifiLineChangeFinished(). False when nothing was started.
+     */
+    Q_INVOKABLE bool wifiSetLineConfig(int line, const QVariantMap& edits);
     bool wifiPortBusy() const { return (wifiPort_ && wifiPort_->active()) || (wifiLine_ && wifiLine_->active()); }
     int wifiPortTarget() const {
         return (wifiPort_ && wifiPort_->active()) ? wifiPort_->target() : ((wifiLine_ && wifiLine_->active()) ? wifiLine_->target() : 0);
@@ -441,6 +448,9 @@ signals:
     void wifiNetPortsChanged();           // v7 page 0 (and the port support)
     void wifiNetPortDevicesChanged();     // v7 page 1
     void wifiNetPortPeersChanged();       // v7 page 2
+    // End of a line-record change (WifiLineChange::Outcome; resp = the module's code on a refusal); rate: it was a
+    // port rate, otherwise the line's network settings.
+    void wifiLineChangeFinished(int line, int outcome, int resp, bool rate);
     // Answer to an ID_WIFI_NET SETTING (or a refusal): version and response code (Parsers::Resp).
     void wifiNetCommandResult(int version, int resp);
     // The module's answer to a Wi-Fi SETTING (or its refusal of a request): version of the frame
@@ -775,7 +785,7 @@ private:
     QElapsedTimer wifiClock_;          // the monotonic time those reports are compared with
     WifiPortChange* wifiPort_ = nullptr;
     int wifiPortLine_ = -1;            // the line wifiPort_ is changing
-    WifiLineBaudChange* wifiLine_ = nullptr;
+    WifiLineChange* wifiLine_ = nullptr;
     QString lastWifiPortLog_[WifiPorts::kPorts][3];   // last logged line per port and v7 page
     WifiRadioCheck* wifiRadioCheck_ = nullptr;
     bool pwmRouteState_ = false;

@@ -203,12 +203,36 @@ The module project's ports contract for 0.12. What changes for the app and how i
   `WifiPortChange` (§2c); 0.12 takes the status polls at the new rate as the confirmation, and `ID_FLASH` v0 saves it.
   The old rate for the roll-back is now the app link's own rate (link list); it used to be the `ID_UART` mirror, whose
   115200 default made the 921600 fallback dead code and could roll the link back to a rate it never had. The other
-  port goes through `WifiLineBaudChange`: v3 is read, the line's record is sent back with only the rate changed, and
+  port goes through `WifiLineChange`: v3 is read, the line's record is sent back with only the rate changed, and
   after the module's answer v3 and v7 are read back (before 0.12: line 1 only; the module ignores line 0's rate in v3).
-  `wifiPortBusy`, `wifiPortTarget` and `wifiPortLine` cover both sequences.
-- **Elsewhere with v7**: the Lines island marks "this port" by b2 instead of line 0, shows the "switching it off"
-  caption only for that line, hides its baud field (Apply sends the rate in effect), and calls the own address simply
-  "Module address" (1–254); the access-point hint no longer ties address 88 to a relaying line.
+  `wifiPortBusy`, `wifiPortTarget` (0 for a settings change) and `wifiPortLine` cover both sequences.
+- **Rate in v3 for the requester's own line** (0.12, decided after review): the module ignores the `baud` field of a v3
+  SET for the line of the port the request came through — a host changes its own port with `ID_UART` v0, and a
+  read-back record would otherwise carry a stale rate. For the other line, or any line from the network, a new rate is
+  applied and saved at once. So the app never uses v3 for its own port's rate, and a settings change of its own line
+  simply sends the read-back record.
+- **Line settings in the cards** (owner, 2026-09-27: "where do I set the UDP port of a connector"): X1 = line 0, X2 =
+  line 1. The card's header reads `X2 · UDP 14445 · senders` (the local UDP port, 0 = the peer port, shown as the port
+  in effect; `TCP → ip:port`; `line off`). Its "Network side" shows the line's state and peers (page 2), the counters
+  to and from the network (v4) and the settings: mode, destination (UDP), peer IP (fixed or TCP), peer port, own UDP
+  port, and on X2 the TX/RX pins. Apply (two taps) calls `dev.wifiSetLineConfig(line, edits)` with only the fields
+  the operator changed; `WifiLineChange` reads v3, applies those fields over the fresh record (`WifiLineEdit`), sends
+  it, and reads back v3 and v7. The end arrives as `wifiLineChangeFinished(line, outcome, resp, rate)`; a refusal is
+  shown inside the card and keeps the edits. Two UDP lines cannot share a local port (the module answers ERR_PAYLOAD):
+  the card says so, with the hint that swapping the ports of X1 and X2 needs one line moved to a free port first, and
+  it refuses locally before sending when the other line already listens on that UDP port (compared as the port in
+  effect, lport or else rport — Inference about the module's rule). The poll of the island also reads v3 and v4.
+- **Module address** (v6) is a row of the Ports island (1–254). With v7 the Lines island is not shown at all (the
+  cards replace it; its hidden instance still reports the answers to the page's other ID_WIFI_NET SETTINGs); on 0.10
+  and 0.11 it is exactly as before.
+- **Role-driven page** (owner, 2026-09-27): the RUNNING role (`ID_WIFI_NET` v0) decides what is shown. Station: the
+  "Role" island keeps only the role selector (Apply and reboot / Save for next boot), the access point's name,
+  password, security, channel, clients and the address/DHCP island are hidden. Access point: the Wi-Fi island shows
+  only the access point's state (auto-connect, scan, networks, join and saved networks are hidden). A saved role that
+  differs from the running one shows "Saved role: … — takes effect after a reboot". While the role is not known, and
+  on firmware without `ID_WIFI_NET`, nothing is hidden by role (the ID_WIFI v0 access-point state still hides the
+  station controls, as before). Consequence: the access point's settings can no longer be prepared in the station
+  role; they appear after the reboot into it.
 - **Log**: `wifi-net: port X1: flags 0x0f rate 3000000 saved 3000000 connected 4`, `wifi-net: port X2 devices: …`,
   `wifi-net: port X1 line: mode … state … peers …` when they change (not the counters); `wifi-port:` lines for both
   rate sequences.
@@ -216,11 +240,13 @@ The module project's ports contract for 0.12. What changes for the app and how i
   the per-protocol counters are shown as bare numbers ("units": frames, and whatever the module counts for raw); a
   page 1 with more than 8 entries is still read if its bytes are there.
 - Verified by machine (2026-09-27): Windows build clean; `tools/mission_check --offline` checks the decoder byte by
-  byte against the contract's tables, the byte rates and `WifiLineBaudChange` on made-up frames (a decoder with a
-  wrong offset or the wrong flag bit fails them); qmllint shows nothing new; every `dev.*` name used by the page is
-  declared in C++ (script). The page was rendered with a mock device in a scratch harness (X1 / X2 / network,
-  wide and narrow, a change running, 0.11 fallback). **Not verified**: against real 0.12 firmware (it did not exist
-  yet), and on the head unit.
+  byte against the contract's tables, the byte rates, `WifiLineEdit` and `WifiLineChange` on made-up frames (70/70;
+  a decoder with a wrong offset, the wrong flag bit or an edit applied to the wrong field fails them); qmllint shows
+  nothing new; every `dev.*` name used by the page is declared in C++ (script). The page was rendered with a mock
+  device in a scratch harness (X1 / X2 / network, wide and narrow, a change running, a refused line change, station /
+  access point / pending role, 0.11 and pre-0.10 fallbacks). The owner ran the first round against a real 0.12 module
+  (the cards showed the sonar on X2 as SBP device 0 at 15.6 KB/s). **Not verified by machine**: the line-settings
+  Apply and the role-driven page against the real module, and the head unit.
 
 ## 2c. Port speed of the module (line 0)
 

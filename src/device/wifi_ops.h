@@ -6,6 +6,7 @@
 #include <QVector>
 #include <cstdint>
 #include <functional>
+#include <optional>
 
 /**
  * @brief Changing the speed of the Wi-Fi module's port this host is connected through (line 0 before
@@ -67,32 +68,62 @@ private:
     QTimer checkTimer_;
 };
 
+/** One UART line's record as ID_WIFI_NET v3 carries it: the fields a SETTING sends (after the key and line). */
+struct WifiLineRecord {
+    uint8_t mode = 0, dest = 0;                   ///< mode 0 off / 1 UDP / 2 TCP; dest 0 fixed / 1 senders / 2 broadcast
+    quint32 ip = 0;                               ///< a.b.c.d, a in the top byte
+    uint16_t rport = 0, lport = 0;                ///< peer port; own UDP port (0 = the peer port)
+    uint32_t baud = 0;
+    int8_t txPin = -1, rxPin = -1;
+};
+
 /**
- * @brief Changing the rate of a module port this host is NOT connected through (ID_WIFI_NET v3 SETTING:
- * firmware 0.12 takes the rate for either line, 0.10/0.11 for line 1 only). The line's record is read first,
- * sent back with only the rate changed, and read back after the module's answer. The module saves such a rate
- * at once, and this host's link is not touched. Runs in the driver like WifiPortChange, so it finishes when
- * the settings page is left.
+ * @brief The fields of a line record an operator changed. Everything else is taken from the record read from
+ * the module just before sending, so a field this host did not touch keeps what the module has, even when
+ * another host changed it meanwhile.
  */
-class WifiLineBaudChange : public QObject
+struct WifiLineEdit {
+    std::optional<uint8_t> mode, dest;
+    std::optional<quint32> ip;
+    std::optional<uint16_t> rport, lport;
+    std::optional<uint32_t> baud;
+    std::optional<int8_t> txPin, rxPin;
+
+    bool empty() const { return !mode && !dest && !ip && !rport && !lport && !baud && !txPin && !rxPin; }
+    /** Only a rate: the port-rate path, reported as such. */
+    bool rateOnly() const { return baud && !mode && !dest && !ip && !rport && !lport && !txPin && !rxPin; }
+    /** `r` with the edited fields replaced. */
+    WifiLineRecord appliedTo(WifiLineRecord r) const;
+};
+
+/**
+ * @brief Changing a UART line's record in the module (ID_WIFI_NET v3 SETTING) as one sequence: the record is read
+ * first, sent back with only the edited fields changed, and read back after the module's answer. Used for the
+ * network side of a line (mode, destination, peer, ports, pins) and for the rate of a port this host is NOT
+ * connected through (firmware 0.12 takes the rate for either line, 0.10/0.11 for line 1 only; the module saves it
+ * at once, this host's link is not touched). For the line of the port the request comes through, 0.12 ignores the
+ * rate field: that rate goes through WifiPortChange (ID_UART). Runs in the driver like WifiPortChange, so it
+ * finishes when the settings page is left.
+ */
+class WifiLineChange : public QObject
 {
     Q_OBJECT
 
 public:
     struct Hooks {
-        std::function<void(int)> askRecord;          ///< ID_WIFI_NET v3 GETTING (the line's record)
-        std::function<bool(int, int)> sendRecord;    ///< v3 SETTING of that line's record with this rate; false = not sent
-        std::function<void(int)> readBack;           ///< v3 and v7 GETTING after the answer
+        std::function<void(int)> askRecord;                             ///< ID_WIFI_NET v3 GETTING (the line's record)
+        std::function<bool(int, const WifiLineEdit&)> sendRecord;       ///< v3 SETTING of the fresh record with the edit; false = not sent
+        std::function<void(int)> readBack;                              ///< v3 and v7 GETTING after the answer
     };
     struct Timing {
         int answerMs = 3000;   ///< for the record, then for the answer to the SETTING
     };
     enum Outcome { Done = 0, NoRecord, NotSent, Refused, NoAnswer };
 
-    WifiLineBaudChange(Hooks hooks, Timing timing, QObject* parent = nullptr);
+    WifiLineChange(Hooks hooks, Timing timing, QObject* parent = nullptr);
 
-    /** False while a change runs, for a line other than 0/1, or a rate outside 9600..4000000. */
-    bool start(int line, int baud);
+    /** False while a change runs, for a line other than 0/1, an empty edit, or a rate outside 9600..4000000. */
+    bool start(int line, const WifiLineEdit& edit);
     /** A v3 record of `line` arrived (read from the module). */
     void onRecord(int line);
     /** The module's answer to the SETTING (Parsers::Resp: 1 = OK). */
@@ -101,11 +132,14 @@ public:
     /** True between sending the SETTING and its answer: the driver hands that answer here. */
     bool awaitingAnswer() const { return phase_ == Sent; }
     int line() const { return line_; }
-    int target() const { return baud_; }
+    /** The edit of the running (or last) change. */
+    const WifiLineEdit& edit() const { return edit_; }
+    /** The rate being set; 0 when the change is not a rate. */
+    int target() const { return edit_.baud ? int(*edit_.baud) : 0; }
 
 signals:
-    /** outcome: Outcome; resp: the module's code for Refused, 0 otherwise. */
-    void finished(int outcome, int line, int baud, int resp);
+    /** outcome: Outcome; resp: the module's code for Refused, 0 otherwise. edit() still holds what was asked. */
+    void finished(int outcome, int line, int resp);
     void activeChanged();
 
 private:
@@ -117,7 +151,7 @@ private:
     Timing timing_;
     Phase phase_ = Idle;
     int line_ = -1;
-    int baud_ = 0;
+    WifiLineEdit edit_;
     QTimer timer_;
 };
 
