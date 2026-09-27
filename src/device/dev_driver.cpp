@@ -1776,9 +1776,10 @@ QString DevDriver::knownBoardName(int board) {
 }
 
 bool DevDriver::wifiSetRadio(double powerDbm, int protocols, int bandwidthMhz, int powerSave) {
-    // An access point refuses LR only (0.11: no phone or laptop could join it); 20 dBm is the driver's top.
+    // LR only on an access point: 0.12 takes it (module-to-module links; no phone or laptop can join), 0.11 answers
+    // ERR_PAYLOAD, which the page explains. 20 dBm is the driver's top.
     const bool ap = idWifiNet->role().valid && idWifiNet->role().running == 1;
-    if (!m_state.connect || (ap && protocols == 0x08)) return false;
+    if (!m_state.connect) return false;
     const int q = qBound(8, int(std::lround(powerDbm * 4.0)), 80);
     const int ps = qBound(0, powerSave, 2);
     idWifi->setRadio(uint8_t(q), uint8_t(protocols), bandwidthMhz == 40 ? 2 : 1, uint8_t(ps));
