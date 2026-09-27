@@ -7,7 +7,7 @@ the same way sonars do. KoggerApp treats it as a device with **board id 87** and
 does with it. Nothing here depends on how the module is built.
 
 Status: implemented 2026‑09‑25 on branch `myedition`; verified against the module on a head unit
-with the module on an on‑board UART (`/dev/ttyS6`, 921600 baud): the Wi‑Fi island. The boat link
+with the module on an on‑board UART (`/dev/ttyS6`, 921600 baud then; 2 000 000 since 2026-09-26, §2c): the Wi‑Fi island. The boat link
 (section 2a, module firmware 0.7+) is implemented in the app but not yet exercised against a
 relaying module. Not verified either: firmware upgrade of the module from the app, 3 and 4 Mbaud.
 
