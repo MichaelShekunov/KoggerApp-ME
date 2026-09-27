@@ -105,6 +105,7 @@ Item {
                                                 : (port >= 0 ? qsTr("Port %1").arg(port) : "")
         readonly property bool _linkTrunc: showLink && subText.overflow
         readonly property string _icon: view._deviceIcon(device)
+        readonly property bool _wifi: !!(device && device.isWifi)
 
         radius: Tokens.radiusLg
         readonly property color _baseColor: _state === "ok"   ? AppPalette.linkOkBg
@@ -155,6 +156,14 @@ Item {
                     source: devIconImg
                     color: AppPalette.textStrong
                     smooth: true
+                    visible: !pill._wifi
+                }
+                // A Wi-Fi module shows its own signal: arcs lit and coloured by its RSSI
+                WifiSignalIcon {
+                    anchors.fill: parent
+                    size: parent.width
+                    visible: pill._wifi
+                    level: pill._wifi ? pill.device.wifiSignalLevel : -1
                 }
             }
 

@@ -99,6 +99,7 @@ public:
     Q_PROPERTY(bool wifiCurrentSaved READ wifiCurrentSaved NOTIFY wifiStatusChanged)
     Q_PROPERTY(QString wifiSsid READ wifiSsid NOTIFY wifiStatusChanged)
     Q_PROPERTY(int wifiRssi READ wifiRssi NOTIFY wifiReportChanged)
+    Q_PROPERTY(int wifiSignalLevel READ wifiSignalLevel NOTIFY wifiReportChanged)
     Q_PROPERTY(int wifiChannel READ wifiChannel NOTIFY wifiStatusChanged)
     Q_PROPERTY(int wifiSecurity READ wifiSecurity NOTIFY wifiStatusChanged)
     Q_PROPERTY(int wifiReason READ wifiReason NOTIFY wifiStatusChanged)

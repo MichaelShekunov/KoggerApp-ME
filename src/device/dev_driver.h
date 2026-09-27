@@ -230,6 +230,8 @@ public:
     Q_INVOKABLE bool wifiRadio40Allowed(int protocols) const;
     /** LR only for an access point by the module's firmware: 1 from 0.12, 0 before (refused), -1 not known yet. */
     int wifiLrApSupport();
+    /** Lit arcs of the module's signal icon (WifiSignal): -1 no link, 0 only the dot, 1..3 arcs; from the v1 report. */
+    int wifiSignalLevel();
     /**
      * Sets the rate of the module's port `line` (0 = X1, 1 = X2), 9600..4000000. The port this app is connected
      * through (the module's latest summary says so; before firmware 0.12 a serial link is on line 0) moves

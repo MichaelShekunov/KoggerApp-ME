@@ -1791,6 +1791,15 @@ bool DevDriver::wifiSetRadio(double powerDbm, int protocols, int bandwidthMhz, i
 
 bool DevDriver::wifiRadio40Allowed(int protocols) const { return WifiRadioRules::allows40(protocols); }
 
+int DevDriver::wifiSignalLevel() {
+    // The report (once a second) is newer than the status (on a change); both carry the state and the RSSI.
+    const IDBinWifi::Report& r = idWifi->report();
+    const IDBinWifi::Status& st = idWifi->status();
+    const int state = r.valid ? r.state : (st.valid ? st.state : -1);
+    const int rssi = r.valid ? r.rssi : st.rssi;
+    return WifiSignal::level(state == IDBinWifi::StateConnected || state == IDBinWifi::StateAp, rssi);
+}
+
 int DevDriver::wifiLrApSupport() {
     return WifiRadioRules::lrOnlyApSupport(idVersion->fwVersion(), idVersion->fwVersionMinor());
 }
