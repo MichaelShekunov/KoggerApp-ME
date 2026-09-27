@@ -400,6 +400,10 @@ A full review of d5f4c100..c83968ef found ten issues, all fixed in afd16b68:
   logged once they hold 3 s, with the number of flips.
 - `tools/mission_check` 67/67 (was 45). The QML islands are only checked by qmllint (no new warnings; it cannot
   resolve `kqml_types`, so `dev.*` names were compared with the C++ declarations by script).
+- Wi-Fi module firmware 0.11 (2026-09-27, 7691d851; WIFI_MODULE.md §2d): reset reason from v1, power up to 80,
+  access-point channel 1–11, own address 1–255, LR only not offered and no PHY wait in the access-point role.
+  mission_check 72/72. The head unit's module was updated to 0.11.0 the same day (HeadUnit docs); the kiosk branch
+  with this support (`headunit` 23bcf614) is built on the board, not yet switched to.
 - On the head unit since 2026-09-27 (`headunit` 74b5afee), with the live boat (Verified, kogger.log): autopilot
   found 0.4 s after start, settings read 14 s after detection, the heading line held and logged once ("after 2
   changes"), no QML errors, no "module restarted" line in 3 minutes of once-a-second uptime reports. Not yet

@@ -145,6 +145,22 @@ A module restart is a `wifi: the module restarted (uptime …, was …, … expe
 last report, or behind the last report plus the time since by more than 5 s (`WifiRestartWatch`), so a boot
 loop of a few seconds and a restart between rare reports both show (the first version needed a 5 s drop).
 
+## 2d. Firmware 0.11 (module contract 3)
+
+- `ID_WIFI` v1 is 23 bytes: the last one is the reason of the module's last reset (`esp_reset_reason_t`: 1
+  power-on, 3 software — update, role change, reboot window —, 4 panic, 5 interrupt watchdog, 6 task watchdog,
+  7 other watchdog, 9 brownout, 14 power glitch, 15 CPU lockup, 0 unknown). The Wi-Fi island shows it as "last
+  restart" next to the uptime, a restart line carries it, and the first report of a session is logged as
+  `wifi: module up N s, last reset: …`. 22-byte reports (0.10 and older) still parse; every CONTENT is read by
+  its minimum length, as the contract asks (new fields only at the end).
+- v7 power is sent up to 80 quarter-dB (20 dBm, the driver's top; 0.11 stores 81…84 as 80). The module pushes
+  v7 after each connection; the app still asks at every station change (0.10 needs it).
+- `ID_WIFI_NET` v1: access-point channel 1–11 (0.11 refuses 12–13); v6: own address 1–255 (0 is where devices
+  sit). The fields and the driver's checks follow.
+- Access-point role: LR only is not offered (0.11 refuses it: no phone or laptop could join), and the post-Apply
+  radio check does not wait for a negotiated PHY there — an access point has none (0xFF), so the width in effect is
+  the driver's (v7 byte 7). A refused radio setting cancels the check.
+
 ## 2c. Port speed of the module (line 0)
 
 The module's line 0 runs at any speed from 9600 to 4 000 000 (`ID_UART` v0 `{KEY, 1, U4 baud}`, answered at the
