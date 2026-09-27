@@ -6,9 +6,11 @@ mission is started, held, sent home or stopped. The autopilot is reached over wh
 its MAVLink frames; on the head unit that is the serial link of the Wi-Fi module, which relays the
 boat's stream (see WIFI_MODULE.md).
 
-Status 2026-09-26: implemented on branch `myedition`. Verified by machine with `tools/mission_check`:
-45/45 (15 readiness, heading and health rules on made-up reports, 30 steps against ArduPilot SITL, ArduRover
-4.4.0, the same commit as the boat's autopilot). On the head unit the owner placed and dragged points
+Status 2026-09-27: implemented on branch `myedition`. Verified by machine with `tools/mission_check`:
+67/67 — 34 on made-up events (readiness, heading and health rules, command names, log settling, and the
+Wi-Fi module's port-speed change, radio check and restart watch from `src/device/wifi_ops.*`) and 33
+against ArduPilot SITL, ArduRover 4.4.0, the same commit as the boat's autopilot (the mission steps, plus
+a link dropped right after the autopilot is found and a lost final MISSION_ACK). On the head unit the owner placed and dragged points
 and uploaded a mission to the boat. The first start on the boat was refused by the autopilot (its
 EKF had no position: its two-antenna GPS never gave a heading, see "ArduPilot facts"); a mission on
 water is not yet verified.
@@ -28,14 +30,19 @@ water is not yet verified.
   - Telemetry: HEARTBEAT (armed, mode), GLOBAL_POSITION_INT, GPS_RAW_INT, SYS_STATUS (battery and
     sensor health), HOME_POSITION, MISSION_CURRENT, MISSION_ITEM_REACHED, NAV_CONTROLLER_OUTPUT,
     STATUSTEXT, AUTOPILOT_VERSION, EKF_STATUS_REPORT (asked for with REQUEST_MESSAGE every 2 s when
-    the autopilot does not stream it), PARAM_VALUE for a fixed list of settings read once
-    (AHRS_EKF_TYPE, EK3_ENABLE, EK3_SRC1_POSXY/VELXY/YAW, EK3_GPS_CHECK, COMPASS_ENABLE/USE,
+    the autopilot does not stream it; after 10 requests without a report it stops asking until the
+    link comes back), PARAM_VALUE for a fixed list of settings read after the autopilot is found, and
+    again after a link loss while EK3_SRC1_YAW or FS_EKF_THRESH is still unknown (the read windows then
+    count from the reconnection; without that a drop right after detection left the heading switch at
+    "settings not read yet" for the whole session) (AHRS_EKF_TYPE, EK3_ENABLE, EK3_SRC1_POSXY/VELXY/YAW, EK3_GPS_CHECK, COMPASS_ENABLE/USE,
     ARMING_CHECK, FS_EKF_ACTION, FS_EKF_THRESH; GPS_TYPE/TYPE2, GPS_AUTO_SWITCH, GPS_PRIMARY,
     GPS_AUTO_CONFIG, GPS_DRV_OPTIONS, GPS_POS1/2_*, GPS_MB1/2_TYPE and _OFS_*), six requests a second,
     logged one line per group; GPS2_RAW.
   - GPS heading (`gpsHeadingState`, `gpsHeadingText`, panel line "GPS heading: ..."): from the yaw
     field of GPS_RAW_INT and GPS2_RAW — not configured / configured but none now / degrees — with the
     second receiver's fix (RTK float or fixed). With EK3_SRC1_YAW 2 or 3 the EKF has no yaw without it.
+    Heading and sensor-health changes go to the log once they have held 3 s, with the number of flips
+    ("after N changes"), so a flapping RTK heading or RC link does not push everything else out.
   - Navigation readiness (`navState`, `navText`, panel line "Navigation: ..."): from
     EKF_STATUS_REPORT, the way Rover 4.4 judges it once armed — a horizontal position (absolute or
     relative) outside constant-position mode, and no EKF failsafe (velocity variance, or position and
@@ -49,12 +56,15 @@ water is not yet verified.
   - Upload: MISSION_COUNT → answer MISSION_REQUEST / MISSION_REQUEST_INT with MISSION_ITEM_INT →
     MISSION_ACK, then an automatic read-back (MISSION_REQUEST_LIST → MISSION_REQUEST_INT →
     items → MISSION_ACK) and comparison. `planOnVehicle` is true only after a matching read-back;
-    any edit of the plan clears it.
+    any edit of the plan clears it. When the last item went out and no MISSION_ACK comes (lost over the
+    relay: the autopilot has already stored the mission and left the upload), the read-back decides
+    instead of a failure.
   - Commands as sequences with retries (4 × 1.5 s) and COMMAND_ACK checking: start (MISSION_SET_CURRENT
     1, arm if needed, DO_SET_MODE AUTO), HOLD, RTL, arm, disarm. HOLD, RTL and disarm interrupt a
     running sequence. Start is refused without link, points, a verified upload, a 3D fix, a ready
     navigation or a home. A start that armed the boat and then fails (AUTO refused, no answer) disarms
     it again ("Disarm after the failed start"); HOLD, RTL or disarm pressed meanwhile cancel that.
+    A refused command (start, heading source) never renames the command still running.
 - `src/scene3d/scene3d_view.*` — `geoToScreen(lat, lon)`, `screenToGeo(x, y)`, signal
   `cameraChanged()` (emitted at the top of `onCameraMoved()`), property `mapTapEnabled` and signal
   `mapTapped(lat, lon)`: while enabled, a left tap without a drag is a map position and nothing else.

@@ -384,6 +384,23 @@ the negotiated PHY), marks unapplied selections, and after Apply saves what is i
 not do what was asked (WIFI_MODULE.md §2b'). The module on the head unit was set to 20 dBm / b/g/n / 20 MHz the
 same day (`wifi_radio_set.py`): saved and in effect agree.
 
+## Review fixes (2026-09-27)
+
+A full review of d5f4c100..c83968ef found ten issues, all fixed in afd16b68:
+- The port-speed change and the post-Apply radio check ran in timers of `DeviceSettingsPage`, which is
+  unloaded as soon as it is left: leaving mid-change could leave the module and the link at different speeds,
+  or an impossible radio setting saved. Both run in `DevDriver` now (`WifiPortChange`, `WifiRadioCheck` in
+  `src/device/wifi_ops.*`; the transport comes through hooks, so mission_check drives them on made-up events).
+- Module restarts: `WifiRestartWatch` compares the uptime with the time between reports (the 5 s drop margin
+  missed boot loops). Line 1 speed is checked (9600–4 000 000) before sending.
+- `MavVehicle`: a refused start or heading-source change no longer renames the running command; the settings
+  are read again after a link loss while the heading source or EKF threshold is unknown (a mutant without
+  this fails 4 SITL checks: the heading switch stays "settings not read yet"); EKF polling stops after 10
+  unanswered requests; a lost final MISSION_ACK is settled by the read-back; GPS-heading and health changes are
+  logged once they hold 3 s, with the number of flips.
+- `tools/mission_check` 67/67 (was 45). The QML islands are only checked by qmllint (no new warnings; it cannot
+  resolve `kqml_types`, so `dev.*` names were compared with the C++ declarations by script).
+
 ## Feature: echogram deconvolution
 
 Sharpens the echogram along the track by undoing the beam's footprint, which

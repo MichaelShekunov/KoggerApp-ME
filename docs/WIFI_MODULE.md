@@ -117,7 +117,8 @@ The module project calls this contract version 2. Everything below is in its doc
   `{channel, hidden, max clients, auth 0 open / 1 WPA2 / 2 WPA2+WPA3, len, SSID, len, password}` (the
   password never reads back; empty keeps it); v2 address and DHCP (20 bytes); v3 one line per frame
   `{line, mode 0 off / 1 UDP / 2 TCP, dest 0 fixed / 1 senders / 2 broadcast, ip, rport, lport, baud,
-  TX pin, RX pin, uart}`; v4 line counters (57 bytes); v5 access-point clients; v6 the module's own address
+  TX pin, RX pin, uart}` (line 1 needs a speed 9600–4 000 000 or the module refuses the whole line with
+  ERR_PAYLOAD; the app checks it before sending); v4 line counters (57 bytes); v5 access-point clients; v6 the module's own address
   while a line relays. The ID_WIFI v5/v6 relay record is line 0's view. The app asks v0, v1, v2, v3, v6
   once per connection; four seconds of silence (or ERR_ID) mean firmware before 0.10, and the old Boat
   link island stays.
@@ -132,19 +133,27 @@ The selections show the values in effect while the module has a link: power in u
 21 dBm gives 20, so 20 is the top option), protocols in use, and the width taken from the negotiated PHY (HT40
 = 40 MHz, anything else 20). The module's own "width in use" field is the driver's setting and read 40 on an
 HT20 link (2026-09-26), so it is not used for that. Captions add the saved value when it differs. After Apply
-the island waits for the link, compares, and when the module could not do what was asked (a power between
-steps, 40 MHz from an access point that gives 20) it saves what is in effect and says so (`wifi-radio:` line).
-The module does not push its radio state after a reconnect, so `DevDriver` asks for v7 at every station state
-change and the check calls `wifiRefresh` every 2 s until the link is back (first version waited and gave up).
-An unapplied selection returns to what is in effect after 30 s.
+`DevDriver` waits for the link, compares, and when the module could not do what was asked (a power between
+steps, 40 MHz from an access point that gives 20) it saves what is in effect and says so (`wifi-radio:` line);
+no link within 30 s gives a warning and changes nothing. The module does not push its radio state after a
+reconnect, so `DevDriver` asks for v7 at every station state change and the check asks every 2 s until the
+link is back. The check is `WifiRadioCheck` (`src/device/wifi_ops.*`) and finishes whether or not the page is
+open: the settings page is unloaded as soon as it is left, and the first version's page timers died with it
+(review, 2026-09-27). An unapplied selection returns to what is in effect after 30 s.
+
+A module restart is a `wifi: the module restarted (uptime …, was …, … expected)` line: an uptime behind the
+last report, or behind the last report plus the time since by more than 5 s (`WifiRestartWatch`), so a boot
+loop of a few seconds and a restart between rare reports both show (the first version needed a 5 s drop).
 
 ## 2c. Port speed of the module (line 0)
 
 The module's line 0 runs at any speed from 9600 to 4 000 000 (`ID_UART` v0 `{KEY, 1, U4 baud}`, answered at the
 old speed, then it switches; kept only after `ID_FLASH` v0). The Wi-Fi module's page has a "Port speed" island
-(460k … 4M): the app sets the module, moves its own link (`linkManagerWrapper.updateBaudrateFor`, which also
-rewrites the pinned record), asks for the status until the module answers at the new speed (each check forgets
-frames from before it), and only then saves in the module; no answer within about 6 s puts the link back.
+(460k … 4M) that calls `dev.wifiSetPortBaud`; the sequence runs in `DevDriver` (`WifiPortChange`,
+`src/device/wifi_ops.*`), so it finishes when the page is left mid-change: the app sets the module, moves its
+own link (`LinkManagerWrapper::updateBaudrate`, which also rewrites the pinned record), asks for the status
+until the module answers at the new speed (each check forgets frames from before it), and only then saves in
+the module; no answer within about 6 s puts the link back. The island shows "Changing to …" meanwhile.
 Steps are `wifi-port:` lines in the log. The head unit runs at 2 000 000 since 2026-09-26 (the boat stream is
 ~92 KB/s, a full 921600 port). The Actions island's "Set baudrate" now moves the app's link with the device too.
 
