@@ -400,6 +400,10 @@ A full review of d5f4c100..c83968ef found ten issues, all fixed in afd16b68:
   logged once they hold 3 s, with the number of flips.
 - `tools/mission_check` 67/67 (was 45). The QML islands are only checked by qmllint (no new warnings; it cannot
   resolve `kqml_types`, so `dev.*` names were compared with the C++ declarations by script).
+- On the head unit since 2026-09-27 (`headunit` 74b5afee), with the live boat (Verified, kogger.log): autopilot
+  found 0.4 s after start, settings read 14 s after detection, the heading line held and logged once ("after 2
+  changes"), no QML errors, no "module restarted" line in 3 minutes of once-a-second uptime reports. Not yet
+  tried on the device: leaving the page during a port-speed change or right after a radio Apply.
 
 ## Feature: echogram deconvolution
 
