@@ -182,6 +182,7 @@ authority; this is the intent behind each.
 | `src/proto_binnary.h`, `src/id_binnary.{h,cpp}` | `+ ID_WIFI = 0x57`, `+ BoardWiFi = 87`, `+ IDBinWifi` | the Wi-Fi module (see the feature section) |
 | `src/device/dev_driver.{h,cpp}`, `src/device/dev_q_property.h` | `idWifi`, `isWifi()`, `wifi*` readers, `Q_INVOKABLE wifi*` commands, `wifi*Changed` signals | QML surface of the module |
 | `qml/app/DeviceSettingsPage.qml` | "Wi-Fi" island, `WifiBars` / `WifiField` components, baud lists to 4 000 000, `*.ufww` upgrade filter | the control surface |
+| `qml/kqml_types/KTabBar.qml` | an option may carry `enabled: false` (dimmed, never selected by click, drag or keys); options without it behave as before | the Wi-Fi Radio island switches off 40 MHz where the protocols have no 802.11n |
 | `src/link/link_manager.cpp`, `src/link/link_defs.h` | `KOGGER_SERIAL_PORTS` opt-in for non-USB ports on Linux; 1 M, 1.5 M, 3 M in `baudrates` | an on-board UART is otherwise never listed |
 
 The `.bat` change is the only edit that is not about a new feature. It is a
@@ -432,6 +433,9 @@ The app side, WIFI_MODULE.md §2e:
 - Third round: 0.12 takes LR only (0x08) for an access point again (module-to-module links); the Radio island offers LR in
   both roles, warns that phones and laptops cannot join an LR-only access point, and explains an ERR_PAYLOAD to it as
   firmware 0.11 (WIFI_MODULE.md §2e).
+- Fourth round (owner's bench): the width follows the protocols (no 40 MHz without 802.11n, enforced in
+  `WifiRadioRules` and at the send point), and the "firmware 0.11" refusal text only when the module's version is below
+  0.12. `KTabBar` options can be disabled (listed under "What differs from upstream"). mission_check offline 74/74.
 
 ## Feature: echogram deconvolution
 

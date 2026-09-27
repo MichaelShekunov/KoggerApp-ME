@@ -1735,11 +1735,9 @@ Column {
             function onWifiCommandResult(version, resp) {
                 if (resp === 1 || version === 0)
                     return
-                // LR only asked of an access point and refused: firmware 0.11 (the Radio island says so too)
-                if (version === 7 && resp === 3 && (radioIsland.sentLrAp || radioIsland.lrRefused)) {
-                    notifications.warning(radioIsland.lrRefusedText)
+                // radio settings (v7): the Radio island explains its refusals itself
+                if (version === 7)
                     return
-                }
                 var why = resp === 8 ? qsTr("the module is busy, try again in a moment")
                         : resp === 3 ? qsTr("the module rejected the request")
                                      : qsTr("response code %1").arg(resp)
@@ -2288,20 +2286,34 @@ Column {
         readonly property real powerNow: valid && r.powerNowDbm > 0 ? r.powerNowDbm : 0
         property real selPower: 20
         property int selProto: 7
-        property int selBw: 20
+        // The width follows the protocols: without 802.11n (b, b/g, LR only) only 20 MHz exists, the 40 MHz button is
+        // off, and the operator's choice comes back with b/g/n or b/g/n+LR. The rule is WifiRadioRules in C++.
+        property int selBwChoice: 20
+        readonly property bool can40: root._isWifi && dev.wifiRadio40Allowed(selProto)
+        readonly property int selBw: can40 ? selBwChoice : 20
         property int selPs: 0
         property bool dirty: false
-        // The last Apply asked an access point for LR only: an ERR_PAYLOAD to it means firmware 0.11.
+        // The last Apply asked an access point for LR only; with firmware before 0.12 an ERR_PAYLOAD to it is that.
         property bool sentLrAp: false
-        property bool lrRefused: false
-        readonly property string lrRefusedText: qsTr("This firmware refuses LR only for an access point (0.11); update the module to 0.12.")
-        // The menu shows what is in effect; the saved values only while the module has no link.
+        property string radioError: ""
+        function refusalText(resp) {
+            if (resp === 3)
+                return (sentLrAp && root._isWifi && dev.wifiLrApSupport === 0)
+                       ? qsTr("Firmware 0.11 refuses LR only for an access point; update the module to 0.12.")
+                       : qsTr("The module refused these radio settings (ERR_PAYLOAD).")
+            if (resp === 8)
+                return qsTr("The module refused these radio settings: not possible now (ERR_RUNTIME).")
+            return qsTr("The module refused these radio settings (code %1).").arg(resp)
+        }
+        // The menu shows what is in effect; the saved values only while the module has no link. A width in effect
+        // without 802.11n is always 20 MHz and says nothing of the operator's choice, which is kept then.
         function sync(force) {
             if (!valid || (dirty && !force))
                 return
             selPower = powerNow > 0 ? powerNow : r.powerDbm
             selProto = r.protocolsNow > 0 ? r.protocolsNow : r.protocols
-            selBw = widthNow > 0 ? widthNow : r.bandwidthMhz
+            if (dev.wifiRadio40Allowed(selProto))
+                selBwChoice = widthNow > 0 ? widthNow : r.bandwidthMhz
             selPs = r.powerSave
             dirty = false
         }
@@ -2333,11 +2345,13 @@ Column {
             target: root._isWifi ? root.dev : null
             ignoreUnknownSignals: true
             function onWifiRadioChanged() { radioIsland.sync(false) }
+            // Every refusal of a radio setting is explained here, inline and as the notice (the Wi-Fi island leaves v7 alone).
             function onWifiCommandResult(version, resp) {
-                if (version === 7 && resp === 3 && radioIsland.sentLrAp) {
-                    radioIsland.lrRefused = true
-                    radioIsland.sentLrAp = false
-                }
+                if (version !== 7 || resp === 1)
+                    return
+                radioIsland.radioError = radioIsland.refusalText(resp)
+                radioIsland.sentLrAp = false
+                notifications.warning(qsTr("Radio: %1").arg(radioIsland.radioError))
             }
         }
 
@@ -2372,7 +2386,7 @@ Column {
                 options: [ { label: "b", value: 1 }, { label: "b/g", value: 3 }, { label: "b/g/n", value: 7 },
                            { label: "LR", value: 8 }, { label: "b/g/n+LR", value: 15 } ]
                 currentValue: radioIsland.selProto
-                onValueSelected: function(v) { radioIsland.selProto = v; radioIsland.lrRefused = false; radioIsland.edited() }
+                onValueSelected: function(v) { radioIsland.selProto = v; radioIsland.radioError = ""; radioIsland.edited() }
             }
         }
         KIslandRow {
@@ -2383,15 +2397,16 @@ Column {
             captionColor: AppPalette.linkIdleText
         }
         KIslandRow {
-            open: radioIsland.lrRefused
+            open: radioIsland.radioError.length > 0
             minHeight: 0
             verticalPadding: Tokens.spaceSm
-            caption: radioIsland.lrRefusedText
+            caption: radioIsland.radioError
             captionColor: AppPalette.dangerText
         }
         DevStackedRow {
             label: qsTr("Channel width")
-            caption: !radioIsland.valid ? ""
+            caption: !radioIsland.can40 ? qsTr("20 MHz only: 40 MHz needs 802.11n (b/g/n or b/g/n+LR); LR, b and b/g run at 20 MHz.")
+                     : !radioIsland.valid ? ""
                      : !radioIsland.linkUp && !radioIsland.apRole ? qsTr("No link: the saved width is shown")
                      : qsTr("In use: %1 MHz").arg(radioIsland.widthNow)
                        + (radioIsland.r.bandwidthMhz === radioIsland.widthNow ? ""
@@ -2400,9 +2415,11 @@ Column {
             KTabBar {
                 width: Math.round(170 * AppPalette.scale)
                 fontPixelSize: Tokens.fontSm
-                options: [ { label: qsTr("20 MHz"), value: 20 }, { label: qsTr("40 MHz"), value: 40 } ]
+                options: [ { label: qsTr("20 MHz"), value: 20 },
+                           { label: qsTr("40 MHz"), value: 40, enabled: radioIsland.can40,
+                             tip: radioIsland.can40 ? "" : qsTr("40 MHz needs 802.11n") } ]
                 currentValue: radioIsland.selBw
-                onValueSelected: function(v) { radioIsland.selBw = v; radioIsland.edited() }
+                onValueSelected: function(v) { radioIsland.selBwChoice = v; radioIsland.edited() }
             }
         }
         KIslandRow {
@@ -2435,7 +2452,7 @@ Column {
                             return
                         }
                         radioIsland.sentLrAp = radioIsland.apRole && radioIsland.selProto === 8
-                        radioIsland.lrRefused = false
+                        radioIsland.radioError = ""
                         radioIsland.dirty = false
                         radioRevertTimer.stop()
                         notifications.info(qsTr("Radio settings sent to the module"))

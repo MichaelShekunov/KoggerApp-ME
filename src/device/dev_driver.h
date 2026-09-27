@@ -222,9 +222,14 @@ public:
     Q_INVOKABLE bool wifiSetRelay(int mode, int addr, const QString& ip, int rport, int lport);
     /** ID_WIFI v7. power in dBm (2..21); protocols 0x01/0x03/0x07/0x08/0x0F; bandwidth 20 or 40; powerSave 0..2. */
     /** False without a connection. LR only (0x08) is sent in either role: 0.12 takes it for an access point, 0.11
-     *  refuses it there with ERR_PAYLOAD (wifiCommandResult). Also starts the
-     *  check of what is in effect (WifiRadioCheck). */
+     *  refuses it there with ERR_PAYLOAD (wifiCommandResult). Without 802.11n the width goes as 20 MHz. Also
+     *  starts the check of what is in effect (WifiRadioCheck). */
     Q_INVOKABLE bool wifiSetRadio(double powerDbm, int protocols, int bandwidthMhz, int powerSave);
+    /** 40 MHz is possible with these protocols (802.11n in them); b, b/g and LR only run at 20 MHz. wifiSetRadio
+     *  sends 20 MHz for them whatever it is given (WifiRadioRules). */
+    Q_INVOKABLE bool wifiRadio40Allowed(int protocols) const;
+    /** LR only for an access point by the module's firmware: 1 from 0.12, 0 before (refused), -1 not known yet. */
+    int wifiLrApSupport();
     /**
      * Sets the rate of the module's port `line` (0 = X1, 1 = X2), 9600..4000000. The port this app is connected
      * through (the module's latest summary says so; before firmware 0.12 a serial link is on line 0) moves

@@ -240,6 +240,15 @@ The module project's ports contract for 0.12. What changes for the app and how i
   stations with LR (another Kogger module set to LR or b/g/n+LR). An ERR_PAYLOAD to that request is shown as "This
   firmware refuses LR only for an access point (0.11); update the module to 0.12" (inline and as the notice). The
   station hint says the access point must be LR-capable (another Kogger module). The post-Apply radio check is unchanged.
+- **Width follows the protocols** (owner's bench, 2026-09-27: LR picked with 40 MHz still selected went out as 0x08 +
+  40 MHz, the module refused it, and the page blamed the firmware). 40 MHz needs 802.11n: with b, b/g or LR only the
+  width is 20 MHz, the 40 MHz button is off (with the hint), and the operator's width comes back with b/g/n or
+  b/g/n+LR; a width in effect without 802.11n does not overwrite that choice. `DevDriver::wifiSetRadio` (and the
+  radio check's correction) sends 20 MHz for them whatever it is given (`WifiRadioRules::widthFor`, checked by
+  mission_check). A refused radio setting reads "Firmware 0.11 refuses LR only for an access point; update the module
+  to 0.12" only when LR only was asked of an access point and the module's firmware (ID_VERSION v2, `wifiLrApSupport`)
+  is below 0.12; otherwise "The module refused these radio settings (ERR_PAYLOAD)". The module's version is 0.x, so the
+  app's `fwVersion` text (set only for a major above 0) is empty for it: the rule reads the version fields directly.
 - **Log**: `wifi-net: port X1: flags 0x0f rate 3000000 saved 3000000 connected 4`, `wifi-net: port X2 devices: …`,
   `wifi-net: port X1 line: mode … state … peers …` when they change (not the counters); `wifi-port:` lines for both
   rate sequences.

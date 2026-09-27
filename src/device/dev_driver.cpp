@@ -191,7 +191,7 @@ DevDriver::DevDriver(QObject *parent)
         [this](double powerDbm, int protocols, int widthMhz, int powerSave) {
             if (m_state.connect)
                 idWifi->setRadio(uint8_t(qBound(8, int(std::lround(powerDbm * 4.0)), 80)), uint8_t(protocols),
-                                 widthMhz == 40 ? 2 : 1, uint8_t(qBound(0, powerSave, 2)));
+                                 WifiRadioRules::widthFor(protocols, widthMhz) == 40 ? 2 : 1, uint8_t(qBound(0, powerSave, 2)));
         }
     }, WifiRadioCheck::Timing(), this);
     connect(wifiRadioCheck_, &WifiRadioCheck::activeChanged, this, &DevDriver::wifiRadioCheckChanged);
@@ -1782,9 +1782,17 @@ bool DevDriver::wifiSetRadio(double powerDbm, int protocols, int bandwidthMhz, i
     if (!m_state.connect) return false;
     const int q = qBound(8, int(std::lround(powerDbm * 4.0)), 80);
     const int ps = qBound(0, powerSave, 2);
-    idWifi->setRadio(uint8_t(q), uint8_t(protocols), bandwidthMhz == 40 ? 2 : 1, uint8_t(ps));
-    wifiRadioCheck_->start(q / 4.0, protocols, bandwidthMhz == 40 ? 40 : 20, ps, ap);
+    // 40 MHz only with 802.11n: the module refuses b, b/g and LR only at 40 MHz (ERR_PAYLOAD), so they go at 20
+    const int width = WifiRadioRules::widthFor(protocols, bandwidthMhz);
+    idWifi->setRadio(uint8_t(q), uint8_t(protocols), width == 40 ? 2 : 1, uint8_t(ps));
+    wifiRadioCheck_->start(q / 4.0, protocols, width, ps, ap);
     return true;
+}
+
+bool DevDriver::wifiRadio40Allowed(int protocols) const { return WifiRadioRules::allows40(protocols); }
+
+int DevDriver::wifiLrApSupport() {
+    return WifiRadioRules::lrOnlyApSupport(idVersion->fwVersion(), idVersion->fwVersionMinor());
 }
 
 int DevDriver::wifiLinkBaud() const {

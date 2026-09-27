@@ -285,6 +285,26 @@ private:
 };
 
 /**
+ * @brief Radio-setting rules of the module (ID_WIFI v7) that it enforces with ERR_PAYLOAD, so the app never sends a
+ * combination the module refuses. Protocol bits: 0x01 b, 0x02 g, 0x04 n, 0x08 LR.
+ */
+struct WifiRadioRules
+{
+    /** 40 MHz needs 802.11n: b (0x01), b/g (0x03) and LR only (0x08) run at 20 MHz. */
+    static bool allows40(int protocols) { return (protocols & 0x04) != 0; }
+    /** The width to send with these protocols: the asked one where 40 MHz is possible, 20 MHz otherwise. */
+    static int widthFor(int protocols, int widthMhz) { return (widthMhz == 40 && allows40(protocols)) ? 40 : 20; }
+    /** LR only for an access point by the module's firmware (ID_VERSION v2): 1 from 0.12, 0 before (0.11 refuses it
+     *  with ERR_PAYLOAD), -1 while the version is not known (not read yet: 0.0). */
+    static int lrOnlyApSupport(int fwMajor, int fwMinor)
+    {
+        if (fwMajor <= 0 && fwMinor <= 0)
+            return -1;
+        return (fwMajor > 0 || fwMinor >= 12) ? 1 : 0;
+    }
+};
+
+/**
  * @brief After a radio setting: waits for the link to the access point, compares what is in effect with
  * what was asked, and when the module could not do it (a power between the driver's steps, 40 MHz from an
  * access point that gives 20) saves what is in effect, so the module's settings and the link agree.
