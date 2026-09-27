@@ -144,6 +144,7 @@ public:
     Q_PROPERTY(bool wifiRadioChecking READ wifiRadioChecking NOTIFY wifiRadioCheckChanged)
     Q_PROPERTY(bool wifiPortBusy READ wifiPortBusy NOTIFY wifiPortChanged)
     Q_PROPERTY(int wifiPortTarget READ wifiPortTarget NOTIFY wifiPortChanged)
+    Q_PROPERTY(int wifiPortLine READ wifiPortLine NOTIFY wifiPortChanged)
     Q_PROPERTY(int wifiNetSupport READ wifiNetSupport NOTIFY wifiNetChanged)
     Q_PROPERTY(QVariantMap wifiNetRole READ wifiNetRole NOTIFY wifiNetChanged)
     Q_PROPERTY(QVariantMap wifiNetAp READ wifiNetAp NOTIFY wifiNetChanged)
@@ -152,6 +153,12 @@ public:
     Q_PROPERTY(int wifiNetOwnAddr READ wifiNetOwnAddr NOTIFY wifiNetChanged)
     Q_PROPERTY(QVariantList wifiNetLineStats READ wifiNetLineStats NOTIFY wifiNetStatsChanged)
     Q_PROPERTY(QVariantList wifiNetClients READ wifiNetClients NOTIFY wifiNetClientsChanged)
+    // Firmware 0.12: the physical ports X1/X2 (ID_WIFI_NET v7; field names in docs/WIFI_MODULE.md §2e).
+    Q_PROPERTY(int wifiNetPortSupport READ wifiNetPortSupport NOTIFY wifiNetPortsChanged)
+    Q_PROPERTY(QVariantList wifiNetPorts READ wifiNetPorts NOTIFY wifiNetPortsChanged)
+    Q_PROPERTY(int wifiNetOwnPort READ wifiNetOwnPort NOTIFY wifiNetPortsChanged)
+    Q_PROPERTY(QVariantList wifiNetPortDevices READ wifiNetPortDevices NOTIFY wifiNetPortDevicesChanged)
+    Q_PROPERTY(QVariantList wifiNetPortPeers READ wifiNetPortPeers NOTIFY wifiNetPortPeersChanged)
 
     Q_PROPERTY(bool isServoSupport READ getServoControlState NOTIFY servoControlChanged)
     // False until a Recorder answers the stand probe, and false again the moment it goes away.

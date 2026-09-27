@@ -3,16 +3,20 @@
 #include <QElapsedTimer>
 #include <QObject>
 #include <QTimer>
+#include <QVector>
+#include <cstdint>
 #include <functional>
 
 /**
- * @brief Changing the Wi-Fi module's port speed (its line 0 to this host) as one sequence that does not
- * depend on a settings page being open (the device settings page is unloaded as soon as it is left).
+ * @brief Changing the speed of the Wi-Fi module's port this host is connected through (line 0 before
+ * firmware 0.12; X1 or X2 since, as the module reports) as one sequence that does not depend on a settings
+ * page being open (the device settings page is unloaded as soon as it is left).
  *
  * The module is told the new speed (it answers at the old one and then switches), this host's link
  * follows after a short pause, the module has to answer a status request at the new speed, and only then
  * is the speed saved in the module. Without an answer the link goes back to the old speed; a speed the
- * module was given but did not save is gone at its next reboot.
+ * module was given but did not save is gone at its next reboot (firmware 0.12 also returns to the old speed
+ * by itself after 10 s without a request through that port, and takes the status request as confirmation).
  *
  * The transport is injected through Hooks, so tools/mission_check drives it with made-up events.
  */
@@ -61,6 +65,163 @@ private:
     bool answered_ = false;
     QTimer switchTimer_;
     QTimer checkTimer_;
+};
+
+/**
+ * @brief Changing the rate of a module port this host is NOT connected through (ID_WIFI_NET v3 SETTING:
+ * firmware 0.12 takes the rate for either line, 0.10/0.11 for line 1 only). The line's record is read first,
+ * sent back with only the rate changed, and read back after the module's answer. The module saves such a rate
+ * at once, and this host's link is not touched. Runs in the driver like WifiPortChange, so it finishes when
+ * the settings page is left.
+ */
+class WifiLineBaudChange : public QObject
+{
+    Q_OBJECT
+
+public:
+    struct Hooks {
+        std::function<void(int)> askRecord;          ///< ID_WIFI_NET v3 GETTING (the line's record)
+        std::function<bool(int, int)> sendRecord;    ///< v3 SETTING of that line's record with this rate; false = not sent
+        std::function<void(int)> readBack;           ///< v3 and v7 GETTING after the answer
+    };
+    struct Timing {
+        int answerMs = 3000;   ///< for the record, then for the answer to the SETTING
+    };
+    enum Outcome { Done = 0, NoRecord, NotSent, Refused, NoAnswer };
+
+    WifiLineBaudChange(Hooks hooks, Timing timing, QObject* parent = nullptr);
+
+    /** False while a change runs, for a line other than 0/1, or a rate outside 9600..4000000. */
+    bool start(int line, int baud);
+    /** A v3 record of `line` arrived (read from the module). */
+    void onRecord(int line);
+    /** The module's answer to the SETTING (Parsers::Resp: 1 = OK). */
+    void onAnswer(int resp);
+    bool active() const { return phase_ != Idle; }
+    /** True between sending the SETTING and its answer: the driver hands that answer here. */
+    bool awaitingAnswer() const { return phase_ == Sent; }
+    int line() const { return line_; }
+    int target() const { return baud_; }
+
+signals:
+    /** outcome: Outcome; resp: the module's code for Refused, 0 otherwise. */
+    void finished(int outcome, int line, int baud, int resp);
+    void activeChanged();
+
+private:
+    enum Phase { Idle, Reading, Sent };
+    void onTimeout();
+    void finish(int outcome, int resp = 0);
+
+    Hooks hooks_;
+    Timing timing_;
+    Phase phase_ = Idle;
+    int line_ = -1;
+    int baud_ = 0;
+    QTimer timer_;
+};
+
+/**
+ * @brief Bytes per second of a growing byte counter sampled now and then (the module's port RX/TX counters).
+ *
+ * The rate is the counter's growth since the previous sample over the time between them. A sample closer
+ * than kMinSpanMs to the previous one keeps the last rate (a second answer to an overlapping request), a
+ * counter that went back (the module restarted, or the 32-bit counter wrapped) or a gap longer than
+ * kMaxGapMs (polling stopped) starts over: unknown until the next sample.
+ */
+class WifiByteRate
+{
+public:
+    static constexpr qint64 kMinSpanMs = 1000;
+    static constexpr qint64 kMaxGapMs = 10000;
+
+    /** One sample; nowMs from a monotonic clock. @returns the rate in bytes per second, -1 while unknown. */
+    double onSample(uint32_t bytes, qint64 nowMs);
+    double rate() const { return rate_; }
+    void reset() { has_ = false; base_ = 0; baseAt_ = 0; rate_ = -1; }
+
+private:
+    bool has_ = false;
+    uint32_t base_ = 0;
+    qint64 baseAt_ = 0;
+    double rate_ = -1;
+};
+
+/**
+ * @brief Port information of the Wi-Fi module, firmware 0.12 (ID_WIFI_NET v7 CONTENT): for each physical
+ * port (0 = X1, 1 = X2) a summary (page 0), the devices heard from it (page 1) and the network side of its
+ * line (page 2). Payloads are decoded by minimum length (bytes after the documented ones are ignored); a
+ * payload too short for its page, or for an unknown port or page, changes nothing. Little-endian throughout;
+ * ages are in 0.1 s with 0xFFFF = never. Contract: the module project's ports contract for 0.12.
+ */
+class WifiPorts
+{
+public:
+    static constexpr int kPorts = 2;
+    static constexpr int kProtocols = 6;            ///< KP1, KP2, UBX, MAVLink 1, MAVLink 2, raw (in this order)
+    static constexpr int kSummaryBytes = 116;       ///< page 0, including {port, page}
+    static constexpr uint16_t kAgeNever = 0xFFFF;
+
+    enum Flag : uint8_t {
+        FlagUartRunning = 1 << 0,
+        FlagBridging = 1 << 1,        ///< the line is on
+        FlagAskedHere = 1 << 2,       ///< the request that asked for this summary came through this port
+        FlagGetsReports = 1 << 3,     ///< the module's unsolicited frames go to this port
+        FlagSlip = 1 << 4,            ///< locked to SLIP (IP bridge, X1 only)
+        FlagProvisional = 1 << 5,     ///< rate waiting for confirmation
+        FlagUsb = 1 << 6              ///< USB transport (X1 in the USB build)
+    };
+    /** What is connected, judged by the module over the last 10 s. */
+    enum Connected : uint8_t { ConnNothing = 0, ConnUnreadable = 1, ConnSbpHost = 2, ConnSbpDevices = 3,
+                               ConnSbpHostDevices = 4, ConnMavlink = 5, ConnUblox = 6, ConnSlipHost = 7, ConnOther = 8 };
+    enum DeviceKind : uint8_t { KindSbp = 1, KindMavlink = 2 };
+    enum DeviceFlag : uint8_t { DevVersionKnown = 1 << 0, DevHeartbeat = 1 << 1 };
+
+    struct Protocol { uint32_t fromPort = 0, toPort = 0; uint16_t ageFrom = kAgeNever; };
+    struct Summary {
+        bool valid = false;
+        uint8_t flags = 0;
+        uint32_t baud = 0, baudSaved = 0;           ///< current rate (0 = UART off) and the saved one
+        uint8_t connected = ConnNothing;
+        uint32_t rxBytes = 0, txBytes = 0;          ///< RX = from the port, TX = to the port
+        uint16_t rxAge = kAgeNever, txAge = kAgeNever;
+        Protocol protocols[kProtocols];
+        uint32_t sbpRequestsFrom = 0, sbpContentFrom = 0, sbpRequestsTo = 0, sbpContentTo = 0;
+        uint32_t moduleRequests = 0, moduleFrames = 0, rxOverflows = 0, txDrops = 0;
+        double rxBps = -1, txBps = -1;              ///< from successive summaries (WifiByteRate); -1 unknown
+    };
+    /** Page 1 entry. SBP: addr, board (0 unknown), firmware major.minor, serial. MAVLink: sysid in addr,
+     *  compid in board, MAV_TYPE in major, MAV_AUTOPILOT in minor, frames seen in serial. */
+    struct Device {
+        uint8_t kind = 0, addr = 0, board = 0, major = 0, minor = 0, flags = 0;
+        uint16_t age = kAgeNever;
+        uint32_t serial = 0;
+    };
+    struct DeviceList { bool valid = false; QVector<Device> list; };
+    struct Peer { quint32 ip = 0; uint16_t port = 0; uint16_t age = kAgeNever; };   ///< ip as a.b.c.d, a in the top byte
+    struct Network { bool valid = false; uint8_t mode = 0, state = 0; QVector<Peer> peers; };
+
+    /** One CONTENT v7 payload; nowMs from a monotonic clock (for the rates). @returns its page, -1 if refused. */
+    int apply(const uint8_t* data, int size, qint64 nowMs);
+    int lastPort() const { return lastPort_; }
+    int lastPage() const { return lastPage_; }
+    const Summary& summary(int port) const { return summary_[clampPort(port)]; }
+    const DeviceList& devices(int port) const { return devices_[clampPort(port)]; }
+    const Network& network(int port) const { return network_[clampPort(port)]; }
+    /** The port whose latest summary says the request came through it; -1 when none (the network) or unknown. */
+    int askedPort() const;
+    void reset();
+
+private:
+    static int clampPort(int port) { return port < 0 ? 0 : (port >= kPorts ? kPorts - 1 : port); }
+
+    Summary summary_[kPorts];
+    DeviceList devices_[kPorts];
+    Network network_[kPorts];
+    WifiByteRate rx_[kPorts];
+    WifiByteRate tx_[kPorts];
+    int lastPort_ = -1;
+    int lastPage_ = -1;
 };
 
 /**

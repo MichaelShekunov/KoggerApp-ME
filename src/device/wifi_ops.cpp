@@ -74,6 +74,203 @@ void WifiPortChange::finish(bool ok)
     emit finished(ok, newBaud_, oldBaud_);
 }
 
+// ---- WifiLineBaudChange ---------------------------------------------------------------------------
+
+WifiLineBaudChange::WifiLineBaudChange(Hooks hooks, Timing timing, QObject* parent)
+    : QObject(parent),
+      hooks_(std::move(hooks)),
+      timing_(timing)
+{
+    timer_.setSingleShot(true);
+    connect(&timer_, &QTimer::timeout, this, &WifiLineBaudChange::onTimeout);
+}
+
+bool WifiLineBaudChange::start(int line, int baud)
+{
+    if (phase_ != Idle || line < 0 || line > 1 || baud < 9600 || baud > 4000000)
+        return false;
+    line_ = line;
+    baud_ = baud;
+    phase_ = Reading;
+    emit activeChanged();
+    hooks_.askRecord(line_);
+    timer_.start(timing_.answerMs);
+    return true;
+}
+
+void WifiLineBaudChange::onRecord(int line)
+{
+    if (phase_ != Reading || line != line_)
+        return;
+    timer_.stop();
+    if (!hooks_.sendRecord(line_, baud_)) {
+        finish(NotSent);
+        return;
+    }
+    phase_ = Sent;
+    timer_.start(timing_.answerMs);
+}
+
+void WifiLineBaudChange::onAnswer(int resp)
+{
+    if (phase_ != Sent)
+        return;
+    timer_.stop();
+    hooks_.readBack(line_);
+    finish(resp == 1 ? Done : Refused, resp == 1 ? 0 : resp);
+}
+
+void WifiLineBaudChange::onTimeout()
+{
+    if (phase_ == Reading) {
+        finish(NoRecord);
+    } else if (phase_ == Sent) {
+        hooks_.readBack(line_);   // the rate may have changed all the same: show what the module says
+        finish(NoAnswer);
+    }
+}
+
+void WifiLineBaudChange::finish(int outcome, int resp)
+{
+    timer_.stop();
+    phase_ = Idle;
+    emit activeChanged();
+    emit finished(outcome, line_, baud_, resp);
+}
+
+// ---- WifiByteRate ---------------------------------------------------------------------------------
+
+double WifiByteRate::onSample(uint32_t bytes, qint64 nowMs)
+{
+    if (!has_ || bytes < base_ || nowMs - baseAt_ > kMaxGapMs || nowMs < baseAt_) {
+        has_ = true;
+        base_ = bytes;
+        baseAt_ = nowMs;
+        rate_ = -1;
+        return rate_;
+    }
+    const qint64 span = nowMs - baseAt_;
+    if (span < kMinSpanMs)
+        return rate_;
+    rate_ = double(bytes - base_) * 1000.0 / double(span);
+    base_ = bytes;
+    baseAt_ = nowMs;
+    return rate_;
+}
+
+// ---- WifiPorts ------------------------------------------------------------------------------------
+
+namespace {
+uint16_t le16(const uint8_t* p) { return uint16_t(p[0] | (p[1] << 8)); }
+uint32_t le32(const uint8_t* p) { return uint32_t(p[0]) | (uint32_t(p[1]) << 8) | (uint32_t(p[2]) << 16) | (uint32_t(p[3]) << 24); }
+} // namespace
+
+int WifiPorts::apply(const uint8_t* data, int size, qint64 nowMs)
+{
+    if (!data || size < 2 || data[0] >= kPorts)
+        return -1;
+    const int port = data[0];
+    const int page = data[1];
+    if (page == 0) {
+        if (size < kSummaryBytes)
+            return -1;
+        Summary s;
+        s.valid = true;
+        s.flags = data[2];
+        s.baud = le32(data + 3);
+        s.baudSaved = le32(data + 7);
+        s.connected = data[11];
+        s.rxBytes = le32(data + 12);
+        s.txBytes = le32(data + 16);
+        s.rxAge = le16(data + 20);
+        s.txAge = le16(data + 22);
+        for (int k = 0; k < kProtocols; ++k) {
+            const uint8_t* p = data + 24 + 10 * k;
+            s.protocols[k].fromPort = le32(p);
+            s.protocols[k].toPort = le32(p + 4);
+            s.protocols[k].ageFrom = le16(p + 8);
+        }
+        s.sbpRequestsFrom = le32(data + 84);
+        s.sbpContentFrom = le32(data + 88);
+        s.sbpRequestsTo = le32(data + 92);
+        s.sbpContentTo = le32(data + 96);
+        s.moduleRequests = le32(data + 100);
+        s.moduleFrames = le32(data + 104);
+        s.rxOverflows = le32(data + 108);
+        s.txDrops = le32(data + 112);
+        s.rxBps = rx_[port].onSample(s.rxBytes, nowMs);
+        s.txBps = tx_[port].onSample(s.txBytes, nowMs);
+        summary_[port] = s;
+    } else if (page == 1) {
+        if (size < 3)
+            return -1;
+        const int n = data[2];
+        if (size < 3 + 12 * n)
+            return -1;
+        DeviceList d;
+        d.valid = true;
+        for (int i = 0; i < n; ++i) {
+            const uint8_t* e = data + 3 + 12 * i;
+            Device dev;
+            dev.kind = e[0];
+            dev.addr = e[1];
+            dev.board = e[2];
+            dev.major = e[3];
+            dev.minor = e[4];
+            dev.flags = e[5];
+            dev.age = le16(e + 6);
+            dev.serial = le32(e + 8);
+            d.list.append(dev);
+        }
+        devices_[port] = d;
+    } else if (page == 2) {
+        if (size < 5)
+            return -1;
+        const int n = data[4];
+        if (size < 5 + 8 * n)
+            return -1;
+        Network net;
+        net.valid = true;
+        net.mode = data[2];
+        net.state = data[3];
+        for (int i = 0; i < n; ++i) {
+            const uint8_t* e = data + 5 + 8 * i;
+            Peer peer;
+            peer.ip = (quint32(e[0]) << 24) | (quint32(e[1]) << 16) | (quint32(e[2]) << 8) | quint32(e[3]);
+            peer.port = le16(e + 4);
+            peer.age = le16(e + 6);
+            net.peers.append(peer);
+        }
+        network_[port] = net;
+    } else {
+        return -1;
+    }
+    lastPort_ = port;
+    lastPage_ = page;
+    return page;
+}
+
+int WifiPorts::askedPort() const
+{
+    for (int i = 0; i < kPorts; ++i)
+        if (summary_[i].valid && (summary_[i].flags & FlagAskedHere))
+            return i;
+    return -1;
+}
+
+void WifiPorts::reset()
+{
+    for (int i = 0; i < kPorts; ++i) {
+        summary_[i] = Summary();
+        devices_[i] = DeviceList();
+        network_[i] = Network();
+        rx_[i].reset();
+        tx_[i].reset();
+    }
+    lastPort_ = -1;
+    lastPage_ = -1;
+}
+
 // ---- WifiRestartWatch -----------------------------------------------------------------------------
 
 bool WifiRestartWatch::onUptime(uint32_t uptimeS, qint64 nowMs)

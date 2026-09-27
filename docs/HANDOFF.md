@@ -405,6 +405,24 @@ A full review of d5f4c100..c83968ef found ten issues, all fixed in afd16b68:
   changes"), no QML errors, no "module restarted" line in 3 minutes of once-a-second uptime reports. Not yet
   tried on the device: leaving the page during a port-speed change or right after a radio Apply.
 
+## Wi-Fi module firmware 0.12 in the app: two equal ports (2026-09-27)
+
+The module's 0.12 contract makes X1 and X2 equal (discovery on either, rates for both, `ID_WIFI_NET` v7 port pages).
+The app side, WIFI_MODULE.md §2e:
+- `WifiPorts`, `WifiByteRate`, `WifiLineBaudChange` in `src/device/wifi_ops.*` (pure, driven by `tools/mission_check`);
+  `IDBinWifiNet` decodes v7 through `WifiPorts` and sends the v7 requests; `DevDriver` probes v7 once per connection,
+  treats ERR_VERSION or 4 s of silence as "firmware before 0.12", exposes `wifiNetPorts`, `wifiNetPortDevices`,
+  `wifiNetPortPeers`, `wifiNetOwnPort`, `wifiNetPortSupport`, `wifiPortLine` and `wifiNetRefreshPorts()`.
+- `wifiSetLineBaud(line, baud)` replaces `wifiSetPortBaud`: the app's own port (the module's flag b2; line 0 before 0.12)
+  keeps the checked `WifiPortChange`, now rolling back to the link's real rate; the other port goes through its v3 record.
+- The board-name switch of `receivedVersion` moved into `DevDriver::knownBoardName()` so the port device list names
+  boards the same way (same strings, same fallback).
+- Page: a "Ports" island (two cards, side by side or stacked) with v7; the Lines island and the address wording follow
+  b2 instead of "line 0 is this port". Without v7 (the head unit's 0.11 today) the page is as before.
+- `tools/mission_check --offline` runs only the checks on made-up events (no SITL): 67/67 with the new 28.
+- Verified by machine: build clean, mission_check offline 67/67 (mutants caught), qmllint nothing new, `dev.*` names all
+  declared; the page rendered with a mock device in a scratch harness. Not verified: real 0.12 firmware, the head unit.
+
 ## Feature: echogram deconvolution
 
 Sharpens the echogram along the track by undoing the beam's footprint, which

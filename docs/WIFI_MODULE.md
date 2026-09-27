@@ -145,11 +145,88 @@ A module restart is a `wifi: the module restarted (uptime …, was …, … expe
 last report, or behind the last report plus the time since by more than 5 s (`WifiRestartWatch`), so a boot
 loop of a few seconds and a restart between rare reports both show (the first version needed a 5 s drop).
 
+## 2d. Firmware 0.11 (module contract 3)
+
+- `ID_WIFI` v1 is 23 bytes: the last one is the reason of the module's last reset (`esp_reset_reason_t`: 1
+  power-on, 3 software — update, role change, reboot window —, 4 panic, 5 interrupt watchdog, 6 task watchdog,
+  7 other watchdog, 9 brownout, 14 power glitch, 15 CPU lockup, 0 unknown). The Wi-Fi island shows it as "last
+  restart" next to the uptime, a restart line carries it, and the first report of a session is logged as
+  `wifi: module up N s, last reset: …`. 22-byte reports (0.10 and older) still parse; every CONTENT is read by
+  its minimum length, as the contract asks (new fields only at the end).
+- v7 power is sent up to 80 quarter-dB (20 dBm, the driver's top; 0.11 stores 81…84 as 80). The module pushes
+  v7 after each connection; the app still asks at every station change (0.10 needs it).
+- `ID_WIFI_NET` v1: access-point channel 1–11 (0.11 refuses 12–13); v6: own address 1–255 (0 is where devices
+  sit). The fields and the driver's checks follow.
+- Access-point role: LR only is not offered (0.11 refuses it: no phone or laptop could join), and the post-Apply
+  radio check does not wait for a negotiated PHY there — an access point has none (0xFF), so the width in effect is
+  the driver's (v7 byte 7). A refused radio setting cancels the check.
+
+## 2e. Firmware 0.12: two equal ports X1 / X2 (`ID_WIFI_NET` v7)
+
+The module project's ports contract for 0.12. What changes for the app and how it is implemented:
+
+- **Addressing (module side).** Own address = `ID_WIFI_NET` v6 if set, else 87 (station) / 88 (access point), whether
+  or not a line bridges; 0 and 255 are refused (the app offers 1–254 once v7 is known). The module answers `ID_VERSION`
+  sent to route 0 or 255 from any channel, from its own address: the app's ordinary search (`ID_VERSION` to route 0
+  on link open) therefore finds it on X1, X2 or the network with no change in the app. Unsolicited frames (v0, v1
+  report, v7 radio) go to every channel that asked the module anything within 60 s; the app asks all the time.
+- **Rates.** `ID_UART` v0 SET changes the UART the request came through; `ID_WIFI_NET` v3 SET takes the `baud` of
+  **both** lines (the current value keeps it; pins still only for line 1). A new rate on the requester's own port is
+  provisional: kept once a request for the module comes through that port, or on `ID_FLASH` v0, otherwise back
+  after 10 s. A rate for the other port, or from the network, is saved at once. `ID_FLASH` v0 saves both ports.
+- **`ID_WIFI_NET` v7, GETTING only.** No payload: page 0 of both ports (two CONTENT frames); `{U1 port, U1 page}`:
+  that page. 0.11 answers ERR_VERSION. The app sends the no-payload request once per connection together with the
+  other `ID_WIFI_NET` reads; ERR_VERSION (or 4 s without an answer) means "no port information": the islands stay as
+  they were for 0.11 and no notice is shown. Decoded by `WifiPorts` (`src/device/wifi_ops.*`) by minimum length:
+  page 0 = 116 bytes, page 1 = 3 + 12·n, page 2 = 5 + 8·n; bytes past those are ignored; a short payload, a port
+  above 1 or an unknown page changes nothing. Ages arrive in 0.1 s (0xFFFF = never).
+- **QML surface** (`DevQProperty`): `wifiNetPortSupport` (-1 unknown, 0 none, 1 yes); `wifiNetPorts[0..1]` — `port,
+  valid, flags, uartRunning (b0), bridging (b1), here (b2: this request came through this port), reports (b3),
+  slip (b4), provisional (b5), usb (b6), baud, baudSaved, connected (0 nothing … 8 other framed traffic), rxBytes,
+  txBytes, rxAge, txAge, rxBps, txBps, protocols[6] {name, fromPort, toPort, age}, sbpRequestsFrom, sbpContentFrom,
+  sbpRequestsTo, sbpContentTo, moduleRequests, moduleFrames, rxOverflows, txDrops`; `wifiNetPortDevices[port]` — SBP
+  `{kind 1, addr, board, name, fw, serial, age}` (name from the device list's own board names,
+  `DevDriver::knownBoardName`), MAVLink `{kind 2, sysid, compid, heartbeat, mavType, autopilot, frames, age}`;
+  `wifiNetPortPeers[port]` — `{valid, mode, state, peers[{ip, port, age}]}`; `wifiNetOwnPort` (the port with b2, -1 =
+  the network). Ages in seconds, -1 = never. RX = from the port, TX = to the port. `rxBps`/`txBps` come from two
+  successive summaries at least 1 s apart (`WifiByteRate`); a counter that went back or a gap over 10 s starts over
+  (-1 until the next summary).
+- **Ports island** (`DeviceSettingsPage.qml`, visible with v7): "connected through X1 / X2 / over the network", then
+  two equal cards, side by side from 660 px (× scale), stacked below. Each card: X1/X2 with badges (this device,
+  provisional, USB, SLIP, off), rate and saved rate, what is connected and whether it gets the module's reports, RX/TX
+  per second with totals and the last RX age, frames per protocol, SBP counters, losses when there are any, the
+  devices heard (page 1), the line's mode, state and peers (page 2), and a rate selector (9600 … 4 000 000) with a
+  two-tap Apply. While the island is on screen `dev.wifiNetRefreshPorts()` asks every 2 s for page 0 of both ports
+  and pages 1 and 2 of each. The old "Port speed" island shows only without v7.
+- **Setting a rate**: `dev.wifiSetLineBaud(line, baud)` (replaces `wifiSetPortBaud`). The port this app is connected
+  through — b2 of the latest summary; before 0.12 line 0 when the link is serial, as before — goes through
+  `WifiPortChange` (§2c); 0.12 takes the status polls at the new rate as the confirmation, and `ID_FLASH` v0 saves it.
+  The old rate for the roll-back is now the app link's own rate (link list); it used to be the `ID_UART` mirror, whose
+  115200 default made the 921600 fallback dead code and could roll the link back to a rate it never had. The other
+  port goes through `WifiLineBaudChange`: v3 is read, the line's record is sent back with only the rate changed, and
+  after the module's answer v3 and v7 are read back (before 0.12: line 1 only; the module ignores line 0's rate in v3).
+  `wifiPortBusy`, `wifiPortTarget` and `wifiPortLine` cover both sequences.
+- **Elsewhere with v7**: the Lines island marks "this port" by b2 instead of line 0, shows the "switching it off"
+  caption only for that line, hides its baud field (Apply sends the rate in effect), and calls the own address simply
+  "Module address" (1–254); the access-point hint no longer ties address 88 to a relaying line.
+- **Log**: `wifi-net: port X1: flags 0x0f rate 3000000 saved 3000000 connected 4`, `wifi-net: port X2 devices: …`,
+  `wifi-net: port X1 line: mode … state … peers …` when they change (not the counters); `wifi-port:` lines for both
+  rate sequences.
+- **Read this way where the contract leaves room** (Inference): page 2 `ip[4]` is a.b.c.d in byte order, like v3/v4;
+  the per-protocol counters are shown as bare numbers ("units": frames, and whatever the module counts for raw); a
+  page 1 with more than 8 entries is still read if its bytes are there.
+- Verified by machine (2026-09-27): Windows build clean; `tools/mission_check --offline` checks the decoder byte by
+  byte against the contract's tables, the byte rates and `WifiLineBaudChange` on made-up frames (a decoder with a
+  wrong offset or the wrong flag bit fails them); qmllint shows nothing new; every `dev.*` name used by the page is
+  declared in C++ (script). The page was rendered with a mock device in a scratch harness (X1 / X2 / network,
+  wide and narrow, a change running, 0.11 fallback). **Not verified**: against real 0.12 firmware (it did not exist
+  yet), and on the head unit.
+
 ## 2c. Port speed of the module (line 0)
 
 The module's line 0 runs at any speed from 9600 to 4 000 000 (`ID_UART` v0 `{KEY, 1, U4 baud}`, answered at the
 old speed, then it switches; kept only after `ID_FLASH` v0). The Wi-Fi module's page has a "Port speed" island
-(460k … 4M) that calls `dev.wifiSetPortBaud`; the sequence runs in `DevDriver` (`WifiPortChange`,
+(460k … 4M, firmware before 0.12; with 0.12 the Ports island of §2e) that calls `dev.wifiSetLineBaud(0, …)`; the sequence runs in `DevDriver` (`WifiPortChange`,
 `src/device/wifi_ops.*`), so it finishes when the page is left mid-change: the app sets the module, moves its
 own link (`LinkManagerWrapper::updateBaudrate`, which also rewrites the pinned record), asks for the status
 until the module answers at the new speed (each check forgets frames from before it), and only then saves in
