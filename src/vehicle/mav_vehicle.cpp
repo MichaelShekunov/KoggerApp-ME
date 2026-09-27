@@ -34,6 +34,8 @@ constexpr int kMaxMessages = 40;
 constexpr int kEkfStaleMs = 5000;     // an EKF report older than this says nothing
 constexpr int kEkfPollMs = 2500;      // ask for one when none came for this long
 constexpr int kNavRelogMs = 60000;    // a new reason within the same state is logged at most this often
+constexpr int kEkfPollsMax = 10;      // unanswered polls before the app stops asking (re-armed on reconnect)
+constexpr int kSettleLogMs = 3000;    // a health or GPS-heading change must hold this long to be logged
 
 // Read once and logged one line per group: what decides whether the autopilot's EKF navigates (and whether
 // it would say why: ARMING_CHECK 0 silences its pre-arm reports), and whether it gets a GPS heading from two
@@ -112,6 +114,13 @@ MavVehicle::MavVehicle(QObject* parent, bool persist)
 
     stepTimer_.setSingleShot(true);
     connect(&stepTimer_, &QTimer::timeout, this, &MavVehicle::onStepTimeout);
+
+    healthLogTimer_.setSingleShot(true);
+    healthLogTimer_.setInterval(kSettleLogMs);
+    connect(&healthLogTimer_, &QTimer::timeout, this, &MavVehicle::logHealth);
+    gpsHeadingLogTimer_.setSingleShot(true);
+    gpsHeadingLogTimer_.setInterval(kSettleLogMs);
+    connect(&gpsHeadingLogTimer_, &QTimer::timeout, this, &MavVehicle::logGpsHeading);
 
     if (persist_)
         loadSettings();
@@ -267,9 +276,13 @@ void MavVehicle::onSecondTick()
         requestMessage(MAVLINK_MSG_ID_HOME_POSITION);
     if (now) {
         // The boat may stream EKF_STATUS_REPORT (SRx_EXTRA3); if not, it is asked for, without touching its rates.
-        if ((!ekfSeen_.isValid() || ekfSeen_.elapsed() >= kEkfPollMs) && secondsSinceDetect_ % 2 == 0)
+        // An autopilot that never answers (UNSUPPORTED, not ArduPilot) is asked kEkfPollsMax times, not forever.
+        if ((!ekfSeen_.isValid() || ekfSeen_.elapsed() >= kEkfPollMs) && secondsSinceDetect_ % 2 == 0
+            && ekfPollsUnanswered_ < kEkfPollsMax) {
             requestMessage(MAVLINK_MSG_ID_EKF_STATUS_REPORT);
-        const int s = secondsSinceDetect_;
+            ++ekfPollsUnanswered_;
+        }
+        const int s = secondsSinceDetect_ - settingsEpoch_;
         const bool window = (s >= 3 && s < 9) || (s >= 13 && s < 19) || (s >= 23 && s < 29);
         if (!settingsLogged_ && window) {
             int sent = 0;
@@ -283,7 +296,7 @@ void MavVehicle::onSecondTick()
             }
         }
     }
-    if (!settingsLogged_ && secondsSinceDetect_ == 33 && !settings_.isEmpty())
+    if (!settingsLogged_ && secondsSinceDetect_ - settingsEpoch_ == 33 && !settings_.isEmpty())
         logSettings();   // with whatever came; names this firmware lacks never answer
     updateNav();   // a report that stops coming turns the state to unknown
 }
@@ -302,6 +315,7 @@ void MavVehicle::handleMessage(const void* p)
             vehicleSysId_ = msg.sysid;
             vehicleCompId_ = msg.compid;
             secondsSinceDetect_ = 0;
+            settingsEpoch_ = 0;
             const QString ap = hb.autopilot == MAV_AUTOPILOT_ARDUPILOTMEGA ? QStringLiteral("ArduPilot")
                              : hb.autopilot == MAV_AUTOPILOT_PX4 ? QStringLiteral("PX4")
                                                                  : tr("autopilot %1").arg(hb.autopilot);
@@ -345,6 +359,13 @@ void MavVehicle::handleMessage(const void* p)
                 // the loss was logged kConnectedMs after the last heartbeat before it
                 addMessage(tr("Link to the boat restored after %1 s").arg((linkLostAt_.elapsed() + kConnectedMs) / 1000.0, 0, 'f', 1));
                 linkLostAt_.invalidate();
+                // The read windows may have passed while the link was down: the heading source and the EKF
+                // threshold must be known, so read again (the missing names only).
+                if (!settings_.contains(QStringLiteral("EK3_SRC1_YAW")) || !settings_.contains(QStringLiteral("FS_EKF_THRESH"))) {
+                    settingsEpoch_ = secondsSinceDetect_;
+                    settingsLogged_ = false;
+                }
+                ekfPollsUnanswered_ = 0;
             }
             emit linkChanged();
         }
@@ -398,6 +419,7 @@ void MavVehicle::handleMessage(const void* p)
             ekfPosVar_ = e.pos_horiz_variance;
             ekfMagVar_ = e.compass_variance;
             ekfSeen_.start();
+            ekfPollsUnanswered_ = 0;
             updateNav();
             break;
         }
@@ -459,7 +481,8 @@ void MavVehicle::handleMessage(const void* p)
                 healthSeen_ = true;
                 healthText_ = health;
                 emit healthChanged();
-                addMessage(health.isEmpty() ? tr("Autopilot sensors: all healthy") : tr("Autopilot sensors %1").arg(health));
+                ++healthChanges_;
+                healthLogTimer_.start();   // logged once it has held for kSettleLogMs
             }
             break;
         }
@@ -986,6 +1009,14 @@ void MavVehicle::onTransferTimeout()
         return;
     }
     if (transferState_ == TransferUploading) {
+        // The last item went out and no MISSION_ACK came: over a lossy link it may be the ACK that was lost, and
+        // the autopilot has already stored the mission and left the upload (a lost item it re-requests itself,
+        // and an item re-sent outside the upload it may answer with an error). The read-back says which.
+        if (uploadRequestSeen_ && lastRequestedSeq_ == int(upItems_.size()) - 1) {
+            addMessage(tr("No answer after the last item: reading the mission back to check"));
+            startDownload(true);
+            return;
+        }
         if (!uploadRequestSeen_) {
             mavlink_message_t msg;
             mavlink_msg_mission_count_pack_chan(kGcsSystemId, kGcsComponentId, kTxChan, &msg, uint8_t(vehicleSysId_),
@@ -1153,16 +1184,41 @@ void MavVehicle::updateGpsHeading()
     }
     if (gps2Fix_ >= 0)
         text += tr(" (GPS 2: %1, %2 sat)").arg(gpsFixText(gps2Fix_)).arg(gps2Sats_);
-    if (state != gpsHeadingState_ || text != gpsHeadingText_) {
+    const bool stateChanged = state != gpsHeadingState_;
+    if (stateChanged || text != gpsHeadingText_) {
         gpsHeadingState_ = state;
         gpsHeadingText_ = text;
         emit gpsChanged();
     }
-    if (state != gpsHeadingLogged_ && state != GpsHeadingUnknown) {
-        gpsHeadingLogged_ = state;
-        addMessage(tr("GPS heading: %1 (yaw fields: GPS 1 %2, GPS 2 %3)")
-                       .arg(text).arg(gpsYaw_[0]).arg(gpsYaw_[1] < 0 ? tr("no report") : QString::number(gpsYaw_[1])));
+    if (stateChanged && state != GpsHeadingUnknown) {
+        ++gpsHeadingChanges_;
+        gpsHeadingLogTimer_.start();   // logged once it has held for kSettleLogMs
     }
+}
+
+void MavVehicle::logGpsHeading()
+{
+    const int changes = gpsHeadingChanges_;
+    gpsHeadingChanges_ = 0;
+    if (gpsHeadingState_ == GpsHeadingUnknown || gpsHeadingState_ == gpsHeadingLogged_)
+        return;
+    gpsHeadingLogged_ = gpsHeadingState_;
+    addMessage(tr("GPS heading: %1 (yaw fields: GPS 1 %2, GPS 2 %3)%4")
+                   .arg(gpsHeadingText_).arg(gpsYaw_[0])
+                   .arg(gpsYaw_[1] < 0 ? tr("no report") : QString::number(gpsYaw_[1]))
+                   .arg(changes > 1 ? tr(" after %1 changes").arg(changes) : QString()));
+}
+
+void MavVehicle::logHealth()
+{
+    const int changes = healthChanges_;
+    healthChanges_ = 0;
+    if (healthLoggedOnce_ && healthText_ == healthLogged_)
+        return;
+    healthLoggedOnce_ = true;
+    healthLogged_ = healthText_;
+    const QString tail = changes > 1 ? tr(" (after %1 changes)").arg(changes) : QString();
+    addMessage((healthText_.isEmpty() ? tr("Autopilot sensors: all healthy") : tr("Autopilot sensors %1").arg(healthText_)) + tail);
 }
 
 void MavVehicle::updateNav()
@@ -1243,12 +1299,13 @@ QString MavVehicle::startBlocker() const
 
 void MavVehicle::startMission()
 {
+    // The name is set only once the start really runs: a refusal must not rename a sequence still running.
     const QString why = startBlocker();
-    sequenceWhat_ = tr("Start mission");
     if (!why.isEmpty()) {
-        emit commandResult(sequenceWhat_, false, why);
+        emit commandResult(tr("Start mission"), false, why);
         return;
     }
+    sequenceWhat_ = tr("Start mission");
     const int firstNav = planSpeed_ > 0.0 ? 2 : 1;
     QList<Step> s;
     Step current;
@@ -1324,7 +1381,7 @@ QString MavVehicle::headingSourceName(int source)
 
 void MavVehicle::setHeadingSource(int source)
 {
-    sequenceWhat_ = tr("Heading source");
+    const QString what = tr("Heading source");
     QString why;
     if (source != HeadingCompass && source != HeadingGpsCompassFallback)
         why = tr("not offered here: %1").arg(source);
@@ -1337,13 +1394,14 @@ void MavVehicle::setHeadingSource(int source)
     else if (headingSource() < 0)
         why = tr("The boat's settings are not read yet");
     if (!why.isEmpty()) {
-        emit commandResult(sequenceWhat_, false, why);
+        emit commandResult(what, false, why);
         return;
     }
     if (headingSource() == source) {
-        emit commandResult(sequenceWhat_, true, QString());
+        emit commandResult(what, true, QString());
         return;
     }
+    sequenceWhat_ = what;
     const int type = settingTypes_.value(QStringLiteral("EK3_SRC1_YAW"), MAV_PARAM_TYPE_INT8);
     Step s;
     s.what = tr("Setting the heading source: %1").arg(headingSourceName(source));

@@ -16,6 +16,7 @@
 #include <functional>
 
 #include "mav_vehicle.h"
+#include "wifi_ops.h"
 
 #if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
@@ -188,6 +189,113 @@ void navRules()
           && u.healthText().contains(QStringLiteral("AHRS")), u.healthText());
 }
 
+// A refused start must not rename the command still running; flapping heading states give one log line.
+void sequenceAndLogRules()
+{
+    MavVehicle s(nullptr, false);
+    QString lastWhat;
+    QObject::connect(&s, &MavVehicle::commandResult, [&](const QString& what, bool, const QString&) { lastWhat = what; });
+    s.feed(fakeHeartbeat(false, MavVehicle::ModeHold));
+    s.returnHome();                                   // waits for the autopilot to report RTL
+    s.startMission();                                 // refused: no points, and a command is running
+    check("sequence: start refused while a command runs", lastWhat == QStringLiteral("Start mission") && s.busy(), lastWhat);
+    s.feed(fakeHeartbeat(false, MavVehicle::ModeRtl));
+    check("sequence: the running command finishes under its own name", lastWhat == QStringLiteral("Return home") && !s.busy(),
+          lastWhat);
+
+    // Only the heading lines count: with no more heartbeats this vehicle also logs its link as lost.
+    MavVehicle h(nullptr, false);
+    h.feed(fakeHeartbeat(false, MavVehicle::ModeHold));
+    auto headingLines = [&h]() {
+        QStringList lines;
+        for (const QString& m : h.messages())
+            if (m.contains(QStringLiteral("GPS heading")))
+                lines << m;
+        return lines;
+    };
+    for (int i = 0; i < 6; ++i)
+        h.feed(fakeGps2(i % 2 ? 6 : 5, 20, uint16_t(i % 2 ? 12345 : 65535)));
+    check("heading log: flips are not logged one by one", headingLines().isEmpty(), headingLines().join(QStringLiteral(" | ")));
+    waitFor([&] { return !headingLines().isEmpty(); }, 5000);
+    check("heading log: one line once it holds, with the count", headingLines().size() == 1
+          && headingLines().value(0).contains(QStringLiteral("after")), headingLines().join(QStringLiteral(" | ")));
+}
+
+// The Wi-Fi module's port-speed change and radio check, driven by made-up events (the driver wires the same
+// classes to ID_UART / ID_WIFI / ID_FLASH and the link manager).
+void wifiOpsRules()
+{
+    QStringList calls;
+    bool answer = true;
+    WifiPortChange* port = nullptr;
+    port = new WifiPortChange({
+        [&](int b) { calls << QStringLiteral("module %1").arg(b); },
+        [&](int b) { calls << QStringLiteral("link %1").arg(b); },
+        [&]() {
+            calls << QStringLiteral("ask");
+            if (answer)
+                QTimer::singleShot(20, [&]() { port->moduleAnswered(); });
+        },
+        [&]() { calls << QStringLiteral("save"); }
+    }, WifiPortChange::Timing{ 50, 100, 5 });
+    int done = 0;
+    bool ok = false;
+    QObject::connect(port, &WifiPortChange::finished, [&](bool r, int, int) { ++done; ok = r; });
+    check("port: refuses a speed above 4000000", !port->start(5000000, 2000000));
+    check("port: 2M -> 3M starts with the module", port->start(3000000, 2000000) && calls.value(0) == QStringLiteral("module 3000000"),
+          calls.join(QStringLiteral(", ")));
+    check("port: a second change is refused while one runs", !port->start(4000000, 2000000));
+    waitFor([&] { return done > 0; }, 3000);
+    check("port: link followed, module answered, saved", ok && calls.contains(QStringLiteral("link 3000000"))
+          && calls.contains(QStringLiteral("save")) && !calls.contains(QStringLiteral("link 2000000")), calls.join(QStringLiteral(", ")));
+    calls.clear();
+    done = 0;
+    answer = false;
+    port->start(4000000, 3000000);
+    waitFor([&] { return done > 0; }, 3000);
+    check("port: no answer -> link back at the old speed, nothing saved", !ok && calls.contains(QStringLiteral("link 4000000"))
+          && calls.value(calls.size() - 1) == QStringLiteral("link 3000000") && !calls.contains(QStringLiteral("save")),
+          calls.join(QStringLiteral(", ")));
+    delete port;
+
+    QStringList rc;
+    WifiRadioCheck radio({
+        [&]() { rc << QStringLiteral("ask"); },
+        [&](double p, int proto, int w, int ps) { rc << QStringLiteral("save %1 %2 %3 %4").arg(p).arg(proto).arg(w).arg(ps); }
+    }, WifiRadioCheck::Timing{ 100, 150, 1500 });
+    int outcome = -1;
+    QString text;
+    QObject::connect(&radio, &WifiRadioCheck::finished, [&](int o, const QString& t) { outcome = o; text = t; });
+    radio.start(20, 7, 40, 0);
+    radio.onRadio(20, 0xFF);                               // reconnecting
+    waitFor([&] { return rc.contains(QStringLiteral("ask")); }, 1000);
+    check("radio: asks for the state while the link is down", rc.contains(QStringLiteral("ask")) && outcome < 0);
+    radio.onRadio(20, 4);                                  // back on HT20
+    check("radio: 40 MHz on an HT20 link -> saved as 20", outcome == WifiRadioCheck::Corrected
+          && rc.contains(QStringLiteral("save 20 7 20 0")), text);
+    outcome = -1;
+    rc.clear();
+    radio.start(11, 7, 20, 0);
+    QThread::msleep(120);                                  // past the settle time
+    radio.onRadio(11, 4);
+    check("radio: as asked -> nothing saved", outcome == WifiRadioCheck::AsAsked && !rc.join(QStringLiteral(",")).contains(QStringLiteral("save")),
+          text);
+    outcome = -1;
+    radio.start(20, 8, 20, 0);                             // LR only, the access point has no LR
+    waitFor([&] { return outcome >= 0; }, 3000);
+    check("radio: no link -> gives up, nothing saved", outcome == WifiRadioCheck::NoLink, text);
+
+    WifiRestartWatch w;
+    check("restart: the first report is not one", !w.onUptime(100, 0));
+    check("restart: 100 s then 102 s two seconds later -> running", !w.onUptime(102, 2000));
+    check("restart: 102 s, a minute later 3 s -> restart", w.onUptime(3, 60000));
+    check("restart: a 4 s boot loop (3 s, a second later 1 s) -> restart", w.onUptime(1, 61000));
+    w.onUptime(50, 100000);
+    check("restart: between rare reports (50 s, a minute later 20 s) -> restart", w.onUptime(20, 160000));
+    w.onUptime(50, 200000);
+    check("restart: a report 2 s late on this side -> running", !w.onUptime(108, 260000));
+}
+
 } // namespace
 
 int main(int argc, char* argv[])
@@ -203,13 +311,39 @@ int main(int argc, char* argv[])
     g_scale = qMax(0.1, cli.value(QStringLiteral("wall-timeout-scale")).toDouble());
 
     navRules();
+    sequenceAndLogRules();
+    wifiOpsRules();
 
     QTcpSocket sock;
     MavVehicle v(nullptr, false);
     // refuseAuto: the transport keeps DO_SET_MODE from SITL and answers it with COMMAND_ACK FAILED, which is
     // what the real boat did when its EKF had no position ("Flight mode change failed").
     bool refuseAuto = false;
-    QObject::connect(&sock, &QTcpSocket::readyRead, &v, [&]() { v.feed(sock.readAll()); });
+    // blockRx: nothing from SITL reaches the vehicle (a dropped link). dropUploadAck: the first MISSION_ACK from
+    // the autopilot is lost (the upload's final one), everything else passes frame by frame.
+    bool blockRx = false;
+    bool dropUploadAck = false;
+    int acksDropped = 0;
+    mavlink_message_t inMsg;
+    mavlink_status_t inStatus{};
+    QObject::connect(&sock, &QTcpSocket::readyRead, &v, [&]() {
+        const QByteArray bytes = sock.readAll();
+        if (blockRx)
+            return;
+        if (!dropUploadAck) {
+            v.feed(bytes);
+            return;
+        }
+        for (char c : bytes) {
+            if (!mavlink_parse_char(kFakeChan, uint8_t(c), &inMsg, &inStatus))
+                continue;
+            if (inMsg.msgid == MAVLINK_MSG_ID_MISSION_ACK && acksDropped == 0) {
+                ++acksDropped;
+                continue;
+            }
+            v.feed(frame(inMsg));
+        }
+    });
     QObject::connect(&v, &MavVehicle::sendBytes, &sock, [&](const QByteArray& b) {
         if (refuseAuto && isCommand(b, MAV_CMD_DO_SET_MODE)) {
             QTimer::singleShot(50, &app, [&]() { v.feed(fakeAck(MAV_CMD_DO_SET_MODE, MAV_RESULT_FAILED)); });
@@ -236,6 +370,13 @@ int main(int argc, char* argv[])
         return 2;
 
     check("autopilot heartbeat", waitFor([&] { return v.connected(); }, 30000), v.autopilotText());
+    // The link drops right after the autopilot is first heard (a Wi-Fi module restart did this on the head unit):
+    // the settings read windows pass with nothing arriving; the settings have to be read once it is back.
+    blockRx = true;
+    check("link dropped right after the autopilot was found", waitFor([&] { return !v.connected(); }, 10000));
+    waitFor([&] { return false; }, 40000);
+    blockRx = false;
+    check("link back", waitFor([&] { return v.connected(); }, 15000));
     check("GPS fix, position and home", waitFor([&] { return v.gpsFix() >= 3 && v.positionValid() && v.homeValid(); }, 120000),
           QStringLiteral("fix %1, home %2").arg(v.gpsFix()).arg(v.homeValid()));
     check("navigation ready (EKF status from the autopilot)", waitFor([&] { return v.navState() == MavVehicle::NavReady; }, 60000),
@@ -283,6 +424,19 @@ int main(int argc, char* argv[])
               && v.transferState() == MavVehicle::TransferDone && v.planCount() == 3 && qAbs(v.planSpeed() - 2.0) < 1e-9
               && v.planReturnHome() && v.planOnVehicle(),
           v.transferText());
+
+    // The autopilot's MISSION_ACK after the last item is lost: the read-back decides instead of a failure. The plan
+    // is changed first, so a matching read-back proves the new mission is on the boat.
+    v.movePoint(2, lat0 + 0.0001, lon0 + 0.0008);
+    dropUploadAck = true;
+    v.uploadPlan();
+    const bool upDone = waitFor([&] { return v.transferState() == MavVehicle::TransferDone
+                                             || v.transferState() == MavVehicle::TransferFailed; }, 40000);
+    check("upload with the final MISSION_ACK lost: checked by reading back",
+          upDone && acksDropped == 1 && v.transferState() == MavVehicle::TransferDone && v.planOnVehicle()
+              && v.messages().join(QLatin1Char('\n')).contains(QStringLiteral("reading the mission back")),
+          v.transferText());
+    dropUploadAck = false;
 
     // An EKF without a position (a made-up report between two real ones): no start, and nothing armed.
     v.feed(fakeEkf(kEkfBase | EKF_CONST_POS_MODE, 0.1f, 0.1f, 0.1f));

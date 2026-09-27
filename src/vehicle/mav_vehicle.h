@@ -290,6 +290,8 @@ private:
     void requestStreams();
     void updateNav();
     void updateGpsHeading();
+    void logGpsHeading();
+    void logHealth();
     void logSettings();
 
     QVector<Item> buildItems() const;
@@ -342,12 +344,22 @@ private:
     int navState_ = NavUnknown;
     QString navText_;
     int navLoggedReason_ = -1;
+    int ekfPollsUnanswered_ = 0;     // REQUEST_MESSAGE polls since the last EKF report
     int navLoggedState_ = -1;
     QElapsedTimer navLoggedAt_;
     QString healthText_;
     bool healthSeen_ = false;
+    // Health and GPS-heading changes go to the log once they have held for a moment, with how many flips it
+    // took, so a flapping RC link or RTK heading does not push everything else out of the message list.
+    QTimer healthLogTimer_;
+    QString healthLogged_;
+    bool healthLoggedOnce_ = false;
+    int healthChanges_ = 0;
+    QTimer gpsHeadingLogTimer_;
+    int gpsHeadingChanges_ = 0;
     QMap<QString, double> settings_;
     bool settingsLogged_ = false;
+    int settingsEpoch_ = 0;          // secondsSinceDetect_ the read windows count from (re-armed on reconnect)
     int settingsCursor_ = 0;
     QMap<QString, int> settingTypes_;    // MAV_PARAM_TYPE from PARAM_VALUE, for PARAM_SET
     bool importAfterDownload_ = false;

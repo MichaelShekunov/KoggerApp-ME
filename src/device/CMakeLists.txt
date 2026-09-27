@@ -5,6 +5,7 @@ target_sources(KoggerApp PRIVATE
     device_manager.h          device_manager.cpp
     device_manager_wrapper.h  device_manager_wrapper.cpp
     device_topology_model.h   device_topology_model.cpp
-    usb_tap.h                 usb_tap.cpp)
+    usb_tap.h                 usb_tap.cpp
+    wifi_ops.h                wifi_ops.cpp)
 
 target_include_directories(KoggerApp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

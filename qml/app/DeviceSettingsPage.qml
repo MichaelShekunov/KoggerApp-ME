@@ -2247,14 +2247,6 @@ Column {
         property int selBw: 20
         property int selPs: 0
         property bool dirty: false
-        // After Apply: what was asked, compared with what is in effect once the link is back.
-        property bool verifying: false
-        property real askPower: 0
-        property int askProto: 7
-        property int askBw: 20
-        property int askPs: 0
-        property double applyAt: 0
-
         // The menu shows what is in effect; the saved values only while the module has no link.
         function sync(force) {
             if (!valid || (dirty && !force))
@@ -2264,43 +2256,6 @@ Column {
             selBw = widthNow > 0 ? widthNow : r.bandwidthMhz
             selPs = r.powerSave
             dirty = false
-        }
-        // The module could not do what was asked (a power between the driver's steps, 40 MHz from an access point
-        // that gives 20): save what is in effect, so the module's settings, the link and this menu say the same.
-        function check() {
-            if (!verifying || !linkUp || Date.now() - applyAt < 1500)
-                return
-            verifying = false
-            var diffs = []
-            if (Math.abs(powerNow - askPower) >= 0.25)
-                diffs.push(qsTr("%1 dBm instead of %2 (the driver's step)").arg(powerNow).arg(askPower))
-            if (widthNow !== askBw)
-                diffs.push(qsTr("%1 MHz instead of %2 (the access point gives no 40 MHz)").arg(widthNow).arg(askBw))
-            if (diffs.length === 0) {
-                console.info("wifi-radio: in effect as asked: " + askPower + " dBm, " + askBw + " MHz")
-                return
-            }
-            console.info("wifi-radio: asked " + askPower + " dBm " + askBw + " MHz, in effect " + powerNow + " dBm "
-                         + widthNow + " MHz: saving what is in effect")
-            dev.wifiSetRadio(powerNow, askProto, widthNow, askPs)
-            notifications.info(qsTr("The module uses %1: saved like that").arg(diffs.join(", ")))
-        }
-        // The check asks for the radio state itself: the module does not push it after a reconnect.
-        Timer {
-            interval: 2000
-            repeat: true
-            running: radioIsland.verifying
-            onTriggered: {
-                if (Date.now() - radioIsland.applyAt > 30000) {
-                    radioIsland.verifying = false
-                    radioIsland.sync(true)
-                    notifications.warning(qsTr("No link to the access point after the radio change: the result could not be checked"))
-                } else {
-                    radioIsland.check()
-                    if (radioIsland.verifying)
-                        dev.wifiRefresh()
-                }
-            }
         }
         // A selection left unapplied goes back to what is in effect.
         function edited() {
@@ -2328,7 +2283,7 @@ Column {
         Connections {
             target: root._isWifi ? root.dev : null
             ignoreUnknownSignals: true
-            function onWifiRadioChanged() { radioIsland.sync(false); radioIsland.check() }
+            function onWifiRadioChanged() { radioIsland.sync(false) }
         }
 
         DevIslandTitle { label: qsTr("Radio") }
@@ -2388,7 +2343,8 @@ Column {
             }
         }
         DevStackedRow {
-            caption: (radioIsland.dirty ? qsTr("Not applied yet: the menu differs from what the module uses; it goes back in 30 s. ") : "")
+            caption: (root._isWifi && dev.wifiRadioChecking ? qsTr("Checking what the module uses now… ") : "")
+                     + (radioIsland.dirty ? qsTr("Not applied yet: the menu differs from what the module uses; it goes back in 30 s. ") : "")
                      + qsTr("Protocol and width changes make the module reconnect: the boat link drops for a few seconds. 40 MHz needs 802.11n and an access point that gives it.")
             Row {
                 width: parent.width
@@ -2399,12 +2355,8 @@ Column {
                     label: qsTr("Apply")
                     enabled: radioIsland.valid
                     onConfirmed: {
-                        radioIsland.askPower = radioIsland.selPower
-                        radioIsland.askProto = radioIsland.selProto
-                        radioIsland.askBw = radioIsland.selBw
-                        radioIsland.askPs = radioIsland.selPs
-                        radioIsland.applyAt = Date.now()
-                        radioIsland.verifying = true
+                        // DevDriver checks the result once the link is back and saves what is in effect if the
+                        // module could not do it (WifiRadioCheck), whether or not this page is still open.
                         dev.wifiSetRadio(radioIsland.selPower, radioIsland.selProto, radioIsland.selBw, radioIsland.selPs)
                         radioIsland.dirty = false
                         radioRevertTimer.stop()
@@ -2421,9 +2373,9 @@ Column {
     }
 
     // ── Wi‑Fi module: speed of its port to this host (line 0, ID_UART + ID_FLASH) ──
-    // The module answers a speed change at the old speed and then switches. The link follows, the module has
-    // to answer a status request at the new speed, and only then the speed is saved in the module; with no
-    // answer the link goes back (the unsaved speed is gone at the module's next reboot). Steps go to the log.
+    // The sequence (module switches, link follows, the module must answer at the new speed, then the speed is
+    // saved in it; no answer puts the link back) runs in DevDriver::wifiSetPortBaud, not here: this page is
+    // unloaded as soon as it is left. Steps go to the log as "wifi-port:" lines.
     DevIsland {
         id: portIsland
         width: root.groupWidth
@@ -2431,88 +2383,20 @@ Column {
         rowMinHeight: Tokens.controlHMd + Tokens.spaceXs
 
         readonly property int now: root._isWifi ? dev.baudrate : 0
+        readonly property bool busy: root._isWifi && dev.wifiPortBusy
         property int sel: 0
-        property int oldBaud: 0
-        property int newBaud: 0
-        property string linkUuid: ""
-        property int phase: 0            // 0 idle, 1 module switching, 2 waiting for its answer at the new speed
-        property int tries: 0
-        property bool answered: false
 
         Component.onCompleted: if (now > 0) sel = now
-        onNowChanged: if (phase === 0 && now > 0) sel = now
-
-        function start() {
-            linkUuid = root._linkUuidOfDev()
-            if (!linkUuid.length || typeof linkManagerWrapper === "undefined" || !linkManagerWrapper) {
-                notifications.warning(qsTr("The module's link is not known: nothing changed"))
-                return
-            }
-            if (sel <= 0 || sel === now)
-                return
-            oldBaud = now > 0 ? now : 921600
-            newBaud = sel
-            phase = 1
-            console.info("wifi-port: set " + newBaud + " (was " + oldBaud + ")")
-            dev.baudrate = newBaud
-            portSwitchTimer.restart()
-        }
-        function done(ok) {
-            portVerifyTimer.stop()
-            phase = 0
-            if (ok) {
-                dev.flashSettings()
-                console.info("wifi-port: the module answered at " + newBaud + ", saved in the module")
-                notifications.info(qsTr("Port speed %1 set, the module saved it").arg(newBaud))
-            } else {
-                linkManagerWrapper.updateBaudrateFor(linkUuid, oldBaud)
-                console.info("wifi-port: no answer at " + newBaud + ", link back at " + oldBaud)
-                notifications.warning(qsTr("No answer from the module at %1: the link is back at %2. An unsaved speed is gone after the module's next reboot.").arg(newBaud).arg(oldBaud))
-            }
-        }
-        Timer {
-            id: portSwitchTimer
-            interval: 400
-            onTriggered: {
-                linkManagerWrapper.updateBaudrateFor(portIsland.linkUuid, portIsland.newBaud)
-                console.info("wifi-port: link at " + portIsland.newBaud)
-                portIsland.tries = 0
-                portIsland.phase = 2
-                portIsland.answered = false
-                portVerifyTimer.restart()
-            }
-        }
-        // Every tick forgets what came before and asks again, so a frame decoded from the old speed never counts.
-        Timer {
-            id: portVerifyTimer
-            interval: 700
-            repeat: true
-            onTriggered: {
-                if (portIsland.answered && portIsland.tries > 0) {
-                    portIsland.done(true)
-                    return
-                }
-                if (++portIsland.tries > 8) {
-                    portIsland.done(false)
-                    return
-                }
-                portIsland.answered = false
-                dev.wifiRefresh()
-            }
-        }
-        Connections {
-            target: root._isWifi ? root.dev : null
-            ignoreUnknownSignals: true
-            function onWifiStatusChanged() { if (portIsland.phase === 2) portIsland.answered = true }
-        }
+        onNowChanged: if (!busy && now > 0) sel = now
+        onBusyChanged: if (!busy && now > 0) sel = now
 
         DevIslandTitle { label: qsTr("Port speed") }
 
         DevStackedRow {
             label: qsTr("Module port to this device, bit/s")
-            caption: portIsland.phase === 0
+            caption: !portIsland.busy
                      ? qsTr("Now %1. The module keeps the speed it is given here; this device's port follows.").arg(portIsland.now > 0 ? portIsland.now : "—")
-                     : qsTr("Changing to %1…").arg(portIsland.newBaud)
+                     : qsTr("Changing to %1… (it finishes even if this page is closed)").arg(dev.wifiPortTarget)
             KTabBar {
                 width: parent.width
                 fontPixelSize: Tokens.fontSm
@@ -2528,8 +2412,8 @@ Column {
             ConfirmDevButton {
                 width: parent.width
                 label: qsTr("Apply %1").arg(portIsland.sel)
-                enabled: portIsland.phase === 0 && portIsland.sel > 0 && portIsland.sel !== portIsland.now
-                onConfirmed: portIsland.start()
+                enabled: !portIsland.busy && portIsland.sel > 0 && portIsland.sel !== portIsland.now
+                onConfirmed: if (!dev.wifiSetPortBaud(portIsland.sel)) notifications.warning(qsTr("The port speed could not be changed now: nothing changed"))
             }
         }
     }
@@ -2966,7 +2850,7 @@ Column {
                                                     isNaN(parseInt(lnTxField.text, 10)) ? -1 : parseInt(lnTxField.text, 10),
                                                     isNaN(parseInt(lnRxField.text, 10)) ? -1 : parseInt(lnRxField.text, 10))
                         if (!ok)
-                            notifications.warning(qsTr("Check the fields: IP a.b.c.d, ports 0–65535"))
+                            notifications.warning(qsTr("Check the fields: IP a.b.c.d, ports 0–65535, line 1 speed 9600–4000000"))
                         else
                             linesIsland.dirty = false
                     }

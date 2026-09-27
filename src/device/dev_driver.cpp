@@ -7,8 +7,22 @@
 #include <QFile>
 #include <QVariant>
 #include <QXmlStreamWriter>
+#include "notifications.h"
 
 extern Core core;
+extern Notifications notifications;
+
+namespace {
+// Notifications live on the GUI thread; the driver may not.
+void notifyInfo(const QString& text)
+{
+    QMetaObject::invokeMethod(&notifications, [text]() { notifications.info(text); }, Qt::QueuedConnection);
+}
+void notifyWarning(const QString& text)
+{
+    QMetaObject::invokeMethod(&notifications, [text]() { notifications.warning(text); }, Qt::QueuedConnection);
+}
+} // namespace
 
 DevDriver::DevDriver(QObject *parent)
     : QObject(parent),
@@ -94,6 +108,47 @@ DevDriver::DevDriver(QObject *parent)
     QObject::connect(idServoControl, &IDBin::notifyDevDriver, this, &DevDriver::setServoControlState);
     QObject::connect(idPwmRoute, &IDBin::notifyDevDriver, this, &DevDriver::setPwmRouteState);
     QObject::connect(idDevSync, &IDBin::notifyDevDriver, this, &DevDriver::setDevSyncState);
+
+    wifiClock_.start();
+    // Wi-Fi module sequences that must finish whether or not a settings page is open.
+    wifiPort_ = new WifiPortChange({
+        [this](int baud) { if (m_state.connect) { idUART->setBaudrate(U4(baud)); emit UARTChanged(); } },
+        [this](int baud) {
+            LinkManagerWrapper* links = core.getLinkManagerWrapperPtr();
+            const QUuid link = linkUuid_;
+            if (links)
+                QMetaObject::invokeMethod(links, [links, link, baud]() { links->updateBaudrate(link, baud); }, Qt::QueuedConnection);
+        },
+        [this]() { if (m_state.connect) idWifi->simpleRequest(v0); },
+        [this]() { if (m_state.connect) idFlash->flashing(); }
+    }, WifiPortChange::Timing(), this);
+    connect(wifiPort_, &WifiPortChange::activeChanged, this, &DevDriver::wifiPortChanged);
+    connect(wifiPort_, &WifiPortChange::finished, this, [this](bool ok, int newBaud, int oldBaud) {
+        if (ok) {
+            qInfo().noquote() << QStringLiteral("wifi-port: the module answered at %1, saved in the module").arg(newBaud);
+            notifyInfo(tr("Port speed %1 set, the module saved it").arg(newBaud));
+        } else {
+            qInfo().noquote() << QStringLiteral("wifi-port: no answer at %1, link back at %2").arg(newBaud).arg(oldBaud);
+            notifyWarning(tr("No answer from the module at %1: the link is back at %2. An unsaved speed is gone after the module's next reboot.")
+                              .arg(newBaud).arg(oldBaud));
+        }
+    });
+    wifiRadioCheck_ = new WifiRadioCheck({
+        [this]() { if (m_state.connect) idWifi->simpleRequest(v7); },
+        [this](double powerDbm, int protocols, int widthMhz, int powerSave) {
+            if (m_state.connect)
+                idWifi->setRadio(uint8_t(qBound(8, int(std::lround(powerDbm * 4.0)), 84)), uint8_t(protocols),
+                                 widthMhz == 40 ? 2 : 1, uint8_t(qBound(0, powerSave, 2)));
+        }
+    }, WifiRadioCheck::Timing(), this);
+    connect(wifiRadioCheck_, &WifiRadioCheck::activeChanged, this, &DevDriver::wifiRadioCheckChanged);
+    connect(wifiRadioCheck_, &WifiRadioCheck::finished, this, [](int outcome, const QString& text) {
+        qInfo().noquote() << "wifi-radio:" << text;
+        if (outcome == WifiRadioCheck::Corrected)
+            notifyInfo(tr("Radio: %1").arg(text));
+        else if (outcome == WifiRadioCheck::NoLink)
+            notifyWarning(tr("Radio: %1").arg(text));
+    });
 
     m_devSyncDebounceTimer.setSingleShot(true);
     m_devSyncDebounceTimer.setInterval(300);
@@ -1155,17 +1210,21 @@ void DevDriver::receivedWifi(Parsers::Type type, Parsers::Version ver, Parsers::
                 idWifi->simpleRequest(v4);
             }
         }
+        wifiPort_->moduleAnswered();
         emit wifiStatusChanged();
         emit wifiReportChanged();   // RSSI and rates live in both frames
         break;
     }
     case v1: {
         const auto& r = idWifi->report();
-        if (r.valid && wifiLastUptimeS_ > 0 && r.uptimeS + 5 < wifiLastUptimeS_) {
-            qInfo().noquote() << QStringLiteral("wifi: the module restarted (uptime %1 s, was %2 s)").arg(r.uptimeS).arg(wifiLastUptimeS_);
+        if (r.valid) {
+            const qint64 now = wifiClock_.elapsed();
+            const uint32_t was = wifiRestart_.lastUptimeS();
+            const qint64 expected = wifiRestart_.expectedS(now);
+            if (wifiRestart_.onUptime(r.uptimeS, now))
+                qInfo().noquote() << QStringLiteral("wifi: the module restarted (uptime %1 s, was %2 s, %3 s expected)")
+                                         .arg(r.uptimeS).arg(was).arg(expected);
         }
-        if (r.valid)
-            wifiLastUptimeS_ = r.uptimeS;
         emit wifiReportChanged();
         break;
     }
@@ -1189,6 +1248,7 @@ void DevDriver::receivedWifi(Parsers::Type type, Parsers::Version ver, Parsers::
             lastWifiNetLog_[7] = line;
             qInfo().noquote() << "wifi-radio:" << line;
         }
+        wifiRadioCheck_->onRadio(r.powerNowQ / 4.0, r.phyNow);
         emit wifiRadioChanged();
         break;
     }
@@ -1437,7 +1497,17 @@ int DevDriver::wifiNetOwnAddr() { return idWifiNet->ownAddress(); }
 void DevDriver::wifiSetRadio(double powerDbm, int protocols, int bandwidthMhz, int powerSave) {
     if (!m_state.connect) return;
     const int q = qBound(8, int(std::lround(powerDbm * 4.0)), 84);
-    idWifi->setRadio(uint8_t(q), uint8_t(protocols), bandwidthMhz == 40 ? 2 : 1, uint8_t(qBound(0, powerSave, 2)));
+    const int ps = qBound(0, powerSave, 2);
+    idWifi->setRadio(uint8_t(q), uint8_t(protocols), bandwidthMhz == 40 ? 2 : 1, uint8_t(ps));
+    wifiRadioCheck_->start(q / 4.0, protocols, bandwidthMhz == 40 ? 40 : 20, ps);
+}
+
+bool DevDriver::wifiSetPortBaud(int baud) {
+    if (!m_state.connect || linkUuid_.isNull()) return false;
+    const int now = getBaudrate() > 0 ? getBaudrate() : 921600;
+    if (!wifiPort_->start(baud, now)) return false;
+    qInfo().noquote() << QStringLiteral("wifi-port: set %1 (was %2)").arg(baud).arg(now);
+    return true;
 }
 
 void DevDriver::wifiNetRefresh() {
@@ -1469,8 +1539,11 @@ bool DevDriver::wifiNetSetIp(const QString& ip, const QString& mask, bool dhcp, 
 
 bool DevDriver::wifiNetSetLine(int line, int mode, int dest, const QString& ip, int rport, int lport, int baud,
                                int txPin, int rxPin) {
+    // Line 0's speed and pins are the module's own (ID_UART, build): ignored there. Line 1 needs a real speed,
+    // or the module refuses the whole line with ERR_PAYLOAD.
     if (!m_state.connect || line < 0 || line > 1 || rport < 0 || rport > 65535 || lport < 0 || lport > 65535
-        || baud < 0 || txPin < -1 || txPin > 127 || rxPin < -1 || rxPin > 127) return false;
+        || baud < 0 || (line == 1 && (baud < 9600 || baud > 4000000))
+        || txPin < -1 || txPin > 127 || rxPin < -1 || rxPin > 127) return false;
     return idWifiNet->setLine(uint8_t(line), uint8_t(mode), uint8_t(dest), ip, uint16_t(rport), uint16_t(lport),
                               uint32_t(baud), int8_t(txPin), int8_t(rxPin));
 }

@@ -16,9 +16,12 @@ set(KOGGER_SRC ${CMAKE_CURRENT_SOURCE_DIR}/../../src)
 add_executable(mission_check
     main.cpp
     ${KOGGER_SRC}/vehicle/mav_vehicle.h
-    ${KOGGER_SRC}/vehicle/mav_vehicle.cpp)
+    ${KOGGER_SRC}/vehicle/mav_vehicle.cpp
+    ${KOGGER_SRC}/device/wifi_ops.h
+    ${KOGGER_SRC}/device/wifi_ops.cpp)
 
 target_include_directories(mission_check PRIVATE
     ${KOGGER_SRC}/vehicle
+    ${KOGGER_SRC}/device
     ${CMAKE_CURRENT_SOURCE_DIR}/../../third_party)
 target_link_libraries(mission_check PRIVATE Qt6::Core Qt6::Network)

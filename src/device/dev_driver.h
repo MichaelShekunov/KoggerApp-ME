@@ -10,6 +10,7 @@
 #include <QStringList>
 #include "proto_binnary.h"
 #include "id_binnary.h"
+#include "wifi_ops.h"
 
 
 using namespace Parsers;
@@ -206,7 +207,14 @@ public:
      */
     Q_INVOKABLE bool wifiSetRelay(int mode, int addr, const QString& ip, int rport, int lport);
     /** ID_WIFI v7. power in dBm (2..21); protocols 0x01/0x03/0x07/0x08/0x0F; bandwidth 20 or 40; powerSave 0..2. */
+    /** Also starts the check of what is in effect once the link is back (WifiRadioCheck). */
     Q_INVOKABLE void wifiSetRadio(double powerDbm, int protocols, int bandwidthMhz, int powerSave);
+    /** Moves the module's port (line 0) and this app's link to it to another speed, checks that the module
+     *  answers there and saves it in the module (WifiPortChange); false when it cannot start. */
+    Q_INVOKABLE bool wifiSetPortBaud(int baud);
+    bool wifiPortBusy() const { return wifiPort_ && wifiPort_->active(); }
+    int wifiPortTarget() const { return wifiPort_ ? wifiPort_->target() : 0; }
+    bool wifiRadioChecking() const { return wifiRadioCheck_ && wifiRadioCheck_->active(); }
     /** Re-reads role, access point, address, lines and own address (ID_WIFI_NET v0, v1, v2, v3, v6). */
     Q_INVOKABLE void wifiNetRefresh();
     Q_INVOKABLE void wifiNetRefreshStats();
@@ -395,6 +403,8 @@ signals:
     void wifiRelayChanged();
     void wifiRelayStatsChanged();
     void wifiRadioChanged();
+    void wifiPortChanged();
+    void wifiRadioCheckChanged();
     void wifiNetChanged();
     void wifiNetStatsChanged();
     void wifiNetClientsChanged();
@@ -722,7 +732,10 @@ private:
     QString lastWifiNetLog_[8];       // last logged line per ID_WIFI_NET version (7 = radio)
     int64_t wifiNetAskedAt_ = 0;      // when ID_WIFI_NET was first asked; silence for 4 s = firmware before 0.10
     int wifiLastState_ = -1;
-    uint32_t wifiLastUptimeS_ = 0;     // module uptime from the last report, to see a restart
+    WifiRestartWatch wifiRestart_;     // module uptime reports, to see a restart
+    QElapsedTimer wifiClock_;          // the monotonic time those reports are compared with
+    WifiPortChange* wifiPort_ = nullptr;
+    WifiRadioCheck* wifiRadioCheck_ = nullptr;
     bool pwmRouteState_ = false;
     bool devSyncState_ = false;
     QTimer m_devSyncDebounceTimer;
