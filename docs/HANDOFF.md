@@ -404,9 +404,11 @@ A full review of d5f4c100..c83968ef found ten issues, all fixed in afd16b68:
   access-point channel 1–11, own address 1–255, LR only not offered and no PHY wait in the access-point role.
   mission_check 72/72. The head unit's module was updated to 0.11.0 the same day (HeadUnit docs); the kiosk branch
   with this support (`headunit` 23bcf614) is on the kiosk since 2026-09-27 (log: `wifi: module up 1297 s, last reset:
-  software: update, role change or reboot (3)`, no QML errors). Open, not an app matter: on 0.11 the boat's stream
-  through the module's relay mostly stopped ~2 min after it joined the access point (module up, associated, its own
-  frames arriving); on 0.10 with the same settings it had run 9 minutes clean (HeadUnit docs/STATE.md).
+  software: update, role change or reboot (3)`, no QML errors). Not an app matter either: ~2 min after the module
+  update the boat's stream mostly stopped; the head unit module received almost nothing over the air (the owner read
+  the rate on its page), and restarting the boat alone restored the link, clean for 11+ minutes — the boat side hung
+  (its module with old factory firmware, or its logger), not the head unit's 0.11. Whether the 2-minute relay gap
+  during the update set it off is open (HeadUnit docs/STATE.md).
 - On the head unit since 2026-09-27 (`headunit` 74b5afee), with the live boat (Verified, kogger.log): autopilot
   found 0.4 s after start, settings read 14 s after detection, the heading line held and logged once ("after 2
   changes"), no QML errors, no "module restarted" line in 3 minutes of once-a-second uptime reports. Not yet
