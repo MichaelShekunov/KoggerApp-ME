@@ -178,7 +178,7 @@ authority; this is the intent behind each.
 | `CMakeLists.txt`, `src/main.cpp` | `+ src/screen_keyboard.{h,cpp}`, context property `screenKeyboard` | on-screen keyboard controller (see the feature section) |
 | `qml/app/MainWindow.qml` | `+ KScreenKeyboard { }` next to the overlays | the keyboard panel |
 | `qml/app/AppSettingsPage.qml` | Interface → "On-screen keyboard" selector | Auto / On / Off |
-| `qml/kqml_types/ZOrder.qml`, `qml/kqml_types/CMakeLists.txt` | `+ screenKeyboard` layer, `+ KScreenKeyboard.qml` | z-order and module registration |
+| `qml/kqml_types/ZOrder.qml`, `qml/kqml_types/CMakeLists.txt` | `+ screenKeyboard` layer, `+ KScreenKeyboard.qml`, `+ WifiSignalIcon.qml` | z-order and module registration |
 | `src/proto_binnary.h`, `src/id_binnary.{h,cpp}` | `+ ID_WIFI = 0x57`, `+ BoardWiFi = 87`, `+ IDBinWifi` | the Wi-Fi module (see the feature section) |
 | `src/device/dev_driver.{h,cpp}`, `src/device/dev_q_property.h` | `idWifi`, `isWifi()`, `wifi*` readers, `Q_INVOKABLE wifi*` commands, `wifi*Changed` signals | QML surface of the module |
 | `qml/app/DeviceSettingsPage.qml` | "Wi-Fi" island, `WifiBars` / `WifiField` components, baud lists to 4 000 000, `*.ufww` upgrade filter | the control surface |
@@ -207,6 +207,7 @@ genuine upstream bug and a candidate to report back.
 | `src/screen_keyboard.{h,cpp}` | on-screen keyboard controller |
 | `qml/kqml_types/KScreenKeyboard.qml` | on-screen keyboard panel |
 | `docs/WIFI_MODULE.md` | the Wi-Fi module: protocol contract and what the app does with it |
+| `qml/kqml_types/WifiSignalIcon.qml` | the Wi-Fi symbol lit by signal level (Devices chips, toolbar badges) |
 
 `tools/sonifier_check` and `tools/deconv_check` are separate CMake projects, not
 part of the application build. Nothing in the app references them. `deconv_check`
@@ -445,6 +446,9 @@ The app side, WIFI_MODULE.md §2e:
 - Fourth round (owner's bench): the width follows the protocols (no 40 MHz without 802.11n, enforced in
   `WifiRadioRules` and at the send point), and the "firmware 0.11" refusal text only when the module's version is below
   0.12. `KTabBar` options can be disabled (listed under "What differs from upstream"). mission_check offline 74/74.
+- Fifth round: every Wi-Fi module's chip (Devices page) and toolbar badge show its signal with `WifiSignalIcon` (dot +
+  three arcs, lit and coloured by `dev.wifiSignalLevel`; thresholds in `WifiSignal`, colours in the component).
+  mission_check offline 76/76.
 
 ## Feature: echogram deconvolution
 

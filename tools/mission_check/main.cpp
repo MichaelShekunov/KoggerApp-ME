@@ -332,6 +332,12 @@ void wifiRadioRules()
           && WifiRadioRules::widthFor(0x01, 40) == 20 && WifiRadioRules::widthFor(0x03, 40) == 20);
     check("radio rule: b/g/n and b/g/n+LR keep the width asked", WifiRadioRules::widthFor(0x07, 40) == 40
           && WifiRadioRules::widthFor(0x0F, 40) == 40 && WifiRadioRules::widthFor(0x07, 20) == 20 && WifiRadioRules::widthFor(0x08, 20) == 20);
+    check("signal: not linked, or an access point without clients (0) -> dim", WifiSignal::level(false, -50) == -1
+          && WifiSignal::level(true, 0) == -1);
+    check("signal: -60 and better 3 arcs, -61..-70 2, -71..-80 1, below -80 the dot", WifiSignal::level(true, -45) == 3
+          && WifiSignal::level(true, -60) == 3 && WifiSignal::level(true, -61) == 2 && WifiSignal::level(true, -70) == 2
+          && WifiSignal::level(true, -71) == 1 && WifiSignal::level(true, -80) == 1 && WifiSignal::level(true, -81) == 0
+          && WifiSignal::level(true, -95) == 0);
     check("radio rule: LR only for an access point: 0.11 no, 0.12 and 1.0 yes, 0.0 unknown",
           WifiRadioRules::lrOnlyApSupport(0, 11) == 0 && WifiRadioRules::lrOnlyApSupport(0, 12) == 1
           && WifiRadioRules::lrOnlyApSupport(0, 13) == 1 && WifiRadioRules::lrOnlyApSupport(1, 0) == 1

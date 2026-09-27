@@ -1458,6 +1458,8 @@ Item {
                     devCell.modelData ? devCell.modelData.port : -1)
                 readonly property color _fill:   root.pillFillColor(_state)
                 readonly property color _border: root.pillBorderColor(_state)
+                // A Wi-Fi module's badge shows its own signal (WifiSignalIcon) instead of the plain symbol.
+                readonly property bool _wifi: !!(_dev && _dev.isWifi)
                 readonly property bool _transducer: !!(_dev
                                                        && _dev.isSonar
                                                        && _dev.isTransducerSupport
@@ -1468,6 +1470,8 @@ Item {
                 readonly property string _tip: {
                     if (!_dev) return ""
                     var t = _dev.devName
+                    if (_wifi && _dev.wifiSignalLevel >= 0)
+                        t += " · " + _dev.wifiRssi + " " + qsTr("dBm")
                     var p = devCell.modelData ? devCell.modelData.port : -1
                     if (p >= 0) {
                         t += " · " + qsTr("Port %1").arg(p)
@@ -1490,8 +1494,9 @@ Item {
                 }
 
                 KCircleIconButton {
+                    id: devBadgeButton
                     anchors.fill: parent
-                    iconSource: root.iconForDevice(devBadge._dev)
+                    iconSource: devBadge._wifi ? "" : root.iconForDevice(devBadge._dev)
                     iconTintColor: AppPalette.text
                     toolTipText: devBadge._tip
                     toolTipSuppressed: devPill.opened
@@ -1507,6 +1512,13 @@ Item {
                     highlightHold: root.draggingKey === "connections"
 
                     onClicked: devPill.opened ? devPill.close() : devPill.open()
+
+                    WifiSignalIcon {
+                        anchors.centerIn: parent
+                        size: devBadgeButton.iconPixelSize
+                        visible: devBadge._wifi
+                        level: devBadge._wifi ? devBadge._dev.wifiSignalLevel : -1
+                    }
 
                     Text {
                         visible: !!(devBadge._dev && devBadge._dev.isTransducerSupport && devBadge._dev.transFreq > 0)
@@ -1544,8 +1556,9 @@ Item {
                         spacing: Math.round(5 * root._s)
 
                         KCircleIconButton {
+                            id: devPillButton
                             width: devBadge.width; height: width
-                            iconSource: root.iconForDevice(devBadge._dev)
+                            iconSource: devBadge._wifi ? "" : root.iconForDevice(devBadge._dev)
                             iconTintColor: AppPalette.text
                             toolTipSuppressed: true
                             fillColor:        devBadge._fill
@@ -1553,6 +1566,13 @@ Item {
                             borderColor:      devBadge._border
                             borderHoverColor: devBadge._border
                             onClicked: devPill.close()
+
+                            WifiSignalIcon {
+                                anchors.centerIn: parent
+                                size: devPillButton.iconPixelSize
+                                visible: devBadge._wifi
+                                level: devBadge._wifi ? devBadge._dev.wifiSignalLevel : -1
+                            }
 
                             Text {
                                 visible: !!(devBadge._dev && devBadge._dev.isTransducerSupport && devBadge._dev.transFreq > 0)

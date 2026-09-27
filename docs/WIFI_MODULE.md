@@ -249,6 +249,17 @@ The module project's ports contract for 0.12. What changes for the app and how i
   to 0.12" only when LR only was asked of an access point and the module's firmware (ID_VERSION v2, `wifiLrApSupport`)
   is below 0.12; otherwise "The module refused these radio settings (ERR_PAYLOAD)". The module's version is 0.x, so the
   app's `fwVersion` text (set only for a major above 0) is empty for it: the rule reads the version fields directly.
+- **Signal icon** (owner, 2026-09-27: "the Wi-Fi icon should show the signal level"): `WifiSignalIcon`
+  (`qml/kqml_types/`, the dot and three arcs of `icons/ui/wifi.svg`) replaces the plain symbol on every Wi-Fi module's
+  chip on the Devices page (`DeviceTopologyView`) and on its round badge in the main window's toolbar
+  (`HotActionsPanel`, and its pop-out). `dev.wifiSignalLevel` comes from the ID_WIFI v1 report (the v0 status until
+  one came): a station reports its access point's RSSI, an access point its weakest client's (0 = no clients).
+  Levels (`WifiSignal::level`, the thresholds live only there, checked by mission_check): -1 no link — not connected,
+  or an access point without clients — everything dim; 0 below -80 dBm only the dot, red; 1 from -80 dBm one arc,
+  orange; 2 from -70 dBm two arcs, yellow-green; 3 from -60 dBm three arcs, green; unlit arcs dim. The colours are
+  chosen in the component only (a darker set for the light theme). Every module has its own chip and its own badge
+  (the topology lists each Wi-Fi module on a link as a bridge, the head unit's station and the boat's access point
+  alike), so each shows its own module; the badge's tooltip adds the RSSI.
 - **Log**: `wifi-net: port X1: flags 0x0f rate 3000000 saved 3000000 connected 4`, `wifi-net: port X2 devices: …`,
   `wifi-net: port X1 line: mode … state … peers …` when they change (not the counters); `wifi-port:` lines for both
   rate sequences.

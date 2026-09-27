@@ -285,6 +285,28 @@ private:
 };
 
 /**
+ * @brief Signal level of a Wi-Fi module for its icon (dot + three arcs), from the RSSI of its ID_WIFI v1 report: a
+ * station reports its access point, an access point its weakest client (0 = no clients). The thresholds live here only.
+ */
+struct WifiSignal
+{
+    /** -1 no link (not connected, or an access point without clients): everything dim; 0 below -80 dBm: only the dot;
+     *  1 from -80, 2 from -70, 3 from -60 dBm lit arcs. `linked`: connected station or running access point. */
+    static int level(bool linked, int rssiDbm)
+    {
+        if (!linked || rssiDbm >= 0)
+            return -1;
+        if (rssiDbm >= -60)
+            return 3;
+        if (rssiDbm >= -70)
+            return 2;
+        if (rssiDbm >= -80)
+            return 1;
+        return 0;
+    }
+};
+
+/**
  * @brief Radio-setting rules of the module (ID_WIFI v7) that it enforces with ERR_PAYLOAD, so the app never sends a
  * combination the module refuses. Protocol bits: 0x01 b, 0x02 g, 0x04 n, 0x08 LR.
  */
