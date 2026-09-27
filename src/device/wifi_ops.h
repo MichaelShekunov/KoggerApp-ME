@@ -78,6 +78,9 @@ public:
     /** The previous report's uptime plus the time since, whole seconds; 0 before the first report. */
     qint64 expectedS(qint64 nowMs) const { return seen_ ? qint64(lastS_) + (nowMs - lastAtMs_) / 1000 : 0; }
     uint32_t lastUptimeS() const { return lastS_; }
+    bool seen() const { return seen_; }
+    /** The module's reset reason (esp_reset_reason_t, the last byte of ID_WIFI v1 from 0.11) in words. */
+    static QString reasonText(int reason);
 
 private:
     static constexpr qint64 kStallS = 5;   ///< reports this much late on this side are not a restart
@@ -91,9 +94,11 @@ private:
  * what was asked, and when the module could not do it (a power between the driver's steps, 40 MHz from an
  * access point that gives 20) saves what is in effect, so the module's settings and the link agree.
  *
- * The module does not push its radio state after a reconnect, so it is asked for until the link is back.
- * The width in effect comes from the negotiated PHY (HT40 = 40 MHz, anything else 20 MHz): the module's
- * own "width in use" is the driver's setting and read 40 on an HT20 link.
+ * The module (before 0.11) does not push its radio state after a reconnect, so it is asked for until the
+ * link is back. The width in effect comes from the negotiated PHY (HT40 = 40 MHz, anything else 20 MHz):
+ * the module's own "width in use" is the driver's setting and read 40 on an HT20 link. An access point has
+ * no negotiated PHY (0xFF): there the width in effect is what the driver was given, and nothing waits for
+ * a link.
  */
 class WifiRadioCheck : public QObject
 {
@@ -113,10 +118,14 @@ public:
 
     WifiRadioCheck(Hooks hooks, Timing timing, QObject* parent = nullptr);
 
-    /** What was just asked of the module (power already on the driver's quarter-dB grid). */
-    void start(double powerDbm, int protocols, int widthMhz, int powerSave);
-    /** Every radio report: the power in use and the negotiated PHY (0xFF = no link). */
-    void onRadio(double powerNowDbm, int phyNow);
+    /** What was just asked of the module (power already on the driver's quarter-dB grid); accessPoint when
+     *  the module runs as one. */
+    void start(double powerDbm, int protocols, int widthMhz, int powerSave, bool accessPoint = false);
+    /** Every radio report: the power in use, the negotiated PHY (0xFF = no link) and the width the driver
+     *  was given (v7 byte 7; used in the access-point role). */
+    void onRadio(double powerNowDbm, int phyNow, int widthSetMhz = 0);
+    /** The module refused the setting: nothing to check. */
+    void cancel();
     bool active() const { return active_; }
 
     /** The width the link really uses, from the negotiated PHY; 0 without a link. */
@@ -133,6 +142,7 @@ private:
     Hooks hooks_;
     Timing timing_;
     bool active_ = false;
+    bool ap_ = false;
     double askPower_ = 0;
     int askProto_ = 0;
     int askWidth_ = 20;

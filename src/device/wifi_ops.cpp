@@ -1,5 +1,6 @@
 #include "wifi_ops.h"
 
+#include <QCoreApplication>
 #include <QStringList>
 #include <cmath>
 
@@ -84,6 +85,24 @@ bool WifiRestartWatch::onUptime(uint32_t uptimeS, qint64 nowMs)
     return restarted;
 }
 
+QString WifiRestartWatch::reasonText(int reason)
+{
+    // esp_reset_reason_t, as the module's contract lists them (ESP32_WiFi docs/SBP_WIFI.md, ID_WIFI v1)
+    switch (reason) {
+    case 0: return QCoreApplication::translate("WifiRestartWatch", "unknown (0)");
+    case 1: return QCoreApplication::translate("WifiRestartWatch", "power-on (1)");
+    case 3: return QCoreApplication::translate("WifiRestartWatch", "software: update, role change or reboot (3)");
+    case 4: return QCoreApplication::translate("WifiRestartWatch", "panic (4)");
+    case 5: return QCoreApplication::translate("WifiRestartWatch", "interrupt watchdog (5)");
+    case 6: return QCoreApplication::translate("WifiRestartWatch", "task watchdog (6)");
+    case 7: return QCoreApplication::translate("WifiRestartWatch", "other watchdog (7)");
+    case 9: return QCoreApplication::translate("WifiRestartWatch", "brownout (9)");
+    case 14: return QCoreApplication::translate("WifiRestartWatch", "power glitch (14)");
+    case 15: return QCoreApplication::translate("WifiRestartWatch", "CPU lockup (15)");
+    }
+    return QCoreApplication::translate("WifiRestartWatch", "code %1").arg(reason);
+}
+
 // ---- WifiRadioCheck -------------------------------------------------------------------------------
 
 WifiRadioCheck::WifiRadioCheck(Hooks hooks, Timing timing, QObject* parent)
@@ -95,8 +114,9 @@ WifiRadioCheck::WifiRadioCheck(Hooks hooks, Timing timing, QObject* parent)
     connect(&askTimer_, &QTimer::timeout, this, &WifiRadioCheck::onAsk);
 }
 
-void WifiRadioCheck::start(double powerDbm, int protocols, int widthMhz, int powerSave)
+void WifiRadioCheck::start(double powerDbm, int protocols, int widthMhz, int powerSave, bool accessPoint)
 {
+    ap_ = accessPoint;
     askPower_ = powerDbm;
     askProto_ = protocols;
     askWidth_ = widthMhz == 40 ? 40 : 20;
@@ -116,17 +136,25 @@ void WifiRadioCheck::stop()
     emit activeChanged();
 }
 
-void WifiRadioCheck::onRadio(double powerNowDbm, int phyNow)
+void WifiRadioCheck::cancel()
 {
-    if (!active_ || phyNow == 0xFF || since_.elapsed() < timing_.settleMs)
+    if (active_)
+        stop();
+}
+
+void WifiRadioCheck::onRadio(double powerNowDbm, int phyNow, int widthSetMhz)
+{
+    // A station waits for its link; an access point has no negotiated PHY and uses what the driver was given.
+    if (!active_ || since_.elapsed() < timing_.settleMs || (!ap_ && phyNow == 0xFF))
         return;
     stop();
-    const int widthNow = widthOfPhy(phyNow);
+    const int widthNow = ap_ ? (widthSetMhz == 40 ? 40 : 20) : widthOfPhy(phyNow);
     QStringList diffs;
     if (std::fabs(powerNowDbm - askPower_) >= 0.25)
         diffs << tr("%1 dBm instead of %2 (the driver's step)").arg(powerNowDbm).arg(askPower_);
     if (widthNow != askWidth_)
-        diffs << tr("%1 MHz instead of %2 (the access point gives no 40 MHz)").arg(widthNow).arg(askWidth_);
+        diffs << (ap_ ? tr("%1 MHz instead of %2").arg(widthNow).arg(askWidth_)
+                      : tr("%1 MHz instead of %2 (the access point gives no 40 MHz)").arg(widthNow).arg(askWidth_));
     if (diffs.isEmpty()) {
         emit finished(AsAsked, tr("in effect as asked: %1 dBm, %2 MHz").arg(askPower_).arg(askWidth_));
         return;
@@ -139,7 +167,8 @@ void WifiRadioCheck::onAsk()
 {
     if (since_.elapsed() > timing_.deadlineMs) {
         stop();
-        emit finished(NoLink, tr("no link to the access point after the radio change: the result could not be checked"));
+        emit finished(NoLink, ap_ ? tr("no radio report from the module after the change: the result could not be checked")
+                                  : tr("no link to the access point after the radio change: the result could not be checked"));
         return;
     }
     hooks_.askRadio();

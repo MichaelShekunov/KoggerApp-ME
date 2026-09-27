@@ -294,6 +294,30 @@ void wifiOpsRules()
     check("restart: between rare reports (50 s, a minute later 20 s) -> restart", w.onUptime(20, 160000));
     w.onUptime(50, 200000);
     check("restart: a report 2 s late on this side -> running", !w.onUptime(108, 260000));
+    check("restart: reason 6 -> task watchdog", WifiRestartWatch::reasonText(6).contains(QStringLiteral("task watchdog")));
+    check("restart: an unlisted reason -> its code", WifiRestartWatch::reasonText(42).contains(QStringLiteral("42")));
+
+    // Access-point role (firmware 0.10+): there is no negotiated PHY, the width in effect is the driver's.
+    QStringList apSaves;
+    WifiRadioCheck apCheck({
+        [&]() {},
+        [&](double p, int proto, int wd, int ps) { apSaves << QStringLiteral("%1 %2 %3 %4").arg(p).arg(proto).arg(wd).arg(ps); }
+    }, WifiRadioCheck::Timing{ 100, 150, 1500 });
+    int apOutcome = -1;
+    QObject::connect(&apCheck, &WifiRadioCheck::finished, [&](int o, const QString&) { apOutcome = o; });
+    apCheck.start(20, 7, 20, 0, true);
+    QThread::msleep(120);
+    apCheck.onRadio(20, 0xFF, 20);
+    check("radio (access point): decided without a negotiated PHY", apOutcome == WifiRadioCheck::AsAsked);
+    apOutcome = -1;
+    apCheck.start(18, 7, 20, 0, true);
+    QThread::msleep(120);
+    apCheck.onRadio(17.5, 0xFF, 20);
+    check("radio (access point): the driver's power step is saved", apOutcome == WifiRadioCheck::Corrected
+          && apSaves.contains(QStringLiteral("17.5 7 20 0")), apSaves.join(QStringLiteral(", ")));
+    apCheck.start(20, 7, 20, 0, true);
+    apCheck.cancel();
+    check("radio: a refused setting cancels the check", !apCheck.active());
 }
 
 } // namespace

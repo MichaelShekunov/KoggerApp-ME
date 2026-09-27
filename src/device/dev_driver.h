@@ -147,6 +147,7 @@ public:
     double wifiRxTotal();
     double wifiTxTotal();
     int wifiUptime();
+    QString wifiResetText();
     bool wifiScanning();
     QVariantList wifiNetworks();
     QStringList wifiSavedNetworks();
@@ -207,8 +208,9 @@ public:
      */
     Q_INVOKABLE bool wifiSetRelay(int mode, int addr, const QString& ip, int rport, int lport);
     /** ID_WIFI v7. power in dBm (2..21); protocols 0x01/0x03/0x07/0x08/0x0F; bandwidth 20 or 40; powerSave 0..2. */
-    /** Also starts the check of what is in effect once the link is back (WifiRadioCheck). */
-    Q_INVOKABLE void wifiSetRadio(double powerDbm, int protocols, int bandwidthMhz, int powerSave);
+    /** False without a connection, or for LR only on an access point (refused by 0.11). Also starts the
+     *  check of what is in effect (WifiRadioCheck). */
+    Q_INVOKABLE bool wifiSetRadio(double powerDbm, int protocols, int bandwidthMhz, int powerSave);
     /** Moves the module's port (line 0) and this app's link to it to another speed, checks that the module
      *  answers there and saves it in the module (WifiPortChange); false when it cannot start. */
     Q_INVOKABLE bool wifiSetPortBaud(int baud);
@@ -229,7 +231,8 @@ public:
     /** mode 0 off, 1 UDP, 2 TCP; dest 0 fixed, 1 senders, 2 broadcast. Line 0 ignores baud and pins. */
     Q_INVOKABLE bool wifiNetSetLine(int line, int mode, int dest, const QString& ip, int rport, int lport, int baud,
                                     int txPin, int rxPin);
-    Q_INVOKABLE void wifiNetSetOwnAddr(int addr);
+    /** False without a connection or outside 1..255 (0 is where devices sit; refused by 0.11). */
+    Q_INVOKABLE bool wifiNetSetOwnAddr(int addr);
 
     float yaw();
     float pitch();

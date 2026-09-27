@@ -1578,6 +1578,7 @@ Column {
         readonly property real rxTotal: live ? dev.wifiRxTotal : 0
         readonly property real txTotal: live ? dev.wifiTxTotal : 0
         readonly property int uptime: live ? dev.wifiUptime : 0
+        readonly property string resetText: live && dev.wifiResetText ? dev.wifiResetText : ""   // firmware 0.11+
         readonly property bool autoConnect: live && !!dev.wifiAutoConnect
         readonly property bool currentSaved: live && !!dev.wifiCurrentSaved
         readonly property bool scanning: root._isWifi && !!dev.wifiScanning
@@ -1788,7 +1789,8 @@ Column {
             value: wifiIsland.connected
                    ? qsTr("%1 received, %2 sent").arg(wifiIsland.sizeText(wifiIsland.rxTotal)).arg(wifiIsland.sizeText(wifiIsland.txTotal))
                    : ""
-            caption: wifiIsland.connected ? qsTr("Module up %1").arg(wifiIsland.uptimeText(wifiIsland.uptime)) : ""
+            caption: wifiIsland.connected ? qsTr("Module up %1").arg(wifiIsland.uptimeText(wifiIsland.uptime))
+                                            + (wifiIsland.resetText.length ? qsTr(" · last restart: %1").arg(wifiIsland.resetText) : "") : ""
         }
 
         KIslandRow {
@@ -2238,9 +2240,12 @@ Column {
         readonly property var r: root._isWifi ? dev.wifiRadio : ({})
         readonly property bool valid: !!r && r.valid === true
         readonly property bool linkUp: valid && r.phyNow !== 255
+        // An access point has no negotiated PHY (0xFF): its width is what the driver was given.
+        readonly property bool apRole: root._isWifi && !!dev.wifiNetRole && dev.wifiNetRole.valid === true
+                                       && dev.wifiNetRole.running === 1
         // What the link really uses. The width comes from the negotiated PHY: the module's own "width in use" is
         // the driver's setting and said 40 on an HT20 link. The power in use is the driver's step.
-        readonly property int widthNow: linkUp ? (r.phyNow === 5 ? 40 : 20) : 0
+        readonly property int widthNow: apRole ? (valid ? r.bandwidthNowMhz : 0) : (linkUp ? (r.phyNow === 5 ? 40 : 20) : 0)
         readonly property real powerNow: valid && r.powerNowDbm > 0 ? r.powerNowDbm : 0
         property real selPower: 20
         property int selProto: 7
@@ -2279,6 +2284,7 @@ Column {
         }
         onValidChanged: sync(false)
         onLinkUpChanged: sync(false)
+        onApRoleChanged: sync(false)
         Component.onCompleted: sync(true)
         Connections {
             target: root._isWifi ? root.dev : null
@@ -2306,13 +2312,19 @@ Column {
         }
         DevStackedRow {
             label: qsTr("Protocols")
-            caption: radioIsland.valid ? qsTr("Link now: %1").arg(radioIsland.phyText(radioIsland.r.phyNow))
-                                         + qsTr(". LR works only with an Espressif access point that has LR on.") : ""
+            caption: !radioIsland.valid ? ""
+                     : radioIsland.apRole ? qsTr("Access point: each client negotiates its own mode. LR only is not offered: no phone or laptop could join.")
+                     : qsTr("Link now: %1").arg(radioIsland.phyText(radioIsland.r.phyNow))
+                       + qsTr(". LR works only with an Espressif access point that has LR on.")
             KTabBar {
                 width: parent.width
                 fontPixelSize: Tokens.fontSm
-                options: [ { label: "b", value: 1 }, { label: "b/g", value: 3 }, { label: "b/g/n", value: 7 },
-                           { label: "LR", value: 8 }, { label: "b/g/n+LR", value: 15 } ]
+                // firmware 0.11 refuses LR only for an access point
+                options: radioIsland.apRole
+                         ? [ { label: "b", value: 1 }, { label: "b/g", value: 3 }, { label: "b/g/n", value: 7 },
+                             { label: "b/g/n+LR", value: 15 } ]
+                         : [ { label: "b", value: 1 }, { label: "b/g", value: 3 }, { label: "b/g/n", value: 7 },
+                             { label: "LR", value: 8 }, { label: "b/g/n+LR", value: 15 } ]
                 currentValue: radioIsland.selProto
                 onValueSelected: function(v) { radioIsland.selProto = v; radioIsland.edited() }
             }
@@ -2320,10 +2332,11 @@ Column {
         DevStackedRow {
             label: qsTr("Channel width")
             caption: !radioIsland.valid ? ""
-                     : !radioIsland.linkUp ? qsTr("No link: the saved width is shown")
+                     : !radioIsland.linkUp && !radioIsland.apRole ? qsTr("No link: the saved width is shown")
                      : qsTr("In use: %1 MHz").arg(radioIsland.widthNow)
-                       + (radioIsland.r.bandwidthMhz !== radioIsland.widthNow
-                          ? qsTr(" (saved %1 MHz; the access point gives no 40 MHz)").arg(radioIsland.r.bandwidthMhz) : "")
+                       + (radioIsland.r.bandwidthMhz === radioIsland.widthNow ? ""
+                          : radioIsland.apRole ? qsTr(" (saved %1 MHz)").arg(radioIsland.r.bandwidthMhz)
+                          : qsTr(" (saved %1 MHz; the access point gives no 40 MHz)").arg(radioIsland.r.bandwidthMhz))
             KTabBar {
                 width: Math.round(170 * AppPalette.scale)
                 fontPixelSize: Tokens.fontSm
@@ -2357,7 +2370,10 @@ Column {
                     onConfirmed: {
                         // DevDriver checks the result once the link is back and saves what is in effect if the
                         // module could not do it (WifiRadioCheck), whether or not this page is still open.
-                        dev.wifiSetRadio(radioIsland.selPower, radioIsland.selProto, radioIsland.selBw, radioIsland.selPs)
+                        if (!dev.wifiSetRadio(radioIsland.selPower, radioIsland.selProto, radioIsland.selBw, radioIsland.selPs)) {
+                            notifications.warning(qsTr("Not sent: no connection to the module, or LR only on an access point"))
+                            return
+                        }
                         radioIsland.dirty = false
                         radioRevertTimer.stop()
                         notifications.info(qsTr("Radio settings sent to the module"))
@@ -2523,8 +2539,8 @@ Column {
             }
         }
         KIslandRow {
-            label: qsTr("Channel (1–13)")
-            WifiField { id: apChannelField; width: Math.round(90 * AppPalette.scale); numeric: true; minValue: 1; maxValue: 13; onEdited: apIsland.dirty = true }
+            label: qsTr("Channel (1–11)")
+            WifiField { id: apChannelField; width: Math.round(90 * AppPalette.scale); numeric: true; minValue: 1; maxValue: 11; onEdited: apIsland.dirty = true }
         }
         KIslandRow {
             label: qsTr("Clients at most (1–10)")
@@ -2551,7 +2567,7 @@ Column {
                                                   parseInt(apClientsField.text, 10), apIsland.selAuth,
                                                   apSsidField.text, apPassField.text)
                         if (!ok)
-                            notifications.warning(qsTr("Check the fields: name 1–32 bytes, password 8–63 characters (none for an open network), channel 1–13, clients 1–10"))
+                            notifications.warning(qsTr("Check the fields: name 1–32 bytes, password 8–63 characters (none for an open network), channel 1–11, clients 1–10"))
                         else {
                             apIsland.dirty = false
                             apPassField.text = ""
@@ -2893,12 +2909,13 @@ Column {
             caption: qsTr("Must differ from the devices behind the lines (a sonar is usually 0). The module then reappears as a new device.")
             Row {
                 spacing: Tokens.spaceSm
-                WifiField { id: lnOwnField; width: Math.round(64 * AppPalette.scale); numeric: true; minValue: 0; maxValue: 255 }
+                WifiField { id: lnOwnField; width: Math.round(64 * AppPalette.scale); numeric: true; minValue: 1; maxValue: 255 }
                 ConfirmDevButton {
                     width: Math.round(96 * AppPalette.scale)
                     label: qsTr("Set")
                     enabled: lnOwnField.text.length > 0
-                    onConfirmed: dev.wifiNetSetOwnAddr(parseInt(lnOwnField.text, 10))
+                    onConfirmed: if (!dev.wifiNetSetOwnAddr(parseInt(lnOwnField.text, 10)))
+                                     notifications.warning(qsTr("Module address must be 1…255: 0 is where devices sit"))
                 }
             }
         }

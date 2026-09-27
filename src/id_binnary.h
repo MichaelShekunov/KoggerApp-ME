@@ -1150,6 +1150,7 @@ public:
         uint8_t state = StateIdle;
         int8_t rssi = 0;
         uint32_t rxBps = 0, txBps = 0, rxTotal = 0, txTotal = 0, uptimeS = 0;
+        int resetReason = -1;         // esp_reset_reason_t of the last reset (0.11+, 23-byte v1); -1 before
     };
     /**
      * Relay of the SBP stream between this port and the boat (firmware 0.6+): frames not addressed
@@ -1177,7 +1178,7 @@ public:
 
     /**
      * Radio (firmware 0.8+), ID_WIFI v7: the four settings and what is in effect. Power is in 0.25 dBm
-     * steps (8..84); protocols 0x01 b, 0x03 b/g, 0x07 b/g/n, 0x08 LR, 0x0F b/g/n+LR; bandwidth 1 = 20 MHz,
+     * steps (8..80 since 0.11, which stores 81..84 as 80); protocols 0x01 b, 0x03 b/g, 0x07 b/g/n, 0x08 LR, 0x0F b/g/n+LR; bandwidth 1 = 20 MHz,
      * 2 = 40 MHz; power save 0 off, 1 min, 2 max. phyNow: 0 LR, 1 11b, 2 11g, 4 HT20, 5 HT40, 0xFF none.
      */
     struct Radio {

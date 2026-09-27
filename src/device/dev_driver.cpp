@@ -137,7 +137,7 @@ DevDriver::DevDriver(QObject *parent)
         [this]() { if (m_state.connect) idWifi->simpleRequest(v7); },
         [this](double powerDbm, int protocols, int widthMhz, int powerSave) {
             if (m_state.connect)
-                idWifi->setRadio(uint8_t(qBound(8, int(std::lround(powerDbm * 4.0)), 84)), uint8_t(protocols),
+                idWifi->setRadio(uint8_t(qBound(8, int(std::lround(powerDbm * 4.0)), 80)), uint8_t(protocols),
                                  widthMhz == 40 ? 2 : 1, uint8_t(qBound(0, powerSave, 2)));
         }
     }, WifiRadioCheck::Timing(), this);
@@ -1181,6 +1181,10 @@ void DevDriver::receivedWifi(Parsers::Type type, Parsers::Version ver, Parsers::
             emit wifiRadioChanged();
             return;
         }
+        // A refused radio setting leaves nothing to check.
+        if (ver == v7 && resp != respOk) {
+            wifiRadioCheck_->cancel();
+        }
         emit wifiCommandResult(static_cast<int>(ver), static_cast<int>(resp));
         return;
     }
@@ -1219,11 +1223,17 @@ void DevDriver::receivedWifi(Parsers::Type type, Parsers::Version ver, Parsers::
         const auto& r = idWifi->report();
         if (r.valid) {
             const qint64 now = wifiClock_.elapsed();
+            const bool first = !wifiRestart_.seen();
             const uint32_t was = wifiRestart_.lastUptimeS();
             const qint64 expected = wifiRestart_.expectedS(now);
+            // 0.11 says why the module last reset: a task watchdog, a brownout and an update look alike otherwise
+            const QString why = r.resetReason >= 0
+                ? QStringLiteral(", last reset: %1").arg(WifiRestartWatch::reasonText(r.resetReason)) : QString();
             if (wifiRestart_.onUptime(r.uptimeS, now))
-                qInfo().noquote() << QStringLiteral("wifi: the module restarted (uptime %1 s, was %2 s, %3 s expected)")
-                                         .arg(r.uptimeS).arg(was).arg(expected);
+                qInfo().noquote() << QStringLiteral("wifi: the module restarted (uptime %1 s, was %2 s, %3 s expected%4)")
+                                         .arg(r.uptimeS).arg(was).arg(expected).arg(why);
+            else if (first)
+                qInfo().noquote() << QStringLiteral("wifi: module up %1 s%2").arg(r.uptimeS).arg(why);
         }
         emit wifiReportChanged();
         break;
@@ -1248,7 +1258,7 @@ void DevDriver::receivedWifi(Parsers::Type type, Parsers::Version ver, Parsers::
             lastWifiNetLog_[7] = line;
             qInfo().noquote() << "wifi-radio:" << line;
         }
-        wifiRadioCheck_->onRadio(r.powerNowQ / 4.0, r.phyNow);
+        wifiRadioCheck_->onRadio(r.powerNowQ / 4.0, r.phyNow, r.bandwidthNow == 2 ? 40 : 20);
         emit wifiRadioChanged();
         break;
     }
@@ -1333,6 +1343,10 @@ bool DevDriver::wifiReportValid() { return idWifi->report().valid; }
 double DevDriver::wifiRxTotal() { return static_cast<double>(idWifi->report().rxTotal); }
 double DevDriver::wifiTxTotal() { return static_cast<double>(idWifi->report().txTotal); }
 int DevDriver::wifiUptime() { return static_cast<int>(idWifi->report().uptimeS); }
+QString DevDriver::wifiResetText() {
+    const auto& r = idWifi->report();
+    return r.valid && r.resetReason >= 0 ? WifiRestartWatch::reasonText(r.resetReason) : QString();
+}
 bool DevDriver::wifiScanning() { return idWifi->scanning(); }
 
 QVariantList DevDriver::wifiNetworks() {
@@ -1494,12 +1508,15 @@ QVariantList DevDriver::wifiNetClients() {
 
 int DevDriver::wifiNetOwnAddr() { return idWifiNet->ownAddress(); }
 
-void DevDriver::wifiSetRadio(double powerDbm, int protocols, int bandwidthMhz, int powerSave) {
-    if (!m_state.connect) return;
-    const int q = qBound(8, int(std::lround(powerDbm * 4.0)), 84);
+bool DevDriver::wifiSetRadio(double powerDbm, int protocols, int bandwidthMhz, int powerSave) {
+    // An access point refuses LR only (0.11: no phone or laptop could join it); 20 dBm is the driver's top.
+    const bool ap = idWifiNet->role().valid && idWifiNet->role().running == 1;
+    if (!m_state.connect || (ap && protocols == 0x08)) return false;
+    const int q = qBound(8, int(std::lround(powerDbm * 4.0)), 80);
     const int ps = qBound(0, powerSave, 2);
     idWifi->setRadio(uint8_t(q), uint8_t(protocols), bandwidthMhz == 40 ? 2 : 1, uint8_t(ps));
-    wifiRadioCheck_->start(q / 4.0, protocols, bandwidthMhz == 40 ? 40 : 20, ps);
+    wifiRadioCheck_->start(q / 4.0, protocols, bandwidthMhz == 40 ? 40 : 20, ps, ap);
+    return true;
 }
 
 bool DevDriver::wifiSetPortBaud(int baud) {
@@ -1527,7 +1544,7 @@ void DevDriver::wifiNetSetRole(int role, bool reboot, bool forgetLines) {
 }
 
 bool DevDriver::wifiNetSetAp(int channel, bool hidden, int maxClients, int auth, const QString& ssid, const QString& password) {
-    if (!m_state.connect || channel < 1 || channel > 13 || maxClients < 1 || maxClients > 10 || auth < 0 || auth > 2) return false;
+    if (!m_state.connect || channel < 1 || channel > 11 || maxClients < 1 || maxClients > 10 || auth < 0 || auth > 2) return false;
     return idWifiNet->setAp(uint8_t(channel), hidden, uint8_t(maxClients), uint8_t(auth), ssid, password);
 }
 
@@ -1548,8 +1565,11 @@ bool DevDriver::wifiNetSetLine(int line, int mode, int dest, const QString& ip, 
                               uint32_t(baud), int8_t(txPin), int8_t(rxPin));
 }
 
-void DevDriver::wifiNetSetOwnAddr(int addr) {
-    if (m_state.connect && addr >= 0 && addr <= 255) idWifiNet->setOwnAddress(uint8_t(addr));
+bool DevDriver::wifiNetSetOwnAddr(int addr) {
+    // 0 is where devices sit by default: the module would take their frames (0.11 refuses it)
+    if (!m_state.connect || addr < 1 || addr > 255) return false;
+    idWifiNet->setOwnAddress(uint8_t(addr));
+    return true;
 }
 
 void DevDriver::wifiRelayRefresh() {
