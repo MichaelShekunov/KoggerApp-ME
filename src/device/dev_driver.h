@@ -221,7 +221,8 @@ public:
      */
     Q_INVOKABLE bool wifiSetRelay(int mode, int addr, const QString& ip, int rport, int lport);
     /** ID_WIFI v7. power in dBm (2..21); protocols 0x01/0x03/0x07/0x08/0x0F; bandwidth 20 or 40; powerSave 0..2. */
-    /** False without a connection, or for LR only on an access point (refused by 0.11). Also starts the
+    /** False without a connection. LR only (0x08) is sent in either role: 0.12 takes it for an access point, 0.11
+     *  refuses it there with ERR_PAYLOAD (wifiCommandResult). Also starts the
      *  check of what is in effect (WifiRadioCheck). */
     Q_INVOKABLE bool wifiSetRadio(double powerDbm, int protocols, int bandwidthMhz, int powerSave);
     /**

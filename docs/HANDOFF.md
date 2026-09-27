@@ -429,6 +429,9 @@ The app side, WIFI_MODULE.md §2e:
   with v7 the Lines island is gone. The page follows the running role: station hides the access point's settings and
   address island, access point hides the station controls; a pending role says "takes effect after a reboot". 0.12 was
   changed to ignore the v3 rate of the requester's own line; the app never relied on it. mission_check offline 70/70.
+- Third round: 0.12 takes LR only (0x08) for an access point again (module-to-module links); the Radio island offers LR in
+  both roles, warns that phones and laptops cannot join an LR-only access point, and explains an ERR_PAYLOAD to it as
+  firmware 0.11 (WIFI_MODULE.md §2e).
 
 ## Feature: echogram deconvolution
 

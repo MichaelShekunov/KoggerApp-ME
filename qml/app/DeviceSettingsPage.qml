@@ -1735,6 +1735,11 @@ Column {
             function onWifiCommandResult(version, resp) {
                 if (resp === 1 || version === 0)
                     return
+                // LR only asked of an access point and refused: firmware 0.11 (the Radio island says so too)
+                if (version === 7 && resp === 3 && (radioIsland.sentLrAp || radioIsland.lrRefused)) {
+                    notifications.warning(radioIsland.lrRefusedText)
+                    return
+                }
                 var why = resp === 8 ? qsTr("the module is busy, try again in a moment")
                         : resp === 3 ? qsTr("the module rejected the request")
                                      : qsTr("response code %1").arg(resp)
@@ -2286,6 +2291,10 @@ Column {
         property int selBw: 20
         property int selPs: 0
         property bool dirty: false
+        // The last Apply asked an access point for LR only: an ERR_PAYLOAD to it means firmware 0.11.
+        property bool sentLrAp: false
+        property bool lrRefused: false
+        readonly property string lrRefusedText: qsTr("This firmware refuses LR only for an access point (0.11); update the module to 0.12.")
         // The menu shows what is in effect; the saved values only while the module has no link.
         function sync(force) {
             if (!valid || (dirty && !force))
@@ -2324,6 +2333,12 @@ Column {
             target: root._isWifi ? root.dev : null
             ignoreUnknownSignals: true
             function onWifiRadioChanged() { radioIsland.sync(false) }
+            function onWifiCommandResult(version, resp) {
+                if (version === 7 && resp === 3 && radioIsland.sentLrAp) {
+                    radioIsland.lrRefused = true
+                    radioIsland.sentLrAp = false
+                }
+            }
         }
 
         DevIslandTitle { label: qsTr("Radio") }
@@ -2347,21 +2362,32 @@ Column {
         DevStackedRow {
             label: qsTr("Protocols")
             caption: !radioIsland.valid ? ""
-                     : radioIsland.apRole ? qsTr("Access point: each client negotiates its own mode. LR only is not offered: no phone or laptop could join.")
+                     : radioIsland.apRole ? qsTr("Access point: each client negotiates its own mode.")
                      : qsTr("Link now: %1").arg(radioIsland.phyText(radioIsland.r.phyNow))
-                       + qsTr(". LR works only with an Espressif access point that has LR on.")
+                       + qsTr(". LR needs an LR-capable access point: another Kogger module (Espressif) with LR or b/g/n+LR.")
             KTabBar {
                 width: parent.width
                 fontPixelSize: Tokens.fontSm
-                // firmware 0.11 refuses LR only for an access point
-                options: radioIsland.apRole
-                         ? [ { label: "b", value: 1 }, { label: "b/g", value: 3 }, { label: "b/g/n", value: 7 },
-                             { label: "b/g/n+LR", value: 15 } ]
-                         : [ { label: "b", value: 1 }, { label: "b/g", value: 3 }, { label: "b/g/n", value: 7 },
-                             { label: "LR", value: 8 }, { label: "b/g/n+LR", value: 15 } ]
+                // LR only in both roles: firmware 0.12 takes it for an access point (module-to-module), 0.11 refuses it there
+                options: [ { label: "b", value: 1 }, { label: "b/g", value: 3 }, { label: "b/g/n", value: 7 },
+                           { label: "LR", value: 8 }, { label: "b/g/n+LR", value: 15 } ]
                 currentValue: radioIsland.selProto
-                onValueSelected: function(v) { radioIsland.selProto = v; radioIsland.edited() }
+                onValueSelected: function(v) { radioIsland.selProto = v; radioIsland.lrRefused = false; radioIsland.edited() }
             }
+        }
+        KIslandRow {
+            open: radioIsland.apRole && radioIsland.selProto === 8
+            minHeight: 0
+            verticalPadding: Tokens.spaceSm
+            caption: qsTr("LR only: phones and laptops cannot join; only Espressif stations with LR (another Kogger module set to LR or b/g/n+LR) can.")
+            captionColor: AppPalette.linkIdleText
+        }
+        KIslandRow {
+            open: radioIsland.lrRefused
+            minHeight: 0
+            verticalPadding: Tokens.spaceSm
+            caption: radioIsland.lrRefusedText
+            captionColor: AppPalette.dangerText
         }
         DevStackedRow {
             label: qsTr("Channel width")
@@ -2405,9 +2431,11 @@ Column {
                         // DevDriver checks the result once the link is back and saves what is in effect if the
                         // module could not do it (WifiRadioCheck), whether or not this page is still open.
                         if (!dev.wifiSetRadio(radioIsland.selPower, radioIsland.selProto, radioIsland.selBw, radioIsland.selPs)) {
-                            notifications.warning(qsTr("Not sent: no connection to the module, or LR only on an access point"))
+                            notifications.warning(qsTr("Not sent: no connection to the module"))
                             return
                         }
+                        radioIsland.sentLrAp = radioIsland.apRole && radioIsland.selProto === 8
+                        radioIsland.lrRefused = false
                         radioIsland.dirty = false
                         radioRevertTimer.stop()
                         notifications.info(qsTr("Radio settings sent to the module"))

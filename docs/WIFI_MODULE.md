@@ -157,7 +157,8 @@ loop of a few seconds and a restart between rare reports both show (the first ve
   v7 after each connection; the app still asks at every station change (0.10 needs it).
 - `ID_WIFI_NET` v1: access-point channel 1–11 (0.11 refuses 12–13); v6: own address 1–255 (0 is where devices
   sit). The fields and the driver's checks follow.
-- Access-point role: LR only is not offered (0.11 refuses it: no phone or laptop could join), and the post-Apply
+- Access-point role: LR only was not offered (0.11 refuses it: no phone or laptop could join; offered again for 0.12,
+  §2e), and the post-Apply
   radio check does not wait for a negotiated PHY there — an access point has none (0xFF), so the width in effect is
   the driver's (v7 byte 7). A refused radio setting cancels the check.
 
@@ -233,6 +234,12 @@ The module project's ports contract for 0.12. What changes for the app and how i
   on firmware without `ID_WIFI_NET`, nothing is hidden by role (the ID_WIFI v0 access-point state still hides the
   station controls, as before). Consequence: the access point's settings can no longer be prepared in the station
   role; they appear after the reboot into it.
+- **LR only for an access point** (0.12; owner: "I need to test LR across the whole chain"): the module takes protocols
+  0x08 in the access-point role again (module-to-module links; 0.11 answers ERR_PAYLOAD). The Radio island offers LR in
+  both roles; with LR selected in the access-point role it warns that phones and laptops cannot join, only Espressif
+  stations with LR (another Kogger module set to LR or b/g/n+LR). An ERR_PAYLOAD to that request is shown as "This
+  firmware refuses LR only for an access point (0.11); update the module to 0.12" (inline and as the notice). The
+  station hint says the access point must be LR-capable (another Kogger module). The post-Apply radio check is unchanged.
 - **Log**: `wifi-net: port X1: flags 0x0f rate 3000000 saved 3000000 connected 4`, `wifi-net: port X2 devices: …`,
   `wifi-net: port X1 line: mode … state … peers …` when they change (not the counters); `wifi-port:` lines for both
   rate sequences.
