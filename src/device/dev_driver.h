@@ -148,6 +148,8 @@ public:
     double wifiTxTotal();
     int wifiUptime();
     QString wifiResetText();
+    /** Requests the module could not queue since its start (firmware 0.14+); -1 when it does not report them. */
+    double wifiLostRequests();
     bool wifiScanning();
     QVariantList wifiNetworks();
     QStringList wifiSavedNetworks();
@@ -795,6 +797,7 @@ private:
     QString wifiFwLogged_;            // the module firmware version last written to the log
     int wifiLastState_ = -1;
     WifiRestartWatch wifiRestart_;     // module uptime reports, to see a restart
+    WifiLossWatch wifiLoss_;           // requests the module could not queue (0.14), to log when they grow
     QElapsedTimer wifiClock_;          // the monotonic time those reports are compared with
     WifiPortChange* wifiPort_ = nullptr;
     int wifiPortLine_ = -1;            // the line wifiPort_ is changing

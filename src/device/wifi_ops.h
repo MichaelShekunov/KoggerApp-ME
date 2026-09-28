@@ -356,6 +356,28 @@ struct WifiRadioRules
 };
 
 /**
+ * @brief The module's count of requests it could not queue (ID_WIFI v1, firmware 0.14): counted since the module's
+ * start, never reset by reading, wrapping at 2^32; 0 is normal. Tells when a log line is due and how many requests it
+ * covers: at most one line per interval, with the sum of what was lost meanwhile. The first report is the baseline
+ * (its count is history, written with "module up"); after a restart the module counts from 0 again.
+ */
+class WifiLossWatch
+{
+public:
+    explicit WifiLossWatch(qint64 intervalMs = 10000) : intervalMs_(intervalMs) {}
+    /** One report; nowMs from a monotonic clock; restarted: the module restarted since the previous report.
+     *  Returns the requests lost since the last line when a line is due, 0 otherwise. */
+    uint32_t onReport(uint32_t total, qint64 nowMs, bool restarted);
+
+private:
+    qint64 intervalMs_;
+    bool seen_ = false;
+    uint32_t last_ = 0;       ///< the previous report's total
+    uint32_t pending_ = 0;    ///< lost since the last line
+    qint64 lineAtMs_ = -1;    ///< when the last line was due
+};
+
+/**
  * @brief After a radio setting: waits for the link to the access point, compares what is in effect with
  * what was asked, and when the module could not do it (a power between the driver's steps, 40 MHz from an
  * access point that gives 20) saves what is in effect, so the module's settings and the link agree.

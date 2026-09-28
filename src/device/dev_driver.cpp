@@ -1287,11 +1287,21 @@ void DevDriver::receivedWifi(Parsers::Type type, Parsers::Version ver, Parsers::
             // 0.11 says why the module last reset: a task watchdog, a brownout and an update look alike otherwise
             const QString why = r.resetReason >= 0
                 ? QStringLiteral(", last reset: %1").arg(WifiRestartWatch::reasonText(r.resetReason)) : QString();
-            if (wifiRestart_.onUptime(r.uptimeS, now))
+            const bool restarted = wifiRestart_.onUptime(r.uptimeS, now);
+            // 0.14 counts the requests it could not queue: 0 is normal, anything else means lost answers
+            const QString lost = r.lostValid
+                ? QStringLiteral(", requests it could not queue: %1").arg(r.lostRequests) : QString();
+            if (restarted)
                 qInfo().noquote() << QStringLiteral("wifi: the module restarted (uptime %1 s, was %2 s, %3 s expected%4)")
                                          .arg(r.uptimeS).arg(was).arg(expected).arg(why);
             else if (first)
-                qInfo().noquote() << QStringLiteral("wifi: module up %1 s%2").arg(r.uptimeS).arg(why);
+                qInfo().noquote() << QStringLiteral("wifi: module up %1 s%2%3").arg(r.uptimeS).arg(why).arg(lost);
+            if (r.lostValid) {
+                const uint32_t n = wifiLoss_.onReport(r.lostRequests, now, restarted);
+                if (n > 0)
+                    qInfo().noquote() << QStringLiteral("wifi: the module could not queue %1 requests (%2 since its start; 0 is normal)")
+                                             .arg(n).arg(r.lostRequests);
+            }
         }
         emit wifiReportChanged();
         break;
@@ -1463,6 +1473,10 @@ bool DevDriver::wifiReportValid() { return idWifi->report().valid; }
 double DevDriver::wifiRxTotal() { return static_cast<double>(idWifi->report().rxTotal); }
 double DevDriver::wifiTxTotal() { return static_cast<double>(idWifi->report().txTotal); }
 int DevDriver::wifiUptime() { return static_cast<int>(idWifi->report().uptimeS); }
+double DevDriver::wifiLostRequests() {
+    const auto& r = idWifi->report();
+    return r.valid && r.lostValid ? double(r.lostRequests) : -1.0;
+}
 QString DevDriver::wifiResetText() {
     const auto& r = idWifi->report();
     return r.valid && r.resetReason >= 0 ? WifiRestartWatch::reasonText(r.resetReason) : QString();

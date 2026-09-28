@@ -323,6 +323,26 @@ QString WifiRestartWatch::reasonText(int reason)
     return QCoreApplication::translate("WifiRestartWatch", "code %1").arg(reason);
 }
 
+// ---- WifiLossWatch --------------------------------------------------------------------------------
+
+uint32_t WifiLossWatch::onReport(uint32_t total, qint64 nowMs, bool restarted)
+{
+    if (!seen_) {
+        seen_ = true;
+    } else if (restarted) {
+        pending_ += total;          // counted from 0 again since the restart
+    } else {
+        pending_ += total - last_;  // unsigned: a wrap at 2^32 still gives the difference
+    }
+    last_ = total;
+    if (pending_ == 0 || (lineAtMs_ >= 0 && nowMs - lineAtMs_ < intervalMs_))
+        return 0;
+    const uint32_t n = pending_;
+    pending_ = 0;
+    lineAtMs_ = nowMs;
+    return n;
+}
+
 // ---- WifiRadioCheck -------------------------------------------------------------------------------
 
 WifiRadioCheck::WifiRadioCheck(Hooks hooks, Timing timing, QObject* parent)

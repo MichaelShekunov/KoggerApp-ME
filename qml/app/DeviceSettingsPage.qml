@@ -1613,6 +1613,7 @@ Column {
         readonly property real txTotal: live ? dev.wifiTxTotal : 0
         readonly property int uptime: live ? dev.wifiUptime : 0
         readonly property string resetText: live && dev.wifiResetText ? dev.wifiResetText : ""   // firmware 0.11+
+        readonly property real lostRequests: live && dev.wifiLostRequests !== undefined ? dev.wifiLostRequests : -1   // 0.14+
         readonly property bool autoConnect: live && !!dev.wifiAutoConnect
         readonly property bool currentSaved: live && !!dev.wifiCurrentSaved
         readonly property bool scanning: root._isWifi && !!dev.wifiScanning
@@ -1827,7 +1828,8 @@ Column {
                    ? qsTr("%1 received, %2 sent").arg(wifiIsland.sizeText(wifiIsland.rxTotal)).arg(wifiIsland.sizeText(wifiIsland.txTotal))
                    : ""
             caption: wifiIsland.connected ? qsTr("Module up %1").arg(wifiIsland.uptimeText(wifiIsland.uptime))
-                                            + (wifiIsland.resetText.length ? qsTr(" · last restart: %1").arg(wifiIsland.resetText) : "") : ""
+                                            + (wifiIsland.resetText.length ? qsTr(" · last restart: %1").arg(wifiIsland.resetText) : "")
+                                            + (wifiIsland.lostRequests >= 0 ? qsTr(" · requests lost: %1").arg(wifiIsland.lostRequests) : "") : ""
         }
 
         KIslandRow {

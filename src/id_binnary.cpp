@@ -1236,6 +1236,9 @@ Resp IDBinWifi::parsePayload(FrameParser &proto) {
         report_.uptimeS = proto.read<U4>();
         // 0.11 appends the reason of the module's last reset; 0.10 and older send 22 bytes
         report_.resetReason = proto.readAvailable() >= 1 ? int(proto.read<U1>()) : -1;
+        // 0.14 appends the requests the module could not queue (bytes 23-26, since its start)
+        report_.lostValid = proto.readAvailable() >= 4;
+        report_.lostRequests = report_.lostValid ? proto.read<U4>() : 0;
         return respOk;
     }
     if (proto.ver() == v2) {
