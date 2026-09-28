@@ -1152,6 +1152,8 @@ public:
         int8_t rssi = 0;
         uint32_t rxBps = 0, txBps = 0, rxTotal = 0, txTotal = 0, uptimeS = 0;
         int resetReason = -1;         // esp_reset_reason_t of the last reset (0.11+, 23-byte v1); -1 before
+        bool lostValid = false;       // the module reports lostRequests (0.14+, 27-byte v1)
+        uint32_t lostRequests = 0;    // requests it could not queue since its start; not reset by reading; 0 is normal
     };
     /**
      * Relay of the SBP stream between this port and the boat (firmware 0.6+): frames not addressed

@@ -308,6 +308,19 @@ void wifiOpsRules()
     check("restart: between rare reports (50 s, a minute later 20 s) -> restart", w.onUptime(20, 160000));
     w.onUptime(50, 200000);
     check("restart: a report 2 s late on this side -> running", !w.onUptime(108, 260000));
+    // Requests the module could not queue (0.14): the first report is the baseline, one line per interval with the sum.
+    WifiLossWatch loss(10000);
+    const bool lossBase = loss.onReport(5, 0, false) == 0 && loss.onReport(5, 500, false) == 0;
+    const bool lossFirst = loss.onReport(8, 1000, false) == 3;
+    const bool lossHeld = loss.onReport(9, 2000, false) == 0 && loss.onReport(9, 12000, false) == 1;
+    check("lost requests: baseline, first growth at once, then one line per 10 s with the sum", lossBase && lossFirst && lossHeld);
+    WifiLossWatch wrap(0);
+    wrap.onReport(0xFFFFFFFEu, 0, false);
+    check("lost requests: a wrap at 2^32 still counts", wrap.onReport(1u, 100, false) == 3u);
+    WifiLossWatch again(0);
+    again.onReport(40, 0, false);
+    check("lost requests: after a module restart its new count adds up", again.onReport(2, 100, true) == 2u
+          && again.onReport(2, 200, false) == 0u);
     check("restart: reason 6 -> task watchdog", WifiRestartWatch::reasonText(6).contains(QStringLiteral("task watchdog")));
     check("restart: an unlisted reason -> its code", WifiRestartWatch::reasonText(42).contains(QStringLiteral("42")));
 

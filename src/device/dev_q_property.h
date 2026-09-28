@@ -116,6 +116,7 @@ public:
     Q_PROPERTY(double wifiTxTotal READ wifiTxTotal NOTIFY wifiReportChanged)
     Q_PROPERTY(int wifiUptime READ wifiUptime NOTIFY wifiReportChanged)
     Q_PROPERTY(QString wifiResetText READ wifiResetText NOTIFY wifiReportChanged)
+    Q_PROPERTY(double wifiLostRequests READ wifiLostRequests NOTIFY wifiReportChanged)
     Q_PROPERTY(bool wifiScanning READ wifiScanning NOTIFY wifiNetworksChanged)
     Q_PROPERTY(QVariantList wifiNetworks READ wifiNetworks NOTIFY wifiNetworksChanged)
     Q_PROPERTY(QStringList wifiSavedNetworks READ wifiSavedNetworks NOTIFY wifiSavedChanged)
