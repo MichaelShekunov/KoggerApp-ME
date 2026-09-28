@@ -722,3 +722,8 @@ overflows the module's 24-message control queue and requests are dropped silentl
 about 29, 60 -> 62 of about 87); after power-on Wi-Fi events share that queue, so the last request of the app's
 start-up burst, v7, was the one lost. The app's re-ask stays as the defence; a firmware fix (a bigger queue, a short
 wait instead of dropping, a loss counter) is proposed to the owner as 0.14.
+
+Firmware 0.14 (b8c1a401): ID_WIFI v1 carries the requests the module could not queue (bytes 23-26, U4 LE, since its
+start). The Wi-Fi island shows "requests lost: N"; the log gets the count with "module up" and a line when it grows
+(WifiLossWatch, one per 10 s with the sum). On the kiosk (`headunit` 2173faf2, module 0.14): "requests it could not
+queue: 0" (Verified, kogger.log). On this PC both installs run b8c1a401.
