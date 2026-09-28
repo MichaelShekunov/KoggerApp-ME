@@ -263,6 +263,17 @@ void wifiOpsRules()
     check("port: no answer -> link back at the old speed, nothing saved", !ok && calls.contains(QStringLiteral("link 4000000"))
           && calls.value(calls.size() - 1) == QStringLiteral("link 3000000") && !calls.contains(QStringLiteral("save")),
           calls.join(QStringLiteral(", ")));
+    // Firmware 0.15 keeps the new speed at once: without an answer the link stays where the module is.
+    calls.clear();
+    done = 0;
+    answer = false;
+    check("port (0.15): starts", port->start(3000000, 2000000, true) && port->moduleKeepsIt());
+    waitFor([&] { return done > 0; }, 3000);
+    check("port (0.15): no answer -> the link stays at the new speed, nothing sent back", !ok
+          && calls.contains(QStringLiteral("link 3000000")) && !calls.contains(QStringLiteral("link 2000000"))
+          && !calls.contains(QStringLiteral("save")), calls.join(QStringLiteral(", ")));
+    check("port rules: rate saved at once from 0.15", WifiNetRules::rateSavedAtOnce(0, 15) && !WifiNetRules::rateSavedAtOnce(0, 14)
+          && !WifiNetRules::rateSavedAtOnce(0, 0) && WifiNetRules::rateSavedAtOnce(1, 0));
     // A module whose firmware does not take the speed refuses ID_UART (at the old speed, before switching).
     calls.clear();
     done = 0;

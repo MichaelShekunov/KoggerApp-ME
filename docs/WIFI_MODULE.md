@@ -292,6 +292,18 @@ The module project's ports contract for 0.12. What changes for the app and how i
   other port the module keeps the rate, so it has to be set back there if the device on it stops answering.
 - `tools/mission_check` 112/112 (the version rule, 5M accepted, 6 000 000 refused, the refusal path).
 
+## 2g. Firmware 0.15: a rate for this app's port is saved at once
+
+Owner's decision in the module firmware (0.15): `ID_UART` through the same port saves the rate at once; there is no
+return after 10 s any more, and only holding the module's BOOT button 5 s puts both ports back to 921600. The
+v7 `provisional` flag is never set (so the card's "provisional… back in 10 s" note does not show).
+- `WifiNetRules::rateSavedAtOnce` (0.15+), `dev.wifiRateSavedAtOnce`. WifiPortChange for such a module does not move
+  the link back when the module gives no answer at the new rate: the module is there. The warning says the module
+  keeps the rate, and how to recover (BOOT 5 s, then this link to 921600). 0.14 and older: unchanged.
+- The X1/X2 card for this device's port says that the rate is kept at once and what a rate this device cannot do
+  costs (the link until BOOT is held); the 5M note no longer promises that the link comes back by itself.
+- `tools/mission_check`: the 0.15 path (no answer: the link stays at the new rate, nothing sent back) and the rule.
+
 ## 2c. Port speed of the module (line 0)
 
 The module's line 0 runs at any speed from 9600 to 4 000 000 (`ID_UART` v0 `{KEY, 1, U4 baud}`, answered at the

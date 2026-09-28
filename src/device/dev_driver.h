@@ -234,6 +234,8 @@ public:
     int wifiLrApSupport();
     /** Top port rate the module's firmware takes: 5000000 from 0.13, 4000000 before (WifiRates::maxFor). */
     int wifiMaxBaud();
+    /** Firmware 0.15+: a rate set for this app's port is saved at once (WifiNetRules::rateSavedAtOnce). */
+    bool wifiRateSavedAtOnce();
     /** Lit arcs of the module's signal icon (WifiSignal): -1 no link, 0 only the dot, 1..3 arcs; from the v1 report. */
     int wifiSignalLevel();
     /**
