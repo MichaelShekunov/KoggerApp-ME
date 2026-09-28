@@ -709,3 +709,10 @@ The firmware side (0.13) is in progress in the ESP32_WiFi repo; 5M has not run o
 UART6 was tried up to 4M only. On this PC both installs (`C:\Program Files\Kogger\KoggerApp`, `KoggerApp myEdition`)
 run af439113 (`D:\Temp\kogger_install\update_kogger.ps1 -Tag af439113`, elevated; Verified: hashes match, a clean start).
 Before starting a feature here, read `git log myedition`: another session may be doing the same one.
+
+Follow-up the same day (ba8e1b9c): on the head unit the X1/X2 cards, and with them 5M, were hidden. The module, powered
+on with the board 15 s before, left the one ID_WIFI_NET v7 request unanswered for 4 s, and the app took that for
+"firmware before 0.12" for the whole session; only the hidden ports island polls v7, so nothing asked again. Now the
+firmware version decides (`WifiNetRules::portsFor`): 0.12+ is asked again every 2 s until it answers. A 0.x version
+is kept (major 0 was dropped, so the module's version never showed) and logged (`wifi: module firmware 0.13`). On
+the kiosk (`headunit` 61004afb, Verified in kogger.log): firmware 0.13, both port summaries received.
