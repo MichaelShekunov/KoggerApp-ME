@@ -132,6 +132,11 @@ DevDriver::DevDriver(QObject *parent)
         } else if (wifiPort_->refused()) {
             qInfo().noquote() << QStringLiteral("wifi-port: the module refused %1, the port stays at %2").arg(newBaud).arg(oldBaud);
             notifyWarning(tr("The module refused %1 bit/s: nothing changed, the port stays at %2").arg(newBaud).arg(oldBaud));
+        } else if (wifiPort_->moduleKeepsIt()) {
+            qInfo().noquote() << QStringLiteral("wifi-port: no answer at %1; the module keeps it (firmware 0.15+), the link stays at %1").arg(newBaud);
+            notifyWarning(tr("No answer from the module at %1. It keeps that rate (firmware 0.15 saves it at once), so the link stays at %1. "
+                             "If this device cannot do %1, hold the module's BOOT button 5 s: both ports go back to 921600, then set this link to 921600.")
+                              .arg(newBaud));
         } else {
             qInfo().noquote() << QStringLiteral("wifi-port: no answer at %1, link back at %2").arg(newBaud).arg(oldBaud);
             notifyWarning(tr("No answer from the module at %1: the link is back at %2. An unsaved speed is gone after the module's next reboot.")
@@ -1819,6 +1824,10 @@ int DevDriver::wifiSignalLevel() {
     return WifiSignal::level(state == IDBinWifi::StateConnected || state == IDBinWifi::StateAp, rssi);
 }
 
+bool DevDriver::wifiRateSavedAtOnce() {
+    return WifiNetRules::rateSavedAtOnce(idVersion->fwVersion(), idVersion->fwVersionMinor());
+}
+
 int DevDriver::wifiMaxBaud() {
     return WifiRates::maxFor(idVersion->fwVersion(), idVersion->fwVersionMinor());
 }
@@ -1860,7 +1869,7 @@ bool DevDriver::wifiSetLineBaud(int line, int baud) {
         const int now = wifiLinkBaud();
         if (linkUuid_.isNull() || now <= 0) return false;
         wifiPortLine_ = line;
-        if (!wifiPort_->start(baud, now)) return false;
+        if (!wifiPort_->start(baud, now, wifiRateSavedAtOnce())) return false;
         qInfo().noquote() << QStringLiteral("wifi-port: set X%1 (this app's port) to %2 (was %3)").arg(line + 1).arg(baud).arg(now);
         return true;
     }

@@ -19,6 +19,11 @@ WifiPortChange::WifiPortChange(Hooks hooks, Timing timing, QObject* parent)
 
 bool WifiPortChange::start(int newBaud, int oldBaud)
 {
+    return start(newBaud, oldBaud, false);
+}
+
+bool WifiPortChange::start(int newBaud, int oldBaud, bool moduleKeepsIt)
+{
     if (phase_ != Idle || newBaud < WifiRates::kMin || newBaud > WifiRates::kMax || oldBaud <= 0 || newBaud == oldBaud)
         return false;
     newBaud_ = newBaud;
@@ -26,6 +31,7 @@ bool WifiPortChange::start(int newBaud, int oldBaud)
     tries_ = 0;
     answered_ = false;
     refused_ = false;
+    keeps_ = moduleKeepsIt;
     phase_ = Switching;
     emit activeChanged();
     hooks_.setModuleBaud(newBaud_);
@@ -77,7 +83,7 @@ void WifiPortChange::finish(bool ok)
     checkTimer_.stop();
     if (ok)
         hooks_.saveInModule();
-    else if (!refused_)   // refused before the switch: the link never moved
+    else if (!refused_ && !keeps_)   // refused before the switch: the link never moved; 0.15 keeps the new speed
         hooks_.setLinkBaud(oldBaud_);
     phase_ = Idle;
     emit activeChanged();

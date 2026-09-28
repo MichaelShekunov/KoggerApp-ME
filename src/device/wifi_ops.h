@@ -42,6 +42,11 @@ public:
 
     /** False while a change runs, for a speed outside WifiRates::kMin..kMax, or when nothing would change. */
     bool start(int newBaud, int oldBaud);
+    /** As start(); moduleKeepsIt: the module saves the new speed at once (firmware 0.15+), so without an answer the
+     *  link stays at the new speed, where the module is, instead of going back to the old one. */
+    bool start(int newBaud, int oldBaud, bool moduleKeepsIt);
+    /** The running (or last) change was one where the module keeps the new speed at once. */
+    bool moduleKeepsIt() const { return keeps_; }
     /** A frame from the module that proves it hears this host; counts only after the first check. */
     void moduleAnswered();
     /** The module refused the new speed (its confirmation of ID_UART is an error: above its firmware's limit). The
@@ -71,6 +76,7 @@ private:
     int tries_ = 0;
     bool answered_ = false;
     bool refused_ = false;
+    bool keeps_ = false;
     QTimer switchTimer_;
     QTimer checkTimer_;
 };
@@ -328,6 +334,9 @@ struct WifiNetRules
             return -1;
         return (fwMajor > 0 || fwMinor >= 12) ? 1 : 0;
     }
+    /** From 0.15 a rate set through the same port (ID_UART) is saved at once: no return after 10 s, only holding the
+     *  module's BOOT button 5 s puts both ports back to 921600. False while the version is not known. */
+    static bool rateSavedAtOnce(int fwMajor, int fwMinor) { return fwMajor > 0 || fwMinor >= 15; }
 };
 
 /** Port rates of the Wi-Fi module (ESP32-C3 UART, both ports alike). */

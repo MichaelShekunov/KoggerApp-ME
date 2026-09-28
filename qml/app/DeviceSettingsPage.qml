@@ -3042,9 +3042,13 @@ Column {
                         DevStackedRow {
                             label: qsTr("Set the rate")
                             caption: (card.rateChanging ? qsTr("Changing to %1… (it finishes even if this page is closed)").arg(dev.wifiPortTarget)
+                                      : card.here && dev.wifiRateSavedAtOnce
+                                        ? qsTr("This device's port: the module keeps the new rate at once (firmware 0.15) and the link here follows. If this device cannot do the rate, the link is lost until the module's BOOT button is held 5 s (both ports back to 921600).")
                                       : card.here ? qsTr("This device's port: the link here follows, the module has to answer at the new rate, then it is saved.")
                                                   : qsTr("Not this device's port: saved in the module at once."))
                                      + (card.selBaud !== 5000000 || card.rateChanging ? ""
+                                        : card.here && dev.wifiRateSavedAtOnce
+                                          ? qsTr(" 5M: both ends must do it (the head unit's UART6 was tried up to 4M only; a USB adapter needs 5M in its data sheet).")
                                         : card.here ? qsTr(" 5M: both ends must do it (the head unit's UART6 was tried up to 4M; a USB adapter needs 5M in its data sheet). Without an answer at 5M the link goes back by itself.")
                                                     : qsTr(" 5M: the device on this port must do it too. The module keeps the rate: set it back here if that device stops answering."))
                             Row {
