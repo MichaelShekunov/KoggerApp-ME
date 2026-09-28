@@ -25,6 +25,7 @@ bool WifiPortChange::start(int newBaud, int oldBaud)
     oldBaud_ = oldBaud;
     tries_ = 0;
     answered_ = false;
+    refused_ = false;
     phase_ = Switching;
     emit activeChanged();
     hooks_.setModuleBaud(newBaud_);
@@ -62,12 +63,21 @@ void WifiPortChange::onCheck()
     hooks_.askStatus();
 }
 
+void WifiPortChange::moduleRefused()
+{
+    if (phase_ != Switching)
+        return;
+    switchTimer_.stop();
+    refused_ = true;
+    finish(false);
+}
+
 void WifiPortChange::finish(bool ok)
 {
     checkTimer_.stop();
     if (ok)
         hooks_.saveInModule();
-    else
+    else if (!refused_)   // refused before the switch: the link never moved
         hooks_.setLinkBaud(oldBaud_);
     phase_ = Idle;
     emit activeChanged();

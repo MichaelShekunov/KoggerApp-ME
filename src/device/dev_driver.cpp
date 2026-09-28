@@ -129,6 +129,9 @@ DevDriver::DevDriver(QObject *parent)
         if (ok) {
             qInfo().noquote() << QStringLiteral("wifi-port: the module answered at %1, saved in the module").arg(newBaud);
             notifyInfo(tr("Port speed %1 set, the module saved it").arg(newBaud));
+        } else if (wifiPort_->refused()) {
+            qInfo().noquote() << QStringLiteral("wifi-port: the module refused %1, the port stays at %2").arg(newBaud).arg(oldBaud);
+            notifyWarning(tr("The module refused %1 bit/s: nothing changed, the port stays at %2").arg(newBaud).arg(oldBaud));
         } else {
             qInfo().noquote() << QStringLiteral("wifi-port: no answer at %1, link back at %2").arg(newBaud).arg(oldBaud);
             notifyWarning(tr("No answer from the module at %1: the link is back at %2. An unsaved speed is gone after the module's next reboot.")
@@ -2571,6 +2574,10 @@ void DevDriver::receivedUART(Parsers::Type type, Parsers::Version ver, Parsers::
     Q_UNUSED(type);
     Q_UNUSED(ver);
 
+    // The Wi-Fi module refusing a port speed (above its firmware's limit): the change stops before the link moves.
+    if (resp != respNone && resp != respOk && wifiPort_ && wifiPort_->active()) {
+        wifiPort_->moduleRefused();
+    }
     if(resp == respNone) { emit UARTChanged(); }
 }
 
