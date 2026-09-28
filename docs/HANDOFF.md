@@ -727,3 +727,14 @@ Firmware 0.14 (b8c1a401): ID_WIFI v1 carries the requests the module could not q
 start). The Wi-Fi island shows "requests lost: N"; the log gets the count with "module up" and a line when it grows
 (WifiLossWatch, one per 10 s with the sum). On the kiosk (`headunit` 2173faf2, module 0.14): "requests it could not
 queue: 0" (Verified, kogger.log). On this PC both installs run b8c1a401.
+
+## Stall monitor (2026-09-28, 5a5bb10d)
+
+The head unit hung fully several times at the trials; its logs showed the GUI thread going silent while other threads
+of the app ran, and nothing from the kernel. `src/stall_monitor.*`: a 200 ms GUI heartbeat and a frame counter; a
+monitor thread logs a stall at 2 s (every thread: state, kernel wait channel, CPU; load, memory, RSS, GPU memory) and
+has the GUI and render threads write backtraces to stall.log (SIGUSR2, async-signal-safe; -rdynamic on Linux),
+repeats every 5 s, logs the end; a `health:` summary every 60 s. Checked on the kiosk (`headunit` d9845cb4) with a
+test stall (a `stall_test` file in the log directory): the lines and both backtraces were written (Verified). Wi-Fi
+log lines carry the module's address; the X1/X2 card's syncNet TypeError is fixed. The head unit side (persistent
+journal, a health log every 5 s, a collector for after a hang) is in HeadUnit docs/DIAGNOSTICS.md.
