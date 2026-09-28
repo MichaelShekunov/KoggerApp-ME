@@ -275,6 +275,23 @@ The module project's ports contract for 0.12. What changes for the app and how i
   (the cards showed the sonar on X2 as SBP device 0 at 15.6 KB/s). **Not verified by machine**: the line-settings
   Apply and the role-driven page against the real module, and the head unit.
 
+## 2f. Firmware 0.13: port rates up to 5 000 000
+
+- Contract (ESP32_WiFi `docs/SBP_WIFI.md`, `ID_UART`): either port takes any rate from 9600 to 5 000 000 from 0.13
+  (up to 4 000 000 before), through `ID_UART` for the port a request comes through and through the port's line
+  record (`ID_WIFI_NET` v3) for the other one. 5 Mbaud is the ESP32-C3 UART's top (exactly, from its 80 MHz
+  clock); the contract marks it as not yet run on hardware.
+- App: `WifiRates` (`src/device/wifi_ops.h`): `kMin` 9600, `kMax` 5 000 000, `maxFor(major, minor)` = 5 000 000
+  from 0.13, 4 000 000 before and while the version is not known; `dev.wifiMaxBaud`. The X1/X2 cards offer 5M only
+  when the module's firmware takes it (92df3e8e). The driver and the port classes take up to `kMax` and leave the
+  limit to the module: a module that refuses `ID_UART` (its confirmation is an error) ends the port change at once —
+  the confirmation comes at the old speed before the module switches, so this app's link has not moved (af439113;
+  before, the link followed after 400 ms and came back only after about 6 s of "no answer").
+- With 5M selected the card says both ends must do it: the head unit's UART6 was tried up to 4 000 000 only (it
+  needs an 80 MHz clock for 5M, HeadUnit docs/UART_ESP32.md), and a USB adapter needs 5M in its data sheet. For the
+  other port the module keeps the rate, so it has to be set back there if the device on it stops answering.
+- `tools/mission_check` 112/112 (the version rule, 5M accepted, 6 000 000 refused, the refusal path).
+
 ## 2c. Port speed of the module (line 0)
 
 The module's line 0 runs at any speed from 9600 to 4 000 000 (`ID_UART` v0 `{KEY, 1, U4 baud}`, answered at the

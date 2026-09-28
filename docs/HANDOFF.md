@@ -699,3 +699,13 @@ for the next one too: the sync client and a 300-file merge do not mix.
 After any merge, rebuild and rerun `tools\sonifier_check` — it is the only
 automated check this fork has. Then `git push mine myedition`, so the merge does
 not sit on one machine only.
+
+## Wi-Fi module ports up to 5 Mbaud (firmware 0.13, 2026-09-28)
+
+Owner: the module will take UART rates up to 5 Mbit/s; the app must offer them. Two sessions did this in parallel:
+92df3e8e (`WifiRates`, `dev.wifiMaxBaud`, 5M in the X1/X2 cards from firmware 0.13) and af439113 on top of it (a
+refused `ID_UART` ends the port change before the link moves; the card says what 5M needs). WIFI_MODULE.md §2f.
+The firmware side (0.13) is in progress in the ESP32_WiFi repo; 5M has not run on hardware yet, and the head unit's
+UART6 was tried up to 4M only. On this PC both installs (`C:\Program Files\Kogger\KoggerApp`, `KoggerApp myEdition`)
+run af439113 (`D:\Temp\kogger_install\update_kogger.ps1 -Tag af439113`, elevated; Verified: hashes match, a clean start).
+Before starting a feature here, read `git log myedition`: another session may be doing the same one.
