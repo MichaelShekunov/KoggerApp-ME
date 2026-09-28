@@ -129,6 +129,9 @@ DevDriver::DevDriver(QObject *parent)
         if (ok) {
             qInfo().noquote() << QStringLiteral("wifi-port: the module answered at %1, saved in the module").arg(newBaud);
             notifyInfo(tr("Port speed %1 set, the module saved it").arg(newBaud));
+        } else if (wifiPort_->refused()) {
+            qInfo().noquote() << QStringLiteral("wifi-port: the module refused %1, the port stays at %2").arg(newBaud).arg(oldBaud);
+            notifyWarning(tr("The module refused %1 bit/s: nothing changed, the port stays at %2").arg(newBaud).arg(oldBaud));
         } else {
             qInfo().noquote() << QStringLiteral("wifi-port: no answer at %1, link back at %2").arg(newBaud).arg(oldBaud);
             notifyWarning(tr("No answer from the module at %1: the link is back at %2. An unsaved speed is gone after the module's next reboot.")
@@ -1804,6 +1807,10 @@ int DevDriver::wifiLrApSupport() {
     return WifiRadioRules::lrOnlyApSupport(idVersion->fwVersion(), idVersion->fwVersionMinor());
 }
 
+int DevDriver::wifiMaxBaud() {
+    return WifiPortRules::maxBaud(idVersion->fwVersion(), idVersion->fwVersionMinor());
+}
+
 int DevDriver::wifiLinkBaud() const {
     LinkManagerWrapper* links = core.getLinkManagerWrapperPtr();
     if (!links || linkUuid_.isNull()) return 0;
@@ -1830,7 +1837,8 @@ int DevDriver::wifiOwnLine() const {
 }
 
 bool DevDriver::wifiSetLineBaud(int line, int baud) {
-    if (!m_state.connect || line < 0 || line > 1 || baud < 9600 || baud > 4000000 || wifiPortBusy()) return false;
+    if (!m_state.connect || line < 0 || line > 1 || baud < WifiPortRules::kMinBaud || baud > wifiMaxBaud() || wifiPortBusy())
+        return false;
     if (line == wifiOwnLine()) {
         // The old rate is the one this app's link runs at now: the ID_UART mirror starts at 115200 and would
         // send the link back somewhere it never was after a failed change.
@@ -1937,7 +1945,7 @@ bool DevDriver::wifiNetSetLine(int line, int mode, int dest, const QString& ip, 
     // A line whose speed counts needs a real one, or the module refuses the whole line with ERR_PAYLOAD.
     const bool rateCounts = line == 1 || idWifiNet->portSupport() == 1;
     if (!m_state.connect || line < 0 || line > 1 || rport < 0 || rport > 65535 || lport < 0 || lport > 65535
-        || baud < 0 || (rateCounts && (baud < 9600 || baud > 4000000))
+        || baud < 0 || (rateCounts && (baud < WifiPortRules::kMinBaud || baud > wifiMaxBaud()))
         || txPin < -1 || txPin > 127 || rxPin < -1 || rxPin > 127) return false;
     return idWifiNet->setLine(uint8_t(line), uint8_t(mode), uint8_t(dest), ip, uint16_t(rport), uint16_t(lport),
                               uint32_t(baud), int8_t(txPin), int8_t(rxPin));
@@ -2567,6 +2575,10 @@ void DevDriver::receivedUART(Parsers::Type type, Parsers::Version ver, Parsers::
     Q_UNUSED(type);
     Q_UNUSED(ver);
 
+    // The Wi-Fi module refusing a port speed (above its firmware's top): the change stops before the link moves.
+    if (resp != respNone && resp != respOk && wifiPort_ && wifiPort_->active()) {
+        wifiPort_->moduleRefused();
+    }
     if(resp == respNone) { emit UARTChanged(); }
 }
 

@@ -9,6 +9,18 @@
 #include <optional>
 
 /**
+ * @brief Rates of the Wi-Fi module's ports (ID_UART, and a port's rate in its line record) by the module's firmware
+ * (ID_VERSION v2): 9600 up to 5 000 000 from 0.13 (the ESP32-C3 UART's top, from its 80 MHz clock), up to 4 000 000
+ * before and while the version is not known (not read yet: 0.0).
+ */
+struct WifiPortRules
+{
+    static constexpr int kMinBaud = 9600;
+    static constexpr int kTopBaud = 5000000;   ///< the highest any firmware takes; the driver holds a module to its own
+    static int maxBaud(int fwMajor, int fwMinor) { return (fwMajor > 0 || fwMinor >= 13) ? kTopBaud : 4000000; }
+};
+
+/**
  * @brief Changing the speed of the Wi-Fi module's port this host is connected through (line 0 before
  * firmware 0.12; X1 or X2 since, as the module reports) as one sequence that does not depend on a settings
  * page being open (the device settings page is unloaded as soon as it is left).
@@ -40,10 +52,16 @@ public:
 
     WifiPortChange(Hooks hooks, Timing timing, QObject* parent = nullptr);
 
-    /** False while a change runs, for a speed outside 9600..4000000, or when nothing would change. */
+    /** False while a change runs, for a speed outside 9600..5000000 (WifiPortRules::kTopBaud; the driver holds a
+     *  module to its firmware's top), or when nothing would change. */
     bool start(int newBaud, int oldBaud);
     /** A frame from the module that proves it hears this host; counts only after the first check. */
     void moduleAnswered();
+    /** The module refused the new speed (its confirmation of ID_UART is an error). The confirmation comes at the old
+     *  speed before the module would switch, so the link has not moved: the change ends at once, nothing else is sent. */
+    void moduleRefused();
+    /** The last change ended because the module refused the speed. */
+    bool refused() const { return refused_; }
     bool active() const { return phase_ != Idle; }
     int target() const { return newBaud_; }
 
@@ -64,6 +82,7 @@ private:
     int oldBaud_ = 0;
     int tries_ = 0;
     bool answered_ = false;
+    bool refused_ = false;
     QTimer switchTimer_;
     QTimer checkTimer_;
 };
@@ -122,7 +141,7 @@ public:
 
     WifiLineChange(Hooks hooks, Timing timing, QObject* parent = nullptr);
 
-    /** False while a change runs, for a line other than 0/1, an empty edit, or a rate outside 9600..4000000. */
+    /** False while a change runs, for a line other than 0/1, an empty edit, or a rate outside 9600..5000000. */
     bool start(int line, const WifiLineEdit& edit);
     /** A v3 record of `line` arrived (read from the module). */
     void onRecord(int line);

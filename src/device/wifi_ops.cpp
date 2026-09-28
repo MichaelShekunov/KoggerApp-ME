@@ -19,12 +19,14 @@ WifiPortChange::WifiPortChange(Hooks hooks, Timing timing, QObject* parent)
 
 bool WifiPortChange::start(int newBaud, int oldBaud)
 {
-    if (phase_ != Idle || newBaud < 9600 || newBaud > 4000000 || oldBaud <= 0 || newBaud == oldBaud)
+    if (phase_ != Idle || newBaud < WifiPortRules::kMinBaud || newBaud > WifiPortRules::kTopBaud || oldBaud <= 0
+        || newBaud == oldBaud)
         return false;
     newBaud_ = newBaud;
     oldBaud_ = oldBaud;
     tries_ = 0;
     answered_ = false;
+    refused_ = false;
     phase_ = Switching;
     emit activeChanged();
     hooks_.setModuleBaud(newBaud_);
@@ -62,12 +64,21 @@ void WifiPortChange::onCheck()
     hooks_.askStatus();
 }
 
+void WifiPortChange::moduleRefused()
+{
+    if (phase_ != Switching)
+        return;
+    switchTimer_.stop();
+    refused_ = true;
+    finish(false);
+}
+
 void WifiPortChange::finish(bool ok)
 {
     checkTimer_.stop();
     if (ok)
         hooks_.saveInModule();
-    else
+    else if (!refused_)   // refused before the switch: the link never moved
         hooks_.setLinkBaud(oldBaud_);
     phase_ = Idle;
     emit activeChanged();
@@ -100,7 +111,7 @@ WifiLineChange::WifiLineChange(Hooks hooks, Timing timing, QObject* parent)
 
 bool WifiLineChange::start(int line, const WifiLineEdit& edit)
 {
-    if (phase_ != Idle || line < 0 || line > 1 || edit.empty() || (edit.baud && (*edit.baud < 9600 || *edit.baud > 4000000)))
+    if (phase_ != Idle || line < 0 || line > 1 || edit.empty() || (edit.baud && (*edit.baud < uint32_t(WifiPortRules::kMinBaud) || *edit.baud > uint32_t(WifiPortRules::kTopBaud))))
         return false;
     line_ = line;
     edit_ = edit;

@@ -38,8 +38,10 @@ Column {
                && compactParamKeys.indexOf(paramKey) < 0
     }
 
+    // 5M only for a Wi-Fi module whose firmware takes it (0.13+); the other indices stay as they were.
     readonly property var baudrateOptions: [9600, 19200, 38400, 57600, 115200,
                                             230400, 460800, 921600, 1000000, 1200000, 1500000, 2000000, 3000000, 4000000]
+                                           .concat(_isWifi && dev.wifiMaxBaud >= 5000000 ? [5000000] : [])
     property int baudrateIndex: baudrateOptions.indexOf(115200)
 
     function applyBaudrate() {
@@ -2536,8 +2538,10 @@ Column {
         readonly property int ownPort: root._isWifi ? dev.wifiNetOwnPort : -1
         readonly property bool busy: root._isWifi && dev.wifiPortBusy
         readonly property int busyLine: root._isWifi ? dev.wifiPortLine : -1
+        // 5M from firmware 0.13 (dev.wifiMaxBaud)
         readonly property var bauds: [9600, 19200, 38400, 57600, 115200, 230400, 460800, 921600,
                                       1000000, 1500000, 2000000, 3000000, 4000000]
+                                     .concat(root._isWifi && dev.wifiMaxBaud >= 5000000 ? [5000000] : [])
         readonly property bool wide: width >= Math.round(660 * AppPalette.scale)
 
         function portName(i) { return i === 0 ? "X1" : "X2" }
@@ -3037,9 +3041,12 @@ Column {
                         // Rate of this port
                         DevStackedRow {
                             label: qsTr("Set the rate")
-                            caption: card.rateChanging ? qsTr("Changing to %1… (it finishes even if this page is closed)").arg(dev.wifiPortTarget)
-                                   : card.here ? qsTr("This device's port: the link here follows, the module has to answer at the new rate, then it is saved.")
-                                               : qsTr("Not this device's port: saved in the module at once.")
+                            caption: (card.rateChanging ? qsTr("Changing to %1… (it finishes even if this page is closed)").arg(dev.wifiPortTarget)
+                                      : card.here ? qsTr("This device's port: the link here follows, the module has to answer at the new rate, then it is saved.")
+                                                  : qsTr("Not this device's port: saved in the module at once."))
+                                     + (card.selBaud !== 5000000 || card.rateChanging ? ""
+                                        : card.here ? qsTr(" 5M: both ends must do it (the head unit's UART6 was tried up to 4M; a USB adapter needs 5M in its data sheet). Without an answer at 5M the link goes back by itself.")
+                                                    : qsTr(" 5M: the device on this port must do it too. The module keeps the rate: set it back here if that device stops answering."))
                             Row {
                                 width: parent.width
                                 spacing: Tokens.spaceSm
@@ -4060,8 +4067,7 @@ Column {
         stateKey: "dev.actions"; collapsedByDefault: root._hasCut
         confirmed: !(dev && dev.uartState === false)
 
-        readonly property var baudrateOptions: [9600, 19200, 38400, 57600, 115200,
-                                                230400, 460800, 921600, 1000000, 1200000, 1500000, 2000000, 3000000, 4000000]
+        readonly property var baudrateOptions: root.baudrateOptions
 
         Row {
             width: parent.width; spacing: Tokens.spaceSm

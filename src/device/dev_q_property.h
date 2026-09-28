@@ -143,6 +143,7 @@ public:
     Q_PROPERTY(int wifiRadioSupport READ wifiRadioSupport NOTIFY wifiRadioChanged)
     Q_PROPERTY(QVariantMap wifiRadio READ wifiRadio NOTIFY wifiRadioChanged)
     Q_PROPERTY(int wifiLrApSupport READ wifiLrApSupport NOTIFY deviceVersionChanged)
+    Q_PROPERTY(int wifiMaxBaud READ wifiMaxBaud NOTIFY deviceVersionChanged)
     Q_PROPERTY(bool wifiRadioChecking READ wifiRadioChecking NOTIFY wifiRadioCheckChanged)
     Q_PROPERTY(bool wifiPortBusy READ wifiPortBusy NOTIFY wifiPortChanged)
     Q_PROPERTY(int wifiPortTarget READ wifiPortTarget NOTIFY wifiPortChanged)
