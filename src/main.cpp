@@ -26,6 +26,7 @@
 #include "core.h"
 #include "themes.h"
 #include "ui_probe.h"
+#include "stall_monitor.h"
 #include "ui_state_serializer.h"
 #include "echogram_state_serializer.h"
 #include "notifications.h"
@@ -500,6 +501,8 @@ int main(int argc, char *argv[])
     if (!rootObjects.isEmpty()) {
         QObject* rootObject = rootObjects.constFirst();
         mainWindow = qobject_cast<QQuickWindow*>(rootObject);
+        // What the GUI and render threads do when the UI stops (the head unit's hangs): kogger.log and stall.log.
+        StallMonitor::instance().start(mainWindow, AppLog::instance().directory());
         if (mainWindow && UiProbe::isEnabled()) {
             uiProbe.setWindow(mainWindow);
             uiProbe.armFromEnvironment();

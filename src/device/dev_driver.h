@@ -150,6 +150,9 @@ public:
     QString wifiResetText();
     /** Requests the module could not queue since its start (firmware 0.14+); -1 when it does not report them. */
     double wifiLostRequests();
+    /** "[address]" in front of this module's Wi-Fi log lines: the head unit's module and one reached through the
+     *  relay (the boat's, on our firmware) log side by side. */
+    QString wifiTag() const;
     bool wifiScanning();
     QVariantList wifiNetworks();
     QStringList wifiSavedNetworks();

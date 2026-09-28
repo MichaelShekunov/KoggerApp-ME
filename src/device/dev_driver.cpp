@@ -127,18 +127,18 @@ DevDriver::DevDriver(QObject *parent)
     connect(wifiPort_, &WifiPortChange::activeChanged, this, &DevDriver::wifiPortChanged);
     connect(wifiPort_, &WifiPortChange::finished, this, [this](bool ok, int newBaud, int oldBaud) {
         if (ok) {
-            qInfo().noquote() << QStringLiteral("wifi-port: the module answered at %1, saved in the module").arg(newBaud);
+            qInfo().noquote() << wifiTag() << QStringLiteral("wifi-port: the module answered at %1, saved in the module").arg(newBaud);
             notifyInfo(tr("Port speed %1 set, the module saved it").arg(newBaud));
         } else if (wifiPort_->refused()) {
-            qInfo().noquote() << QStringLiteral("wifi-port: the module refused %1, the port stays at %2").arg(newBaud).arg(oldBaud);
+            qInfo().noquote() << wifiTag() << QStringLiteral("wifi-port: the module refused %1, the port stays at %2").arg(newBaud).arg(oldBaud);
             notifyWarning(tr("The module refused %1 bit/s: nothing changed, the port stays at %2").arg(newBaud).arg(oldBaud));
         } else if (wifiPort_->moduleKeepsIt()) {
-            qInfo().noquote() << QStringLiteral("wifi-port: no answer at %1; the module keeps it (firmware 0.15+), the link stays at %1").arg(newBaud);
+            qInfo().noquote() << wifiTag() << QStringLiteral("wifi-port: no answer at %1; the module keeps it (firmware 0.15+), the link stays at %1").arg(newBaud);
             notifyWarning(tr("No answer from the module at %1. It keeps that rate (firmware 0.15 saves it at once), so the link stays at %1. "
                              "If this device cannot do %1, hold the module's BOOT button 5 s: both ports go back to 921600, then set this link to 921600.")
                               .arg(newBaud));
         } else {
-            qInfo().noquote() << QStringLiteral("wifi-port: no answer at %1, link back at %2").arg(newBaud).arg(oldBaud);
+            qInfo().noquote() << wifiTag() << QStringLiteral("wifi-port: no answer at %1, link back at %2").arg(newBaud).arg(oldBaud);
             notifyWarning(tr("No answer from the module at %1: the link is back at %2. An unsaved speed is gone after the module's next reboot.")
                               .arg(newBaud).arg(oldBaud));
         }
@@ -170,25 +170,25 @@ DevDriver::DevDriver(QObject *parent)
         const QString what = rate ? QStringLiteral("rate %1").arg(wifiLine_->target()) : QStringLiteral("line settings");
         switch (outcome) {
         case WifiLineChange::Done:
-            qInfo().noquote() << QStringLiteral("wifi-port: %1 %2 applied through its line record, saved in the module").arg(port, what);
+            qInfo().noquote() << wifiTag() << QStringLiteral("wifi-port: %1 %2 applied through its line record, saved in the module").arg(port, what);
             notifyInfo(rate ? tr("Port %1: %2 bit/s set, the module saved it").arg(port).arg(wifiLine_->target())
                             : tr("Port %1: line settings applied").arg(port));
             break;
         case WifiLineChange::NoRecord:
-            qInfo().noquote() << QStringLiteral("wifi-port: %1 %2: no line record from the module, nothing sent").arg(port, what);
+            qInfo().noquote() << wifiTag() << QStringLiteral("wifi-port: %1 %2: no line record from the module, nothing sent").arg(port, what);
             notifyWarning(tr("Port %1: the module did not send the line's settings, nothing changed").arg(port));
             break;
         case WifiLineChange::NotSent:
-            qInfo().noquote() << QStringLiteral("wifi-port: %1 %2: the line record is not usable, nothing sent").arg(port, what);
+            qInfo().noquote() << wifiTag() << QStringLiteral("wifi-port: %1 %2: the line record is not usable, nothing sent").arg(port, what);
             notifyWarning(tr("Port %1: the line's settings are not known, nothing changed").arg(port));
             break;
         case WifiLineChange::Refused:
-            qInfo().noquote() << QStringLiteral("wifi-port: %1 %2: refused by the module (code %3)").arg(port, what).arg(resp);
+            qInfo().noquote() << wifiTag() << QStringLiteral("wifi-port: %1 %2: refused by the module (code %3)").arg(port, what).arg(resp);
             notifyWarning(rate ? tr("Port %1: the module refused %2 bit/s (code %3)").arg(port).arg(wifiLine_->target()).arg(resp)
                                : tr("Port %1: the module refused the line settings (code %2)").arg(port).arg(resp));
             break;
         default:
-            qInfo().noquote() << QStringLiteral("wifi-port: %1 %2: no answer, read back").arg(port, what);
+            qInfo().noquote() << wifiTag() << QStringLiteral("wifi-port: %1 %2: no answer, read back").arg(port, what);
             notifyWarning(tr("Port %1: no answer from the module; what is shown is what it reports").arg(port));
             break;
         }
@@ -203,8 +203,8 @@ DevDriver::DevDriver(QObject *parent)
         }
     }, WifiRadioCheck::Timing(), this);
     connect(wifiRadioCheck_, &WifiRadioCheck::activeChanged, this, &DevDriver::wifiRadioCheckChanged);
-    connect(wifiRadioCheck_, &WifiRadioCheck::finished, this, [](int outcome, const QString& text) {
-        qInfo().noquote() << "wifi-radio:" << text;
+    connect(wifiRadioCheck_, &WifiRadioCheck::finished, this, [this](int outcome, const QString& text) {
+        qInfo().noquote() << wifiTag() << "wifi-radio:" << text;
         if (outcome == WifiRadioCheck::Corrected)
             notifyInfo(tr("Radio: %1").arg(text));
         else if (outcome == WifiRadioCheck::NoLink)
@@ -1261,7 +1261,7 @@ void DevDriver::receivedWifi(Parsers::Type type, Parsers::Version ver, Parsers::
             static const char* const names[] = { "idle", "searching", "connecting", "connected", "access point" };
             static const char* const reasons[] = { "none", "not found", "wrong password", "association", "link lost", "other" };
             const auto name = [](int s) { return (s >= 0 && s <= 4) ? QString::fromLatin1(names[s]) : QString::number(s); };
-            qInfo().noquote() << QStringLiteral("wifi: %1 (was %2), ssid '%3' ch %4 rssi %5 dBm; last disconnect: %6, code %7")
+            qInfo().noquote() << wifiTag() << QStringLiteral("wifi: %1 (was %2), ssid '%3' ch %4 rssi %5 dBm; last disconnect: %6, code %7")
                                      .arg(name(state), wifiLastState_ < 0 ? QStringLiteral("-") : name(wifiLastState_), st.ssid)
                                      .arg(st.channel).arg(st.rssi)
                                      .arg(st.reason <= 5 ? QString::fromLatin1(reasons[st.reason]) : QString::number(st.reason))
@@ -1297,14 +1297,14 @@ void DevDriver::receivedWifi(Parsers::Type type, Parsers::Version ver, Parsers::
             const QString lost = r.lostValid
                 ? QStringLiteral(", requests it could not queue: %1").arg(r.lostRequests) : QString();
             if (restarted)
-                qInfo().noquote() << QStringLiteral("wifi: the module restarted (uptime %1 s, was %2 s, %3 s expected%4)")
+                qInfo().noquote() << wifiTag() << QStringLiteral("wifi: the module restarted (uptime %1 s, was %2 s, %3 s expected%4)")
                                          .arg(r.uptimeS).arg(was).arg(expected).arg(why);
             else if (first)
-                qInfo().noquote() << QStringLiteral("wifi: module up %1 s%2%3").arg(r.uptimeS).arg(why).arg(lost);
+                qInfo().noquote() << wifiTag() << QStringLiteral("wifi: module up %1 s%2%3").arg(r.uptimeS).arg(why).arg(lost);
             if (r.lostValid) {
                 const uint32_t n = wifiLoss_.onReport(r.lostRequests, now, restarted);
                 if (n > 0)
-                    qInfo().noquote() << QStringLiteral("wifi: the module could not queue %1 requests (%2 since its start; 0 is normal)")
+                    qInfo().noquote() << wifiTag() << QStringLiteral("wifi: the module could not queue %1 requests (%2 since its start; 0 is normal)")
                                              .arg(n).arg(r.lostRequests);
             }
         }
@@ -1329,7 +1329,7 @@ void DevDriver::receivedWifi(Parsers::Type type, Parsers::Version ver, Parsers::
                                  .arg(r.protocols).arg(r.bandwidth).arg(r.powerSave).arg(r.phyNow);
         if (line != lastWifiNetLog_[7]) {
             lastWifiNetLog_[7] = line;
-            qInfo().noquote() << "wifi-radio:" << line;
+            qInfo().noquote() << wifiTag() << "wifi-radio:" << line;
         }
         wifiRadioCheck_->onRadio(r.powerNowQ / 4.0, r.phyNow, r.bandwidthNow == 2 ? 40 : 20);
         emit wifiRadioChanged();
@@ -1355,7 +1355,7 @@ void DevDriver::receivedWifiNet(Parsers::Type type, Parsers::Version ver, Parser
         if (ver == v7) {
             if (resp == respErrorVersion && idWifiNet->portSupport() != 1) {
                 if (idWifiNet->portSupport() != 0)
-                    qInfo().noquote() << "wifi-net: no port information (ID_WIFI_NET v7) in this firmware: before 0.12";
+                    qInfo().noquote() << wifiTag() << "wifi-net: no port information (ID_WIFI_NET v7) in this firmware: before 0.12";
                 idWifiNet->markPortsUnsupported();
                 emit wifiNetPortsChanged();
             }
@@ -1424,7 +1424,7 @@ void DevDriver::logWifiPort(int port, int page) {
     }
     if (line != lastWifiPortLog_[port][page]) {
         lastWifiPortLog_[port][page] = line;
-        qInfo().noquote() << "wifi-net:" << line;
+        qInfo().noquote() << wifiTag() << "wifi-net:" << line;
     }
 }
 
@@ -1453,7 +1453,7 @@ void DevDriver::logWifiNet(int ver) {
     }
     if (!line.isEmpty() && line != lastWifiNetLog_[ver & 7]) {
         lastWifiNetLog_[ver & 7] = line;
-        qInfo().noquote() << "wifi-net:" << line;
+        qInfo().noquote() << wifiTag() << "wifi-net:" << line;
     }
 }
 
@@ -1478,6 +1478,10 @@ bool DevDriver::wifiReportValid() { return idWifi->report().valid; }
 double DevDriver::wifiRxTotal() { return static_cast<double>(idWifi->report().rxTotal); }
 double DevDriver::wifiTxTotal() { return static_cast<double>(idWifi->report().txTotal); }
 int DevDriver::wifiUptime() { return static_cast<int>(idWifi->report().uptimeS); }
+QString DevDriver::wifiTag() const {
+    return QStringLiteral("[%1]").arg(m_devAddress);
+}
+
 double DevDriver::wifiLostRequests() {
     const auto& r = idWifi->report();
     return r.valid && r.lostValid ? double(r.lostRequests) : -1.0;
@@ -1870,7 +1874,7 @@ bool DevDriver::wifiSetLineBaud(int line, int baud) {
         if (linkUuid_.isNull() || now <= 0) return false;
         wifiPortLine_ = line;
         if (!wifiPort_->start(baud, now, wifiRateSavedAtOnce())) return false;
-        qInfo().noquote() << QStringLiteral("wifi-port: set X%1 (this app's port) to %2 (was %3)").arg(line + 1).arg(baud).arg(now);
+        qInfo().noquote() << wifiTag() << QStringLiteral("wifi-port: set X%1 (this app's port) to %2 (was %3)").arg(line + 1).arg(baud).arg(now);
         return true;
     }
     // Another port: through its line record. Before 0.12 the module ignores line 0's rate there.
@@ -1878,7 +1882,7 @@ bool DevDriver::wifiSetLineBaud(int line, int baud) {
     WifiLineEdit edit;
     edit.baud = uint32_t(baud);
     if (!wifiLine_->start(line, edit)) return false;
-    qInfo().noquote() << QStringLiteral("wifi-port: set X%1 to %2 through its line record (not this app's port)").arg(line + 1).arg(baud);
+    qInfo().noquote() << wifiTag() << QStringLiteral("wifi-port: set X%1 to %2 through its line record (not this app's port)").arg(line + 1).arg(baud);
     return true;
 }
 
@@ -1918,7 +1922,7 @@ bool DevDriver::wifiSetLineConfig(int line, const QVariantMap& edits) {
     }
     if (!ok || !wifiLine_->start(line, edit))
         return false;
-    qInfo().noquote() << QStringLiteral("wifi-port: X%1 line settings: %2").arg(line + 1)
+    qInfo().noquote() << wifiTag() << QStringLiteral("wifi-port: X%1 line settings: %2").arg(line + 1)
                              .arg(QStringList(edits.keys()).join(QStringLiteral(", ")));
     return true;
 }
@@ -2638,7 +2642,7 @@ void DevDriver::receivedVersion(Parsers::Type type, Parsers::Version ver, Parser
                 m_fwVer = QString("%1.%2").arg(idVersion->fwVersion()).arg(idVersion->fwVersionMinor());
                 if(isWifi() && m_fwVer != wifiFwLogged_) {
                     wifiFwLogged_ = m_fwVer;
-                    qInfo().noquote() << QStringLiteral("wifi: module firmware %1").arg(m_fwVer);
+                    qInfo().noquote() << wifiTag() << QStringLiteral("wifi: module firmware %1").arg(m_fwVer);
                 }
             }
 
@@ -3066,7 +3070,7 @@ void DevDriver::process() {
                         const int byFw = WifiNetRules::portsFor(idVersion->fwVersion(), idVersion->fwVersionMinor());
                         const QString fw = QStringLiteral("%1.%2").arg(idVersion->fwVersion()).arg(idVersion->fwVersionMinor());
                         if(byFw == 0 || (byFw < 0 && wifiPortsAsks_ >= 3)) {
-                            qInfo().noquote() << QStringLiteral("wifi-net: no port information (ID_WIFI_NET v7), firmware %1: the page before 0.12").arg(byFw == 0 ? fw : QStringLiteral("not known"));
+                            qInfo().noquote() << wifiTag() << QStringLiteral("wifi-net: no port information (ID_WIFI_NET v7), firmware %1: the page before 0.12").arg(byFw == 0 ? fw : QStringLiteral("not known"));
                             idWifiNet->markPortsUnsupported();
                             emit wifiNetPortsChanged();
                         } else if(curr_time - wifiPortsAskedAt_ > 2000) {
@@ -3074,7 +3078,7 @@ void DevDriver::process() {
                             wifiPortsAskedAt_ = curr_time;
                             ++wifiPortsAsks_;
                             if(wifiPortsAsks_ == 1 || wifiPortsAsks_ % 30 == 0)
-                                qInfo().noquote() << QStringLiteral("wifi-net: no answer to ID_WIFI_NET v7 yet (firmware %1, ask %2): asking again every 2 s").arg(fw).arg(wifiPortsAsks_);
+                                qInfo().noquote() << wifiTag() << QStringLiteral("wifi-net: no answer to ID_WIFI_NET v7 yet (firmware %1, ask %2): asking again every 2 s").arg(fw).arg(wifiPortsAsks_);
                         }
                     }
                 }

@@ -126,9 +126,16 @@ qt_add_executable(KoggerApp
     src/app_utils.h
     src/ui_keepalive.h             src/ui_keepalive.cpp
     src/ui_probe.h                 src/ui_probe.cpp
+    src/stall_monitor.h            src/stall_monitor.cpp
 )
 
 target_compile_features(KoggerApp PRIVATE cxx_std_23)
+
+# Readable backtraces from the stall monitor (src/stall_monitor.cpp) on Linux: the app's own symbols in the
+# dynamic symbol table.
+if(UNIX AND NOT APPLE AND NOT ANDROID)
+    target_link_options(KoggerApp PRIVATE -rdynamic)
+endif()
 
 configure_file(src/kogger_revision.h.in
     "${CMAKE_CURRENT_BINARY_DIR}/generated/kogger_revision.h" @ONLY)
