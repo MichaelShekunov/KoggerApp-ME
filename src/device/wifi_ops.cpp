@@ -19,7 +19,7 @@ WifiPortChange::WifiPortChange(Hooks hooks, Timing timing, QObject* parent)
 
 bool WifiPortChange::start(int newBaud, int oldBaud)
 {
-    if (phase_ != Idle || newBaud < 9600 || newBaud > 4000000 || oldBaud <= 0 || newBaud == oldBaud)
+    if (phase_ != Idle || newBaud < WifiRates::kMin || newBaud > WifiRates::kMax || oldBaud <= 0 || newBaud == oldBaud)
         return false;
     newBaud_ = newBaud;
     oldBaud_ = oldBaud;
@@ -100,7 +100,7 @@ WifiLineChange::WifiLineChange(Hooks hooks, Timing timing, QObject* parent)
 
 bool WifiLineChange::start(int line, const WifiLineEdit& edit)
 {
-    if (phase_ != Idle || line < 0 || line > 1 || edit.empty() || (edit.baud && (*edit.baud < 9600 || *edit.baud > 4000000)))
+    if (phase_ != Idle || line < 0 || line > 1 || edit.empty() || (edit.baud && (*edit.baud < WifiRates::kMin || *edit.baud > WifiRates::kMax)))
         return false;
     line_ = line;
     edit_ = edit;

@@ -1800,6 +1800,10 @@ int DevDriver::wifiSignalLevel() {
     return WifiSignal::level(state == IDBinWifi::StateConnected || state == IDBinWifi::StateAp, rssi);
 }
 
+int DevDriver::wifiMaxBaud() {
+    return WifiRates::maxFor(idVersion->fwVersion(), idVersion->fwVersionMinor());
+}
+
 int DevDriver::wifiLrApSupport() {
     return WifiRadioRules::lrOnlyApSupport(idVersion->fwVersion(), idVersion->fwVersionMinor());
 }
@@ -1830,7 +1834,7 @@ int DevDriver::wifiOwnLine() const {
 }
 
 bool DevDriver::wifiSetLineBaud(int line, int baud) {
-    if (!m_state.connect || line < 0 || line > 1 || baud < 9600 || baud > 4000000 || wifiPortBusy()) return false;
+    if (!m_state.connect || line < 0 || line > 1 || baud < WifiRates::kMin || baud > WifiRates::kMax || wifiPortBusy()) return false;
     if (line == wifiOwnLine()) {
         // The old rate is the one this app's link runs at now: the ID_UART mirror starts at 115200 and would
         // send the link back somewhere it never was after a failed change.
@@ -1937,7 +1941,7 @@ bool DevDriver::wifiNetSetLine(int line, int mode, int dest, const QString& ip, 
     // A line whose speed counts needs a real one, or the module refuses the whole line with ERR_PAYLOAD.
     const bool rateCounts = line == 1 || idWifiNet->portSupport() == 1;
     if (!m_state.connect || line < 0 || line > 1 || rport < 0 || rport > 65535 || lport < 0 || lport > 65535
-        || baud < 0 || (rateCounts && (baud < 9600 || baud > 4000000))
+        || baud < 0 || (rateCounts && (baud < WifiRates::kMin || baud > WifiRates::kMax))
         || txPin < -1 || txPin > 127 || rxPin < -1 || rxPin > 127) return false;
     return idWifiNet->setLine(uint8_t(line), uint8_t(mode), uint8_t(dest), ip, uint16_t(rport), uint16_t(lport),
                               uint32_t(baud), int8_t(txPin), int8_t(rxPin));
