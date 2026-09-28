@@ -2721,7 +2721,9 @@ Column {
 
                         // The fields follow the module's record until the operator edits them.
                         function syncNet(force) {
-                            if (!recValid || netChanging || ((netEditing || netDirty) && !force))
+                            // rec itself, not recValid: the binding may still say valid while rec has just gone null
+                            // (TypeError at the head unit, 2026-09-28)
+                            if (!rec || rec.valid !== true || netChanging || ((netEditing || netDirty) && !force))
                                 return
                             selMode = rec.mode
                             selDest = rec.dest
