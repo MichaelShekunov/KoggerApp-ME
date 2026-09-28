@@ -317,6 +317,19 @@ struct WifiSignal
  * @brief Radio-setting rules of the module (ID_WIFI v7) that it enforces with ERR_PAYLOAD, so the app never sends a
  * combination the module refuses. Protocol bits: 0x01 b, 0x02 g, 0x04 n, 0x08 LR.
  */
+/** Port information (ID_WIFI_NET v7) by the module's firmware (ID_VERSION v2): 1 from 0.12, 0 before, -1 while the
+ *  version is not known (not read yet: 0.0). The firmware decides, not a timeout: a module that has just started
+ *  may leave the first v7 request unanswered. */
+struct WifiNetRules
+{
+    static int portsFor(int fwMajor, int fwMinor)
+    {
+        if (fwMajor <= 0 && fwMinor <= 0)
+            return -1;
+        return (fwMajor > 0 || fwMinor >= 12) ? 1 : 0;
+    }
+};
+
 /** Port rates of the Wi-Fi module (ESP32-C3 UART, both ports alike). */
 struct WifiRates
 {

@@ -1006,6 +1006,8 @@ void DevDriver::stopConnection() {
     standProbeSent_ = false;
     wifiProbeSent_ = false;
     wifiNetAskedAt_ = 0;
+    wifiPortsAskedAt_ = 0;
+    wifiPortsAsks_ = 0;
     wifiLastState_ = -1;
     if (standSupported_) {
         standSupported_ = false;
@@ -2608,8 +2610,13 @@ void DevDriver::receivedVersion(Parsers::Type type, Parsers::Version ver, Parser
             emit deviceIDChanged(idVersion->uid());
             emit deviceVersionChanged();
         } else if(ver == v2) {
-            if(idVersion->fwVersion() != 0) {
+            // 0.x is a version too (the Wi-Fi module's firmware); only 0.0 means none was reported.
+            if(idVersion->fwVersion() != 0 || idVersion->fwVersionMinor() != 0) {
                 m_fwVer = QString("%1.%2").arg(idVersion->fwVersion()).arg(idVersion->fwVersionMinor());
+                if(isWifi() && m_fwVer != wifiFwLogged_) {
+                    wifiFwLogged_ = m_fwVer;
+                    qInfo().noquote() << QStringLiteral("wifi: module firmware %1").arg(m_fwVer);
+                }
             }
 
             if(idVersion->bootVersion() != 0) {
@@ -3031,9 +3038,21 @@ void DevDriver::process() {
                         emit wifiNetChanged();
                         emit wifiNetPortsChanged();
                     } else if(idWifiNet->portSupport() < 0) {
-                        qInfo().noquote() << "wifi-net: no answer to ID_WIFI_NET v7 in 4 s: no port information (firmware before 0.12)";
-                        idWifiNet->markPortsUnsupported();
-                        emit wifiNetPortsChanged();
+                        // The firmware decides (WifiNetRules): a module that has just started can leave the first v7
+                        // unanswered, and taking that for "before 0.12" hid the X1/X2 cards for the whole session.
+                        const int byFw = WifiNetRules::portsFor(idVersion->fwVersion(), idVersion->fwVersionMinor());
+                        const QString fw = QStringLiteral("%1.%2").arg(idVersion->fwVersion()).arg(idVersion->fwVersionMinor());
+                        if(byFw == 0 || (byFw < 0 && wifiPortsAsks_ >= 3)) {
+                            qInfo().noquote() << QStringLiteral("wifi-net: no port information (ID_WIFI_NET v7), firmware %1: the page before 0.12").arg(byFw == 0 ? fw : QStringLiteral("not known"));
+                            idWifiNet->markPortsUnsupported();
+                            emit wifiNetPortsChanged();
+                        } else if(curr_time - wifiPortsAskedAt_ > 2000) {
+                            idWifiNet->requestPorts();
+                            wifiPortsAskedAt_ = curr_time;
+                            ++wifiPortsAsks_;
+                            if(wifiPortsAsks_ == 1 || wifiPortsAsks_ % 30 == 0)
+                                qInfo().noquote() << QStringLiteral("wifi-net: no answer to ID_WIFI_NET v7 yet (firmware %1, ask %2): asking again every 2 s").arg(fw).arg(wifiPortsAsks_);
+                        }
                     }
                 }
                 if(isWifi() && idWifi->expireScan(curr_time)) {
@@ -3074,6 +3093,8 @@ void DevDriver::process() {
             wifiProbeSent_ = false;
             wifiLastState_ = -1;
             wifiNetAskedAt_ = 0;
+            wifiPortsAskedAt_ = 0;
+            wifiPortsAsks_ = 0;
             if(idWifiNet->support() >= 0) {
                 idWifiNet->reset();
                 emit wifiNetChanged();

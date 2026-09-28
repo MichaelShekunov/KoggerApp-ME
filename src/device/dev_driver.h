@@ -790,6 +790,9 @@ private:
     bool wifiProbeSent_ = false;
     QString lastWifiNetLog_[8];       // last logged line per ID_WIFI_NET version (7 = radio)
     int64_t wifiNetAskedAt_ = 0;      // when ID_WIFI_NET was first asked; silence for 4 s = firmware before 0.10
+    int64_t wifiPortsAskedAt_ = 0;    // the last ID_WIFI_NET v7 request while the ports are not known yet
+    int wifiPortsAsks_ = 0;           // v7 requests after the first, while the ports are not known
+    QString wifiFwLogged_;            // the module firmware version last written to the log
     int wifiLastState_ = -1;
     WifiRestartWatch wifiRestart_;     // module uptime reports, to see a restart
     QElapsedTimer wifiClock_;          // the monotonic time those reports are compared with

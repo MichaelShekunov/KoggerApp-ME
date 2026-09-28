@@ -243,6 +243,9 @@ void wifiOpsRules()
     bool ok = false;
     QObject::connect(port, &WifiPortChange::finished, [&](bool r, int, int) { ++done; ok = r; });
     check("port: refuses a speed above 5000000", !port->start(6000000, 2000000));
+    check("ports: v7 from firmware 0.12, not before, -1 while the version is not known",
+          WifiNetRules::portsFor(0, 12) == 1 && WifiNetRules::portsFor(0, 13) == 1 && WifiNetRules::portsFor(0, 11) == 0
+          && WifiNetRules::portsFor(0, 0) == -1 && WifiNetRules::portsFor(1, 0) == 1);
     check("rates: 5 Mbaud from firmware 0.13, 4 Mbaud for 0.12 and while unknown",
           WifiRates::maxFor(0, 13) == 5000000 && WifiRates::maxFor(0, 12) == 4000000 && WifiRates::maxFor(0, 0) == 4000000
           && WifiRates::maxFor(1, 0) == 5000000);
