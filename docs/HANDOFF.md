@@ -716,3 +716,9 @@ on with the board 15 s before, left the one ID_WIFI_NET v7 request unanswered fo
 firmware version decides (`WifiNetRules::portsFor`): 0.12+ is asked again every 2 s until it answers. A 0.x version
 is kept (major 0 was dropped, so the module's version never showed) and logged (`wifi: module firmware 0.13`). On
 the kiosk (`headunit` 61004afb, Verified in kogger.log): firmware 0.13, both port summaries received.
+
+The module side, found by the firmware session (bench, firmware 0.13, their measurement): a burst of requests
+overflows the module's 24-message control queue and requests are dropped silently (20 GETs in a row -> 27 answers of
+about 29, 60 -> 62 of about 87); after power-on Wi-Fi events share that queue, so the last request of the app's
+start-up burst, v7, was the one lost. The app's re-ask stays as the defence; a firmware fix (a bigger queue, a short
+wait instead of dropping, a loss counter) is proposed to the owner as 0.14.
