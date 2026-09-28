@@ -44,6 +44,12 @@ public:
     bool start(int newBaud, int oldBaud);
     /** A frame from the module that proves it hears this host; counts only after the first check. */
     void moduleAnswered();
+    /** The module refused the new speed (its confirmation of ID_UART is an error: above its firmware's limit). The
+     *  confirmation comes at the old speed before the module would switch, so the link has not moved: the change
+     *  ends at once and nothing else is sent. */
+    void moduleRefused();
+    /** The last change ended because the module refused the speed. */
+    bool refused() const { return refused_; }
     bool active() const { return phase_ != Idle; }
     int target() const { return newBaud_; }
 
@@ -64,6 +70,7 @@ private:
     int oldBaud_ = 0;
     int tries_ = 0;
     bool answered_ = false;
+    bool refused_ = false;
     QTimer switchTimer_;
     QTimer checkTimer_;
 };

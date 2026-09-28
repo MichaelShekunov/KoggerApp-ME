@@ -260,6 +260,13 @@ void wifiOpsRules()
     check("port: no answer -> link back at the old speed, nothing saved", !ok && calls.contains(QStringLiteral("link 4000000"))
           && calls.value(calls.size() - 1) == QStringLiteral("link 3000000") && !calls.contains(QStringLiteral("save")),
           calls.join(QStringLiteral(", ")));
+    // A module whose firmware does not take the speed refuses ID_UART (at the old speed, before switching).
+    calls.clear();
+    done = 0;
+    check("port: 5M starts", port->start(5000000, 3000000) && calls.value(0) == QStringLiteral("module 5000000"));
+    port->moduleRefused();
+    check("port: refused -> ends at once, the link never moves", done == 1 && !ok && port->refused() && !port->active()
+          && calls == QStringList{ QStringLiteral("module 5000000") }, calls.join(QStringLiteral(", ")));
     delete port;
 
     QStringList rc;
