@@ -40,7 +40,7 @@ public:
 
     WifiPortChange(Hooks hooks, Timing timing, QObject* parent = nullptr);
 
-    /** False while a change runs, for a speed outside 9600..4000000, or when nothing would change. */
+    /** False while a change runs, for a speed outside WifiRates::kMin..kMax, or when nothing would change. */
     bool start(int newBaud, int oldBaud);
     /** A frame from the module that proves it hears this host; counts only after the first check. */
     void moduleAnswered();
@@ -122,7 +122,7 @@ public:
 
     WifiLineChange(Hooks hooks, Timing timing, QObject* parent = nullptr);
 
-    /** False while a change runs, for a line other than 0/1, an empty edit, or a rate outside 9600..4000000. */
+    /** False while a change runs, for a line other than 0/1, an empty edit, or a rate outside WifiRates::kMin..kMax. */
     bool start(int line, const WifiLineEdit& edit);
     /** A v3 record of `line` arrived (read from the module). */
     void onRecord(int line);
@@ -310,6 +310,15 @@ struct WifiSignal
  * @brief Radio-setting rules of the module (ID_WIFI v7) that it enforces with ERR_PAYLOAD, so the app never sends a
  * combination the module refuses. Protocol bits: 0x01 b, 0x02 g, 0x04 n, 0x08 LR.
  */
+/** Port rates of the Wi-Fi module (ESP32-C3 UART, both ports alike). */
+struct WifiRates
+{
+    static constexpr int kMin = 9600;
+    static constexpr int kMax = 5000000;   // what any firmware takes; the module itself refuses above its own limit
+    /** Top rate of the module's firmware (ID_VERSION v2): 5000000 from 0.13, 4000000 before or while unknown. */
+    static int maxFor(int fwMajor, int fwMinor) { return (fwMajor > 0 || fwMinor >= 13) ? kMax : 4000000; }
+};
+
 struct WifiRadioRules
 {
     /** 40 MHz needs 802.11n: b (0x01), b/g (0x03) and LR only (0x08) run at 20 MHz. */

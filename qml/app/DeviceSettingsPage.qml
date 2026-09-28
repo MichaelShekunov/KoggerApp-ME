@@ -2536,8 +2536,10 @@ Column {
         readonly property int ownPort: root._isWifi ? dev.wifiNetOwnPort : -1
         readonly property bool busy: root._isWifi && dev.wifiPortBusy
         readonly property int busyLine: root._isWifi ? dev.wifiPortLine : -1
+        // up to what the module's firmware takes: 5 Mbaud from 0.13
         readonly property var bauds: [9600, 19200, 38400, 57600, 115200, 230400, 460800, 921600,
-                                      1000000, 1500000, 2000000, 3000000, 4000000]
+                                      1000000, 1500000, 2000000, 3000000, 4000000, 5000000]
+                                     .filter(function(b) { return !root._isWifi || b <= dev.wifiMaxBaud })
         readonly property bool wide: width >= Math.round(660 * AppPalette.scale)
 
         function portName(i) { return i === 0 ? "X1" : "X2" }

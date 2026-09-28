@@ -242,7 +242,10 @@ void wifiOpsRules()
     int done = 0;
     bool ok = false;
     QObject::connect(port, &WifiPortChange::finished, [&](bool r, int, int) { ++done; ok = r; });
-    check("port: refuses a speed above 4000000", !port->start(5000000, 2000000));
+    check("port: refuses a speed above 5000000", !port->start(6000000, 2000000));
+    check("rates: 5 Mbaud from firmware 0.13, 4 Mbaud for 0.12 and while unknown",
+          WifiRates::maxFor(0, 13) == 5000000 && WifiRates::maxFor(0, 12) == 4000000 && WifiRates::maxFor(0, 0) == 4000000
+          && WifiRates::maxFor(1, 0) == 5000000);
     check("port: 2M -> 3M starts with the module", port->start(3000000, 2000000) && calls.value(0) == QStringLiteral("module 3000000"),
           calls.join(QStringLiteral(", ")));
     check("port: a second change is refused while one runs", !port->start(4000000, 2000000));
@@ -504,8 +507,8 @@ void wifiPortsRules()
     int lcResp = -1;
     QObject::connect(&line, &WifiLineChange::finished, [&](int o, int, int r) { lcOutcome = o; lcResp = r; });
     WifiLineEdit tooFast;
-    tooFast.baud = 5000000;
-    check("line: refuses line 2, 5000000 and an empty edit", !line.start(2, rateEd) && !line.start(1, tooFast)
+    tooFast.baud = 6000000;
+    check("line: refuses line 2, 6000000 and an empty edit", !line.start(2, rateEd) && !line.start(1, tooFast)
           && !line.start(1, WifiLineEdit()) && lc.isEmpty());
     check("line: X2 -> 115200 reads the record first", line.start(1, rateEd) && lc == QStringList{ QStringLiteral("ask 1") }
           && !line.awaitingAnswer() && line.target() == 115200, lc.join(QStringLiteral(", ")));
