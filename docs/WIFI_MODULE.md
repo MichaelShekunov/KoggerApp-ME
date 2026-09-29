@@ -327,24 +327,24 @@ What a scan cannot tell: how much a channel is used (one busy network is worse t
 traffic of networks whose beacons are too weak, and anything that is not Wi-Fi except through what it does to
 reception. mission_check (offline) checks the weights, our own network left out, the pick and bad entries.
 
-**Asked of the module's firmware: a channel survey (proposal, ID_WIFI v8; the contract is the module project's).**
-The module listens (promiscuous mode) on each channel in turn and reports how much of the time the air was in use:
+**Asked of the module's firmware: a channel survey (the contract is the module project's).** Proposed 2026-09-29;
+the module session answered the same day and asks the owner before it starts:
 
-- SETTING v8 `{U2 dwell ms, U2 channels}`: dwell per channel 50..1000 (clamped), channels a mask (bit0 = channel 1 …
-  bit12 = channel 13; 0 = every channel the module may use). Confirmed at once: OK, ERR_RUNTIME while joining,
-  scanning or surveying, ERR_PAYLOAD for bad arguments. The module then leaves its channel for the survey, sends one
-  CONTENT v8 per channel as each ends and returns to its channel (an access point keeps its role and channel; its
-  clients rejoin if they lost it). Allowed in both roles: the boat's access point is the one that picks the channel.
-- GETTING v8: the last survey again, one CONTENT v8 per channel; `{0, 0}` when there is none.
-- CONTENT v8, one per channel: `U1 index, U1 total, U1 channel, U2 dwell ms (as done), U2 busy per mille (airtime
-  of the frames heard / dwell), U2 frames, U2 other BSSIDs heard, S1 strongest RSSI, S1 noise floor dBm (the mean of
-  rx_ctrl.noise_floor), U1 flags (bit0 the module's own channel)`. Airtime per frame from rx_ctrl: the preamble of
-  its modulation plus its length at its rate or MCS; frames that fail the FCS count too.
-- 13 channels at 200 ms is about 2.6 s; the boat link stalls meanwhile (an Inference: the station's beacon timeout is
-  longer, so it should come back without a new join).
+- Its own command, **0x59 `ID_WIFI_SURVEY`** (proposed): the version field of an SBP frame has 3 bits and ID_WIFI and
+  ID_WIFI_NET use all eight versions. 0x59 is free in this app (src/proto_binnary.h: after ID_WIFI_NET 0x58 the next
+  code in use is ID_NAV 0x64; checked by search).
+- How: the module listens (promiscuous) while it dwells on each channel of a passive scan that returns to its own
+  channel between channels (`home_chan_dwell_time`); an access point runs as APSTA for the survey, since IDF 5.5.5
+  refuses `esp_wifi_set_channel` on an access point with clients. Whether its clients stay and whether promiscuous
+  frames arrive during the dwells is to be tried on hardware (their Inference).
+- What: per channel the airtime of the Wi-Fi frames heard (rate or MCS, length, preamble; frames failing the FCS
+  count too), frames, other BSSIDs, the strongest RSSI and the noise floor (rx_ctrl.noise_floor of the C3, signed
+  dBm) with a flag when the noise figure is not reliable. Not seen: interference that is not Wi-Fi (IDF has no public
+  channel-busy (CCA) counter), so the app labels it "Wi-Fi airtime", not "load".
+- Defaults: 100..120 ms a channel, channels 1..13 measured, 1..11 to pick from (country "01"), 2..3 s in all.
 
-With v8 the island shows per channel the busy share and the noise floor next to the scan's level, picks the channel
-by the busy share (the level breaks ties) and runs on the boat's module page too.
+The app side follows once the format is in the module's SBP_WIFI.md: the Wi-Fi airtime and the noise floor per
+channel next to the scan's level, the channel picked by airtime (the level breaks ties), on the boat module's page too.
 
 ## 2c. Port speed of the module (line 0)
 
