@@ -784,7 +784,13 @@ kinds every file already has (AppPalette not seen as a singleton, context proper
 PC with no QML errors in kogger.log (start-up screens only: the Devices page and its bar were not opened, no device
 here); `headunit` e32d91ea builds on the board (dev_driver.cpp and screen_keyboard.cpp rebuilt, no warnings).
 Not verified: anything by touch on the head unit, the report period on the module, a stale device on a real link
-loss. The kiosk still runs d9845cb4 until the owner says to switch. This PC: package c0b96b10 made from
-`D:\Temp\kogger_merge_test` (the myedition checkout has an untracked `out_x64.zip`, which would mark the build dirty);
-`update_kogger.ps1` takes `-Dist` for that; the elevated update was not confirmed at the UAC prompt, so both installs
-still run b8c1a401.
+loss. This PC: package c0b96b10 made from `D:\Temp\kogger_merge_test` (the myedition checkout has an untracked
+`out_x64.zip`, which would mark the build dirty); `update_kogger.ps1` takes `-Dist` for that.
+
+Deployed 2026-09-29 on the owner's word: the kiosk runs `headunit` e32d91ea (no QML errors; `[0] wifi: link report
+every 200 ms asked (the module on this app's port X1)`; the boat's module, flags 0x03 on its X1, not asked; no device
+marked without data in the first 100 s with the boat's sonar pinging - all Verified in kogger.log); both installs on
+this PC run c0b96b10 (hashes match the stage, UPDATE_DONE). The log showed both Wi-Fi modules as `[0]`: the tag read
+`m_devAddress`, which nothing sets. 886d9384 (`headunit` 8755c0d6, built on the board, not switched) tags with the
+route address (`m_busAddress`, the device's key in DeviceManager). The same log: the boat's module (0.15) last reset
+by its task watchdog (reason 6), about an hour before; the head unit's by power-on.
