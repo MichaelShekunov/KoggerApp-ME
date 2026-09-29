@@ -375,6 +375,9 @@ readonly property int resolvedDeviceIndex: {
 }
 
 readonly property var activeDevice: (resolvedDeviceIndex >= 0 && resolvedDeviceIndex < activeDeviceList.length) ? activeDeviceList[resolvedDeviceIndex] : null
+// The Devices page while it is shown (DeviceSettingsPage registers itself): the settings bar's "Apply and save" acts
+// through it.
+property var devicePage: null
 
 // Whether ANY connected device has answered the stand probe. The stand panel kind is hidden
 // wherever this is false -- the wizard's kind list, the panel list, the scene -- so an operator
