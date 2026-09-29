@@ -1272,13 +1272,6 @@ property Settings scene3dUiPrefs: Settings {
 }
 property alias showSurfaceQuality: scene3dUiPrefs.showSurfaceQuality
 
-property Settings notificationPrefs: Settings {
-    id: notificationPrefs
-    category: "main/ui"
-    property bool hideImportantNotifications: false
-}
-property alias hideImportantNotifications: notificationPrefs.hideImportantNotifications
-
 property Settings developerPrefs: Settings {
     id: developerPrefs
     category: "main/ui"

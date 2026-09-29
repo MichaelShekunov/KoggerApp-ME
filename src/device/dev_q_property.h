@@ -190,6 +190,7 @@ public:
     Q_PROPERTY(bool linkConnected     READ linkConnected     NOTIFY linkStatusChanged)
     Q_PROPERTY(bool linkReceivesData  READ linkReceivesData  NOTIFY linkStatusChanged)
     Q_PROPERTY(bool linkNotAvailable  READ linkNotAvailable  NOTIFY linkStatusChanged)
+    Q_PROPERTY(bool dataStale         READ dataStale         NOTIFY dataStaleChanged)
 
     // Recorder status (ID_RECORDER_STATUS). Field meaning: Recorder-Host-Integration-Guide.md.
     Q_PROPERTY(bool recorderStatusValid           READ recorderStatusValid           NOTIFY recorderStatusChanged)

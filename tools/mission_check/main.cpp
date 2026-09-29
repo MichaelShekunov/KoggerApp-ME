@@ -4,8 +4,9 @@
 //   mission_check [--host 127.0.0.1] [--port 5760] [--wall-timeout-scale 1.0] [--offline]
 //
 // SITL (ArduRover, model motorboat) must already listen on the port; see docs/BOAT_MISSION.md.
-// Before SITL it checks the navigation-readiness rules on made-up EKF reports and the Wi-Fi module's
-// sequences and port-page decoding on made-up frames (no SITL needed); --offline stops after those.
+// Before SITL it checks the navigation-readiness rules on made-up EKF reports, the Wi-Fi module's
+// sequences and port-page decoding on made-up frames, and the device-liveness and on-screen-keyboard
+// rules on made-up times and touches (no SITL needed); --offline stops after those.
 
 #include <QCommandLineParser>
 #include <QCoreApplication>
@@ -16,7 +17,9 @@
 #include <cstdio>
 #include <functional>
 
+#include "device_liveness.h"
 #include "mav_vehicle.h"
+#include "touch_tap_gate.h"
 #include "wifi_ops.h"
 
 #if defined(__GNUC__) || defined(__clang__)
@@ -375,6 +378,8 @@ void wifiRadioRules()
           && WifiSignal::level(true, -60) == 3 && WifiSignal::level(true, -61) == 2 && WifiSignal::level(true, -70) == 2
           && WifiSignal::level(true, -71) == 1 && WifiSignal::level(true, -80) == 1 && WifiSignal::level(true, -81) == 0
           && WifiSignal::level(true, -95) == 0);
+    check("signal: the fast report period is one the module takes (100..60000 ms) and faster than its second",
+          WifiSignal::kFastReportMs >= 100 && WifiSignal::kFastReportMs < 1000);
     check("radio rule: LR only for an access point: 0.11 no, 0.12 and 1.0 yes, 0.0 unknown",
           WifiRadioRules::lrOnlyApSupport(0, 11) == 0 && WifiRadioRules::lrOnlyApSupport(0, 12) == 1
           && WifiRadioRules::lrOnlyApSupport(0, 13) == 1 && WifiRadioRules::lrOnlyApSupport(1, 0) == 1
@@ -587,6 +592,88 @@ void wifiPortsRules()
 
 } // namespace
 
+// Field test 2026-09-29: devices that look present without a link, the keyboard that came up while scrolling.
+void fieldTestRules()
+{
+    using L = DeviceLiveness;
+    check("liveness: last frame 2.9 s ago -> there; 3.0 s -> without data",
+          !L::stale(true, true, false, 1000, 3900) && L::stale(true, true, false, 1000, 4000));
+    check("liveness: never before the first frame, during an update, unconnected or unmarked",
+          !L::stale(true, true, false, 0, 100000) && !L::stale(true, true, true, 1000, 100000)
+          && !L::stale(false, true, false, 1000, 100000) && !L::stale(true, false, false, 1000, 100000));
+    check("liveness: a quiet device is asked after 1 s, then once a second, not in between",
+          !L::probeDue(1000, 0, 1999) && L::probeDue(1000, 0, 2000) && !L::probeDue(1000, 2000, 2999)
+          && L::probeDue(1000, 2000, 3000));
+    check("liveness: asked twice before it counts as without data (a lost answer is not enough)",
+          L::kStaleMs >= 2 * L::kQuietProbeMs + L::kQuietProbeMs);
+
+    const QRectF field(0, 100, 200, 30);          // a text field, window coordinates
+    const qreal drag = 10;
+    {
+        TouchTapGate g;
+        g.touchBegan(QPointF(50, 110), 1);
+        g.focusChanged(true, false);              // the press focused the field
+        const bool heldWhileDown = g.heldBack();
+        const bool tap = g.touchEnded(QPointF(52, 111), false);
+        check("keyboard: a tap that focuses a field brings the keyboard up at its end",
+              heldWhileDown && tap && g.releaseOnTap(tap, field, drag) && !g.heldBack());
+    }
+    {
+        TouchTapGate g;
+        g.touchBegan(QPointF(50, 110), 1);
+        g.focusChanged(true, false);
+        g.touchMoved(QPointF(50, 150), 1, drag);  // the finger scrolls the page
+        const bool tap = g.touchEnded(QPointF(50, 300), false);
+        const bool stays = !tap && !g.releaseOnTap(tap, field, drag) && g.heldBack();
+        // the page moved: the field is at y 300 now, the operator taps it there
+        g.touchBegan(QPointF(60, 310), 1);
+        const bool tap2 = g.touchEnded(QPointF(61, 311), false);
+        check("keyboard: a scroll that starts on a field leaves it down; a tap on the field then brings it up",
+              stays && tap2 && g.releaseOnTap(tap2, QRectF(0, 300, 200, 30), drag) && !g.heldBack());
+    }
+    {
+        TouchTapGate g;
+        g.touchBegan(QPointF(50, 110), 1);
+        g.focusChanged(true, false);
+        g.touchMoved(QPointF(50, 150), 1, drag);
+        g.touchEnded(QPointF(50, 150), false);
+        g.touchBegan(QPointF(150, 500), 1);       // a tap somewhere else
+        const bool tap = g.touchEnded(QPointF(150, 500), false);
+        check("keyboard: a tap elsewhere keeps it down", tap && !g.releaseOnTap(tap, field, drag) && g.heldBack());
+    }
+    {
+        TouchTapGate g;
+        g.touchBegan(QPointF(50, 110), 1);
+        g.focusChanged(true, false);
+        g.touchMoved(QPointF(50, 110), 2, drag);  // a second finger
+        const bool pinch = g.touchEnded(QPointF(50, 110), false);
+        TouchTapGate c;
+        c.touchBegan(QPointF(50, 110), 1);
+        c.focusChanged(true, false);
+        const bool canceled = c.touchEnded(QPointF(50, 110), true);
+        check("keyboard: a second finger or a canceled touch is no tap", !pinch && g.heldBack() && !canceled && c.heldBack());
+    }
+    {
+        TouchTapGate g;
+        g.focusChanged(true, false);              // Tab key, no touch
+        const bool byKey = !g.heldBack();
+        g.touchBegan(QPointF(50, 110), 1);
+        g.focusChanged(true, true);               // the keyboard is up already for another field
+        const bool whileUp = !g.heldBack();
+        g.focusChanged(false, false);             // a button took the focus
+        check("keyboard: not held for focus without a touch, with the keyboard already up, or on a non-text item",
+              byKey && whileUp && !g.heldBack());
+    }
+    {
+        TouchTapGate g;
+        g.touchBegan(QPointF(50, 110), 1);
+        g.focusChanged(true, false);
+        g.touchMoved(QPointF(55, 114), 1, drag);  // a shaky tap: 9 px
+        const bool tap = g.touchEnded(QPointF(55, 114), false);
+        check("keyboard: a tap that moves less than the drag distance is still a tap", tap && g.releaseOnTap(tap, field, drag));
+    }
+}
+
 int main(int argc, char* argv[])
 {
     QCoreApplication app(argc, argv);
@@ -605,6 +692,7 @@ int main(int argc, char* argv[])
     wifiOpsRules();
     wifiPortsRules();
     wifiRadioRules();
+    fieldTestRules();
     if (cli.isSet(QStringLiteral("offline"))) {
         std::printf("\n%d checks, %d failed (offline)\nMISSION_CHECK_%s\n", g_checks, g_failed, g_failed ? "FAILED" : "DONE");
         return g_failed ? 1 : 0;

@@ -85,6 +85,83 @@ WaterFall {
     property point pinchStartPos: Qt.point(-1, -1)
     property bool pinchActive: false
 
+    // One finger on the echogram (field test 2026-09-29: "no scrolling of the echogram as in the Windows app"):
+    // a drag scrolls it like the wheel, along time or depth by its first movement as the two-finger pan does;
+    // holding still for touchHoldMs shows the aim cursor, which then follows the finger as under a mouse press; a
+    // tap still selects the ping under it. A bottom-track tool keeps the finger for editing; the mouse is unchanged.
+    readonly property int touchHoldMs: 350
+    property int _touchState: 0        // 0 none, 1 undecided, 2 scrolling time, 3 scrolling depth, 4 aiming
+    property real _touchStartX: 0
+    property real _touchStartY: 0
+    property real _touchLastX: 0
+    property real _touchLastY: 0
+    property real _touchCarry: 0       // the part of a pixel not scrolled yet
+
+    Timer {
+        id: touchHoldTimer
+        interval: plot.touchHoldMs
+        repeat: false
+        onTriggered: if (plot._touchState === 1) plot._touchAim(plot._touchLastX, plot._touchLastY)
+    }
+
+    function _touchScrollAllowed() {
+        var touch = !!(inputState && inputState.touchMode)
+        var tool = (typeof core !== "undefined" && core && core.bottomTrackEditTool !== undefined) ? core.bottomTrackEditTool : 0
+        return touch && tool === 0
+    }
+
+    function _touchAim(x, y) {
+        _touchState = 4
+        plot.plotMousePosition(x, y)
+        plotPressed(indx, x, y)
+    }
+
+    function _touchReset() {
+        touchHoldTimer.stop()
+        _touchState = 0
+        _touchCarry = 0
+    }
+
+    // true: the move belongs to the one-finger gesture (still undecided, or scrolling)
+    function _touchMove(x, y) {
+        if (_touchState === 4)
+            return false
+        if (_touchState === 1) {
+            var dx = x - _touchStartX
+            var dy = y - _touchStartY
+            _touchLastX = x
+            _touchLastY = y
+            if (Math.abs(dx) <= pointerMouseThreshold && Math.abs(dy) <= pointerMouseThreshold)
+                return true
+            touchHoldTimer.stop()
+            // time runs along x in a horizontal echogram, along y in a vertical one
+            var alongX = Math.abs(dx) >= Math.abs(dy)
+            _touchState = (alongX === plot.horizontal) ? 2 : 3
+            _touchLastX = _touchStartX
+            _touchLastY = _touchStartY
+        }
+        var mx = x - _touchLastX
+        var my = y - _touchLastY
+        _touchLastX = x
+        _touchLastY = y
+        // the content follows the finger: the signs of the wheel and of the two-finger pan
+        _touchCarry += (_touchState === 2) ? (plot.horizontal ? mx : my) : (plot.horizontal ? -my : -mx)
+        var step = _touchCarry < 0 ? Math.ceil(_touchCarry) : Math.floor(_touchCarry)
+        if (step === 0)
+            return true
+        _touchCarry -= step
+        if (_touchState === 2) {
+            plot.horScrollEvent(step)
+            updateOtherPlot(indx)
+            syncTimeToOthers()
+        } else {
+            plot.verScrollEvent(step)
+            plotCursorChanged(indx, cursorFrom(), cursorTo())
+            syncVerticalToOthers()
+        }
+        return true
+    }
+
     horizontal: horisontalVertical.checked
 
     function setLevels(low, high) {
@@ -265,8 +342,19 @@ WaterFall {
 
         if (mouseButton === Qt.LeftButton) {
             menuBlock.visible = false
-            plot.plotMousePosition(x, y)
-            plotPressed(indx, x, y)
+            if (_touchScrollAllowed()) {
+                _touchReset()
+                _touchState = 1
+                _touchStartX = x
+                _touchStartY = y
+                _touchLastX = x
+                _touchLastY = y
+                touchHoldTimer.restart()
+            } else {
+                _touchReset()
+                plot.plotMousePosition(x, y)
+                plotPressed(indx, x, y)
+            }
             if (typeof core !== "undefined" && core) core.requestDismissTransientUi()
         }
 
@@ -281,6 +369,12 @@ WaterFall {
 
     function handlePointerMove(buttons, x, y, keyboardKey) {
         markMouseKeyboardInput()
+        if (_touchState !== 0 && (buttons & Qt.LeftButton) && _touchMove(x, y)) {
+            pointerWasMoved = _touchState !== 1
+            pointerLastMouseX = x
+            pointerLastMouseY = y
+            return
+        }
         plot.onCursorMoved(x, y)
 
         if (Qt.platform.os === "android") {
@@ -317,6 +411,10 @@ WaterFall {
         }
 
         if (mouseButton === Qt.LeftButton) {
+            // a tap: what a mouse press and release there did
+            if (_touchState === 1)
+                _touchAim(x, y)
+            _touchReset()
             plot.plotMousePosition(-1, -1)
         }
 
@@ -333,6 +431,7 @@ WaterFall {
 
     function handlePointerCancel() {
         markMouseKeyboardInput()
+        _touchReset()
         pointerLastMouseX = -1
         pointerLastMouseY = -1
 
@@ -380,6 +479,7 @@ WaterFall {
 
     function handlePinchStarted(centerX, centerY) {
         markTouchInput()
+        _touchReset()
         pinchActive = true
         menuBlock.visible = false
         plot.plotMousePosition(-1, -1)

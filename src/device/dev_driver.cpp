@@ -963,6 +963,8 @@ void DevDriver::protoComplete(Parsers::FrameParser& proto)
 
     if(m_state.mark) {
         m_state.lastConnectTime = curr_time;
+        if (dataStale_)
+            updateDataStale(curr_time);
     }
 
     // if (rebootFlag_ && !proto.mark()) {
@@ -1006,6 +1008,7 @@ void DevDriver::startConnection(bool duplex) {
 
 void DevDriver::stopConnection() {
     m_state.connect = false;
+    updateDataStale(QDateTime::currentMSecsSinceEpoch());
     m_processTimer.stop();
     m_devName = "...";
     standProbeSent_ = false;
@@ -1013,6 +1016,7 @@ void DevDriver::stopConnection() {
     wifiNetAskedAt_ = 0;
     wifiPortsAskedAt_ = 0;
     wifiPortsAsks_ = 0;
+    wifiFastReport_ = false;
     wifiLastState_ = -1;
     if (standSupported_) {
         standSupported_ = false;
@@ -1031,8 +1035,24 @@ void DevDriver::restartState() {
     m_processTimer.stop();
     //qDebug() << "restart";
     m_state.resetState();
+    updateDataStale(QDateTime::currentMSecsSinceEpoch());
     idVersion->reset();
     m_processTimer.start(200);
+}
+
+void DevDriver::updateDataStale(int64_t now) {
+    // Not during an update (the bootloader answers only the update) and not before the device answered at all.
+    const bool stale = DeviceLiveness::stale(m_state.connect, m_state.mark, m_state.in_boot || m_state.in_update,
+                                             m_state.lastConnectTime, now);
+    if (stale == dataStale_)
+        return;
+    dataStale_ = stale;
+    qInfo().noquote() << QStringLiteral("[%1] device %2: %3").arg(m_devAddress).arg(m_devName,
+        stale ? QStringLiteral("nothing for %1 s, shown as without data").arg(double(now - m_state.lastConnectTime) / 1000.0, 0, 'f', 1)
+              : QStringLiteral("frames again"));
+    emit dataStaleChanged();
+    if (isWifi())
+        emit wifiReportChanged();   // its signal icon: no link without its reports
 }
 
 void DevDriver::requestDist() {
@@ -1296,9 +1316,12 @@ void DevDriver::receivedWifi(Parsers::Type type, Parsers::Version ver, Parsers::
             // 0.14 counts the requests it could not queue: 0 is normal, anything else means lost answers
             const QString lost = r.lostValid
                 ? QStringLiteral(", requests it could not queue: %1").arg(r.lostRequests) : QString();
-            if (restarted)
+            if (restarted) {
                 qInfo().noquote() << wifiTag() << QStringLiteral("wifi: the module restarted (uptime %1 s, was %2 s, %3 s expected%4)")
                                          .arg(r.uptimeS).arg(was).arg(expected).arg(why);
+                wifiFastReport_ = false;    // back at its saved period
+                wifiKeepFastReports();
+            }
             else if (first)
                 qInfo().noquote() << wifiTag() << QStringLiteral("wifi: module up %1 s%2%3").arg(r.uptimeS).arg(why).arg(lost);
             if (r.lostValid) {
@@ -1379,6 +1402,7 @@ void DevDriver::receivedWifiNet(Parsers::Type type, Parsers::Version ver, Parser
     case v7: {
         const WifiPorts& p = idWifiNet->ports();
         logWifiPort(p.lastPort(), p.lastPage());
+        wifiKeepFastReports();
         if (p.lastPage() == 1)
             emit wifiNetPortDevicesChanged();
         else if (p.lastPage() == 2)
@@ -1820,6 +1844,9 @@ bool DevDriver::wifiSetRadio(double powerDbm, int protocols, int bandwidthMhz, i
 bool DevDriver::wifiRadio40Allowed(int protocols) const { return WifiRadioRules::allows40(protocols); }
 
 int DevDriver::wifiSignalLevel() {
+    // A silent module's last report is no link (dataStale): the boat's module after the link went.
+    if (dataStale_)
+        return -1;
     // The report (once a second) is newer than the status (on a change); both carry the state and the RSSI.
     const IDBinWifi::Report& r = idWifi->report();
     const IDBinWifi::Status& st = idWifi->status();
@@ -1863,6 +1890,19 @@ int DevDriver::wifiOwnLine() const {
     if (idWifiNet->portSupport() == 1)
         return idWifiNet->ports().askedPort();
     return wifiLinkBaud() > 0 ? 0 : -1;
+}
+
+void DevDriver::wifiKeepFastReports() {
+    // Only the module this app's requests enter through a port (v7 says so): one reached through the relay would
+    // send its reports over the radio, it keeps its second. Before 0.12 the module cannot be told apart. The module
+    // keeps the period until it restarts; ID_FLASH v0 (a port rate change on 0.12-0.14) saves it with the rates.
+    const int port = idWifiNet->portSupport() == 1 ? idWifiNet->ports().askedPort() : -1;
+    if (wifiFastReport_ || !m_state.connect || port < 0)
+        return;
+    wifiFastReport_ = true;
+    idWifi->setReportPeriod(uint16_t(WifiSignal::kFastReportMs));
+    qInfo().noquote() << wifiTag() << QStringLiteral("wifi: link report every %1 ms asked (the module on this app's port X%2)")
+                             .arg(WifiSignal::kFastReportMs).arg(port + 1);
 }
 
 bool DevDriver::wifiSetLineBaud(int line, int baud) {
@@ -3014,6 +3054,8 @@ void DevDriver::receivedModemSolution(Parsers::Type type, Parsers::Version ver, 
 void DevDriver::process() {
     int64_t curr_time = QDateTime::currentMSecsSinceEpoch();
 
+    updateDataStale(curr_time);
+
     if(checkUpgradeTimeouts(curr_time)) {
         return;
     }
@@ -3029,6 +3071,12 @@ void DevDriver::process() {
                 if(!m_state.connect) {
                     //qDebug() << "connect = true";
                     m_state.connect = true;
+                }
+
+                // A quiet device (a stopped sonar) is asked for its mark, so only a silent one goes stale.
+                if(DeviceLiveness::probeDue(m_state.lastConnectTime, lastQuietProbe_, curr_time)) {
+                    lastQuietProbe_ = curr_time;
+                    idMark->simpleRequest(v0);
                 }
 
                 if(isRecorder() && (curr_time - lastRecorderStatusReq_) >= 3000) {
@@ -3122,6 +3170,7 @@ void DevDriver::process() {
             wifiNetAskedAt_ = 0;
             wifiPortsAskedAt_ = 0;
             wifiPortsAsks_ = 0;
+            wifiFastReport_ = false;
             if(idWifiNet->support() >= 0) {
                 idWifiNet->reset();
                 emit wifiNetChanged();

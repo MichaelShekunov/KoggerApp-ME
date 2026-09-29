@@ -18,9 +18,12 @@ add_executable(mission_check
     ${KOGGER_SRC}/vehicle/mav_vehicle.h
     ${KOGGER_SRC}/vehicle/mav_vehicle.cpp
     ${KOGGER_SRC}/device/wifi_ops.h
-    ${KOGGER_SRC}/device/wifi_ops.cpp)
+    ${KOGGER_SRC}/device/wifi_ops.cpp
+    ${KOGGER_SRC}/device/device_liveness.h
+    ${KOGGER_SRC}/touch_tap_gate.h)
 
 target_include_directories(mission_check PRIVATE
+    ${KOGGER_SRC}
     ${KOGGER_SRC}/vehicle
     ${KOGGER_SRC}/device
     ${CMAKE_CURRENT_SOURCE_DIR}/../../third_party)

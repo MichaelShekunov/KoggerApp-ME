@@ -7,6 +7,8 @@
 #include <QKeyEvent>
 #include <QQuickItem>
 #include <QSettings>
+#include <QStyleHints>
+#include <QTouchEvent>
 #include <QVariant>
 
 namespace {
@@ -37,6 +39,7 @@ ScreenKeyboard::ScreenKeyboard(InputDeviceTracker* tracker, QObject* parent)
     if (auto* app = qGuiApp) {
         connect(app, &QGuiApplication::focusObjectChanged, this, &ScreenKeyboard::onFocusObjectChanged);
         onFocusObjectChanged(app->focusObject());
+        app->installEventFilter(this);
     }
     if (m_tracker)
         connect(m_tracker, &InputDeviceTracker::currentModeChanged, this, &ScreenKeyboard::emitIfChanged);
@@ -137,6 +140,56 @@ void ScreenKeyboard::onFocusObjectChanged(QObject* object)
         return;
     m_focus = object;
     m_dismissed = false;
+    // A press focuses the field before anyone knows whether it starts a scroll: wait for the touch to end.
+    m_gate.focusChanged(isEditableTextInput(object), m_lastVisible);
+    refreshFocusInfo();
+    emit stateChanged();
+    m_lastVisible = computeVisible();
+}
+
+bool ScreenKeyboard::eventFilter(QObject* watched, QEvent* event)
+{
+    // The window's own touch events only: an item gets the same touch (or a mouse event made of it) after it.
+    if (!watched || !watched->isWindowType())
+        return QObject::eventFilter(watched, event);
+
+    const auto type = event->type();
+    if (type != QEvent::TouchBegin && type != QEvent::TouchUpdate && type != QEvent::TouchEnd && type != QEvent::TouchCancel)
+        return QObject::eventFilter(watched, event);
+    const auto* touch = static_cast<QTouchEvent*>(event);
+    switch (type) {
+    case QEvent::TouchBegin:
+        m_gate.touchBegan(touch->points().isEmpty() ? QPointF() : touch->points().first().position(),
+                          int(touch->points().size()));
+        break;
+    case QEvent::TouchUpdate:
+        // the drag distance is what a Flickable takes for a drag
+        m_gate.touchMoved(touch->points().isEmpty() ? m_gate.lastPoint() : touch->points().first().position(),
+                          int(touch->points().size()), QGuiApplication::styleHints()->startDragDistance());
+        break;
+    case QEvent::TouchEnd:
+    case QEvent::TouchCancel:
+        onTouchFinished(m_gate.touchEnded(touch->points().isEmpty() ? m_gate.lastPoint() : touch->points().first().position(),
+                                          event->type() == QEvent::TouchCancel));
+        break;
+    default:
+        break;
+    }
+    return QObject::eventFilter(watched, event);
+}
+
+void ScreenKeyboard::onTouchFinished(bool tap)
+{
+    if (!m_gate.heldBack() || !tap)
+        return;
+    // The tap that focused the field, or a later tap on the field itself (where it is now, after the scroll);
+    // a tap may end a few pixels off the field it pressed.
+    auto* item = qobject_cast<QQuickItem*>(m_focus.data());
+    if (!item)
+        return;
+    const QRectF field = item->mapRectToScene(QRectF(0.0, 0.0, item->width(), item->height()));
+    if (!m_gate.releaseOnTap(tap, field, QGuiApplication::styleHints()->startDragDistance()))
+        return;
     refreshFocusInfo();
     emit stateChanged();
     m_lastVisible = computeVisible();
@@ -167,7 +220,7 @@ void ScreenKeyboard::refreshFocusInfo()
 
 bool ScreenKeyboard::computeVisible() const
 {
-    if (!m_inputActive || m_dismissed || m_mode == Off)
+    if (!m_inputActive || m_dismissed || m_gate.heldBack() || m_mode == Off)
         return false;
     if (m_mode == On)
         return true;

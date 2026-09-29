@@ -11,6 +11,7 @@
 #include "proto_binnary.h"
 #include "id_binnary.h"
 #include "wifi_ops.h"
+#include "device_liveness.h"
 
 
 using namespace Parsers;
@@ -388,6 +389,11 @@ public:
     QUuid getLinkUuid() const;
     void setFirmware(const QByteArray& data);
 
+    /** Nothing from this device for DeviceLiveness::kStaleMs on a live connection: it is shown as without data.
+     *  The link's own state cannot say it, another device on the link (the head unit's Wi-Fi module) may keep it
+     *  busy. */
+    bool dataStale() const { return dataStale_; }
+
     // Link status mirror — pushed by DeviceManager.
     bool linkConnected()    const { return linkConnected_; }
     bool linkReceivesData() const { return linkReceivesData_; }
@@ -481,6 +487,7 @@ signals:
     void devSyncChanged();
     void devSyncErrorOccurred(QString reason);
     void linkStatusChanged();
+    void dataStaleChanged();
     void upgradeProgressChanged(int progress_status);
     void upgradeChanged();
     void deviceVersionChanged();
@@ -755,6 +762,9 @@ protected slots:
     /** The module port (line) this app is connected through: firmware 0.12 says so (v7 flag b2); before it a
      *  serial link is on line 0, as it always was. -1 when not known (the network). */
     int wifiOwnLine() const;
+    /** Asks the module on this app's own port (v7 flag b2, so 0.12+) for a link report every
+     *  WifiSignal::kFastReportMs, once per connection and module start. */
+    void wifiKeepFastReports();
 
     void receivedVersion    (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
     void receivedMark       (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
@@ -799,6 +809,7 @@ private:
     int64_t wifiNetAskedAt_ = 0;      // when ID_WIFI_NET was first asked; silence for 4 s = firmware before 0.10
     int64_t wifiPortsAskedAt_ = 0;    // the last ID_WIFI_NET v7 request while the ports are not known yet
     int wifiPortsAsks_ = 0;           // v7 requests after the first, while the ports are not known
+    bool wifiFastReport_ = false;     // the fast link report was asked for (once per connection and module start)
     QString wifiFwLogged_;            // the module firmware version last written to the log
     int wifiLastState_ = -1;
     WifiRestartWatch wifiRestart_;     // module uptime reports, to see a restart
@@ -820,4 +831,8 @@ private:
     bool linkNotAvailable_ = false;
     int64_t lastRecorderStatusReq_ = 0;
     bool streamListRequested_ = false;
+    // Liveness (dataStale, the rule in DeviceLiveness): a quiet device is asked for its mark (ID_MARK GET).
+    bool dataStale_ = false;
+    int64_t lastQuietProbe_ = 0;
+    void updateDataStale(int64_t now);
 };
