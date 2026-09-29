@@ -1865,6 +1865,145 @@ Column {
             return null
         }
         function percentText(permille) { return (permille / 10).toFixed(1) + " %" }
+
+        // ── Diagnostics (owner 2026-09-29: extend them) ──
+        // A tap on a channel's bar, in either chart, shows that channel's details between the charts; again: closed.
+        property int detailChannel: 0
+        function toggleDetail(c) { detailChannel = detailChannel === c ? 0 : c }
+        // The networks the last scan heard on channel c and up to 3 channels away (as far as the scan chart counts
+        // the 2.4 GHz overlap), the strongest first.
+        function networksNear(c) {
+            var out = []
+            for (var i = 0; i < networks.length; ++i)
+                if (networks[i].channel > 0 && Math.abs(networks[i].channel - c) <= 3)
+                    out.push(networks[i])
+            out.sort(function(a, b) { return b.rssi - a.rssi })
+            return out
+        }
+        function detailAirText(c) {
+            var s = surveyOf(c)
+            if (!s)
+                return ""
+            var sec = s.dwellMs > 0 ? s.dwellMs / 1000 : 0.3
+            var t = qsTr("Wi‑Fi airtime: others %1 (mean %2)").arg(percentText(s.others)).arg(percentText(s.mean))
+            if (s.ownAir > 0)
+                t += qsTr(", ours %1").arg(percentText(s.ownAir))
+            return t + " · " + qsTr("%1 frames/s").arg(Math.round(s.frames / sec))
+                   + " · " + qsTr("%1 transmitters").arg(s.transmitters)
+                   + " · " + (s.strongest > -128 ? qsTr("the strongest %1 dBm").arg(s.strongest) : qsTr("nothing heard"))
+        }
+        function detailNetsText(c) {
+            var near = networksNear(c)
+            if (!near.length)
+                return channels.length ? qsTr("No network heard on it or up to 3 channels away (last scan).") : ""
+            var on = 0
+            for (var i = 0; i < near.length; ++i)
+                if (near[i].channel === c)
+                    ++on
+            return qsTr("Networks heard (last scan): %1 on it, %2 up to 3 channels away").arg(on).arg(near.length - on)
+        }
+
+        // The other end of this link, when the app sees it too (the head unit's module and the boat's behind it share
+        // one topology group): a station hears its access point, an access point its weakest client.
+        readonly property var peer: {
+            if (!live || ssid.length === 0 || !(connected || (apRole && clients > 0)))
+                return null
+            var e = root._topologyEntryOfDev()
+            if (!e)
+                return null
+            var members = e.group.members || []
+            for (var i = 0; i < members.length; ++i) {
+                var d = members[i].device
+                if (!d || d === dev || !d.isWifi || !d.wifiStatusValid || d.wifiSsid !== ssid)
+                    continue
+                if (apRole ? d.wifiState === 3 : d.wifiState === 4)
+                    return d
+            }
+            return null
+        }
+        readonly property int peerRssi: peer ? peer.wifiRssi : 0
+
+        // The link's recent events (WifiLinkLog), oldest first; ages on the app's monotonic clock (the head unit's
+        // wall clock is not set), refreshed by the age ticker.
+        readonly property var linkEvents: root._isWifi ? dev.wifiLinkEvents : []
+        readonly property real nowMs: ageTick >= 0 && dev ? dev.wifiClockMs() : 0
+        function spanText(ms) {
+            var s = Math.max(0, Math.round(ms / 1000))
+            if (s < 60)
+                return qsTr("%1 s").arg(s)
+            if (s < 3600)
+                return qsTr("%1 min").arg(Math.floor(s / 60))
+            return qsTr("%1 h %2 min").arg(Math.floor(s / 3600)).arg(Math.floor(s % 3600 / 60))
+        }
+        // What the common ESP-IDF disconnect codes (wifi_err_reason_t) mean for this link.
+        function codeText(code) {
+            switch (code) {
+            case 200: return qsTr("the access point's beacons stopped: it went off or out of reach")
+            case 201: return qsTr("the network is not heard")
+            case 202: return qsTr("authentication failed")
+            case 203: return qsTr("association failed")
+            case 15:
+            case 204: return qsTr("the key handshake timed out: a wrong password?")
+            case 2:
+            case 3:
+            case 4:
+            case 8: return qsTr("the access point let this module go")
+            }
+            return ""
+        }
+        function whyText(e) {
+            var why = codeText(e.code)
+            if (!why.length)
+                why = reasonText(e.reason)
+            return why + (e.code > 0 ? " (" + qsTr("code %1").arg(e.code) + ")" : "")
+        }
+        function eventHead(e) {
+            var who = e.ssid.length ? "'" + e.ssid + "'" : ""
+            if (e.kind === 2)
+                return qsTr("The module restarted")
+            if (e.kind === 1)
+                return e.clients > e.prevClients ? qsTr("A client joined")
+                     : e.clients === 0 ? qsTr("The last client left") : qsTr("A client left")
+            switch (e.state) {
+            case 3: return qsTr("Connected to %1").arg(who)
+            case 4: return qsTr("Access point %1 up").arg(who)
+            case 2: return e.prevState === 3 ? qsTr("Link lost") : qsTr("Connecting to %1").arg(who)
+            case 1: return e.prevState === 3 ? qsTr("Link lost") : qsTr("Looking for the network")
+            case 0: return qsTr("Stopped")
+            }
+            return qsTr("State %1").arg(e.state)
+        }
+        function eventBad(e) {
+            return e.kind === 2 || (e.kind === 1 && e.clients === 0)
+                   || (e.kind === 0 && e.state < 3 && (e.prevState === 3 || e.state === 1))
+        }
+        function eventDetail(e) {
+            if (e.kind === 2)
+                return e.text
+            if (e.kind === 1)
+                return e.clients > 0 ? qsTr("%1 now, the weakest %2 dBm").arg(e.clients).arg(e.rssi) : ""
+            if (e.state === 3)
+                return qsTr("ch %1 · %2 dBm").arg(e.channel).arg(e.rssi)
+            if (e.state === 4)
+                return qsTr("ch %1 · clients: %2").arg(e.channel).arg(e.clients)
+            if (e.prevState === 3 || e.state === 1 || e.state === 0)
+                return (e.code > 0 || e.reason > 0) ? whyText(e) : ""
+            return ""
+        }
+        function eventWhen(e, prev) {
+            var parts = []
+            var d = eventDetail(e)
+            if (d.length)
+                parts.push(d)
+            parts.push(qsTr("%1 ago").arg(spanText(nowMs - e.atMs)))
+            if (e.kind === 0 && e.prevState < 0)
+                parts.push(qsTr("as the app found it"))
+            else if (prev && e.kind === 0 && e.prevState === 3 && prev.kind === 0 && prev.state === 3)
+                parts.push(qsTr("the link had held %1").arg(spanText(e.atMs - prev.atMs)))
+            else if (prev)
+                parts.push(qsTr("%1 after the previous").arg(spanText(e.atMs - prev.atMs)))
+            return parts.join(" · ")
+        }
         function airColor(permille) {
             var dark = AppPalette.isDark
             if (permille < 20) return dark ? "#22C55E" : "#15803D"
@@ -1908,7 +2047,8 @@ Column {
         }
         Timer {
             interval: 1000; repeat: true
-            running: !wifiIsland.folded && (wifiIsland.channelsShown || wifiIsland.surveyShown)
+            running: !wifiIsland.folded && (wifiIsland.channelsShown || wifiIsland.surveyShown
+                                            || wifiIsland.linkEvents.length > 0)
             triggeredOnStart: true
             onTriggered: wifiIsland.ageTick = Date.now()
         }
@@ -2142,6 +2282,18 @@ Column {
                                             + (wifiIsland.lostRequests >= 0 ? qsTr(" · requests lost: %1").arg(wifiIsland.lostRequests) : "") : ""
         }
 
+        // How the two ends hear each other (owner 2026-09-29: the head unit and the boat differed by about 18 dB)
+        DevInfoRow {
+            label: qsTr("Both ends")
+            value: wifiIsland.peer && wifiIsland.rssi < 0 && wifiIsland.peerRssi < 0
+                   ? qsTr("%1 dBm here · %2 dBm there · %3 dB apart").arg(wifiIsland.rssi).arg(wifiIsland.peerRssi)
+                         .arg(Math.abs(wifiIsland.rssi - wifiIsland.peerRssi))
+                   : ""
+            caption: wifiIsland.apRole
+                     ? qsTr("Here: how this access point hears its weakest client; there: how the client's module hears this access point. A big gap points to one end: its antenna, its transmit power or the module.")
+                     : qsTr("Here: how this module hears its access point; there: how the access point hears it (its weakest client). A big gap points to one end: its antenna, its transmit power or the module.")
+        }
+
         KIslandRow {
             open: wifiIsland.live && !wifiIsland.apRole
             label: qsTr("Auto-connect")
@@ -2316,7 +2468,7 @@ Column {
         DevStackedRow {
             open: wifiIsland.surveyShown
             label: qsTr("Wi‑Fi airtime")
-            caption: qsTr("Measured by the module: the share of the time the air carried Wi‑Fi frames on each channel, 0.3 s a channel (a lower bound: interference that is not Wi‑Fi is not seen). A bar is the other networks' share in the last measurement, with our own link's on top in a lighter tone (it moves with us; neighbours of our channel • hear it too); the figure and the tick, the mean of the last measurements, are the others' share, which the pick goes by. A measurement takes about 4 s and pauses the boat link.")
+            caption: qsTr("Measured by the module: the share of the time the air carried Wi‑Fi frames on each channel, 0.3 s a channel (a lower bound: interference that is not Wi‑Fi is not seen). A bar is the other networks' share in the last measurement, with our own link's on top in a lighter tone (it moves with us; neighbours of our channel • hear it too); the figure and the tick, the mean of the last measurements, are the others' share, which the pick goes by. A measurement takes about 4 s and pauses the boat link. Tap a channel for its details.")
             Column {
                 width: parent.width
                 spacing: Tokens.spaceSm
@@ -2344,6 +2496,7 @@ Column {
                             delegate: Item {
                                 width: airChart.colW
                                 height: airChart.height
+                                MouseArea { anchors.fill: parent; onClicked: wifiIsland.toggleDetail(modelData.channel) }
                                 // the other networks' part (the pick's), ours on top of it
                                 readonly property real frac: Math.max(0, Math.min(1, modelData.others / wifiIsland.surveyTop))
                                 readonly property real ownFrac: Math.max(0, Math.min(1 - frac, modelData.ownAir / wifiIsland.surveyTop))
@@ -2361,7 +2514,7 @@ Column {
                                     width: parent.width
                                     height: airChart.barH
                                     radius: Math.round(3 * AppPalette.scale)
-                                    color: AppPalette.rowRaised
+                                    color: modelData.channel === wifiIsland.detailChannel ? AppPalette.bgHover : AppPalette.rowRaised
                                     border.width: modelData.best ? 2 : 0
                                     border.color: AppPalette.accentBorder
                                     Rectangle {
@@ -2398,6 +2551,7 @@ Column {
                                     verticalAlignment: Text.AlignVCenter
                                     text: (modelData.own ? "•" : "") + modelData.channel
                                     font.bold: modelData.best || modelData.own
+                                    font.underline: modelData.channel === wifiIsland.detailChannel
                                     color: modelData.best ? AppPalette.accentText : (modelData.own ? AppPalette.textStrong : AppPalette.textMuted)
                                     font.pixelSize: Tokens.fontSm
                                 }
@@ -2435,12 +2589,50 @@ Column {
             labelColor: AppPalette.dangerText
         }
 
+        // A channel's details (a tap on its bar in either chart; a tap here closes them)
+        DevStackedRow {
+            open: wifiIsland.detailChannel > 0 && (wifiIsland.surveyShown || wifiIsland.channelsShown)
+            interactive: true
+            onClicked: wifiIsland.detailChannel = 0
+            label: {
+                var c = wifiIsland.detailChannel
+                var s = wifiIsland.surveyOf(c)
+                return qsTr("Channel %1").arg(c) + (c === wifiIsland.surveyBest ? " · " + qsTr("the pick") : "")
+                       + ((s && s.own) || c === wifiIsland.channelNow ? " · " + qsTr("ours now") : "")
+            }
+            caption: wifiIsland.detailChannel > 0 ? wifiIsland.detailAirText(wifiIsland.detailChannel) : ""
+            Column {
+                width: parent.width
+                spacing: Tokens.spaceXxs
+                Text {
+                    width: parent.width
+                    visible: text.length > 0
+                    text: wifiIsland.detailChannel > 0 ? wifiIsland.detailNetsText(wifiIsland.detailChannel) : ""
+                    color: AppPalette.textSecond
+                    font.pixelSize: Tokens.fontSm
+                    wrapMode: Text.Wrap
+                }
+                Repeater {
+                    model: wifiIsland.detailChannel > 0 ? wifiIsland.networksNear(wifiIsland.detailChannel).slice(0, 8) : []
+                    delegate: Text {
+                        width: parent.width
+                        text: "• " + (modelData.ssid.length ? modelData.ssid : qsTr("(hidden)")) + " · "
+                              + qsTr("ch %1").arg(modelData.channel) + " · " + modelData.rssi + " " + qsTr("dBm")
+                              + (modelData.current ? " · " + qsTr("our link") : "")
+                        color: modelData.channel === wifiIsland.detailChannel ? AppPalette.textStrong : AppPalette.textSecond
+                        font.pixelSize: Tokens.fontSm
+                        elide: Text.ElideRight
+                    }
+                }
+            }
+        }
+
         DevStackedRow {
             open: wifiIsland.channelsShown
             label: wifiIsland.surveyShown ? qsTr("Networks heard (scan)") : ""
             caption: wifiIsland.surveyShown
-                     ? qsTr("By the last scan: the power of the other networks on and next to each channel, with how 2.4 GHz channels overlap; our own network is left out.")
-                     : qsTr("By the networks heard: their power, counted with how 2.4 GHz channels overlap; our own network is left out. The traffic on a channel is not measured: that needs the module's firmware 0.16.")
+                     ? qsTr("By the last scan: the power of the other networks on and next to each channel, with how 2.4 GHz channels overlap; our own network is left out. Tap a channel for its details.")
+                     : qsTr("By the networks heard: their power, counted with how 2.4 GHz channels overlap; our own network is left out. The traffic on a channel is not measured: that needs the module's firmware 0.16. Tap a channel for its details.")
             Item {
                 id: chanChart
                 width: parent.width
@@ -2457,6 +2649,7 @@ Column {
                         delegate: Item {
                             width: chanChart.colW
                             height: chanChart.height
+                            MouseArea { anchors.fill: parent; onClicked: wifiIsland.toggleDetail(modelData.channel) }
                             // -100 dBm (nothing heard) at the bottom, -30 dBm at the top
                             readonly property real frac: Math.max(0, Math.min(1, (modelData.level + 100) / 70))
                             readonly property bool now: modelData.channel === wifiIsland.channelNow
@@ -2474,7 +2667,7 @@ Column {
                                 width: parent.width
                                 height: chanChart.barH
                                 radius: Math.round(3 * AppPalette.scale)
-                                color: AppPalette.rowRaised
+                                color: modelData.channel === wifiIsland.detailChannel ? AppPalette.bgHover : AppPalette.rowRaised
                                 border.width: modelData.best ? 2 : 0
                                 border.color: AppPalette.accentBorder
                                 Rectangle {
@@ -2492,6 +2685,7 @@ Column {
                                 verticalAlignment: Text.AlignVCenter
                                 text: (now ? "•" : "") + modelData.channel
                                 font.bold: modelData.best || now
+                                font.underline: modelData.channel === wifiIsland.detailChannel
                                 color: modelData.best ? AppPalette.accentText : (now ? AppPalette.textStrong : AppPalette.textMuted)
                                 font.pixelSize: Tokens.fontSm
                             }
@@ -2523,6 +2717,26 @@ Column {
                    : qsTr("To move the link there, set channel %1 on the boat's module: Role and access point → Channel, then Apply; this module follows by itself.").arg(pick)
             labelPixelSize: Tokens.fontSm
             labelColor: AppPalette.textMuted
+        }
+
+        // The link's recent events, newest first (WifiLinkLog: what the module's frames said since the app started)
+        KIslandSection {
+            open: wifiIsland.live && wifiIsland.linkEvents.length > 0
+            label: qsTr("Link events")
+        }
+        Repeater {
+            model: wifiIsland.live ? wifiIsland.linkEvents.length : 0
+            delegate: KIslandRow {
+                readonly property int idx: wifiIsland.linkEvents.length - 1 - index
+                readonly property var ev: idx >= 0 ? wifiIsland.linkEvents[idx] : null
+                readonly property var prevEv: idx > 0 ? wifiIsland.linkEvents[idx - 1] : null
+                minHeight: 0
+                verticalPadding: Tokens.spaceXs
+                label: ev ? wifiIsland.eventHead(ev) : ""
+                labelPixelSize: Tokens.fontMd
+                labelColor: ev && wifiIsland.eventBad(ev) ? AppPalette.dangerText : AppPalette.textStrong
+                caption: ev ? wifiIsland.eventWhen(ev, prevEv) : ""
+            }
         }
 
         // Saved networks
