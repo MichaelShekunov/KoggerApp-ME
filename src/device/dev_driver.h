@@ -176,6 +176,11 @@ public:
     QString wifiSurveyError() const { return wifiSurveyError_; }
     /** Starts a survey: the module leaves its channel for about 2 s (the boat link pauses meanwhile). */
     Q_INVOKABLE void wifiSurvey();
+    /** The link's recent events (WifiLinkLog), oldest first: kind (0 state, 1 clients, 2 restart), atMs (wifiClockMs),
+     *  state, prevState, reason, code, clients, prevClients, ssid, channel, rssi, text. */
+    QVariantList wifiLinkEvents();
+    /** The app's monotonic clock the link events are stamped with, ms. */
+    Q_INVOKABLE double wifiClockMs() const { return wifiClock_.isValid() ? double(wifiClock_.elapsed()) : 0.0; }
     QStringList wifiSavedNetworks();
 
     // Relay of the boat's SBP stream through the module (ID_WIFI v5 / v6, firmware 0.6+).
@@ -480,6 +485,7 @@ signals:
     void wifiReportChanged();
     void wifiNetworksChanged();
     void wifiSurveyChanged();
+    void wifiLinkEventsChanged();
     void wifiSavedChanged();
     void wifiRelayChanged();
     void wifiRelayStatsChanged();
@@ -841,6 +847,7 @@ private:
     QString wifiFwLogged_;            // the module firmware version last written to the log
     int wifiLastState_ = -1;
     WifiRestartWatch wifiRestart_;     // module uptime reports, to see a restart
+    WifiLinkLog wifiLinkLog_;          // the link's recent events, for the page
     WifiLossWatch wifiLoss_;           // requests the module could not queue (0.14), to log when they grow
     QElapsedTimer wifiClock_;          // the monotonic time those reports are compared with
     WifiPortChange* wifiPort_ = nullptr;

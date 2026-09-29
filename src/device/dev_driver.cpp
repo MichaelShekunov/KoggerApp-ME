@@ -1277,6 +1277,14 @@ void DevDriver::receivedWifi(Parsers::Type type, Parsers::Version ver, Parsers::
     case v0: {
         const auto& st = idWifi->status();
         const int state = st.state;
+        if (wifiLinkLog_.onStatus(state, st.reason, st.disconnectCode, st.clients, st.ssid, st.channel, st.rssi,
+                                  wifiClock_.elapsed())) {
+            const WifiLinkLog::Event& ev = wifiLinkLog_.events().last();
+            if (ev.kind == WifiLinkLog::KindClients)
+                qInfo().noquote() << wifiTag() << QStringLiteral("wifi: access point clients %1 (was %2), weakest %3 dBm")
+                                         .arg(ev.clients).arg(ev.prevClients).arg(ev.rssi);
+            emit wifiLinkEventsChanged();
+        }
         if (state != wifiLastState_) {
             // Every change of the station state goes to the log: link drops to the boat are read from it.
             static const char* const names[] = { "idle", "searching", "connecting", "connected", "access point" };
@@ -1320,6 +1328,8 @@ void DevDriver::receivedWifi(Parsers::Type type, Parsers::Version ver, Parsers::
             if (restarted) {
                 qInfo().noquote() << wifiTag() << QStringLiteral("wifi: the module restarted (uptime %1 s, was %2 s, %3 s expected%4)")
                                          .arg(r.uptimeS).arg(was).arg(expected).arg(why);
+                wifiLinkLog_.onRestart(r.resetReason >= 0 ? WifiRestartWatch::reasonText(r.resetReason) : QString(), now);
+                emit wifiLinkEventsChanged();
                 wifiFastReport_ = false;    // back at its saved period
                 wifiKeepFastReports();
             }
@@ -1618,6 +1628,7 @@ QVariantList DevDriver::wifiSurveyChannels() {
                 meanOthers = WifiSurvey::compared(a);
         m["mean"] = meanOthers;
         m["frames"] = c.frames;
+        m["dwellMs"] = c.dwellMs;
         m["transmitters"] = c.transmitters;
         m["strongest"] = c.strongest;
         m["noise"] = c.noiseDbm;
@@ -1633,6 +1644,27 @@ QVariantList DevDriver::wifiSurveyChannels() {
 int DevDriver::wifiSurveyBest() { return WifiSurvey::best(wifiSurveyWindow_.mean(wifiClock_.elapsed())); }
 
 int DevDriver::wifiSurveySamples() { return wifiSurveyWindow_.count(wifiClock_.elapsed()); }
+
+QVariantList DevDriver::wifiLinkEvents() {
+    QVariantList out;
+    for (const WifiLinkLog::Event& e : wifiLinkLog_.events()) {
+        QVariantMap m;
+        m["kind"] = e.kind;
+        m["atMs"] = double(e.atMs);
+        m["state"] = e.state;
+        m["prevState"] = e.prevState;
+        m["reason"] = e.reason;
+        m["code"] = e.code;
+        m["clients"] = e.clients;
+        m["prevClients"] = e.prevClients;
+        m["ssid"] = e.ssid;
+        m["channel"] = e.channel;
+        m["rssi"] = e.rssi;
+        m["text"] = e.text;
+        out.append(m);
+    }
+    return out;
+}
 
 void DevDriver::wifiSurvey() {
     if (!m_state.connect || wifiSurveySupport() != 1 || idWifiSurvey->running())

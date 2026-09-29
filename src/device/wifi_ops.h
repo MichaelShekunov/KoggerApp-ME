@@ -274,6 +274,80 @@ private:
 };
 
 /**
+ * @brief The Wi-Fi link's recent events, for the module's page.
+ *
+ * A station's state changes with why its link ended (the module's class and the ESP-IDF code), an access point's
+ * clients coming and going, the module's restarts. Only what the module's frames say: nothing is guessed between
+ * two of them. Newest last, at most kKeep, times on the app's monotonic clock (the head unit's wall clock is not
+ * set).
+ */
+class WifiLinkLog
+{
+public:
+    static constexpr int kKeep = 12;
+    enum Kind { KindState = 0, KindClients = 1, KindRestart = 2 };
+    struct Event {
+        int kind = KindState;
+        qint64 atMs = 0;
+        int state = -1, prevState = -1;       // 0 idle, 1 searching, 2 connecting, 3 connected, 4 access point; -1 none
+        int reason = 0, code = 0;             // why the last link ended: the module's class, the ESP-IDF code
+        int clients = -1, prevClients = -1;   // an access point's; -1 not one
+        QString ssid;
+        int channel = 0, rssi = 0;            // an access point's rssi: its weakest client
+        QString text;                         // a restart: why, when the module said
+    };
+
+    /** A status frame: an event when the state changed or, an access point staying one, when its clients did. */
+    bool onStatus(int state, int reason, int code, int clients, const QString& ssid, int channel, int rssi, qint64 nowMs)
+    {
+        const bool ap = state == 4;
+        const bool stateChanged = state != lastState_;
+        if (!stateChanged && !(ap && clients != lastClients_))
+            return false;
+        Event e;
+        e.kind = stateChanged ? KindState : KindClients;
+        e.atMs = nowMs;
+        e.state = state;
+        e.prevState = lastState_;
+        e.reason = reason;
+        e.code = code;
+        e.clients = ap ? clients : -1;
+        e.prevClients = lastState_ == 4 ? lastClients_ : -1;
+        e.ssid = ssid;
+        e.channel = channel;
+        e.rssi = rssi;
+        push(e);
+        lastState_ = state;
+        lastClients_ = ap ? clients : -1;
+        return true;
+    }
+
+    /** The module restarted (WifiRestartWatch); why, when it said. */
+    void onRestart(const QString& why, qint64 nowMs)
+    {
+        Event e;
+        e.kind = KindRestart;
+        e.atMs = nowMs;
+        e.text = why;
+        push(e);
+    }
+
+    const QVector<Event>& events() const { return events_; }
+
+private:
+    void push(const Event& e)
+    {
+        events_.append(e);
+        while (events_.size() > kKeep)
+            events_.removeFirst();
+    }
+
+    QVector<Event> events_;
+    int lastState_ = -1;
+    int lastClients_ = -1;
+};
+
+/**
  * @brief Tells a restart of the Wi-Fi module from its uptime reports.
  *
  * While the module runs its uptime grows with the time between two reports. A report behind the previous

@@ -821,6 +821,51 @@ void surveyRules()
           old.count(50000) == 2 && old.count(70000) == 1 && old.mean(70000).value(6).busyPermille == 0);
 }
 
+// WifiLinkLog: the link's recent events for the Wi-Fi island.
+void linkLogRules()
+{
+    using L = WifiLinkLog;
+    const QString boat = QStringLiteral("KoggerBoat");
+    // The head unit's module 2026-09-29 (kogger.log): up, the boat's beacons gone (200), the network not heard (201),
+    // back. A repeated status is no event.
+    L st;
+    const bool added = st.onStatus(3, 0, 0, 0, boat, 10, -50, 1000);
+    const bool repeat = st.onStatus(3, 0, 0, 0, boat, 10, -51, 2000);
+    st.onStatus(2, 4, 200, 0, boat, 0, 0, 961000);
+    st.onStatus(1, 1, 201, 0, QString(), 0, 0, 968000);
+    st.onStatus(3, 0, 0, 0, boat, 10, -52, 3000000);
+    const auto& e = st.events();
+    check("link log: a state change is an event, a repeated status is not", added && !repeat && e.size() == 4);
+    check("link log: the first event has no state before it", e.size() == 4 && e[0].prevState == -1 && e[0].state == 3);
+    check("link log: the link lost keeps why (the module's class and the ESP-IDF code) and what it left",
+          e.size() == 4 && e[1].state == 2 && e[1].prevState == 3 && e[1].reason == 4 && e[1].code == 200
+              && e[1].atMs == 961000 && e[2].state == 1 && e[2].code == 201 && e[3].prevState == 1 && e[3].rssi == -52);
+
+    // The boat's module as an access point: its clients come and go; a station's clients are no event.
+    L ap;
+    ap.onStatus(4, 0, 0, 1, boat, 10, -70, 0);
+    ap.onStatus(4, 0, 0, 0, boat, 10, 0, 5000);
+    ap.onStatus(4, 0, 0, 1, boat, 10, -68, 9000);
+    ap.onStatus(4, 0, 0, 1, boat, 10, -69, 9500);
+    const auto& a = ap.events();
+    check("link log: an access point's clients coming and going",
+          a.size() == 3 && a[0].kind == L::KindState && a[0].clients == 1 && a[1].kind == L::KindClients
+              && a[1].clients == 0 && a[1].prevClients == 1 && a[2].clients == 1 && a[2].prevClients == 0);
+    L sta;
+    sta.onStatus(3, 0, 0, 0, boat, 10, -50, 0);
+    check("link log: a station's client field is no event", !sta.onStatus(3, 0, 0, 2, boat, 10, -50, 1000));
+
+    // At most kKeep, the newest kept; a restart is an event of its own.
+    L many;
+    for (int i = 0; i < L::kKeep + 8; ++i)
+        many.onStatus(i % 2 ? 2 : 3, 0, 0, 0, boat, 10, -50, i * 1000);
+    many.onRestart(QStringLiteral("task watchdog"), 999000);
+    const auto& m = many.events();
+    check("link log: at most kKeep kept, the newest last",
+          m.size() == L::kKeep && m.last().kind == L::KindRestart && m.last().text == QStringLiteral("task watchdog")
+              && m[m.size() - 2].atMs == (L::kKeep + 7) * 1000);
+}
+
 int main(int argc, char* argv[])
 {
     QCoreApplication app(argc, argv);
@@ -842,6 +887,7 @@ int main(int argc, char* argv[])
     fieldTestRules();
     channelRules();
     surveyRules();
+    linkLogRules();
     if (cli.isSet(QStringLiteral("offline"))) {
         std::printf("\n%d checks, %d failed (offline)\nMISSION_CHECK_%s\n", g_checks, g_failed, g_failed ? "FAILED" : "DONE");
         return g_failed ? 1 : 0;
