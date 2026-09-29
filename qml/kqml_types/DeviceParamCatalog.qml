@@ -68,8 +68,10 @@ QtObject {
         { key: "dataset.timestamp", group: "dataset", support: "isDatasetSupport",
           label: qsTr("Timestamp"), kind: "switch", prop: "datasetTimestamp", mask: 1 },
 
+        // Not for the Wi-Fi module: its ports have their own sections (Port speed / Ports), which change a rate
+        // with the link following, the answer read back and the rate saved.
         { key: "action.baudrate", group: "actions", labelInFavoritesOnly: true,
-          label: qsTr("Baudrate"), kind: "baudrate", stacked: true },
+          label: qsTr("Baudrate"), kind: "baudrate", stacked: true, hideWhen: "isWifi" },
         { key: "action.settingsFile", group: "actions", labelInFavoritesOnly: true,
           label: qsTr("Settings file"), kind: "settingsFile", stacked: true }
     ]
@@ -86,6 +88,7 @@ QtObject {
     function supported(dev, key) {
         var m = meta(key)
         if (!dev || !m) return false
+        if (m.hideWhen && dev[m.hideWhen]) return false
         if (!m.support) return true
         return !!dev[m.support]
     }

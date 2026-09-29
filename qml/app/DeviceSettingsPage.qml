@@ -4668,63 +4668,6 @@ Column {
         }
     }
 
-    DeviceSettingsGroup {
-        id: devActionsGroup
-        width: advGroups.width; preferredWidth: advGroups.width
-        title: qsTr("Actions"); titlePixelSize: 13
-        stateKey: "dev.actions"; collapsedByDefault: root._hasCut
-        confirmed: !(dev && dev.uartState === false)
-
-        readonly property var baudrateOptions: [9600, 19200, 38400, 57600, 115200,
-                                                230400, 460800, 921600, 1000000, 1200000, 1500000, 2000000, 3000000, 4000000]
-
-        Row {
-            width: parent.width; spacing: Tokens.spaceSm
-            readonly property real bw: (width - 2 * Tokens.spaceSm) / 3
-            DevButton {
-                width: parent.bw; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
-                text: qsTr("Flash settings")
-                toolTipText: qsTr("Write current settings to device memory")
-                onClicked: { if (dev) { dev.flashSettings(); notifications.info(qsTr("Settings written to device: %1").arg(dev.devName)) } }
-            }
-            DevButton {
-                width: parent.bw; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
-                text: qsTr("Erase settings"); danger: true
-                toolTipText: qsTr("Erase device settings (reset)")
-                onClicked: { if (dev) { dev.resetSettings(); notifications.info(qsTr("Settings erased on device: %1").arg(dev.devName)) } }
-            }
-            DevButton {
-                width: parent.bw; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
-                text: qsTr("Reboot")
-                toolTipText: qsTr("Reboot the device")
-                onClicked: { if (dev) { dev.reboot(); notifications.info(qsTr("Reboot command sent: %1").arg(dev.devName)) } }
-            }
-        }
-        Row {
-            width: parent.width; spacing: Tokens.spaceSm
-            readonly property real setW: Math.round(120 * AppPalette.scale)
-            KCombo {
-                id: baudrateCombo
-                width: parent.width - parent.setW - Tokens.spaceSm
-                height: Tokens.controlHMd
-                model: devActionsGroup.baudrateOptions
-                currentIndex: devActionsGroup.baudrateOptions.indexOf(115200)
-            }
-            DevButton {
-                width: parent.setW; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
-                text: qsTr("Set baudrate")
-                toolTipText: qsTr("Apply the selected baud rate")
-                onClicked: {
-                    if (dev) {
-                        // the device and this app's link together, as applyBaudrate() does
-                        root.baudrateIndex = root.baudrateOptions.indexOf(devActionsGroup.baudrateOptions[baudrateCombo.currentIndex])
-                        root.applyBaudrate()
-                    }
-                }
-            }
-        }
-    }
-
     DevIsland {
         id: devSettingsGroup
 
