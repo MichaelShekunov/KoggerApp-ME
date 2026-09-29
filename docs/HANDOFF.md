@@ -796,7 +796,14 @@ BOAT_MISSION.md; mission_check on ArduRover 4.4.0 SITL 142/142 (the new phase fa
 scan the Wi-Fi island rates channels 1..13 (`WifiChannels`, the 2.4 GHz overlap, our own network left out) and names
 the least busy one for the access point; measuring the traffic on a channel needs the module's firmware (a survey,
 its own ID 0x59 ID_WIFI_SURVEY); done: firmware 0.16 by the module session, the app side 4bcfd365 (Wi-Fi
-airtime bars, Measure, Live repeats the survey), WIFI_MODULE.md §2h. WIFI_MODULE.md §2h. mission_check offline 104/104, four mutants caught.
+airtime bars, Measure, Live repeats the survey), WIFI_MODULE.md §2h. mission_check offline 104/104, four mutants caught.
+
+**Sections fold (10079dfc).** Owner: the Wi-Fi page grew long, make its sections fold, folded by default, the last
+state remembered. Every Wi-Fi island folds to its title (a tap on it; the triangle of the app's other fold headers);
+the open ones are kept by key in QSettings (`deviceSettingsPage/openSections`), each on its own, across restarts.
+Folded, Ports / Lines stop polling and Live turns off; the Boat link chip stays live. WIFI_MODULE.md §2i. Verified by
+machine: `tools/qml_check/fold_check.ps1` (qmltestrunner, three starts, six mutants caught), qmllint adds nothing,
+the Windows build, mission_check offline 116/116. Not verified: by touch on the head unit.
 7. **RSSI digits on the Wi-Fi badge** (`WifiSignalIcon.showRssi`): the RSSI in dBm under smaller arcs on the toolbar
    badge, its pop-out and the topology chip, while there is a link. The module on this app's own port (ID_WIFI_NET v7
    flag b2) is asked for a link report every 200 ms (`WifiSignal::kFastReportMs`, ID_WIFI v1 SETTING, 100..60000 by

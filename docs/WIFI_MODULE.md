@@ -379,6 +379,28 @@ share with ours on top in a lighter tone. From 0.17 the module also takes a firm
 app's Upgrade reaches the boat's module through the relay once that module has 0.17 (it has 0.15, one wired update
 first); only the Wi-Fi password protects it then (the module project's SECURITY.md, UPDATE.md).
 
+## 2i. The page's sections fold (2026-09-29)
+
+Owner: the Wi-Fi page grew long; its sections fold, folded by default, the last state remembered. Each Wi-Fi island
+of the device page (Wi-Fi, Boat link, Radio, Port speed, Ports, Role and access point, Access point address and DHCP,
+Lines) folds to its title row; a tap on the title opens or closes it, with the triangle left of it as on "Advanced
+settings". The open ones are kept in the app's settings (`deviceSettingsPage/openSections`, keys `wifi.net`,
+`wifi.relay`, `wifi.radio`, `wifi.port`, `wifi.ports`, `wifi.role`, `wifi.ip`, `wifi.lines`), each on its own
+(several may be open, not an accordion), the same for every module, across restarts.
+
+Folded:
+- the chips in the Wi-Fi and Boat link titles stay live (the Boat link stats keep being polled for its chip);
+- Ports and Lines stop their 2 s polling, opening polls at once;
+- Live turns off (it is for looking at the air);
+- an edit left in a folded section still counts for "Apply and save (N)".
+
+"Advanced settings" below keeps its own fold (per device, not across restarts).
+
+Mechanism: `KIsland.folded` (the first visible row only, the rest clipped, so they take no clicks; the footer
+hides), `DevIsland.foldKey`, `DevIslandTitle.foldIsland`. Check: `tools/qml_check/fold_check.ps1`, three
+qmltestrunner starts over one settings file with the real components (folded by default, a folded row takes no
+click, the title opens, each section on its own, remembered across starts); six mutants of the mechanism caught.
+
 ## 2c. Port speed of the module (line 0)
 
 The module's line 0 runs at any speed from 9600 to 4 000 000 (`ID_UART` v0 `{KEY, 1, U4 baud}`, answered at the
