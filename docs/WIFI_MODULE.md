@@ -259,7 +259,11 @@ The module project's ports contract for 0.12. What changes for the app and how i
   orange; 2 from -70 dBm two arcs, yellow-green; 3 from -60 dBm three arcs, green; unlit arcs dim. The colours are
   chosen in the component only (a darker set for the light theme). Every module has its own chip and its own badge
   (the topology lists each Wi-Fi module on a link as a bridge, the head unit's station and the boat's access point
-  alike), so each shows its own module; the badge's tooltip adds the RSSI.
+  alike), so each shows its own module; the badge's tooltip adds the RSSI. Since 2026-09-29 (c0b96b10, owner: "the
+  current signal level in digits, updated often") the RSSI in dBm stands under smaller arcs (`showRssi`); the module
+  on this app's own port (v7 flag b2) is asked for a v1 report every 200 ms (`WifiSignal::kFastReportMs`, SETTING v1)
+  once per connection and module start, a module reached through the relay keeps its second; a module that has sent
+  nothing for 3 s shows no link (`DevDriver::dataStale`). `ID_FLASH` v0 saves the period with the port rates.
 - **Log**: `wifi-net: port X1: flags 0x0f rate 3000000 saved 3000000 connected 4`, `wifi-net: port X2 devices: …`,
   `wifi-net: port X1 line: mode … state … peers …` when they change (not the counters); `wifi-port:` lines for both
   rate sequences.

@@ -227,7 +227,8 @@ generic: it works on any touch device and is invisible on a desktop unless switc
   event filters (`InputDeviceTracker`, hotkeys) never see synthetic keys. Visibility:
   `mode == On`, or `mode == Auto` and the last physical input was a touch
   (`InputDeviceTracker::touchMode`); `hide()` dismisses until focus moves. The mode lives in
-  QSettings `main/ui/screenKeyboardMode` (0 auto, 1 on, 2 off).
+  QSettings `main/ui/screenKeyboardMode` (0 auto, 1 on, 2 off). Since 2026-09-29 focus that arrives during a
+  touch waits for that touch to end as a tap (`TouchTapGate`; see "Field test notes (2026-09-29)").
 - `qml/kqml_types/KScreenKeyboard.qml` — the panel: Latin, Cyrillic (RU/EN key), symbols
   (`?123`), numeric pad for number fields; shift with caps lock on a double tap, repeating
   backspace, Done (sends Return and hides), chevron to hide. It opens under the focused field
@@ -738,3 +739,52 @@ repeats every 5 s, logs the end; a `health:` summary every 60 s. Checked on the 
 test stall (a `stall_test` file in the log directory): the lines and both backtraces were written (Verified). Wi-Fi
 log lines carry the module's address; the X1/X2 card's syncNet TypeError is fixed. The head unit side (persistent
 journal, a health log every 5 s, a collector for after a hang) is in HeadUnit docs/DIAGNOSTICS.md.
+
+## Field test notes (2026-09-29, c0b96b10)
+
+Owner's seven notes after the head unit's field test, all in one commit (`headunit` e32d91ea):
+
+1. **Echogram scroll by touch** (`Plot2D.qml`, touch only, `inputState.touchMode`, no bottom-track tool): one finger
+   dragged more than 15 px scrolls like the wheel, along time or depth by the first movement (the signs of the
+   two-finger pan; a vertical echogram swaps the axes); holding still 350 ms shows the aim cursor, which then follows
+   the finger as under a mouse press; a tap still selects the ping (press and release at its end). The mouse is
+   unchanged; a second finger cancels (the pinch takes over).
+2. **Boat panel**: opening or closing it leaves "Add points" off (`Pane3DWindow.qml`); before, opening turned it on.
+3. **Devices without data** (`DevDriver::dataStale`, the rule in `src/device/device_liveness.h`): nothing from a device
+   for 3 s on a live connection makes it stale; its toolbar badge and topology chip go dim with the no-data colour
+   ("no data" in the tooltip and the chip), a Wi-Fi module's signal goes dark. The link's own state cannot tell: the
+   head unit's module keeps the link busy while the boat is gone. A quiet device (a stopped sonar) is asked for its mark
+   (`ID_MARK` GET v0) after 1 s and then once a second, so only silence to that counts. Log: `[addr] device <name>:
+   nothing for 3.0 s, shown as without data` / `frames again`. *Assumption:* every device answers `ID_MARK` GET (the
+   app parses its CONTENT; the Wi-Fi module's contract has it); a device that does not and also sends nothing on its
+   own would show stale while there.
+4. **Toasts** (`NotificationsOverlay.qml`): every one leaves after 4 s, warnings too (they stay in the console); a tap
+   dismisses sooner. The "Hide important notifications" switch had nothing left to switch and is gone (the upstream
+   setting `main/ui/hideImportantNotifications` is no longer read).
+5. **Scrolling the settings is no tap for the keyboard** (`TouchTapGate`, `src/touch_tap_gate.h`, used by
+   `ScreenKeyboard`): Qt focuses a text input on press, so a finger that started a scroll on a field focused it and
+   the keyboard came up. Focus that arrives while a touch is down, with the keyboard not up already, holds the keyboard
+   back: a tap brings it up at its end; after a drag (beyond `startDragDistance`), a second finger or a cancel it stays
+   down until the field itself is tapped. The settings sidebar also stops scrolling to the focused field once the
+   finger drags the page. Other controls act on release already (buttons, switches, spin buttons; a Flickable's drag
+   cancels them).
+6. **Save and close always in sight** (`SettingsSidebarBase.footer`, `MainWindow.deviceSettingsFooterComponent`): the
+   Devices page has a bar pinned under it: "Save to device" (what the page's "Flash settings" does, for the device
+   shown) and "Close". The ✕ in the sidebar header was pinned already.
+7. **RSSI digits on the Wi-Fi badge** (`WifiSignalIcon.showRssi`): the RSSI in dBm under smaller arcs on the toolbar
+   badge, its pop-out and the topology chip, while there is a link. The module on this app's own port (ID_WIFI_NET v7
+   flag b2) is asked for a link report every 200 ms (`WifiSignal::kFastReportMs`, ID_WIFI v1 SETTING, 100..60000 by
+   its contract) once per connection and module start (log `wifi: link report every 200 ms asked`); a module reached
+   through the relay keeps its second (its reports cross the radio). The module keeps the period until it restarts;
+   `ID_FLASH` v0 ("Save to device", a port rate change on 0.12-0.14) saves it with the rates.
+
+Verified by machine: Windows build clean (no compiler warnings in the changed files); qmllint adds nothing but the
+kinds every file already has (AppPalette not seen as a singleton, context properties); `mission_check --offline`
+97/97 (+10: liveness, keyboard gate, report period) and six mutants of the two rules caught; the app starts on this
+PC with no QML errors in kogger.log (start-up screens only: the Devices page and its bar were not opened, no device
+here); `headunit` e32d91ea builds on the board (dev_driver.cpp and screen_keyboard.cpp rebuilt, no warnings).
+Not verified: anything by touch on the head unit, the report period on the module, a stale device on a real link
+loss. The kiosk still runs d9845cb4 until the owner says to switch. This PC: package c0b96b10 made from
+`D:\Temp\kogger_merge_test` (the myedition checkout has an untracked `out_x64.zip`, which would mark the build dirty);
+`update_kogger.ps1` takes `-Dist` for that; the elevated update was not confirmed at the UAC prompt, so both installs
+still run b8c1a401.
