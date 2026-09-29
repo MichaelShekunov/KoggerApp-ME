@@ -401,6 +401,14 @@ hides), `DevIsland.foldKey`, `DevIslandTitle.foldIsland`. Check: `tools/qml_chec
 qmltestrunner starts over one settings file with the real components (folded by default, a folded row takes no
 click, the title opens, each section on its own, remembered across starts); six mutants of the mechanism caught.
 
+## 2j. One Actions, no baud rate for the module (2026-09-29)
+
+Owner: why two "Actions" in Advanced settings, and what is "Set baudrate" doing there. The second one was upstream's
+old Actions group left by the merge (HANDOFF.md); it is gone. The remaining Actions has no baud row on the module's
+page (`DeviceParamCatalog`, `hideWhen: "isWifi"`): the ports' own sections (§2c, §2e) change a rate with the link
+following, the answer read back and the rate saved, while that row sets the device and retunes the link its page's
+device belongs to - for the boat's module behind the relay, the head unit's own port.
+
 ## 2c. Port speed of the module (line 0)
 
 The module's line 0 runs at any speed from 9600 to 4 000 000 (`ID_UART` v0 `{KEY, 1, U4 baud}`, answered at the
@@ -411,7 +419,7 @@ own link (`LinkManagerWrapper::updateBaudrate`, which also rewrites the pinned r
 until the module answers at the new speed (each check forgets frames from before it), and only then saves in
 the module; no answer within about 6 s puts the link back. The island shows "Changing to …" meanwhile.
 Steps are `wifi-port:` lines in the log. The head unit runs at 2 000 000 since 2026-09-26 (the boat stream is
-~92 KB/s, a full 921600 port). The Actions island's "Set baudrate" now moves the app's link with the device too.
+~92 KB/s, a full 921600 port). The module's page has no "Set baudrate" in Actions any more (§2j).
 
 ## 3. Where it lives in the app
 
@@ -444,7 +452,8 @@ Steps are `wifi-port:` lines in the log. The head unit runs at 2 000 000 since 2
    network appears under "Saved networks".
 4. Wrong password → a clear notice, nothing hangs.
 5. Power cycle → the module rejoins on its own (about 8 s); the app shows it without any action.
-6. "Set baudrate" 2 000 000 → the link survives; a power cycle returns it to 921600 unless saved.
+6. Port speed (with 0.12+ the X1 card) 2 000 000 → the link follows, the module answers at the new rate, and the rate
+   is saved (the owner went 2M → 3M → 4M → 2M on the head unit, 2026-09-26).
 7. "Upgrade" with a `.ufww` of a higher minor version → new version after the reboot (not yet
    verified from the app).
 8. Boat link: mode UDP, address 87, the boat's port → the module reappears as a device at address

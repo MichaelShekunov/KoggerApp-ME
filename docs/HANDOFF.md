@@ -377,7 +377,7 @@ after N s" (it never logged restores before). That showed the module on the head
 
 "Port speed" island on the Wi-Fi module's page (WIFI_MODULE.md §2c): set, follow with the link, verify an
 answer at the new speed, save with ID_FLASH, or roll the link back. The Actions island's "Set baudrate" moves
-the link as well (it used to change only the device). On the head unit the owner went 2M → 3M → 4M → 2M: each
+the link as well (it used to change only the device); that was the old Actions group, removed 2026-09-29. On the head unit the owner went 2M → 3M → 4M → 2M: each
 step answered at the new speed within 1.4 s and was saved (log, 2026-09-26 03:19-03:21).
 
 ## Wi-Fi Radio island: menu = what is in effect (2026-09-26)
@@ -806,6 +806,18 @@ machine: `tools/qml_check/fold_check.ps1` (qmltestrunner, three starts, six muta
 the Windows build, mission_check offline 116/116. Not verified: by touch on the head unit. On the kiosk as `headunit`
 a9bb48f8 from 2026-09-29 by the owner's word (with 68848e06 and 878f0af7; no QML errors, module 0.17 in kogger.log);
 this PC runs feb09790.
+
+**One Actions, no baud rate on the Wi-Fi module (f6a40f61).** Owner: why two "Actions" in Advanced settings, and what is
+"Set baudrate" doing there. The DeviceSettingsGroup "Actions" was upstream's old one: upstream replaced it with the
+DevIsland "Actions" in 94993b06 (2026-09-01) and v1.0.3 has only that; the merge f95f9845 kept both (and a1e1b433
+then taught the old one to move the link). Removed: the remaining one has the same buttons, and its baud row calls
+the same `applyBaudrate()`. The catalog hides `action.baudrate` for the Wi-Fi module (`hideWhen: "isWifi"`): its
+ports have their own sections. Verified by machine: the real catalog under qmltestrunner (fails on the old one),
+fold_check, qmllint, the Windows build. Found on the way, not changed (the owner decides): `applyBaudrate()`
+retunes the link of the device's topology group, and for a pinned link rewrites its record
+(`LinkManager::updateBaudrate` → `exportPinnedLinksToXML`); for a device behind the relay or a logger (the boat's
+sonar or logger on the head unit) that is the head unit's own ttyS6, while the rate change goes to the far device.
+*Inference* from the code, not reproduced.
 7. **RSSI digits on the Wi-Fi badge** (`WifiSignalIcon.showRssi`): the RSSI in dBm under smaller arcs on the toolbar
    badge, its pop-out and the topology chip, while there is a link. The module on this app's own port (ID_WIFI_NET v7
    flag b2) is asked for a link report every 200 ms (`WifiSignal::kFastReportMs`, ID_WIFI v1 SETTING, 100..60000 by
