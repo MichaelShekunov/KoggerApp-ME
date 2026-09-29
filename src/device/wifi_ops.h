@@ -317,6 +317,10 @@ struct WifiSignal
             return 1;
         return 0;
     }
+
+    /** Link report period asked of the module on this app's own port, so the badge's number follows the antenna
+     *  (field test 2026-09-29); the module takes 100..60000 ms (ID_WIFI v1 SETTING). */
+    static constexpr int kFastReportMs = 200;
 };
 
 /**

@@ -127,6 +127,8 @@ qt_add_executable(KoggerApp
     src/ui_keepalive.h             src/ui_keepalive.cpp
     src/ui_probe.h                 src/ui_probe.cpp
     src/stall_monitor.h            src/stall_monitor.cpp
+    src/touch_tap_gate.h
+    src/device/device_liveness.h
 )
 
 target_compile_features(KoggerApp PRIVATE cxx_std_23)

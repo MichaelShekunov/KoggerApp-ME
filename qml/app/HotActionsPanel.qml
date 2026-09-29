@@ -1467,10 +1467,13 @@ Item {
                                                        && !_dev.isRecorder
                                                        && !_dev.isUSBL
                                                        && !_dev.isUSBLBeacon)
+                readonly property bool _stale: !!(_dev && _dev.dataStale)
                 readonly property string _tip: {
                     if (!_dev) return ""
                     var t = _dev.devName
-                    if (_wifi && _dev.wifiSignalLevel >= 0)
+                    if (_stale)
+                        t += " · " + qsTr("no data")
+                    else if (_wifi && _dev.wifiSignalLevel >= 0)
                         t += " · " + _dev.wifiRssi + " " + qsTr("dBm")
                     var p = devCell.modelData ? devCell.modelData.port : -1
                     if (p >= 0) {
@@ -1486,6 +1489,8 @@ Item {
                 visible: !!(_dev && _dev.isBoardInited)
                 width: visible ? root.controlHeight : 0
                 height: root.controlHeight
+                // silent on a live link: still listed, but not as if it were there
+                opacity: _stale ? 0.5 : 1.0
 
                 onVisibleChanged: if (!visible && devPill.opened) devPill.close()
                 Connections {
@@ -1518,6 +1523,8 @@ Item {
                         size: devBadgeButton.iconPixelSize
                         visible: devBadge._wifi
                         level: devBadge._wifi ? devBadge._dev.wifiSignalLevel : -1
+                        showRssi: true
+                        rssi: devBadge._wifi ? devBadge._dev.wifiRssi : 0
                     }
 
                     Text {
@@ -1572,6 +1579,8 @@ Item {
                                 size: devPillButton.iconPixelSize
                                 visible: devBadge._wifi
                                 level: devBadge._wifi ? devBadge._dev.wifiSignalLevel : -1
+                                showRssi: true
+                                rssi: devBadge._wifi ? devBadge._dev.wifiRssi : 0
                             }
 
                             Text {

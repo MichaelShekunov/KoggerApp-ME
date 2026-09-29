@@ -37,6 +37,9 @@ function linkState(dev) {
 }
 
 function pillState(dev, master, port) {
+    // Silent on a live link (DevDriver dataStale): the link may still carry other devices' frames.
+    if (dev && dev.linkConnected && dev.dataStale)
+        return "warn"
     if (dev && dev.isRecorder && dev.recorderStatusValid) {
         var s = severity(dev)
         return s === "good" ? "ok" : s === "warn" ? "warn" : s === "crit" ? "down" : ""

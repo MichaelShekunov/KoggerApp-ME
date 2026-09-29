@@ -101,13 +101,17 @@ Item {
 
         readonly property bool _selected: device === view.activeDevice
         readonly property string _state: RecorderStatus.pillState(device, master, port)
-        readonly property string _sub: showLink ? linkLabel
+        readonly property bool _stale: !!(device && device.dataStale)
+        readonly property string _sub: _stale ? qsTr("No data")
+                                     : showLink ? linkLabel
                                                 : (port >= 0 ? qsTr("Port %1").arg(port) : "")
         readonly property bool _linkTrunc: showLink && subText.overflow
         readonly property string _icon: view._deviceIcon(device)
         readonly property bool _wifi: !!(device && device.isWifi)
 
         radius: Tokens.radiusLg
+        // silent on a live link: still listed, but not as if it were there
+        opacity: _stale ? 0.55 : 1.0
         readonly property color _baseColor: _state === "ok"   ? AppPalette.linkOkBg
                                           : _state === "warn" ? AppPalette.linkIdleBg
                                           : _state === "down" ? AppPalette.linkDownBg
@@ -164,6 +168,8 @@ Item {
                     size: parent.width
                     visible: pill._wifi
                     level: pill._wifi ? pill.device.wifiSignalLevel : -1
+                    showRssi: true
+                    rssi: pill._wifi ? pill.device.wifiRssi : 0
                 }
             }
 

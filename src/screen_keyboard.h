@@ -5,6 +5,8 @@
 #include <QRectF>
 #include <QString>
 
+#include "touch_tap_gate.h"
+
 class InputDeviceTracker;
 
 /// Controller behind the on-screen keyboard (qml/kqml_types/KScreenKeyboard.qml).
@@ -18,8 +20,13 @@ class InputDeviceTracker;
 /// the synthetic events.
 ///
 /// Visibility rule: visible = editable input focused AND not dismissed for this focus AND
-/// (mode == On OR (mode == Auto AND the last physical input device was a touchscreen)).
+/// not held back AND (mode == On OR (mode == Auto AND the last physical input device was a touchscreen)).
 /// The mode is persisted in QSettings under main/ui/screenKeyboardMode.
+///
+/// Held back (TouchTapGate): Qt focuses a text input on press, so a finger that starts scrolling a
+/// page on a field focuses it. Focus that arrives while a touch is down (and the panel is not up
+/// already) waits for that touch: a tap shows the panel, a drag or a second finger leaves it down
+/// until the field itself is tapped (field test 2026-09-29).
 class ScreenKeyboard : public QObject
 {
     Q_OBJECT
@@ -61,8 +68,12 @@ signals:
     void modeChanged();
     void stateChanged();
 
+protected:
+    bool eventFilter(QObject* watched, QEvent* event) override;
+
 private:
     void onFocusObjectChanged(QObject* object);
+    void onTouchFinished(bool tap);
     void refreshFocusInfo();
     bool computeVisible() const;
     void emitIfChanged();
@@ -76,4 +87,5 @@ private:
     bool m_numeric = false;
     bool m_lastVisible = false;
     QRectF m_focusRect;
+    TouchTapGate m_gate;              // the window's touch sequence, for "held back"
 };

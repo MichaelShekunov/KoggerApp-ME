@@ -1171,6 +1171,8 @@ ApplicationWindow {
                      : workspaceStore.settingsSubPageKind === "videoPane"     ? videoPaneSettingsTabComponent
                      : echogramSettingsTabComponent
             subPageOpen: workspaceStore.anySettingsSubPageActive
+            footer: workspaceStore.settingsSubPageActive && workspaceStore.settingsSubPageKind === "devices"
+                    && workspaceStore.activeDevice ? deviceSettingsFooterComponent : null
 
             Loader {
                 width: parent.width
@@ -1487,6 +1489,41 @@ ApplicationWindow {
             }
         }
 
+        // Under the Devices page, always in sight (field test 2026-09-29): save the shown device's settings in
+        // it (the page's "Flash settings") and close the menu.
+        Component {
+            id: deviceSettingsFooterComponent
+
+            Row {
+                id: devFooter
+                readonly property var dev: workspaceStore.activeDevice
+                readonly property real bw: (width - spacing) / 2
+                width: parent ? parent.width : 0
+                spacing: Tokens.spaceMd
+
+                KButton {
+                    width: devFooter.bw
+                    height: Tokens.controlHLg
+                    text: qsTr("Save to device")
+                    toolTipText: qsTr("Write the current settings to the device's memory")
+                    enabled: !!(devFooter.dev && devFooter.dev.isBoardInited)
+                    onClicked: {
+                        var d = devFooter.dev
+                        if (!d)
+                            return
+                        d.flashSettings()
+                        notifications.info(qsTr("Settings written to device: %1").arg(d.devName))
+                    }
+                }
+                KButton {
+                    width: devFooter.bw
+                    height: Tokens.controlHLg
+                    text: qsTr("Close")
+                    onClicked: workspaceStore.settingsPanelOpen = false
+                }
+            }
+        }
+
         Component {
             id: deviceSettingsTabComponent
 
@@ -1541,9 +1578,7 @@ ApplicationWindow {
             hotActionsRight: hotActions.visible ? hotActions.x + hotActions.width : 0
         }
 
-        NotificationsOverlay {
-            hideImportant: workspaceStore.hideImportantNotifications
-        }
+        NotificationsOverlay { }
 
         FileOpeningOverlay { }
 

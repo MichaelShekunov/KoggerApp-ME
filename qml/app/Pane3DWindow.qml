@@ -138,8 +138,9 @@ Item {
             vehicle: typeof boat !== "undefined" ? boat : null
             visible: root.missionActive
             onCloseRequested: rightToolbar.missionOpen = false
-            // Opening the panel means planning: taps go to points at once (a drag still pans).
-            onVisibleChanged: addMode = visible
+            // Opening or closing the panel leaves "Add points" off: a stray tap on the map must not add a point
+            // (field test 2026-09-29); the operator turns it on with the button.
+            onVisibleChanged: addMode = false
         }
 
         // Surface-quality label: right of the dataset toolbar, left of the scale bar.

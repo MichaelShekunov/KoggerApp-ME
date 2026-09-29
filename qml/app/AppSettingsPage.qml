@@ -487,19 +487,6 @@ Column {
 
         KIsland {
             KIslandRow {
-                label: qsTr("Hide important notifications")
-                toolTipText: qsTr("Auto-hide warning notifications like info ones")
-                interactive: true
-                onClicked: hideNotificationsSwitch.click()
-                KSwitch {
-                    id: hideNotificationsSwitch
-                    flat: true
-                    checked: root.store ? root.store.hideImportantNotifications : false
-                    onToggled: if (root.store) root.store.hideImportantNotifications = checked
-                }
-            }
-
-            KIslandRow {
                 label: qsTr("Hide UI elements for missing data")
                 toolTipText: qsTr("Hide echogram controls when there is no matching data; off shows everything")
                 interactive: true

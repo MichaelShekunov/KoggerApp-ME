@@ -37,6 +37,10 @@ Item {
     property Component subPage: null
     property bool subPageOpen: false
 
+    // A bar pinned under the page, above the panel's bottom edge: what must never be scrolled to (field test
+    // 2026-09-29, saving and closing). null: none.
+    property Component footer: null
+
     readonly property bool subPageCovers: subPageOpen && subPageHost.x > -0.5
     property Item _mainFocusMemo: null
 
@@ -446,7 +450,7 @@ Item {
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.top: topSection.bottom
-            anchors.bottom: parent.bottom
+            anchors.bottom: footerBar.top
             anchors.leftMargin: Tokens.spaceXl - panelRoot._hoverPopPad
             // No right margin: the scrollbar lives in scrollBarReservePx on
             // the right side of the Flickable — pushing the Flickable further
@@ -465,6 +469,8 @@ Item {
             interactive: contentHeight > height + 1
             enabled: !panelRoot.subPageCovers
             z: 2
+            // A finger that starts the drag on a field focuses it; the page must not then scroll to that field.
+            onDraggingChanged: if (dragging) { focusScrollAnim.stop(); focusFollowTimer.stop() }
 
             // Attached ScrollBar.vertical: positioning intentionally NOT
             // delegated to Qt's internal layout — Qt fixes x at flickable
@@ -608,10 +614,33 @@ Item {
             }
         }
 
+        Rectangle {
+            id: footerBar
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            readonly property bool shown: panelRoot.footer !== null
+            height: shown ? footerLoader.implicitHeight + 2 * Tokens.spaceMd : 0
+            visible: shown
+            color: panelRoot.headerColor
+            z: 6                                   // above the sub-page host (5)
+
+            Loader {
+                id: footerLoader
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.leftMargin: Tokens.spaceXl
+                anchors.rightMargin: Tokens.spaceLg
+                active: footerBar.shown
+                sourceComponent: panelRoot.footer
+            }
+        }
+
         Item {
             id: subPageHost
             anchors.top: topSection.bottom
-            anchors.bottom: parent.bottom
+            anchors.bottom: footerBar.top
             width: panel.width
             z: 5                                   // above content (2), fades (3), scrollbar (4)
             clip: true
@@ -648,6 +677,7 @@ Item {
                 contentHeight: Math.max(height, subLoader.implicitHeight)
                 interactive: contentHeight > height + 1
                 ScrollBar.vertical: ScrollBar { policy: ScrollBar.AlwaysOff }
+                onDraggingChanged: if (dragging) { focusScrollAnim.stop(); focusFollowTimer.stop() }
 
                 Loader {
                     id: subLoader

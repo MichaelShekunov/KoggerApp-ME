@@ -8,11 +8,11 @@ Item {
     z: ZOrder.notificationsOverlay
 
     readonly property int maxVisible: 5
-    readonly property int infoLifetimeMs: 3000
+    // Every toast leaves after 4 s, warnings too (field test 2026-09-29: they covered the top of the head unit's
+    // screen); the text stays in the console.
+    readonly property int lifetimeMs: 4000
     readonly property real maxCardWidth: Math.min(480 * AppPalette.scale, width - 2 * Tokens.spaceXl)
     property int nextNotificationId: 0
-
-    property bool hideImportant: false
 
     signal tagDismissRequested(string tag)
 
@@ -95,8 +95,7 @@ Item {
 
             readonly property bool isWarning: model.kind === 1
             readonly property bool hasAction: model.actionPath !== undefined && model.actionPath.length > 0
-            readonly property bool autoDismiss: !isWarning || root.hideImportant
-            readonly property bool showClose: isWarning && !root.hideImportant
+            readonly property bool showClose: isWarning
             property bool closing: false
 
             readonly property bool modelClosing: model.closing === true
@@ -172,8 +171,8 @@ Item {
 
             Timer {
                 id: lifeTimer
-                interval: root.infoLifetimeMs
-                running: card.autoDismiss
+                interval: root.lifetimeMs
+                running: true
                 onTriggered: card.dismiss()
             }
 
@@ -211,12 +210,11 @@ Item {
                 enabled: !card.closing
                 hoverEnabled: true
                 acceptedButtons: Qt.AllButtons
-                cursorShape: card.autoDismiss ? Qt.PointingHandCursor : Qt.ArrowCursor
+                cursorShape: Qt.PointingHandCursor
                 onClicked: function(m) {
                     m.accepted = true
                     var path = card.hasAction ? String(model.actionPath) : ""
-                    if (card.autoDismiss)
-                        card.dismiss()
+                    card.dismiss()
                     if (path.length > 0)
                         Qt.callLater(root.reveal, path)
                 }
