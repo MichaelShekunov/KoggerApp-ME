@@ -1274,6 +1274,52 @@ protected:
  * network side of its line, decoded by WifiPorts (src/device/wifi_ops.h); 0.11 refuses v7 with ERR_VERSION.
  * Contract: the module project's docs/SBP_WIFI.md §3a and docs/NETWORK.md; docs/WIFI_MODULE.md §2e.
  */
+/**
+ * @brief ID_WIFI_SURVEY (0x59, Wi-Fi module firmware 0.16): how much of the time each channel carries Wi-Fi frames.
+ * SETTING v0 {key, U2 dwell ms, U2 channel mask} starts a survey (the radio leaves its channel for about 1.7 s); the
+ * module answers OK at once and sends one CONTENT v0 per channel when it ends; GETTING v0 sends the last survey again
+ * (ERR_RUNTIME while one runs). Contract: the module project's docs/SBP_WIFI.md 3b.
+ */
+class IDBinWifiSurvey : public IDBin
+{
+    Q_OBJECT
+public:
+    explicit IDBinWifiSurvey() : IDBin() {}
+
+    ID id() override { return ID_WIFI_SURVEY; }
+    Resp parsePayload(FrameParser &proto) override;
+    void requestAll() override {}               // asked only by the operator
+
+    struct Channel {
+        bool valid = false;
+        uint8_t channel = 0;
+        uint16_t dwellMs = 0, busyPermille = 0, frames = 0, transmitters = 0;
+        int8_t strongest = -128, noiseDbm = 0;
+        uint8_t flags = 0;
+    };
+
+    /** SETTING v0; dwellMs 0 = the module's default. The last survey's channels stay until the new one's first frame. */
+    void start(uint16_t dwellMs, uint16_t mask);
+    void requestLast() { simpleRequest(v0); }
+    void cancel() { running_ = false; }
+    void reset();
+    const QVector<Channel>& channels() const { return channels_; }
+    /** Channels the last survey reported: -1 none yet, 0 the module had no survey. */
+    int total() const { return total_; }
+    bool running() const { return running_; }
+    int64_t startedMs() const { return startedMs_; }
+    uint16_t dwellMs() const { return dwellMs_; }
+
+protected:
+    QVector<Channel> channels_;
+    int total_ = -1;
+    int filled_ = 0;
+    bool running_ = false;
+    bool fresh_ = false;
+    int64_t startedMs_ = 0;
+    uint16_t dwellMs_ = 0;
+};
+
 class IDBinWifiNet : public IDBin
 {
     Q_OBJECT

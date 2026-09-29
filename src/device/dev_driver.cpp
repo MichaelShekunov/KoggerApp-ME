@@ -70,6 +70,7 @@ DevDriver::DevDriver(QObject *parent)
     regID(idUART = new IDBinUART(), &DevDriver::receivedUART, true);
     regID(idWifi = new IDBinWifi(), &DevDriver::receivedWifi);
     regID(idWifiNet = new IDBinWifiNet(), &DevDriver::receivedWifiNet);
+    regID(idWifiSurvey = new IDBinWifiSurvey(), &DevDriver::receivedWifiSurvey);
     regID(idVersion = new IDBinVersion(), &DevDriver::receivedVersion, true);
 
     regID(idMark = new IDBinMark(), &DevDriver::receivedMark);
@@ -1568,6 +1569,93 @@ int DevDriver::wifiBestChannel() {
     if (idWifi->scanTotal() < 0)
         return 0;
     return WifiChannels::best(WifiChannels::rate(scanNets(idWifi)));
+}
+
+int DevDriver::wifiSurveySupport() {
+    return isWifi() ? WifiSurvey::supportFor(idVersion->fwVersion(), idVersion->fwVersionMinor()) : 0;
+}
+
+bool DevDriver::wifiSurveying() { return idWifiSurvey->running(); }
+
+static QVector<WifiSurvey::Channel> surveyChannels(const IDBinWifiSurvey* s) {
+    QVector<WifiSurvey::Channel> out;
+    for (const IDBinWifiSurvey::Channel& c : s->channels()) {
+        WifiSurvey::Channel w;
+        w.valid = c.valid;
+        w.channel = c.channel;
+        w.dwellMs = c.dwellMs;
+        w.busyPermille = c.busyPermille;
+        w.frames = c.frames;
+        w.transmitters = c.transmitters;
+        w.strongest = c.strongest;
+        w.noiseDbm = c.noiseDbm;
+        w.flags = c.flags;
+        out.append(w);
+    }
+    return out;
+}
+
+QVariantList DevDriver::wifiSurveyChannels() {
+    QVariantList list;
+    const QVector<WifiSurvey::Channel> chans = surveyChannels(idWifiSurvey);
+    const int best = WifiSurvey::best(chans);
+    for (const WifiSurvey::Channel& c : chans) {
+        if (!c.valid)
+            continue;
+        QVariantMap m;
+        m["channel"] = c.channel;
+        m["busy"] = c.busyPermille;
+        m["frames"] = c.frames;
+        m["transmitters"] = c.transmitters;
+        m["strongest"] = c.strongest;
+        m["noise"] = c.noiseDbm;
+        m["noiseValid"] = c.noiseValid();
+        m["own"] = c.own();
+        m["ap"] = c.apUsable();
+        m["best"] = c.channel == best;
+        list.append(m);
+    }
+    return list;
+}
+
+int DevDriver::wifiSurveyBest() { return WifiSurvey::best(surveyChannels(idWifiSurvey)); }
+
+void DevDriver::wifiSurvey() {
+    if (!m_state.connect || wifiSurveySupport() != 1 || idWifiSurvey->running())
+        return;
+    wifiSurveyError_.clear();
+    wifiSurveyAskedAgain_ = false;
+    idWifiSurvey->start(0, 0);   // the module's default dwell, every channel it may visit
+    emit wifiSurveyChanged();
+}
+
+void DevDriver::receivedWifiSurvey(Parsers::Type type, Parsers::Version ver, Parsers::Resp resp) {
+    Q_UNUSED(type);
+    Q_UNUSED(ver);
+    if (resp != respNone) {
+        if (resp == respOk)
+            return;                               // the survey runs; its frames follow
+        idWifiSurvey->cancel();
+        wifiSurveyError_ = resp == respErrorRuntime ? tr("the module is busy (a survey, a scan or joining a network runs)")
+                         : resp == respErrorKey ? tr("the module refused the key")
+                         : tr("the module refused the survey (code %1)").arg(int(resp));
+        qInfo().noquote() << wifiTag() << QStringLiteral("wifi-survey: not started: %1").arg(wifiSurveyError_);
+        emit wifiSurveyChanged();
+        return;
+    }
+    if (!idWifiSurvey->running() && idWifiSurvey->total() > 0)
+        logWifiSurvey();
+    emit wifiSurveyChanged();
+}
+
+void DevDriver::logWifiSurvey() {
+    QStringList parts;
+    for (const IDBinWifiSurvey::Channel& c : idWifiSurvey->channels())
+        if (c.valid)
+            parts << QStringLiteral("%1%2:%3.%4%").arg(c.channel).arg((c.flags & 0x01) ? QStringLiteral("*") : QString())
+                         .arg(c.busyPermille / 10).arg(c.busyPermille % 10);
+    qInfo().noquote() << wifiTag() << QStringLiteral("wifi-survey: Wi-Fi airtime %1; best %2 (* our channel)")
+                             .arg(parts.join(QLatin1Char(' '))).arg(wifiSurveyBest());
 }
 
 QStringList DevDriver::wifiSavedNetworks() {
@@ -3168,6 +3256,20 @@ void DevDriver::process() {
                 if(isWifi() && idWifi->expireScan(curr_time)) {
                     emit wifiNetworksChanged();
                 }
+                // A survey whose frames are late is asked for once more (GETTING v0), then given up.
+                if(isWifi() && idWifiSurvey->running()
+                   && curr_time - idWifiSurvey->startedMs() > WifiSurvey::timeoutMs(11, idWifiSurvey->dwellMs() > 0 ? idWifiSurvey->dwellMs() : WifiSurvey::kDefaultDwellMs)) {
+                    if(!wifiSurveyAskedAgain_) {
+                        wifiSurveyAskedAgain_ = true;
+                        qInfo().noquote() << wifiTag() << "wifi-survey: late, asking for it once more";
+                        idWifiSurvey->requestLast();
+                    } else if(curr_time - idWifiSurvey->startedMs() > 2 * WifiSurvey::timeoutMs(11, WifiSurvey::kDefaultDwellMs)) {
+                        idWifiSurvey->cancel();
+                        wifiSurveyError_ = tr("no answer from the module");
+                        qInfo().noquote() << wifiTag() << "wifi-survey: no answer, given up";
+                        emit wifiSurveyChanged();
+                    }
+                }
 
                 if(m_state.in_boot && idVersion->bootMode() == IDBinVersion::BootModeFirmware) {
                     idVersion->requestAll();
@@ -3214,6 +3316,10 @@ void DevDriver::process() {
                 emit wifiNetPortsChanged();
                 emit wifiNetPortDevicesChanged();
                 emit wifiNetPortPeersChanged();
+            }
+            if(idWifiSurvey->total() >= 0 || idWifiSurvey->running()) {
+                idWifiSurvey->reset();
+                emit wifiSurveyChanged();
             }
             if(idWifi->hasData()) {
                 idWifi->reset();

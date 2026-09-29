@@ -1780,27 +1780,79 @@ Column {
         property real scanDoneAt: 0
         property real ageTick: 0
         onScanningChanged: if (!scanning) { scanDoneAt = Date.now(); ageTick = scanDoneAt }
-        onWatchAirChanged: if (watchAir && dev && !scanning) dev.wifiScan()
-        function ageText() {
-            if (scanning)
+        // The module's own survey (ID_WIFI_SURVEY, firmware 0.16): the Wi-Fi airtime of each channel, measured in about
+        // 2 s, in both roles (the boat's access point too). Live repeats it instead of the scan when the module has it.
+        readonly property int surveySupport: root._isWifi ? dev.wifiSurveySupport : 0
+        readonly property bool surveying: root._isWifi && !!dev.wifiSurveying
+        readonly property var survey: root._isWifi ? dev.wifiSurveyChannels : []
+        readonly property int surveyBest: root._isWifi ? dev.wifiSurveyBest : 0
+        readonly property string surveyError: root._isWifi && dev.wifiSurveyError ? dev.wifiSurveyError : ""
+        readonly property bool surveyShown: live && surveySupport === 1
+        readonly property int surveyOwn: {
+            for (var i = 0; i < survey.length; ++i)
+                if (survey[i].own)
+                    return survey[i].channel
+            return 0
+        }
+        // the top of the bars: 5 % at least, else a fifth above the busiest channel
+        readonly property int surveyTop: {
+            var m = 50
+            for (var i = 0; i < survey.length; ++i)
+                m = Math.max(m, Math.round(survey[i].busy * 1.2))
+            return m
+        }
+        property real surveyDoneAt: 0
+        onSurveyingChanged: if (!surveying) { surveyDoneAt = Date.now(); ageTick = surveyDoneAt }
+        function surveyOf(c) {
+            for (var i = 0; i < survey.length; ++i)
+                if (survey[i].channel === c)
+                    return survey[i]
+            return null
+        }
+        function percentText(permille) { return (permille / 10).toFixed(1) + " %" }
+        function airColor(permille) {
+            var dark = AppPalette.isDark
+            if (permille < 20) return dark ? "#22C55E" : "#15803D"
+            if (permille < 50) return dark ? "#A3E635" : "#4D7C0F"
+            if (permille < 100) return dark ? "#FB923C" : "#C2410C"
+            return dark ? "#F87171" : "#B91C1C"
+        }
+        function watchStep() {
+            if (!dev)
+                return
+            if (surveySupport === 1) {
+                if (!surveying && Date.now() - surveyDoneAt >= 3000)
+                    dev.wifiSurvey()
+            } else if (!apRole && !scanning && Date.now() - scanDoneAt >= 3000) {
+                dev.wifiScan()
+            }
+        }
+        onWatchAirChanged: if (watchAir) watchStep()
+        function ageOf(doneAt, running, has) {
+            if (running)
                 return qsTr("updating…")
-            if (scanDoneAt <= 0)
-                return channels.length > 0 ? qsTr("From an earlier scan.") : ""
-            var s = Math.max(0, Math.round((ageTick - scanDoneAt) / 1000))
+            if (doneAt <= 0)
+                return has ? qsTr("From an earlier measurement.") : ""
+            var s = Math.max(0, Math.round((ageTick - doneAt) / 1000))
             if (s < 2)
                 return qsTr("updated just now")
             if (s < 120)
                 return qsTr("updated %1 s ago").arg(s)
             return qsTr("updated %1 min ago").arg(Math.round(s / 60))
         }
-        Timer {
-            interval: 1000; repeat: true
-            running: wifiIsland.watchAir && wifiIsland.visible && wifiIsland.live && !wifiIsland.apRole
-            onTriggered: if (dev && !wifiIsland.scanning && Date.now() - wifiIsland.scanDoneAt >= 3000) dev.wifiScan()
+        function ageText() {
+            return surveyShown ? ageOf(surveyDoneAt, surveying, survey.length > 0)
+                               : ageOf(scanDoneAt, scanning, channels.length > 0)
         }
         Timer {
             interval: 1000; repeat: true
-            running: wifiIsland.channelsShown
+            running: wifiIsland.watchAir && wifiIsland.visible && wifiIsland.live
+                     && (wifiIsland.surveySupport === 1 || !wifiIsland.apRole)
+            onTriggered: wifiIsland.watchStep()
+        }
+        Timer {
+            interval: 1000; repeat: true
+            running: wifiIsland.channelsShown || wifiIsland.surveyShown
             onTriggered: wifiIsland.ageTick = Date.now()
         }
         function channelLevel(c) {
@@ -2182,14 +2234,16 @@ Column {
         // the power of the other networks on and next to that channel (WifiChannels, wifi_ops.h), the number above it
         // the networks on it; channels 12 and 13 are shown dim (the access point takes 1-11).
         KIslandSection {
-            open: wifiIsland.channelsShown
+            open: wifiIsland.channelsShown || wifiIsland.surveyShown
             label: qsTr("Channels")
         }
         KIslandRow {
-            open: wifiIsland.channelsShown
+            open: wifiIsland.channelsShown || wifiIsland.surveyShown
             label: qsTr("Live")
-            caption: (wifiIsland.watchAir ? qsTr("Scanning again and again while this page is open; each scan takes 2–4 s and may stall the boat link.")
-                                          : qsTr("Off: the picture is of one scan."))
+            caption: (wifiIsland.watchAir
+                      ? (wifiIsland.surveyShown ? qsTr("Measuring again and again while this page is open; each measurement takes about 2 s and pauses the boat link.")
+                                                : qsTr("Scanning again and again while this page is open; each scan takes 2–4 s and may stall the boat link."))
+                      : (wifiIsland.surveyShown ? qsTr("Off: the picture is of one measurement.") : qsTr("Off: the picture is of one scan.")))
                      + " " + wifiIsland.ageText()
             interactive: true
             onClicked: liveSwitch.click()
@@ -2200,9 +2254,112 @@ Column {
                 onToggled: wifiIsland.watchAir = checked
             }
         }
+        // Wi-Fi airtime measured by the module (ID_WIFI_SURVEY): a bar per channel 1-11, the share above it.
+        DevStackedRow {
+            open: wifiIsland.surveyShown
+            label: qsTr("Wi‑Fi airtime")
+            caption: qsTr("Measured by the module: the share of the time the air carried Wi‑Fi frames on each channel (a lower bound: interference that is not Wi‑Fi is not seen). Our channel (•) includes our own link. A measurement takes about 2 s and pauses the boat link.")
+            Column {
+                width: parent.width
+                spacing: Tokens.spaceSm
+                DevButton {
+                    width: Math.round(160 * AppPalette.scale); height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
+                    text: wifiIsland.surveying ? qsTr("Measuring…") : qsTr("Measure")
+                    enabled: !wifiIsland.surveying
+                    toolTipText: qsTr("Measure the Wi‑Fi airtime of every channel now (about 2 s)")
+                    onClicked: if (dev) dev.wifiSurvey()
+                }
+                Item {
+                    id: airChart
+                    visible: wifiIsland.survey.length > 0
+                    width: parent.width
+                    height: Math.round(96 * AppPalette.scale)
+                    readonly property int n: Math.max(1, wifiIsland.survey.length)
+                    readonly property real gap: Math.max(2, Math.round(3 * AppPalette.scale))
+                    readonly property real colW: (width - (n - 1) * gap) / n
+                    readonly property real labelH: Math.round(16 * AppPalette.scale)
+                    readonly property real barH: height - 2 * labelH
+                    Row {
+                        spacing: airChart.gap
+                        Repeater {
+                            model: wifiIsland.survey
+                            delegate: Item {
+                                width: airChart.colW
+                                height: airChart.height
+                                readonly property real frac: Math.max(0, Math.min(1, modelData.busy / wifiIsland.surveyTop))
+                                Text {
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    height: airChart.labelH
+                                    verticalAlignment: Text.AlignVCenter
+                                    text: (modelData.busy / 10).toFixed(1)
+                                    color: AppPalette.textMuted
+                                    font.pixelSize: Tokens.fontSm
+                                }
+                                Rectangle {
+                                    y: airChart.labelH
+                                    width: parent.width
+                                    height: airChart.barH
+                                    radius: Math.round(3 * AppPalette.scale)
+                                    color: AppPalette.rowRaised
+                                    border.width: modelData.best ? 2 : 0
+                                    border.color: AppPalette.accentBorder
+                                    Rectangle {
+                                        anchors.bottom: parent.bottom
+                                        width: parent.width
+                                        height: Math.max(2, parent.height * frac)
+                                        radius: parent.radius
+                                        color: wifiIsland.airColor(modelData.busy)
+                                    }
+                                }
+                                Text {
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    y: airChart.labelH + airChart.barH
+                                    height: airChart.labelH
+                                    verticalAlignment: Text.AlignVCenter
+                                    text: (modelData.own ? "•" : "") + modelData.channel
+                                    font.bold: modelData.best || modelData.own
+                                    color: modelData.best ? AppPalette.accentText : (modelData.own ? AppPalette.textStrong : AppPalette.textMuted)
+                                    font.pixelSize: Tokens.fontSm
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        DevInfoRow {
+            open: wifiIsland.surveyShown && wifiIsland.surveyBest > 0
+            label: qsTr("Least busy (Wi‑Fi airtime)")
+            value: {
+                var c = wifiIsland.surveyOf(wifiIsland.surveyBest)
+                return qsTr("channel %1").arg(wifiIsland.surveyBest) + (c ? " · " + wifiIsland.percentText(c.busy)
+                       + " · " + qsTr("%1 transmitters").arg(c.transmitters) : "")
+            }
+        }
+        DevInfoRow {
+            open: wifiIsland.surveyShown && wifiIsland.surveyOwn > 0
+            label: qsTr("Our channel now (•)")
+            value: {
+                var c = wifiIsland.surveyOf(wifiIsland.surveyOwn)
+                return qsTr("channel %1").arg(wifiIsland.surveyOwn) + (c ? " · " + wifiIsland.percentText(c.busy)
+                       + " " + qsTr("with our link") : "")
+            }
+        }
+        KIslandRow {
+            open: wifiIsland.surveyShown && wifiIsland.surveyError.length > 0
+            minHeight: 0
+            verticalPadding: Tokens.spaceSm
+            label: qsTr("Not measured: %1").arg(wifiIsland.surveyError)
+            labelPixelSize: Tokens.fontSm
+            labelColor: AppPalette.dangerText
+        }
+
         DevStackedRow {
             open: wifiIsland.channelsShown
-            caption: qsTr("By the networks heard: their power, counted with how 2.4 GHz channels overlap; our own network is left out. The traffic on a channel is not measured yet: that needs the module's firmware.")
+            label: wifiIsland.surveyShown ? qsTr("Networks heard (scan)") : ""
+            caption: wifiIsland.surveyShown
+                     ? qsTr("By the last scan: the power of the other networks on and next to each channel, with how 2.4 GHz channels overlap; our own network is left out.")
+                     : qsTr("By the networks heard: their power, counted with how 2.4 GHz channels overlap; our own network is left out. The traffic on a channel is not measured: that needs the module's firmware 0.16.")
             Item {
                 id: chanChart
                 width: parent.width
@@ -2263,23 +2420,26 @@ Column {
             }
         }
         DevInfoRow {
-            open: wifiIsland.channelsShown && wifiIsland.bestChannel > 0
+            open: wifiIsland.channelsShown && wifiIsland.bestChannel > 0 && !wifiIsland.surveyShown
             label: qsTr("Least busy")
             value: qsTr("channel %1").arg(wifiIsland.bestChannel) + " · "
                    + wifiIsland.levelText(wifiIsland.channelLevel(wifiIsland.bestChannel))
         }
         DevInfoRow {
-            open: wifiIsland.channelsShown && wifiIsland.channelNow > 0
+            open: wifiIsland.channelsShown && wifiIsland.channelNow > 0 && !wifiIsland.surveyShown
             label: qsTr("The boat link now (•)")
             value: qsTr("channel %1").arg(wifiIsland.channelNow) + " · "
                    + wifiIsland.levelText(wifiIsland.channelLevel(wifiIsland.channelNow))
         }
         KIslandRow {
-            open: wifiIsland.channelsShown && wifiIsland.bestChannel > 0 && wifiIsland.channelNow > 0
-                  && wifiIsland.bestChannel !== wifiIsland.channelNow
+            readonly property int pick: wifiIsland.surveyShown && wifiIsland.surveyBest > 0 ? wifiIsland.surveyBest : wifiIsland.bestChannel
+            readonly property int now: wifiIsland.surveyShown && wifiIsland.surveyOwn > 0 ? wifiIsland.surveyOwn : wifiIsland.channelNow
+            open: (wifiIsland.channelsShown || wifiIsland.surveyShown) && pick > 0 && now > 0 && pick !== now
             minHeight: 0
             verticalPadding: Tokens.spaceSm
-            label: qsTr("To move the link there, set channel %1 on the boat's module: Role and access point → Channel, then Apply; this module follows by itself.").arg(wifiIsland.bestChannel)
+            label: wifiIsland.apRole
+                   ? qsTr("To move the link there, set channel %1 in Role and access point → Channel below, then Apply; the head unit's module follows by itself.").arg(pick)
+                   : qsTr("To move the link there, set channel %1 on the boat's module: Role and access point → Channel, then Apply; this module follows by itself.").arg(pick)
             labelPixelSize: Tokens.fontSm
             labelColor: AppPalette.textMuted
         }

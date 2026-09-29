@@ -161,6 +161,18 @@ public:
     QVariantList wifiChannels();
     /** The least busy channel for the access point by the last scan, 0 before it. */
     int wifiBestChannel();
+    /** The module's channel survey (ID_WIFI_SURVEY, firmware 0.16): 1 it has one, 0 not, -1 the version not known. */
+    int wifiSurveySupport();
+    bool wifiSurveying();
+    /** The last survey per channel (WifiSurvey): channel, busy (per mille of Wi-Fi airtime), frames, transmitters,
+     *  strongest (dBm, -128 nothing), noise, noiseValid, own, ap, best. Empty before the first survey. */
+    QVariantList wifiSurveyChannels();
+    /** The channel for the access point by the last survey (WifiSurvey::best), 0 before it. */
+    int wifiSurveyBest();
+    /** Why the last survey did not run or did not end; empty when it did. */
+    QString wifiSurveyError() const { return wifiSurveyError_; }
+    /** Starts a survey: the module leaves its channel for about 2 s (the boat link pauses meanwhile). */
+    Q_INVOKABLE void wifiSurvey();
     QStringList wifiSavedNetworks();
 
     // Relay of the boat's SBP stream through the module (ID_WIFI v5 / v6, firmware 0.6+).
@@ -464,6 +476,7 @@ signals:
     void wifiStatusChanged();
     void wifiReportChanged();
     void wifiNetworksChanged();
+    void wifiSurveyChanged();
     void wifiSavedChanged();
     void wifiRelayChanged();
     void wifiRelayStatsChanged();
@@ -620,6 +633,7 @@ protected:
     IDBinVersion* idVersion = nullptr;
     IDBinMark* idMark = nullptr;
     IDBinFlash* idFlash = nullptr;
+    IDBinWifiSurvey* idWifiSurvey = nullptr;
     IDBinBoot* idBoot = nullptr;
     IDBinUpdate* idUpdate = nullptr;
 
@@ -760,6 +774,8 @@ protected slots:
     void receivedUART       (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
     void receivedWifi       (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
     void receivedWifiNet    (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
+    void receivedWifiSurvey (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
+    void logWifiSurvey();
     void logWifiNet(int ver);
     void logWifiPort(int port, int page);
     /** The rate of this app's own link to the module when it is a serial link; 0 otherwise or unknown. */
@@ -815,6 +831,8 @@ private:
     int64_t wifiPortsAskedAt_ = 0;    // the last ID_WIFI_NET v7 request while the ports are not known yet
     int wifiPortsAsks_ = 0;           // v7 requests after the first, while the ports are not known
     bool wifiFastReport_ = false;     // the fast link report was asked for (once per connection and module start)
+    QString wifiSurveyError_;         // why the last survey did not run or end
+    bool wifiSurveyAskedAgain_ = false;   // the late survey was asked for once more (GETTING v0)
     QString wifiFwLogged_;            // the module firmware version last written to the log
     int wifiLastState_ = -1;
     WifiRestartWatch wifiRestart_;     // module uptime reports, to see a restart

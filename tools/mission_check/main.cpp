@@ -730,6 +730,32 @@ void channelRules()
     check("channels: channel 0 or 14 and RSSI 0 are ignored", ignored);
 }
 
+// The module's survey (ID_WIFI_SURVEY, firmware 0.16): Wi-Fi airtime per channel.
+void surveyRules()
+{
+    using S = WifiSurvey;
+    check("survey: from firmware 0.16, not 0.15, unknown while no version",
+          S::supportFor(0, 16) == 1 && S::supportFor(1, 0) == 1 && S::supportFor(0, 15) == 0 && S::supportFor(0, 0) == -1);
+    auto ch = [](int channel, int busy, int flags) {
+        S::Channel c;
+        c.valid = true;
+        c.channel = channel;
+        c.busyPermille = busy;
+        c.flags = flags;
+        return c;
+    };
+    const int ap = 0x02, own = 0x01 | 0x02;
+    // our 6 at 4.5 % (2.0 % of it our own link) against 3.0 % and 2.8 %: no move for 0.2 %
+    check("survey: our own channel is kept when about as free (our link's share left out)",
+          S::best({ ch(1, 30, ap), ch(6, 45, own), ch(11, 28, ap) }) == 6);
+    // our 6 at 8 % against 1.0 % on 3 and 1.2 % on 11: 11 goes first within 0.5 %
+    check("survey: a clearly freer channel wins, 1/6/11 first within 0.5 %",
+          S::best({ ch(3, 10, ap), ch(6, 80, own), ch(11, 12, ap) }) == 11);
+    check("survey: a channel the access point may not use is left out",
+          S::best({ ch(3, 40, ap), ch(2, 0, 0) }) == 3 && S::best({ ch(1, 40, ap), ch(12, 0, 0) }) == 1 && S::best({}) == 0);
+    check("survey: timeout 11 channels x (120 + 30) ms + 6 s", S::timeoutMs(11, 120) == 7650);
+}
+
 int main(int argc, char* argv[])
 {
     QCoreApplication app(argc, argv);
@@ -750,6 +776,7 @@ int main(int argc, char* argv[])
     wifiRadioRules();
     fieldTestRules();
     channelRules();
+    surveyRules();
     if (cli.isSet(QStringLiteral("offline"))) {
         std::printf("\n%d checks, %d failed (offline)\nMISSION_CHECK_%s\n", g_checks, g_failed, g_failed ? "FAILED" : "DONE");
         return g_failed ? 1 : 0;
