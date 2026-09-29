@@ -32,7 +32,7 @@ KIslandRow {
                                                              : meta.label
     stacked: !!meta && (meta.stacked === true || meta.kind === "tabs")
     verticalPadding: stacked ? Tokens.spaceMd : Tokens.spaceXs
-    visible: DeviceParamCatalog.supported(dev, paramKey)
+    visible: DeviceParamCatalog.supported(dev, paramKey, page)
 
     leading: KCircleIconButton {
         readonly property real _sz: Tokens.controlHMd
