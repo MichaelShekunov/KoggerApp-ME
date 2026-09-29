@@ -334,6 +334,9 @@ struct WifiSignal
 struct WifiSurvey
 {
     static constexpr int kDefaultDwellMs = 120;   // the module's own default (0 in the request means the same)
+    // What the app asks for (owner 2026-09-29: stay longer): 120 ms gave 16.7, 9.7, 0.0 % on one channel in three
+    // surveys in a row; 11 channels x (300 + 30 ms) is about 3.6 s a survey, the boat link pausing meanwhile.
+    static constexpr int kDwellMs = 300;
     static constexpr int kTiePermille = 5;        // airtime within this of the least counts as a tie
     // Our own channel carries our own link as well (the boat's stream, about 92 KB/s): another channel wins over it
     // only when it is lower by more than this. An Assumption: our link's share of the airtime is not measured.
@@ -386,6 +389,90 @@ struct WifiSurvey
     /** How long a survey may take before the app asks for it once more: the channels at (dwell + the 30 ms return to
      *  the module's own channel), the module's own 4 s grace, and 2 s for the frames. */
     static int timeoutMs(int channels, int dwellMs) { return channels * (dwellMs + 30) + 6000; }
+};
+
+/**
+ * @brief The last surveys, so that the pick does not jump with bursty traffic (owner 2026-09-29: pick by the mean of
+ * the last measurements). Up to kKeep surveys not older than kMaxAgeMs; a change of the module's own channel starts it
+ * over (our own link moved with it, the old figures no longer describe the air).
+ */
+class WifiSurveyWindow
+{
+public:
+    static constexpr int kKeep = 5;
+    static constexpr qint64 kMaxAgeMs = 60000;
+
+    void add(const QVector<WifiSurvey::Channel>& survey, qint64 nowMs)
+    {
+        const int own = ownOf(survey);
+        if (!entries_.isEmpty() && entries_.last().own != own)
+            entries_.clear();
+        dropOld(nowMs);
+        entries_.append({ nowMs, survey, own });
+        while (entries_.size() > kKeep)
+            entries_.removeFirst();
+    }
+    void clear() { entries_.clear(); }
+    /** Surveys the mean is taken over now. */
+    int count(qint64 nowMs) const
+    {
+        int n = 0;
+        for (const Entry& e : entries_)
+            if (nowMs - e.atMs <= kMaxAgeMs)
+                ++n;
+        return n;
+    }
+    /** The channels of the last survey, each with its airtime (and frames, transmitters) the mean over the window and
+     *  its strongest RSSI the strongest of them; empty when the window is. */
+    QVector<WifiSurvey::Channel> mean(qint64 nowMs) const
+    {
+        QVector<WifiSurvey::Channel> out;
+        if (entries_.isEmpty())
+            return out;
+        for (const WifiSurvey::Channel& last : entries_.last().channels) {
+            if (!last.valid)
+                continue;
+            WifiSurvey::Channel m = last;
+            int n = 0;
+            long busy = 0, frames = 0, tx = 0;
+            for (const Entry& e : entries_) {
+                if (nowMs - e.atMs > kMaxAgeMs)
+                    continue;
+                for (const WifiSurvey::Channel& c : e.channels) {
+                    if (!c.valid || c.channel != last.channel)
+                        continue;
+                    ++n;
+                    busy += c.busyPermille;
+                    frames += c.frames;
+                    tx += c.transmitters;
+                    m.strongest = std::max(m.strongest, c.strongest);
+                }
+            }
+            if (n > 0) {
+                m.busyPermille = int((busy + n / 2) / n);
+                m.frames = int((frames + n / 2) / n);
+                m.transmitters = int((tx + n / 2) / n);
+            }
+            out.append(m);
+        }
+        return out;
+    }
+
+private:
+    struct Entry { qint64 atMs; QVector<WifiSurvey::Channel> channels; int own; };
+    static int ownOf(const QVector<WifiSurvey::Channel>& s)
+    {
+        for (const WifiSurvey::Channel& c : s)
+            if (c.valid && c.own())
+                return c.channel;
+        return 0;
+    }
+    void dropOld(qint64 nowMs)
+    {
+        while (!entries_.isEmpty() && nowMs - entries_.first().atMs > kMaxAgeMs)
+            entries_.removeFirst();
+    }
+    QVector<Entry> entries_;
 };
 
 /**
