@@ -349,8 +349,19 @@ the module session answered the same day and asks the owner before it starts:
   channel-busy (CCA) counter), so the app labels it "Wi-Fi airtime", not "load".
 - Defaults: 100..120 ms a channel, channels 1..13 measured, 1..11 to pick from (country "01"), 2..3 s in all.
 
-The app side follows once the format is in the module's SBP_WIFI.md: the Wi-Fi airtime and the noise floor per
-channel next to the scan's level, the channel picked by airtime (the level breaks ties), on the boat module's page too.
+**The survey in the app (4bcfd365, firmware 0.16; the module's contract: its docs/SBP_WIFI.md 3b).** `IDBinWifiSurvey`
+sends SETTING v0 {key, dwell 0 = the module's 120 ms, mask 0 = every channel} and collects one CONTENT v0 per channel
+1..11 (14 bytes: channel, dwell, Wi-Fi airtime per mille, frames, transmitters, strongest RSSI (-128 nothing), noise,
+flags bit0 own / bit1 the access point may use it / bit2 noise not to be believed). A survey late by
+`WifiSurvey::timeoutMs` (11 x (dwell + 30 ms) + 6 s) is asked for once more (GETTING v0), then given up; a refusal is
+named (ERR_RUNTIME: a survey, a scan or a join runs). Support by the firmware version (0.16+, `WifiSurvey::supportFor`).
+The Channels view shows "Wi-Fi airtime" bars (the share above each, our channel marked), Measure, and Live repeats the
+survey instead of the scan; it works in both roles, so the boat module's page gets it once that module has 0.16 (it
+cannot be updated over the air). The channel picked (`WifiSurvey::best`): the least airtime among the channels the
+access point may use; within 0.5 % our own channel first (no move for nothing), then 1/6/11; our own channel is
+compared less 2 % for our own link (an Assumption: that share is not measured). The noise floor is shown only when the
+module trusts it: on the ESP32-C3 it never does (-93 dBm on every channel, the module session's measurement). Log:
+`[87] wifi-survey: Wi-Fi airtime 1:0.7% ... 6*:4.2% ...; best N`. mission_check checks the rules offline.
 
 ## 2c. Port speed of the module (line 0)
 
