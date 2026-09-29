@@ -1786,6 +1786,7 @@ Column {
         readonly property bool surveying: root._isWifi && !!dev.wifiSurveying
         readonly property var survey: root._isWifi ? dev.wifiSurveyChannels : []
         readonly property int surveyBest: root._isWifi ? dev.wifiSurveyBest : 0
+        readonly property int surveySamples: root._isWifi ? dev.wifiSurveySamples : 0
         readonly property string surveyError: root._isWifi && dev.wifiSurveyError ? dev.wifiSurveyError : ""
         readonly property bool surveyShown: live && surveySupport === 1
         readonly property int surveyOwn: {
@@ -1798,7 +1799,7 @@ Column {
         readonly property int surveyTop: {
             var m = 50
             for (var i = 0; i < survey.length; ++i)
-                m = Math.max(m, Math.round(survey[i].busy * 1.2))
+                m = Math.max(m, Math.round(Math.max(survey[i].busy, survey[i].mean) * 1.2))
             return m
         }
         property real surveyDoneAt: 0
@@ -2241,7 +2242,7 @@ Column {
             open: wifiIsland.channelsShown || wifiIsland.surveyShown
             label: qsTr("Live")
             caption: (wifiIsland.watchAir
-                      ? (wifiIsland.surveyShown ? qsTr("Measuring again and again while this page is open; each measurement takes about 2 s and pauses the boat link.")
+                      ? (wifiIsland.surveyShown ? qsTr("Measuring again and again while this page is open; each measurement takes about 4 s and pauses the boat link.")
                                                 : qsTr("Scanning again and again while this page is open; each scan takes 2–4 s and may stall the boat link."))
                       : (wifiIsland.surveyShown ? qsTr("Off: the picture is of one measurement.") : qsTr("Off: the picture is of one scan.")))
                      + " " + wifiIsland.ageText()
@@ -2258,7 +2259,7 @@ Column {
         DevStackedRow {
             open: wifiIsland.surveyShown
             label: qsTr("Wi‑Fi airtime")
-            caption: qsTr("Measured by the module: the share of the time the air carried Wi‑Fi frames on each channel (a lower bound: interference that is not Wi‑Fi is not seen). Our channel (•) includes our own link. A measurement takes about 2 s and pauses the boat link.")
+            caption: qsTr("Measured by the module: the share of the time the air carried Wi‑Fi frames on each channel, 0.3 s a channel (a lower bound: interference that is not Wi‑Fi is not seen). A bar is the last measurement, its tick the mean of the last ones, which the pick goes by. Our channel (•) includes our own link. A measurement takes about 4 s and pauses the boat link.")
             Column {
                 width: parent.width
                 spacing: Tokens.spaceSm
@@ -2266,7 +2267,7 @@ Column {
                     width: Math.round(160 * AppPalette.scale); height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
                     text: wifiIsland.surveying ? qsTr("Measuring…") : qsTr("Measure")
                     enabled: !wifiIsland.surveying
-                    toolTipText: qsTr("Measure the Wi‑Fi airtime of every channel now (about 2 s)")
+                    toolTipText: qsTr("Measure the Wi‑Fi airtime of every channel now (about 4 s)")
                     onClicked: if (dev) dev.wifiSurvey()
                 }
                 Item {
@@ -2287,6 +2288,7 @@ Column {
                                 width: airChart.colW
                                 height: airChart.height
                                 readonly property real frac: Math.max(0, Math.min(1, modelData.busy / wifiIsland.surveyTop))
+                                readonly property real meanFrac: Math.max(0, Math.min(1, modelData.mean / wifiIsland.surveyTop))
                                 Text {
                                     anchors.horizontalCenter: parent.horizontalCenter
                                     height: airChart.labelH
@@ -2310,6 +2312,15 @@ Column {
                                         radius: parent.radius
                                         color: wifiIsland.airColor(modelData.busy)
                                     }
+                                    // the mean of the last measurements, which the pick goes by
+                                    Rectangle {
+                                        visible: wifiIsland.surveySamples > 1
+                                        x: -1
+                                        width: parent.width + 2
+                                        height: Math.max(2, Math.round(2 * AppPalette.scale))
+                                        y: Math.round((parent.height - height) * (1 - meanFrac))
+                                        color: AppPalette.textStrong
+                                    }
                                 }
                                 Text {
                                     anchors.horizontalCenter: parent.horizontalCenter
@@ -2329,10 +2340,11 @@ Column {
         }
         DevInfoRow {
             open: wifiIsland.surveyShown && wifiIsland.surveyBest > 0
-            label: qsTr("Least busy (Wi‑Fi airtime)")
+            label: wifiIsland.surveySamples > 1 ? qsTr("Least busy (mean of %1)").arg(wifiIsland.surveySamples)
+                                                 : qsTr("Least busy (Wi‑Fi airtime)")
             value: {
                 var c = wifiIsland.surveyOf(wifiIsland.surveyBest)
-                return qsTr("channel %1").arg(wifiIsland.surveyBest) + (c ? " · " + wifiIsland.percentText(c.busy)
+                return qsTr("channel %1").arg(wifiIsland.surveyBest) + (c ? " · " + wifiIsland.percentText(c.mean)
                        + " · " + qsTr("%1 transmitters").arg(c.transmitters) : "")
             }
         }
@@ -2341,7 +2353,7 @@ Column {
             label: qsTr("Our channel now (•)")
             value: {
                 var c = wifiIsland.surveyOf(wifiIsland.surveyOwn)
-                return qsTr("channel %1").arg(wifiIsland.surveyOwn) + (c ? " · " + wifiIsland.percentText(c.busy)
+                return qsTr("channel %1").arg(wifiIsland.surveyOwn) + (c ? " · " + wifiIsland.percentText(c.mean)
                        + " " + qsTr("with our link") : "")
             }
         }

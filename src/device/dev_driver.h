@@ -167,8 +167,11 @@ public:
     /** The last survey per channel (WifiSurvey): channel, busy (per mille of Wi-Fi airtime), frames, transmitters,
      *  strongest (dBm, -128 nothing), noise, noiseValid, own, ap, best. Empty before the first survey. */
     QVariantList wifiSurveyChannels();
-    /** The channel for the access point by the last survey (WifiSurvey::best), 0 before it. */
+    /** The channel for the access point by the mean of the last surveys (WifiSurveyWindow, WifiSurvey::best), 0
+     *  before the first. */
     int wifiSurveyBest();
+    /** Surveys the mean is taken over now (WifiSurveyWindow: up to 5 within a minute, since our channel last changed). */
+    int wifiSurveySamples();
     /** Why the last survey did not run or did not end; empty when it did. */
     QString wifiSurveyError() const { return wifiSurveyError_; }
     /** Starts a survey: the module leaves its channel for about 2 s (the boat link pauses meanwhile). */
@@ -832,6 +835,8 @@ private:
     int wifiPortsAsks_ = 0;           // v7 requests after the first, while the ports are not known
     bool wifiFastReport_ = false;     // the fast link report was asked for (once per connection and module start)
     QString wifiSurveyError_;         // why the last survey did not run or end
+    WifiSurveyWindow wifiSurveyWindow_;   // the last surveys, for the mean the pick goes by
+    int wifiSurveyTaken_ = 0;         // IDBinWifiSurvey::completedCount() already taken into the window
     bool wifiSurveyAskedAgain_ = false;   // the late survey was asked for once more (GETTING v0)
     QString wifiFwLogged_;            // the module firmware version last written to the log
     int wifiLastState_ = -1;

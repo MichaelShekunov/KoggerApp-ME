@@ -1309,11 +1309,14 @@ public:
     bool running() const { return running_; }
     int64_t startedMs() const { return startedMs_; }
     uint16_t dwellMs() const { return dwellMs_; }
+    /** Surveys completed so far (every channel of one arrived): the driver takes each into its mean once. */
+    int completedCount() const { return completed_; }
 
 protected:
     QVector<Channel> channels_;
     int total_ = -1;
     int filled_ = 0;
+    int completed_ = 0;
     bool running_ = false;
     bool fresh_ = false;
     int64_t startedMs_ = 0;

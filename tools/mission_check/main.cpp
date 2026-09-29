@@ -754,6 +754,52 @@ void surveyRules()
     check("survey: a channel the access point may not use is left out",
           S::best({ ch(3, 40, ap), ch(2, 0, 0) }) == 3 && S::best({ ch(1, 40, ap), ch(12, 0, 0) }) == 1 && S::best({}) == 0);
     check("survey: timeout 11 channels x (120 + 30) ms + 6 s", S::timeoutMs(11, 120) == 7650);
+
+    // The three surveys of the kiosk log (2026-09-29, per mille, * = our channel 10): one by one they pick 2, 7 and 5.
+    auto survey = [&](std::initializer_list<int> busy) {
+        QVector<S::Channel> v;
+        int channel = 1;
+        for (int b : busy) {
+            v.append(ch(channel, b, channel == 10 ? own : ap));
+            ++channel;
+        }
+        return v;
+    };
+    const QVector<S::Channel> s1 = survey({ 382, 105, 151, 153, 167, 191, 102, 125, 428, 385, 517 });
+    const QVector<S::Channel> s2 = survey({ 152, 43, 62, 72, 97, 141, 0, 186, 295, 354, 286 });
+    const QVector<S::Channel> s3 = survey({ 338, 68, 203, 289, 0, 367, 74, 382, 377, 454, 489 });
+    WifiSurveyWindow w;
+    w.add(s1, 0);
+    w.add(s2, 10000);
+    w.add(s3, 20000);
+    const QVector<S::Channel> m = w.mean(20000);
+    auto meanOf = [&](int channel) {
+        for (const S::Channel& c : m)
+            if (c.channel == channel)
+                return c.busyPermille;
+        return -1;
+    };
+    check("survey mean: the kiosk's three surveys pick 2, 7, 5 one by one and 7 by their mean",
+          S::best(s1) == 2 && S::best(s2) == 7 && S::best(s3) == 5 && w.count(20000) == 3 && S::best(m) == 7
+              && meanOf(7) == 59 && meanOf(5) == 88 && meanOf(2) == 72,
+          QStringLiteral("mean 2: %1, 5: %2, 7: %3, best %4").arg(meanOf(2)).arg(meanOf(5)).arg(meanOf(7)).arg(S::best(m)));
+    WifiSurveyWindow five;
+    for (int i = 0; i < 7; ++i)
+        five.add(s1, i * 1000);
+    check("survey mean: over 5 surveys at most", five.count(6000) == WifiSurveyWindow::kKeep);
+    WifiSurveyWindow moved;
+    moved.add(s1, 0);
+    QVector<S::Channel> after = s1;
+    after[9].flags = ap;                          // channel 10 no longer ours
+    after[6].flags = own;                         // our link moved to 7
+    moved.add(after, 5000);
+    check("survey mean: our channel changed -> the mean starts over", moved.count(5000) == 1);
+    WifiSurveyWindow old;
+    old.add(s1, 0);
+    old.add(s2, 50000);
+    // 70 s on, with no survey since: the first is over a minute old
+    check("survey mean: a survey older than a minute is left out",
+          old.count(50000) == 2 && old.count(70000) == 1 && old.mean(70000).value(6).busyPermille == 0);
 }
 
 int main(int argc, char* argv[])

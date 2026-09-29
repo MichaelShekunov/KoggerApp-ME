@@ -1666,9 +1666,12 @@ Resp IDBinWifiSurvey::parsePayload(FrameParser &proto) {
     c.strongest = proto.read<S1>();
     c.noiseDbm = proto.read<S1>();
     c.flags = proto.read<U1>();
-    if (!channels_[index].valid)
+    const bool first = !channels_[index].valid;
+    if (first)
         ++filled_;
     channels_[index] = c;
+    if (first && filled_ == total_)
+        ++completed_;
     if (filled_ >= total_)
         running_ = false;
     return respOk;
