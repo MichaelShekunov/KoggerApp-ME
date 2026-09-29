@@ -326,6 +326,69 @@ struct WifiSignal
 };
 
 /**
+ * @brief The Wi-Fi module's survey of the channels (ID_WIFI_SURVEY 0x59, firmware 0.16; contract: the module project's
+ * docs/SBP_WIFI.md 3b): per channel the share of the dwell the air carried Wi-Fi frames ("Wi-Fi airtime": a lower
+ * bound, no interference that is not Wi-Fi, no gaps, no ACKs), frames, transmitters, the strongest RSSI and the noise
+ * floor (not to be believed while flag bit2 is set; on the ESP32-C3 it always is).
+ */
+struct WifiSurvey
+{
+    static constexpr int kDefaultDwellMs = 120;   // the module's own default (0 in the request means the same)
+    static constexpr int kTiePermille = 5;        // airtime within this of the least counts as a tie
+    // Our own channel carries our own link as well (the boat's stream, about 92 KB/s): another channel wins over it
+    // only when it is lower by more than this. An Assumption: our link's share of the airtime is not measured.
+    static constexpr int kOwnLinkPermille = 20;
+
+    struct Channel {
+        bool valid = false;
+        int channel = 0, dwellMs = 0, busyPermille = 0, frames = 0, transmitters = 0;
+        int strongest = -128;                     // -128: nothing heard
+        int noiseDbm = 0;
+        int flags = 0;                            // bit0 our own channel, bit1 the access point may use it, bit2 noise unreliable
+        bool own() const { return flags & 0x01; }
+        bool apUsable() const { return flags & 0x02; }
+        bool noiseValid() const { return !(flags & 0x04); }
+    };
+
+    /** 1 from firmware 0.16, 0 before, -1 while the version is not known. */
+    static int supportFor(int fwMajor, int fwMinor)
+    {
+        if (fwMajor <= 0 && fwMinor <= 0)
+            return -1;
+        return (fwMajor > 0 || fwMinor >= 16) ? 1 : 0;
+    }
+
+    /** The airtime a channel is compared with: our own channel's less our own link's share. */
+    static int compared(const Channel& c) { return c.own() ? std::max(0, c.busyPermille - kOwnLinkPermille) : c.busyPermille; }
+
+    /** The channel for the access point: the least airtime (compared()) among the channels it may use; within
+     *  kTiePermille of it our own channel first (no move for nothing), then 1, 6 or 11, then the lower channel.
+     *  0 when there is none. */
+    static int best(const QVector<Channel>& chans)
+    {
+        int min = 1 << 30;
+        for (const Channel& c : chans)
+            if (c.valid && c.apUsable())
+                min = std::min(min, compared(c));
+        int pick = 0, pickRank = 99;
+        for (const Channel& c : chans) {
+            if (!c.valid || !c.apUsable() || compared(c) > min + kTiePermille)
+                continue;
+            const int rank = c.own() ? 0 : (c.channel == 1 || c.channel == 6 || c.channel == 11) ? 1 : 2;
+            if (pick == 0 || rank < pickRank || (rank == pickRank && c.channel < pick)) {
+                pick = c.channel;
+                pickRank = rank;
+            }
+        }
+        return pick;
+    }
+
+    /** How long a survey may take before the app asks for it once more: the channels at (dwell + the 30 ms return to
+     *  the module's own channel), the module's own 4 s grace, and 2 s for the frames. */
+    static int timeoutMs(int channels, int dwellMs) { return channels * (dwellMs + 30) + 6000; }
+};
+
+/**
  * @brief How busy each 2.4 GHz channel is by a scan (ID_WIFI v2), and the least busy one for the access point.
  *
  * Every network heard adds its power (from its RSSI) to the channel rated, weighted by how much of that channel's band

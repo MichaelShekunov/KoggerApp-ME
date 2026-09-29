@@ -1633,6 +1633,69 @@ void IDBinWifiNet::requestPortPage(uint8_t port, uint8_t page) {
     emit binFrameOut(out);
 }
 
+Resp IDBinWifiSurvey::parsePayload(FrameParser &proto) {
+    if (proto.ver() != v0)
+        return respErrorVersion;
+    if (proto.readAvailable() < 2)
+        return respErrorPayload;
+    const int index = proto.read<U1>();
+    const int total = proto.read<U1>();
+    if (total == 0) {                           // the module has no survey: a single {0, 0}
+        channels_.clear();
+        total_ = 0;
+        filled_ = 0;
+        fresh_ = false;
+        running_ = false;
+        return respOk;
+    }
+    if (index >= total || proto.readAvailable() < 12)
+        return respErrorPayload;
+    if (fresh_ || total_ != total) {            // first frame of this survey
+        fresh_ = false;
+        total_ = total;
+        filled_ = 0;
+        channels_ = QVector<Channel>(total);
+    }
+    Channel c;
+    c.valid = true;
+    c.channel = proto.read<U1>();
+    c.dwellMs = proto.read<U2>();
+    c.busyPermille = proto.read<U2>();
+    c.frames = proto.read<U2>();
+    c.transmitters = proto.read<U2>();
+    c.strongest = proto.read<S1>();
+    c.noiseDbm = proto.read<S1>();
+    c.flags = proto.read<U1>();
+    if (!channels_[index].valid)
+        ++filled_;
+    channels_[index] = c;
+    if (filled_ >= total_)
+        running_ = false;
+    return respOk;
+}
+
+void IDBinWifiSurvey::start(uint16_t dwellMs, uint16_t mask) {
+    running_ = true;
+    fresh_ = true;
+    dwellMs_ = dwellMs;
+    startedMs_ = QDateTime::currentMSecsSinceEpoch();
+    ProtoBinOut out;
+    out.create(SETTING, v0, id(), m_address);
+    appendKey(out);
+    out.write<U2>(dwellMs);
+    out.write<U2>(mask);
+    out.end();
+    hashBinFrameOut(out);
+}
+
+void IDBinWifiSurvey::reset() {
+    channels_.clear();
+    total_ = -1;
+    filled_ = 0;
+    running_ = false;
+    fresh_ = false;
+}
+
 void IDBinWifiNet::setRole(uint8_t role, bool reboot, bool forgetLines) {
     ProtoBinOut out;
     out.create(SETTING, v0, id(), m_address);
