@@ -2259,7 +2259,7 @@ Column {
         DevStackedRow {
             open: wifiIsland.surveyShown
             label: qsTr("Wi‑Fi airtime")
-            caption: qsTr("Measured by the module: the share of the time the air carried Wi‑Fi frames on each channel, 0.3 s a channel (a lower bound: interference that is not Wi‑Fi is not seen). A bar is the last measurement, its tick the mean of the last ones, which the pick goes by. Our channel (•) includes our own link. A measurement takes about 4 s and pauses the boat link.")
+            caption: qsTr("Measured by the module: the share of the time the air carried Wi‑Fi frames on each channel, 0.3 s a channel (a lower bound: interference that is not Wi‑Fi is not seen). A bar is the other networks' share in the last measurement, with our own link's on top in a lighter tone (it moves with us; neighbours of our channel • hear it too); the figure and the tick, the mean of the last measurements, are the others' share, which the pick goes by. A measurement takes about 4 s and pauses the boat link.")
             Column {
                 width: parent.width
                 spacing: Tokens.spaceSm
@@ -2287,13 +2287,15 @@ Column {
                             delegate: Item {
                                 width: airChart.colW
                                 height: airChart.height
-                                readonly property real frac: Math.max(0, Math.min(1, modelData.busy / wifiIsland.surveyTop))
+                                // the other networks' part (the pick's), ours on top of it
+                                readonly property real frac: Math.max(0, Math.min(1, modelData.others / wifiIsland.surveyTop))
+                                readonly property real ownFrac: Math.max(0, Math.min(1 - frac, modelData.ownAir / wifiIsland.surveyTop))
                                 readonly property real meanFrac: Math.max(0, Math.min(1, modelData.mean / wifiIsland.surveyTop))
                                 Text {
                                     anchors.horizontalCenter: parent.horizontalCenter
                                     height: airChart.labelH
                                     verticalAlignment: Text.AlignVCenter
-                                    text: (modelData.busy / 10).toFixed(1)
+                                    text: (modelData.others / 10).toFixed(1)
                                     color: AppPalette.textMuted
                                     font.pixelSize: Tokens.fontSm
                                 }
@@ -2306,11 +2308,21 @@ Column {
                                     border.width: modelData.best ? 2 : 0
                                     border.color: AppPalette.accentBorder
                                     Rectangle {
+                                        id: othersBar
                                         anchors.bottom: parent.bottom
                                         width: parent.width
                                         height: Math.max(2, parent.height * frac)
                                         radius: parent.radius
-                                        color: wifiIsland.airColor(modelData.busy)
+                                        color: wifiIsland.airColor(modelData.others)
+                                    }
+                                    // our own network's airtime (firmware 0.17): it moves with us
+                                    Rectangle {
+                                        visible: ownFrac > 0
+                                        anchors.bottom: othersBar.top
+                                        width: parent.width
+                                        height: parent.height * ownFrac
+                                        color: AppPalette.accentBorder
+                                        opacity: 0.55
                                     }
                                     // the mean of the last measurements, which the pick goes by
                                     Rectangle {
@@ -2353,8 +2365,8 @@ Column {
             label: qsTr("Our channel now (•)")
             value: {
                 var c = wifiIsland.surveyOf(wifiIsland.surveyOwn)
-                return qsTr("channel %1").arg(wifiIsland.surveyOwn) + (c ? " · " + wifiIsland.percentText(c.mean)
-                       + " " + qsTr("with our link") : "")
+                return qsTr("channel %1").arg(wifiIsland.surveyOwn) + (c ? " · " + qsTr("others %1").arg(wifiIsland.percentText(c.mean))
+                       + (c.ownAir > 0 ? " · " + qsTr("ours %1").arg(wifiIsland.percentText(c.ownAir)) : "") : "")
             }
         }
         KIslandRow {

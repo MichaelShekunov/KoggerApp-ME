@@ -1666,6 +1666,10 @@ Resp IDBinWifiSurvey::parsePayload(FrameParser &proto) {
     c.strongest = proto.read<S1>();
     c.noiseDbm = proto.read<S1>();
     c.flags = proto.read<U1>();
+    if (proto.readAvailable() >= 2) {           // 0.17: the own network's part of the airtime
+        c.ownPermille = proto.read<U2>();
+        c.ownValid = true;
+    }
     const bool first = !channels_[index].valid;
     if (first)
         ++filled_;

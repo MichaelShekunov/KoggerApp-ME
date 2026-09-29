@@ -794,6 +794,25 @@ void surveyRules()
     after[6].flags = own;                         // our link moved to 7
     moved.add(after, 5000);
     check("survey mean: our channel changed -> the mean starts over", moved.count(5000) == 1);
+    // Firmware 0.17: our own network's airtime, subtracted on every channel. Our channel 10 at 38.5 % (6.0 % ours); its
+    // neighbour 9 at 13.0 % of which 4.0 % ours (it hears our link) against 2 at 10.0 %: 9 has 9.0 % of the others.
+    auto withOwn = [&](int channel, int busy, int ownAir, int flags) {
+        S::Channel c = ch(channel, busy, flags);
+        c.ownPermille = ownAir;
+        c.ownValid = true;
+        return c;
+    };
+    check("survey 0.17: our own network's airtime left out on every channel, a neighbour of ours included",
+          S::best({ withOwn(2, 100, 0, ap), withOwn(9, 130, 40, ap), withOwn(10, 385, 60, own) }) == 9
+              && S::compared(withOwn(10, 385, 60, own)) == 325 && S::compared(withOwn(9, 130, 40, ap)) == 90);
+    check("survey 0.16 (no such field): our channel less the 2 % guess, the others as measured",
+          S::compared(ch(10, 385, own)) == 365 && S::compared(ch(9, 130, ap)) == 130);
+    WifiSurveyWindow ownMean;
+    ownMean.add({ withOwn(9, 130, 40, ap), withOwn(10, 385, 60, own) }, 0);
+    ownMean.add({ withOwn(9, 110, 20, ap), withOwn(10, 365, 40, own) }, 5000);
+    check("survey mean: our own network's airtime averaged too",
+          ownMean.mean(5000).value(0).ownValid && ownMean.mean(5000).value(0).ownPermille == 30
+              && S::compared(ownMean.mean(5000).value(0)) == 90);
     WifiSurveyWindow old;
     old.add(s1, 0);
     old.add(s2, 50000);

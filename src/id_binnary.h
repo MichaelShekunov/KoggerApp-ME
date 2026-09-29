@@ -1296,6 +1296,8 @@ public:
         uint16_t dwellMs = 0, busyPermille = 0, frames = 0, transmitters = 0;
         int8_t strongest = -128, noiseDbm = 0;
         uint8_t flags = 0;
+        uint16_t ownPermille = 0;               // of the airtime, the module's own network's (firmware 0.17)
+        bool ownValid = false;                  // the frame had it (16 bytes; 14 before 0.17)
     };
 
     /** SETTING v0; dwellMs 0 = the module's default. The last survey's channels stay until the new one's first frame. */
