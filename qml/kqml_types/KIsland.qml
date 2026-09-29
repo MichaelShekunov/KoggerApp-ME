@@ -20,6 +20,18 @@ Item {
     property real rowMinHeight: Tokens.rowH
     property int labelPixelSize: Tokens.fontLg
     property bool separatorsVisible: true
+    // Folded: only the first visible row shows (a section's title row); the others keep their layout, clipped away
+    // (they get no input there either), and the footer hides.
+    property bool folded: false
+    readonly property real _foldedHeight: {
+        if (!folded)
+            return 0
+        var kids = rowColumn.children
+        for (var i = 0; i < kids.length; ++i)
+            if (kids[i].visible && kids[i].height > 0)
+                return kids[i].y + kids[i].height
+        return 0
+    }
 
     default property alias rows: rowColumn.data
 
@@ -48,7 +60,8 @@ Item {
             color: island.fillColor
             border.width: Tokens.cardBorderWidth
             border.color: island.borderColor
-            implicitHeight: rowColumn.implicitHeight
+            implicitHeight: island.folded ? island._foldedHeight : rowColumn.implicitHeight
+            clip: island.folded
 
             Column {
                 id: rowColumn
@@ -60,7 +73,7 @@ Item {
         Text {
             x: island.rowPadding
             width: Math.max(0, parent.width - island.rowPadding * 2)
-            visible: island.footer.length > 0
+            visible: island.footer.length > 0 && !island.folded
             text: island.footer
             color: island.footerColor
             font.pixelSize: Tokens.fontSm

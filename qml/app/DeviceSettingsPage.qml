@@ -20,6 +20,20 @@ Column {
 
     property bool favEditMode: false
 
+    // Sections that fold (owner 2026-09-29: the Wi-Fi page grew long): folded by default; the open ones are kept by
+    // key in QSettings, each on its own (not the settings groups' accordion).
+    Settings { id: foldPrefs; category: "deviceSettingsPage"; property string openSections: "" }
+    function sectionOpen(key) { return ("," + foldPrefs.openSections + ",").indexOf("," + key + ",") >= 0 }
+    function setSectionOpen(key, open) {
+        var keys = foldPrefs.openSections.length ? foldPrefs.openSections.split(",") : []
+        var i = keys.indexOf(key)
+        if (open && i < 0)
+            keys.push(key)
+        else if (!open && i >= 0)
+            keys.splice(i, 1)
+        foldPrefs.openSections = keys.join(",")
+    }
+
     // ── Apply and save: the Devices page's pinned bar (field test 2026-09-29) ──
     // An island's Apply sends that island's edits; the bar's "Apply and save" does what every pending Apply on this
     // page would, then writes the device's settings to its memory (what "Flash settings" does). A port change runs in
@@ -526,6 +540,10 @@ Column {
 
     component DevIsland: KIsland {
         property bool unconfirmed: false
+        // A section that folds: its key in foldPrefs; its DevIslandTitle opens and closes it.
+        property string foldKey: ""
+        folded: foldKey.length > 0 && !root.sectionOpen(foldKey)
+        function toggleFold() { if (foldKey.length > 0) root.setSectionOpen(foldKey, folded) }
         fillColor: unconfirmed ? AppPalette.dangerBg : AppPalette.card
         borderColor: unconfirmed ? AppPalette.dangerBorder : AppPalette.border
     }
@@ -536,10 +554,25 @@ Column {
     }
 
     component DevIslandTitle: KIslandRow {
+        id: titleRow
+        // The island it opens and closes (DevIsland.foldKey); none: a plain title.
+        property var foldIsland: null
         labelBold: true
         labelPixelSize: Math.max(Math.round(16 * AppPalette.scale), 13)
         minHeight: 0
         verticalPadding: Tokens.spaceSm
+        interactive: !!foldIsland
+        leadingSpacing: Tokens.spaceSm
+        onClicked: if (foldIsland) foldIsland.toggleFold()
+        // the triangle of the app's other fold headers (Advanced settings, the settings groups)
+        leading: DisclosureIndicator {
+            readonly property real side: titleRow.foldIsland ? Math.round(10 * AppPalette.scale) : 0
+            width: side
+            height: side
+            visible: side > 0
+            expanded: !!titleRow.foldIsland && !titleRow.foldIsland.folded
+            indicatorColor: AppPalette.textSecond
+        }
     }
 
     component DevButton: KButton {
@@ -1740,6 +1773,7 @@ Column {
     // touch screen like any other input.
     DevIsland {
         id: wifiIsland
+        foldKey: "wifi.net"
         width: root.groupWidth
         visible: root._isWifi
         rowMinHeight: Tokens.controlHMd + Tokens.spaceXs
@@ -1829,6 +1863,7 @@ Column {
             }
         }
         onWatchAirChanged: if (watchAir) watchStep()
+        onFoldedChanged: if (folded) watchAir = false   // Live is for looking at it
         function ageOf(doneAt, running, has) {
             if (running)
                 return qsTr("updating…")
@@ -1847,13 +1882,14 @@ Column {
         }
         Timer {
             interval: 1000; repeat: true
-            running: wifiIsland.watchAir && wifiIsland.visible && wifiIsland.live
+            running: wifiIsland.watchAir && wifiIsland.visible && !wifiIsland.folded && wifiIsland.live
                      && (wifiIsland.surveySupport === 1 || !wifiIsland.apRole)
             onTriggered: wifiIsland.watchStep()
         }
         Timer {
             interval: 1000; repeat: true
-            running: wifiIsland.channelsShown || wifiIsland.surveyShown
+            running: !wifiIsland.folded && (wifiIsland.channelsShown || wifiIsland.surveyShown)
+            triggeredOnStart: true
             onTriggered: wifiIsland.ageTick = Date.now()
         }
         function channelLevel(c) {
@@ -2003,6 +2039,7 @@ Column {
 
         DevIslandTitle {
             label: "Wi‑Fi"
+            foldIsland: wifiIsland
             minHeight: Tokens.rowH
             verticalPadding: 0
 
@@ -2511,6 +2548,7 @@ Column {
     // docs/WIFI_MODULE.md). The fields show the module's values until the operator edits them.
     DevIsland {
         id: relayIsland
+        foldKey: "wifi.relay"
         width: root.groupWidth
         // firmware 0.10 shows this as line 0 of the Lines island (ID_WIFI_NET v3); kept for 0.7/0.8
         visible: root._isWifi && dev.wifiNetSupport !== 1
@@ -2601,12 +2639,14 @@ Column {
         Timer {
             interval: 2000
             repeat: true
+            // folded as well: the title's chip shows the state these stats carry
             running: relayIsland.visible && relayIsland.support === 1 && relayIsland.mode !== 0
             onTriggered: if (dev) dev.wifiRelayStatsRefresh()
         }
 
         DevIslandTitle {
             label: qsTr("Boat link")
+            foldIsland: relayIsland
             minHeight: Tokens.rowH
             verticalPadding: 0
 
@@ -2765,6 +2805,7 @@ Column {
     // ── Wi‑Fi module: radio (firmware 0.8+, ID_WIFI v7) ───────────────────
     DevIsland {
         id: radioIsland
+        foldKey: "wifi.radio"
         width: root.groupWidth
         visible: root._isWifi && dev.wifiRadioSupport !== 0
         rowMinHeight: Tokens.controlHMd + Tokens.spaceXs
@@ -2859,7 +2900,7 @@ Column {
             }
         }
 
-        DevIslandTitle { label: qsTr("Radio") }
+        DevIslandTitle { label: qsTr("Radio"); foldIsland: radioIsland }
 
         DevStackedRow {
             label: qsTr("Transmit power limit, dBm")
@@ -2966,6 +3007,7 @@ Column {
     // below sets both ports instead.
     DevIsland {
         id: portIsland
+        foldKey: "wifi.port"
         width: root.groupWidth
         visible: root._isWifi && !root._wifiPorts
         rowMinHeight: Tokens.controlHMd + Tokens.spaceXs
@@ -2985,7 +3027,7 @@ Column {
         onNowChanged: if (!busy && now > 0) sel = now
         onBusyChanged: if (!busy && now > 0) sel = now
 
-        DevIslandTitle { label: qsTr("Port speed") }
+        DevIslandTitle { label: qsTr("Port speed"); foldIsland: portIsland }
 
         DevStackedRow {
             label: qsTr("Module port to this device, bit/s")
@@ -3023,6 +3065,7 @@ Column {
     // record is read, only the edited fields change, then it is read back). With 0.12 this island replaces Lines.
     DevIsland {
         id: portsIsland
+        foldKey: "wifi.ports"
         width: root.groupWidth
         visible: root._wifiPorts
         rowMinHeight: Tokens.controlHMd + Tokens.spaceXs
@@ -3164,12 +3207,12 @@ Column {
         Timer {
             interval: 2000
             repeat: true
-            running: portsIsland.visible
+            running: portsIsland.visible && !portsIsland.folded
             triggeredOnStart: true
             onTriggered: if (dev) dev.wifiNetRefreshPorts()
         }
 
-        DevIslandTitle { label: qsTr("Ports") }
+        DevIslandTitle { label: qsTr("Ports"); foldIsland: portsIsland }
         KIslandRow {
             minHeight: 0
             verticalPadding: Tokens.spaceSm
@@ -3640,6 +3683,7 @@ Column {
     // ── Wi‑Fi module: role and access point (firmware 0.10, ID_WIFI_NET v0, v1, v5) ──
     DevIsland {
         id: apIsland
+        foldKey: "wifi.role"
         width: root.groupWidth
         visible: root._isWifi && dev.wifiNetSupport === 1
         rowMinHeight: Tokens.controlHMd + Tokens.spaceXs
@@ -3708,7 +3752,7 @@ Column {
             function onWifiNetChanged() { apIsland.sync(false) }
         }
 
-        DevIslandTitle { label: apIsland.showAp ? qsTr("Role and access point") : qsTr("Role") }
+        DevIslandTitle { label: apIsland.showAp ? qsTr("Role and access point") : qsTr("Role"); foldIsland: apIsland }
 
         KIslandRow {
             label: qsTr("Role")
@@ -3844,6 +3888,7 @@ Column {
     // ── Wi‑Fi module: address and DHCP of the access point (ID_WIFI_NET v2) ──
     DevIsland {
         id: ipIsland
+        foldKey: "wifi.ip"
         width: root.groupWidth
         // the access point's address and DHCP: not shown while the module runs as a station
         visible: root._isWifi && dev.wifiNetSupport === 1 && root._wifiRole !== 0
@@ -3887,7 +3932,7 @@ Column {
             function onWifiNetChanged() { ipIsland.sync(false) }
         }
 
-        DevIslandTitle { label: qsTr("Access point address and DHCP") }
+        DevIslandTitle { label: qsTr("Access point address and DHCP"); foldIsland: ipIsland }
         DevStackedRow {
             label: qsTr("Module address")
             WifiField { id: ipAddrField; width: parent.width; placeholder: "10.0.0.10"; onEdited: ipIsland.dirty = true }
@@ -3956,6 +4001,7 @@ Column {
     // also report the answers to every ID_WIFI_NET SETTING of the page, so the island exists while hidden.
     DevIsland {
         id: linesIsland
+        foldKey: "wifi.lines"
         width: root.groupWidth
         visible: root._isWifi && dev.wifiNetSupport === 1 && !root._wifiPorts
         rowMinHeight: Tokens.controlHMd + Tokens.spaceXs
@@ -4041,12 +4087,12 @@ Column {
         Timer {
             interval: 2000
             repeat: true
-            running: linesIsland.visible
+            running: linesIsland.visible && !linesIsland.folded
             triggeredOnStart: true
             onTriggered: if (dev) dev.wifiNetRefreshStats()
         }
 
-        DevIslandTitle { label: qsTr("Lines") }
+        DevIslandTitle { label: qsTr("Lines"); foldIsland: linesIsland }
 
         KIslandRow {
             label: qsTr("Line")
