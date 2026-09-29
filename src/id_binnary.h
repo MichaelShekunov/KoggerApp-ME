@@ -1207,6 +1207,8 @@ public:
     /** Saved SSIDs; an entry is empty when its frame was lost. */
     const QStringList& savedNetworks() const { return saved_; }
     bool scanning() const { return scanPending_; }
+    /** Networks the last scan reported: -1 no scan result yet, 0 it heard none. */
+    int scanTotal() const { return scanTotal_; }
     const Relay& relay() const { return relay_; }
     const RelayStats& relayStats() const { return relayStats_; }
     /** -1 not yet known, 0 the firmware refused v5/v6 (no relay), 1 the module answered. */

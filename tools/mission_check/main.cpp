@@ -674,6 +674,49 @@ void fieldTestRules()
     }
 }
 
+// Owner 2026-09-29: pick the freest channel for the boat's access point from a scan.
+void channelRules()
+{
+    using C = WifiChannels;
+    auto near = [](double a, double b) { return a > b - 0.05 && a < b + 0.05; };
+    auto at = [](const QVector<C::Channel>& r, int ch) { return r.value(ch - C::kFirst); };
+
+    const QVector<C::Channel> none = C::rate({});
+    bool floor = none.size() == C::kLast - C::kFirst + 1;
+    for (const C::Channel& ch : none)
+        floor = floor && ch.networks == 0 && near(ch.levelDbm, C::kFloorDbm);
+    check("channels: nothing heard -> all 13 at the floor, channel 1 best", floor && C::best(none) == 1);
+
+    const QVector<C::Channel> one = C::rate({ { 6, -40, false } });
+    check("channels: a network on 6 at -40 counts fully on 6, 14/18 one off, 9/18 two off, 4/18 three off, "
+          "-20 dB four off, nothing five off",
+          near(at(one, 6).levelDbm, -40.0) && near(at(one, 5).levelDbm, -41.09) && near(at(one, 7).levelDbm, -41.09)
+          && near(at(one, 4).levelDbm, -43.01) && near(at(one, 3).levelDbm, -46.53) && near(at(one, 2).levelDbm, -60.0)
+          && near(at(one, 1).levelDbm, C::kFloorDbm) && near(at(one, 11).levelDbm, C::kFloorDbm)
+          && C::best(one) == 1,
+          QStringLiteral("5: %1, 4: %2, 3: %3, 2: %4, best %5").arg(at(one, 5).levelDbm).arg(at(one, 4).levelDbm)
+              .arg(at(one, 3).levelDbm).arg(at(one, 2).levelDbm).arg(C::best(one)));
+
+    const QVector<C::Channel> own = C::rate({ { 6, -40, true } });
+    check("channels: our own network is left out", at(own, 6).networks == 0 && near(at(own, 6).levelDbm, C::kFloorDbm));
+
+    check("channels: networks on 1 and 11 -> 6 is the least busy", C::best(C::rate({ { 1, -50, false }, { 11, -50, false } })) == 6);
+
+    // a network on 4: channels 9, 10 and 11 hear nothing of it; 11 goes first (1, 6, 11 do not overlap each other)
+    check("channels: within 1 dB, 1/6/11 before the others", C::best(C::rate({ { 4, -60, false } })) == 11);
+
+    const QVector<C::Channel> many = C::rate({ { 6, -70, false }, { 6, -50, false }, { 3, -80, false } });
+    check("channels: the networks on a channel and the strongest of them",
+          at(many, 6).networks == 2 && at(many, 6).strongest == -50 && at(many, 3).networks == 1
+          && at(many, 3).strongest == -80 && at(many, 4).networks == 0);
+
+    const QVector<C::Channel> bad = C::rate({ { 0, -40, false }, { 14, -40, false }, { 6, 0, false } });
+    bool ignored = true;
+    for (const C::Channel& ch : bad)
+        ignored = ignored && ch.networks == 0 && near(ch.levelDbm, C::kFloorDbm);
+    check("channels: channel 0 or 14 and RSSI 0 are ignored", ignored);
+}
+
 int main(int argc, char* argv[])
 {
     QCoreApplication app(argc, argv);
@@ -693,6 +736,7 @@ int main(int argc, char* argv[])
     wifiPortsRules();
     wifiRadioRules();
     fieldTestRules();
+    channelRules();
     if (cli.isSet(QStringLiteral("offline"))) {
         std::printf("\n%d checks, %d failed (offline)\nMISSION_CHECK_%s\n", g_checks, g_failed, g_failed ? "FAILED" : "DONE");
         return g_failed ? 1 : 0;

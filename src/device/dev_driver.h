@@ -156,6 +156,11 @@ public:
     QString wifiTag() const;
     bool wifiScanning();
     QVariantList wifiNetworks();
+    /** Channels 1..13 rated by the last scan (WifiChannels): channel, networks, strongest, level (dBm), best, ap
+     *  (the access point may use it). Empty before the first scan result. */
+    QVariantList wifiChannels();
+    /** The least busy channel for the access point by the last scan, 0 before it. */
+    int wifiBestChannel();
     QStringList wifiSavedNetworks();
 
     // Relay of the boat's SBP stream through the module (ID_WIFI v5 / v6, firmware 0.6+).

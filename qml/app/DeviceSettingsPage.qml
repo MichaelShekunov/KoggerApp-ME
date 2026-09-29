@@ -1769,6 +1769,26 @@ Column {
         readonly property bool currentSaved: live && !!dev.wifiCurrentSaved
         readonly property bool scanning: root._isWifi && !!dev.wifiScanning
         readonly property var networks: root._isWifi ? dev.wifiNetworks : []
+        // Channels rated by the last scan (WifiChannels in C++); empty before the first scan result.
+        readonly property var channels: root._isWifi ? dev.wifiChannels : []
+        readonly property int bestChannel: root._isWifi ? dev.wifiBestChannel : 0
+        readonly property int channelNow: connected ? dev.wifiChannel : 0
+        readonly property bool channelsShown: live && !apRole && !scanning && channels.length > 0
+        function channelLevel(c) {
+            for (var i = 0; i < channels.length; ++i)
+                if (channels[i].channel === c)
+                    return channels[i].level
+            return -100
+        }
+        function levelText(l) { return l <= -99.5 ? qsTr("nothing heard") : qsTr("%1 dBm").arg(Math.round(l)) }
+        // the colours of the signal icon's levels: green quiet, red busy
+        function levelColor(l) {
+            var dark = AppPalette.isDark
+            if (l <= -85) return dark ? "#22C55E" : "#15803D"
+            if (l <= -72) return dark ? "#A3E635" : "#4D7C0F"
+            if (l <= -62) return dark ? "#FB923C" : "#C2410C"
+            return dark ? "#F87171" : "#B91C1C"
+        }
         readonly property var savedList: root._isWifi ? dev.wifiSavedNetworks : []
 
         // The network the operator tapped; the join rows stay open while it is set. The module
@@ -2121,9 +2141,101 @@ Column {
         }
         KIslandRow {
             open: wifiIsland.live && !wifiIsland.apRole && !wifiIsland.scanning && wifiIsland.networks.length === 0
+                  && wifiIsland.channels.length === 0
             minHeight: 0
             verticalPadding: Tokens.spaceMd
             label: qsTr("Nothing found yet. Tap Scan.")
+            labelPixelSize: Tokens.fontSm
+            labelColor: AppPalette.textMuted
+        }
+
+        // Channels by the last scan (field test 2026-09-29, owner: to pick the freest channel for the boat). A bar is
+        // the power of the other networks on and next to that channel (WifiChannels, wifi_ops.h), the number above it
+        // the networks on it; channels 12 and 13 are shown dim (the access point takes 1-11).
+        KIslandSection {
+            open: wifiIsland.channelsShown
+            label: qsTr("Channels")
+        }
+        DevStackedRow {
+            open: wifiIsland.channelsShown
+            caption: qsTr("By the networks the last scan heard: their power, counted with how 2.4 GHz channels overlap; our own network is left out. The traffic on a channel is not measured yet: that needs the module's firmware. The scan takes 2–4 s and may stall the boat link meanwhile.")
+            Item {
+                id: chanChart
+                width: parent.width
+                height: Math.round(96 * AppPalette.scale)
+                readonly property int n: Math.max(1, wifiIsland.channels.length)
+                readonly property real gap: Math.max(2, Math.round(3 * AppPalette.scale))
+                readonly property real colW: (width - (n - 1) * gap) / n
+                readonly property real labelH: Math.round(16 * AppPalette.scale)
+                readonly property real barH: height - 2 * labelH
+                Row {
+                    spacing: chanChart.gap
+                    Repeater {
+                        model: wifiIsland.channels
+                        delegate: Item {
+                            width: chanChart.colW
+                            height: chanChart.height
+                            // -100 dBm (nothing heard) at the bottom, -30 dBm at the top
+                            readonly property real frac: Math.max(0, Math.min(1, (modelData.level + 100) / 70))
+                            readonly property bool now: modelData.channel === wifiIsland.channelNow
+                            opacity: modelData.ap ? 1.0 : 0.45
+                            Text {
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                height: chanChart.labelH
+                                verticalAlignment: Text.AlignVCenter
+                                text: modelData.networks > 0 ? String(modelData.networks) : ""
+                                color: AppPalette.textMuted
+                                font.pixelSize: Tokens.fontSm
+                            }
+                            Rectangle {
+                                y: chanChart.labelH
+                                width: parent.width
+                                height: chanChart.barH
+                                radius: Math.round(3 * AppPalette.scale)
+                                color: AppPalette.rowRaised
+                                border.width: modelData.best ? 2 : 0
+                                border.color: AppPalette.accentBorder
+                                Rectangle {
+                                    anchors.bottom: parent.bottom
+                                    width: parent.width
+                                    height: Math.max(2, parent.height * frac)
+                                    radius: parent.radius
+                                    color: wifiIsland.levelColor(modelData.level)
+                                }
+                            }
+                            Text {
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                y: chanChart.labelH + chanChart.barH
+                                height: chanChart.labelH
+                                verticalAlignment: Text.AlignVCenter
+                                text: (now ? "•" : "") + modelData.channel
+                                font.bold: modelData.best || now
+                                color: modelData.best ? AppPalette.accentText : (now ? AppPalette.textStrong : AppPalette.textMuted)
+                                font.pixelSize: Tokens.fontSm
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        DevInfoRow {
+            open: wifiIsland.channelsShown && wifiIsland.bestChannel > 0
+            label: qsTr("Least busy")
+            value: qsTr("channel %1").arg(wifiIsland.bestChannel) + " · "
+                   + wifiIsland.levelText(wifiIsland.channelLevel(wifiIsland.bestChannel))
+        }
+        DevInfoRow {
+            open: wifiIsland.channelsShown && wifiIsland.channelNow > 0
+            label: qsTr("The boat link now (•)")
+            value: qsTr("channel %1").arg(wifiIsland.channelNow) + " · "
+                   + wifiIsland.levelText(wifiIsland.channelLevel(wifiIsland.channelNow))
+        }
+        KIslandRow {
+            open: wifiIsland.channelsShown && wifiIsland.bestChannel > 0 && wifiIsland.channelNow > 0
+                  && wifiIsland.bestChannel !== wifiIsland.channelNow
+            minHeight: 0
+            verticalPadding: Tokens.spaceSm
+            label: qsTr("To move the link there, set channel %1 on the boat's module: Role and access point → Channel, then Apply; this module follows by itself.").arg(wifiIsland.bestChannel)
             labelPixelSize: Tokens.fontSm
             labelColor: AppPalette.textMuted
         }

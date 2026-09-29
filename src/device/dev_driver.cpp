@@ -1537,6 +1537,39 @@ QVariantList DevDriver::wifiNetworks() {
     return list;
 }
 
+static QVector<WifiChannels::Net> scanNets(const IDBinWifi* wifi) {
+    QVector<WifiChannels::Net> nets;
+    for (const IDBinWifi::Network& n : wifi->networks())
+        if (n.valid)
+            nets.append({ int(n.channel), int(n.rssi), (n.flags & IDBinWifi::NetCurrent) != 0 });
+    return nets;
+}
+
+QVariantList DevDriver::wifiChannels() {
+    QVariantList list;
+    if (idWifi->scanTotal() < 0)
+        return list;
+    const QVector<WifiChannels::Channel> rated = WifiChannels::rate(scanNets(idWifi));
+    const int best = WifiChannels::best(rated);
+    for (const WifiChannels::Channel& ch : rated) {
+        QVariantMap m;
+        m["channel"] = ch.channel;
+        m["networks"] = ch.networks;
+        m["strongest"] = ch.strongest;
+        m["level"] = ch.levelDbm;
+        m["best"] = ch.channel == best;
+        m["ap"] = ch.channel <= WifiChannels::kLastAp;
+        list.append(m);
+    }
+    return list;
+}
+
+int DevDriver::wifiBestChannel() {
+    if (idWifi->scanTotal() < 0)
+        return 0;
+    return WifiChannels::best(WifiChannels::rate(scanNets(idWifi)));
+}
+
 QStringList DevDriver::wifiSavedNetworks() {
     QStringList list;
     for (const QString& s : idWifi->savedNetworks()) {
