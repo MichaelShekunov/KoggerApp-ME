@@ -1773,7 +1773,36 @@ Column {
         readonly property var channels: root._isWifi ? dev.wifiChannels : []
         readonly property int bestChannel: root._isWifi ? dev.wifiBestChannel : 0
         readonly property int channelNow: connected ? dev.wifiChannel : 0
-        readonly property bool channelsShown: live && !apRole && !scanning && channels.length > 0
+        readonly property bool channelsShown: live && !apRole && channels.length > 0
+        // Live (owner 2026-09-29: the air as it is now, not an old picture): while on and this page is shown the
+        // module scans again 3 s after each scan ends; each scan takes 2-4 s. Off whenever the page is opened.
+        property bool watchAir: false
+        property real scanDoneAt: 0
+        property real ageTick: 0
+        onScanningChanged: if (!scanning) { scanDoneAt = Date.now(); ageTick = scanDoneAt }
+        onWatchAirChanged: if (watchAir && dev && !scanning) dev.wifiScan()
+        function ageText() {
+            if (scanning)
+                return qsTr("updating…")
+            if (scanDoneAt <= 0)
+                return channels.length > 0 ? qsTr("From an earlier scan.") : ""
+            var s = Math.max(0, Math.round((ageTick - scanDoneAt) / 1000))
+            if (s < 2)
+                return qsTr("updated just now")
+            if (s < 120)
+                return qsTr("updated %1 s ago").arg(s)
+            return qsTr("updated %1 min ago").arg(Math.round(s / 60))
+        }
+        Timer {
+            interval: 1000; repeat: true
+            running: wifiIsland.watchAir && wifiIsland.visible && wifiIsland.live && !wifiIsland.apRole
+            onTriggered: if (dev && !wifiIsland.scanning && Date.now() - wifiIsland.scanDoneAt >= 3000) dev.wifiScan()
+        }
+        Timer {
+            interval: 1000; repeat: true
+            running: wifiIsland.channelsShown
+            onTriggered: wifiIsland.ageTick = Date.now()
+        }
         function channelLevel(c) {
             for (var i = 0; i < channels.length; ++i)
                 if (channels[i].channel === c)
@@ -2156,9 +2185,24 @@ Column {
             open: wifiIsland.channelsShown
             label: qsTr("Channels")
         }
+        KIslandRow {
+            open: wifiIsland.channelsShown
+            label: qsTr("Live")
+            caption: (wifiIsland.watchAir ? qsTr("Scanning again and again while this page is open; each scan takes 2–4 s and may stall the boat link.")
+                                          : qsTr("Off: the picture is of one scan."))
+                     + " " + wifiIsland.ageText()
+            interactive: true
+            onClicked: liveSwitch.click()
+            KSwitch {
+                id: liveSwitch
+                flat: true
+                checked: wifiIsland.watchAir
+                onToggled: wifiIsland.watchAir = checked
+            }
+        }
         DevStackedRow {
             open: wifiIsland.channelsShown
-            caption: qsTr("By the networks the last scan heard: their power, counted with how 2.4 GHz channels overlap; our own network is left out. The traffic on a channel is not measured yet: that needs the module's firmware. The scan takes 2–4 s and may stall the boat link meanwhile.")
+            caption: qsTr("By the networks heard: their power, counted with how 2.4 GHz channels overlap; our own network is left out. The traffic on a channel is not measured yet: that needs the module's firmware.")
             Item {
                 id: chanChart
                 width: parent.width
