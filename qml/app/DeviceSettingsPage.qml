@@ -418,17 +418,37 @@ Column {
     readonly property bool _hasCut: _isBasicSonar || _isRecorder || _isUsbl || _isWifi
     property bool _engExpanded: false
 
-    function _linkUuidOfDev() {
+    // The device's topology group (one per link) and its own entry there, or null.
+    function _topologyEntryOfDev() {
         if (!dev || typeof deviceTopology === "undefined" || !deviceTopology)
-            return ""
+            return null
         var groups = deviceTopology.groups || []
         for (var gi = 0; gi < groups.length; ++gi) {
             var members = groups[gi].members || []
             for (var mi = 0; mi < members.length; ++mi)
                 if (members[mi].device === dev)
-                    return groups[gi].linkUuid || ""
+                    return { group: groups[gi], member: members[mi] }
         }
-        return ""
+        return null
+    }
+
+    function _linkUuidOfDev() {
+        var e = _topologyEntryOfDev()
+        return e ? (e.group.linkUuid || "") : ""
+    }
+
+    // Behind a Wi-Fi module (a bridge, role 3, in the device's group): the boat's logger and sonar on the head
+    // unit (every Wi-Fi module is a bridge itself, hidden as one). Their link is the head unit's own port, so
+    // "Set baudrate" is hidden for them (DeviceParamCatalog).
+    readonly property bool behindModule: {
+        var e = _topologyEntryOfDev()
+        if (!e || e.member.role === 3)
+            return false
+        var members = e.group.members || []
+        for (var i = 0; i < members.length; ++i)
+            if (members[i].role === 3)
+                return true
+        return false
     }
 
     function _applyLinkBaudrate(uuid, baudrate) {

@@ -69,9 +69,11 @@ QtObject {
           label: qsTr("Timestamp"), kind: "switch", prop: "datasetTimestamp", mask: 1 },
 
         // Not for the Wi-Fi module: its ports have their own sections (Port speed / Ports), which change a rate
-        // with the link following, the answer read back and the rate saved.
+        // with the link following, the answer read back and the rate saved. Nor behind the module (the boat's
+        // devices on the head unit): there the link is the head unit's own port, which the row would retune and
+        // save while the rate went to the far device.
         { key: "action.baudrate", group: "actions", labelInFavoritesOnly: true,
-          label: qsTr("Baudrate"), kind: "baudrate", stacked: true, hideWhen: "isWifi" },
+          label: qsTr("Baudrate"), kind: "baudrate", stacked: true, hideWhen: "isWifi", hideOnPage: "behindModule" },
         { key: "action.settingsFile", group: "actions", labelInFavoritesOnly: true,
           label: qsTr("Settings file"), kind: "settingsFile", stacked: true }
     ]
@@ -85,10 +87,12 @@ QtObject {
 
     function has(key) { return meta(key) !== null }
 
-    function supported(dev, key) {
+    // page (optional): the device page, for hideOnPage (a page property that hides the param).
+    function supported(dev, key, page) {
         var m = meta(key)
         if (!dev || !m) return false
         if (m.hideWhen && dev[m.hideWhen]) return false
+        if (m.hideOnPage && page && page[m.hideOnPage]) return false
         if (!m.support) return true
         return !!dev[m.support]
     }
