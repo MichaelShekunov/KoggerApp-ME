@@ -780,7 +780,9 @@ Owner's seven notes after the head unit's field test, all in one commit (`headun
    `store.devicePage`: "Apply and save (N)" in the accent colour while N changes wait, a second tap to confirm (as
    those Apply buttons ask), the progress, then one toast with what was applied and what was not; with nothing
    waiting it is "Save to device" as before. Joining a network stays with its own button (an action, not a
-   setting). An unapplied radio or port-rate pick still goes back after 30 s, and the count with it.
+   setting). An unapplied radio or port-rate pick no longer goes back after 30 s (owner): it waits for Apply, the bar or
+   Read back (a port card's Read back drops its rate pick too); the end of a line change no longer drops a pending
+   rate pick of the same port, which "Apply and save" would have lost (line first, rate next).
    *Not verified:* on the head unit by touch; the wiring is checked by the build (qmlcachegen), qmllint and a clean
    start only (the page needs a live device; this PC has none).
 7. **RSSI digits on the Wi-Fi badge** (`WifiSignalIcon.showRssi`): the RSSI in dBm under smaller arcs on the toolbar
