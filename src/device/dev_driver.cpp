@@ -1047,7 +1047,7 @@ void DevDriver::updateDataStale(int64_t now) {
     if (stale == dataStale_)
         return;
     dataStale_ = stale;
-    qInfo().noquote() << QStringLiteral("[%1] device %2: %3").arg(m_devAddress).arg(m_devName,
+    qInfo().noquote() << QStringLiteral("[%1] device %2: %3").arg(m_busAddress).arg(m_devName,
         stale ? QStringLiteral("nothing for %1 s, shown as without data").arg(double(now - m_state.lastConnectTime) / 1000.0, 0, 'f', 1)
               : QStringLiteral("frames again"));
     emit dataStaleChanged();
@@ -1503,7 +1503,9 @@ double DevDriver::wifiRxTotal() { return static_cast<double>(idWifi->report().rx
 double DevDriver::wifiTxTotal() { return static_cast<double>(idWifi->report().txTotal); }
 int DevDriver::wifiUptime() { return static_cast<int>(idWifi->report().uptimeS); }
 QString DevDriver::wifiTag() const {
-    return QStringLiteral("[%1]").arg(m_devAddress);
+    // The route the device answers from (its key in DeviceManager); m_devAddress is never set and was 0 for both
+    // modules on the head unit's log (2026-09-29).
+    return QStringLiteral("[%1]").arg(m_busAddress);
 }
 
 double DevDriver::wifiLostRequests() {
