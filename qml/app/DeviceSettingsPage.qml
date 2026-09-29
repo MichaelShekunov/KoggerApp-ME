@@ -19,6 +19,157 @@ Column {
     property real scrollTopInset: 0
 
     property bool favEditMode: false
+
+    // ── Apply and save: the Devices page's pinned bar (field test 2026-09-29) ──
+    // An island's Apply sends that island's edits; the bar's "Apply and save" does what every pending Apply on this
+    // page would, then writes the device's settings to its memory (what "Flash settings" does). A port change runs in
+    // the driver and the next step waits for it (wifiPortBusy); the radio goes after the save, since the module
+    // reconnects; the module's own address last, since it then answers as a new device. The bar reads
+    // pendingApplyCount, applying and applyProgress from here (store.devicePage).
+    property int pendingApplyCount: 0
+    property bool applying: false
+    property string applyProgress: ""
+    property var _applyQueue: []
+    property int _applyAt: 0
+    property int _applyTotal: 0
+    property var _applyDone: []
+    property var _applyFailed: []
+    property bool _applySaved: false
+    property real _applyWaitSince: 0
+
+    // What waits for Apply now. phase 0: before the save; 2: after it (the radio); 3: last (the own address).
+    function pendingSteps() {
+        var s = []
+        if (!dev)
+            return s
+        function add(ok, name, phase, fn) {
+            if (ok)
+                s.push({ name: name, phase: phase, run: fn })
+        }
+        add(relayIsland.pendingApply, qsTr("Boat link"), 0, function() { return relayIsland.apply() })
+        add(linesIsland.pendingApply, qsTr("Lines"), 0, function() { return linesIsland.apply() })
+        add(apIsland.rolePending, qsTr("Role"), 0, function() { return apIsland.saveRole() })
+        add(apIsland.apPending, qsTr("Access point"), 0, function() { return apIsland.applyAp() })
+        add(ipIsland.pendingApply, qsTr("Address and DHCP"), 0, function() { return ipIsland.apply() })
+        add(devNetGroup.pendingApply, qsTr("Network (USB)"), 0, function() { return devNetGroup.apply() })
+        for (var i = 0; i < portsRepeater.count; ++i) {
+            var c = portsRepeater.itemAt(i)
+            if (!c)
+                continue
+            add(c.netPending, qsTr("%1 line").arg(portsIsland.portName(i)), 0,
+                (function(card) { return function() { return card.applyNet() } })(c))
+            add(c.ratePending, qsTr("%1 rate").arg(portsIsland.portName(i)), 0,
+                (function(card) { return function() { return card.applyRate() } })(c))
+        }
+        add(portIsland.pendingApply, qsTr("Port speed"), 0, function() { return portIsland.apply() })
+        add(radioIsland.pendingApply, qsTr("Radio"), 2, function() { return radioIsland.apply() })
+        add(portsIsland.ownAddrPending, qsTr("Module address"), 3, function() { return portsIsland.applyOwnAddr() })
+        add(linesIsland.ownAddrPending, qsTr("Module address"), 3, function() { return linesIsland.applyOwnAddr() })
+        return s
+    }
+
+    function recountPending() {
+        if (!applying)
+            pendingApplyCount = pendingSteps().length
+    }
+
+    function applyAllAndSave() {
+        if (applying || !dev)
+            return
+        var steps = pendingSteps()
+        var q = []
+        for (var phase = 0; phase <= 3; ++phase) {
+            if (phase === 1)
+                q.push({ name: "", phase: 1, save: true })
+            for (var i = 0; i < steps.length; ++i)
+                if (steps[i].phase === phase)
+                    q.push(steps[i])
+        }
+        _applyQueue = q
+        _applyAt = 0
+        _applyTotal = steps.length
+        _applyDone = []
+        _applyFailed = []
+        _applySaved = false
+        _applyWaitSince = 0
+        applying = true
+        _applyNext()
+    }
+
+    function _applyNext() {
+        if (!dev) {
+            _finishApply()
+            return
+        }
+        // A port change still runs in the driver: the next step waits for it.
+        if (dev.wifiPortBusy) {
+            if (_applyWaitSince === 0)
+                _applyWaitSince = Date.now()
+            if (Date.now() - _applyWaitSince < 45000) {
+                applyStepTimer.restart()
+                return
+            }
+            _applyFailed = _applyFailed.concat([qsTr("the rest (a port change did not finish)")])
+            _finishApply()
+            return
+        }
+        _applyWaitSince = 0
+        if (_applyAt >= _applyQueue.length) {
+            _finishApply()
+            return
+        }
+        var step = _applyQueue[_applyAt]
+        _applyAt += 1
+        if (step.save) {
+            dev.flashSettings()
+            _applySaved = true
+        } else {
+            var ok = false
+            try {
+                ok = step.run() === true
+            } catch (err) {
+                console.warn("apply and save:", step.name, err)
+            }
+            if (ok)
+                _applyDone = _applyDone.concat([step.name])
+            else
+                _applyFailed = _applyFailed.concat([step.name])
+        }
+        var n = _applyDone.length + _applyFailed.length
+        applyProgress = _applyTotal > 0 && n < _applyTotal ? qsTr("Applying %1 of %2…").arg(n + 1).arg(_applyTotal)
+                                                           : qsTr("Saving…")
+        applyStepTimer.restart()
+    }
+
+    function _finishApply() {
+        applying = false
+        applyProgress = ""
+        var name = dev ? dev.devName : ""
+        if (_applyFailed.length > 0)
+            notifications.warning(qsTr("Not applied: %1; see those islands.").arg(_applyFailed.join(", "))
+                                  + (_applyDone.length > 0 ? " " + qsTr("Applied: %1.").arg(_applyDone.join(", ")) : "")
+                                  + (_applySaved ? " " + qsTr("Settings written to device: %1").arg(name) : ""))
+        else if (_applyDone.length > 0)
+            notifications.info(qsTr("Applied: %1. Settings written to device: %2").arg(_applyDone.join(", ")).arg(name))
+        else if (_applySaved)
+            notifications.info(qsTr("Settings written to device: %1").arg(name))
+        recountPending()
+    }
+
+    Timer { id: applyStepTimer; interval: 300; repeat: false; onTriggered: root._applyNext() }
+    // The bar's count follows edits anywhere on the page (fields, menus, selectors): read twice a second while shown.
+    Timer {
+        interval: 500; repeat: true; triggeredOnStart: true
+        running: root.visible && !root.applying
+        onTriggered: root.recountPending()
+    }
+
+    function _registerWithStore() {
+        if (store)
+            store.devicePage = root
+    }
+    onStoreChanged: _registerWithStore()
+    Component.onDestruction: if (store && store.devicePage === root) store.devicePage = null
     readonly property string devTypeKey: dev ? (dev.devName || "") : ""
 
     readonly property var compactParamKeys: {
@@ -155,7 +306,7 @@ Column {
         _prevDev = dev
     }
 
-    Component.onCompleted: _applyForCurrentDev()
+    Component.onCompleted: { _applyForCurrentDev(); _registerWithStore() }
 
     function _applyForCurrentDev() {
         var cur = dev ? _groupStateFor(dev) : null
@@ -2036,6 +2187,7 @@ Column {
                                         || relayPortField.hasFocus || relayLportField.hasFocus
         property bool dirty: false
         property int modeSel: 0
+        readonly property bool pendingApply: visible && support === 1 && dirty
 
         function stateText(st) {
             switch (st) {
@@ -2066,17 +2218,17 @@ Column {
         }
         function apply() {
             if (!dev)
-                return
+                return false
             var addr = parseInt(relayAddrField.text, 10)
             var rport = parseInt(relayPortField.text, 10)
             var lport = parseInt(relayLportField.text, 10)
             if (isNaN(addr) || addr < 0 || addr > 255) {
                 notifications.warning(qsTr("Module address must be 0…255"))
-                return
+                return false
             }
             if (modeSel !== 0 && (isNaN(rport) || rport < 1 || rport > 65535)) {
                 notifications.warning(qsTr("Boat port must be 1…65535"))
-                return
+                return false
             }
             if (isNaN(rport))
                 rport = 0
@@ -2087,7 +2239,7 @@ Column {
                 ip = "0.0.0.0"
             if (!dev.wifiSetRelay(modeSel, addr, ip, rport, lport)) {
                 notifications.warning(qsTr("Boat IP address must be four numbers 0…255"))
-                return
+                return false
             }
             dirty = false
             root.forceActiveFocus()
@@ -2095,6 +2247,7 @@ Column {
                 notifications.info(qsTr("Relay switched off; the module answers at address %1").arg(addr))
             else
                 notifications.info(qsTr("Relay settings sent; the module now answers at address %1 and shows up as a new device").arg(addr))
+            return true
         }
 
         Connections {
@@ -2295,6 +2448,21 @@ Column {
         readonly property int selBw: can40 ? selBwChoice : 20
         property int selPs: 0
         property bool dirty: false
+        readonly property bool pendingApply: visible && valid && dirty
+        // DevDriver checks the result once the link is back and saves what is in effect if the module could not do
+        // it (WifiRadioCheck), whether or not this page is still open.
+        function apply() {
+            if (!dev.wifiSetRadio(selPower, selProto, selBw, selPs)) {
+                notifications.warning(qsTr("Not sent: no connection to the module"))
+                return false
+            }
+            sentLrAp = apRole && selProto === 8
+            radioError = ""
+            dirty = false
+            radioRevertTimer.stop()
+            notifications.info(qsTr("Radio settings sent to the module"))
+            return true
+        }
         // The last Apply asked an access point for LR only; with firmware before 0.12 an ERR_PAYLOAD to it is that.
         property bool sentLrAp: false
         property string radioError: ""
@@ -2446,19 +2614,7 @@ Column {
                     width: parent.bw
                     label: qsTr("Apply")
                     enabled: radioIsland.valid
-                    onConfirmed: {
-                        // DevDriver checks the result once the link is back and saves what is in effect if the
-                        // module could not do it (WifiRadioCheck), whether or not this page is still open.
-                        if (!dev.wifiSetRadio(radioIsland.selPower, radioIsland.selProto, radioIsland.selBw, radioIsland.selPs)) {
-                            notifications.warning(qsTr("Not sent: no connection to the module"))
-                            return
-                        }
-                        radioIsland.sentLrAp = radioIsland.apRole && radioIsland.selProto === 8
-                        radioIsland.radioError = ""
-                        radioIsland.dirty = false
-                        radioRevertTimer.stop()
-                        notifications.info(qsTr("Radio settings sent to the module"))
-                    }
+                    onConfirmed: radioIsland.apply()
                 }
                 DevButton {
                     width: parent.bw; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
@@ -2483,6 +2639,13 @@ Column {
         readonly property int now: root._isWifi ? dev.baudrate : 0
         readonly property bool busy: root._isWifi && dev.wifiPortBusy
         property int sel: 0
+        readonly property bool pendingApply: visible && !busy && sel > 0 && now > 0 && sel !== now
+        function apply() {
+            if (dev.wifiSetLineBaud(0, sel))
+                return true
+            notifications.warning(qsTr("The port speed could not be changed now: nothing changed"))
+            return false
+        }
 
         Component.onCompleted: if (now > 0) sel = now
         onNowChanged: if (!busy && now > 0) sel = now
@@ -2511,7 +2674,7 @@ Column {
                 width: parent.width
                 label: qsTr("Apply %1").arg(portIsland.sel)
                 enabled: !portIsland.busy && portIsland.sel > 0 && portIsland.sel !== portIsland.now
-                onConfirmed: if (!dev.wifiSetLineBaud(0, portIsland.sel)) notifications.warning(qsTr("The port speed could not be changed now: nothing changed"))
+                onConfirmed: portIsland.apply()
             }
         }
     }
@@ -2545,6 +2708,15 @@ Column {
         readonly property bool wide: width >= Math.round(660 * AppPalette.scale)
 
         function portName(i) { return i === 0 ? "X1" : "X2" }
+        readonly property bool ownAddrPending: visible && root._isWifi && dev.wifiNetOwnAddr >= 0
+                                               && portsOwnField.text.length > 0
+                                               && parseInt(portsOwnField.text, 10) !== dev.wifiNetOwnAddr
+        function applyOwnAddr() {
+            if (dev.wifiNetSetOwnAddr(parseInt(portsOwnField.text, 10)))
+                return true
+            notifications.warning(qsTr("Module address must be 1…254: 0 is where devices sit, 255 is refused"))
+            return false
+        }
         // "UDP 14445 · senders" / "TCP → 10.0.0.10:14444" / "line off": the network end of a connector
         function lineSummary(l) {
             if (!l || l.valid !== true)
@@ -2682,6 +2854,7 @@ Column {
                 readonly property real cellW: Math.max(0, (width - (columns - 1) * spacing) / columns)
 
                 Repeater {
+                    id: portsRepeater
                     model: 2
                     delegate: KIsland {
                         id: card
@@ -2718,6 +2891,9 @@ Column {
                         property var synced: null      // the record the fields were filled from
                         property bool netDirty: false
                         property string netError: ""
+                        // the island hidden (another device on this page): nothing of an earlier module waits here
+                        readonly property bool netPending: portsIsland.visible && recValid && netDirty
+                        readonly property bool ratePending: portsIsland.visible && valid && dirty && selBaud > 0 && selBaud !== baudNow
 
                         // The fields follow the module's record until the operator edits them.
                         function syncNet(force) {
@@ -2774,18 +2950,30 @@ Column {
                             var e = netEdits()
                             if (Object.keys(e).length === 0) {
                                 netDirty = false
-                                return
+                                return true
                             }
                             var clash = localPortClash(e)
                             if (clash > 0) {
                                 netError = qsTr("%1 already listens on UDP %2.").arg(portsIsland.portName(1 - index)).arg(clash)
                                            + " " + portsIsland.swapHint()
-                                return
+                                return false
                             }
-                            if (!dev.wifiSetLineConfig(index, e))
+                            if (!dev.wifiSetLineConfig(index, e)) {
                                 netError = qsTr("Not sent: check the fields (IP a.b.c.d, ports 0–65535, pins −1…127), or wait for the running change.")
-                            else
-                                netError = ""
+                                return false
+                            }
+                            netError = ""
+                            return true
+                        }
+                        function applyRate() {
+                            if (!dev.wifiSetLineBaud(index, selBaud)) {
+                                rateError = qsTr("The rate of %1 could not be changed now: nothing changed").arg(portsIsland.portName(index))
+                                return false
+                            }
+                            rateError = ""
+                            dirty = false
+                            cardDirtyTimer.stop()
+                            return true
                         }
                         onRecChanged: syncNet(false)
                         onNetChangingChanged: if (!netChanging && !netDirty) syncNet(false)
@@ -3075,15 +3263,7 @@ Column {
                                     width: parent.applyW
                                     label: qsTr("Apply")
                                     enabled: card.valid && !portsIsland.busy && card.selBaud > 0 && card.selBaud !== card.baudNow
-                                    onConfirmed: {
-                                        if (!dev.wifiSetLineBaud(card.index, card.selBaud)) {
-                                            card.rateError = qsTr("The rate of %1 could not be changed now: nothing changed").arg(portsIsland.portName(card.index))
-                                        } else {
-                                            card.rateError = ""
-                                            card.dirty = false
-                                            cardDirtyTimer.stop()
-                                        }
-                                    }
+                                    onConfirmed: card.applyRate()
                                 }
                             }
                         }
@@ -3111,8 +3291,7 @@ Column {
                     width: Math.round(96 * AppPalette.scale)
                     label: qsTr("Set")
                     enabled: portsOwnField.text.length > 0
-                    onConfirmed: if (!dev.wifiNetSetOwnAddr(parseInt(portsOwnField.text, 10)))
-                                     notifications.warning(qsTr("Module address must be 1…254: 0 is where devices sit, 255 is refused"))
+                    onConfirmed: portsIsland.applyOwnAddr()
                 }
             }
         }
@@ -3139,6 +3318,32 @@ Column {
         property int selRole: 0
         property int selAuth: 1
         property bool dirty: false
+        property bool apDirty: false      // the access point's fields were edited (dirty covers the role too)
+        readonly property bool rolePending: visible && roleValid && selRole !== role.saved
+        readonly property bool apPending: visible && showAp && apValid && apDirty
+        function markAp() {
+            dirty = true
+            apDirty = true
+        }
+        // "Save for next boot": the role takes effect after a reboot; edits of the access point stay.
+        function saveRole() {
+            dev.wifiNetSetRole(selRole, false, false)
+            dirty = apDirty
+            notifications.info(qsTr("Role saved: %1 after the next reboot").arg(roleText(selRole)))
+            return true
+        }
+        function applyAp() {
+            var ok = dev.wifiNetSetAp(parseInt(apChannelField.text, 10), apHiddenSwitch.checked,
+                                      parseInt(apClientsField.text, 10), selAuth, apSsidField.text, apPassField.text)
+            if (!ok) {
+                notifications.warning(qsTr("Check the fields: name 1–32 bytes, password 8–63 characters (none for an open network), channel 1–11, clients 1–10"))
+                return false
+            }
+            dirty = false
+            apDirty = false
+            apPassField.text = ""
+            return true
+        }
 
         function roleText(r) { return r === 1 ? qsTr("access point") : qsTr("station") }
         function sync(force) {
@@ -3153,6 +3358,7 @@ Column {
             apHiddenSwitch.checked = ap.hidden
             apPassField.text = ""
             dirty = false
+            apDirty = false
         }
         onVisibleChanged: if (visible && dev) dev.wifiNetRefreshClients()
         Component.onCompleted: sync(true)
@@ -3207,7 +3413,7 @@ Column {
                     width: parent.bw; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
                     text: qsTr("Save for next boot")
                     enabled: apIsland.roleValid
-                    onClicked: { dev.wifiNetSetRole(apIsland.selRole, false, false); apIsland.dirty = false }
+                    onClicked: apIsland.saveRole()
                 }
             }
         }
@@ -3216,13 +3422,13 @@ Column {
         DevStackedRow {
             open: apIsland.showAp
             label: qsTr("Network name (SSID)")
-            WifiField { id: apSsidField; width: parent.width; placeholder: "Kogger-XXXX"; onEdited: apIsland.dirty = true }
+            WifiField { id: apSsidField; width: parent.width; placeholder: "Kogger-XXXX"; onEdited: apIsland.markAp() }
         }
         DevStackedRow {
             open: apIsland.showAp
             label: qsTr("Password")
             caption: qsTr("8–63 characters. Leave it empty to keep the current password.")
-            WifiField { id: apPassField; width: parent.width; password: true; placeholder: qsTr("unchanged"); onEdited: apIsland.dirty = true }
+            WifiField { id: apPassField; width: parent.width; password: true; placeholder: qsTr("unchanged"); onEdited: apIsland.markAp() }
         }
         DevStackedRow {
             open: apIsland.showAp
@@ -3232,23 +3438,23 @@ Column {
                 fontPixelSize: Tokens.fontSm
                 options: [ { label: qsTr("Open"), value: 0 }, { label: "WPA2", value: 1 }, { label: "WPA2/WPA3", value: 2 } ]
                 currentValue: apIsland.selAuth
-                onValueSelected: function(v) { apIsland.selAuth = v; apIsland.dirty = true }
+                onValueSelected: function(v) { apIsland.selAuth = v; apIsland.markAp() }
             }
         }
         KIslandRow {
             open: apIsland.showAp
             label: qsTr("Channel (1–11)")
-            WifiField { id: apChannelField; width: Math.round(90 * AppPalette.scale); numeric: true; minValue: 1; maxValue: 11; onEdited: apIsland.dirty = true }
+            WifiField { id: apChannelField; width: Math.round(90 * AppPalette.scale); numeric: true; minValue: 1; maxValue: 11; onEdited: apIsland.markAp() }
         }
         KIslandRow {
             open: apIsland.showAp
             label: qsTr("Clients at most (1–10)")
-            WifiField { id: apClientsField; width: Math.round(90 * AppPalette.scale); numeric: true; minValue: 1; maxValue: 10; onEdited: apIsland.dirty = true }
+            WifiField { id: apClientsField; width: Math.round(90 * AppPalette.scale); numeric: true; minValue: 1; maxValue: 10; onEdited: apIsland.markAp() }
         }
         KIslandRow {
             open: apIsland.showAp
             label: qsTr("Hidden network")
-            KSwitch { id: apHiddenSwitch; flat: true; onToggled: apIsland.dirty = true }
+            KSwitch { id: apHiddenSwitch; flat: true; onToggled: apIsland.markAp() }
         }
         DevStackedRow {
             open: apIsland.showAp
@@ -3263,17 +3469,7 @@ Column {
                     width: parent.bw
                     label: qsTr("Apply")
                     enabled: apIsland.apValid
-                    onConfirmed: {
-                        var ok = dev.wifiNetSetAp(parseInt(apChannelField.text, 10), apHiddenSwitch.checked,
-                                                  parseInt(apClientsField.text, 10), apIsland.selAuth,
-                                                  apSsidField.text, apPassField.text)
-                        if (!ok)
-                            notifications.warning(qsTr("Check the fields: name 1–32 bytes, password 8–63 characters (none for an open network), channel 1–11, clients 1–10"))
-                        else {
-                            apIsland.dirty = false
-                            apPassField.text = ""
-                        }
-                    }
+                    onConfirmed: apIsland.applyAp()
                 }
                 DevButton {
                     width: parent.bw; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
@@ -3318,6 +3514,18 @@ Column {
         readonly property bool editing: ipAddrField.hasFocus || ipMaskField.hasFocus || ipPoolStartField.hasFocus
                                         || ipPoolEndField.hasFocus || ipLeaseField.hasFocus
         property bool dirty: false
+        readonly property bool pendingApply: visible && valid && dirty
+        function apply() {
+            var ok = dev.wifiNetSetIp(ipAddrField.text, ipMaskField.text, ipDhcpSwitch.checked,
+                                      ipPoolStartField.text, ipPoolEndField.text,
+                                      parseInt(ipLeaseField.text, 10), ipGwSwitch.checked, ipDnsSwitch.checked)
+            if (!ok) {
+                notifications.warning(qsTr("Addresses must be four numbers a.b.c.d, the lease 1–2880 minutes"))
+                return false
+            }
+            dirty = false
+            return true
+        }
 
         function sync(force) {
             if (!valid || ((editing || dirty) && !force))
@@ -3390,15 +3598,7 @@ Column {
                     width: parent.bw
                     label: qsTr("Apply")
                     enabled: ipIsland.valid
-                    onConfirmed: {
-                        var ok = dev.wifiNetSetIp(ipAddrField.text, ipMaskField.text, ipDhcpSwitch.checked,
-                                                  ipPoolStartField.text, ipPoolEndField.text,
-                                                  parseInt(ipLeaseField.text, 10), ipGwSwitch.checked, ipDnsSwitch.checked)
-                        if (!ok)
-                            notifications.warning(qsTr("Addresses must be four numbers a.b.c.d, the lease 1–2880 minutes"))
-                        else
-                            ipIsland.dirty = false
-                    }
+                    onConfirmed: ipIsland.apply()
                 }
                 DevButton {
                     width: parent.bw; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
@@ -3432,6 +3632,30 @@ Column {
         property int selMode: 0
         property int selDest: 1
         property bool dirty: false
+        readonly property bool pendingApply: visible && valid && dirty
+        function apply() {
+            var ip = lnIpField.text.trim().length ? lnIpField.text.trim() : "0.0.0.0"
+            var ok = dev.wifiNetSetLine(sel, selMode, selDest, ip,
+                                        parseInt(lnRportField.text, 10) || 0, parseInt(lnLportField.text, 10) || 0,
+                                        parseInt(lnBaudField.text, 10) || 0,
+                                        isNaN(parseInt(lnTxField.text, 10)) ? -1 : parseInt(lnTxField.text, 10),
+                                        isNaN(parseInt(lnRxField.text, 10)) ? -1 : parseInt(lnRxField.text, 10))
+            if (!ok) {
+                notifications.warning(qsTr("Check the fields: IP a.b.c.d, ports 0–65535, line 1 speed 9600–4000000"))
+                return false
+            }
+            dirty = false
+            return true
+        }
+        readonly property bool ownAddrPending: visible && root._isWifi && dev.wifiNetOwnAddr >= 0
+                                               && lnOwnField.text.length > 0
+                                               && parseInt(lnOwnField.text, 10) !== dev.wifiNetOwnAddr
+        function applyOwnAddr() {
+            if (dev.wifiNetSetOwnAddr(parseInt(lnOwnField.text, 10)))
+                return true
+            notifications.warning(qsTr("Module address must be 1…255: 0 is where devices sit"))
+            return false
+        }
 
         function sync(force) {
             if (!valid || ((editing || dirty) && !force))
@@ -3562,18 +3786,7 @@ Column {
                     width: parent.bw
                     label: qsTr("Apply")
                     enabled: linesIsland.valid
-                    onConfirmed: {
-                        var ip = lnIpField.text.trim().length ? lnIpField.text.trim() : "0.0.0.0"
-                        var ok = dev.wifiNetSetLine(linesIsland.sel, linesIsland.selMode, linesIsland.selDest, ip,
-                                                    parseInt(lnRportField.text, 10) || 0, parseInt(lnLportField.text, 10) || 0,
-                                                    parseInt(lnBaudField.text, 10) || 0,
-                                                    isNaN(parseInt(lnTxField.text, 10)) ? -1 : parseInt(lnTxField.text, 10),
-                                                    isNaN(parseInt(lnRxField.text, 10)) ? -1 : parseInt(lnRxField.text, 10))
-                        if (!ok)
-                            notifications.warning(qsTr("Check the fields: IP a.b.c.d, ports 0–65535, line 1 speed 9600–4000000"))
-                        else
-                            linesIsland.dirty = false
-                    }
+                    onConfirmed: linesIsland.apply()
                 }
                 DevButton {
                     width: parent.bw; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
@@ -3618,8 +3831,7 @@ Column {
                     width: Math.round(96 * AppPalette.scale)
                     label: qsTr("Set")
                     enabled: lnOwnField.text.length > 0
-                    onConfirmed: if (!dev.wifiNetSetOwnAddr(parseInt(lnOwnField.text, 10)))
-                                     notifications.warning(qsTr("Module address must be 1…255: 0 is where devices sit"))
+                    onConfirmed: linesIsland.applyOwnAddr()
                 }
             }
         }
@@ -3904,6 +4116,18 @@ Column {
         readonly property string devIp:   (dev && dev.netValid) ? dev.netIp   : "192.168.7.1"
         readonly property string devMask: (dev && dev.netValid) ? dev.netMask : "255.255.255.0"
         readonly property string devHost: (dev && dev.netValid) ? dev.netHost : "192.168.7.2"
+        readonly property bool pendingApply: visible && !!dev && dev.netValid
+                                             && (ipField.text !== devIp || maskField.text !== devMask
+                                                 || hostField.text !== devHost || dhcpSwitch.checked !== dhcpSwitch.wantChecked)
+        function apply() {
+            if (!dev.applyNet(ipField.text, maskField.text, hostField.text, dhcpSwitch.checked)) {
+                notifications.info(qsTr("Address, mask or host address is not four octets"))
+                return false
+            }
+            notifications.info(qsTr("Network settings sent: %1").arg(ipField.text))
+            netReadBack.restart()       // покажем то, что прибор принял на деле
+            return true
+        }
 
         // force обходит защиту от затирания того, что человек печатает: им
         // пользуется только показ ответа прибора после «Применить», иначе
@@ -4034,15 +4258,7 @@ Column {
                 width: parent.bw; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
                 text: qsTr("Apply")
                 toolTipText: qsTr("Send the addresses to the device. They take effect at once; write them with Flash settings to survive a reboot.")
-                onClicked: {
-                    if (!dev) return
-                    if (!dev.applyNet(ipField.text, maskField.text, hostField.text, dhcpSwitch.checked)) {
-                        notifications.info(qsTr("Address, mask or host address is not four octets"))
-                        return
-                    }
-                    notifications.info(qsTr("Network settings sent: %1").arg(ipField.text))
-                    netReadBack.restart()       // покажем то, что прибор принял на деле
-                }
+                onClicked: if (dev) devNetGroup.apply()
             }
             DevButton {
                 width: parent.bw; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd

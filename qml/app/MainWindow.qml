@@ -1489,30 +1489,62 @@ ApplicationWindow {
             }
         }
 
-        // Under the Devices page, always in sight (field test 2026-09-29): save the shown device's settings in
-        // it (the page's "Flash settings") and close the menu.
+        // Under the Devices page, always in sight (field test 2026-09-29). Owner: this button and the islands'
+        // Apply must be one: with edits waiting it applies every one of them (DeviceSettingsPage.applyAllAndSave),
+        // then writes the settings to the device's memory; with none it only writes. A second tap confirms, as those
+        // Apply buttons ask.
         Component {
             id: deviceSettingsFooterComponent
 
             Row {
                 id: devFooter
                 readonly property var dev: workspaceStore.activeDevice
+                readonly property var page: workspaceStore.devicePage
+                readonly property int pending: page ? page.pendingApplyCount : 0
+                readonly property bool busy: !!(page && page.applying)
+                property bool confirming: false
                 readonly property real bw: (width - spacing) / 2
                 width: parent ? parent.width : 0
                 spacing: Tokens.spaceMd
 
+                onPendingChanged: if (pending === 0) confirming = false
+                Timer { id: devFooterConfirmTimer; interval: 3000; onTriggered: devFooter.confirming = false }
+
                 KButton {
+                    readonly property bool accent: devFooter.pending > 0 && !devFooter.confirming && !devFooter.busy
                     width: devFooter.bw
                     height: Tokens.controlHLg
-                    text: qsTr("Save to device")
-                    toolTipText: qsTr("Write the current settings to the device's memory")
-                    enabled: !!(devFooter.dev && devFooter.dev.isBoardInited)
+                    text: devFooter.busy ? devFooter.page.applyProgress
+                          : devFooter.confirming ? qsTr("Tap again: apply %1 and save").arg(devFooter.pending)
+                          : devFooter.pending > 0 ? qsTr("Apply and save (%1)").arg(devFooter.pending)
+                          : qsTr("Save to device")
+                    toolTipText: devFooter.pending > 0
+                                 ? qsTr("Apply every change waiting on this page, then write the settings to the device's memory")
+                                 : qsTr("Write the current settings to the device's memory")
+                    danger: devFooter.confirming
+                    normalBg: accent ? AppPalette.accentBg : AppPalette.card
+                    hoverBg: accent ? AppPalette.accentBgHover : AppPalette.cardHover
+                    normalBorder: accent ? AppPalette.accentBorder : AppPalette.border
+                    hoverBorder: accent ? AppPalette.accentBorder : AppPalette.borderHover
+                    textColor: accent ? AppPalette.accentText : (danger ? AppPalette.dangerText : AppPalette.textStrong)
+                    enabled: !devFooter.busy && !!(devFooter.dev && devFooter.dev.isBoardInited)
                     onClicked: {
                         var d = devFooter.dev
                         if (!d)
                             return
-                        d.flashSettings()
-                        notifications.info(qsTr("Settings written to device: %1").arg(d.devName))
+                        if (devFooter.pending > 0 && !devFooter.confirming) {
+                            devFooter.confirming = true
+                            devFooterConfirmTimer.restart()
+                            return
+                        }
+                        devFooter.confirming = false
+                        devFooterConfirmTimer.stop()
+                        if (devFooter.page) {
+                            devFooter.page.applyAllAndSave()
+                        } else {
+                            d.flashSettings()
+                            notifications.info(qsTr("Settings written to device: %1").arg(d.devName))
+                        }
                     }
                 }
                 KButton {
