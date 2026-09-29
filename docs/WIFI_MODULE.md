@@ -308,6 +308,44 @@ v7 `provisional` flag is never set (so the card's "provisional… back in 10 s" 
   costs (the link until BOOT is held); the 5M note no longer promises that the link comes back by itself.
 - `tools/mission_check`: the 0.15 path (no answer: the link stays at the new rate, nothing sent back) and the rule.
 
+## 2h. Channels: the least busy one for the boat (2026-09-29)
+
+Owner: scan the air and measure channel load, so that the freest channel can be picked on the boat.
+
+**What the app does now (0b45230d), from a scan (ID_WIFI v2).** A scan hears access points by their beacons: SSID,
+channel, RSSI. `WifiChannels` (`src/device/wifi_ops.h`) sums their power per channel 1..13, weighted by how much of
+the rated channel's band each covers: a 20 MHz channel is flat over +-9 MHz (802.11 OFDM mask) and channels are 5 MHz
+apart, so a network 1, 2, 3 channels off covers 14/18, 9/18, 4/18 of it, one 4 off only its skirt (0.01), 5 and more
+nothing. Our own network (the one the module is on, flag bit1 of CONTENT v2) is left out. The least busy channel for
+the access point is the lowest level among 1..11 (the module's AP takes 1..11); within 1 dB of it 1, 6 or 11 go first,
+then the lower channel. The Wi-Fi island shows it under "Networks nearby" (a bar per channel with the count of
+networks on it, the least busy channel, the channel the boat link is on and how to change it: the boat module's
+"Role and access point" → Channel). Only a station scans: the module refuses v2 as an access point, so on the kiosk
+it is the head unit's module that rates the air, at the head unit.
+
+What a scan cannot tell: how much a channel is used (one busy network is worse than three idle ones), stations and
+traffic of networks whose beacons are too weak, and anything that is not Wi-Fi except through what it does to
+reception. mission_check (offline) checks the weights, our own network left out, the pick and bad entries.
+
+**Asked of the module's firmware: a channel survey (proposal, ID_WIFI v8; the contract is the module project's).**
+The module listens (promiscuous mode) on each channel in turn and reports how much of the time the air was in use:
+
+- SETTING v8 `{U2 dwell ms, U2 channels}`: dwell per channel 50..1000 (clamped), channels a mask (bit0 = channel 1 …
+  bit12 = channel 13; 0 = every channel the module may use). Confirmed at once: OK, ERR_RUNTIME while joining,
+  scanning or surveying, ERR_PAYLOAD for bad arguments. The module then leaves its channel for the survey, sends one
+  CONTENT v8 per channel as each ends and returns to its channel (an access point keeps its role and channel; its
+  clients rejoin if they lost it). Allowed in both roles: the boat's access point is the one that picks the channel.
+- GETTING v8: the last survey again, one CONTENT v8 per channel; `{0, 0}` when there is none.
+- CONTENT v8, one per channel: `U1 index, U1 total, U1 channel, U2 dwell ms (as done), U2 busy per mille (airtime
+  of the frames heard / dwell), U2 frames, U2 other BSSIDs heard, S1 strongest RSSI, S1 noise floor dBm (the mean of
+  rx_ctrl.noise_floor), U1 flags (bit0 the module's own channel)`. Airtime per frame from rx_ctrl: the preamble of
+  its modulation plus its length at its rate or MCS; frames that fail the FCS count too.
+- 13 channels at 200 ms is about 2.6 s; the boat link stalls meanwhile (an Inference: the station's beacon timeout is
+  longer, so it should come back without a new join).
+
+With v8 the island shows per channel the busy share and the noise floor next to the scan's level, picks the channel
+by the busy share (the level breaks ties) and runs on the boat's module page too.
+
 ## 2c. Port speed of the module (line 0)
 
 The module's line 0 runs at any speed from 9600 to 4 000 000 (`ID_UART` v0 `{KEY, 1, U4 baud}`, answered at the

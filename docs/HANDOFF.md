@@ -785,6 +785,11 @@ Owner's seven notes after the head unit's field test, all in one commit (`headun
    rate pick of the same port, which "Apply and save" would have lost (line first, rate next).
    *Not verified:* on the head unit by touch; the wiring is checked by the build (qmlcachegen), qmllint and a clean
    start only (the page needs a live device; this PC has none).
+
+**Channels (0b45230d).** Owner: scan the air and measure channel load to pick the freest channel on the boat. From a
+scan the Wi-Fi island rates channels 1..13 (`WifiChannels`, the 2.4 GHz overlap, our own network left out) and names
+the least busy one for the access point; measuring the traffic on a channel needs the module's firmware (a survey,
+ID_WIFI v8, proposed to the module project). WIFI_MODULE.md §2h. mission_check offline 104/104, four mutants caught.
 7. **RSSI digits on the Wi-Fi badge** (`WifiSignalIcon.showRssi`): the RSSI in dBm under smaller arcs on the toolbar
    badge, its pop-out and the topology chip, while there is a link. The module on this app's own port (ID_WIFI_NET v7
    flag b2) is asked for a link report every 200 ms (`WifiSignal::kFastReportMs`, ID_WIFI v1 SETTING, 100..60000 by
