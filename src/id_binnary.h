@@ -1257,6 +1257,7 @@ protected:
     int radioSupport_ = -1;
     int scanTotal_ = -1;
     int scanFilled_ = 0;
+    bool scanFresh_ = false;          // a scan was asked for: its first result replaces the last scan's
     int savedTotal_ = -1;
     bool scanPending_ = false;
     int64_t scanStartedMs_ = 0;

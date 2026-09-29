@@ -1251,13 +1251,15 @@ Resp IDBinWifi::parsePayload(FrameParser &proto) {
             networks_.clear();
             scanTotal_ = 0;
             scanFilled_ = 0;
+            scanFresh_ = false;
             scanPending_ = false;
             return respOk;
         }
         if (index >= total || proto.readAvailable() < 11) {
             return respErrorPayload;
         }
-        if (scanTotal_ != total) {              // first frame of this scan
+        if (scanFresh_ || scanTotal_ != total) {   // first frame of this scan
+            scanFresh_ = false;
             scanTotal_ = total;
             scanFilled_ = 0;
             networks_ = QVector<Network>(total);
@@ -1359,7 +1361,9 @@ Resp IDBinWifi::parsePayload(FrameParser &proto) {
 void IDBinWifi::scan() {
     scanPending_ = true;
     scanStartedMs_ = QDateTime::currentMSecsSinceEpoch();
-    scanTotal_ = -1;
+    // The last scan's networks stay until this one's first result replaces them: a view that scans again and
+    // again (the Channels view's Live) does not go blank every few seconds.
+    scanFresh_ = true;
     scanFilled_ = 0;
     simpleRequest(v2);
 }
@@ -1464,6 +1468,7 @@ void IDBinWifi::reset() {
     saved_.clear();
     scanTotal_ = -1;
     scanFilled_ = 0;
+    scanFresh_ = false;
     savedTotal_ = -1;
     scanPending_ = false;
 }
