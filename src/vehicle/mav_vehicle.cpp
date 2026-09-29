@@ -1319,6 +1319,11 @@ void MavVehicle::startMission()
     };
     current.done = [this, firstNav]() { return missionCurrentFresh_ && (missionCurrent_ == 1 || missionCurrent_ == firstNav); };
     s.append(current);
+    // Through HOLD unless the boat is in HOLD already. ArduPilot starts a mission only when AUTO is entered: a boat in
+    // AUTO whose mission is complete (a plan without the return home) did not run it again (field test 2026-09-28,
+    // reproduced on SITL); and Rover does not arm in RTL, where a plan with the return home ends.
+    if (mode_ != ModeHold)
+        s.append(stepSetMode(ModeHold, tr("Switching to HOLD")));
     if (!armed_) {
         s.append(stepArm(true));
         // Armed by this start: if it fails from here on (Rover refuses AUTO without a position estimate once

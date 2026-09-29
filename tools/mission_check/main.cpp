@@ -133,6 +133,19 @@ bool isCommand(const QByteArray& bytes, uint16_t command)
     return false;
 }
 
+// DO_SET_MODE to this custom mode (param2).
+bool isSetMode(const QByteArray& bytes, int mode)
+{
+    mavlink_message_t m;
+    mavlink_status_t st;
+    for (char c : bytes) {
+        if (mavlink_parse_char(MAVLINK_COMM_3, uint8_t(c), &m, &st) && m.msgid == MAVLINK_MSG_ID_COMMAND_LONG)
+            return mavlink_msg_command_long_get_command(&m) == MAV_CMD_DO_SET_MODE
+                   && int(mavlink_msg_command_long_get_param2(&m)) == mode;
+    }
+    return false;
+}
+
 constexpr uint16_t kEkfBase = EKF_ATTITUDE | EKF_VELOCITY_HORIZ | EKF_VELOCITY_VERT | EKF_POS_VERT_ABS;
 
 void navRules()
@@ -744,8 +757,8 @@ int main(int argc, char* argv[])
 
     QTcpSocket sock;
     MavVehicle v(nullptr, false);
-    // refuseAuto: the transport keeps DO_SET_MODE from SITL and answers it with COMMAND_ACK FAILED, which is
-    // what the real boat did when its EKF had no position ("Flight mode change failed").
+    // refuseAuto: the transport keeps DO_SET_MODE to AUTO from SITL and answers it with COMMAND_ACK FAILED, which is
+    // what the real boat did when its EKF had no position ("Flight mode change failed"); HOLD needs no position.
     bool refuseAuto = false;
     // blockRx: nothing from SITL reaches the vehicle (a dropped link). dropUploadAck: the first MISSION_ACK from
     // the autopilot is lost (the upload's final one), everything else passes frame by frame.
@@ -773,7 +786,7 @@ int main(int argc, char* argv[])
         }
     });
     QObject::connect(&v, &MavVehicle::sendBytes, &sock, [&](const QByteArray& b) {
-        if (refuseAuto && isCommand(b, MAV_CMD_DO_SET_MODE)) {
+        if (refuseAuto && isSetMode(b, MavVehicle::ModeAuto)) {
             QTimer::singleShot(50, &app, [&]() { v.feed(fakeAck(MAV_CMD_DO_SET_MODE, MAV_RESULT_FAILED)); });
             return;
         }
@@ -932,6 +945,53 @@ int main(int argc, char* argv[])
     check("heading source: back again",
           waitFor([&] { return results > before; }, 10000) && lastOk && v.headingSource() == src0,
           QStringLiteral("now %1: %2").arg(v.headingSource()).arg(lastResult));
+
+    // Field test 2026-09-28: a mission without the return home ends in AUTO ("Mission Complete"), and Start did not
+    // run it again: the boat was in AUTO already, and ArduPilot starts a mission only when AUTO is entered.
+    QStringList heard;   // the vehicle's messages from here on, oldest first (messages() is newest first and capped)
+    QObject::connect(&v, &MavVehicle::messagesChanged, &v, [&]() { heard.append(v.messages().value(0)); });
+    auto heardSince = [&](int from, const QString& text) {
+        for (int i = from; i < heard.size(); ++i)
+            if (heard[i].contains(text))
+                return true;
+        return false;
+    };
+    if (qEnvironmentVariableIsSet("MISSION_CHECK_REPRO_HOLD")) {   // one reproduction run: start from HOLD
+        before = results;
+        v.hold();
+        waitFor([&] { return results > before; }, 10000);
+    }
+    v.clearPlan();
+    v.addPoint(v.latitude() + 0.00015, v.longitude());   // about 17 m north
+    v.setPlanSpeed(2.0);
+    v.setPlanReturnHome(false);
+    v.uploadPlan();
+    check("one point, no return home: uploaded",
+          waitFor([&] { return v.transferState() == MavVehicle::TransferDone || v.transferState() == MavVehicle::TransferFailed; }, 40000)
+              && v.transferState() == MavVehicle::TransferDone && v.planOnVehicle(),
+          v.transferText());
+    int mark = heard.size();
+    before = results;
+    v.startMission();
+    check("one point: started", waitFor([&] { return results > before; }, 20000) && lastOk && v.mode() == MavVehicle::ModeAuto,
+          lastResult);
+    check("one point: \"Mission Complete\", the boat stays in AUTO",
+          waitFor([&] { return heardSince(mark, QStringLiteral("Mission Complete")); }, 120000) && v.mode() == MavVehicle::ModeAuto,
+          QStringLiteral("mode %1").arg(v.modeName()));
+    mark = heard.size();
+    before = results;
+    v.startMission();
+    const bool again = waitFor([&] { return results > before; }, 20000);
+    const QString againResult = lastResult;
+    check("start again after the end: the mission runs from its first point",
+          again && lastOk && waitFor([&] { return heardSince(mark, QStringLiteral("Mission: 2 WP")); }, 20000),
+          againResult + QStringLiteral(" | heard: ") + heard.mid(mark).join(QStringLiteral(" / ")));
+    before = results;
+    v.hold();
+    waitFor([&] { return results > before; }, 10000);
+    before = results;
+    v.disarm();
+    check("disarmed at the end", waitFor([&] { return results > before; }, 10000) && !v.armed(), lastResult);
 
     std::printf("\n%d checks, %d failed\nMISSION_CHECK_%s\n", g_checks, g_failed, g_failed ? "FAILED" : "DONE");
     return g_failed ? 1 : 0;
