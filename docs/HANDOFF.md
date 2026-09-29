@@ -820,7 +820,9 @@ that is the head unit's own ttyS6, while the rate change goes to the far device 
 reproduced). The owner: hide it behind the module (1a384c3f): `behindModule` on the page (a bridge in the device's
 topology group), `hideOnPage` in the catalog; checked under qmltestrunner with the page's code over mock topologies
 (the head unit's, a logger on a PC, a lone sonar), four mutants caught. Behind a logger on a direct link the row
-stays, as upstream has it (the same retune of that link, not changed).
+stays, as upstream has it (the same retune of that link, not changed). On the kiosk as `headunit` 131c957b from
+2026-09-29 by the owner's word (no QML errors in kogger.log; the boat was away, so the hidden row on its devices
+is not seen on the hardware yet); this PC runs a937fa06.
 7. **RSSI digits on the Wi-Fi badge** (`WifiSignalIcon.showRssi`): the RSSI in dBm under smaller arcs on the toolbar
    badge, its pop-out and the topology chip, while there is a link. The module on this app's own port (ID_WIFI_NET v7
    flag b2) is asked for a link report every 200 ms (`WifiSignal::kFastReportMs`, ID_WIFI v1 SETTING, 100..60000 by
