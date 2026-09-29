@@ -2459,7 +2459,6 @@ Column {
             sentLrAp = apRole && selProto === 8
             radioError = ""
             dirty = false
-            radioRevertTimer.stop()
             notifications.info(qsTr("Radio settings sent to the module"))
             return true
         }
@@ -2487,15 +2486,10 @@ Column {
             selPs = r.powerSave
             dirty = false
         }
-        // A selection left unapplied goes back to what is in effect.
+        // A selection stays until Apply, "Apply and save" under the page, or Read back (owner 2026-09-29: it no
+        // longer goes back by itself after 30 s).
         function edited() {
             dirty = true
-            radioRevertTimer.restart()
-        }
-        Timer {
-            id: radioRevertTimer
-            interval: 30000
-            onTriggered: if (radioIsland.dirty) { radioIsland.dirty = false; radioIsland.sync(true) }
         }
         function phyText(p) {
             switch (p) {
@@ -2604,7 +2598,7 @@ Column {
         }
         DevStackedRow {
             caption: (root._isWifi && dev.wifiRadioChecking ? qsTr("Checking what the module uses now… ") : "")
-                     + (radioIsland.dirty ? qsTr("Not applied yet: the menu differs from what the module uses; it goes back in 30 s. ") : "")
+                     + (radioIsland.dirty ? qsTr("Not applied yet: the menu differs from what the module uses. ") : "")
                      + qsTr("Protocol and width changes make the module reconnect: the boat link drops for a few seconds. 40 MHz needs 802.11n and an access point that gives it.")
             Row {
                 width: parent.width
@@ -2972,7 +2966,6 @@ Column {
                             }
                             rateError = ""
                             dirty = false
-                            cardDirtyTimer.stop()
                             return true
                         }
                         onRecChanged: syncNet(false)
@@ -3003,8 +2996,9 @@ Column {
                                         : AppPalette.rowRaised
                         borderColor: here ? AppPalette.accentBorder : AppPalette.border
 
-                        // The selector follows the port's rate until the operator picks one; an unapplied pick
-                        // returns to the rate in effect after 30 s.
+                        // The selector follows the port's rate until the operator picks one; the pick stays until
+                        // Apply, "Apply and save" under the page, or Read back (owner 2026-09-29: no going back after
+                        // 30 s).
                         function syncBaud(force) {
                             if (!valid || changing || (dirty && !force))
                                 return
@@ -3014,9 +3008,9 @@ Column {
                         }
                         onBaudNowChanged: syncBaud(false)
                         onValidChanged: syncBaud(false)
-                        onChangingChanged: if (!changing) syncBaud(true)
+                        // the end of another change of this port (its line) must not drop a rate picked, not applied
+                        onChangingChanged: if (!changing && !dirty) syncBaud(true)
                         Component.onCompleted: { syncBaud(true); syncNet(true) }
-                        Timer { id: cardDirtyTimer; interval: 30000; onTriggered: card.syncBaud(true) }
 
                         // "X2 · UDP 14445 · senders": which network port this connector maps to, at a glance
                         KIslandRow {
@@ -3215,7 +3209,14 @@ Column {
                                 DevButton {
                                     width: parent.bw; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
                                     text: qsTr("Read back")
-                                    onClicked: { card.netDirty = false; card.netError = ""; dev.wifiNetRefresh(); card.syncNet(true) }
+                                    onClicked: {
+                                        card.netDirty = false
+                                        card.netError = ""
+                                        card.dirty = false      // the rate picked here goes too
+                                        dev.wifiNetRefresh()
+                                        card.syncNet(true)
+                                        card.syncBaud(true)
+                                    }
                                 }
                             }
                         }
@@ -3256,7 +3257,6 @@ Column {
                                     onActivated: function(idx) {
                                         card.selBaud = portsIsland.bauds[idx]
                                         card.dirty = true
-                                        cardDirtyTimer.restart()
                                     }
                                 }
                                 ConfirmDevButton {
