@@ -361,7 +361,14 @@ cannot be updated over the air). The channel picked (`WifiSurvey::best`): the le
 access point may use; within 0.5 % our own channel first (no move for nothing), then 1/6/11; our own channel is
 compared less 2 % for our own link (an Assumption: that share is not measured). The noise floor is shown only when the
 module trusts it: on the ESP32-C3 it never does (-93 dBm on every channel, the module session's measurement). Log:
-`[87] wifi-survey: Wi-Fi airtime 1:0.7% ... 6*:4.2% ...; best N`. mission_check checks the rules offline.
+`[87] wifi-survey: Wi-Fi airtime 1:0.7% ... 6*:4.2% ...; best N by the mean of K`. mission_check checks the rules
+offline.
+
+**Longer and by the mean (owner, 2026-09-29).** The kiosk's first surveys at the module's default 120 ms a channel
+jumped (one channel 16.7, 9.7, 0.0 % in a row; the pick 2, 7, 5). The app now asks 300 ms a channel
+(`WifiSurvey::kDwellMs`, about 3.6 s a survey) and picks by the mean of the last surveys (`WifiSurveyWindow`: up to 5
+not older than a minute, started over when the module's own channel changes); the bars show the last survey with a
+tick at the mean. With the kiosk's three real surveys the mean picks 7 (checked offline).
 
 ## 2c. Port speed of the module (line 0)
 
