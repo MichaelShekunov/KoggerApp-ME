@@ -323,6 +323,12 @@ networks on it, the least busy channel, the channel the boat link is on and how 
 "Role and access point" → Channel). Only a station scans: the module refuses v2 as an access point, so on the kiosk
 it is the head unit's module that rates the air, at the head unit.
 
+**Live (775143c1).** Owner: "not a history of channel use: the air as it is now". A switch in the view: while it is
+on and the page is shown the module scans again 3 s after each scan ends (each scan 2-4 s, the boat link may stall
+meanwhile, so it is off whenever the page opens); the view says how old its picture is ("updated N s ago", "from an
+earlier scan"). A new scan no longer blanks the results: the last scan's networks stay until the new scan's first
+result replaces them (`IDBinWifi::scanFresh_`). With the module's survey (0x59) Live will repeat the survey instead.
+
 What a scan cannot tell: how much a channel is used (one busy network is worse than three idle ones), stations and
 traffic of networks whose beacons are too weak, and anything that is not Wi-Fi except through what it does to
 reception. mission_check (offline) checks the weights, our own network left out, the pick and bad entries.
