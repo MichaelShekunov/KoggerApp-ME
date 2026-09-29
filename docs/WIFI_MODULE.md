@@ -370,6 +370,15 @@ jumped (one channel 16.7, 9.7, 0.0 % in a row; the pick 2, 7, 5). The app now as
 not older than a minute, started over when the module's own channel changes); the bars show the last survey with a
 tick at the mean. With the kiosk's three real surveys the mean picks 7 (checked offline).
 
+**Our own network's airtime (firmware 0.17).** CONTENT v0 ends with U2 "own network airtime" per mille (16 bytes,
+14 before): the part of the airtime in frames of the module's own BSS (its MAC as an access point, the access point's
+BSSID as a station; its own transmissions are not heard, an access point hears its clients' uplink). The pick compares
+the other networks' airtime only, on every channel (a neighbour hears our link too: channel 10 ours 6.0 %, channel 9
+1.4 %, the module session's measurement); without the field (0.16) the old guess stays. The bars show the others'
+share with ours on top in a lighter tone. From 0.17 the module also takes a firmware update from the network: the
+app's Upgrade reaches the boat's module through the relay once that module has 0.17 (it has 0.15, one wired update
+first); only the Wi-Fi password protects it then (the module project's SECURITY.md, UPDATE.md).
+
 ## 2c. Port speed of the module (line 0)
 
 The module's line 0 runs at any speed from 9600 to 4 000 000 (`ID_UART` v0 `{KEY, 1, U4 baud}`, answered at the
