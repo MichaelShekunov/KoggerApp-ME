@@ -769,8 +769,20 @@ Owner's seven notes after the head unit's field test, all in one commit (`headun
    finger drags the page. Other controls act on release already (buttons, switches, spin buttons; a Flickable's drag
    cancels them).
 6. **Save and close always in sight** (`SettingsSidebarBase.footer`, `MainWindow.deviceSettingsFooterComponent`): the
-   Devices page has a bar pinned under it: "Save to device" (what the page's "Flash settings" does, for the device
-   shown) and "Close". The ✕ in the sidebar header was pinned already.
+   Devices page has a bar pinned under it with "Close" and the save button. The ✕ in the sidebar header was pinned
+   already. The first version (c0b96b10) only wrote the settings to the device; the owner changed the Wi-Fi power
+   and it was not applied: "Apply and Save to device must be equivalent" (f5ad7c6d). Each island with an Apply has
+   `pendingApply` (and `rolePending`, `apPending`, the cards' `netPending`/`ratePending`, `ownAddrPending`) and an
+   `apply()` that its own Apply button calls too. `DeviceSettingsPage.applyAllAndSave()` runs what is pending, a
+   step every 300 ms: settings (relay, lines, role saved for the next boot, access point, address/DHCP, USB network),
+   the port changes (each waits for the running one, `wifiPortBusy`, at most 45 s), Flash settings, the radio (the
+   module reconnects), the module's own address last (it answers as a new device). The bar reads the page through
+   `store.devicePage`: "Apply and save (N)" in the accent colour while N changes wait, a second tap to confirm (as
+   those Apply buttons ask), the progress, then one toast with what was applied and what was not; with nothing
+   waiting it is "Save to device" as before. Joining a network stays with its own button (an action, not a
+   setting). An unapplied radio or port-rate pick still goes back after 30 s, and the count with it.
+   *Not verified:* on the head unit by touch; the wiring is checked by the build (qmlcachegen), qmllint and a clean
+   start only (the page needs a live device; this PC has none).
 7. **RSSI digits on the Wi-Fi badge** (`WifiSignalIcon.showRssi`): the RSSI in dBm under smaller arcs on the toolbar
    badge, its pop-out and the topology chip, while there is a link. The module on this app's own port (ID_WIFI_NET v7
    flag b2) is asked for a link report every 200 ms (`WifiSignal::kFastReportMs`, ID_WIFI v1 SETTING, 100..60000 by
