@@ -803,7 +803,9 @@ state remembered. Every Wi-Fi island folds to its title (a tap on it; the triang
 the open ones are kept by key in QSettings (`deviceSettingsPage/openSections`), each on its own, across restarts.
 Folded, Ports / Lines stop polling and Live turns off; the Boat link chip stays live. WIFI_MODULE.md §2i. Verified by
 machine: `tools/qml_check/fold_check.ps1` (qmltestrunner, three starts, six mutants caught), qmllint adds nothing,
-the Windows build, mission_check offline 116/116. Not verified: by touch on the head unit.
+the Windows build, mission_check offline 116/116. Not verified: by touch on the head unit. On the kiosk as `headunit`
+a9bb48f8 from 2026-09-29 by the owner's word (with 68848e06 and 878f0af7; no QML errors, module 0.17 in kogger.log);
+this PC runs feb09790.
 7. **RSSI digits on the Wi-Fi badge** (`WifiSignalIcon.showRssi`): the RSSI in dBm under smaller arcs on the toolbar
    badge, its pop-out and the topology chip, while there is a link. The module on this app's own port (ID_WIFI_NET v7
    flag b2) is asked for a link report every 200 ms (`WifiSignal::kFastReportMs`, ID_WIFI v1 SETTING, 100..60000 by
