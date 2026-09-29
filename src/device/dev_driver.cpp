@@ -1590,6 +1590,8 @@ static QVector<WifiSurvey::Channel> surveyChannels(const IDBinWifiSurvey* s) {
         w.strongest = c.strongest;
         w.noiseDbm = c.noiseDbm;
         w.flags = c.flags;
+        w.ownPermille = c.ownPermille;
+        w.ownValid = c.ownValid;
         out.append(w);
     }
     return out;
@@ -1606,11 +1608,15 @@ QVariantList DevDriver::wifiSurveyChannels() {
         QVariantMap m;
         m["channel"] = c.channel;
         m["busy"] = c.busyPermille;
-        int meanBusy = c.busyPermille;
+        // the other networks' airtime (what the pick compares) and ours on top of it
+        const int others = WifiSurvey::compared(c);
+        m["others"] = others;
+        m["ownAir"] = c.busyPermille - others;
+        int meanOthers = others;
         for (const WifiSurvey::Channel& a : mean)
             if (a.channel == c.channel)
-                meanBusy = a.busyPermille;
-        m["mean"] = meanBusy;
+                meanOthers = WifiSurvey::compared(a);
+        m["mean"] = meanOthers;
         m["frames"] = c.frames;
         m["transmitters"] = c.transmitters;
         m["strongest"] = c.strongest;
@@ -1663,8 +1669,10 @@ void DevDriver::logWifiSurvey() {
     QStringList parts;
     for (const IDBinWifiSurvey::Channel& c : idWifiSurvey->channels())
         if (c.valid)
-            parts << QStringLiteral("%1%2:%3.%4%").arg(c.channel).arg((c.flags & 0x01) ? QStringLiteral("*") : QString())
-                         .arg(c.busyPermille / 10).arg(c.busyPermille % 10);
+            parts << QStringLiteral("%1%2:%3.%4%%5").arg(c.channel).arg((c.flags & 0x01) ? QStringLiteral("*") : QString())
+                         .arg(c.busyPermille / 10).arg(c.busyPermille % 10)
+                         .arg(c.ownValid && c.ownPermille > 0 ? QStringLiteral("(ours %1.%2)").arg(c.ownPermille / 10).arg(c.ownPermille % 10)
+                                                              : QString());
     qInfo().noquote() << wifiTag() << QStringLiteral("wifi-survey: Wi-Fi airtime %1; best %2 by the mean of %3 (* our channel)")
                              .arg(parts.join(QLatin1Char(' '))).arg(wifiSurveyBest()).arg(wifiSurveySamples());
 }

@@ -338,8 +338,8 @@ struct WifiSurvey
     // surveys in a row; 11 channels x (300 + 30 ms) is about 3.6 s a survey, the boat link pausing meanwhile.
     static constexpr int kDwellMs = 300;
     static constexpr int kTiePermille = 5;        // airtime within this of the least counts as a tie
-    // Our own channel carries our own link as well (the boat's stream, about 92 KB/s): another channel wins over it
-    // only when it is lower by more than this. An Assumption: our link's share of the airtime is not measured.
+    // Firmware 0.16 only (no own-network field): our own channel carries our own link as well, so another channel
+    // wins over it only when it is lower by more than this (an Assumption). From 0.17 the module measures it.
     static constexpr int kOwnLinkPermille = 20;
 
     struct Channel {
@@ -348,6 +348,8 @@ struct WifiSurvey
         int strongest = -128;                     // -128: nothing heard
         int noiseDbm = 0;
         int flags = 0;                            // bit0 our own channel, bit1 the access point may use it, bit2 noise unreliable
+        int ownPermille = 0;                      // of the airtime, our own network's (firmware 0.17)
+        bool ownValid = false;                    // the module sent it
         bool own() const { return flags & 0x01; }
         bool apUsable() const { return flags & 0x02; }
         bool noiseValid() const { return !(flags & 0x04); }
@@ -361,8 +363,14 @@ struct WifiSurvey
         return (fwMajor > 0 || fwMinor >= 16) ? 1 : 0;
     }
 
-    /** The airtime a channel is compared with: our own channel's less our own link's share. */
-    static int compared(const Channel& c) { return c.own() ? std::max(0, c.busyPermille - kOwnLinkPermille) : c.busyPermille; }
+    /** The airtime a channel is compared with, the other networks' only: less our own network's on every channel
+     *  (a neighbour hears our link too; moving, we take it with us), from 0.17; before, our channel less the guess. */
+    static int compared(const Channel& c)
+    {
+        if (c.ownValid)
+            return std::max(0, c.busyPermille - c.ownPermille);
+        return c.own() ? std::max(0, c.busyPermille - kOwnLinkPermille) : c.busyPermille;
+    }
 
     /** The channel for the access point: the least airtime (compared()) among the channels it may use; within
      *  kTiePermille of it our own channel first (no move for nothing), then 1, 6 or 11, then the lower channel.
@@ -433,8 +441,8 @@ public:
             if (!last.valid)
                 continue;
             WifiSurvey::Channel m = last;
-            int n = 0;
-            long busy = 0, frames = 0, tx = 0;
+            int n = 0, nOwn = 0;
+            long busy = 0, frames = 0, tx = 0, ownAir = 0;
             for (const Entry& e : entries_) {
                 if (nowMs - e.atMs > kMaxAgeMs)
                     continue;
@@ -446,6 +454,10 @@ public:
                     frames += c.frames;
                     tx += c.transmitters;
                     m.strongest = std::max(m.strongest, c.strongest);
+                    if (c.ownValid) {
+                        ++nOwn;
+                        ownAir += c.ownPermille;
+                    }
                 }
             }
             if (n > 0) {
@@ -453,6 +465,8 @@ public:
                 m.frames = int((frames + n / 2) / n);
                 m.transmitters = int((tx + n / 2) / n);
             }
+            m.ownValid = nOwn > 0;
+            m.ownPermille = nOwn > 0 ? int((ownAir + nOwn / 2) / nOwn) : 0;
             out.append(m);
         }
         return out;
