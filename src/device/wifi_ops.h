@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QTimer>
 #include <QVector>
+#include <algorithm>
+#include <cmath>
 #include <cstdint>
 #include <functional>
 #include <optional>
@@ -321,6 +323,84 @@ struct WifiSignal
     /** Link report period asked of the module on this app's own port, so the badge's number follows the antenna
      *  (field test 2026-09-29); the module takes 100..60000 ms (ID_WIFI v1 SETTING). */
     static constexpr int kFastReportMs = 200;
+};
+
+/**
+ * @brief How busy each 2.4 GHz channel is by a scan (ID_WIFI v2), and the least busy one for the access point.
+ *
+ * Every network heard adds its power (from its RSSI) to the channel rated, weighted by how much of that channel's band
+ * it covers: a 20 MHz channel is flat over +-9 MHz (the 802.11 OFDM mask) and channels are 5 MHz apart, so a network
+ * 1, 2 or 3 channels off covers 14/18, 9/18 or 4/18 of it, one 4 off only its skirt (-20 dBr and below), 5 and more
+ * nothing. Our own network (the one the module is on) is not counted. A scan hears access points by their beacons,
+ * not the traffic on a channel. The module's access point takes channels 1..11.
+ */
+struct WifiChannels
+{
+    static constexpr int kFirst = 1;
+    static constexpr int kLast = 13;              // what a scan may report
+    static constexpr int kLastAp = 11;            // what the module's access point takes
+    static constexpr double kFloorDbm = -100.0;   // nothing heard
+
+    struct Net { int channel = 0; int rssi = 0; bool own = false; };
+    struct Channel { int channel = 0; int networks = 0; int strongest = 0; double levelDbm = kFloorDbm; };
+
+    static double weight(int delta)
+    {
+        switch (delta < 0 ? -delta : delta) {
+        case 0: return 1.0;
+        case 1: return 14.0 / 18.0;
+        case 2: return 9.0 / 18.0;
+        case 3: return 4.0 / 18.0;
+        case 4: return 0.01;
+        default: return 0.0;
+        }
+    }
+
+    /** Channels kFirst..kLast: the networks on each (not our own), the strongest of them, the level summed. */
+    static QVector<Channel> rate(const QVector<Net>& nets)
+    {
+        QVector<Channel> out;
+        for (int c = kFirst; c <= kLast; ++c) {
+            Channel ch;
+            ch.channel = c;
+            double mw = 0.0;
+            for (const Net& n : nets) {
+                if (n.own || n.channel < kFirst || n.channel > kLast || n.rssi >= 0)
+                    continue;
+                if (n.channel == c) {
+                    if (ch.networks == 0 || n.rssi > ch.strongest)
+                        ch.strongest = n.rssi;
+                    ++ch.networks;
+                }
+                mw += weight(c - n.channel) * std::pow(10.0, n.rssi / 10.0);
+            }
+            ch.levelDbm = mw > 0.0 ? std::max(kFloorDbm, 10.0 * std::log10(mw)) : kFloorDbm;
+            out.append(ch);
+        }
+        return out;
+    }
+
+    /** The channel for the access point: the lowest level among 1..kLastAp; within 1 dB of it 1, 6 or 11 first
+     *  (they do not overlap each other), then the lower channel. 0 when nothing was rated. */
+    static int best(const QVector<Channel>& rated)
+    {
+        double min = 1e9;
+        for (const Channel& ch : rated)
+            if (ch.channel >= kFirst && ch.channel <= kLastAp)
+                min = std::min(min, ch.levelDbm);
+        int pick = 0;
+        bool pickPreferred = false;
+        for (const Channel& ch : rated) {
+            if (ch.channel < kFirst || ch.channel > kLastAp || ch.levelDbm > min + 1.0)
+                continue;
+            const bool preferred = ch.channel == 1 || ch.channel == 6 || ch.channel == 11;
+            if (pick == 0 || (preferred && !pickPreferred)) {
+                pick = ch.channel;
+                pickPreferred = preferred;
+            }
+        }
+        return pick;
+    }
 };
 
 /**
