@@ -415,6 +415,23 @@ pinned_links.xml (the link is pinned). The page tells it from the topology (`beh
 device's group, the device not one); the catalog hides the row by it (`hideOnPage`), in Actions and in favourites
 alike. A logger on a PC's USB and the sonars behind it keep the row as upstream has it (the owner's choice).
 
+## 2k. Diagnostics: channel details, both ends, link events (2026-09-29)
+
+Owner: keep both charts (the airtime measured and the networks heard), and extend the diagnostics. In the Wi-Fi
+island (822ca18e, not on the kiosk yet):
+- **A channel's details.** A tap on its bar in either chart opens a row between the charts: the airtime (the
+  others', its mean, ours), frames per second, transmitters, the strongest heard; the networks the last scan heard
+  on it and up to 3 channels away, the strongest first. It shows why the charts can disagree: a loud network that
+  carries little traffic. A tap on the row closes it.
+- **Both ends.** How this module hears the other end and how that end hears it, when the app sees both (the head
+  unit's module and the boat's behind it, one topology group; an access point reports its weakest client). The
+  gap between them is what the owner saw as about 18 dB on 2026-09-28.
+- **Link events.** The last 12 (WifiLinkLog, from the frames the app gets anyway): a station's state changes with
+  why its link ended (the module's class and the ESP-IDF code, the common codes in words: 200 the access point's
+  beacons stopped, 201 the network is not heard, 15/204 the key handshake timed out), an access point's clients
+  coming and going, the module's restarts; newest first, how long ago and how long the link had held. Times are
+  on the app's monotonic clock: the head unit's wall clock is not set.
+
 ## 2c. Port speed of the module (line 0)
 
 The module's line 0 runs at any speed from 9600 to 4 000 000 (`ID_UART` v0 `{KEY, 1, U4 baud}`, answered at the
