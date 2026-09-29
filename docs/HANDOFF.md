@@ -786,6 +786,12 @@ Owner's seven notes after the head unit's field test, all in one commit (`headun
    *Not verified:* on the head unit by touch; the wiring is checked by the build (qmlcachegen), qmllint and a clean
    start only (the page needs a live device; this PC has none).
 
+**A second start after the end (2026-09-29).** Field test 2026-09-28: after "Mission Complete" (a plan without the
+return home leaves the boat in AUTO) "Start mission" said done five times and the boat did not move; it ran only after
+the RC switched modes. ArduPilot starts a mission only when AUTO is entered; the start now goes through HOLD unless the
+boat is in HOLD, which also lets it arm when a plan with the return home ended in RTL (Rover does not arm there).
+BOAT_MISSION.md; mission_check on ArduRover 4.4.0 SITL 142/142 (the new phase failed before the fix, as on the water).
+
 **Channels (0b45230d).** Owner: scan the air and measure channel load to pick the freest channel on the boat. From a
 scan the Wi-Fi island rates channels 1..13 (`WifiChannels`, the 2.4 GHz overlap, our own network left out) and names
 the least busy one for the access point; measuring the traffic on a channel needs the module's firmware (a survey,

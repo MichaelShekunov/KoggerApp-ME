@@ -60,7 +60,13 @@ water is not yet verified.
     relay: the autopilot has already stored the mission and left the upload), the read-back decides
     instead of a failure.
   - Commands as sequences with retries (4 × 1.5 s) and COMMAND_ACK checking: start (MISSION_SET_CURRENT
-    1, arm if needed, DO_SET_MODE AUTO), HOLD, RTL, arm, disarm. HOLD, RTL and disarm interrupt a
+    1, HOLD unless the boat is in HOLD, arm if needed, DO_SET_MODE AUTO), HOLD, RTL, arm, disarm. The HOLD step
+    (2026-09-29): ArduPilot starts or resumes a mission only when AUTO is entered, so a boat left in AUTO by a plan
+    without the return home ("Mission Complete") took "Start" (MISSION_SET_CURRENT and AUTO both acknowledged) and
+    did nothing (field test 2026-09-28: five starts, the mission ran only after the RC switched to LOITER and back);
+    and Rover does not arm in RTL ("Mode not armable"), where a plan with the return home ends. Reproduced on SITL
+    (the check's last phase, `MISSION_CHECK_REPRO_HOLD=1` starts it from HOLD as on the water: FAIL before the fix),
+    142/142 after it. HOLD, RTL and disarm interrupt a
     running sequence. Start is refused without link, points, a verified upload, a 3D fix, a ready
     navigation or a home. A start that armed the boat and then fails (AUTO refused, no answer) disarms
     it again ("Disarm after the failed start"); HOLD, RTL or disarm pressed meanwhile cancel that.
