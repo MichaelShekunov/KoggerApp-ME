@@ -813,11 +813,14 @@ DevIsland "Actions" in 94993b06 (2026-09-01) and v1.0.3 has only that; the merge
 then taught the old one to move the link). Removed: the remaining one has the same buttons, and its baud row calls
 the same `applyBaudrate()`. The catalog hides `action.baudrate` for the Wi-Fi module (`hideWhen: "isWifi"`): its
 ports have their own sections. Verified by machine: the real catalog under qmltestrunner (fails on the old one),
-fold_check, qmllint, the Windows build. Found on the way, not changed (the owner decides): `applyBaudrate()`
-retunes the link of the device's topology group, and for a pinned link rewrites its record
-(`LinkManager::updateBaudrate` → `exportPinnedLinksToXML`); for a device behind the relay or a logger (the boat's
-sonar or logger on the head unit) that is the head unit's own ttyS6, while the rate change goes to the far device.
-*Inference* from the code, not reproduced.
+fold_check, qmllint, the Windows build. Found on the way: `applyBaudrate()` retunes the link of the device's
+topology group, and for a pinned link rewrites its record (`LinkManager::updateBaudrate` →
+`exportPinnedLinksToXML`); for a device behind the relay or a logger (the boat's sonar or logger on the head unit)
+that is the head unit's own ttyS6, while the rate change goes to the far device (*Inference* from the code, not
+reproduced). The owner: hide it behind the module (1a384c3f): `behindModule` on the page (a bridge in the device's
+topology group), `hideOnPage` in the catalog; checked under qmltestrunner with the page's code over mock topologies
+(the head unit's, a logger on a PC, a lone sonar), four mutants caught. Behind a logger on a direct link the row
+stays, as upstream has it (the same retune of that link, not changed).
 7. **RSSI digits on the Wi-Fi badge** (`WifiSignalIcon.showRssi`): the RSSI in dBm under smaller arcs on the toolbar
    badge, its pop-out and the topology chip, while there is a link. The module on this app's own port (ID_WIFI_NET v7
    flag b2) is asked for a link report every 200 ms (`WifiSignal::kFastReportMs`, ID_WIFI v1 SETTING, 100..60000 by

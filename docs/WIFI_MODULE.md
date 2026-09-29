@@ -409,6 +409,12 @@ page (`DeviceParamCatalog`, `hideWhen: "isWifi"`): the ports' own sections (§2c
 following, the answer read back and the rate saved, while that row sets the device and retunes the link its page's
 device belongs to - for the boat's module behind the relay, the head unit's own port.
 
+Nor behind the module (owner, 1a384c3f): on the head unit the boat's logger and sonar share the topology group of the head
+unit's port with the module, so their row would send the rate to the far device and retune that port, saving it in
+pinned_links.xml (the link is pinned). The page tells it from the topology (`behindModule`: a bridge, role 3, in the
+device's group, the device not one); the catalog hides the row by it (`hideOnPage`), in Actions and in favourites
+alike. A logger on a PC's USB and the sonars behind it keep the row as upstream has it (the owner's choice).
+
 ## 2c. Port speed of the module (line 0)
 
 The module's line 0 runs at any speed from 9600 to 4 000 000 (`ID_UART` v0 `{KEY, 1, U4 baud}`, answered at the
