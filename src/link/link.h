@@ -23,6 +23,7 @@
 #include <atomic>
 
 #include "link_defs.h"
+#include "link_ask_all.h"
 #include "proto_binnary.h"
 
 using namespace Parsers;
@@ -165,7 +166,7 @@ private:
     int lastSearchIndx_;
     bool onUpgradingFirmware_;
     int localGhostIgnoreCount_;
-    int requestCnt_;
+    LinkAskAll askAll_;   // when every device on the link is asked for its version
     bool autoConnOnce_;
     qint64 autoConnUntilMsecs_;
     std::atomic<bool> rtspRequested_;

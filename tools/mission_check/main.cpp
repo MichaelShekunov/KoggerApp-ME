@@ -22,6 +22,7 @@
 #include "touch_tap_gate.h"
 #include "wifi_ops.h"
 #include "traffic_tally.h"
+#include "link/link_ask_all.h"
 
 #if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
@@ -1044,8 +1045,8 @@ void trafficRules()
           T::name(none) == QStringLiteral("KP2 [-1] id 0x1234 v7 stream"), T::name(none));
 }
 
-// A device that does not answer (the search address 0 on a relay link) is asked at 5 Hz for 10 s, then every 5 s;
-// one whose frames carry the mark only now and then too; 2 s of marked ticks start it over.
+// A device that sends nothing (the search address 0 on a relay link) is asked at 5 Hz for 10 s, then every 5 s; any
+// frame from it starts it over.
 void unansweredRules()
 {
     using U = DeviceLiveness::Unanswered;
@@ -1053,46 +1054,75 @@ void unansweredRules()
     {
         U u;
         int asks = 0;
-        for (int64_t now = t0; now < t0 + 60000; now += 200)   // a minute of process() ticks, never marked
+        for (int64_t now = t0; now < t0 + 60000; now += 200)   // a minute of process() ticks, nothing from it
             asks += u.askDue(now) ? 1 : 0;
         // 10 s at 5 Hz = 50 asks, then one every 5 s over the other 50 s = 10
         check("unanswered: 5 Hz for 10 s, then every 5 s", asks == 60, QString::number(asks));
     }
     {
         U u;
-        int asks = 0, late = 0;
-        for (int64_t now = t0, i = 0; now < t0 + 60000; now += 200, ++i) {   // the mark on every other tick
-            if (i % 2) {
-                u.marked(now);
-            } else if (u.askDue(now)) {
-                ++asks;
-                late += now >= t0 + 50000 ? 1 : 0;
-            }
-        }
-        // 25 asks in the first 10 s, then every 5 s at the next unmarked tick (9); the old rule asked all 150
-        check("unanswered: a mark now and then is slowed down too", asks == 34 && late == 2,
-              QStringLiteral("%1 asks, %2 in the last 10 s").arg(asks).arg(late));
-    }
-    {
-        U u;
         int64_t now = t0;
-        for (; now < t0 + 20000; now += 200)                 // 20 s unanswered: slow
+        for (; now < t0 + 20000; now += 200)                 // 20 s of nothing: slow, the last ask at t0 + 19800
             u.askDue(now);
-        for (const int64_t end = now + 2200; now < end; now += 200)   // 2.2 s of marked ticks: answers again
-            u.marked(now);
-        check("unanswered: 2 s of marks start it over, the next loss is asked at once and fast",
-              u.askDue(now) && u.askDue(now + 200) && u.askDue(now + 400));
-    }
-    {
-        U u;
-        int64_t now = t0;
-        for (; now < t0 + 20000; now += 200)                 // the last ask at t0 + 19800
-            u.askDue(now);
-        for (const int64_t end = now + 1200; now < end; now += 200)   // marked for 1 s only
-            u.marked(now);
-        check("unanswered: 1 s of marks does not start it over", !u.askDue(now));
+        const bool slow = !u.askDue(now);                     // t0 + 20000
+        u.heard();                                            // a frame (the baud rate search found it), not marked yet
+        check("unanswered: a frame starts it over, asked at once and fast",
+              slow && u.askDue(now + 200) && u.askDue(now + 400) && u.askDue(now + 600));
     }
     check("unanswered: the first tick asks", U().askDue(t0));
+}
+
+// When a link asks every device on it (LinkAskAll, Link::onCheckedTimerEnd each 100 ms).
+void linkAskAllRules()
+{
+    const int ticks = 600;   // a minute
+    {
+        LinkAskAll a;
+        int asks = 0;
+        for (int i = 0; i < ticks; ++i)                        // the boat link: frames every tick
+            asks += a.tick(true, true, false) ? 1 : 0;
+        check("link ask-all: a busy link is not asked", asks == 0, QString::number(asks));
+    }
+    {
+        LinkAskAll a;
+        int asks = 0;
+        bool answer = false;
+        for (int i = 0; i < ticks; ++i) {                      // a quiet sonar: only the answers to the asks come
+            const bool ask = a.tick(answer, true, false);
+            answer = ask;                                      // answered by the next tick
+            asks += ask ? 1 : 0;
+        }
+        // kept alive as upstream: every requestAllCntBig ticks, 300 ms
+        check("link ask-all: a quiet link is kept alive every 300 ms", asks == ticks / requestAllCntBig - 1,
+              QString::number(asks));
+    }
+    {
+        LinkAskAll a;
+        int asks = 0;
+        for (int i = 0; i < ticks; ++i)                        // nothing comes in: the search
+            asks += a.tick(false, false, false) ? 1 : 0;
+        check("link ask-all: nothing received, every tick", asks == ticks, QString::number(asks));
+    }
+    {
+        LinkAskAll a;
+        a.restart(requestAllCntSmall);
+        int asks = 0;
+        for (int i = 0; i < ticks; ++i)                        // a firmware update on a busy link: as upstream
+            asks += a.tick(true, true, true) ? 1 : 0;
+        check("link ask-all: a firmware update keeps upstream's cadence (every tick after the first)", asks == ticks - 1,
+              QString::number(asks));
+    }
+    {
+        LinkAskAll a;
+        for (int i = 0; i < 50; ++i)
+            a.tick(true, true, false);                         // busy ...
+        int first = -1;
+        for (int i = 0; i < 10 && first < 0; ++i)              // ... then silent
+            if (a.tick(false, true, false))
+                first = i;
+        check("link ask-all: a link gone quiet is asked within 3 ticks", first >= 1 && first <= 3,
+              QString::number(first));
+    }
 }
 
 int main(int argc, char* argv[])
@@ -1122,6 +1152,7 @@ int main(int argc, char* argv[])
     linkRateRules();
     trafficRules();
     unansweredRules();
+    linkAskAllRules();
     if (cli.isSet(QStringLiteral("offline"))) {
         std::printf("\n%d checks, %d failed (offline)\nMISSION_CHECK_%s\n", g_checks, g_failed, g_failed ? "FAILED" : "DONE");
         return g_failed ? 1 : 0;

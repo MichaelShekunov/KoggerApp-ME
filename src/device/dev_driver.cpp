@@ -961,6 +961,7 @@ void DevDriver::protoComplete(Parsers::FrameParser& proto)
     int64_t curr_time = QDateTime::currentMSecsSinceEpoch();
 
     m_state.mark = proto.mark();
+    unanswered_.heard();
 
     if(m_state.mark) {
         m_state.lastConnectTime = curr_time;
@@ -3314,7 +3315,6 @@ void DevDriver::process() {
 
     if(m_state.duplex) {
         if(m_state.mark) {
-            unanswered_.marked(curr_time);
             if(idVersion->boardVersion() != BoardNone) {
                 if(m_state.uptime != UptimeFix) {
                     //qDebug() << "UptimeFix";
@@ -3437,7 +3437,7 @@ void DevDriver::process() {
                 //qDebug() << "Request version again";
             }
         } else {
-            // Not answered: asked each tick at first, then every DeviceLiveness::kUnansweredSlowMs.
+            // Nothing from it: asked each tick at first, then every DeviceLiveness::kUnansweredSlowMs.
             if(!unanswered_.askDue(curr_time))
                 return;
             restartState();
