@@ -427,6 +427,9 @@ int main(int argc, char *argv[])
         QObject::connect(dm, &DeviceManager::mavlinkFrameReceived, &boat, &MavVehicle::feed);
         QObject::connect(&boat, &MavVehicle::sendBytes, dm, &DeviceManager::sendMavlinkBytes);
     }
+    // The head unit module's signal for the boat's track by link quality.
+    QObject::connect(core.getDeviceManagerWrapperPtr(), &DeviceManagerWrapper::airChanged, &boat,
+                     [&boat, dmw = core.getDeviceManagerWrapperPtr()] { boat.setLinkRssi(dmw->airRssi()); });
     engine.rootContext()->setContextProperty("systemBattery", &systemBattery);
     engine.rootContext()->setContextProperty("langController", &langController);
     engine.rootContext()->setContextProperty("appUtils", &appUtils);

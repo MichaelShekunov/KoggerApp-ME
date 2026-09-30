@@ -169,6 +169,16 @@ void DeviceManager::countTraffic(const QUuid& uuid, Parsers::FrameParser& frame)
     }
     TrafficTally& t = traffic_[uuid];
     t.add(k, frame.frameLen(), frame.isNested());
+    if (!frame.isNested()) {   // a proxy frame's content is in its bytes already
+        if (!airClock_.isValid())
+            airClock_.start();
+        air_.add(AirMeter::kindOf(k), frame.frameLen(), airClock_.elapsed());
+        if (!airTimer_) {
+            airTimer_ = new QTimer(this);
+            connect(airTimer_, &QTimer::timeout, this, &DeviceManager::emitAir);
+            airTimer_->start(1000);
+        }
+    }
     QElapsedTimer& clock = trafficClock_[uuid];
     if (!clock.isValid()) {
         clock.start();
@@ -179,6 +189,35 @@ void DeviceManager::countTraffic(const QUuid& uuid, Parsers::FrameParser& frame)
         qInfo().noquote() << QStringLiteral("traffic [%1] sent: %2").arg(link8, sent_[uuid].summary(seconds));
         clock.restart();
     }
+}
+
+void DeviceManager::emitAir()
+{
+    const auto r = air_.rates(airClock_.elapsed());
+    emit airChanged(r[AirMeter::Echogram], r[AirMeter::Telemetry], r[AirMeter::Service], wifiLinkRssi());
+}
+
+// The head unit's side of the radio link: a Wi-Fi module that is a station (wifiState 3, connected) reports the
+// signal of the access point it is on; failing that, an access point (4) reports its weakest client. 0 when none.
+int DeviceManager::wifiLinkRssi()
+{
+    int station = 0, ap = 0;
+    for (auto l = devTree_.cbegin(); l != devTree_.cend(); ++l) {
+        for (auto d = l.value().cbegin(); d != l.value().cend(); ++d) {
+            DevQProperty* dev = d.value();
+            if (!dev || !dev->isWifi())
+                continue;
+            const int state = dev->wifiState();
+            const int rssi = dev->wifiRssi();
+            if (rssi >= 0 || rssi < -127)
+                continue;
+            if (state == 3)
+                station = station ? std::min(station, rssi) : rssi;
+            else if (state == 4)
+                ap = ap ? std::min(ap, rssi) : rssi;
+        }
+    }
+    return station ? station : ap;
 }
 
 void DeviceManager::frameInput(QUuid uuid, Link* link, Parsers::FrameParser frame)

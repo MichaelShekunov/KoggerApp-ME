@@ -824,6 +824,21 @@ stays, as upstream has it (the same retune of that link, not changed). On the ki
 2026-09-29 by the owner's word (no QML errors in kogger.log; the boat was away, so the hidden row on its devices
 is not seen on the hardware yet); this PC runs a937fa06.
 
+**Boat GUI: mission progress, the track by link quality, the ghost boat, "On the link".** Owner 2026-09-30, from
+my list: 2-5. (2) While a mission runs, the boat panel and the widgets "Mission left", "Mission time left",
+"Battery at finish" show the way left, its time at the boat's speed and the battery at its end
+(`src/vehicle/mission_progress.h`, MavVehicle.mission*). (3) The map draws the boat's track in the colour of the
+head unit module's Wi-Fi signal on each stretch, a loss red and dashed (`src/vehicle/link_track.h`,
+MavVehicle.linkTrack*, a switch and a legend in the panel). (4) While the link is lost, a faint boat where it should
+be now, along the mission at its last speed (MavVehicle::updateGhost). (5) The widget "On the link": what the link
+carries now by kind as a bar, and "Wi-Fi signal" (`src/device/air_meter.h`, DeviceManager::airChanged,
+DeviceManagerWrapper.air*). Details: BOAT_MISSION.md, WIFI_MODULE.md 2n. Checked: mission_check offline 204/204 (+45:
+the geometry, ETA, battery trend, ghost path, track thinning and qualities, the air meter's kinds and window; the
+vehicle end to end - RTL progress, the ghost walking home at 1 m/s after kConnectedMs, the stretch over a loss),
+five C++ mutants caught; `tools/qml_check/boatgui_check.ps1` (the real layer, panel, cell and catalog over mocks)
+8/8, eight mutants caught; the Windows build. Not yet seen on the water: the battery trend needs a calibrated
+monitor, and the ghost's path assumes the autopilot keeps its mission without the link.
+
 **The boat panel's Close, pinned at the bottom.** Owner 2026-09-30: the boat menu too should have a close button at
 the bottom, always at hand. Its only close was the X in the header, inside the Flickable, which scrolls away once the
 panel is taller than the 3D pane. A full-width "Close" (`PanelButton`, the panel's raised style) is now pinned at the

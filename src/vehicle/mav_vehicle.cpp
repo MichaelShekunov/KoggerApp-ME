@@ -104,6 +104,7 @@ MavVehicle::MavVehicle(QObject* parent, bool persist)
     : QObject(parent),
       persist_(persist)
 {
+    clock_.start();
     secondTimer_.setInterval(1000);
     connect(&secondTimer_, &QTimer::timeout, this, &MavVehicle::onSecondTick);
     secondTimer_.start();
@@ -263,9 +264,16 @@ void MavVehicle::onSecondTick()
         if (!now) {
             addMessage(tr("Link to the boat lost"));
             linkLostAt_.start();
+            lostSinceFix_ = true;
         }
     }
     emit linkChanged();   // heartbeatAgeS moves every second
+    updateProgress();
+    updateGhost();
+    if (linkTrack_.version() != linkTrackEmitted_) {
+        linkTrackEmitted_ = linkTrack_.version();
+        emit linkTrackChanged();
+    }
 
     if (controlEnabled_ && lastHeartbeat_.isValid() && lastHeartbeat_.elapsed() < kHeartbeatKeepMs)
         sendHeartbeat();
@@ -388,6 +396,12 @@ void MavVehicle::handleMessage(const void* p)
             if (g.hdg != UINT16_MAX)
                 headingDeg_ = g.hdg / 100.0;
             groundSpeed_ = std::hypot(double(g.vx), double(g.vy)) / 100.0;
+            if (valid) {
+                lastPositionAt_.start();
+                speed_.add(groundSpeed_, clock_.elapsed());
+                linkTrack_.add(lat_, lon_, linkRssi_, lostSinceFix_);
+                lostSinceFix_ = false;
+            }
             emit positionChanged();
             break;
         }
@@ -464,6 +478,8 @@ void MavVehicle::handleMessage(const void* p)
             mavlink_msg_sys_status_decode(&msg, &s);
             batteryVoltage_ = s.voltage_battery == UINT16_MAX ? -1.0 : s.voltage_battery / 1000.0;
             batteryRemaining_ = s.battery_remaining;
+            if (progressValid_)
+                battery_.add(clock_.elapsed(), batteryRemaining_);
             emit batteryChanged();
             // The autopilot's own verdict on what it has and uses; it holds whether pre-arm checks run or not.
             struct Sensor { uint32_t bit; const char* name; };
@@ -787,6 +803,145 @@ double MavVehicle::planLengthM() const
     for (int i = 1; i < plan_.size(); ++i)
         sum += distanceM(plan_[i - 1].lat, plan_[i - 1].lon, plan_[i].lat, plan_[i].lon);
     return sum;
+}
+
+QVector<mission_progress::Geo> MavVehicle::planGeo() const
+{
+    QVector<mission_progress::Geo> out;
+    out.reserve(plan_.size());
+    for (const Point& p : plan_)
+        out.append({ p.lat, p.lon });
+    return out;
+}
+
+// Each second: what the running mission has left (armed, AUTO on our plan, or RTL home). The speed is the boat's,
+// smoothed, or the plan's while it is too slow to tell; the battery trend runs from the start of the mode.
+void MavVehicle::updateProgress()
+{
+    namespace mp = mission_progress;
+    const int target = currentPlanIndex();
+    const bool autoRun = armed_ && mode_ == ModeAuto && target >= 0;
+    const bool rtlRun = armed_ && mode_ == ModeRtl && homeValid_;
+    if (!positionValid_ || !(autoRun || rtlRun)) {
+        if (progressValid_) {
+            progressValid_ = false;
+            remainingM_ = etaS_ = mp::kNaN;
+            batteryAtEnd_ = -1;
+            battery_.reset();
+            progressMode_ = -1;
+            emit missionProgressChanged();
+        }
+        return;
+    }
+    if (progressMode_ != mode_) {
+        battery_.reset();
+        progressMode_ = mode_;
+        battery_.add(clock_.elapsed(), batteryRemaining_);
+    }
+    const mp::Geo boat{ lat_, lon_ }, home{ homeLat_, homeLon_ };
+    const QVector<mp::Geo> route = autoRun ? mp::routeAhead(boat, planGeo(), target, planReturnHome_, homeValid_, home)
+                                           : QVector<mp::Geo>{ boat, home };
+    remainingM_ = mp::lengthM(route);
+    const double v = speed_.value();
+    etaS_ = mp::etaS(remainingM_, (std::isfinite(v) && v >= mp::kMinSpeedMs) ? v : planSpeed_);
+    batteryAtEnd_ = battery_.atEnd(etaS_);
+    progressValid_ = true;
+    emit missionProgressChanged();
+}
+
+// Each second while the link is lost: the boat from its last position, along what it was doing then - the
+// mission (AUTO keeps it when the ground station is lost, FS_GCS_ENABLE 2) or the way home (RTL).
+void MavVehicle::updateGhost()
+{
+    namespace mp = mission_progress;
+    const bool lost = detected() && !connected() && positionValid_ && lastPositionAt_.isValid();
+    if (!lost) {
+        if (ghostValid_) {
+            ghostValid_ = false;
+            emit ghostChanged();
+        }
+        return;
+    }
+    const mp::Geo boat{ lat_, lon_ }, home{ homeLat_, homeLon_ };
+    QVector<mp::Geo> route;
+    const int target = currentPlanIndex();
+    if (armed_ && mode_ == ModeAuto && target >= 0)
+        route = mp::routeAhead(boat, planGeo(), target, planReturnHome_, homeValid_, home);
+    else if (armed_ && mode_ == ModeRtl && homeValid_)
+        route = { boat, home };
+    const double v = speed_.value();
+    const double speed = (std::isfinite(v) && v >= mp::kMinSpeedMs) ? v : planSpeed_;
+    ghostMoving_ = route.size() > 1 && speed >= mp::kMinSpeedMs;
+    const mp::Geo g = ghostMoving_ ? mp::alongRoute(route, speed, lastPositionAt_.elapsed() / 1000.0) : boat;
+    ghostLat_ = g.lat;
+    ghostLon_ = g.lon;
+    ghostValid_ = true;
+    emit ghostChanged();
+}
+
+QVariantList MavVehicle::linkTrack() const
+{
+    QVariantList out;
+    const auto& samples = linkTrack_.samples();
+    out.reserve(samples.size());
+    for (const LinkTrack::Sample& s : samples)
+        out.append(QVariantMap{ { QStringLiteral("lat"), s.lat }, { QStringLiteral("lon"), s.lon }, { QStringLiteral("q"), s.quality } });
+    return out;
+}
+
+QList<double> MavVehicle::linkTrackLats() const
+{
+    QList<double> out;
+    out.reserve(linkTrack_.samples().size());
+    for (const LinkTrack::Sample& s : linkTrack_.samples())
+        out.append(s.lat);
+    return out;
+}
+
+QList<double> MavVehicle::linkTrackLons() const
+{
+    QList<double> out;
+    out.reserve(linkTrack_.samples().size());
+    for (const LinkTrack::Sample& s : linkTrack_.samples())
+        out.append(s.lon);
+    return out;
+}
+
+QList<int> MavVehicle::linkTrackQualities() const
+{
+    QList<int> out;
+    out.reserve(linkTrack_.samples().size());
+    for (const LinkTrack::Sample& s : linkTrack_.samples())
+        out.append(s.quality);
+    return out;
+}
+
+void MavVehicle::setLinkTrackShown(bool on)
+{
+    if (on == linkTrackShown_)
+        return;
+    linkTrackShown_ = on;
+    if (persist_) {
+        QSettings s;
+        s.beginGroup(kSettingsGroup);
+        s.setValue(QStringLiteral("linkTrackShown"), on);
+    }
+    emit linkTrackShownChanged();
+}
+
+void MavVehicle::clearLinkTrack()
+{
+    linkTrack_.clear();
+    linkTrackEmitted_ = linkTrack_.version();
+    emit linkTrackChanged();
+}
+
+void MavVehicle::setLinkRssi(int dBm)
+{
+    if (dBm == linkRssi_)
+        return;
+    linkRssi_ = dBm;
+    emit linkRssiChanged();
 }
 
 double MavVehicle::distanceM(double lat1, double lon1, double lat2, double lon2)
@@ -1488,6 +1643,7 @@ void MavVehicle::loadSettings()
     controlEnabled_ = s.value(QStringLiteral("controlEnabled"), true).toBool();
     planSpeed_ = s.value(QStringLiteral("speed"), 0.0).toDouble();
     planReturnHome_ = s.value(QStringLiteral("returnHome"), true).toBool();
+    linkTrackShown_ = s.value(QStringLiteral("linkTrackShown"), true).toBool();
     const QJsonArray arr = QJsonDocument::fromJson(s.value(QStringLiteral("planJson")).toByteArray()).array();
     plan_.clear();
     for (const QJsonValue& v : arr) {

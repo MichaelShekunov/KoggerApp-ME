@@ -13,6 +13,7 @@
 #include "proto_binnary.h"
 #include "id_binnary.h"
 #include "traffic_tally.h"
+#include "air_meter.h"
 #include <QElapsedTimer>
 
 
@@ -109,6 +110,9 @@ signals:
     void standAvailableChanged();
     void streamChanged();
     void vruChanged();
+    /** Once a second while frames come: what the links carry by kind, KB/s, and the head unit module's signal, dBm
+     *  (0 not known). For the "On the link" widget and the boat's track (AirMeter). */
+    void airChanged(double echogramKBs, double telemetryKBs, double serviceKBs, int rssiDbm);
     void writeProxyFrame(Parsers::FrameParser frame);
     void writeMavlinkFrame(Parsers::FrameParser frame);
     // Every MAVLink frame that arrived on a live link, as raw bytes (for MavVehicle), and bytes to
@@ -194,6 +198,11 @@ private:
     QHash<QUuid, TrafficTally> sent_;
     QHash<QUuid, QElapsedTimer> trafficClock_;
     void countTraffic(const QUuid& uuid, Parsers::FrameParser& frame);
+    AirMeter air_;
+    QElapsedTimer airClock_;
+    QTimer* airTimer_ = nullptr;       // made in this object's thread at the first frame
+    void emitAir();
+    int wifiLinkRssi();
     StreamList streamList_;
     QUuid lastUuid_;
     QUuid proxyLinkUuid_;

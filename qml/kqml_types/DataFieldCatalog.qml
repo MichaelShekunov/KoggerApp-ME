@@ -26,7 +26,16 @@ QtObject {
         { key: "apArm",     label: qsTr("Arm state"),      unit: "",             group: "autopilot" },
         // The autopilot's home to the boat now (MavVehicle, over MAVLink): home is where the boat was armed, the
         // launch point RTL returns to.
-        { key: "apHomeDist", label: qsTr("From launch point"), unit: qsTr("m"),   group: "autopilot" }
+        { key: "apHomeDist", label: qsTr("From launch point"), unit: qsTr("m"),   group: "autopilot" },
+        // A running mission (MavVehicle, mission_progress.h): the way left, its time at the boat's speed, the battery at
+        // its end once its trend is known.
+        { key: "apMissionLeft",  label: qsTr("Mission left"),      unit: qsTr("m"),   group: "autopilot" },
+        { key: "apMissionEta",   label: qsTr("Mission time left"), unit: qsTr("min"), group: "autopilot" },
+        { key: "apBatteryAtEnd", label: qsTr("Battery at finish"), unit: "%",         group: "autopilot" },
+        // The radio link (DeviceManagerWrapper.air*, once a second): what it carries by kind as a bar, the head unit
+        // module's Wi-Fi signal.
+        { key: "linkAir",  label: qsTr("On the link"),  unit: qsTr("KB/s"), group: "link" },
+        { key: "linkRssi", label: qsTr("Wi-Fi signal"), unit: qsTr("dBm"),  group: "link" }
     ]
 
     // USBL fields — deliberately NOT in `fields`, so the palette is unchanged for the
@@ -127,6 +136,23 @@ QtObject {
     function _distanceText(m) {
         return m < 1000 ? Math.round(m) + " " + qsTr("m") : (m / 1000).toFixed(2) + " " + qsTr("km")
     }
+    function _durationText(s) {
+        return s >= 90 ? Math.round(s / 60) + " " + qsTr("min") : Math.round(s) + " " + qsTr("s")
+    }
+    function _missionValid(veh) {
+        return !!(veh && veh.missionProgressValid)
+    }
+    function _airTotal(dmw) {
+        return dmw.airEchogramKBs + dmw.airTelemetryKBs + dmw.airServiceKBs
+    }
+    // A cell drawn with a stacked bar under its value: [{ v, c }] parts by kind, [] for a plain value.
+    function bars(key, dmw) {
+        if (key !== "linkAir" || !dmw || !dmw.airValid)
+            return []
+        return [{ v: dmw.airEchogramKBs, c: AppPalette.airColors[0] },
+                { v: dmw.airTelemetryKBs, c: AppPalette.airColors[1] },
+                { v: dmw.airServiceKBs, c: AppPalette.airColors[2] }]
+    }
 
     function _autopilotValid(dmw) {
         if (!dmw)
@@ -159,6 +185,11 @@ QtObject {
         case "apMode":    return _autopilotValid(dmw) && dmw.pilotModeState >= 0
         case "apArm":     return _autopilotValid(dmw) && dmw.pilotArmState >= 0
         case "apHomeDist": return _homeDistValid(veh)
+        case "apMissionLeft":  return _missionValid(veh)
+        case "apMissionEta":   return _missionValid(veh) && isFinite(veh.missionEtaS)
+        case "apBatteryAtEnd": return _missionValid(veh) && veh.missionBatteryAtEnd >= 0
+        case "linkAir":        return !!(dmw && dmw.airValid)
+        case "linkRssi":       return !!(dmw && dmw.airValid && dmw.airRssi < 0)
         }
         return false
     }
@@ -198,6 +229,16 @@ QtObject {
         case "apHomeDist":
             return _homeDistValid(veh)
                    ? _distanceText(veh.distanceM(veh.homeLatitude, veh.homeLongitude, veh.latitude, veh.longitude)) : "—"
+        case "apMissionLeft":
+            return _missionValid(veh) ? _distanceText(veh.missionRemainingM) : "—"
+        case "apMissionEta":
+            return (_missionValid(veh) && isFinite(veh.missionEtaS)) ? _durationText(veh.missionEtaS) : "—"
+        case "apBatteryAtEnd":
+            return (_missionValid(veh) && veh.missionBatteryAtEnd >= 0) ? (veh.missionBatteryAtEnd + " %") : "—"
+        case "linkAir":
+            return (dmw && dmw.airValid) ? (_airTotal(dmw).toFixed(1) + " " + qsTr("KB/s")) : "—"
+        case "linkRssi":
+            return (dmw && dmw.airValid && dmw.airRssi < 0) ? (dmw.airRssi + " " + qsTr("dBm")) : "—"
         }
         return "—"
     }
@@ -248,6 +289,11 @@ QtObject {
         case "apCurrent": return "3.2 A"
         case "apMode":    return "3"
         case "apArm":     return "ARMED"
+        case "apMissionLeft":  return "1.24 " + qsTr("km")
+        case "apMissionEta":   return "14 " + qsTr("min")
+        case "apBatteryAtEnd": return "46 %"
+        case "linkAir":        return "7.3 " + qsTr("KB/s")
+        case "linkRssi":       return "-52 " + qsTr("dBm")
         case "usblRange":       return "18.3 " + qsTr("m")
         case "usblAzimuth":     return "127.4°"
         case "usblElevation":   return "-22.8°"

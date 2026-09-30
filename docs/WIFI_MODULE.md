@@ -504,6 +504,13 @@ about 2.2 KB/s of MAVLink plus the proxy frames around it (the heaviest ten prox
 head unit module's link report at 5/s 0.17 KB/s. With the sonar not pinging 11.2 KB/s should come to about 5.5
 (*Inference*, not measured).
 
+The same counting feeds the data widget "On the link" (2026-09-30): `AirMeter` (`src/device/air_meter.h`) adds
+every complete frame of a live link by kind - the echogram (ID_CHART, ID_CHART_Z), telemetry (MAVLink, raw or in
+proxy frames), service (the rest) - and DeviceManager sends the KB/s over the last 3 whole seconds once a second
+with the head unit module's Wi-Fi signal (a station's, else an access point's weakest client;
+`DeviceManager::airChanged` → DeviceManagerWrapper.air*). The widget shows the total with a bar in three colours
+(AppPalette.airColors); "Wi-Fi signal" is its own field. The signal also colours the boat's track (BOAT_MISSION.md).
+
 The rest is the autopilot's telemetry at its own stream rates. By the owner's word (2026-09-30) SR1_EXTRA1 and
 SR1_EXTRA2 went from 10 to 4 Hz (ATTITUDE, AHRS2, PID_TUNING, VFR_HUD; HeadUnit docs/BOAT_MISSION.md): the kiosk
 counts 4.0/s for each and 7.3 KB/s in all with the sonar pinging (*Verified*), half of the 14.3-15.1 KB/s of the

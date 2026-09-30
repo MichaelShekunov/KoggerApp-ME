@@ -84,6 +84,22 @@ water is not yet verified.
   while armed), heartbeat switch, last messages. Moving commands, Arm, a heading-source change and a
   plan-replacing load ask for a second tap within 3 s; HOLD and Disarm never do. "Close" is pinned at
   the bottom below the scrolling part, always at hand (the header's X scrolls away with the content).
+  While a mission runs (armed, AUTO on the plan, or RTL) a line "Left: 1.24 km · 14 min · battery at the end
+  46%" (MavVehicle.missionRemainingM / missionEtaS / missionBatteryAtEnd, `src/vehicle/mission_progress.h`:
+  the way from the boat through the points still ahead and home when the plan returns there; the time at the
+  boat's speed smoothed over 10 s, the plan's speed while it is below 0.3 m/s; the battery from its trend since
+  the mode began, shown only once it has dropped 1 % over at least a minute - never with no battery monitor,
+  -1 %). While the link is lost, a line on where the faint boat on the map is. "Track by link quality" switches
+  the track on the map (kept), with its colours and "Clear the track".
+- `qml/scene3d/BoatMissionLayer.qml` also draws the boat's track by link quality (MavVehicle.linkTrack*,
+  `src/vehicle/link_track.h`): a sample with each position the autopilot reports, 2 m apart or when the quality
+  changes, at most 3000; its quality the head unit module's Wi-Fi signal then (from -60 dBm good, to -70 fair, to
+  -80 weak, below bad, AppPalette.linkQualityColors); the stretch from the last position before a loss to the
+  first after it red and dashed. Placed with one `GraphicsScene3dView::geoToScreenList` call per refresh. And,
+  while the link is lost, the "ghost": a faint pulsing boat where it should be now (MavVehicle::updateGhost:
+  from the last position along the mission at the last speed in AUTO - which ArduPilot keeps when the ground
+  station is lost, FS_GCS_ENABLE 2 - towards home in RTL, where it was otherwise), a dashed line from where it
+  was last seen and "no link N s".
 - `qml/scene3d/Scene3DRightToolbar.qml` — the boat button (shown once an autopilot is heard or a
   route exists); `qml/app/Pane3DWindow.qml` hosts the layer and the panel and binds
   `mapTapEnabled`; `qml/app/MainWindow.qml` turns command results and autopilot warnings into
