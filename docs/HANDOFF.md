@@ -824,6 +824,18 @@ stays, as upstream has it (the same retune of that link, not changed). On the ki
 2026-09-29 by the owner's word (no QML errors in kogger.log; the boat was away, so the hidden row on its devices
 is not seen on the hardware yet); this PC runs a937fa06.
 
+**A layout change clears the echograms' synced cursors.** Owner 2026-09-30: switching from two panes to one (the
+echogram only) left white lines in the echogram - a vertical one running with it and stopping in the middle, a
+horizontal one at the very top. That is the aim's synced crosshair (`Plot2DAim::draw` with `cursor.selectEpochIndx`
+set: x = width / 2 plus an offset that shrinks with each new ping, y at the synced depth or the bottom's, 0 without
+one; white), set by another echogram's pointer (`Core::broadcastEpochCursor`) or a pick on the 3D track
+(`EpochSelected3d`) and cleared only by its source - which, taken out of the layout, never does (the four echogram
+slots are hidden, not destroyed). `Core::clearEchogramSyncCursors()` clears every echogram's synced cursor;
+WorkspaceView calls it when the panes or their modes or contents change (`_paneSetKey`, not on a resize). Which of
+the two sources drew the owner's lines is *Inference*, and the fix is not yet seen on the hardware (the kiosk was
+off): from two panes to one no crosshair should stay. Check: `tools/qml_check/synccursor_check.ps1` (the first layout and a resize clear
+nothing; two panes to one, a mode, a content clear), five mutants caught.
+
 **Split screen: a border always shown, a small handle.** Owner 2026-09-30: between the split screen's panes a thin
 border should always be seen, and the splitter handle made smaller. The split zone (WorkspaceView's Repeater over
 `splitHandleModel`) draws the border in the gap PaneFrame leaves on the first pane's side of the split,

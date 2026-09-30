@@ -33,6 +33,28 @@ Item {
     readonly property int secondaryEchogramKey: workspace.store ? workspace.store.secondaryEchogramKey : 10000
     readonly property var leafRects: workspace.store ? workspace.store.leafRects : []
 
+    // A synced cursor (another echogram's pointer, a pick on the 3D track) stays on an echogram until its source
+    // clears it, and a source taken out of the layout never does (owner 2026-09-30: from two panes to one a white
+    // crosshair stayed and ran with the echogram to the middle). So it ends with the layout that made it: a change of
+    // the panes or their modes clears every echogram's synced cursor; a live source sends it again on its next move.
+    property string _paneSetKey: ""
+    function _paneSetKeyOf(rects) {
+        var parts = []
+        for (var i = 0; i < (rects ? rects.length : 0); ++i) {
+            var pane = rects[i].pane
+            parts.push(rects[i].leafId + ":" + (pane ? (pane.mode || "") + ":" + (pane.contentId || "") : ""))
+        }
+        return parts.join(",")
+    }
+    onLeafRectsChanged: {
+        var key = _paneSetKeyOf(leafRects)
+        if (key === _paneSetKey)
+            return
+        if (_paneSetKey !== "" && typeof core !== "undefined" && core && typeof core.clearEchogramSyncCursors === "function")
+            core.clearEchogramSyncCursors()
+        _paneSetKey = key
+    }
+
     readonly property var visibleEchograms: {
         var out = []
         var map = workspace.plotItemsByLeafId

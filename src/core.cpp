@@ -2008,6 +2008,16 @@ void Core::broadcastCursorClear(qPlot2D* source)
     }
 }
 
+void Core::clearEchogramSyncCursors()
+{
+    // Not gated by echogramSyncCursor_: a pick on the 3D track reaches the echograms without it.
+    for (int i = 0; i < plot2dList_.size(); i++) {
+        if (auto* plot = plot2dList_.at(i); plot != nullptr) {
+            plot->clearSyncCursor();
+        }
+    }
+}
+
 void Core::broadcastEchogramTime(QObject* source, double timelinePos)
 {
     if (!echogramSyncCursor_) {

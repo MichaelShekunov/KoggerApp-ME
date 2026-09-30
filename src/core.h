@@ -229,6 +229,13 @@ public slots:
     bool echogramSyncView() const { return echogramSyncView_; }
     void broadcastEpochCursor(qPlot2D* source, int epoch, float depth, int channel);
     void broadcastCursorClear(qPlot2D* source);
+    /**
+     * @brief Clears every echogram's synced cursor (another echogram's pointer, a pick on the 3D track).
+     *
+     * Only its source clears a synced cursor, and a source taken out of the layout never does; WorkspaceView calls
+     * this when the panes change, and a live source sends its cursor again on its next move.
+     */
+    Q_INVOKABLE void clearEchogramSyncCursors();
     Q_INVOKABLE void broadcastEchogramTime(QObject* source, double timelinePos);        // time/scroll → gated by echogramSyncCursor_
     Q_INVOKABLE void broadcastEchogramVertical(QObject* source, double from, double to); // vertical zoom+offset → gated by echogramSyncView_
     Q_INVOKABLE void registerSyncLoupePlot(QObject* plotObj);
