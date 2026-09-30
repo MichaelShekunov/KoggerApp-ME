@@ -441,6 +441,19 @@ the link: first the access point (the boat's module, over the air), then the sta
 wire) to the same mode. A station in b/g/n+LR as a step between does not work: with an access point in b/g/n it
 joined with the LR PHY and carried 0 B/s (the cause is not known yet; the module session will check on the stand).
 
+## 2m. Link speed, both ways (firmware 0.18, 55f97d48)
+
+The module reports the PHY rate the other end's data frames come at, counted in a short listening window
+(ID_WIFI_SURVEY v1; the module's docs/SBP_WIFI.md 3b, contract 8): GETTING v1 {U2 window ms} (200 by default), the
+answer after the window, ERR_RUNTIME while a window, a survey, a scan or joining runs or within 1 s of the last
+window; CONTENT v1 per other end (a station's access point, an access point's clients): MAC, frames, mean RSSI, the
+negotiated mode and up to 4 rates {kind, code, flags, kbit/s, frames}. The island's "Link speed" shows "in" (this
+module's report: how it receives the other end) and "out" (the other end's report, when the app sees it: how it
+receives this module), asked every 3 s while the section is open, the other end 400 ms later: listening cuts the
+link's throughput (ESP-IDF), and the two windows are kept apart. LR is not decoded by the module (kbit/s 0): "LR,
+speed not calibrated". Measured by the module session in b/g/n: both ways 11n MCS7 SGI, 72.2 Mbit/s. An access point
+hears its client only when the client sends: an empty window is a quiet link, not a fault.
+
 ## 2c. Port speed of the module (line 0)
 
 The module's line 0 runs at any speed from 9600 to 4 000 000 (`ID_UART` v0 `{KEY, 1, U4 baud}`, answered at the

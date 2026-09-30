@@ -824,6 +824,9 @@ stays, as upstream has it (the same retune of that link, not changed). On the ki
 2026-09-29 by the owner's word (no QML errors in kogger.log; the boat was away, so the hidden row on its devices
 is not seen on the hardware yet); this PC runs a937fa06.
 
+**Link speed (firmware 0.18, 55f97d48).** The module session added a link rate report (ID_WIFI_SURVEY v1); the Wi-Fi
+island shows it both ways (WIFI_MODULE.md 2m). mission_check 142/142, the text functions under qmltestrunner.
+
 **Heading source: what is in use now (0da0534d).** Owner: the Heading choice is not clear, what is the source now. The panel
 showed only EK3_SRC1_YAW; it now shows the selection with a tick, "In use now" (MavVehicle::headingInUse, from the GPS
 heading and the EKF's fallback message, BOAT_MISSION.md) and why the choice is closed. mission_check 134/134.
