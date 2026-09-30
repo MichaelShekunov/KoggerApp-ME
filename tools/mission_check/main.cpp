@@ -1043,10 +1043,19 @@ void trafficRules()
     T::Key none; none.proto = T::ProtoKp2; none.addr = -1; none.id = 0x1234; none.ver = 7; none.stream = true;
     check("traffic: a key without an address and a long ID keeps them",
           T::name(none) == QStringLiteral("KP2 [-1] id 0x1234 v7 stream"), T::name(none));
+    T::Key um; um.proto = T::ProtoKp2; um.addr = 2; um.id = 0x7D; um.stream = true; um.unmarked = true;
+    T::Key mk = um; mk.unmarked = false;
+    T t2;
+    t2.add(um, 100, false);
+    t2.add(mk, 50, false);
+    const QString s2 = t2.summary(1.0);
+    check("traffic: frames without the mark are counted apart",
+          s2.contains(QStringLiteral("KP2 [2] CHART_Z v0 stream unmarked 0.10 KB/s 1.0/s"))
+              && s2.contains(QStringLiteral("KP2 [2] CHART_Z v0 stream 0.05 KB/s 1.0/s")), s2);
 }
 
-// A device that sends nothing (the search address 0 on a relay link) is asked at 5 Hz for 10 s, then every 5 s; any
-// frame from it starts it over.
+// A device without the mark (the search address 0 on a relay link, a device whose frames carry the mark only now and
+// then) is asked at 5 Hz for 10 s, then every 5 s; 2 s of marked ticks or a frame after 1 s of silence start it over.
 void unansweredRules()
 {
     using U = DeviceLiveness::Unanswered;
@@ -1061,13 +1070,59 @@ void unansweredRules()
     }
     {
         U u;
+        int asks = 0, late = 0;
+        for (int64_t now = t0, i = 0; now < t0 + 60000; now += 200, ++i) {   // frames all the time, the mark
+            u.heard(now);                                                   // on every other tick
+            if (i % 2) {
+                u.marked(now);
+            } else if (u.askDue(now)) {
+                ++asks;
+                late += now >= t0 + 50000 ? 1 : 0;
+            }
+        }
+        // 25 asks in the first 10 s, then every 5 s at the next unmarked tick (9); starting over on each frame asked all 150
+        check("unanswered: frames whose mark comes and goes are slowed down too", asks == 34 && late == 2,
+              QStringLiteral("%1 asks, %2 in the last 10 s").arg(asks).arg(late));
+    }
+    {
+        U u;
+        int64_t now = t0;
+        for (; now < t0 + 20000; now += 200)                 // 20 s unanswered: slow
+            u.askDue(now);
+        for (const int64_t end = now + 2200; now < end; now += 200)   // 2.2 s of marked ticks: answers steadily
+            u.marked(now);
+        check("unanswered: 2 s of marks start it over, the next loss is asked at once and fast",
+              u.askDue(now) && u.askDue(now + 200) && u.askDue(now + 400));
+    }
+    {
+        U u;
+        int64_t now = t0;
+        for (; now < t0 + 20000; now += 200)                 // the last ask at t0 + 19800
+            u.askDue(now);
+        for (const int64_t end = now + 1200; now < end; now += 200)   // marked for 1 s only
+            u.marked(now);
+        check("unanswered: 1 s of marks does not start it over", !u.askDue(now));
+    }
+    {
+        U u;
         int64_t now = t0;
         for (; now < t0 + 20000; now += 200)                 // 20 s of nothing: slow, the last ask at t0 + 19800
             u.askDue(now);
         const bool slow = !u.askDue(now);                     // t0 + 20000
-        u.heard();                                            // a frame (the baud rate search found it), not marked yet
-        check("unanswered: a frame starts it over, asked at once and fast",
+        u.heard(now);                                         // the first frame (the baud rate search found it)
+        check("unanswered: a first frame starts it over, asked at once and fast",
               slow && u.askDue(now + 200) && u.askDue(now + 400) && u.askDue(now + 600));
+    }
+    {
+        U u;
+        int64_t now = t0;
+        for (; now < t0 + 20000; now += 200) {               // frames every tick, never the mark: slow
+            u.heard(now);
+            u.askDue(now);
+        }
+        const bool slow = !u.askDue(now);
+        u.heard(now + 1200);                                  // 1.2 s without a frame, then one: a device back
+        check("unanswered: a frame after 1 s of silence starts it over", slow && u.askDue(now + 1400));
     }
     check("unanswered: the first tick asks", U().askDue(t0));
 }

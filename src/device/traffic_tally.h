@@ -27,6 +27,7 @@ public:
         int ver = 0;
         bool proxy = false;     // a KP2 frame carrying other frames
         bool stream = false;    // a KP2 stream frame
+        bool unmarked = false;  // a KP1/KP2 frame without the app's mark (DevDriver restarts on it)
     };
 
     void add(const Key& k, int bytes, bool nested)
@@ -63,10 +64,12 @@ public:
     {
         switch (k.proto) {
         case ProtoKp1:
-            return QStringLiteral("KP1 [%1] %2 v%3").arg(k.addr).arg(kogger(k.id)).arg(k.ver);
+            return QStringLiteral("KP1 [%1] %2 v%3%4").arg(k.addr).arg(kogger(k.id)).arg(k.ver)
+                .arg(k.unmarked ? QStringLiteral(" unmarked") : QString());
         case ProtoKp2:
-            return QStringLiteral("KP2 [%1] %2 v%3%4%5").arg(k.addr).arg(kogger(k.id)).arg(k.ver)
-                .arg(k.proxy ? QStringLiteral(" proxy") : QString(), k.stream ? QStringLiteral(" stream") : QString());
+            return QStringLiteral("KP2 [%1] %2 v%3%4%5%6").arg(k.addr).arg(kogger(k.id)).arg(k.ver)
+                .arg(k.proxy ? QStringLiteral(" proxy") : QString(), k.stream ? QStringLiteral(" stream") : QString(),
+                     k.unmarked ? QStringLiteral(" unmarked") : QString());
         case ProtoMavlink1:
             return QStringLiteral("MAVLink1 msg %1").arg(k.id);
         case ProtoMavlink2:
@@ -82,11 +85,12 @@ public:
 private:
     struct Sum { qint64 bytes = 0; qint64 frames = 0; };
 
-    // proto 4 bits, flags 2, ver 3, addr 9 (+1: -1 is 0), id 32
+    // proto 4 bits, flags 2, ver 3, addr 9 (+1: -1 is 0), unmarked 1 (bit 32), id 32
     static quint64 pack(const Key& k)
     {
         return (quint64(k.proto & 0xF) << 50) | (quint64(k.proxy) << 49) | (quint64(k.stream) << 48)
-             | (quint64(k.ver & 0x7) << 45) | (quint64((k.addr + 1) & 0x1FF) << 36) | quint64(k.id);
+             | (quint64(k.ver & 0x7) << 45) | (quint64((k.addr + 1) & 0x1FF) << 36) | (quint64(k.unmarked) << 32)
+             | quint64(k.id);
     }
     static Key unpack(quint64 v)
     {
@@ -94,6 +98,7 @@ private:
         k.proto = int((v >> 50) & 0xF);
         k.proxy = (v >> 49) & 1;
         k.stream = (v >> 48) & 1;
+        k.unmarked = (v >> 32) & 1;
         k.ver = int((v >> 45) & 0x7);
         k.addr = int((v >> 36) & 0x1FF) - 1;
         k.id = uint32_t(v & 0xFFFFFFFFu);

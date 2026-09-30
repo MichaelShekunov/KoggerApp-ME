@@ -137,6 +137,7 @@ void DeviceManager::countTraffic(const QUuid& uuid, Parsers::FrameParser& frame)
         k.addr = frame.route();
         k.id = frame.id();
         k.ver = frame.ver();
+        k.unmarked = !frame.mark();
         break;
     case P::ProtoKP2:
         k.proto = TrafficTally::ProtoKp2;
@@ -145,6 +146,7 @@ void DeviceManager::countTraffic(const QUuid& uuid, Parsers::FrameParser& frame)
         k.ver = frame.ver();
         k.proxy = frame.isProxy();
         k.stream = frame.isStream();
+        k.unmarked = !k.proxy && !frame.mark();   // a proxy frame's flags come from its content
         break;
     case P::ProtoMAVLink1:
         k.proto = TrafficTally::ProtoMavlink1;

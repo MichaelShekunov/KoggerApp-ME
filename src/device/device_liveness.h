@@ -29,26 +29,47 @@ struct DeviceLiveness
         return nowMs - lastMs >= kQuietProbeMs && nowMs - lastProbeMs >= kQuietProbeMs;
     }
 
-    // A device that sends nothing is asked (restart, mark, VERSION v0-v2) each process() tick, 200 ms, for
+    // A device without the mark is asked (restart, mark, VERSION v0-v2) each process() tick, 200 ms, for
     // kUnansweredFastMs, then every kUnansweredSlowMs. The link's search address 0 is one: every device answers it
     // under its own address, so its driver never gets a frame (2026-09-30, the head unit: 5 of the 11.7 VERSION
-    // answers a second of each device on the boat link). Any frame starts it over: a device the baud rate search
-    // finds later on a direct link answers at 0 and is marked at once.
+    // answers a second of each device on the boat link). So is a device whose frames carry the mark only now and
+    // then (the sonar behind the logger, *Inference*): each restart re-read its setup. It starts over after
+    // kStableMarkMs of marked ticks (the next loss of the mark is a restart, asked at once) or on a frame after
+    // kSilenceMs without one (a device found or back: the baud rate search on a direct link).
     static constexpr int64_t kUnansweredFastMs = 10000;
     static constexpr int64_t kUnansweredSlowMs = 5000;
+    static constexpr int64_t kStableMarkMs = 2000;
+    static constexpr int64_t kSilenceMs = 1000;
 
-    /** The back-off of one device: frames from protoComplete, ticks without the mark from process(). */
+    /** The back-off of one device: frames from protoComplete, ticks from process(). */
     struct Unanswered
     {
-        int64_t sinceMs = 0;     // since when nothing came, 0: a frame just came
-        int64_t lastAskMs = 0;   // the last ask
+        int64_t sinceMs = 0;         // since when it has been without the mark, 0: starts over at the next tick
+        int64_t lastAskMs = 0;       // the last ask
+        int64_t markedSinceMs = 0;   // the current run of marked ticks, 0: none
+        int64_t lastFrameMs = 0;     // its last frame, 0: none yet
 
         /** A frame from the device. */
-        void heard() { sinceMs = 0; }
+        void heard(int64_t nowMs)
+        {
+            if (lastFrameMs == 0 || nowMs - lastFrameMs >= kSilenceMs)
+                sinceMs = 0;
+            lastFrameMs = nowMs;
+        }
+
+        /** A tick with the mark. */
+        void marked(int64_t nowMs)
+        {
+            if (markedSinceMs == 0)
+                markedSinceMs = nowMs;
+            if (nowMs - markedSinceMs >= kStableMarkMs)
+                sinceMs = 0;
+        }
 
         /** A tick without the mark: whether to ask now. */
         bool askDue(int64_t nowMs)
         {
+            markedSinceMs = 0;
             if (sinceMs == 0)
                 sinceMs = nowMs;
             if (nowMs - sinceMs >= kUnansweredFastMs && nowMs - lastAskMs < kUnansweredSlowMs)
