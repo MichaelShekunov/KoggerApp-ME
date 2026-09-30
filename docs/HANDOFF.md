@@ -829,10 +829,11 @@ is not seen on the hardware yet); this PC runs a937fa06.
 (6770b6b2, "traffic [link]: ..." in kogger.log once a minute) on the kiosk: 11.2 KB/s of complete frames, of it
 ~5 KB/s frames with the VERSION ID from both Wi-Fi modules and the logger. Two sources (WIFI_MODULE.md 2n, the rates
 match 5 + 3.33 + 3.33 per device): the driver at the search address 0 that every link gets never gets a frame and
-asked VERSION v0-v2 every 200 ms (`DeviceLiveness::Unanswered`: each tick for 10 s, then every 5 s, any frame starts
-it over), and the link asked every device every 300 ms while it received data (`LinkAskAll`: only after two quiet
-ticks). What the app sends is logged too ("traffic [link] sent: ..."). mission_check offline 154/154, ten mutants
-of the two rules caught, the Windows build. Not yet verified on the hardware: after the switch the VERSION lines
+asked VERSION v0-v2 every 200 ms (`DeviceLiveness::Unanswered`: each tick for 10 s, then every 5 s; it starts over after
+2 s of marked ticks or on a frame after 1 s of silence, so a device whose frames carry the mark only now and then is
+slowed down too), and the link asked every device every 300 ms while it received data (`LinkAskAll`: only after two
+quiet ticks). What the app sends is logged too ("traffic [link] sent: ..."), frames without the mark as
+"... unmarked". mission_check offline 159/159, the mutants of both rules caught, the Windows build. Not yet verified on the hardware: after the switch the VERSION lines
 should go and the total drop by about 5 KB/s. The autopilot's stream rates (EXTRA1/EXTRA2 10 Hz) and GCS_PID_MASK
 are the owner's decision.
 

@@ -459,7 +459,7 @@ hears its client only when the client sends: an empty window is a quiet link, no
 Owner: with the sonar off the boat still sends 17-18 KB/s. The app counts every complete frame of a live link
 (`TrafficTally`, `src/device/traffic_tally.h`) and logs once a minute `traffic [<link>]: <KB/s>: <top kinds> | in
 proxy frames: ...` and, from the fix below, `traffic [<link>] sent: ...` (what the app's drivers send,
-`DeviceManager::binFrameOut`). The kiosk, 2026-09-30 01:06-01:07 by the board's clock, sonar off:
+`DeviceManager::binFrameOut`); a KP1/KP2 frame without the app's mark is listed as `... unmarked`. The kiosk, 2026-09-30 01:06-01:07 by the board's clock, sonar off:
 
 | What | KB/s | Frames/s |
 |---|---|---|
@@ -478,8 +478,13 @@ the code, the rates match):
 1. `DeviceManager::onLinkOpened` creates a driver at the search address 0 (upstream 8c77c876, 2024); every device
    answers under its own address, so that driver never gets a frame, and its "not marked" branch
    (`DevDriver::process`, every 200 ms) restarted and asked VERSION v0-v2 for as long as the link was open: 5/s,
-   answered by every device. Fixed: `DeviceLiveness::Unanswered` - a device that sends nothing is asked each tick
-   for 10 s, then every 5 s; any frame from it starts that over.
+   answered by every device. Fixed: `DeviceLiveness::Unanswered` - a device without the mark is asked each tick
+   for 10 s, then every 5 s. It starts over after 2 s of marked ticks (the next loss of the mark is a restart) or
+   on a frame after 1 s without one (a device found or back). Frames that keep coming while the mark comes and goes
+   do not start it over, so such a device is not restarted (its setup re-read) each tick; whether one exists the
+   `unmarked` count shows. Seen once: 01:25-01:26, around two losses of the boat link (5.9 s, 3.9 s), the sonar [2]
+   answered MARK at 13-16/s and VERSION at 43-50/s for two minutes, then 34/s again with no MARK (drivers
+   restarting after the losses, *Inference*).
 2. `Link::onCheckedTimerEnd` (every 100 ms) asked every device on the link (`sendDoRequestAll` →
    `DevDriver::doRequestAll`, VERSION v0-v2) every third tick while it received data (upstream 581447cc, a
    keep-alive for a quiet device, which `process()` had done itself when the device was quiet for 70 ms): 3.33/s to
