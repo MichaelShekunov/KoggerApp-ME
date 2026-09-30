@@ -27,6 +27,13 @@ public:
     Q_PROPERTY(int pilotArmState READ pilotArmState NOTIFY vruChanged)
     Q_PROPERTY(int pilotModeState READ pilotModeState NOTIFY vruChanged)
     Q_PROPERTY(int averageChartLosses READ getAverageChartLosses NOTIFY chartLossesChanged)
+    // What the links carry now, KB/s by kind, and the head unit module's Wi-Fi signal, dBm (0 not known); once a
+    // second from DeviceManager::airChanged. airValid: a reading has come.
+    Q_PROPERTY(double airEchogramKBs READ airEchogramKBs NOTIFY airChanged)
+    Q_PROPERTY(double airTelemetryKBs READ airTelemetryKBs NOTIFY airChanged)
+    Q_PROPERTY(double airServiceKBs READ airServiceKBs NOTIFY airChanged)
+    Q_PROPERTY(int airRssi READ airRssi NOTIFY airChanged)
+    Q_PROPERTY(bool airValid READ airValid NOTIFY airChanged)
     Q_PROPERTY(bool isbeaconDirectQueueAsk READ getUSBLBeaconDirectAsk WRITE setUSBLBeaconDirectAsk NOTIFY USBLBeaconDirectAskChanged)
 
     DeviceManager* getWorker();
@@ -51,6 +58,11 @@ public:
     int getAverageChartLosses() const {
         return averageChartLosses_;
     };
+    double airEchogramKBs() const { return airEchogram_; }
+    double airTelemetryKBs() const { return airTelemetry_; }
+    double airServiceKBs() const { return airService_; }
+    int airRssi() const { return airRssi_; }
+    bool airValid() const { return airValid_; }
 
 
 public slots:
@@ -102,6 +114,7 @@ signals:
     void protoBinConsoledChanged();
     void nmeaConsoledChanged();
     void USBLBeaconDirectAskChanged();
+    void airChanged();
 
 private:
     std::unique_ptr<DeviceManager> workerObject_;
@@ -111,6 +124,10 @@ private:
 #endif
 
     int averageChartLosses_;
+    double airEchogram_ = 0.0, airTelemetry_ = 0.0, airService_ = 0.0;
+    int airRssi_ = 0;
+    bool airValid_ = false;
+    void onAir(double echogramKBs, double telemetryKBs, double serviceKBs, int rssiDbm);
     bool protoBinConsoledState_;
     bool nmeaConsoledState_;
     bool USBLBeaconDirectAskState_;

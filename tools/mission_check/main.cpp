@@ -22,6 +22,9 @@
 #include "touch_tap_gate.h"
 #include "wifi_ops.h"
 #include "traffic_tally.h"
+#include "mission_progress.h"
+#include "link_track.h"
+#include "air_meter.h"
 #include "link/link_ask_all.h"
 
 #if defined(__GNUC__) || defined(__clang__)
@@ -1180,6 +1183,186 @@ void linkAskAllRules()
     }
 }
 
+// Mission progress (mission_progress.h): the way ahead, its time, the battery at its end, a boat along it.
+void progressRules()
+{
+    namespace mp = mission_progress;
+    const mp::Geo a{ 60.0, 30.0 }, b{ 60.001, 30.0 }, c{ 60.002, 30.0 };
+    const double leg = mp::distanceM(a, b);
+    check("progress: a degree of latitude is 111.2 km", std::abs(mp::distanceM({ 0, 0 }, { 1, 0 }) - 111195.0) < 50.0,
+          QString::number(mp::distanceM({ 0, 0 }, { 1, 0 })));
+    const QVector<mp::Geo> plan{ a, b, c };
+    const mp::Geo home{ 59.999, 30.0 };
+    const QVector<mp::Geo> ahead = mp::routeAhead(a, plan, 1, true, true, home);
+    check("progress: the way ahead - the boat, the points from the target, home",
+          ahead.size() == 4 && ahead[1].lat == b.lat && ahead[3].lat == home.lat);
+    check("progress: no home when the mission does not return", mp::routeAhead(a, plan, 1, false, true, home).size() == 3);
+    const double len = mp::lengthM(mp::routeAhead(a, plan, 1, false, true, home));
+    check("progress: the way's length adds its legs", std::abs(len - 2 * leg) < 0.01, QString::number(len));
+    check("progress: 100 m at 1 m/s is 100 s", std::abs(mp::etaS(100.0, 1.0) - 100.0) < 1e-9);
+    check("progress: no time at a standstill", std::isnan(mp::etaS(100.0, 0.2)));
+    bool ended = true;
+    const mp::Geo p1 = mp::alongRoute(plan, 1.0, 50.0, &ended);
+    check("progress: along the route after 50 s at 1 m/s - on the first leg",
+          !ended && std::abs(mp::distanceM(a, p1) - 50.0) < 0.2, QString::number(mp::distanceM(a, p1)));
+    const mp::Geo p2 = mp::alongRoute(plan, 1.0, leg + 30.0, &ended);
+    check("progress: past the first point - on the second leg",
+          !ended && std::abs(mp::distanceM(b, p2) - 30.0) < 0.2, QString::number(mp::distanceM(b, p2)));
+    const mp::Geo p3 = mp::alongRoute(plan, 1.0, 10000.0, &ended);
+    check("progress: past the end - stops at the last point", ended && p3.lat == c.lat && p3.lon == c.lon);
+    check("progress: no speed - where it was", mp::alongRoute(plan, 0.0, 100.0).lat == a.lat);
+
+    mp::SpeedSmoother sp;
+    sp.add(0.0, 0);
+    sp.add(2.0, 10000);
+    check("progress: the speed settles with a 10 s time constant", std::abs(sp.value() - 2.0 * (1.0 - std::exp(-1.0))) < 1e-6,
+          QString::number(sp.value()));
+
+    mp::BatteryTrend bt;
+    bt.add(0, 80);
+    bt.add(30000, 79);
+    check("progress: no battery trend within a minute", std::isnan(bt.ratePctPerS()) && bt.atEnd(600) == -1);
+    bt.add(120000, 78);
+    check("progress: 2 % in 120 s, 600 s more - 68 % at the end", bt.atEnd(600.0) == 68,
+          QString::number(bt.atEnd(600.0)));
+    check("progress: the end never below 0 %", bt.atEnd(1e6) == 0);
+    mp::BatteryTrend none;
+    none.add(0, -1);
+    none.add(200000, -1);
+    check("progress: no battery monitor (-1 %) - no trend", std::isnan(none.ratePctPerS()) && none.atEnd(60) == -1);
+    mp::BatteryTrend flat;
+    flat.add(0, 90);
+    flat.add(300000, 90);
+    check("progress: a charge that has not moved - no trend", flat.atEnd(60) == -1);
+}
+
+// The track by link quality (link_track.h).
+void linkTrackRules()
+{
+    using T = LinkTrack;
+    check("track: -50 good, -65 fair, -75 weak, -85 bad",
+          T::qualityOf(-50) == T::Good && T::qualityOf(-65) == T::Fair && T::qualityOf(-75) == T::Weak && T::qualityOf(-85) == T::Bad);
+    check("track: 0 (not connected) and none - unknown", T::qualityOf(0) == T::Unknown && T::qualityOf(T::kNoRssi) == T::Unknown);
+    T t;
+    const double m = 1.0 / 111195.0;              // a metre of latitude in degrees
+    check("track: the first position", t.add(60.0, 30.0, -50, false) && t.samples().size() == 1);
+    check("track: 1 m on, the same quality - skipped", !t.add(60.0 + m, 30.0, -52, false) && t.samples().size() == 1);
+    check("track: 3 m on - added", t.add(60.0 + 3 * m, 30.0, -52, false) && t.samples().size() == 2);
+    check("track: 1 m on, the quality changed - added",
+          t.add(60.0 + 4 * m, 30.0, -75, false) && t.samples().last().quality == T::Weak);
+    check("track: the first position after a loss - added as lost even close by",
+          t.add(60.0 + 4.5 * m, 30.0, -50, true) && t.samples().last().quality == T::Lost);
+    check("track: no position (0, 0 / NaN) - skipped", !t.add(0.0, 0.0, -50, false) && !t.add(qQNaN(), 30.0, -50, false));
+    const int v = t.version();
+    t.clear();
+    check("track: cleared", t.samples().isEmpty() && t.version() != v);
+    for (int i = 0; i < T::kMaxSamples + 100; ++i)
+        t.add(60.0 + i * 3 * m, 30.0, -50, false);
+    check("track: at most 3000 samples, the oldest dropped",
+          t.samples().size() == T::kMaxSamples && std::abs(t.samples().first().lat - (60.0 + 100 * 3 * m)) < 1e-9);
+}
+
+// What the link carries, by kind (air_meter.h).
+void airMeterRules()
+{
+    using A = AirMeter;
+    using T = TrafficTally;
+    T::Key chartZ; chartZ.proto = T::ProtoKp2; chartZ.id = 0x7D; chartZ.stream = true;
+    T::Key chart; chart.proto = T::ProtoKp1; chart.id = 0x03;
+    T::Key proxy; proxy.proto = T::ProtoKp2; proxy.id = 0x03; proxy.proxy = true;   // a proxy frame "CHART v4"
+    T::Key mav; mav.proto = T::ProtoMavlink2; mav.id = 30;
+    T::Key version; version.proto = T::ProtoKp1; version.id = 0x20;
+    T::Key wifi; wifi.proto = T::ProtoKp1; wifi.id = 0x57;
+    check("air: CHART_Z and CHART are the echogram", A::kindOf(chartZ) == A::Echogram && A::kindOf(chart) == A::Echogram);
+    check("air: proxy frames (whatever their id reads) and MAVLink are telemetry",
+          A::kindOf(proxy) == A::Telemetry && A::kindOf(mav) == A::Telemetry);
+    check("air: VERSION, WIFI - service", A::kindOf(version) == A::Service && A::kindOf(wifi) == A::Service);
+
+    A air;
+    for (int sec = 0; sec < 5; ++sec)
+        air.add(A::Echogram, 3072, sec * 1000 + 500);                 // 3 KB each second
+    air.add(A::Telemetry, 1024, 4700);
+    auto r = air.rates(5000);
+    check("air: 3 KB/s of echogram over the last 3 whole seconds",
+          std::abs(r[A::Echogram] - 3.0) < 1e-9, QString::number(r[A::Echogram]));
+    check("air: 1 KB in one of 3 s - 0.33 KB/s", std::abs(r[A::Telemetry] - 1.0 / 3.0) < 1e-9);
+    air.add(A::Service, 102400, 5200);
+    r = air.rates(5500);
+    check("air: the second under way is not counted yet", r[A::Service] == 0.0);
+    r = air.rates(10000);
+    check("air: quiet for 5 s - all zero", r[A::Echogram] == 0.0 && r[A::Telemetry] == 0.0 && r[A::Service] == 0.0);
+}
+
+QByteArray fakePosition(double lat, double lon, int vxCms)
+{
+    mavlink_message_t m;
+    mavlink_msg_global_position_int_pack_chan(1, 1, kFakeChan, &m, 0, int32_t(std::lround(lat * 1e7)), int32_t(std::lround(lon * 1e7)),
+                                              0, 0, int16_t(vxCms), 0, 0, 0);
+    return frame(m);
+}
+
+QByteArray fakeHome(double lat, double lon)
+{
+    mavlink_message_t m;
+    const float q[4] = { 1, 0, 0, 0 };
+    mavlink_msg_home_position_pack_chan(1, 1, kFakeChan, &m, int32_t(std::lround(lat * 1e7)), int32_t(std::lround(lon * 1e7)),
+                                        0, 0, 0, 0, q, 0, 0, 0, 0);
+    return frame(m);
+}
+
+// MavVehicle's progress, ghost and track (mission_progress.h, link_track.h), driven by frames and its second tick.
+void vehicleProgressRules()
+{
+    using V = MavVehicle;
+    V v(nullptr, false);
+    const double homeLat = 60.0, homeLon = 30.0;
+    const double boatLat = 60.001;                           // 111.2 m north of home
+    v.feed(fakeHeartbeat(true, V::ModeRtl));
+    v.feed(fakeHeartbeat(true, V::ModeRtl));
+    v.feed(fakeHome(homeLat, homeLon));
+    v.setLinkRssi(-50);
+    v.feed(fakePosition(boatLat, homeLon, 100));             // 1 m/s
+    const bool valid = waitFor([&] { return v.missionProgressValid(); }, 2500);
+    check("vehicle: RTL - progress to home", valid && std::abs(v.missionRemainingM() - 111.2) < 0.5,
+          QString::number(v.missionRemainingM()));
+    check("vehicle: RTL at 1 m/s - about 111 s left", std::abs(v.missionEtaS() - 111.2) < 1.0, QString::number(v.missionEtaS()));
+    check("vehicle: no battery trend yet", v.missionBatteryAtEnd() == -1);
+    check("vehicle: no ghost while the link is up", !v.ghostValid());
+    // the track: the first sample, then a weak signal 5 m on
+    v.setLinkRssi(-75);
+    v.feed(fakeHeartbeat(true, V::ModeRtl));
+    v.feed(fakePosition(boatLat - 5.0 / 111195.0, homeLon, 100));
+    waitFor([&] { return v.linkTrack().size() == 2; }, 1500);
+    const QVariantList t1 = v.linkTrack();
+    check("vehicle: the track - two samples, the second weak",
+          t1.size() == 2 && t1.last().toMap().value("q").toInt() == LinkTrack::Weak, QString::number(t1.size()));
+    // the link goes: no frames for kConnectedMs, then the ghost walks home at 1 m/s
+    const bool ghost = waitFor([&] { return v.ghostValid(); }, 6000);
+    const double lastLat = boatLat - 5.0 / 111195.0;
+    const double moved = V::distanceM(lastLat, homeLon, v.ghostLatitude(), v.ghostLongitude());
+    const double age = v.ghostAgeS();
+    check("vehicle: link lost - the ghost appears and moves home", ghost && v.ghostMoving(),
+          QStringLiteral("age %1 s, moved %2 m").arg(age).arg(moved));
+    check("vehicle: the ghost - about 1 m per second since the last position", std::abs(moved - age) <= 1.5,
+          QStringLiteral("age %1 s, moved %2 m").arg(age).arg(moved));
+    check("vehicle: the ghost - towards home, not away", v.ghostLatitude() < lastLat);
+    // back: the ghost goes, the next position is a lost stretch on the track
+    v.feed(fakeHeartbeat(true, V::ModeRtl));
+    v.feed(fakePosition(lastLat - 1.0 / 111195.0, homeLon, 100));
+    const bool gone = waitFor([&] { return !v.ghostValid(); }, 1500);
+    waitFor([&] { return v.linkTrack().size() == 3; }, 1500);
+    const QVariantList t2 = v.linkTrack();
+    check("vehicle: link back - no ghost", gone);
+    check("vehicle: the stretch over the loss is marked lost",
+          t2.size() == 3 && t2.last().toMap().value("q").toInt() == LinkTrack::Lost, QString::number(t2.size()));
+    v.clearLinkTrack();
+    check("vehicle: the track cleared", v.linkTrack().isEmpty());
+    // disarmed: no mission runs
+    v.feed(fakeHeartbeat(false, V::ModeRtl));
+    const bool stopped = waitFor([&] { return !v.missionProgressValid(); }, 2500);
+    check("vehicle: disarmed - no progress", stopped);
+}
+
 int main(int argc, char* argv[])
 {
     QCoreApplication app(argc, argv);
@@ -1208,6 +1391,10 @@ int main(int argc, char* argv[])
     trafficRules();
     unansweredRules();
     linkAskAllRules();
+    progressRules();
+    linkTrackRules();
+    airMeterRules();
+    vehicleProgressRules();
     if (cli.isSet(QStringLiteral("offline"))) {
         std::printf("\n%d checks, %d failed (offline)\nMISSION_CHECK_%s\n", g_checks, g_failed, g_failed ? "FAILED" : "DONE");
         return g_failed ? 1 : 0;

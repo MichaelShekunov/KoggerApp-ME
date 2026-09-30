@@ -4,7 +4,8 @@ import kqml_types 1.0
 
 // The boat mission drawn over the 3D scene: the planned route, numbered waypoints (draggable while
 // editing), the home position, the leg from the boat to the point it heads for and the way back
-// home. Everything is placed with view.geoToScreen() on the z = 0 plane and re-placed on
+// home; under them the boat's track by link quality and, while the link is lost, a faint boat where it should be
+// now. Everything is placed with view.geoToScreen() on the z = 0 plane and re-placed on
 // view.cameraChanged, on plan / telemetry changes and by a slow timer that covers camera
 // animations. Only the markers take input; the rest lets touches through to the scene.
 Item {
@@ -41,6 +42,9 @@ Item {
         function onPositionChanged() { missionLayer.refresh() }
         function onHomeChanged() { missionLayer.refresh() }
         function onMissionStateChanged() { missionLayer.refresh() }
+        function onLinkTrackChanged() { missionLayer.refresh() }
+        function onLinkTrackShownChanged() { missionLayer.refresh() }
+        function onGhostChanged() { missionLayer.refresh() }
     }
     Timer {
         interval: 250
@@ -87,6 +91,51 @@ Item {
             if (points[i].ok)
                 out.push(Qt.point(points[i].x, points[i].y))
         return out
+    }
+
+    // The track by link quality (vehicle.linkTrack*): each stretch in the colour of the link on it
+    // (AppPalette.linkQualityColors), a stretch over a loss dashed; placed in one C++ call per refresh.
+    readonly property var _trackRuns: {
+        _tick
+        var out = []
+        if (!vehicle || !vehicle.linkTrackShown || !view || typeof view.geoToScreenList !== "function")
+            return out
+        var qs = vehicle.linkTrackQualities
+        if (qs.length < 2)
+            return out
+        var pts = view.geoToScreenList(vehicle.linkTrackLats, vehicle.linkTrackLons)
+        var run = null
+        for (var i = 1; i < pts.length && i < qs.length; ++i) {
+            var a = pts[i - 1], b = pts[i]
+            if (!isFinite(a.x) || !isFinite(a.y) || !isFinite(b.x) || !isFinite(b.y)) {
+                run = null
+                continue
+            }
+            if (!run || run.q !== qs[i]) {
+                run = { q: qs[i], pts: [Qt.point(a.x, a.y)] }
+                out.push(run)
+            }
+            run.pts.push(Qt.point(b.x, b.y))
+        }
+        return out
+    }
+    Repeater {
+        model: missionLayer._trackRuns
+        delegate: Shape {
+            required property var modelData
+            anchors.fill: parent
+            preferredRendererType: Shape.CurveRenderer
+            ShapePath {
+                strokeColor: AppPalette.linkQualityColors[modelData.q]
+                strokeWidth: Math.max(3, Math.round(4 * missionLayer._s))
+                strokeStyle: modelData.q === 5 ? ShapePath.DashLine : ShapePath.SolidLine
+                dashPattern: [2, 2]
+                fillColor: "transparent"
+                capStyle: ShapePath.RoundCap
+                joinStyle: ShapePath.RoundJoin
+                PathPolyline { path: modelData.pts }
+            }
+        }
     }
 
     // planned route
@@ -170,6 +219,74 @@ Item {
             text: "H"
             color: "#FFFFFF"
             font.pixelSize: Tokens.fontMd
+            font.bold: true
+        }
+    }
+
+    // While the link is lost: the boat where it should be now (vehicle.ghost*, MavVehicle::updateGhost), faint and
+    // pulsing, a dashed line from where it was last seen, and how long the link has been gone.
+    readonly property var _ghost: {
+        _tick
+        return (vehicle && vehicle.ghostValid) ? _project(vehicle.ghostLatitude, vehicle.ghostLongitude) : { ok: false }
+    }
+    Shape {
+        id: ghostLine
+        anchors.fill: parent
+        preferredRendererType: Shape.CurveRenderer
+        visible: missionLayer._ghost.ok && missionLayer._boat.ok && !!missionLayer.vehicle && missionLayer.vehicle.ghostMoving
+        ShapePath {
+            strokeColor: "#FFFF6B6B"
+            strokeWidth: Math.max(2, Math.round(2 * missionLayer._s))
+            strokeStyle: ShapePath.DashLine
+            dashPattern: [2, 3]
+            fillColor: "transparent"
+            PathPolyline {
+                path: ghostLine.visible ? [Qt.point(missionLayer._boat.x, missionLayer._boat.y),
+                                           Qt.point(missionLayer._ghost.x, missionLayer._ghost.y)] : []
+            }
+        }
+    }
+    Item {
+        id: ghostMark
+        visible: missionLayer._ghost.ok
+        width: missionLayer.markerSize
+        height: width
+        x: visible ? Math.round(missionLayer._ghost.x - width / 2) : 0
+        y: visible ? Math.round(missionLayer._ghost.y - height / 2) : 0
+        z: 3
+        Rectangle {
+            anchors.fill: parent
+            radius: width / 2
+            color: "#40FFFFFF"
+            border.width: Math.max(2, Math.round(2 * missionLayer._s))
+            border.color: "#FFFF6B6B"
+            SequentialAnimation on opacity {
+                loops: Animation.Infinite
+                running: ghostMark.visible
+                NumberAnimation { to: 0.4; duration: 900 }
+                NumberAnimation { to: 1.0; duration: 900 }
+            }
+        }
+        Image {
+            anchors.centerIn: parent
+            source: "qrc:/icons/ui/speedboat.svg"
+            width: Math.round(parent.width * 0.6)
+            height: width
+            sourceSize.width: width * 2
+            sourceSize.height: height * 2
+            opacity: 0.8
+        }
+        Text {
+            anchors.top: parent.bottom
+            anchors.topMargin: Math.round(2 * missionLayer._s)
+            anchors.horizontalCenter: parent.horizontalCenter
+            text: !missionLayer.vehicle ? ""
+                  : missionLayer.vehicle.ghostMoving ? qsTr("no link %1 s").arg(missionLayer.vehicle.ghostAgeS)
+                  : qsTr("no link %1 s, last seen here").arg(missionLayer.vehicle.ghostAgeS)
+            color: "#FFFFFF"
+            style: Text.Outline
+            styleColor: "#CC000000"
+            font.pixelSize: Tokens.fontSm
             font.bold: true
         }
     }

@@ -2750,6 +2750,41 @@ QPointF GraphicsScene3dView::geoToScreen(double lat, double lon) const
     return QPointF((ndc.x() * 0.5 + 0.5) * width(), (0.5 - ndc.y() * 0.5) * height());
 }
 
+QList<QPointF> GraphicsScene3dView::geoToScreenList(const QList<double>& lats, const QList<double>& lons) const
+{
+    const QPointF none(qQNaN(), qQNaN());
+    const qsizetype n = std::min(lats.size(), lons.size());
+    QList<QPointF> out;
+    out.reserve(n);
+    if (!m_camera || width() <= 0.0 || height() <= 0.0) {
+        out.fill(none, n);
+        return out;
+    }
+    QMatrix4x4 liveModel;
+    liveModel.scale(1.0f, 1.0f, m_verticalScale);
+    const QMatrix4x4 mvp = m_projection * (m_camera->m_view * liveModel);
+    for (qsizetype i = 0; i < n; ++i) {
+        if (!std::isfinite(lats[i]) || !std::isfinite(lons[i])) {
+            out.append(none);
+            continue;
+        }
+        GeoJsonCoord c;
+        c.lat = lats[i];
+        c.lon = lons[i];
+        c.z = 0.0;
+        c.hasZ = false;
+        const QVector4D clip = mvp * QVector4D(geojsonToScene(c), 1.0f);
+        if (!(clip.w() > 1e-6f)) {
+            out.append(none);
+            continue;
+        }
+        const QVector3D ndc = clip.toVector3DAffine();
+        out.append(std::isfinite(ndc.x()) && std::isfinite(ndc.y())
+                       ? QPointF((ndc.x() * 0.5 + 0.5) * width(), (0.5 - ndc.y() * 0.5) * height()) : none);
+    }
+    return out;
+}
+
 QVariantMap GraphicsScene3dView::screenToGeo(qreal x, qreal y) const
 {
     QVariantMap out;

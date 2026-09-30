@@ -38,6 +38,11 @@ QtObject {
     readonly property int splitBarLengthPx: 36
     readonly property int splitBarThicknessPx: 10
 
+    // The boat's track by link quality, by LinkTrack::Quality: good, fair, weak, bad, unknown, lost.
+    readonly property var linkQualityColors: ["#22C55E", "#A3E635", "#F59E0B", "#EF4444", "#94A3B8", "#EF4444"]
+    // The "On the link" widget's bar: echogram, telemetry, service.
+    readonly property var airColors: ["#38BDF8", "#F59E0B", "#94A3B8"]
+
     // Sidebar slide-in/out animation duration (panel.x, opacity). Tunable
     // independently from the workspace rubber-band so the two motions can
     // be dialled separately. Used by SettingsSidebarBase.progress Behavior.

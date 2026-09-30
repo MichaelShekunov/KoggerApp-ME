@@ -152,6 +152,7 @@ BasePanePopup {
                                                             undefined, root._boat)
                         k: root._k
                         gap: root._gap
+                        bars: DataFieldCatalog.bars(cell._field, root._dmw)
                     }
                 }
             }

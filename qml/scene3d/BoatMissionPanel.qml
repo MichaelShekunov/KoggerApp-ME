@@ -49,6 +49,32 @@ Rectangle {
         }
         return String(fix)
     }
+    function durationText(s) {
+        if (!isFinite(s) || s < 0)
+            return "—"
+        return s >= 90 ? qsTr("%1 min").arg(Math.round(s / 60)) : qsTr("%1 s").arg(Math.round(s))
+    }
+    // The running mission (MavVehicle.mission*): the way left, its time at the boat's speed, the battery at its end.
+    function progressText() {
+        var v = vehicle
+        if (!v || !v.missionProgressValid)
+            return ""
+        var parts = [qsTr("Left: %1").arg(metres(v.missionRemainingM))]
+        if (isFinite(v.missionEtaS))
+            parts.push(durationText(v.missionEtaS))
+        if (v.missionBatteryAtEnd >= 0)
+            parts.push(qsTr("battery at the end %1%").arg(v.missionBatteryAtEnd))
+        return parts.join(" · ")
+    }
+    function ghostText() {
+        var v = vehicle
+        if (!v || !v.ghostValid)
+            return ""
+        return v.ghostMoving
+            ? qsTr("No link %1 s: the faint boat on the map is where it should be now, %2 on along the mission")
+                  .arg(v.ghostAgeS).arg(metres(v.distanceM(v.latitude, v.longitude, v.ghostLatitude, v.ghostLongitude)))
+            : qsTr("No link %1 s: the faint boat on the map is where it was last seen").arg(v.ghostAgeS)
+    }
     function metres(m) {
         if (!isFinite(m) || m < 0)
             return "—"
@@ -232,6 +258,22 @@ Rectangle {
                     text: qsTr("To point %1: %2").arg(panel.vehicle ? panel.vehicle.currentPlanIndex + 1 : 0)
                                                  .arg(panel.metres(panel.vehicle ? panel.vehicle.wpDistance : -1))
                 }
+            }
+            StatusText {
+                width: parent.width
+                visible: !!panel.vehicle && panel.vehicle.missionProgressValid
+                elide: Text.ElideNone
+                wrapMode: Text.WordWrap
+                font.bold: true
+                text: panel.progressText()
+            }
+            StatusText {
+                width: parent.width
+                visible: !!panel.vehicle && panel.vehicle.ghostValid
+                elide: Text.ElideNone
+                wrapMode: Text.WordWrap
+                color: AppPalette.dangerText
+                text: panel.ghostText()
             }
             // Whether the autopilot could navigate in AUTO once armed (its EKF), not just whether GPS has a fix.
             StatusText {
@@ -686,6 +728,49 @@ Rectangle {
                 color: AppPalette.accentText
                 font.pixelSize: Tokens.fontSm
                 text: panel.vehicle ? panel.vehicle.busyText + "…" : ""
+            }
+
+            // The boat's track by link quality on the map (MavVehicle.linkTrack*) and its colours.
+            KSwitch {
+                width: parent.width
+                rowHeight: Tokens.controlHLg
+                fontPixelSize: Tokens.fontMd
+                text: qsTr("Track by link quality")
+                readonly property bool want: !!panel.vehicle && panel.vehicle.linkTrackShown
+                onWantChanged: if (checked !== want) checked = want
+                Component.onCompleted: checked = want
+                onToggled: if (panel.vehicle) panel.vehicle.linkTrackShown = checked
+            }
+            Flow {
+                width: parent.width
+                spacing: Tokens.spaceSm
+                visible: !!panel.vehicle && panel.vehicle.linkTrackShown
+                Repeater {
+                    model: [{ q: 0, t: qsTr("from −60") }, { q: 1, t: "−70" }, { q: 2, t: "−80" },
+                            { q: 3, t: qsTr("below −80 dBm") }, { q: 5, t: qsTr("lost") }]
+                    delegate: Row {
+                        required property var modelData
+                        spacing: Tokens.spaceXxs
+                        Rectangle {
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: Math.round(14 * panel._s)
+                            height: Math.max(3, Math.round(4 * panel._s))
+                            radius: height / 2
+                            color: AppPalette.linkQualityColors[modelData.q]
+                        }
+                        Text {
+                            text: modelData.t
+                            color: AppPalette.textSecond
+                            font.pixelSize: Tokens.fontXs
+                        }
+                    }
+                }
+            }
+            PanelButton {
+                width: parent.width
+                visible: !!panel.vehicle && panel.vehicle.linkTrackShown && panel.vehicle.linkTrackQualities.length > 1
+                text: qsTr("Clear the track")
+                onClicked: if (panel.vehicle) panel.vehicle.clearLinkTrack()
             }
 
             KSwitch {

@@ -11,6 +11,9 @@
 #include <QVector>
 #include <functional>
 
+#include "link_track.h"
+#include "mission_progress.h"
+
 /**
  * @brief The boat's autopilot (ArduPilot Rover) as seen through MAVLink: telemetry, a waypoint plan,
  * the mission transfer protocol and the handful of commands a head unit needs to run a mission.
@@ -90,6 +93,29 @@ class MavVehicle : public QObject
     Q_PROPERTY(double planSpeed READ planSpeed WRITE setPlanSpeed NOTIFY planChanged)
     Q_PROPERTY(bool planReturnHome READ planReturnHome WRITE setPlanReturnHome NOTIFY planChanged)
     Q_PROPERTY(double planLengthM READ planLengthM NOTIFY planChanged)
+
+    // While a mission runs (armed, AUTO on the plan, or RTL): what is left, when it ends at the boat's speed, the
+    // battery then (mission_progress.h); NaN / -1 when not known.
+    Q_PROPERTY(bool missionProgressValid READ missionProgressValid NOTIFY missionProgressChanged)
+    Q_PROPERTY(double missionRemainingM READ missionRemainingM NOTIFY missionProgressChanged)
+    Q_PROPERTY(double missionEtaS READ missionEtaS NOTIFY missionProgressChanged)
+    Q_PROPERTY(int missionBatteryAtEnd READ missionBatteryAtEnd NOTIFY missionProgressChanged)
+    // While the link is lost: where the boat should be now - along the mission at its last speed in AUTO, towards
+    // home in RTL; where it was last seen otherwise (ghostMoving false).
+    Q_PROPERTY(bool ghostValid READ ghostValid NOTIFY ghostChanged)
+    Q_PROPERTY(double ghostLatitude READ ghostLatitude NOTIFY ghostChanged)
+    Q_PROPERTY(double ghostLongitude READ ghostLongitude NOTIFY ghostChanged)
+    Q_PROPERTY(bool ghostMoving READ ghostMoving NOTIFY ghostChanged)
+    Q_PROPERTY(int ghostAgeS READ ghostAgeS NOTIFY ghostChanged)
+    // The track by link quality (link_track.h): [{lat, lon, q}], q a LinkTrack::Quality of the stretch up to it.
+    Q_PROPERTY(QVariantList linkTrack READ linkTrack NOTIFY linkTrackChanged)
+    // The same as flat lists, for the map (GraphicsScene3dView::geoToScreenList).
+    Q_PROPERTY(QList<double> linkTrackLats READ linkTrackLats NOTIFY linkTrackChanged)
+    Q_PROPERTY(QList<double> linkTrackLons READ linkTrackLons NOTIFY linkTrackChanged)
+    Q_PROPERTY(QList<int> linkTrackQualities READ linkTrackQualities NOTIFY linkTrackChanged)
+    Q_PROPERTY(bool linkTrackShown READ linkTrackShown WRITE setLinkTrackShown NOTIFY linkTrackShownChanged)
+    // The Wi-Fi signal of the head unit's module, dBm, 0 when not known (DeviceManagerWrapper::airRssi).
+    Q_PROPERTY(int linkRssi READ linkRssi NOTIFY linkRssiChanged)
 
     Q_PROPERTY(int transferState READ transferState NOTIFY transferChanged)
     Q_PROPERTY(int transferProgress READ transferProgress NOTIFY transferChanged)
@@ -198,6 +224,28 @@ public:
     void setPlanReturnHome(bool on);
     double planLengthM() const;
 
+    bool missionProgressValid() const { return progressValid_; }
+    double missionRemainingM() const { return remainingM_; }
+    double missionEtaS() const { return etaS_; }
+    int missionBatteryAtEnd() const { return batteryAtEnd_; }
+
+    bool ghostValid() const { return ghostValid_; }
+    double ghostLatitude() const { return ghostLat_; }
+    double ghostLongitude() const { return ghostLon_; }
+    bool ghostMoving() const { return ghostMoving_; }
+    int ghostAgeS() const { return ghostValid_ && lastPositionAt_.isValid() ? int(lastPositionAt_.elapsed() / 1000) : -1; }
+
+    QVariantList linkTrack() const;
+    QList<double> linkTrackLats() const;
+    QList<double> linkTrackLons() const;
+    QList<int> linkTrackQualities() const;
+    bool linkTrackShown() const { return linkTrackShown_; }
+    void setLinkTrackShown(bool on);
+    Q_INVOKABLE void clearLinkTrack();
+    int linkRssi() const { return linkRssi_; }
+    /** The head unit's module signal, dBm (0 not known); the track's next sample takes it. */
+    void setLinkRssi(int dBm);
+
     int transferState() const { return transferState_; }
     int transferProgress() const { return transferProgress_; }
     QString transferText() const { return transferText_; }
@@ -265,6 +313,11 @@ signals:
     void transferChanged();
     void busyChanged();
     void messagesChanged();
+    void missionProgressChanged();
+    void ghostChanged();
+    void linkTrackChanged();
+    void linkTrackShownChanged();
+    void linkRssiChanged();
 
 private:
     struct Point { double lat; double lon; };
@@ -322,6 +375,9 @@ private:
     Step stepArm(bool on);
 
     void addMessage(const QString& text);
+    void updateProgress();
+    void updateGhost();
+    QVector<mission_progress::Geo> planGeo() const;
     void loadSettings();
     void savePlan();
 
@@ -415,4 +471,22 @@ private:
     QTimer stepTimer_;
 
     QStringList messages_;
+
+    QElapsedTimer clock_;                      // ms for the trends, since construction
+    mission_progress::SpeedSmoother speed_;
+    mission_progress::BatteryTrend battery_;
+    bool progressValid_ = false;
+    double remainingM_ = mission_progress::kNaN;
+    double etaS_ = mission_progress::kNaN;
+    int batteryAtEnd_ = -1;
+    int progressMode_ = -1;                    // the mode the battery trend runs in; another starts it over
+    QElapsedTimer lastPositionAt_;
+    bool ghostValid_ = false;
+    double ghostLat_ = 0, ghostLon_ = 0;
+    bool ghostMoving_ = false;
+    LinkTrack linkTrack_;
+    int linkTrackEmitted_ = -1;                // the track's version last announced
+    bool linkTrackShown_ = true;
+    bool lostSinceFix_ = false;                // the next position is the first after a loss
+    int linkRssi_ = 0;
 };

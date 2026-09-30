@@ -306,6 +306,9 @@ public:
      * or (NaN, NaN) when it is behind the camera. Pair it with cameraChanged() to follow the view.
      */
     Q_INVOKABLE QPointF geoToScreen(double lat, double lon) const;
+    /** geoToScreen for a whole track in one call (the boat's track by link quality: thousands of points, placed again
+     *  on every camera change); a point behind the camera is NaN. */
+    Q_INVOKABLE QList<QPointF> geoToScreenList(const QList<double>& lats, const QList<double>& lons) const;
     /** Geographic point under a screen position on the z = 0 plane: {valid, lat, lon}. */
     Q_INVOKABLE QVariantMap screenToGeo(qreal x, qreal y) const;
     bool mapTapEnabled() const { return mapTapEnabled_; }

@@ -21,6 +21,7 @@ DeviceManagerWrapper::DeviceManagerWrapper(QObject* parent) :
     deviceManagerConnections_.append(QObject::connect(workerObject_.get(), &DeviceManager::streamChanged,        this,                &DeviceManagerWrapper::streamChanged,          ct));
     deviceManagerConnections_.append(QObject::connect(workerObject_.get(), &DeviceManager::vruChanged,           this,                &DeviceManagerWrapper::vruChanged,             ct));
     deviceManagerConnections_.append(QObject::connect(workerObject_.get(), &DeviceManager::chartLossesChanged,   this,                &DeviceManagerWrapper::calcAverageChartLosses, ct));
+    deviceManagerConnections_.append(QObject::connect(workerObject_.get(), &DeviceManager::airChanged,           this,                &DeviceManagerWrapper::onAir,                  ct));
 
     workerObject_->moveToThread(workerThread_.get());
     workerThread_->setObjectName("DevManThread");
@@ -33,7 +34,18 @@ DeviceManagerWrapper::DeviceManagerWrapper(QObject* parent) :
     QObject::connect(workerObject_.get(), &DeviceManager::streamChanged,        this,                &DeviceManagerWrapper::streamChanged,          ct);
     QObject::connect(workerObject_.get(), &DeviceManager::vruChanged,           this,                &DeviceManagerWrapper::vruChanged,             ct);
     QObject::connect(workerObject_.get(), &DeviceManager::chartLossesChanged,   this,                &DeviceManagerWrapper::calcAverageChartLosses, ct);
+    QObject::connect(workerObject_.get(), &DeviceManager::airChanged,           this,                &DeviceManagerWrapper::onAir,                  ct);
 #endif
+}
+
+void DeviceManagerWrapper::onAir(double echogramKBs, double telemetryKBs, double serviceKBs, int rssiDbm)
+{
+    airEchogram_ = echogramKBs;
+    airTelemetry_ = telemetryKBs;
+    airService_ = serviceKBs;
+    airRssi_ = rssiDbm;
+    airValid_ = true;
+    emit airChanged();
 }
 
 DeviceManagerWrapper::~DeviceManagerWrapper()

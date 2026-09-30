@@ -9,6 +9,8 @@ Item {
     property string value: ""
     property real k: 1.0
     property real gap: 0
+    // A stacked bar under the value (DataFieldCatalog.bars): [{ v, c }], each part as wide as its share of the sum.
+    property var bars: []
 
     readonly property real _margin: Math.round(6 * k)
     readonly property real _minPx: Math.max(6, Math.round(7 * k))
@@ -18,6 +20,10 @@ Item {
     readonly property int _valueBigPx: Math.max(_minPx, Math.round(content.height * 0.45))
 
     readonly property bool _noData: content.value === "—"
+    readonly property bool _barsShown: !!content.bars && content.bars.length > 0 && !content._noData
+    readonly property real _barH: Math.max(3, Math.round(content.height * 0.12))
+    // Room the value leaves at the bottom for the bar.
+    readonly property real _barSpace: _barsShown ? _barH + Math.round(2 * k) : 0
 
     component ValueView : Item {
         id: vv
@@ -59,6 +65,7 @@ Item {
         visible: content.rep === "value"
         anchors.fill: parent
         anchors.margins: content._margin
+        anchors.bottomMargin: content._margin + content._barSpace
         text: content.value
         pixelSize: content._valueBigPx
         minPx: content._minPx
@@ -69,6 +76,7 @@ Item {
         visible: content.rep === "labelValueStacked"
         anchors.fill: parent
         anchors.margins: content._margin
+        anchors.bottomMargin: content._margin + content._barSpace
 
         Text {
             id: stLabel
@@ -103,6 +111,7 @@ Item {
         visible: content.rep === "labelValueRow"
         anchors.fill: parent
         anchors.margins: content._margin
+        anchors.bottomMargin: content._margin + content._barSpace
 
         Text {
             id: rowLabel
@@ -132,6 +141,31 @@ Item {
             minPx: content._minPx
             noData: content._noData
             hAlign: Text.AlignLeft
+        }
+    }
+
+    Row {
+        id: barRow
+        visible: content._barsShown
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        anchors.margins: content._margin
+        height: content._barH
+        readonly property real total: {
+            var t = 0
+            for (var i = 0; i < (content.bars ? content.bars.length : 0); ++i)
+                t += Math.max(0, content.bars[i].v)
+            return t
+        }
+        Repeater {
+            model: content._barsShown ? content.bars : []
+            delegate: Rectangle {
+                required property var modelData
+                height: barRow.height
+                width: barRow.total > 0 ? barRow.width * Math.max(0, modelData.v) / barRow.total : 0
+                color: modelData.c
+            }
         }
     }
 }
