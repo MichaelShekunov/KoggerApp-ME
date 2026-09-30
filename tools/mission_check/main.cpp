@@ -908,6 +908,55 @@ void homeRules()
           QString::number(MavVehicle::distanceM(60, 30, 60, 30.001), 'f', 3));
 }
 
+QByteArray fakeParam(const char* id, float value)
+{
+    mavlink_message_t m;
+    char name[16] = {};
+    std::strncpy(name, id, sizeof(name));
+    mavlink_msg_param_value_pack_chan(1, 1, kFakeChan, &m, name, value, MAV_PARAM_TYPE_INT8, 1, 0);
+    return frame(m);
+}
+
+QByteArray fakeStatusText(const char* text)
+{
+    mavlink_message_t m;
+    char t[50] = {};
+    std::strncpy(t, text, sizeof(t));
+    mavlink_msg_statustext_pack_chan(1, 1, kFakeChan, &m, MAV_SEVERITY_INFO, t, 0, 0);
+    return frame(m);
+}
+
+// What the EKF's yaw rests on (ArduPilot 4.4 SelectMagFusion), not only the setting.
+void headingInUseRules()
+{
+    using V = MavVehicle;
+    V v(nullptr, false);
+    v.feed(fakeHeartbeat(false, V::ModeHold));
+    check("heading in use: nothing read yet -> unknown", v.headingInUse() == V::InUseUnknown, v.headingInUseText());
+    v.feed(fakeParam("EK3_SRC1_YAW", 3));
+    v.feed(fakeGps(3, 20, 0));
+    v.feed(fakeGps2(5, 20, 65535));                 // the pair is configured, RTK float: no heading
+    check("heading in use: GPS selected, no GPS heading -> none (the fallback needs motion)",
+          v.headingInUse() == V::InUseNone, v.headingInUseText());
+    v.feed(fakeGps2(6, 20, 12345));                 // RTK fixed: a heading
+    check("heading in use: GPS selected, GPS heading -> GPS", v.headingInUse() == V::InUseGps, v.headingInUseText());
+    v.feed(fakeGps2(5, 20, 65535));
+    v.feed(fakeStatusText("EKF3 IMU0 yaw fallback active"));
+    check("heading in use: GPS lost and the EKF's fallback message -> compass fallback",
+          v.headingInUse() == V::InUseCompassFallback, v.headingInUseText());
+    v.feed(fakeGps2(6, 20, 12345));
+    check("heading in use: the GPS heading back -> GPS again", v.headingInUse() == V::InUseGps, v.headingInUseText());
+    v.feed(fakeGps2(5, 20, 65535));
+    check("heading in use: the fallback does not come back by itself", v.headingInUse() == V::InUseNone,
+          v.headingInUseText());
+    v.feed(fakeStatusText("EKF3 IMU0 yaw fallback active"));
+    v.feed(fakeParam("EK3_SRC1_YAW", 1));
+    check("heading in use: compass selected -> compass", v.headingInUse() == V::InUseCompass, v.headingInUseText());
+    v.feed(fakeParam("EK3_SRC1_YAW", 3));
+    check("heading in use: back to GPS without a heading -> none (the old fallback is dropped)",
+          v.headingInUse() == V::InUseNone, v.headingInUseText());
+}
+
 int main(int argc, char* argv[])
 {
     QCoreApplication app(argc, argv);
@@ -931,6 +980,7 @@ int main(int argc, char* argv[])
     surveyRules();
     linkLogRules();
     homeRules();
+    headingInUseRules();
     if (cli.isSet(QStringLiteral("offline"))) {
         std::printf("\n%d checks, %d failed (offline)\nMISSION_CHECK_%s\n", g_checks, g_failed, g_failed ? "FAILED" : "DONE");
         return g_failed ? 1 : 0;

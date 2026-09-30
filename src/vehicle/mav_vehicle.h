@@ -69,6 +69,8 @@ class MavVehicle : public QObject
     Q_PROPERTY(int gpsHeadingState READ gpsHeadingState NOTIFY gpsChanged)
     Q_PROPERTY(QString gpsHeadingText READ gpsHeadingText NOTIFY gpsChanged)
     Q_PROPERTY(int headingSource READ headingSource NOTIFY settingsChanged)
+    Q_PROPERTY(int headingInUse READ headingInUse NOTIFY headingInUseChanged)
+    Q_PROPERTY(QString headingInUseText READ headingInUseText NOTIFY headingInUseChanged)
 
     Q_PROPERTY(double batteryVoltage READ batteryVoltage NOTIFY batteryChanged)
     Q_PROPERTY(int batteryRemaining READ batteryRemaining NOTIFY batteryChanged)
@@ -115,6 +117,9 @@ public:
     enum HeadingSource { HeadingNone = 0, HeadingCompass = 1, HeadingGps = 2, HeadingGpsCompassFallback = 3,
                          HeadingExtNav = 6, HeadingGsf = 8 };
     Q_ENUM(HeadingSource)
+    /** What the EKF's yaw rests on now (headingInUse), not only what EK3_SRC1_YAW asks for. */
+    enum HeadingInUse { InUseUnknown = 0, InUseGps, InUseCompass, InUseCompassFallback, InUseNone, InUseOther };
+    Q_ENUM(HeadingInUse)
 
     /** ArduPilot Rover custom modes (HEARTBEAT.custom_mode, MAV_CMD_DO_SET_MODE param 2). */
     enum RoverMode { ModeManual = 0, ModeAcro = 1, ModeSteering = 3, ModeHold = 4, ModeLoiter = 5,
@@ -163,6 +168,11 @@ public:
     /** EK3_SRC1_YAW as last read from the autopilot, -1 before it is read. */
     int headingSource() const;
     Q_INVOKABLE static QString headingSourceName(int source);
+    /** From EK3_SRC1_YAW, the GPS heading and the EKF's "yaw fallback active" (ArduPilot 4.4 SelectMagFusion): with
+     *  GPS + compass fallback and no GPS heading the compass is used only in motion, after the GPS heading has worked
+     *  and 10 s without it; otherwise no yaw is fused (InUseNone). */
+    int headingInUse() const;
+    QString headingInUseText() const;
     /** For tools: the navigation settings (AHRS_EKF_TYPE, EK3_*, COMPASS_*, ARMING_CHECK, FS_EKF_*) went to the log. */
     bool settingsLogged() const { return settingsLogged_; }
 
@@ -247,6 +257,7 @@ signals:
     void navChanged();
     void healthChanged();
     void settingsChanged();
+    void headingInUseChanged();
     void batteryChanged();
     void homeChanged();
     void missionStateChanged();
@@ -366,6 +377,7 @@ private:
     int gpsYaw_[2] = { -1, -1 };     // raw yaw field per receiver, -1 before its first message
     int gps2Fix_ = -1, gps2Sats_ = -1;
     int gpsHeadingState_ = GpsHeadingUnknown;
+    bool yawFallbackActive_ = false;   // the EKF said "yaw fallback active"; cleared when the GPS heading returns
     QString gpsHeadingText_;
     int gpsHeadingLogged_ = -1;
     double batteryVoltage_ = -1;

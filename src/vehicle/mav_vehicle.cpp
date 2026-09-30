@@ -443,9 +443,13 @@ void MavVehicle::handleMessage(const void* p)
             settings_[key] = pv.param_value;
             settingTypes_[key] = pv.param_type;
             emit settingsChanged();
-            if (key == QLatin1String("EK3_SRC1_YAW") && hadIt && before != pv.param_value)
+            if (key == QLatin1String("EK3_SRC1_YAW") && hadIt && before != pv.param_value) {
                 addMessage(tr("Heading source on the boat: %1 (EK3_SRC1_YAW %2)")
                                .arg(headingSourceName(int(pv.param_value))).arg(pv.param_value));
+                yawFallbackActive_ = false;
+            }
+            if (key == QLatin1String("EK3_SRC1_YAW"))
+                emit headingInUseChanged();
             if (key == QLatin1String("FS_EKF_THRESH")) {
                 ekfThresh_ = pv.param_value;
                 ekfThreshKnown_ = true;
@@ -530,6 +534,12 @@ void MavVehicle::handleMessage(const void* p)
             mavlink_statustext_t t;
             mavlink_msg_statustext_decode(&msg, &t);
             const QString text = QString::fromUtf8(t.text, int(strnlen(t.text, sizeof(t.text)))).trimmed();
+            // ArduPilot 4.4 AP_NavEKF3_MagFusion.cpp: "EKF3 IMU%u yaw fallback active" - the compass took over
+            if (text.startsWith(QLatin1String("EKF3 IMU")) && text.endsWith(QLatin1String("yaw fallback active"))
+                && !yawFallbackActive_) {
+                yawFallbackActive_ = true;
+                emit headingInUseChanged();
+            }
             if (!text.isEmpty()) {
                 addMessage(text);
                 if (t.severity <= MAV_SEVERITY_WARNING)
@@ -1192,7 +1202,11 @@ void MavVehicle::updateGpsHeading()
     if (stateChanged || text != gpsHeadingText_) {
         gpsHeadingState_ = state;
         gpsHeadingText_ = text;
+        if (state == GpsHeadingOk)
+            yawFallbackActive_ = false;       // "reset to GPS yaw if it becomes available" (SelectMagFusion)
         emit gpsChanged();
+        if (stateChanged)
+            emit headingInUseChanged();
     }
     if (stateChanged && state != GpsHeadingUnknown) {
         ++gpsHeadingChanges_;
@@ -1373,6 +1387,36 @@ int MavVehicle::headingSource() const
 {
     const auto it = settings_.constFind(QStringLiteral("EK3_SRC1_YAW"));
     return it == settings_.constEnd() ? -1 : int(*it);
+}
+
+int MavVehicle::headingInUse() const
+{
+    const int src = headingSource();
+    switch (src) {
+    case HeadingCompass:
+        return InUseCompass;
+    case HeadingGps:
+        return gpsHeadingState_ == GpsHeadingOk ? InUseGps : InUseNone;
+    case HeadingGpsCompassFallback:
+        if (gpsHeadingState_ == GpsHeadingOk)
+            return InUseGps;
+        return yawFallbackActive_ ? InUseCompassFallback : InUseNone;
+    }
+    return src < 0 ? InUseUnknown : InUseOther;
+}
+
+QString MavVehicle::headingInUseText() const
+{
+    switch (headingInUse()) {
+    case InUseGps: return tr("GPS, two antennas");
+    case InUseCompass: return tr("compass");
+    case InUseCompassFallback: return tr("compass, as the fallback (no GPS heading)");
+    case InUseNone:
+        return tr("none: no GPS heading (it needs RTK fixed), and the compass takes over only in motion, after the GPS "
+                  "heading has worked");
+    case InUseOther: return headingSourceName(headingSource());
+    }
+    return tr("not known yet");
 }
 
 QString MavVehicle::headingSourceName(int source)
