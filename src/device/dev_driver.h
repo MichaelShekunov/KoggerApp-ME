@@ -882,5 +882,6 @@ private:
     // Liveness (dataStale, the rule in DeviceLiveness): a quiet device is asked for its mark (ID_MARK GET).
     bool dataStale_ = false;
     int64_t lastQuietProbe_ = 0;
+    DeviceLiveness::Unanswered unanswered_;   // asked less once it does not answer (process())
     void updateDataStale(int64_t now);
 };

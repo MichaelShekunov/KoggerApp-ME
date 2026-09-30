@@ -1044,6 +1044,57 @@ void trafficRules()
           T::name(none) == QStringLiteral("KP2 [-1] id 0x1234 v7 stream"), T::name(none));
 }
 
+// A device that does not answer (the search address 0 on a relay link) is asked at 5 Hz for 10 s, then every 5 s;
+// one whose frames carry the mark only now and then too; 2 s of marked ticks start it over.
+void unansweredRules()
+{
+    using U = DeviceLiveness::Unanswered;
+    const int64_t t0 = 100000;
+    {
+        U u;
+        int asks = 0;
+        for (int64_t now = t0; now < t0 + 60000; now += 200)   // a minute of process() ticks, never marked
+            asks += u.askDue(now) ? 1 : 0;
+        // 10 s at 5 Hz = 50 asks, then one every 5 s over the other 50 s = 10
+        check("unanswered: 5 Hz for 10 s, then every 5 s", asks == 60, QString::number(asks));
+    }
+    {
+        U u;
+        int asks = 0, late = 0;
+        for (int64_t now = t0, i = 0; now < t0 + 60000; now += 200, ++i) {   // the mark on every other tick
+            if (i % 2) {
+                u.marked(now);
+            } else if (u.askDue(now)) {
+                ++asks;
+                late += now >= t0 + 50000 ? 1 : 0;
+            }
+        }
+        // 25 asks in the first 10 s, then every 5 s at the next unmarked tick (9); the old rule asked all 150
+        check("unanswered: a mark now and then is slowed down too", asks == 34 && late == 2,
+              QStringLiteral("%1 asks, %2 in the last 10 s").arg(asks).arg(late));
+    }
+    {
+        U u;
+        int64_t now = t0;
+        for (; now < t0 + 20000; now += 200)                 // 20 s unanswered: slow
+            u.askDue(now);
+        for (const int64_t end = now + 2200; now < end; now += 200)   // 2.2 s of marked ticks: answers again
+            u.marked(now);
+        check("unanswered: 2 s of marks start it over, the next loss is asked at once and fast",
+              u.askDue(now) && u.askDue(now + 200) && u.askDue(now + 400));
+    }
+    {
+        U u;
+        int64_t now = t0;
+        for (; now < t0 + 20000; now += 200)                 // the last ask at t0 + 19800
+            u.askDue(now);
+        for (const int64_t end = now + 1200; now < end; now += 200)   // marked for 1 s only
+            u.marked(now);
+        check("unanswered: 1 s of marks does not start it over", !u.askDue(now));
+    }
+    check("unanswered: the first tick asks", U().askDue(t0));
+}
+
 int main(int argc, char* argv[])
 {
     QCoreApplication app(argc, argv);
@@ -1070,6 +1121,7 @@ int main(int argc, char* argv[])
     headingInUseRules();
     linkRateRules();
     trafficRules();
+    unansweredRules();
     if (cli.isSet(QStringLiteral("offline"))) {
         std::printf("\n%d checks, %d failed (offline)\nMISSION_CHECK_%s\n", g_checks, g_failed, g_failed ? "FAILED" : "DONE");
         return g_failed ? 1 : 0;
