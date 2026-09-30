@@ -833,9 +833,10 @@ asked VERSION v0-v2 every 200 ms (`DeviceLiveness::Unanswered`: each tick for 10
 2 s of marked ticks or on a frame after 1 s of silence, so a device whose frames carry the mark only now and then is
 slowed down too), and the link asked every device every 300 ms while it received data (`LinkAskAll`: only after two
 quiet ticks). What the app sends is logged too ("traffic [link] sent: ..."), frames without the mark as
-"... unmarked". mission_check offline 159/159, the mutants of both rules caught, the Windows build. Not yet verified on the hardware: after the switch the VERSION lines
-should go and the total drop by about 5 KB/s. The autopilot's stream rates (EXTRA1/EXTRA2 10 Hz) and GCS_PID_MASK
-are the owner's decision.
+"... unmarked". mission_check offline 159/159, the mutants of both rules caught, the Windows build. On the kiosk as `headunit` 38e72b7f (all three) from 2026-09-30 by
+the owner's word: 8.9-9.3 KB/s against 14.3-15.1 KB/s before with the sonar pinging, the VERSION answers gone after
+the first 10 s, the app sending 0.01 KB/s (WIFI_MODULE.md 2n, *Verified*). The autopilot's stream rates
+(EXTRA1/EXTRA2 10 Hz) and GCS_PID_MASK are the owner's decision.
 
 **Link speed (firmware 0.18, 55f97d48).** The module session added a link rate report (ID_WIFI_SURVEY v1); the Wi-Fi
 island shows it both ways (WIFI_MODULE.md 2m). mission_check 142/142, the text functions under qmltestrunner. On the

@@ -495,6 +495,15 @@ the code, the rates match):
 
 A device switched on later (a sonar behind the logger) shows within 5 s instead of about 0.2 s.
 
+*Verified* on the kiosk (headunit 38e72b7f with all three, 2026-09-27 01:40-01:43 by the board's clock, the sonar
+pinging): 8.9-9.3 KB/s against 14.3-15.1 KB/s before (92856dbf, 01:16-01:24). The VERSION answers are gone after
+the first 10 s (0.16 KB/s from [2] in the first minute, none after); the app sends 0.01 KB/s (MARK to the quiet
+recorder 0.6/s, RECORDER_STATUS every 3 s, the search at 0 every 5 s; the link's ask-all did not fire on the busy
+link); no `unmarked` kind among the heaviest ten. Left: the echogram (CHART_Z) 3.7 KB/s, the autopilot's telemetry
+about 2.2 KB/s of MAVLink plus the proxy frames around it (the heaviest ten proxy kinds come to about 3 KB/s), the
+head unit module's link report at 5/s 0.17 KB/s. With the sonar not pinging 11.2 KB/s should come to about 5.5
+(*Inference*, not measured).
+
 The rest is the autopilot's telemetry at its own stream rates (EXTRA1 and EXTRA2 at 10 Hz: ATTITUDE, AHRS2,
 PID_TUNING, VFR_HUD). Lower rates and GCS_PID_MASK (PID_TUNING) are the boat's parameters: the owner decides. The
 module's own counter (17-18 KB/s) is above the 11.2 KB/s of frames; how it counts is in the module's docs, not
