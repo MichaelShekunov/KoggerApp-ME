@@ -824,6 +824,13 @@ stays, as upstream has it (the same retune of that link, not changed). On the ki
 2026-09-29 by the owner's word (no QML errors in kogger.log; the boat was away, so the hidden row on its devices
 is not seen on the hardware yet); this PC runs a937fa06.
 
+**The boat panel's Close, pinned at the bottom.** Owner 2026-09-30: the boat menu too should have a close button at
+the bottom, always at hand. Its only close was the X in the header, inside the Flickable, which scrolls away once the
+panel is taller than the 3D pane. A full-width "Close" (`PanelButton`, the panel's raised style) is now pinned at the
+bottom and the Flickable ends above it; the X stays. Check: `tools/qml_check/boatpanel_check.ps1` (the real panel:
+short content, content taller than maxHeight scrolled to its end with the X out of sight and the Close unmoved, a tap
+closes; `-Picture` saves a look); fails on the panel before the change and on two mutants.
+
 **A layout change clears the echograms' synced cursors.** Owner 2026-09-30: switching from two panes to one (the
 echogram only) left white lines in the echogram - a vertical one running with it and stopping in the middle, a
 horizontal one at the very top. That is the aim's synced crosshair (`Plot2DAim::draw` with `cursor.selectEpochIndx`
