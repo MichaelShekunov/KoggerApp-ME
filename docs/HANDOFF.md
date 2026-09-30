@@ -824,14 +824,14 @@ stays, as upstream has it (the same retune of that link, not changed). On the ki
 2026-09-29 by the owner's word (no QML errors in kogger.log; the boat was away, so the hidden row on its devices
 is not seen on the hardware yet); this PC runs a937fa06.
 
-**Wi-Fi diagnostics (822ca18e, not deployed).** Owner: keep both charts, extend the diagnostics. A tap on a channel
+**Wi-Fi diagnostics (822ca18e; on the kiosk as `headunit` 110d6fa2 from 2026-09-30, this PC 57c9d875).** Owner: keep both charts, extend the diagnostics. A tap on a channel
 shows its details, "Both ends" puts how each end hears the other side by side, "Link events" lists the link's
 recent events in words (WIFI_MODULE.md §2k). Verified by machine: mission_check offline 122/122 (+6 checks of
 WifiLinkLog, four mutants caught), the page's new functions and its peer binding under qmltestrunner (today's
 sequence from kogger.log in words, an access point's clients, a restart, the other end over a mock topology; five
-mutants caught), fold_check, qmllint, the Windows build. To go on (stopped 2026-09-29 on the owner's word): pick it
-onto `headunit`, build on the board, the PC install, the kiosk switch on the owner's word; then look on the hardware
-(the boat has a new module on 0.17 since that evening, so both ends and the survey as an access point can be seen).
+mutants caught), fold_check, qmllint, the Windows build. Switched on the owner's word 2026-09-30 (no QML errors in kogger.log; the boat was off, so both ends
+and the survey as an access point, now possible with the boat's new module on 0.17, are not seen on
+the hardware yet).
 7. **RSSI digits on the Wi-Fi badge** (`WifiSignalIcon.showRssi`): the RSSI in dBm under smaller arcs on the toolbar
    badge, its pop-out and the topology chip, while there is a link. The module on this app's own port (ID_WIFI_NET v7
    flag b2) is asked for a link report every 200 ms (`WifiSignal::kFastReportMs`, ID_WIFI v1 SETTING, 100..60000 by
