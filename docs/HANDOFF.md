@@ -829,7 +829,8 @@ the bottom, always at hand. Its only close was the X in the header, inside the F
 panel is taller than the 3D pane. A full-width "Close" (`PanelButton`, the panel's raised style) is now pinned at the
 bottom and the Flickable ends above it; the X stays. Check: `tools/qml_check/boatpanel_check.ps1` (the real panel:
 short content, content taller than maxHeight scrolled to its end with the X out of sight and the Close unmoved, a tap
-closes; `-Picture` saves a look); fails on the panel before the change and on two mutants.
+closes; `-Picture` saves a look); fails on the panel before the change and on two mutants. On the kiosk as
+`headunit` 2982b172 from 2026-09-30, the owner: the button is there; this PC runs 04325111.
 
 **A layout change clears the echograms' synced cursors.** Owner 2026-09-30: switching from two panes to one (the
 echogram only) left white lines in the echogram - a vertical one running with it and stopping in the middle, a
