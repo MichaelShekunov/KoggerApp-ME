@@ -26,7 +26,6 @@ Link::Link()
       lastSearchIndx_(0),
       onUpgradingFirmware_(false),
       localGhostIgnoreCount_(0),
-      requestCnt_(requestAllCntBig),
       autoConnOnce_(false),
       autoConnUntilMsecs_(0),
       rtspRequested_(false)
@@ -573,7 +572,7 @@ void Link::onStartUpgradingFirmware()
 
     setIsUpgradingState(true);
     timeoutCnt_ = linkNumTimeoutsSmall;
-    requestCnt_ = requestAllCntSmall;
+    askAll_.restart(requestAllCntSmall);
     resetLastSearchIndx();
     armAutoConn(linkUpgradeReconnectWindowMs);
 }
@@ -585,7 +584,7 @@ void Link::onUpgradingFirmwareDone()
     setIsUpgradingState(false);
     timeoutCnt_ = linkNumTimeoutsSmall;
     localGhostIgnoreCount_ = ghostIgnoreCount;
-    requestCnt_ = requestAllCntBig;
+    askAll_.restart(requestAllCntBig);
     resetLastSearchIndx();
     armAutoConn(linkUpgradeReconnectWindowMs);
 }
@@ -645,15 +644,12 @@ void Link::onCheckedTimerEnd()
         emit baudrateChanged(uuid_);
     }
 
-    if (!isReceivesData_ || !requestCnt_) {
-        if(attribute_ == LinkAttribute::kLinkAttributeNone) {
-            emit sendDoRequestAll(uuid_);
-        }
-        if (!requestCnt_) {
-            requestCnt_ = onUpgradingFirmware_ ? requestAllCntSmall : isReceivesData_ ? requestAllCntBig : requestAllCntSmall;
-        }
+    // Every device on the link is asked for its version: each tick while nothing comes in; while data comes in only
+    // once the link has gone quiet (LinkAskAll).
+    if (askAll_.tick(newDataReceived, isReceivesData_, onUpgradingFirmware_)
+        && attribute_ == LinkAttribute::kLinkAttributeNone) {
+        emit sendDoRequestAll(uuid_);
     }
-    --requestCnt_;
 
     lastTotalCnt_ = currTotalCnt;
     checkTimer_->start();

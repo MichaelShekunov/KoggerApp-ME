@@ -824,16 +824,17 @@ stays, as upstream has it (the same retune of that link, not changed). On the ki
 2026-09-29 by the owner's word (no QML errors in kogger.log; the boat was away, so the hidden row on its devices
 is not seen on the hardware yet); this PC runs a937fa06.
 
-**Boat link traffic: the search address was asked at 5 Hz for good.** Owner 2026-09-30: with the sonar off the
-boat sends 17-18 KB/s; what is it, can it be halved? The app's own count (6770b6b2, "traffic [link]: ..." in
-kogger.log once a minute) on the kiosk: 11.2 KB/s of complete frames, of it ~5 KB/s frames with the VERSION ID from
-both Wi-Fi modules and the logger (WIFI_MODULE.md 2n): the driver at the search address 0 that every link gets
-(`DeviceManager::onLinkOpened`) never gets an answer under its own address and asked VERSION v0-v2 every 200 ms.
-`DeviceLiveness::Unanswered`: asked each tick for 10 s, then every 5 s; answering again only after 2 s of marked
-ticks. What the app sends is logged too ("traffic [link] sent: ..."). mission_check offline 151/151 (+5: never
-answering, a mark now and then, 2 s of marks, 1 s of marks, the first tick), four mutants caught, the Windows
-build. Not yet verified on the hardware: after the switch the VERSION lines should go and the total drop by about
-half. The autopilot's stream rates (EXTRA1/EXTRA2 10 Hz) and GCS_PID_MASK are the owner's decision.
+**Boat link traffic: VERSION asked of every device ~3 times a second, forever (e04c3b23 + LinkAskAll).** Owner
+2026-09-30: with the sonar off the boat sends 17-18 KB/s; what is it, can it be halved? The app's own count
+(6770b6b2, "traffic [link]: ..." in kogger.log once a minute) on the kiosk: 11.2 KB/s of complete frames, of it
+~5 KB/s frames with the VERSION ID from both Wi-Fi modules and the logger. Two sources (WIFI_MODULE.md 2n, the rates
+match 5 + 3.33 + 3.33 per device): the driver at the search address 0 that every link gets never gets a frame and
+asked VERSION v0-v2 every 200 ms (`DeviceLiveness::Unanswered`: each tick for 10 s, then every 5 s, any frame starts
+it over), and the link asked every device every 300 ms while it received data (`LinkAskAll`: only after two quiet
+ticks). What the app sends is logged too ("traffic [link] sent: ..."). mission_check offline 154/154, ten mutants
+of the two rules caught, the Windows build. Not yet verified on the hardware: after the switch the VERSION lines
+should go and the total drop by about 5 KB/s. The autopilot's stream rates (EXTRA1/EXTRA2 10 Hz) and GCS_PID_MASK
+are the owner's decision.
 
 **Link speed (firmware 0.18, 55f97d48).** The module session added a link rate report (ID_WIFI_SURVEY v1); the Wi-Fi
 island shows it both ways (WIFI_MODULE.md 2m). mission_check 142/142, the text functions under qmltestrunner. On the

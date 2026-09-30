@@ -471,13 +471,24 @@ proxy frames: ...` and, from the fix below, `traffic [<link>] sent: ...` (what t
 | All complete frames | 11.2 | |
 
 With the kiosk stopped a capture of ttyS6 saw 5 KB/s, so the VERSION answers come only while the app runs
-(*Inference*: the capture did not parse KP2). The cause (*Verified* in the code): `DeviceManager::onLinkOpened`
-creates a driver at the search address 0 (upstream 8c77c876, 2024); every device answers under its own address, so
-that driver never gets the mark, and its "not marked" branch (`DevDriver::process`, every 200 ms) restarts and asks
-VERSION v0-v2 again, for as long as the link is open. Fixed: `DeviceLiveness::Unanswered` - a device that does not
-answer is asked each tick for 10 s, then every 5 s; it counts as answering again only after 2 s of marked ticks
-(the mark comes from every frame, so a device whose frames carry it only now and then is slowed down too). A device
-switched on later (a sonar) shows within 5 s instead of 0.2 s.
+(*Inference*: the capture did not parse KP2). When the boat went away (01:13-01:14) only the head unit's module
+[87] was left, answering VERSION v0, v1 and v2 at 11.7/s each: 5/s + 3.33/s + 3.33/s, two sources (*Verified* in
+the code, the rates match):
+
+1. `DeviceManager::onLinkOpened` creates a driver at the search address 0 (upstream 8c77c876, 2024); every device
+   answers under its own address, so that driver never gets a frame, and its "not marked" branch
+   (`DevDriver::process`, every 200 ms) restarted and asked VERSION v0-v2 for as long as the link was open: 5/s,
+   answered by every device. Fixed: `DeviceLiveness::Unanswered` - a device that sends nothing is asked each tick
+   for 10 s, then every 5 s; any frame from it starts that over.
+2. `Link::onCheckedTimerEnd` (every 100 ms) asked every device on the link (`sendDoRequestAll` →
+   `DevDriver::doRequestAll`, VERSION v0-v2) every third tick while it received data (upstream 581447cc, a
+   keep-alive for a quiet device, which `process()` had done itself when the device was quiet for 70 ms): 3.33/s to
+   the search driver (answered by every device) and 3.33/s to each device. Fixed: `LinkAskAll` - while data comes in,
+   the link asks only after two ticks without a frame. A quiet link (a stopped sonar) is still kept alive every
+   300 ms; a link that receives nothing is asked each tick (the baud rate search); a firmware update keeps
+   upstream's cadence.
+
+A device switched on later (a sonar behind the logger) shows within 5 s instead of about 0.2 s.
 
 The rest is the autopilot's telemetry at its own stream rates (EXTRA1 and EXTRA2 at 10 Hz: ATTITUDE, AHRS2,
 PID_TUNING, VFR_HUD). Lower rates and GCS_PID_MASK (PID_TUNING) are the boat's parameters: the owner decides. The
