@@ -1666,6 +1666,51 @@ QVariantList DevDriver::wifiLinkEvents() {
     return out;
 }
 
+int DevDriver::wifiLinkRateSupport() {
+    return isWifi() ? WifiLinkRate::supportFor(idVersion->fwVersion(), idVersion->fwVersionMinor()) : 0;
+}
+
+bool DevDriver::wifiLinkRateRunning() { return idWifiSurvey->rateRunning(); }
+
+QVariantList DevDriver::wifiLinkRates() {
+    QVariantList out;
+    for (const QByteArray& page : idWifiSurvey->ratePages()) {
+        WifiLinkRate::Page p;
+        if (!WifiLinkRate::parse(page, p) || p.total == 0)
+            continue;
+        QVariantMap m;
+        m["mac"] = p.mac;
+        m["windowMs"] = p.windowMs;
+        m["frames"] = p.frames;
+        m["rssi"] = p.rssi;
+        m["mode"] = p.mode;
+        m["text"] = (p.frames == 0 || p.rates.isEmpty()) ? QString() : WifiLinkRate::text(p.rates.first());
+        QVariantList rates;
+        for (const WifiLinkRate::Rate& r : p.rates) {
+            QVariantMap x;
+            x["kind"] = r.kind;
+            x["code"] = r.code;
+            x["sgi"] = (r.flags & 0x01) != 0;
+            x["bw40"] = (r.flags & 0x02) != 0;
+            x["kbps"] = double(r.kbps);
+            x["frames"] = r.frames;
+            x["text"] = WifiLinkRate::text(r);
+            rates.append(x);
+        }
+        m["rates"] = rates;
+        out.append(m);
+    }
+    return out;
+}
+
+void DevDriver::wifiLinkRate() {
+    if (!m_state.connect || wifiLinkRateSupport() != 1 || idWifiSurvey->rateRunning() || idWifiSurvey->running())
+        return;
+    wifiLinkRateError_.clear();
+    idWifiSurvey->requestLinkRate(uint16_t(WifiLinkRate::kWindowMs));
+    emit wifiLinkRateChanged();
+}
+
 void DevDriver::wifiSurvey() {
     if (!m_state.connect || wifiSurveySupport() != 1 || idWifiSurvey->running())
         return;
@@ -1677,7 +1722,40 @@ void DevDriver::wifiSurvey() {
 
 void DevDriver::receivedWifiSurvey(Parsers::Type type, Parsers::Version ver, Parsers::Resp resp) {
     Q_UNUSED(type);
-    Q_UNUSED(ver);
+    if (ver == v1) {                              // the link rate report
+        if (resp != respNone) {
+            if (resp == respOk)
+                return;
+            idWifiSurvey->cancelLinkRate();
+            wifiLinkRateError_ = resp == respErrorRuntime
+                ? tr("the module is busy (a window, a survey, a scan or joining runs, or the last window was under 1 s ago)")
+                : tr("the module refused the report (code %1)").arg(int(resp));
+            emit wifiLinkRateChanged();
+            return;
+        }
+        if (idWifiSurvey->rateCompletedCount() != wifiLinkRateTaken_) {
+            wifiLinkRateTaken_ = idWifiSurvey->rateCompletedCount();
+            QStringList parts, mains;
+            for (const QByteArray& page : idWifiSurvey->ratePages()) {
+                WifiLinkRate::Page p;
+                if (!WifiLinkRate::parse(page, p) || p.total == 0)
+                    continue;
+                const QString main = p.rates.isEmpty() ? QStringLiteral("no data frames") : WifiLinkRate::text(p.rates.first());
+                mains << p.mac + QStringLiteral(": ") + main;
+                parts << QStringLiteral("%1: %2 (%3 of %4 frames, %5 dBm)").arg(p.mac, main)
+                             .arg(p.rates.isEmpty() ? 0 : p.rates.first().frames).arg(p.frames).arg(p.rssi);
+            }
+            // the log keeps a changed main rate, not every report
+            const QString key = mains.join(QStringLiteral("; "));
+            if (key != wifiLinkRateLogged_) {
+                wifiLinkRateLogged_ = key;
+                qInfo().noquote() << wifiTag() << QStringLiteral("wifi-rate: %1")
+                                         .arg(parts.isEmpty() ? QStringLiteral("no other end") : parts.join(QStringLiteral("; ")));
+            }
+        }
+        emit wifiLinkRateChanged();
+        return;
+    }
     if (resp != respNone) {
         if (resp == respOk)
             return;                               // the survey runs; its frames follow
@@ -3306,6 +3384,13 @@ void DevDriver::process() {
                 }
                 if(isWifi() && idWifi->expireScan(curr_time)) {
                     emit wifiNetworksChanged();
+                }
+                // A link rate report is due right after its window: without it by then plus 3 s, given up.
+                if(isWifi() && idWifiSurvey->rateRunning()
+                   && curr_time - idWifiSurvey->rateStartedMs() > idWifiSurvey->rateWindowMs() + 3000) {
+                    idWifiSurvey->cancelLinkRate();
+                    wifiLinkRateError_ = tr("no answer from the module");
+                    emit wifiLinkRateChanged();
                 }
                 // A survey whose frames are late is asked for once more (GETTING v0), then given up.
                 const int surveyDwell = idWifiSurvey->dwellMs() > 0 ? idWifiSurvey->dwellMs() : WifiSurvey::kDefaultDwellMs;

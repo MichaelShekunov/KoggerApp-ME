@@ -957,6 +957,66 @@ void headingInUseRules()
           v.headingInUse() == V::InUseNone, v.headingInUseText());
 }
 
+// The link rate report's page (ID_WIFI_SURVEY v1, firmware 0.18) and its words.
+QByteArray ratePage(int index, int total, const uint8_t mac[6], int window, int frames, int rssi, int mode,
+                    const QVector<WifiLinkRate::Rate>& rates)
+{
+    QByteArray b;
+    const auto u16 = [&b](int v) { b.append(char(v & 0xFF)); b.append(char((v >> 8) & 0xFF)); };
+    b.append(char(index));
+    b.append(char(total));
+    for (int i = 0; i < 6; ++i)
+        b.append(char(mac[i]));
+    u16(window);
+    u16(frames);
+    b.append(char(int8_t(rssi)));
+    b.append(char(mode));
+    b.append(char(rates.size()));
+    b.append(char(0));
+    for (const WifiLinkRate::Rate& r : rates) {
+        b.append(char(r.kind));
+        b.append(char(r.code));
+        b.append(char(r.flags));
+        for (int k = 0; k < 4; ++k)
+            b.append(char((r.kbps >> (8 * k)) & 0xFF));
+        u16(r.frames);
+    }
+    return b;
+}
+
+void linkRateRules()
+{
+    using R = WifiLinkRate;
+    const uint8_t boat[6] = { 0xd8, 0x3b, 0xda, 0x29, 0xcf, 0xd1 };
+    // the module session's measurement 2026-09-30: boat -> head unit, 17 of 21 frames at MCS7 SGI, 4 at 65.0
+    R::Rate sgi; sgi.kind = R::Kind11n; sgi.code = 7; sgi.flags = 0x01; sgi.kbps = 72200; sgi.frames = 17;
+    R::Rate lgi; lgi.kind = R::Kind11n; lgi.code = 7; lgi.flags = 0x00; lgi.kbps = 65000; lgi.frames = 4;
+    R::Page p;
+    const QByteArray page = ratePage(0, 1, boat, 200, 21, -43, 4, { sgi, lgi });
+    const bool ok = R::parse(page, p);
+    check("link rate: a page of 16 + 9 x 2 bytes", page.size() == 16 + 9 * 2 && ok && p.total == 1 && p.rates.size() == 2);
+    check("link rate: the other end, its frames and RSSI", ok && p.mac == QStringLiteral("d8:3b:da:29:cf:d1")
+          && p.windowMs == 200 && p.frames == 21 && p.rssi == -43 && p.mode == 4, p.mac);
+    check("link rate: 11n MCS7 SGI in words", ok && R::text(p.rates[0]) == QStringLiteral("72.2 Mbit/s · 11n MCS7 SGI")
+          && p.rates[0].frames == 17, ok ? R::text(p.rates[0]) : QString());
+    check("link rate: the long guard interval", ok && R::text(p.rates[1]) == QStringLiteral("65.0 Mbit/s · 11n MCS7"),
+          ok ? R::text(p.rates[1]) : QString());
+    R::Rate lr; lr.kind = R::KindLr; lr.code = 0x1A; lr.kbps = 0; lr.frames = 30;
+    R::Page q;
+    check("link rate: LR without a number (the module does not decode it)",
+          R::parse(ratePage(0, 1, boat, 200, 30, -60, 0, { lr }), q)
+              && R::text(q.rates[0]) == QStringLiteral("LR, speed not calibrated"),
+          q.rates.isEmpty() ? QString() : R::text(q.rates[0]));
+    R::Page none;
+    check("link rate: no other end is {0, 0}", R::parse(QByteArray("\x00\x00", 2), none) && none.total == 0);
+    R::Page cut;
+    QByteArray shortPage = ratePage(0, 1, boat, 200, 21, -43, 4, { sgi, lgi });
+    shortPage.chop(5);
+    check("link rate: a cut page is refused", !R::parse(shortPage, cut));
+    check("link rate: from firmware 0.18", R::supportFor(0, 17) == 0 && R::supportFor(0, 18) == 1 && R::supportFor(1, 0) == 1
+          && R::supportFor(0, 0) == -1);
+}
+
 int main(int argc, char* argv[])
 {
     QCoreApplication app(argc, argv);
@@ -981,6 +1041,7 @@ int main(int argc, char* argv[])
     linkLogRules();
     homeRules();
     headingInUseRules();
+    linkRateRules();
     if (cli.isSet(QStringLiteral("offline"))) {
         std::printf("\n%d checks, %d failed (offline)\nMISSION_CHECK_%s\n", g_checks, g_failed, g_failed ? "FAILED" : "DONE");
         return g_failed ? 1 : 0;

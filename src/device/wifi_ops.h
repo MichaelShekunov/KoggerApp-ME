@@ -274,6 +274,106 @@ private:
 };
 
 /**
+ * @brief The Wi-Fi module's link rate report (ID_WIFI_SURVEY v1, firmware 0.18; the module's docs/SBP_WIFI.md 3b).
+ *
+ * Per other end of the link (a station's access point, an access point's clients): the PHY rates its data frames came
+ * at in a short listening window, the most frames first. The module does not decode LR (kbit/s 0, the code a raw field
+ * of the received frame): no number is shown for it. Listening cuts the link's throughput (ESP-IDF), so the app asks
+ * rarely, and the two ends apart.
+ */
+struct WifiLinkRate
+{
+    static constexpr int kWindowMs = 200;       ///< the module's default window
+    static constexpr int kEveryMs = 3000;       ///< not more often: listening cuts the throughput
+    static constexpr int kPeerDelayMs = 400;    ///< the other end is asked this much later: the windows apart
+    enum Kind { KindOther = 0, Kind11b = 1, Kind11g = 2, Kind11n = 3, KindLr = 4 };
+    struct Rate {
+        int kind = KindOther, code = 0, flags = 0;   // flags (11n): bit0 short guard interval, bit1 40 MHz
+        uint32_t kbps = 0;                           // 0: not known (LR always)
+        int frames = 0;
+    };
+    struct Page {
+        int index = 0, total = 0;                    // total 0: no other end (a station not joined, no clients)
+        QString mac;
+        int windowMs = 0, frames = 0;
+        int rssi = -128;                             // the mean of its frames; -128 none
+        int mode = 0xFF;                             // negotiated (as phy of ID_WIFI v7); 0xFF not known, an access point's
+        QVector<Rate> rates;                         // the most frames first
+    };
+
+    /** 1 from firmware 0.18, 0 before, -1 while the version is not known. */
+    static int supportFor(int fwMajor, int fwMinor)
+    {
+        if (fwMajor <= 0 && fwMinor <= 0)
+            return -1;
+        return (fwMajor > 0 || fwMinor >= 18) ? 1 : 0;
+    }
+
+    /** One CONTENT v1 frame's payload: U1 index, U1 total, U1[6] MAC, U2 window, U2 frames, S1 RSSI, U1 mode, U1 n,
+     *  U1 0, then n x {U1 kind, U1 code, U1 flags, U4 kbit/s, U2 frames}, little-endian; {0, 0} when no other end. */
+    static bool parse(const QByteArray& b, Page& out)
+    {
+        out = Page();
+        if (b.size() < 2)
+            return false;
+        const auto u8 = [&b](int i) { return int(uint8_t(b[i])); };
+        out.index = u8(0);
+        out.total = u8(1);
+        if (out.total == 0)
+            return true;
+        if (b.size() < 16 || out.index >= out.total)
+            return false;
+        QStringList mac;
+        for (int i = 0; i < 6; ++i)
+            mac << QStringLiteral("%1").arg(u8(2 + i), 2, 16, QLatin1Char('0'));
+        out.mac = mac.join(QLatin1Char(':'));
+        out.windowMs = u8(8) | (u8(9) << 8);
+        out.frames = u8(10) | (u8(11) << 8);
+        out.rssi = int(int8_t(b[12]));
+        out.mode = u8(13);
+        const int n = u8(14);
+        if (n > 4 || b.size() < 16 + 9 * n)
+            return false;
+        for (int k = 0; k < n; ++k) {
+            const int o = 16 + 9 * k;
+            Rate r;
+            r.kind = u8(o);
+            r.code = u8(o + 1);
+            r.flags = u8(o + 2);
+            r.kbps = uint32_t(u8(o + 3)) | (uint32_t(u8(o + 4)) << 8) | (uint32_t(u8(o + 5)) << 16)
+                   | (uint32_t(u8(o + 6)) << 24);
+            r.frames = u8(o + 7) | (u8(o + 8) << 8);
+            out.rates.append(r);
+        }
+        return true;
+    }
+
+    /** "72.2 Mbit/s · 11n MCS7 SGI", "54.0 Mbit/s · 11g", "LR, speed not calibrated". */
+    static QString text(const Rate& r)
+    {
+        const QString mbit = r.kbps ? QString::number(r.kbps / 1000.0, 'f', 1) + QStringLiteral(" Mbit/s")
+                                    : QStringLiteral("? Mbit/s");
+        switch (r.kind) {
+        case KindLr:
+            return QStringLiteral("LR, speed not calibrated");
+        case Kind11n: {
+            QString t = mbit + QStringLiteral(" · 11n MCS%1").arg(r.code);
+            if (r.flags & 0x01)
+                t += QStringLiteral(" SGI");
+            if (r.flags & 0x02)
+                t += QStringLiteral(" 40 MHz");
+            return t;
+        }
+        case Kind11b:
+            return mbit + QStringLiteral(" · 11b");
+        case Kind11g:
+            return mbit + QStringLiteral(" · 11g");
+        }
+        return QStringLiteral("other (code %1)").arg(r.code);
+    }
+};
+
+/**
  * @brief The Wi-Fi link's recent events, for the module's page.
  *
  * A station's state changes with why its link ended (the module's class and the ESP-IDF code), an access point's

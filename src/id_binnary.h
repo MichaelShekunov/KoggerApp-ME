@@ -1314,7 +1314,30 @@ public:
     /** Surveys completed so far (every channel of one arrived): the driver takes each into its mean once. */
     int completedCount() const { return completed_; }
 
+    // The link rate report (GETTING v1, firmware 0.18): one raw CONTENT v1 page per other end, parsed by the driver
+    // (WifiLinkRate::parse, device/wifi_ops.h).
+    /** Listen windowMs (50..1000; 0 = the module's 200) and report the other ends' rates. */
+    void requestLinkRate(uint16_t windowMs);
+    void cancelLinkRate() { rateRunning_ = false; }
+    const QVector<QByteArray>& ratePages() const { return ratePages_; }
+    /** Other ends in the last report: -1 none yet, 0 none (a station not joined, an access point without clients). */
+    int ratePeers() const { return ratePeers_; }
+    bool rateRunning() const { return rateRunning_; }
+    int64_t rateStartedMs() const { return rateStartedMs_; }
+    uint16_t rateWindowMs() const { return rateWindowMs_; }
+    /** Reports completed so far (every page of one arrived). */
+    int rateCompletedCount() const { return rateCompleted_; }
+
 protected:
+    Resp parseLinkRate(FrameParser &proto);
+    QVector<QByteArray> ratePages_;
+    int ratePeers_ = -1;
+    int rateFilled_ = 0;
+    int rateCompleted_ = 0;
+    bool rateRunning_ = false;
+    bool rateFresh_ = false;
+    int64_t rateStartedMs_ = 0;
+    uint16_t rateWindowMs_ = 0;
     QVector<Channel> channels_;
     int total_ = -1;
     int filled_ = 0;
