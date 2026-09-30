@@ -124,6 +124,59 @@ QList<DevQProperty *> DeviceManager::getDevList(BoardVersion ver) {
     return list;
 }
 
+// What a live link carries: every complete frame under its kind, "traffic [link]: ..." in the log once a minute.
+// A KP2 frame without the address option keeps the parser's last address (an approximation for the log).
+void DeviceManager::countTraffic(const QUuid& uuid, Parsers::FrameParser& frame)
+{
+    using P = Parsers::FrameParser;
+    TrafficTally::Key k;
+    const uint8_t* f = frame.frame();
+    switch (frame.proto()) {
+    case P::ProtoKP1:
+        k.proto = TrafficTally::ProtoKp1;
+        k.addr = frame.route();
+        k.id = frame.id();
+        k.ver = frame.ver();
+        break;
+    case P::ProtoKP2:
+        k.proto = TrafficTally::ProtoKp2;
+        k.addr = frame.route();
+        k.id = frame.id();
+        k.ver = frame.ver();
+        k.proxy = frame.isProxy();
+        k.stream = frame.isStream();
+        break;
+    case P::ProtoMAVLink1:
+        k.proto = TrafficTally::ProtoMavlink1;
+        k.id = f[5];
+        break;
+    case P::ProtoMAVLink2:
+        k.proto = TrafficTally::ProtoMavlink2;
+        k.id = uint32_t(f[7]) | (uint32_t(f[8]) << 8) | (uint32_t(f[9]) << 16);
+        break;
+    case P::ProtoNMEA:
+        k.proto = TrafficTally::ProtoNmea;
+        break;
+    case P::ProtoUBX:
+        k.proto = TrafficTally::ProtoUbx;
+        k.id = (uint32_t(f[2]) << 8) | f[3];
+        break;
+    default:
+        k.proto = TrafficTally::ProtoOther;
+        break;
+    }
+    TrafficTally& t = traffic_[uuid];
+    t.add(k, frame.frameLen(), frame.isNested());
+    QElapsedTimer& clock = trafficClock_[uuid];
+    if (!clock.isValid()) {
+        clock.start();
+    } else if (clock.elapsed() >= 60000) {
+        qInfo().noquote() << QStringLiteral("traffic [%1]: %2")
+                                 .arg(uuid.toString(QUuid::WithoutBraces).left(8), t.summary(clock.elapsed() / 1000.0));
+        clock.restart();
+    }
+}
+
 void DeviceManager::frameInput(QUuid uuid, Link* link, Parsers::FrameParser frame)
 {
     if (loggingStarted_) {
@@ -131,6 +184,8 @@ void DeviceManager::frameInput(QUuid uuid, Link* link, Parsers::FrameParser fram
     }
 
     if (frame.isComplete()) {
+        if (link != nullptr)
+            countTraffic(uuid, frame);
 
         if (frame.isStream())
             streamList_.append(&frame);

@@ -12,6 +12,8 @@
 #include "dev_q_property.h"
 #include "proto_binnary.h"
 #include "id_binnary.h"
+#include "traffic_tally.h"
+#include <QElapsedTimer>
 
 
 class LocationReader;
@@ -187,6 +189,10 @@ private:
     QList<DevQProperty*> devList_;
     QHash<QUuid, QHash<int, DevQProperty*>> devTree_;
     QHash<QUuid, int> otherProtocolStat_;
+    // What each live link carries, logged once a minute (TrafficTally).
+    QHash<QUuid, TrafficTally> traffic_;
+    QHash<QUuid, QElapsedTimer> trafficClock_;
+    void countTraffic(const QUuid& uuid, Parsers::FrameParser& frame);
     StreamList streamList_;
     QUuid lastUuid_;
     QUuid proxyLinkUuid_;
