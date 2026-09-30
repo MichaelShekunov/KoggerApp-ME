@@ -824,6 +824,23 @@ stays, as upstream has it (the same retune of that link, not changed). On the ki
 2026-09-29 by the owner's word (no QML errors in kogger.log; the boat was away, so the hidden row on its devices
 is not seen on the hardware yet); this PC runs a937fa06.
 
+**"Apply and save" sent one Wi-Fi module's fields to the other (70071164).** Owner 2026-09-30: "something is wrong
+with LR: data lags, the devices do not answer". The kiosk log (2026-09-26 by the board's clock): 21:59:15 on the head
+unit module's page "Apply and save" applied Role, Radio, Module address - `[87] wifi-net: role saved 1 running 0`,
+its module saved as an access point for its next boot; 21:59:20 the boat's module got the head unit's 15 dBm;
+22:00:08 on the boat module's page Radio, Module address - from then on the boat module's reports came as [87] (its
+uptime alternating with the head unit module's: a "the module restarted" line a second, each re-asking the fast
+report), [88] silent. One page serves every device and only `dev` changes on a switch: the own-address fields and
+the role pick were read from a device only when it sent new net settings, the islands' edit flags outlived the
+switch, and "Apply and save" took the other device's values for edits. Fixed: the role and the own address are
+pending only once edited here; `onDevChanged` → `_forgetEdits` drops every island's edits, clears the own-address
+fields and the port speed pick, turns Live off, stops a running "Apply and save", then `_readNewDevice` reads the
+new device's values; the bar's first tap names what the second will apply and to which device. Guard:
+`tools/qml_check/devswitch_check.ps1` (every pending condition gated by an edit, every edit flag reset on the switch;
+15 findings on the code before, none now). The modules' settings (the boat's address back to 88, the head unit's
+saved role back to station, the radio) are the module session's task; LR itself (0.5 or 0.25 Mbit/s against the
+boat's ~0.74) explains the lag (*Inference*).
+
 **Wi-Fi diagnostics (822ca18e; on the kiosk as `headunit` 110d6fa2 from 2026-09-30, this PC 57c9d875).** Owner: keep both charts, extend the diagnostics. A tap on a channel
 shows its details, "Both ends" puts how each end hears the other side by side, "Link events" lists the link's
 recent events in words (WIFI_MODULE.md §2k). Verified by machine: mission_check offline 122/122 (+6 checks of
