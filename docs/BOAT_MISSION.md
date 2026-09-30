@@ -122,6 +122,12 @@ water is not yet verified.
   alignment comes from GPS yaw only (a moving-baseline, two-antenna GPS); the compass fallback needs
   GPS yaw to have worked before (`learnMagBiasFromGPS`) and the vehicle to be moving. With a
   one-antenna GPS the yaw never aligns, the EKF never uses GPS, and it reports flags 0.
+  Exactly (SelectMagFusion, Rover-4.4.0): without GPS yaw it falls back only after 10 s without it, with
+  `gps_yaw_mag_fallback_ok` and `inFlight`, then says "EKF3 IMU%u yaw fallback active"; until then no yaw is
+  fused; when GPS yaw returns it goes back to it. The EKF's yaw messages: "MAG%u initial / in-flight yaw
+  alignment complete", "MAG%u ground mag anomaly, yaw re-aligned" (compass), "yaw aligned using GPS" (two
+  antennas), "yaw aligned to GPS velocity" and "emergency yaw reset" (GSF), "yaw fallback active", "yaw
+  external". The boat panel shows what is in use from these (`MavVehicle::headingInUse`, 2026-09-30).
 - ARMING_CHECK = 0 skips every pre-arm check (`AP_Arming_Rover::pre_arm_checks` returns at once), so
   the autopilot never reports "PreArm: ..." reasons; SYS_STATUS health still comes.
 - GPS heading over MAVLink (`AP_GPS::gps_yaw_cdeg`): the yaw field of GPS_RAW_INT / GPS2_RAW is 0 when

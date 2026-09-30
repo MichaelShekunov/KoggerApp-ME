@@ -824,6 +824,10 @@ stays, as upstream has it (the same retune of that link, not changed). On the ki
 2026-09-29 by the owner's word (no QML errors in kogger.log; the boat was away, so the hidden row on its devices
 is not seen on the hardware yet); this PC runs a937fa06.
 
+**Heading source: what is in use now (0da0534d).** Owner: the Heading choice is not clear, what is the source now. The panel
+showed only EK3_SRC1_YAW; it now shows the selection with a tick, "In use now" (MavVehicle::headingInUse, from the GPS
+heading and the EKF's fallback message, BOAT_MISSION.md) and why the choice is closed. mission_check 134/134.
+
 **Data widget "From launch point" (80520c86).** Owner: the widgets should show the current distance from the boat's launch point to
 the boat. The autopilot's home to its position (BOAT_MISSION.md); home asked for again on arming. mission_check offline
 126/126, the catalog field under qmltestrunner, the Windows build. On the kiosk as `headunit` d64994aa from 2026-09-30 (with
