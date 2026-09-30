@@ -504,8 +504,10 @@ about 2.2 KB/s of MAVLink plus the proxy frames around it (the heaviest ten prox
 head unit module's link report at 5/s 0.17 KB/s. With the sonar not pinging 11.2 KB/s should come to about 5.5
 (*Inference*, not measured).
 
-The rest is the autopilot's telemetry at its own stream rates (EXTRA1 and EXTRA2 at 10 Hz: ATTITUDE, AHRS2,
-PID_TUNING, VFR_HUD). Lower rates and GCS_PID_MASK (PID_TUNING) are the boat's parameters: the owner decides. The
+The rest is the autopilot's telemetry at its own stream rates. By the owner's word (2026-09-30) SR1_EXTRA1 and
+SR1_EXTRA2 went from 10 to 4 Hz (ATTITUDE, AHRS2, PID_TUNING, VFR_HUD; HeadUnit docs/BOAT_MISSION.md): the kiosk
+counts 4.0/s for each and 7.3 KB/s in all with the sonar pinging (*Verified*), half of the 14.3-15.1 KB/s of the
+morning. GCS_PID_MASK (PID_TUNING) is unchanged. The
 module's own counter (17-18 KB/s) is above the 11.2 KB/s of frames; how it counts is in the module's docs, not
 checked here.
 
