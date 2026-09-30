@@ -1535,6 +1535,10 @@ ApplicationWindow {
                         if (devFooter.pending > 0 && !devFooter.confirming) {
                             devFooter.confirming = true
                             devFooterConfirmTimer.restart()
+                            // what the second tap will send, and to which device (one page serves them all)
+                            if (devFooter.page)
+                                notifications.info(qsTr("Tap again to apply to %1: %2").arg(d.devName)
+                                                   .arg(devFooter.page.pendingApplyNames))
                             return
                         }
                         devFooter.confirming = false

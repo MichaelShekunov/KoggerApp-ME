@@ -41,6 +41,7 @@ Column {
     // reconnects; the module's own address last, since it then answers as a new device. The bar reads
     // pendingApplyCount, applying and applyProgress from here (store.devicePage).
     property int pendingApplyCount: 0
+    property string pendingApplyNames: ""      // what those are, for the bar's confirm
     property bool applying: false
     property string applyProgress: ""
     property var _applyQueue: []
@@ -83,8 +84,54 @@ Column {
     }
 
     function recountPending() {
-        if (!applying)
-            pendingApplyCount = pendingSteps().length
+        if (applying)
+            return
+        var st = pendingSteps()
+        pendingApplyCount = st.length
+        pendingApplyNames = st.map(function(x) { return x.name }).join(", ")
+    }
+
+    // One page serves every device: only dev changes on a switch. Whatever was edited or picked for the device left
+    // behind is dropped and every island reads the new device's values, so "Apply and save" never sends one device's
+    // fields to another (2026-09-29, the kiosk: the boat's module got the head unit's address 87, the head unit's
+    // module the boat's role for its next boot). A running "Apply and save" stops: its steps would go to the new one.
+    function _forgetEdits() {
+        if (applying) {
+            applyStepTimer.stop()
+            _applyQueue = []
+            applying = false
+            applyProgress = ""
+            notifications.warning(qsTr("Apply and save stopped: another device was opened. Applied before: %1")
+                                  .arg(_applyDone.length ? _applyDone.join(", ") : qsTr("nothing")))
+        }
+        relayIsland.dirty = false
+        radioIsland.dirty = false
+        portIsland.sel = 0
+        portsIsland.ownAddrEdited = false
+        portsOwnField.text = ""
+        apIsland.dirty = false
+        apIsland.apDirty = false
+        ipIsland.dirty = false
+        linesIsland.dirty = false
+        linesIsland.ownAddrEdited = false
+        lnOwnField.text = ""
+        wifiIsland.watchAir = false
+        wifiIsland.detailChannel = 0
+        pendingApplyCount = 0
+        pendingApplyNames = ""
+        Qt.callLater(_readNewDevice)            // once the islands' bindings follow the new dev
+    }
+    function _readNewDevice() {
+        relayIsland.sync(true)
+        radioIsland.sync(true)
+        if (portIsland.now > 0)
+            portIsland.sel = portIsland.now
+        portsIsland.syncOwnAddr()
+        apIsland.sync(true)
+        ipIsland.sync(true)
+        linesIsland.sync(true)
+        devNetGroup._sync(true)
+        recountPending()
     }
 
     function applyAllAndSave() {
@@ -309,6 +356,7 @@ Column {
     property var _prevDev: null
 
     onDevChanged: {
+        _forgetEdits()
         if (_prevDev) {
             var prev = _groupStateFor(_prevDev)
             if (prev) { prev.map = _snapshotGroups(); prev.eng = _engExpanded }
@@ -3319,12 +3367,15 @@ Column {
         readonly property bool wide: width >= Math.round(660 * AppPalette.scale)
 
         function portName(i) { return i === 0 ? "X1" : "X2" }
-        readonly property bool ownAddrPending: visible && root._isWifi && dev.wifiNetOwnAddr >= 0
+        property bool ownAddrEdited: false      // typed here, for this device
+        readonly property bool ownAddrPending: visible && root._isWifi && dev.wifiNetOwnAddr >= 0 && ownAddrEdited
                                                && portsOwnField.text.length > 0
                                                && parseInt(portsOwnField.text, 10) !== dev.wifiNetOwnAddr
         function applyOwnAddr() {
-            if (dev.wifiNetSetOwnAddr(parseInt(portsOwnField.text, 10)))
+            if (dev.wifiNetSetOwnAddr(parseInt(portsOwnField.text, 10))) {
+                ownAddrEdited = false
                 return true
+            }
             notifications.warning(qsTr("Module address must be 1…254: 0 is where devices sit, 255 is refused"))
             return false
         }
@@ -3369,7 +3420,7 @@ Column {
             return ""
         }
         function syncOwnAddr() {
-            if (root._isWifi && !portsOwnField.hasFocus && dev.wifiNetOwnAddr >= 0)
+            if (root._isWifi && !portsOwnField.hasFocus && !ownAddrEdited && dev.wifiNetOwnAddr >= 0)
                 portsOwnField.text = String(dev.wifiNetOwnAddr)
         }
         Component.onCompleted: syncOwnAddr()
@@ -3903,7 +3954,8 @@ Column {
             caption: qsTr("Must differ from the devices behind the ports (a sonar is usually 0); 1…254. The module then reappears as a new device.")
             Row {
                 spacing: Tokens.spaceSm
-                WifiField { id: portsOwnField; width: Math.round(64 * AppPalette.scale); numeric: true; minValue: 1; maxValue: 254 }
+                WifiField { id: portsOwnField; width: Math.round(64 * AppPalette.scale); numeric: true; minValue: 1; maxValue: 254
+                            onEdited: portsIsland.ownAddrEdited = true }
                 ConfirmDevButton {
                     width: Math.round(96 * AppPalette.scale)
                     label: qsTr("Set")
@@ -3937,7 +3989,8 @@ Column {
         property int selAuth: 1
         property bool dirty: false
         property bool apDirty: false      // the access point's fields were edited (dirty covers the role too)
-        readonly property bool rolePending: visible && roleValid && selRole !== role.saved
+        // dirty: picked here (a pick left from another device is dropped on the switch, _forgetEdits)
+        readonly property bool rolePending: visible && roleValid && dirty && selRole !== role.saved
         readonly property bool apPending: visible && showAp && apValid && apDirty
         function markAp() {
             dirty = true
@@ -4267,12 +4320,15 @@ Column {
             dirty = false
             return true
         }
-        readonly property bool ownAddrPending: visible && root._isWifi && dev.wifiNetOwnAddr >= 0
+        property bool ownAddrEdited: false      // typed here, for this device
+        readonly property bool ownAddrPending: visible && root._isWifi && dev.wifiNetOwnAddr >= 0 && ownAddrEdited
                                                && lnOwnField.text.length > 0
                                                && parseInt(lnOwnField.text, 10) !== dev.wifiNetOwnAddr
         function applyOwnAddr() {
-            if (dev.wifiNetSetOwnAddr(parseInt(lnOwnField.text, 10)))
+            if (dev.wifiNetSetOwnAddr(parseInt(lnOwnField.text, 10))) {
+                ownAddrEdited = false
                 return true
+            }
             notifications.warning(qsTr("Module address must be 1…255: 0 is where devices sit"))
             return false
         }
@@ -4288,7 +4344,7 @@ Column {
             lnBaudField.text = String(cur.baud)
             lnTxField.text = String(cur.txPin)
             lnRxField.text = String(cur.rxPin)
-            if (dev.wifiNetOwnAddr >= 0)
+            if (dev.wifiNetOwnAddr >= 0 && !ownAddrEdited)
                 lnOwnField.text = String(dev.wifiNetOwnAddr)
             dirty = false
         }
@@ -4446,7 +4502,8 @@ Column {
             caption: qsTr("Must differ from the devices behind the lines (a sonar is usually 0). The module then reappears as a new device.")
             Row {
                 spacing: Tokens.spaceSm
-                WifiField { id: lnOwnField; width: Math.round(64 * AppPalette.scale); numeric: true; minValue: 1; maxValue: 255 }
+                WifiField { id: lnOwnField; width: Math.round(64 * AppPalette.scale); numeric: true; minValue: 1; maxValue: 255
+                            onEdited: linesIsland.ownAddrEdited = true }
                 ConfirmDevButton {
                     width: Math.round(96 * AppPalette.scale)
                     label: qsTr("Set")
