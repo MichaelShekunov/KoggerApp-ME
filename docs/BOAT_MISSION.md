@@ -76,7 +76,8 @@ water is not yet verified.
   RTL; anything else is named and left out), start, HOLD, return home, arm/disarm, heading source
   ("GPS, 2 antennas" = EK3_SRC1_YAW 3, "Compass" = 1; PARAM_SET confirmed by PARAM_VALUE, refused
   while armed), heartbeat switch, last messages. Moving commands, Arm, a heading-source change and a
-  plan-replacing load ask for a second tap within 3 s; HOLD and Disarm never do.
+  plan-replacing load ask for a second tap within 3 s; HOLD and Disarm never do. "Close" is pinned at
+  the bottom below the scrolling part, always at hand (the header's X scrolls away with the content).
 - `qml/scene3d/Scene3DRightToolbar.qml` — the boat button (shown once an autopilot is heard or a
   route exists); `qml/app/Pane3DWindow.qml` hosts the layer and the panel and binds
   `mapTapEnabled`; `qml/app/MainWindow.qml` turns command results and autopilot warnings into

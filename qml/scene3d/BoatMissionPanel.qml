@@ -25,7 +25,7 @@ Rectangle {
     readonly property bool linked: !!vehicle && vehicle.connected
 
     width: Math.round(310 * _s)
-    height: Math.min(contentCol.implicitHeight + 2 * pad, maxHeight)
+    height: Math.min(contentCol.implicitHeight + closeFooter.height + Tokens.spaceSm + 2 * pad, maxHeight)
     radius: Tokens.radiusLg
     color: AppPalette.card
     border.width: 1
@@ -98,10 +98,28 @@ Rectangle {
         Timer { id: confirmTimer; interval: 3000; onTriggered: cb.pending = false }
     }
 
+    // Close, always at hand however far the panel is scrolled (owner 2026-09-30; as on the device page). The
+    // header's X scrolls away with the content.
+    PanelButton {
+        id: closeFooter
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        anchors.margins: panel.pad
+        text: qsTr("Close")
+        onClicked: panel.closeRequested()
+    }
+
     Flickable {
         id: flick
-        anchors.fill: parent
-        anchors.margins: panel.pad
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.bottom: closeFooter.top
+        anchors.leftMargin: panel.pad
+        anchors.rightMargin: panel.pad
+        anchors.topMargin: panel.pad
+        anchors.bottomMargin: Tokens.spaceSm
         contentHeight: contentCol.implicitHeight
         clip: true
         boundsBehavior: Flickable.StopAtBounds
