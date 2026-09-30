@@ -825,7 +825,9 @@ stays, as upstream has it (the same retune of that link, not changed). On the ki
 is not seen on the hardware yet); this PC runs a937fa06.
 
 **Link speed (firmware 0.18, 55f97d48).** The module session added a link rate report (ID_WIFI_SURVEY v1); the Wi-Fi
-island shows it both ways (WIFI_MODULE.md 2m). mission_check 142/142, the text functions under qmltestrunner.
+island shows it both ways (WIFI_MODULE.md 2m). mission_check 142/142, the text functions under qmltestrunner. On the
+kiosk as `headunit` da4a3de7 from 2026-09-30 (with 0da0534d, the heading in use; no QML errors, both modules 0.18); this
+PC runs 8b6e4ee3.
 
 **Heading source: what is in use now (0da0534d).** Owner: the Heading choice is not clear, what is the source now. The panel
 showed only EK3_SRC1_YAW; it now shows the selection with a tick, "In use now" (MavVehicle::headingInUse, from the GPS
