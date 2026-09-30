@@ -866,6 +866,48 @@ void linkLogRules()
               && m[m.size() - 2].atMs == (L::kKeep + 7) * 1000);
 }
 
+// A COMMAND_LONG REQUEST_MESSAGE for this message?
+bool isRequest(const QByteArray& bytes, uint32_t messageId)
+{
+    mavlink_message_t m;
+    mavlink_status_t st;
+    for (char c : bytes) {
+        if (mavlink_parse_char(MAVLINK_COMM_3, uint8_t(c), &m, &st) && m.msgid == MAVLINK_MSG_ID_COMMAND_LONG)
+            return mavlink_msg_command_long_get_command(&m) == MAV_CMD_REQUEST_MESSAGE
+                   && uint32_t(mavlink_msg_command_long_get_param1(&m)) == messageId;
+    }
+    return false;
+}
+
+// The "From launch point" widget: home is asked for again on arming (ArduPilot moves it there); the distance.
+void homeRules()
+{
+    MavVehicle v(nullptr, false);
+    QList<QByteArray> sent;
+    QObject::connect(&v, &MavVehicle::sendBytes, [&](const QByteArray& b) { sent.append(b); });
+    v.feed(fakeHeartbeat(false, MavVehicle::ModeHold));
+    v.feed(fakeHeartbeat(false, MavVehicle::ModeHold));
+    sent.clear();
+    v.feed(fakeHeartbeat(true, MavVehicle::ModeHold));
+    bool asked = false;
+    for (const QByteArray& b : sent)
+        asked = asked || isRequest(b, MAVLINK_MSG_ID_HOME_POSITION);
+    check("home: asked for again on arming (the launch point)", asked, QStringLiteral("%1 frames sent").arg(sent.size()));
+    sent.clear();
+    v.feed(fakeHeartbeat(true, MavVehicle::ModeHold));
+    bool again = false;
+    for (const QByteArray& b : sent)
+        again = again || isRequest(b, MAVLINK_MSG_ID_HOME_POSITION);
+    check("home: not asked on every heartbeat while armed", !again);
+    // 0.001 degree of latitude on the 6371008.8 m sphere: 111.195 m; of longitude at 60 degrees: half of that
+    check("distance: 0.001 degree of latitude = 111.2 m",
+          std::fabs(MavVehicle::distanceM(0, 0, 0.001, 0) - 111.195) < 0.01,
+          QString::number(MavVehicle::distanceM(0, 0, 0.001, 0), 'f', 3));
+    check("distance: 0.001 degree of longitude at 60 degrees = 55.6 m",
+          std::fabs(MavVehicle::distanceM(60, 30, 60, 30.001) - 55.597) < 0.01,
+          QString::number(MavVehicle::distanceM(60, 30, 60, 30.001), 'f', 3));
+}
+
 int main(int argc, char* argv[])
 {
     QCoreApplication app(argc, argv);
@@ -888,6 +930,7 @@ int main(int argc, char* argv[])
     channelRules();
     surveyRules();
     linkLogRules();
+    homeRules();
     if (cli.isSet(QStringLiteral("offline"))) {
         std::printf("\n%d checks, %d failed (offline)\nMISSION_CHECK_%s\n", g_checks, g_failed, g_failed ? "FAILED" : "DONE");
         return g_failed ? 1 : 0;

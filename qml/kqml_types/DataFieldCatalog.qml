@@ -23,7 +23,10 @@ QtObject {
         { key: "apVoltage", label: qsTr("Battery"),        unit: "V",            group: "autopilot" },
         { key: "apCurrent", label: qsTr("Current"),        unit: "A",            group: "autopilot" },
         { key: "apMode",    label: qsTr("Flight mode"),    unit: "",             group: "autopilot" },
-        { key: "apArm",     label: qsTr("Arm state"),      unit: "",             group: "autopilot" }
+        { key: "apArm",     label: qsTr("Arm state"),      unit: "",             group: "autopilot" },
+        // The autopilot's home to the boat now (MavVehicle, over MAVLink): home is where the boat was armed, the
+        // launch point RTL returns to.
+        { key: "apHomeDist", label: qsTr("From launch point"), unit: qsTr("m"),   group: "autopilot" }
     ]
 
     // USBL fields — deliberately NOT in `fields`, so the palette is unchanged for the
@@ -117,6 +120,14 @@ QtObject {
         return hemi + " " + Math.abs(deg).toFixed(4) + "°"
     }
 
+    // `veh` is the boat's autopilot link (MavVehicle, the context property `boat`): home, position, link.
+    function _homeDistValid(veh) {
+        return !!(veh && veh.connected && veh.homeValid && veh.positionValid)
+    }
+    function _distanceText(m) {
+        return m < 1000 ? Math.round(m) + " " + qsTr("m") : (m / 1000).toFixed(2) + " " + qsTr("km")
+    }
+
     function _autopilotValid(dmw) {
         if (!dmw)
             return false
@@ -126,7 +137,7 @@ QtObject {
 
     // `addr` is the beacon a USBL cell is pinned to (-1 = whichever answered last). Every
     // other field ignores it, so existing call sites keep working unchanged.
-    function isValid(key, ds, dmw, store, sysbat, addr) {
+    function isValid(key, ds, dmw, store, sysbat, addr, veh) {
         if (UsblLogic.isUsblField(key)) {
             if (key === "usblPresent")
                 return !!(ds && ds.hasUsblData)
@@ -147,11 +158,12 @@ QtObject {
         case "apCurrent": return _autopilotValid(dmw) && !isNaN(dmw.vruCurrent)
         case "apMode":    return _autopilotValid(dmw) && dmw.pilotModeState >= 0
         case "apArm":     return _autopilotValid(dmw) && dmw.pilotArmState >= 0
+        case "apHomeDist": return _homeDistValid(veh)
         }
         return false
     }
 
-    function formatValue(key, ds, dmw, store, sysbat, addr) {
+    function formatValue(key, ds, dmw, store, sysbat, addr, veh) {
         if (UsblLogic.isUsblField(key))
             return _formatUsbl(key, ds, store, addr)
         switch (key) {
@@ -183,6 +195,9 @@ QtObject {
             return (dmw && dmw.pilotModeState >= 0) ? String(dmw.pilotModeState) : "—"
         case "apArm":
             return (dmw && dmw.pilotArmState >= 0) ? (dmw.pilotArmState > 0 ? "ARMED" : "DISARMED") : "—"
+        case "apHomeDist":
+            return _homeDistValid(veh)
+                   ? _distanceText(veh.distanceM(veh.homeLatitude, veh.homeLongitude, veh.latitude, veh.longitude)) : "—"
         }
         return "—"
     }
