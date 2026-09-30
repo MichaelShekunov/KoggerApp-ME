@@ -88,6 +88,11 @@ water is not yet verified.
   `mapTapEnabled`; `qml/app/MainWindow.qml` turns command results and autopilot warnings into
   notifications.
 - `third_party/mavlink` — the official C library, MIT (see its README).
+- Data widget "From launch point" (`DataFieldCatalog`, key `apHomeDist`, group autopilot; owner 2026-09-30): the
+  distance from the autopilot's home to the boat now, `MavVehicle::distanceM` of `homeLatitude/homeLongitude` and
+  `latitude/longitude` (GLOBAL_POSITION_INT); `DataWidgetPopup` passes the context property `boat`. Metres under
+  1 km, km over; a dash without the link, home or a position. Home is where ArduPilot put it: the first position,
+  then where the boat is armed; the app asks for HOME_POSITION again on arming (80520c86).
 
 ## ArduPilot facts this rests on (Rover 4.4.0, SITL, 2026-09-26)
 
