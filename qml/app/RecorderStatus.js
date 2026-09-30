@@ -44,7 +44,10 @@ function pillState(dev, master, port) {
         var s = severity(dev)
         return s === "good" ? "ok" : s === "warn" ? "warn" : s === "crit" ? "down" : ""
     }
-    var src = sourceState(master, port)
+    // A recorder that is not recording (no storage, a failed recording, recording off: severity "crit") reports its
+    // ports as lost; that is its own trouble, shown on it. A device behind it is shown by its own frames then
+    // (owner 2026-09-30: the logger without its flash drive turned the working sonar red).
+    var src = (master && severity(master) === "crit") ? "" : sourceState(master, port)
     if (src === "good") return "ok"
     if (src === "crit") return "down"
     return linkState(dev)
