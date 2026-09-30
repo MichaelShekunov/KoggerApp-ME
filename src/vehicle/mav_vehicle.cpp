@@ -349,6 +349,10 @@ void MavVehicle::handleMessage(const void* p)
                 addMessage(tr("Mode %1").arg(modeNameOf(nowMode)));
             if (mode_ >= 0 && nowArmed != armed_)
                 addMessage(nowArmed ? tr("Armed") : tr("Disarmed"));
+            // ArduPilot moves home to where the boat is armed (the launch point): asked for, not only left to its
+            // own broadcast over a lossy link (the "From launch point" widget and the return home read it).
+            if (nowArmed && !armed_)
+                requestMessage(MAVLINK_MSG_ID_HOME_POSITION);
             armed_ = nowArmed;
             mode_ = nowMode;
             emit stateChanged();
