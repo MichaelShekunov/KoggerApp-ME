@@ -803,8 +803,10 @@ Item {
             readonly property int barHideMs: 1600
             readonly property bool barShown: barRevealed || barGrab.containsMouse || barGrab.resizing || isActiveResizeSplit || workspace.store.editableMode
 
-            readonly property int barLength: Math.round(AppPalette.dragBarLengthPx * AppPalette.scale)
-            readonly property int barThickness: Math.round(AppPalette.dragBarThicknessPx * AppPalette.scale)
+            // The handle drawn is small and always shown; the area that grabs stays finger-sized.
+            readonly property int barLength: Math.round(AppPalette.splitBarLengthPx * AppPalette.scale)
+            readonly property int barThickness: Math.round(AppPalette.splitBarThicknessPx * AppPalette.scale)
+            readonly property int grabLength: Math.round(AppPalette.dragBarLengthPx * AppPalette.scale)
 
             Timer {
                 id: barHideTimer
@@ -835,11 +837,40 @@ Item {
                 onDoubleTapped: splitDragZone._resetSplitToCentre()
             }
 
-            x: vertical ? handleData.x - hitSize / 2 : handleData.x
-            y: vertical ? handleData.y : handleData.y - hitSize / 2
-            width: vertical ? hitSize : handleData.width
-            height: vertical ? handleData.height : hitSize
+            // At whole pixels, as the panes' content is (PaneFrame): across the split around floor(split), along it
+            // from floor(start) to the same end, so the border below is drawn exactly in the gap.
+            readonly property int _halfHit: Math.floor(hitSize / 2)
+            readonly property real zoneX: vertical ? Math.floor(handleData.x) - _halfHit : Math.floor(handleData.x)
+            readonly property real zoneY: vertical ? Math.floor(handleData.y) : Math.floor(handleData.y) - _halfHit
+            x: zoneX
+            y: zoneY
+            width: vertical ? hitSize : handleData.x + handleData.width - zoneX
+            height: vertical ? handleData.y + handleData.height - zoneY : hitSize
             z: ZOrder.dropZoneHighlight
+
+            // With the panes (PaneFrame's Behaviors), so the border does not run ahead of them.
+            readonly property bool _followPanes: workspace.store.edgeResizeMovingSplitId < 0
+                                                 && !workspace.store.layoutTransitionSuspended
+            Behavior on x { enabled: splitDragZone._followPanes; NumberAnimation { duration: Anim.paneResizeMs; easing.type: Anim.paneResizeEasing } }
+            Behavior on y { enabled: splitDragZone._followPanes; NumberAnimation { duration: Anim.paneResizeMs; easing.type: Anim.paneResizeEasing } }
+            Behavior on width { enabled: splitDragZone._followPanes; NumberAnimation { duration: Anim.paneResizeMs; easing.type: Anim.paneResizeEasing } }
+            Behavior on height { enabled: splitDragZone._followPanes; NumberAnimation { duration: Anim.paneResizeMs; easing.type: Anim.paneResizeEasing } }
+
+            // The border between the panes, always shown: it fills the gap PaneFrame leaves on the first pane's side
+            // of the split, [floor(split) - Tokens.paneGapPx, floor(split)); in the edit mode the panes touch and it
+            // takes 1 px of the first one. Placed from the zone's target position, so it moves with the zone.
+            Rectangle {
+                id: splitLine
+                readonly property int thickness: workspace.store.editableMode ? 1 : Math.max(1, Tokens.paneGapPx)
+                readonly property real lineStart: Math.floor(splitDragZone.vertical ? splitDragZone.handleData.x
+                                                                                    : splitDragZone.handleData.y)
+                                                  - thickness
+                color: AppPalette.borderFocus
+                x: splitDragZone.vertical ? lineStart - splitDragZone.zoneX : 0
+                y: splitDragZone.vertical ? 0 : lineStart - splitDragZone.zoneY
+                width: splitDragZone.vertical ? thickness : splitDragZone.width
+                height: splitDragZone.vertical ? splitDragZone.height : thickness
+            }
 
             Rectangle {
                 id: ghostEdge
@@ -873,21 +904,25 @@ Item {
                 orientation: splitDragZone.vertical ? "vertical" : "horizontal"
                 barLength: splitDragZone.barLength
                 barThickness: splitDragZone.barThickness
+                // A bead on the border, in its color.
+                barColor: splitLine.color
+                dotColor: AppPalette.bg
+                dotHoverColor: AppPalette.bg
 
                 readonly property bool tracking: barGrab.pressed
 
                 hovered: barGrab.containsMouse || barGrab.resizing
 
+                // On the border, centred along it; it follows the pointer across while a resize is tracked.
                 x: splitDragZone.vertical
                    ? (tracking ? splitDragZone.cursorInZone.x - width / 2
-                               : (splitDragZone.width - width) / 2)
+                               : splitLine.x + (splitLine.width - width) / 2)
                    : (splitDragZone.width - width) / 2
                 y: splitDragZone.vertical
                    ? (splitDragZone.height - height) / 2
                    : (tracking ? splitDragZone.cursorInZone.y - height / 2
-                               : (splitDragZone.height - height) / 2)
-                opacity: splitDragZone.barShown ? 0.95 : 0.0
-                visible: opacity > 0.01
+                               : splitLine.y + (splitLine.height - height) / 2)
+                opacity: splitDragZone.barShown ? 1.0 : 0.85
 
                 Behavior on opacity { NumberAnimation { duration: 350; easing.type: Easing.OutCubic } }
             }
@@ -897,9 +932,10 @@ Item {
 
                 property bool resizing: false
                 readonly property int pad: Math.round(14 * AppPalette.scale)
-                readonly property int barLen: splitDragZone.barLength
+                readonly property int barLen: splitDragZone.grabLength
 
-                enabled: splitDragZone.barShown && workspace.store.modePickerLeafId === -1
+                // The handle is always shown, so it grabs at the first touch.
+                enabled: workspace.store.modePickerLeafId === -1
                 acceptedButtons: Qt.LeftButton
                 hoverEnabled: true
                 preventStealing: true
