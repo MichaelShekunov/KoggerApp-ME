@@ -1971,6 +1971,53 @@ Column {
         }
         readonly property int peerRssi: peer ? peer.wifiRssi : 0
 
+        // Link speed (firmware 0.18, ID_WIFI_SURVEY v1): the PHY rate the other end's data frames come at - this
+        // module's report ("in") and, when the app sees the other end too, that one's ("out": how it receives this
+        // module). Asked every 3 s while this section is open, the other end 400 ms later: listening cuts the
+        // throughput, and the two windows are kept apart.
+        readonly property int rateSupport: root._isWifi ? dev.wifiLinkRateSupport : 0
+        readonly property var linkRates: root._isWifi ? dev.wifiLinkRates : []
+        readonly property var peerRates: peer && peer.wifiLinkRateSupport === 1 ? peer.wifiLinkRates : []
+        readonly property bool rateShown: live && rateSupport === 1 && (connected || (apRole && clients > 0))
+        // the main rate of the (first) other end, in words; an access point's clients count after it
+        function rateLine(list) {
+            if (!list || !list.length)
+                return ""
+            var e = list[0]
+            var t = e.frames > 0 && e.text.length ? e.text : qsTr("no data frames in the window")
+            return t + (list.length > 1 ? " " + qsTr("(and %1 more)").arg(list.length - 1) : "")
+        }
+        // "17 of 21 frames; 4 at 65.0 Mbit/s · 11n MCS7; -43 dBm"
+        function rateDetail(list) {
+            if (!list || !list.length || list[0].frames === 0)
+                return ""
+            var e = list[0]
+            var r = e.rates
+            var t = qsTr("%1 of %2 frames").arg(r.length ? r[0].frames : 0).arg(e.frames)
+            for (var i = 1; i < r.length; ++i)
+                t += "; " + qsTr("%1 at %2").arg(r[i].frames).arg(r[i].text)
+            if (e.rssi > -128)
+                t += "; " + e.rssi + " " + qsTr("dBm")
+            return t
+        }
+        Timer {
+            interval: 3000         // WifiLinkRate::kEveryMs
+            repeat: true
+            triggeredOnStart: true
+            running: wifiIsland.rateShown && wifiIsland.visible && !wifiIsland.folded
+            onTriggered: {
+                if (dev)
+                    dev.wifiLinkRate()
+                if (wifiIsland.peer && wifiIsland.peer.wifiLinkRateSupport === 1)
+                    peerRateTimer.restart()
+            }
+        }
+        Timer {
+            id: peerRateTimer
+            interval: 400          // WifiLinkRate::kPeerDelayMs
+            onTriggered: if (wifiIsland.peer) wifiIsland.peer.wifiLinkRate()
+        }
+
         // The link's recent events (WifiLinkLog), oldest first; ages on the app's monotonic clock (the head unit's
         // wall clock is not set), refreshed by the age ticker.
         readonly property var linkEvents: root._isWifi ? dev.wifiLinkEvents : []
@@ -2340,6 +2387,30 @@ Column {
             caption: wifiIsland.apRole
                      ? qsTr("Here: how this access point hears its weakest client; there: how the client's module hears this access point. A big gap points to one end: its antenna, its transmit power or the module.")
                      : qsTr("Here: how this module hears its access point; there: how the access point hears it (its weakest client). A big gap points to one end: its antenna, its transmit power or the module.")
+        }
+
+        DevInfoRow {
+            label: qsTr("Link speed")
+            stacked: true
+            value: {
+                if (!wifiIsland.rateShown)
+                    return ""
+                var rx = wifiIsland.rateLine(wifiIsland.linkRates)
+                var tx = wifiIsland.rateLine(wifiIsland.peerRates)
+                if (!rx.length && !tx.length)
+                    return dev.wifiLinkRateError.length ? qsTr("not measured: %1").arg(dev.wifiLinkRateError) : qsTr("measuring…")
+                return (rx.length ? qsTr("in: %1").arg(rx) : "") + (rx.length && tx.length ? "  ·  " : "")
+                       + (tx.length ? qsTr("out: %1").arg(tx) : "")
+            }
+            caption: {
+                if (!wifiIsland.rateShown)
+                    return ""
+                var inD = wifiIsland.rateDetail(wifiIsland.linkRates)
+                var outD = wifiIsland.rateDetail(wifiIsland.peerRates)
+                return (inD.length ? qsTr("In: %1.").arg(inD) + " " : "")
+                       + (outD.length ? qsTr("Out, as the other end hears it: %1.").arg(outD) + " " : "")
+                       + qsTr("The PHY rate of the other end's data frames in a 0.2 s window, every 3 s while this section is open. LR: the module does not decode its rate yet.")
+            }
         }
 
         KIslandRow {

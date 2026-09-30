@@ -1634,6 +1634,8 @@ void IDBinWifiNet::requestPortPage(uint8_t port, uint8_t page) {
 }
 
 Resp IDBinWifiSurvey::parsePayload(FrameParser &proto) {
+    if (proto.ver() == v1)
+        return parseLinkRate(proto);
     if (proto.ver() != v0)
         return respErrorVersion;
     if (proto.readAvailable() < 2)
@@ -1701,6 +1703,58 @@ void IDBinWifiSurvey::reset() {
     filled_ = 0;
     running_ = false;
     fresh_ = false;
+    ratePages_.clear();
+    ratePeers_ = -1;
+    rateFilled_ = 0;
+    rateRunning_ = false;
+    rateFresh_ = false;
+}
+
+void IDBinWifiSurvey::requestLinkRate(uint16_t windowMs) {
+    rateRunning_ = true;
+    rateFresh_ = true;
+    rateWindowMs_ = windowMs;
+    rateStartedMs_ = QDateTime::currentMSecsSinceEpoch();
+    ProtoBinOut out;
+    out.create(GETTING, v1, id(), m_address);
+    out.write<U2>(windowMs);
+    out.end();
+    emit binFrameOut(out);
+}
+
+// A CONTENT v1 page kept raw; {0, 0} (no other end) ends the report at once.
+Resp IDBinWifiSurvey::parseLinkRate(FrameParser &proto) {
+    if (proto.readAvailable() < 2)
+        return respErrorPayload;
+    QByteArray page;
+    while (proto.readAvailable() > 0)
+        page.append(char(proto.read<U1>()));
+    const int index = uint8_t(page[0]);
+    const int total = uint8_t(page[1]);
+    if (total == 0) {
+        ratePages_.clear();
+        ratePeers_ = 0;
+        rateFilled_ = 0;
+        rateFresh_ = false;
+        rateRunning_ = false;
+        ++rateCompleted_;
+        return respOk;
+    }
+    if (index >= total || page.size() < 16)
+        return respErrorPayload;
+    if (rateFresh_ || ratePeers_ != total) {    // the first page of this report
+        rateFresh_ = false;
+        ratePeers_ = total;
+        rateFilled_ = 0;
+        ratePages_ = QVector<QByteArray>(total);
+    }
+    const bool first = ratePages_[index].isEmpty();
+    ratePages_[index] = page;
+    if (first && ++rateFilled_ == ratePeers_) {
+        rateRunning_ = false;
+        ++rateCompleted_;
+    }
+    return respOk;
 }
 
 void IDBinWifiNet::setRole(uint8_t role, bool reboot, bool forgetLines) {

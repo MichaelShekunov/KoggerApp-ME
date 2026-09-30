@@ -128,6 +128,10 @@ public:
     Q_PROPERTY(int wifiSurveySamples READ wifiSurveySamples NOTIFY wifiSurveyChanged)
     Q_PROPERTY(QString wifiSurveyError READ wifiSurveyError NOTIFY wifiSurveyChanged)
     Q_PROPERTY(QVariantList wifiLinkEvents READ wifiLinkEvents NOTIFY wifiLinkEventsChanged)
+    Q_PROPERTY(int wifiLinkRateSupport READ wifiLinkRateSupport NOTIFY deviceVersionChanged)
+    Q_PROPERTY(bool wifiLinkRateRunning READ wifiLinkRateRunning NOTIFY wifiLinkRateChanged)
+    Q_PROPERTY(QVariantList wifiLinkRates READ wifiLinkRates NOTIFY wifiLinkRateChanged)
+    Q_PROPERTY(QString wifiLinkRateError READ wifiLinkRateError NOTIFY wifiLinkRateChanged)
     Q_PROPERTY(QStringList wifiSavedNetworks READ wifiSavedNetworks NOTIFY wifiSavedChanged)
     // Relay of the boat's stream through the module (v5 configuration, v6 counters).
     Q_PROPERTY(int wifiRelaySupport READ wifiRelaySupport NOTIFY wifiRelayChanged)

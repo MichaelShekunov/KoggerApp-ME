@@ -176,6 +176,15 @@ public:
     QString wifiSurveyError() const { return wifiSurveyError_; }
     /** Starts a survey: the module leaves its channel for about 2 s (the boat link pauses meanwhile). */
     Q_INVOKABLE void wifiSurvey();
+    /** The link rate report (ID_WIFI_SURVEY v1, firmware 0.18): 1 supported, 0 not, -1 not known yet. */
+    int wifiLinkRateSupport();
+    bool wifiLinkRateRunning();
+    /** Per other end: mac, windowMs, frames, rssi (-128 none), mode, text (the most frames' rate; empty without
+     *  frames), rates [{kind, code, sgi, bw40, kbps, frames, text}]. */
+    QVariantList wifiLinkRates();
+    QString wifiLinkRateError() const { return wifiLinkRateError_; }
+    /** Asks for a report (a 200 ms window); nothing while one runs or before firmware 0.18. */
+    Q_INVOKABLE void wifiLinkRate();
     /** The link's recent events (WifiLinkLog), oldest first: kind (0 state, 1 clients, 2 restart), atMs (wifiClockMs),
      *  state, prevState, reason, code, clients, prevClients, ssid, channel, rssi, text. */
     QVariantList wifiLinkEvents();
@@ -486,6 +495,7 @@ signals:
     void wifiNetworksChanged();
     void wifiSurveyChanged();
     void wifiLinkEventsChanged();
+    void wifiLinkRateChanged();
     void wifiSavedChanged();
     void wifiRelayChanged();
     void wifiRelayStatsChanged();
@@ -848,6 +858,9 @@ private:
     int wifiLastState_ = -1;
     WifiRestartWatch wifiRestart_;     // module uptime reports, to see a restart
     WifiLinkLog wifiLinkLog_;          // the link's recent events, for the page
+    QString wifiLinkRateError_;        // why the last link rate report did not come
+    int wifiLinkRateTaken_ = 0;        // IDBinWifiSurvey::rateCompletedCount() already logged
+    QString wifiLinkRateLogged_;       // the main rates last written to the log
     WifiLossWatch wifiLoss_;           // requests the module could not queue (0.14), to log when they grow
     QElapsedTimer wifiClock_;          // the monotonic time those reports are compared with
     WifiPortChange* wifiPort_ = nullptr;
