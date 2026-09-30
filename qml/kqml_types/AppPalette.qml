@@ -33,6 +33,10 @@ QtObject {
     // Length runs along the drag axis; thickness is the finger-critical size.
     readonly property int dragBarLengthPx: 72
     readonly property int dragBarThicknessPx: 22
+    // The split screen's handle, always shown on the border between the panes: half the size (owner 2026-09-30).
+    // Its grab area stays the finger-sized one above.
+    readonly property int splitBarLengthPx: 36
+    readonly property int splitBarThicknessPx: 10
 
     // Sidebar slide-in/out animation duration (panel.x, opacity). Tunable
     // independently from the workspace rubber-band so the two motions can

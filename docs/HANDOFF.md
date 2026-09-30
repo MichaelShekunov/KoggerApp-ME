@@ -824,6 +824,18 @@ stays, as upstream has it (the same retune of that link, not changed). On the ki
 2026-09-29 by the owner's word (no QML errors in kogger.log; the boat was away, so the hidden row on its devices
 is not seen on the hardware yet); this PC runs a937fa06.
 
+**Split screen: a border always shown, a small handle.** Owner 2026-09-30: between the split screen's panes a thin
+border should always be seen, and the splitter handle made smaller. The split zone (WorkspaceView's Repeater over
+`splitHandleModel`) draws the border in the gap PaneFrame leaves on the first pane's side of the split,
+`[floor(split) - Tokens.paneGapPx, floor(split))`, in `AppPalette.borderFocus` (1 px in the edit mode, where the panes
+touch), and the handle (`KDragBar`) always, at half its size (`AppPalette.splitBarLengthPx` 36 x
+`splitBarThicknessPx` 10, the border's colour, a bead on it); the grab area stays finger-sized
+(`AppPalette.dragBar*`) and grabs at the first touch (it used to take a tap to show the bar first). The zone sits at
+whole pixels (at a fractional split the border's start came out a hair below the pixel edge and was drawn 3 px) and
+moves with the panes' own animation (PaneFrame's Behaviors). Check: `tools/qml_check/split_check.ps1` (the real
+delegate over three panes and a T junction: the border's place, colour and pixels, the handle's size and place, the
+grab area, the edit mode, a moved split); eight mutants caught, the one at the fractional zone among them.
+
 **Boat link traffic: VERSION asked of every device ~3 times a second, forever (e04c3b23 + LinkAskAll).** Owner
 2026-09-30: with the sonar off the boat sends 17-18 KB/s; what is it, can it be halved? The app's own count
 (6770b6b2, "traffic [link]: ..." in kogger.log once a minute) on the kiosk: 11.2 KB/s of complete frames, of it
