@@ -832,8 +832,8 @@ one; white), set by another echogram's pointer (`Core::broadcastEpochCursor`) or
 (`EpochSelected3d`) and cleared only by its source - which, taken out of the layout, never does (the four echogram
 slots are hidden, not destroyed). `Core::clearEchogramSyncCursors()` clears every echogram's synced cursor;
 WorkspaceView calls it when the panes or their modes or contents change (`_paneSetKey`, not on a resize). Which of
-the two sources drew the owner's lines is *Inference*, and the fix is not yet seen on the hardware (the kiosk was
-off): from two panes to one no crosshair should stay. Check: `tools/qml_check/synccursor_check.ps1` (the first layout and a resize clear
+the two sources drew the owner's lines is *Inference*; the fix is *Verified* by the owner on the kiosk (`headunit`
+8d11c357 from 2026-09-30): from two panes to one, no lines. Check: `tools/qml_check/synccursor_check.ps1` (the first layout and a resize clear
 nothing; two panes to one, a mode, a content clear), five mutants caught.
 
 **Split screen: a border always shown, a small handle.** Owner 2026-09-30: between the split screen's panes a thin
@@ -846,7 +846,8 @@ touch), and the handle (`KDragBar`) always, at half its size (`AppPalette.splitB
 whole pixels (at a fractional split the border's start came out a hair below the pixel edge and was drawn 3 px) and
 moves with the panes' own animation (PaneFrame's Behaviors). Check: `tools/qml_check/split_check.ps1` (the real
 delegate over three panes and a T junction: the border's place, colour and pixels, the handle's size and place, the
-grab area, the edit mode, a moved split); eight mutants caught, the one at the fractional zone among them.
+grab area, the edit mode, a moved split); eight mutants caught, the one at the fractional zone among them. On the
+kiosk as `headunit` 8d11c357 from 2026-09-30, the owner: the border is seen; this PC runs b70fabbc.
 
 **Boat link traffic: VERSION asked of every device ~3 times a second, forever (e04c3b23 + LinkAskAll).** Owner
 2026-09-30: with the sonar off the boat sends 17-18 KB/s; what is it, can it be halved? The app's own count
