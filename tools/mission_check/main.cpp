@@ -21,6 +21,7 @@
 #include "mav_vehicle.h"
 #include "touch_tap_gate.h"
 #include "wifi_ops.h"
+#include "traffic_tally.h"
 
 #if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
@@ -1017,6 +1018,32 @@ void linkRateRules()
           && R::supportFor(0, 0) == -1);
 }
 
+// TrafficTally: what a link carries, for the log.
+void trafficRules()
+{
+    using T = TrafficTally;
+    T t;
+    T::Key proxy; proxy.proto = T::ProtoKp2; proxy.addr = 250; proxy.id = 0x40; proxy.proxy = true;
+    T::Key att; att.proto = T::ProtoMavlink2; att.id = 30;
+    T::Key wifi; wifi.proto = T::ProtoKp1; wifi.addr = 87; wifi.id = 0x57; wifi.ver = 1;
+    for (int i = 0; i < 100; ++i) {
+        t.add(proxy, 60, false);        // a proxy frame on the wire ...
+        t.add(att, 40, true);           // ... carrying a MAVLink ATTITUDE: in the proxy's bytes already
+    }
+    for (int i = 0; i < 50; ++i)
+        t.add(wifi, 35, false);
+    check("traffic: nested frames are not added to the total", t.totalBytes() == 100 * 60 + 50 * 35,
+          QString::number(t.totalBytes()));
+    const QString s = t.summary(10.0);
+    check("traffic: the summary names the heaviest first, what proxies carry apart",
+          s.startsWith(QStringLiteral("0.76 KB/s: KP2 [250] STREAM v0 proxy 0.59 KB/s 10.0/s; KP1 [87] WIFI v1 0.17 KB/s 5.0/s"))
+              && s.contains(QStringLiteral(" | in proxy frames: MAVLink2 msg 30 0.39 KB/s 10.0/s")), s);
+    check("traffic: the summary starts over", t.empty() && t.totalBytes() == 0);
+    T::Key none; none.proto = T::ProtoKp2; none.addr = -1; none.id = 0x1234; none.ver = 7; none.stream = true;
+    check("traffic: a key without an address and a long ID keeps them",
+          T::name(none) == QStringLiteral("KP2 [-1] id 0x1234 v7 stream"), T::name(none));
+}
+
 int main(int argc, char* argv[])
 {
     QCoreApplication app(argc, argv);
@@ -1042,6 +1069,7 @@ int main(int argc, char* argv[])
     homeRules();
     headingInUseRules();
     linkRateRules();
+    trafficRules();
     if (cli.isSet(QStringLiteral("offline"))) {
         std::printf("\n%d checks, %d failed (offline)\nMISSION_CHECK_%s\n", g_checks, g_failed, g_failed ? "FAILED" : "DONE");
         return g_failed ? 1 : 0;
