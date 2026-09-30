@@ -621,7 +621,7 @@ Rectangle {
                 readonly property bool can: panel.linked && !panel.vehicle.armed && !panel.vehicle.busy && src >= 0
                 ConfirmButton {
                     width: parent.bw
-                    label: qsTr("GPS, 2 antennas")
+                    label: (parent.src === 3 ? "✓ " : "") + qsTr("GPS, 2 antennas")
                     enabled: parent.can && parent.src !== 3
                     normalBg: parent.src === 3 ? AppPalette.accentBgStrong : AppPalette.controlRaised
                     normalBorder: parent.src === 3 ? AppPalette.accentBorder : AppPalette.border
@@ -629,12 +629,21 @@ Rectangle {
                 }
                 ConfirmButton {
                     width: parent.bw
-                    label: qsTr("Compass")
+                    label: (parent.src === 1 ? "✓ " : "") + qsTr("Compass")
                     enabled: parent.can && parent.src !== 1
                     normalBg: parent.src === 1 ? AppPalette.accentBgStrong : AppPalette.controlRaised
                     normalBorder: parent.src === 1 ? AppPalette.accentBorder : AppPalette.border
                     onConfirmed: panel.vehicle.setHeadingSource(1)
                 }
+            }
+            // The selection is only what the autopilot is told (EK3_SRC1_YAW); this is what its yaw rests on now.
+            StatusText {
+                width: parent.width
+                visible: !!panel.vehicle && panel.vehicle.detected
+                elide: Text.ElideNone
+                wrapMode: Text.WordWrap
+                text: qsTr("In use now: %1.").arg(panel.vehicle ? panel.vehicle.headingInUseText : "—")
+                color: panel.vehicle && panel.vehicle.headingInUse === 4 ? AppPalette.dangerText : AppPalette.text
             }
             Text {
                 width: parent.width
@@ -644,9 +653,13 @@ Rectangle {
                 text: {
                     var v = panel.vehicle
                     if (!v || !v.detected) return ""
-                    var now = qsTr("On the boat: %1.").arg(v.headingSourceName(v.headingSource))
-                    if (v.armed) return now + " " + qsTr("Disarm to change it.")
-                    return now + " " + qsTr("GPS: from the antenna pair, needs open sky (RTK fixed). Compass: works at once, but motors and steel bend it.")
+                    var sel = qsTr("Selected on the boat: %1.").arg(v.headingSourceName(v.headingSource))
+                    // why the buttons are closed, when they are
+                    if (!panel.linked) return sel + " " + qsTr("No link to the boat: the choice waits for it.")
+                    if (v.headingSource < 0) return qsTr("Reading the boat's settings…")
+                    if (v.armed) return sel + " " + qsTr("Disarm the boat to change it.")
+                    if (v.busy) return sel + " " + qsTr("Wait: %1.").arg(v.busyText)
+                    return sel + " " + qsTr("GPS: the heading from the antenna pair, only with RTK fixed (open sky); the compass takes over only in motion, after the GPS heading has worked. Compass: works at once, but motors and steel bend it. Two taps to change.")
                 }
             }
             Text {
