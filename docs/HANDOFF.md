@@ -826,7 +826,8 @@ is not seen on the hardware yet); this PC runs a937fa06.
 
 **Data widget "From launch point" (80520c86).** Owner: the widgets should show the current distance from the boat's launch point to
 the boat. The autopilot's home to its position (BOAT_MISSION.md); home asked for again on arming. mission_check offline
-126/126, the catalog field under qmltestrunner, the Windows build. Not on the hardware.
+126/126, the catalog field under qmltestrunner, the Windows build. On the kiosk as `headunit` d64994aa from 2026-09-30 (with
+70071164; the board rebuilt mav_vehicle.cpp and the two QML files, no QML errors in kogger.log); this PC runs 5d1cc72f.
 
 **"Apply and save" sent one Wi-Fi module's fields to the other (70071164).** Owner 2026-09-30: "something is wrong
 with LR: data lags, the devices do not answer". The kiosk log (2026-09-26 by the board's clock): 21:59:15 on the head
