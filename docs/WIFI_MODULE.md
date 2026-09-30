@@ -432,6 +432,15 @@ island (822ca18e, not on the kiosk yet):
   coming and going, the module's restarts; newest first, how long ago and how long the link had held. Times are
   on the app's monotonic clock: the head unit's wall clock is not set.
 
+## 2l. Changing the link's radio mode (2026-09-30, the module session)
+
+LR (the ESP32's long range: 1/2 or 1/4 Mbit/s) does not carry the boat's stream (about 0.74 Mbit/s): the module's
+bridge pool (24 x 512 B for both lines) and the Wi-Fi driver's queue fill up and drop whole frames (up_drops), with no
+priority, so the boat devices' answers are lost with the echogram and their pages stay silent. Changing the mode of
+the link: first the access point (the boat's module, over the air), then the station (the head unit's module, by
+wire) to the same mode. A station in b/g/n+LR as a step between does not work: with an access point in b/g/n it
+joined with the LR PHY and carried 0 B/s (the cause is not known yet; the module session will check on the stand).
+
 ## 2c. Port speed of the module (line 0)
 
 The module's line 0 runs at any speed from 9600 to 4 000 000 (`ID_UART` v0 `{KEY, 1, U4 baud}`, answered at the
