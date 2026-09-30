@@ -189,8 +189,9 @@ private:
     QList<DevQProperty*> devList_;
     QHash<QUuid, QHash<int, DevQProperty*>> devTree_;
     QHash<QUuid, int> otherProtocolStat_;
-    // What each live link carries, logged once a minute (TrafficTally).
+    // What each live link carries and what the app sends on it, logged once a minute (TrafficTally).
     QHash<QUuid, TrafficTally> traffic_;
+    QHash<QUuid, TrafficTally> sent_;
     QHash<QUuid, QElapsedTimer> trafficClock_;
     void countTraffic(const QUuid& uuid, Parsers::FrameParser& frame);
     StreamList streamList_;

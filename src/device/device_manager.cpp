@@ -171,8 +171,10 @@ void DeviceManager::countTraffic(const QUuid& uuid, Parsers::FrameParser& frame)
     if (!clock.isValid()) {
         clock.start();
     } else if (clock.elapsed() >= 60000) {
-        qInfo().noquote() << QStringLiteral("traffic [%1]: %2")
-                                 .arg(uuid.toString(QUuid::WithoutBraces).left(8), t.summary(clock.elapsed() / 1000.0));
+        const QString link8 = uuid.toString(QUuid::WithoutBraces).left(8);
+        const double seconds = clock.elapsed() / 1000.0;
+        qInfo().noquote() << QStringLiteral("traffic [%1]: %2").arg(link8, t.summary(seconds));
+        qInfo().noquote() << QStringLiteral("traffic [%1] sent: %2").arg(link8, sent_[uuid].summary(seconds));
         clock.restart();
     }
 }
@@ -678,6 +680,15 @@ void DeviceManager::onLinkDeleted(QUuid uuid, Link *link)
 
 void DeviceManager::binFrameOut(Parsers::ProtoBinOut protoOut)
 {
+    // What the drivers send, for the minute's traffic line (countTraffic).
+    if (const auto* dev = qobject_cast<DevDriver*>(sender())) {
+        TrafficTally::Key k;
+        k.proto = TrafficTally::ProtoKp1;
+        k.addr = protoOut.route();
+        k.id = protoOut.id();
+        k.ver = protoOut.ver();
+        sent_[dev->getLinkUuid()].add(k, protoOut.frameLen(), false);
+    }
     if (isConsoled_ && protoOut.id() != 33) {
 #ifndef SEPARATE_READING
         core.consoleProto(protoOut, false);

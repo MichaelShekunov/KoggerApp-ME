@@ -3314,6 +3314,7 @@ void DevDriver::process() {
 
     if(m_state.duplex) {
         if(m_state.mark) {
+            unanswered_.marked(curr_time);
             if(idVersion->boardVersion() != BoardNone) {
                 if(m_state.uptime != UptimeFix) {
                     //qDebug() << "UptimeFix";
@@ -3436,6 +3437,9 @@ void DevDriver::process() {
                 //qDebug() << "Request version again";
             }
         } else {
+            // Not answered: asked each tick at first, then every DeviceLiveness::kUnansweredSlowMs.
+            if(!unanswered_.askDue(curr_time))
+                return;
             restartState();
             streamListRequested_ = false;
             standProbeSent_ = false;

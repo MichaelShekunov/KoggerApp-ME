@@ -454,6 +454,36 @@ link's throughput (ESP-IDF), and the two windows are kept apart. LR is not decod
 speed not calibrated". Measured by the module session in b/g/n: both ways 11n MCS7 SGI, 72.2 Mbit/s. An access point
 hears its client only when the client sends: an empty window is a quiet link, not a fault.
 
+## 2n. What the boat link carries (2026-09-30)
+
+Owner: with the sonar off the boat still sends 17-18 KB/s. The app counts every complete frame of a live link
+(`TrafficTally`, `src/device/traffic_tally.h`) and logs once a minute `traffic [<link>]: <KB/s>: <top kinds> | in
+proxy frames: ...` and, from the fix below, `traffic [<link>] sent: ...` (what the app's drivers send,
+`DeviceManager::binFrameOut`). The kiosk, 2026-09-30 01:06-01:07 by the board's clock, sonar off:
+
+| What | KB/s | Frames/s |
+|---|---|---|
+| KP2 [2] frames with the VERSION ID, v0 + v2, stream option (answers to the app: *Inference*) | 3.2 | 35 + 35 |
+| VERSION answers: KP1 [250] v0 + v2 | 0.9 | 23 + 23 |
+| VERSION answers: KP1 [87], [88] v0 | 0.95 | 11.5 each |
+| MAVLink in the modules' proxy frames: ATTITUDE, PID_TUNING, AHRS2, VFR_HUD | ~1.4 | 10 each |
+| MAVLink: BATTERY_STATUS, AHRS, LOCAL/GLOBAL_POSITION 3 Hz; GPS_RAW_INT, GPS2_RAW 2 Hz | ~0.8 | |
+| All complete frames | 11.2 | |
+
+With the kiosk stopped a capture of ttyS6 saw 5 KB/s, so the VERSION answers come only while the app runs
+(*Inference*: the capture did not parse KP2). The cause (*Verified* in the code): `DeviceManager::onLinkOpened`
+creates a driver at the search address 0 (upstream 8c77c876, 2024); every device answers under its own address, so
+that driver never gets the mark, and its "not marked" branch (`DevDriver::process`, every 200 ms) restarts and asks
+VERSION v0-v2 again, for as long as the link is open. Fixed: `DeviceLiveness::Unanswered` - a device that does not
+answer is asked each tick for 10 s, then every 5 s; it counts as answering again only after 2 s of marked ticks
+(the mark comes from every frame, so a device whose frames carry it only now and then is slowed down too). A device
+switched on later (a sonar) shows within 5 s instead of 0.2 s.
+
+The rest is the autopilot's telemetry at its own stream rates (EXTRA1 and EXTRA2 at 10 Hz: ATTITUDE, AHRS2,
+PID_TUNING, VFR_HUD). Lower rates and GCS_PID_MASK (PID_TUNING) are the boat's parameters: the owner decides. The
+module's own counter (17-18 KB/s) is above the 11.2 KB/s of frames; how it counts is in the module's docs, not
+checked here.
+
 ## 2c. Port speed of the module (line 0)
 
 The module's line 0 runs at any speed from 9600 to 4 000 000 (`ID_UART` v0 `{KEY, 1, U4 baud}`, answered at the
