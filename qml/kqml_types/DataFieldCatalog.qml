@@ -58,7 +58,7 @@ QtObject {
         gpuLoad: 0.12, gpuFreqMHz: 300, gpuMaxMHz: 1000, gpuTempC: 48,
         memTotalGB: 15.6, memUsedGB: 3.1,
         volumes: [{ name: "/", kind: "eMMC", wearPct: 10, totalGB: 11.7, usedGB: 8.7 },
-                  { name: "/data", kind: "", wearPct: -1, totalGB: 16.5, usedGB: 0.1 }],
+                  { name: "/data", kind: "", wearPct: -1, data: true, totalGB: 16.5, usedGB: 0.1 }],
         uptimeS: 11520
     })
 
@@ -168,6 +168,13 @@ QtObject {
     function _sysOk(sys) {
         return !!(sys && sys.available)
     }
+    // The volume this app keeps its data on (the maps, its log), or the first.
+    function _dataVolume(sys) {
+        var v = sys && sys.volumes ? sys.volumes : []
+        for (var i = 0; i < v.length; ++i)
+            if (v[i].data === true) return v[i]
+        return v.length ? v[0] : null
+    }
     // A running time: "12 min", "3 h 12 min", "3 d 14 h".
     function uptimeText(s) {
         var d = Math.floor(s / 86400), h = Math.floor((s % 86400) / 3600), m = Math.floor((s % 3600) / 60)
@@ -211,9 +218,10 @@ QtObject {
             if (key === "sysRam" && sys.memTotalGB > 0)
                 return [{ v: sys.memUsedGB, c: sysFillColor(sys.memUsedGB / sys.memTotalGB) },
                         { v: Math.max(0, sys.memTotalGB - sys.memUsedGB), c: dim }]
-            if (key === "sysStorage" && sys.volumes && sys.volumes.length > 0)
-                return [{ v: sys.volumes[0].usedGB, c: sysFillColor(sys.volumes[0].totalGB > 0 ? sys.volumes[0].usedGB / sys.volumes[0].totalGB : 0) },
-                        { v: Math.max(0, sys.volumes[0].totalGB - sys.volumes[0].usedGB), c: dim }]
+            var dv = _dataVolume(sys)
+            if (key === "sysStorage" && dv)
+                return [{ v: dv.usedGB, c: sysFillColor(dv.totalGB > 0 ? dv.usedGB / dv.totalGB : 0) },
+                        { v: Math.max(0, dv.totalGB - dv.usedGB), c: dim }]
         }
         if (key !== "linkAir" || !dmw || !dmw.airValid)
             return []
@@ -333,8 +341,7 @@ QtObject {
         case "sysRam":
             return (_sysOk(sys) && sys.memTotalGB > 0) ? gbPair(sys.memUsedGB, sys.memTotalGB) : "—"
         case "sysStorage":
-            return (_sysOk(sys) && sys.volumes && sys.volumes.length > 0)
-                   ? gbPair(sys.volumes[0].usedGB, sys.volumes[0].totalGB) : "—"
+            return (_sysOk(sys) && _dataVolume(sys)) ? gbPair(_dataVolume(sys).usedGB, _dataVolume(sys).totalGB) : "—"
         case "sysUptime":
             return (_sysOk(sys) && sys.uptimeS >= 0) ? uptimeText(sys.uptimeS) : "—"
         }
@@ -397,7 +404,7 @@ QtObject {
         case "sysCpuTemp":     return "52 °C"
         case "sysGpu":         return "12 % · 300 " + qsTr("MHz") + " · 48 °C"
         case "sysRam":         return gbPair(3.1, 15.6)
-        case "sysStorage":     return gbPair(8.7, 11.7)
+        case "sysStorage":     return gbPair(0.1, 16.5)
         case "sysUptime":      return uptimeText(11520)
         case "usblRange":       return "18.3 " + qsTr("m")
         case "usblAzimuth":     return "127.4°"

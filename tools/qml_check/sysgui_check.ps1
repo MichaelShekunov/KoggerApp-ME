@@ -92,7 +92,7 @@ Item {
         property real memTotalGB: 15.6
         property real memUsedGB: 3.1
         property var volumes: [{ name: "/", kind: "eMMC", wearPct: 10, totalGB: 11.7, usedGB: 8.7 },
-                               { name: "/data", kind: "", wearPct: -1, totalGB: 16.5, usedGB: 0.1 }]
+                               { name: "/data", kind: "", wearPct: -1, data: true, totalGB: 16.5, usedGB: 0.1 }]
         property int uptimeS: 11520
     }
     // hot, held back, memory and the disk nearly full, the eMMC beyond its rated life
@@ -134,7 +134,7 @@ Item {
         property real memTotalGB: 15.6
         property real memUsedGB: 15.5
         property var volumes: [{ name: "/", kind: "eMMC", wearPct: 110, totalGB: 11.7, usedGB: 11.6 },
-                               { name: "/data", kind: "", wearPct: -1, totalGB: 16.5, usedGB: 16.4 }]
+                               { name: "/data", kind: "", wearPct: -1, data: true, totalGB: 16.5, usedGB: 16.4 }]
         property int uptimeS: 8639999
     }
     // a Windows computer: no temperatures, no GPU, two disks
@@ -154,7 +154,7 @@ Item {
         property bool throttled: false
         property real memTotalGB: 125.6
         property real memUsedGB: 20.1
-        property var volumes: [{ name: "C:", kind: "", wearPct: -1, totalGB: 930.4, usedGB: 512.0 },
+        property var volumes: [{ name: "C:", kind: "", wearPct: -1, data: true, totalGB: 930.4, usedGB: 512.0 },
                                { name: "D:", kind: "", wearPct: -1, totalGB: 1863.0, usedGB: 1700.2 }]
         property int uptimeS: 1098331
     }
@@ -352,10 +352,12 @@ Item {
                 }
                 var ram = byKey["ram"]
                 verify(ram !== undefined && /\d+\.\d ?\/ ?\d+(\.\d)?/.test(ram.value.text), tag + ": memory in numbers " + (ram ? ram.value.text : ""))
-                var vol = byKey["vol0"]
-                verify(vol !== undefined && /\d+\.\d ?\/ ?\d+(\.\d)?/.test(vol.value.text), tag + ": the system volume in numbers " + (vol ? vol.value.text : ""))
+                var dataAt = 0
+                for (var vi = 0; vi < s.volumes.length; ++vi) if (s.volumes[vi].data === true) { dataAt = vi; break }
+                var vol = byKey["vol" + dataAt]
+                verify(vol !== undefined && /\d+\.\d ?\/ ?\d+(\.\d)?/.test(vol.value.text), tag + ": the data volume in numbers " + (vol ? vol.value.text : ""))
                 if (s === mon)
-                    compare(vol.label.text, "eMMC", tag + ": the head unit's disk named")
+                    compare(vol.label.text, "/data", tag + ": the head unit's data partition")
                 var tx = texts(ov, [])
                 for (i = 0; i < tx.length; ++i)
                     if (shown(tx[i])) verify(!tx[i].truncated, tag + ": \"" + tx[i].text + "\" cut")
@@ -542,7 +544,8 @@ Item {
             fuzzyCompare(DataFieldCatalog.bars("sysGpu", null, mon)[0].v, 0.12, 1e-9)
             compare(DataFieldCatalog.bars("sysGpu", null, win).length, 0)
             compare(fmt("sysRam", mon), "3.1 / 15.6 GB")
-            compare(fmt("sysStorage", mon), "8.7 / 11.7 GB")
+            compare(fmt("sysStorage", mon), "0.1 / 16.5 GB", "the volume with the app's data")
+            compare(fmt("sysStorage", hot), "11.4 / 11.7 GB", "none marked: the first")
             compare(fmt("sysStorage", win), "512.0 / 930 GB")
             compare(fmt("sysUptime", mon), "3 h 12 min")
             compare(fmt("sysUptime", hot), "3 d 14 h")

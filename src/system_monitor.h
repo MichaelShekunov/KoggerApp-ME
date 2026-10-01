@@ -74,9 +74,10 @@ public:
     bool throttled() const { return throttled_; }
     double memTotalGB() const { return memTotal_; }
     double memUsedGB() const { return memUsed_; }
-    /** [{name, kind, wearPct, totalGB, usedGB}]: the system's volume first, then other local ones, three at most.
-     *  kind ("eMMC", "SD", "NVMe", "USB", empty) and wearPct (an eMMC's, an upper bound in percent, 110 beyond its
-     *  rated life, -1 unknown) come on the first volume of each disk only. */
+    /** [{name, kind, wearPct, data, totalGB, usedGB}]: the system's volume first, then other local ones, three at
+     *  most; a device once, by its shortest mount point. kind ("eMMC", "SD", "NVMe", "USB", empty) and wearPct (an
+     *  eMMC's, an upper bound in percent, 110 beyond its rated life, -1 unknown) come on the first volume of each disk
+     *  only; data marks the volume this app keeps its data on (AppDataLocation: the maps, its log, the settings). */
     QVariantList volumes() const { return volumes_; }
     qint64 uptimeS() const { return uptime_; }
 

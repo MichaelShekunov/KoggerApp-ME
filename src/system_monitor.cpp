@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QFile>
+#include <QStandardPaths>
 #include <QStorageInfo>
 
 #include <algorithm>
@@ -122,9 +123,14 @@ void SystemMonitor::refresh()
             const QVariantMap m = v.toMap();
             const QString kind = m.value(QStringLiteral("kind")).toString();
             const int wear = m.value(QStringLiteral("wearPct")).toInt();
-            QString disk = kind;
+            QStringList about;
+            if (!kind.isEmpty())
+                about << kind;
             if (wear >= 0)
-                disk += (disk.isEmpty() ? QString() : QStringLiteral(", ")) + QStringLiteral("wear <=%1 %").arg(wear);
+                about << QStringLiteral("wear <=%1 %").arg(wear);
+            if (m.value(QStringLiteral("data")).toBool())
+                about << QStringLiteral("app data");
+            const QString disk = about.join(QStringLiteral(", "));
             vols << QStringLiteral("%1%2 %3/%4 GB")
                         .arg(m.value(QStringLiteral("name")).toString(),
                              disk.isEmpty() ? QString() : QStringLiteral(" (%1)").arg(disk),
@@ -317,8 +323,19 @@ void SystemMonitor::readVolumes()
     std::stable_sort(all.begin(), all.end(), [&root](const QStorageInfo& a, const QStorageInfo& b) {
         return a.rootPath() == root.rootPath() && b.rootPath() != root.rootPath();
     });
+    // each device by its shortest mount point: a bind mount (the head unit's ~/.config/KOGGER from /data) is no volume
+    QHash<QByteArray, QString> mountOf;
+    for (const QStorageInfo& v : all) {
+        const QString was = mountOf.value(v.device());
+        if (was.isEmpty() || v.rootPath().size() < was.size())
+            mountOf.insert(v.device(), v.rootPath());
+    }
+    // where this app keeps its data (the maps, its log, the settings): on the head unit /data, by bind mounts
+    const QByteArray dataDevice = QStorageInfo(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)).device();
     for (const QStorageInfo& v : all) {
         if (!v.isValid() || !v.isReady() || v.bytesTotal() < 256LL * 1024 * 1024)
+            continue;
+        if (mountOf.value(v.device()) != v.rootPath())
             continue;
         const QString dev = QString::fromLocal8Bit(v.device());
         const QString fs = QString::fromLatin1(v.fileSystemType());
@@ -351,8 +368,8 @@ void SystemMonitor::readVolumes()
         const double total = double(v.bytesTotal()) / (1024.0 * 1024.0 * 1024.0);
         const double used = double(v.bytesTotal() - v.bytesAvailable()) / (1024.0 * 1024.0 * 1024.0);
         out.append(QVariantMap{ { QStringLiteral("name"), name }, { QStringLiteral("kind"), kind },
-                                { QStringLiteral("wearPct"), wear }, { QStringLiteral("totalGB"), total },
-                                { QStringLiteral("usedGB"), used } });
+                                { QStringLiteral("wearPct"), wear }, { QStringLiteral("data"), !dataDevice.isEmpty() && v.device() == dataDevice },
+                                { QStringLiteral("totalGB"), total }, { QStringLiteral("usedGB"), used } });
         if (out.size() >= 3)
             break;
     }
