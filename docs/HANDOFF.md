@@ -888,6 +888,17 @@ what showed that a Text lays a bold label out wider than FontMetrics measures it
 mutants caught in either font; qmllint adds only the kind the file has; the Windows build. On the kiosk as
 `headunit` e1f821b8 from 2026-10-01 by the owner's word (no QML errors); this PC runs 2783f4bf.
 
+**Which eMMC partition: the one with the data.** Owner 2026-10-01: the eMMC has two partitions - which is shown? It
+should be the one where the data is saved, maps and logs. It was "/" (mmcblk0p1, the system). On the head unit
+(Verified) the app's data dir ~/.local/share/KOGGER (the map tiles, kogger.log, the mosaic) and ~/.config/KOGGER are
+bind mounts from /data (mmcblk0p2, fstab). SystemMonitor marks the volume of AppDataLocation `data` (by its device,
+so a bind mount counts) and lists a device once, by its shortest mount point; the compact cell puts that volume
+right after memory (`/data 0.1/16.5`), and the Storage field shows it. Found on the way (Verified): the sonar
+recordings (KLF) go by default to Documents/KoggerApp/logs (`Logger`, empty `logging/recordFolder`) - on the head
+unit ~/Documents on "/", where 5 files lie (1.5 MB); exports too. Checks: sysgui_check 12/12 in both fonts (the
+acceptance test asks for the data volume in numbers, `/data` on the head unit; the catalog's Storage), two more
+mutants caught; on this PC the log marks `C: (app data)`.
+
 **A working sonar behind a recorder that is not recording is not red.** Owner 2026-09-30: the logger has no flash drive (red, rightly), and the sonar behind it turned red too while it worked. `RecorderStatus.pillState` took a device's colour from the recorder's per-port flags; a recorder that is not recording (severity "crit": storage lost, a failed recording, recording off) calls its ports lost. Such a recorder's port flags are now ignored and the device is shown by its own frames (dataStale, then the link). Check: `tools/qml_check/recorderpill_check.ps1` (fails on the rule before: "the working sonar behind it green"). On the kiosk as `headunit` 54ae4e46 from 2026-09-30, the owner: the sonar is green. This PC still runs 60073967 (the owner cancelled the UAC prompt for 0eb37775).
 
 **Boat GUI: mission progress, the track by link quality, the ghost boat, "On the link".** Owner 2026-09-30, from

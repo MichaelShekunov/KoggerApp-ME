@@ -14,11 +14,12 @@ import kqml_types 1.0
 //                         up 3 h 12 min
 // A wide cell puts the CPU and the GPU on the left, the rest on the right spread over the height. A cell too small
 // for the CPU, the GPU, memory and the system volume under the cores (a 1 x 1, owner 2026-10-01: "CPU and GPU on one
-// widget, RAM and eMMC with numbers") drops the header and the cores for a CPU line:
+// widget, RAM and eMMC with numbers") drops the header and the cores for a CPU line, and shows first the volume this
+// app keeps its data on (the maps, its log; owner: "the partition where the data is saved"):
 //   CPU (52°)  40%
 //   GPU (48°)  12%
 //   RAM   3.1/15.6
-//   eMMC  8.7/11.7
+//   /data 0.1/16.5
 // What does not fit is left out from the bottom up, and each line shows the fullest of its texts that fits.
 Item {
     id: ov
@@ -138,11 +139,22 @@ Item {
                 c = lineTexts(name, [], a.concat([pctTight(fv)]))
             }
             c.push({ label: name, pill: "", value: pctTight(fv) })
-            out.push({ key: "vol" + i, cands: c, pillColor: wearColor(w),
+            out.push({ key: "vol" + i, data: v[i].data === true, cands: c, pillColor: wearColor(w),
                        pillTextColor: w >= 0 ? wearColor(w) : AppPalette.textSecond, frac: fv,
                        fillColor: DataFieldCatalog.sysFillColor(fv) })
         }
         return out
+    }
+    // the compact cell's: the volume this app keeps its data on (the maps, its log - /data on the head unit) right
+    // after memory
+    readonly property var _rowsDataFirst: {
+        var r = _rows.slice(), at = -1
+        for (var i = 0; i < r.length; ++i)
+            if (r[i].data === true) { at = i; break }
+        if (at < 0) return r
+        var d = r.splice(at, 1)[0]
+        r.splice(r.length && r[0].key === "ram" ? 1 : 0, 0, d)
+        return r
     }
     readonly property string _upText: _ok && sys.uptimeS >= 0 ? qsTr("up %1").arg(DataFieldCatalog.uptimeText(sys.uptimeS)) : ""
 
@@ -155,7 +167,7 @@ Item {
     readonly property int _essentials: (_gpuRow !== null ? 1 : 0) + (_ok && sys.memTotalGB > 0 ? 1 : 0)
                                        + (_ok && sys.volumes && sys.volumes.length > 0 ? 1 : 0)
     readonly property bool _compact: _ok && !_wide && Math.floor((_oneRoom + _gapY) / (_rowH + _gapY)) < _essentials
-    readonly property var _infoRows: _compact ? [_cpuRow].concat(_gpuRow !== null ? [_gpuRow] : [], _rows)
+    readonly property var _infoRows: _compact ? [_cpuRow].concat(_gpuRow !== null ? [_gpuRow] : [], _rowsDataFirst)
                                    : (_wide || _gpuRow === null) ? _rows : [_gpuRow].concat(_rows)
     readonly property real _infoRoom: (_wide || _compact) ? _innerH : _oneRoom
     readonly property int _rowsShown: {
