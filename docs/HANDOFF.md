@@ -829,6 +829,17 @@ stays, as upstream has it (the same retune of that link, not changed). On the ki
 2026-09-29 by the owner's word (no QML errors in kogger.log; the boat was away, so the hidden row on its devices
 is not seen on the hardware yet); this PC runs a937fa06.
 
+**The main menu's device chain scrolls.** Owner 2026-10-01: the chain of devices no longer fits the main menu's
+width and is cut (two Wi-Fi modules, the logger and the ring's two sonars); make that area scroll. The chain
+(HotActionsPanel `qaConnectionsComp`) is now in `KScrollStrip` (kqml_types): as wide as the chain up to the room
+of its place - the expanded menu's width, or collapsed up to the window's right edge - and past it it scrolls
+by finger and by the wheel; in the menu the cut edge fades into the menu's colour (over the view, collapsed,
+none). A badge's menu is a Popup, so the clip does not cut it. Check: `tools/qml_check/scrollstrip_check.ps1`
+(the real strip over a row of cells: fits, overflows, the wheel to its end and no further, a drag, a tap through,
+back in view when the chain shrinks or the room grows, no fade colour; and the menu's use of it), nine mutants -
+seven caught, the two surviving showed that Flickable keeps its content in bounds by itself, so those handlers
+went; qmllint adds only the kind the component's other lines have; the Windows build.
+
 **The "System" widget: the computer the app runs on.** Owner 2026-10-01: a compact, good-looking widget for the
 system's state - the cores' frequencies, memory, the CPU temperature, the drives, and what else. `SystemMonitor`
 (`src/system_monitor.*`, context property `systemMonitor`) reads once a second while a widget cell shows one of its

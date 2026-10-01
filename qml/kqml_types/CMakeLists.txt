@@ -27,6 +27,7 @@ qt_add_qml_module(kogger_kqml_types
         KSpinBox.qml
         KSwitch.qml
         KTabBar.qml
+        KScrollStrip.qml
         KTapArea.qml
         KToggleRow.qml
         KToolTip.qml

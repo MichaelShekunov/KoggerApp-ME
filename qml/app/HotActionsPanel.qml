@@ -196,6 +196,8 @@ Item {
     // While editing the layout: show a single device slot (first real device, or
     // a neutral placeholder if none). Otherwise the full device list.
     readonly property int _connGap: Math.round(9 * root._s)
+    // the collapsed device chain's room: from its row to the window's right edge
+    readonly property real _connRoomCollapsed: _windowW - x - collapsedDeviceRow.x - Math.round(16 * _s)
 
     function _linkLabelOf(g) {
         if (!g) return ""
@@ -1681,14 +1683,23 @@ Item {
         }
     }
 
+    // The chain of devices. Wider than the room of its place, it scrolls sideways (owner 2026-10-01: the chain no
+    // longer fit the menu): in the expanded menu its width, the cut edge fading into the menu's colour; collapsed,
+    // up to the window's right edge, over the view, no fade.
     Component {
         id: qaConnectionsComp
-        Row {
-            spacing: 0
-            height: root.controlHeight
-            Repeater {
-                model: root._connItems
-                delegate: deviceShortcutDelegate
+        KScrollStrip {
+            readonly property bool _inMenu: !!parent && parent.parent === topRow
+            maxWidth: _inMenu ? root._flowContentW : root._connRoomCollapsed
+            fadeColor: _inMenu ? root.hotkeysLayerColor : "transparent"
+            fadeWidth: Math.round(16 * root._s)
+            Row {
+                spacing: 0
+                height: root.controlHeight
+                Repeater {
+                    model: root._connItems
+                    delegate: deviceShortcutDelegate
+                }
             }
         }
     }
