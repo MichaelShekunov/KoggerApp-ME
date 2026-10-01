@@ -840,6 +840,17 @@ back in view when the chain shrinks or the room grows, no fade colour; and the m
 seven caught, the two surviving showed that Flickable keeps its content in bounds by itself, so those handlers
 went; qmllint adds only the kind the component's other lines have; the Windows build. On the kiosk as `headunit`
 cc29162b from 2026-10-01 by the owner's word (no QML errors); this PC runs ea8eb8a5.
+The owner on the kiosk: the chain does not scroll. That strip was the wrong place: the chain he saw cut is the
+main menu's device topology (DeviceTopologyView, the Connections page and the device settings tab), where a
+line's whole chain is one row of cells on a grid of at most four columns - and the head unit's line now has five
+(two Wi-Fi modules, the logger, the ring's two sonars), so the fifth was cut at any width; the hot actions' row of
+badges fitted. Each topology row is now a KScrollStrip (maxWidth the view's content width, fading into
+`fadeColor`, AppPalette.bg by default - both pages draw it on that); the hot actions' strip stays, scrolling only
+if it ever outgrows its room. scrollstrip_check now also runs the real view over the head unit's line (five
+scroll, the fifth reached and tapped; three fit) and inside a vertical Flickable as on the page: a sideways swipe
+scrolls the row and not the page, an up-down swipe on the row the page and not the row - by touch, as QtTest's
+mouseDrag does not start an upward drag of a Flickable at all (an experiment: not even over a plain MouseArea).
+13/13; the row as wide as its chain (what he saw) fails it.
 
 **The "System" widget: the computer the app runs on.** Owner 2026-10-01: a compact, good-looking widget for the
 system's state - the cores' frequencies, memory, the CPU temperature, the drives, and what else. `SystemMonitor`
