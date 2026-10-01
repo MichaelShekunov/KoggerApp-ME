@@ -89,6 +89,7 @@ public:
     Q_PROPERTY(bool isSoundSpeedSupport READ isSoundSpeedSupport NOTIFY deviceVersionChanged)
     Q_PROPERTY(bool isAddressSupport READ isAddressSupport NOTIFY deviceVersionChanged)
     Q_PROPERTY(bool isUpgradeSupport READ isUpgradeSupport NOTIFY deviceVersionChanged)
+    Q_PROPERTY(bool isRingBoard READ isRingBoard NOTIFY deviceVersionChanged)
 
     // Wi-Fi module (board 87). Status fields follow ID_WIFI v0, the rates and totals v1; the
     // scan result is a list of {ssid, rssi, channel, security, saved, current, bssid} maps.

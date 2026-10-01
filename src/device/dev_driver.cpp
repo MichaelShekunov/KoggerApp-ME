@@ -1163,7 +1163,24 @@ qint64 fwTraceNow()
 
 } // namespace
 
+void DevDriver::sendUpdateFWAll(QByteArray update_data) {
+    if (isRingBoard())
+        emit ringUpgradeRequested(linkUuid_, lastAddress_, update_data, upgradeExpect_, true);
+}
+
+void DevDriver::setRingUpgradeStatus(int status, bool done) {
+    m_upgrade_status = status;
+    emit upgradeProgressChanged(m_upgrade_status);
+    emit upgradeChanged();
+    if (done)
+        emit upgradingFirmwareDone();
+}
+
 void DevDriver::sendUpdateFW(QByteArray update_data) {
+    if (isRingBoard()) {
+        emit ringUpgradeRequested(linkUuid_, lastAddress_, update_data, upgradeExpect_, false);
+        return;
+    }
     if (fwTraceEnabled()) {
         qInfo("FWTRACE %lld start size=%lld bytes packet=%d",
               fwTraceNow(), (long long)update_data.size(), 96);

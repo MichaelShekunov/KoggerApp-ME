@@ -68,6 +68,11 @@ public:
     void setIsForceStopped(bool isForcedStopped);
     void setAutoSpeedSelection(bool autoSpeedSelection);
     void setIsUpgradingState(bool state);
+    /// A ring firmware update (src/device/ring_upgrade.h) drives the rate itself: no baud rate search
+    /// and no "ask everybody" while it runs -- its bootloader stays silent for over a second at times.
+    void setRatePinned(bool pinned);
+    /// Rate change after the bytes already written have left (serial); otherwise as setBaudrate().
+    void setBaudrateAfterWrite(int baudrate);
     void setAutoConnOnce(bool state);
     void armAutoConn(int windowMs);
     bool isAutoConnExpired(qint64 nowMsecs) const;
@@ -165,6 +170,7 @@ private:
     QList<uint32_t> baudrateSearchList_;
     int lastSearchIndx_;
     bool onUpgradingFirmware_;
+    bool ratePinned_ = false;
     int localGhostIgnoreCount_;
     LinkAskAll askAll_;   // when every device on the link is asked for its version
     bool autoConnOnce_;

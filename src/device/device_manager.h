@@ -14,7 +14,10 @@
 #include "id_binnary.h"
 #include "traffic_tally.h"
 #include "air_meter.h"
+#include "ring_upgrade.h"
 #include <QElapsedTimer>
+#include <QPointer>
+#include <QTimer>
 
 
 class LocationReader;
@@ -74,6 +77,8 @@ public slots:
 
     void onStartUpgradingFirmware(QUuid linkUuid, uint8_t address, const QByteArray& firmware);
     void onUpgradingFirmwareDone();
+    /// A ring board asked for its update (or for every ring board of its line): RingUpgrade runs it.
+    void onRingUpgradeRequested(QUuid linkUuid, int address, QByteArray firmware, QString expect, bool everyBoard);
 
     void createLocationReader();
     void destroyLocationReader();
@@ -221,6 +226,16 @@ private:
     QUuid upgradeUuid_;
     uint8_t upgradeAddr_;
     QByteArray upgradeData_;
+    // ring firmware update (src/device/ring_upgrade.h): one run at a time, on one line
+    RingUpgrade* ringUp_{ nullptr };
+    QUuid ringLink_;
+    QPointer<Link> ringLinkPtr_;
+    QTimer* ringTimer_{ nullptr };
+    QElapsedTimer ringClock_;
+    QHash<QUuid, QPointer<Link>> linkOf_;
+    bool autoUpgradeStarted_ = false;
+    void endRingUpgrade();
+    void autoRingUpgrade(QUuid uuid);
     bool loggingStarted_ = false;
     bool autoDownloadStarted_ = false;
     LocationReader* locReader_{ nullptr };

@@ -208,6 +208,9 @@ genuine upstream bug and a candidate to report back.
 | `qml/kqml_types/KScreenKeyboard.qml` | on-screen keyboard panel |
 | `docs/WIFI_MODULE.md` | the Wi-Fi module: protocol contract and what the app does with it |
 | `qml/kqml_types/WifiSignalIcon.qml` | the Wi-Fi symbol lit by signal level (Devices chips, toolbar badges) |
+| `src/device/ring_upgrade.{h,cpp}` | firmware update of two sonars sharing one line as a ring (and of a lone sonar with a bus address) |
+| `tools/ringupdate_check/` | standalone program: the ring update against a simulated ring, and live on a serial port |
+| `docs/RING_UPDATE.md` | two sonars on one line: how they show up, how they are updated, what was verified |
 
 `tools/sonifier_check` and `tools/deconv_check` are separate CMake projects, not
 part of the application build. Nothing in the app references them. `deconv_check`
@@ -690,3 +693,16 @@ for the next one too: the sync client and a 300-file merge do not mix.
 After any merge, rebuild and rerun `tools\sonifier_check` — it is the only
 automated check this fork has. Then `git push mine myedition`, so the merge does
 not sit on one machine only.
+
+## Two sonars on one line: the ring update (2026-10-01)
+
+Two Basic2D sonars with the ring firmware share one host line (host TX -> board 1 -> board 2 -> host RX) and
+show up as two devices, addresses 1 and 2 (one device per route, as for the two Wi-Fi modules). The stock
+upgrade cannot reach a bootloader in such a ring; a sonar on a bus address 1..15 (`DevDriver::isRingBoard()`)
+is updated by `RingUpgrade` instead: UPGRADE = this sonar, UPGRADE ALL ON THIS LINE = every sonar of the
+line, the last one first. The link's rate is pinned for the run (`Link::setRatePinned`: no baud search, no
+ask-all) and route-0 frames go to the engine only. Verified: `tools/ringupdate_check` offline (26 checks,
+with a control for the reset race), live on the two boards (C++ engine, 10.5 s for both), and inside the app
+through `KOGGER_AUTOTEST=COM13` + `KOGGER_AUTOUPGRADE=<file>|all|2` (kogger.log 2026-10-01 11:56:06-11:56:16:
+both boards 1.12, 469 chunks each). Details, the measured bootloader behaviour and the limits:
+`docs/RING_UPDATE.md`. Not done: the head unit, where the rate is the Wi-Fi module's port, not the PC's.

@@ -5231,6 +5231,32 @@ Column {
             }
         }
 
+        // A sonar of a ring on a shared line (bus address 1..15): every sonar of the line in one run, the
+        // last one first (docs/RING_UPDATE.md). The button above updates this sonar alone.
+        DevStackedRow {
+            open: upgradePathInput.text !== "" && !!(dev && dev.isRingBoard)
+            DevButton {
+                width: parent.width; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
+                text: qsTr("UPGRADE ALL ON THIS LINE")
+                toolTipText: qsTr("Every sonar sharing this line, one after another")
+                onClicked: {
+                    if (!dev) return
+                    var path = devUpgradeGroup.currentUpgradePath()
+                    var fw = devUpgradeGroup._baseName(path)
+                    var label = devUpgradeGroup._devLabel()
+                    var tag = "fw-upgrade-" + (dev.devSN || 0)
+                    if (core.upgradeFWAll(path, dev)) {
+                        devUpgradeGroup._activeTag = tag
+                        devUpgradeGroup._activeLabel = label
+                        devUpgradeGroup._activeFw = fw
+                        notifications.warning(qsTr("Flashing every sonar on the line of %1 with file %2").arg(label).arg(fw), tag)
+                    } else {
+                        notifications.warning(qsTr("Failed to open firmware file: %1").arg(fw))
+                    }
+                }
+            }
+        }
+
         Connections {
             target: dev
             ignoreUnknownSignals: true
