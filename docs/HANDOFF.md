@@ -851,7 +851,8 @@ scroll, the fifth reached and tapped; three fit) and inside a vertical Flickable
 scrolls the row and not the page, an up-down swipe on the row the page and not the row - by touch, as QtTest's
 mouseDrag does not start an upward drag of a Flickable at all (an experiment: not even over a plain MouseArea).
 13/13; the row as wide as its chain (what he saw) fails it. On the kiosk as `headunit` 54be84e4 from 2026-10-01
-by the owner's word (no QML errors); this PC still runs ea8eb8a5 (the owner cancelled the UAC prompt for 981d367a).
+by the owner's word (no QML errors); the owner on its screen: the scrolling works. This PC still runs ea8eb8a5
+(the owner cancelled the UAC prompt for 981d367a).
 
 **The "System" widget: the computer the app runs on.** Owner 2026-10-01: a compact, good-looking widget for the
 system's state - the cores' frequencies, memory, the CPU temperature, the drives, and what else. `SystemMonitor`
