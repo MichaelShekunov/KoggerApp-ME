@@ -868,7 +868,24 @@ too; the footer keeps the uptime only. Measured on the kiosk with profiling on: 
 caught; sysgui_check 11/11 in both fonts, 25 mutants caught; qmllint adds nothing; the Windows build. The same day
 the head unit got its clock (chrony, the RTC set; HeadUnit docs/STATE.md, "Часы"). On the kiosk as `headunit`
 94b7e725 from 2026-10-01 by the owner's word (no QML errors; at start `GPU 500 of 1000 MHz, load 50.4 %, 48.1 C`, so
-the load is read there); this PC runs 8ee2cbb1.
+the load is read there); this PC runs 8ee2cbb1. The owner: the GPU works.
+
+**The "System" widget in a 1 x 1 cell: CPU, GPU, RAM, eMMC.** Owner 2026-10-01: CPU and GPU on one widget, RAM and
+eMMC filled with numbers, try to fit all of it in one widget. His panel (read from KoggerApp.conf on the head unit):
+one column of four 1 x 1 cells - From launch point, Voltage, On the link, System - where System had the header, the
+cores and two lines (GPU, RAM in percent); the eMMC no longer fitted. A cell that cannot show the GPU, memory and the
+system volume under the header and the cores now goes compact: four lines over bars, `CPU (52°) 40 %`,
+`GPU (48°) 12 %`, `RAM 0.9/15.6`, `eMMC 8.9/11.7`, spread over the height, with less margin in a small cell. Every line
+has its texts from the fullest down and shows the first that fits (measured with FontMetrics, rounded up as a Text
+is, with room for a synthetic bold): the frequency goes first, then the wear and the unit; a volume keeps its numbers
+before its disk's name ("eMMC" for "/", the disk's first volume); the CPU's chip gives up its held-back mark, then its
+frame (bare coloured text), before its temperature. The GPU's bar now follows its load like every other line (its
+frequency only without a load reported). Checks: `sysgui_check.ps1` 12/12 in DejaVu Sans and Arial - an acceptance
+test at 1 x 1, both scales, four mocks (the head unit, hot, everything at its top, a Windows PC): the CPU's and the
+GPU's temperature and load, memory and the system volume in numbers, the head unit's disk named eMMC, nothing cut;
+a sweep over every width of a 1- and a 2-unit-high cell: no text cut but a name with nothing else to give (it is
+what showed that a Text lays a bold label out wider than FontMetrics measures it, in DejaVu Sans Bold too). 31
+mutants caught in either font; qmllint adds only the kind the file has; the Windows build.
 
 **A working sonar behind a recorder that is not recording is not red.** Owner 2026-09-30: the logger has no flash drive (red, rightly), and the sonar behind it turned red too while it worked. `RecorderStatus.pillState` took a device's colour from the recorder's per-port flags; a recorder that is not recording (severity "crit": storage lost, a failed recording, recording off) calls its ports lost. Such a recorder's port flags are now ignored and the device is shown by its own frames (dataStale, then the link). Check: `tools/qml_check/recorderpill_check.ps1` (fails on the rule before: "the working sonar behind it green"). On the kiosk as `headunit` 54ae4e46 from 2026-09-30, the owner: the sonar is green. This PC still runs 60073967 (the owner cancelled the UAC prompt for 0eb37775).
 
