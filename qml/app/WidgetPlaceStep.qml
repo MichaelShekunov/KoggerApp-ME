@@ -272,6 +272,9 @@ Column {
                                 value: DataFieldCatalog.previewValue(tile.fieldKey, step.store, step._sysbat)
                                 k: paletteGrid._k
                                 gap: step._gap
+                                field: tile.fieldKey
+                                sys: DataFieldCatalog.systemSample
+                                bars: DataFieldCatalog.bars(tile.fieldKey, null, DataFieldCatalog.systemSample)
                             }
                         }
 

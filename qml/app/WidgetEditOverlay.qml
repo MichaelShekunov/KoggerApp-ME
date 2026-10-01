@@ -198,6 +198,9 @@ Item {
                             value: occCard._value
                             k: overlay._k
                             gap: overlay._gap
+                            field: occCard.fieldKey
+                            sys: DataFieldCatalog.systemSample
+                            bars: DataFieldCatalog.bars(occCard.fieldKey, null, DataFieldCatalog.systemSample)
                         }
 
                         HoverHandler { id: occHover; enabled: !overlay._touch }

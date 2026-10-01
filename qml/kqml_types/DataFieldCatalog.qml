@@ -35,8 +35,30 @@ QtObject {
         // The radio link (DeviceManagerWrapper.air*, once a second): what it carries by kind as a bar, the head unit
         // module's Wi-Fi signal.
         { key: "linkAir",  label: qsTr("On the link"),  unit: qsTr("KB/s"), group: "link" },
-        { key: "linkRssi", label: qsTr("Wi-Fi signal"), unit: qsTr("dBm"),  group: "link" }
+        { key: "linkRssi", label: qsTr("Wi-Fi signal"), unit: qsTr("dBm"),  group: "link" },
+        // The computer the app runs on (SystemMonitor, context property systemMonitor): "System" draws all of it in one
+        // cell (SystemOverview.qml), the others one value each.
+        { key: "sysOverview", label: qsTr("System"),          unit: "",           group: "system" },
+        { key: "sysCpu",      label: qsTr("CPU"),             unit: qsTr("GHz"),  group: "system" },
+        { key: "sysCpuTemp",  label: qsTr("CPU temperature"), unit: "°C",         group: "system" },
+        { key: "sysRam",      label: qsTr("Memory"),          unit: qsTr("GB"),   group: "system" },
+        { key: "sysStorage",  label: qsTr("Storage"),         unit: qsTr("GB"),   group: "system" },
+        { key: "sysUptime",   label: qsTr("Uptime"),          unit: "",           group: "system" }
     ]
+
+    // The palette's stand-in for SystemMonitor: the head unit (RK3588: 4 cores to 1.8 GHz, 4 to 2.4 GHz; one eMMC with
+    // "/" and "/data") at work.
+    readonly property var systemSample: ({
+        available: true,
+        coreFreqMHz: [1416, 1008, 1800, 1200, 2400, 1800, 2208, 816],
+        coreMaxMHz: [1800, 1800, 1800, 1800, 2400, 2400, 2400, 2400],
+        coreLoad: [0.22, 0.10, 0.64, 0.31, 0.86, 0.45, 0.57, 0.08],
+        cpuLoad: 0.40, cpuFreqMHz: 2400, cpuTempC: 52, gpuTempC: 48, gpuFreqMHz: 300, throttled: false,
+        memTotalGB: 15.6, memUsedGB: 3.1,
+        volumes: [{ name: "/", kind: "eMMC", wearPct: 10, totalGB: 11.7, usedGB: 8.7 },
+                  { name: "/data", kind: "", wearPct: -1, totalGB: 16.5, usedGB: 0.1 }],
+        uptimeS: 11520
+    })
 
     // USBL fields — deliberately NOT in `fields`, so the palette is unchanged for the
     // vast majority of users who have no acoustic beacon.
@@ -136,6 +158,33 @@ QtObject {
     function _distanceText(m) {
         return m < 1000 ? Math.round(m) + " " + qsTr("m") : (m / 1000).toFixed(2) + " " + qsTr("km")
     }
+    // The fields SystemMonitor feeds (a cell showing one subscribes to it while it lives).
+    function usesSystem(key) {
+        return key === "sysOverview" || key === "sysCpu" || key === "sysCpuTemp" || key === "sysRam"
+               || key === "sysStorage" || key === "sysUptime"
+    }
+    function _sysOk(sys) {
+        return !!(sys && sys.available)
+    }
+    // A running time: "12 min", "3 h 12 min", "3 d 14 h".
+    function uptimeText(s) {
+        var d = Math.floor(s / 86400), h = Math.floor((s % 86400) / 3600), m = Math.floor((s % 3600) / 60)
+        return d > 0 ? d + " " + qsTr("d") + " " + h + " " + qsTr("h")
+             : h > 0 ? h + " " + qsTr("h") + " " + m + " " + qsTr("min") : m + " " + qsTr("min")
+    }
+    function gbPair(used, total) {
+        return used.toFixed(1) + " / " + total.toFixed(total >= 100 ? 0 : 1) + " " + qsTr("GB")
+    }
+    // The System widget's levels: a load 0..1 (half, four fifths), degrees C (60, 75), a fill 0..1 (70 %, 90 %).
+    function sysLoadColor(l) {
+        return AppPalette.systemLevelColors[l < 0.5 ? 0 : l < 0.8 ? 1 : 2]
+    }
+    function sysTempColor(t) {
+        return AppPalette.systemLevelColors[t < 60 ? 0 : t < 75 ? 1 : 2]
+    }
+    function sysFillColor(f) {
+        return f < 0.7 ? AppPalette.systemFill : AppPalette.systemLevelColors[f < 0.9 ? 1 : 2]
+    }
     function _durationText(s) {
         return s >= 90 ? Math.round(s / 60) + " " + qsTr("min") : Math.round(s) + " " + qsTr("s")
     }
@@ -146,7 +195,22 @@ QtObject {
         return dmw.airEchogramKBs + dmw.airTelemetryKBs + dmw.airServiceKBs
     }
     // A cell drawn with a stacked bar under its value: [{ v, c }] parts by kind, [] for a plain value.
-    function bars(key, dmw) {
+    function bars(key, dmw, sys) {
+        if (_sysOk(sys)) {
+            var dim = Qt.rgba(AppPalette.textSecond.r, AppPalette.textSecond.g, AppPalette.textSecond.b, 0.18)
+            if (key === "sysCpu" && sys.cpuLoad >= 0)
+                return [{ v: sys.cpuLoad, c: sysLoadColor(sys.cpuLoad) }, { v: 1 - sys.cpuLoad, c: dim }]
+            if (key === "sysCpuTemp" && isFinite(sys.cpuTempC)) {
+                var t = Math.max(0, Math.min(1, (sys.cpuTempC - 20) / 80))   // 20..100 degrees
+                return [{ v: t, c: sysTempColor(sys.cpuTempC) }, { v: 1 - t, c: dim }]
+            }
+            if (key === "sysRam" && sys.memTotalGB > 0)
+                return [{ v: sys.memUsedGB, c: sysFillColor(sys.memUsedGB / sys.memTotalGB) },
+                        { v: Math.max(0, sys.memTotalGB - sys.memUsedGB), c: dim }]
+            if (key === "sysStorage" && sys.volumes && sys.volumes.length > 0)
+                return [{ v: sys.volumes[0].usedGB, c: sysFillColor(sys.volumes[0].totalGB > 0 ? sys.volumes[0].usedGB / sys.volumes[0].totalGB : 0) },
+                        { v: Math.max(0, sys.volumes[0].totalGB - sys.volumes[0].usedGB), c: dim }]
+        }
         if (key !== "linkAir" || !dmw || !dmw.airValid)
             return []
         return [{ v: dmw.airEchogramKBs, c: AppPalette.airColors[0] },
@@ -163,7 +227,7 @@ QtObject {
 
     // `addr` is the beacon a USBL cell is pinned to (-1 = whichever answered last). Every
     // other field ignores it, so existing call sites keep working unchanged.
-    function isValid(key, ds, dmw, store, sysbat, addr, veh) {
+    function isValid(key, ds, dmw, store, sysbat, addr, veh, sys) {
         if (UsblLogic.isUsblField(key)) {
             if (key === "usblPresent")
                 return !!(ds && ds.hasUsblData)
@@ -190,11 +254,17 @@ QtObject {
         case "apBatteryAtEnd": return _missionValid(veh) && veh.missionBatteryAtEnd >= 0
         case "linkAir":        return !!(dmw && dmw.airValid)
         case "linkRssi":       return !!(dmw && dmw.airValid && dmw.airRssi < 0)
+        case "sysOverview":    return _sysOk(sys)
+        case "sysCpu":         return _sysOk(sys) && sys.cpuLoad >= 0
+        case "sysCpuTemp":     return _sysOk(sys) && isFinite(sys.cpuTempC)
+        case "sysRam":         return _sysOk(sys) && sys.memTotalGB > 0
+        case "sysStorage":     return _sysOk(sys) && !!sys.volumes && sys.volumes.length > 0
+        case "sysUptime":      return _sysOk(sys) && sys.uptimeS >= 0
         }
         return false
     }
 
-    function formatValue(key, ds, dmw, store, sysbat, addr, veh) {
+    function formatValue(key, ds, dmw, store, sysbat, addr, veh, sys) {
         if (UsblLogic.isUsblField(key))
             return _formatUsbl(key, ds, store, addr)
         switch (key) {
@@ -239,6 +309,21 @@ QtObject {
             return (dmw && dmw.airValid) ? (_airTotal(dmw).toFixed(1) + " " + qsTr("KB/s")) : "—"
         case "linkRssi":
             return (dmw && dmw.airValid && dmw.airRssi < 0) ? (dmw.airRssi + " " + qsTr("dBm")) : "—"
+        case "sysOverview":
+            return _sysOk(sys) ? qsTr("System") : "—"
+        case "sysCpu":
+            if (!_sysOk(sys) || sys.cpuLoad < 0) return "—"
+            return (sys.cpuFreqMHz > 0 ? (sys.cpuFreqMHz / 1000).toFixed(2) + " " + qsTr("GHz") + " · " : "")
+                   + Math.round(sys.cpuLoad * 100) + " %"
+        case "sysCpuTemp":
+            return (_sysOk(sys) && isFinite(sys.cpuTempC)) ? (Math.round(sys.cpuTempC) + " °C" + (sys.throttled ? " ▼" : "")) : "—"
+        case "sysRam":
+            return (_sysOk(sys) && sys.memTotalGB > 0) ? gbPair(sys.memUsedGB, sys.memTotalGB) : "—"
+        case "sysStorage":
+            return (_sysOk(sys) && sys.volumes && sys.volumes.length > 0)
+                   ? gbPair(sys.volumes[0].usedGB, sys.volumes[0].totalGB) : "—"
+        case "sysUptime":
+            return (_sysOk(sys) && sys.uptimeS >= 0) ? uptimeText(sys.uptimeS) : "—"
         }
         return "—"
     }
@@ -294,6 +379,12 @@ QtObject {
         case "apBatteryAtEnd": return "46 %"
         case "linkAir":        return "7.3 " + qsTr("KB/s")
         case "linkRssi":       return "-52 " + qsTr("dBm")
+        case "sysOverview":    return qsTr("System")
+        case "sysCpu":         return "2.40 " + qsTr("GHz") + " · 40 %"
+        case "sysCpuTemp":     return "52 °C"
+        case "sysRam":         return gbPair(3.1, 15.6)
+        case "sysStorage":     return gbPair(8.7, 11.7)
+        case "sysUptime":      return uptimeText(11520)
         case "usblRange":       return "18.3 " + qsTr("m")
         case "usblAzimuth":     return "127.4°"
         case "usblElevation":   return "-22.8°"

@@ -39,6 +39,7 @@
 #include "instance_lock.h"
 #endif
 #include "system_battery.h"
+#include "system_monitor.h"
 #include "mosaic_db.h"
 #include "language_controller.h"
 #include "app_utils.h"
@@ -381,6 +382,7 @@ int main(int argc, char *argv[])
     // thread in the default build; the connections queue by themselves if it ever moves.
     MavVehicle boat;
     SystemBattery systemBattery;
+    SystemMonitor systemMonitor;   // the "System" widget: CPU, temperatures, memory, volumes
     core.initAfterApp();
 
     //qDebug() << "Lib paths:" << QCoreApplication::libraryPaths();
@@ -431,6 +433,7 @@ int main(int argc, char *argv[])
     QObject::connect(core.getDeviceManagerWrapperPtr(), &DeviceManagerWrapper::airChanged, &boat,
                      [&boat, dmw = core.getDeviceManagerWrapperPtr()] { boat.setLinkRssi(dmw->airRssi()); });
     engine.rootContext()->setContextProperty("systemBattery", &systemBattery);
+    engine.rootContext()->setContextProperty("systemMonitor", &systemMonitor);
     engine.rootContext()->setContextProperty("langController", &langController);
     engine.rootContext()->setContextProperty("appUtils", &appUtils);
 

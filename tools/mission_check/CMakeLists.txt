@@ -17,6 +17,8 @@ add_executable(mission_check
     main.cpp
     ${KOGGER_SRC}/vehicle/mav_vehicle.h
     ${KOGGER_SRC}/vehicle/mav_vehicle.cpp
+    ${KOGGER_SRC}/system_monitor.h
+    ${KOGGER_SRC}/system_monitor.cpp
     ${KOGGER_SRC}/device/wifi_ops.h
     ${KOGGER_SRC}/device/wifi_ops.cpp
     ${KOGGER_SRC}/device/device_liveness.h

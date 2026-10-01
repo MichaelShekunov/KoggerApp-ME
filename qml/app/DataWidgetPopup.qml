@@ -11,6 +11,7 @@ BasePanePopup {
     readonly property var _ds: (typeof dataset !== "undefined") ? dataset : null
     readonly property var _dmw: (typeof deviceManagerWrapper !== "undefined") ? deviceManagerWrapper : null
     readonly property var _sysbat: (typeof systemBattery !== "undefined") ? systemBattery : null
+    readonly property var _sysmon: (typeof systemMonitor !== "undefined") ? systemMonitor : null
     readonly property var _boat: (typeof boat !== "undefined") ? boat : null
 
     readonly property real _bgAlpha: {
@@ -149,10 +150,12 @@ BasePanePopup {
                         rep: cell.modelData.rep
                         label: DataFieldCatalog.label(cell._field)
                         value: DataFieldCatalog.formatValue(cell._field, root._ds, root._dmw, root.store, root._sysbat,
-                                                            undefined, root._boat)
+                                                            undefined, root._boat, root._sysmon)
                         k: root._k
                         gap: root._gap
-                        bars: DataFieldCatalog.bars(cell._field, root._dmw)
+                        bars: DataFieldCatalog.bars(cell._field, root._dmw, root._sysmon)
+                        field: cell._field
+                        sys: root._sysmon
                     }
                 }
             }
