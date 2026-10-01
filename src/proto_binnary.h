@@ -118,6 +118,13 @@ enum ID : uint16_t {
 
     ID_CHART_Z = 0x7D, // 125
 
+    /* A command for one sonar of a ring behind a recorder: the recorder takes a frame's route as its
+       own port number and hands the frame to that port as a broadcast, so the command travels inside
+       a broadcast frame naming its target -- payload [target address][mode][id][payload]. The ring
+       firmware (1.14+) runs it only on the named sonar. Outside the published protocol, like
+       ID_CHART_Z; docs/RING_UPDATE.md. */
+    ID_NODE_CMD = 0x7E, // 126
+
     ID_NAV = 0x64,
 
     ID_USBL_SOLUTION = 0x65,

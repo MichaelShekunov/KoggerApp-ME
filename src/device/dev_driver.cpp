@@ -361,7 +361,26 @@ void DevDriver::regID(IDBin* id_bin, ParseCallback method, bool is_setup) {
 //        hashIDSetup[id_bin->id()] = id_bin;
 //    }
 
-    connect(id_bin, &IDBin::binFrameOut, this, &DevDriver::binFrameOut);
+    connect(id_bin, &IDBin::binFrameOut, this, &DevDriver::onIdFrameOut);
+}
+
+void DevDriver::onIdFrameOut(Parsers::ProtoBinOut out) {
+    // The ring firmware runs a wrapped command of at most 61 bytes (the wrapper stays within its 64) and only
+    // a command (SETTING or GETTING); anything else goes as it is.
+    const uint8_t* f = out.frame();
+    if (!isRingBehindRecorder() || out.frameLen() < 8 || (f[3] & 0x3) < 2 || f[5] > 61) {
+        emit binFrameOut(out);
+        return;
+    }
+    ProtoBinOut node;
+    node.create(Type(f[3] & 0x3), v0, ID_NODE_CMD, 0);
+    node.write<U1>(lastAddress_);
+    node.write<U1>(f[3]);
+    node.write<U1>(f[4]);
+    for (int i = 0; i < f[5]; ++i)
+        node.write<U1>(f[6 + i]);
+    node.end();
+    emit binFrameOut(node);
 }
 
 
@@ -960,6 +979,8 @@ void DevDriver::protoComplete(Parsers::FrameParser& proto)
 
     int64_t curr_time = QDateTime::currentMSecsSinceEpoch();
 
+    if (proto.completeAsKBP2())
+        viaRecorder_ = true;   // a recorder re-wraps its port devices' frames and stamps its port as their route
     m_state.mark = proto.mark();
     unanswered_.heard(curr_time);
 
