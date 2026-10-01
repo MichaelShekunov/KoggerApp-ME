@@ -167,6 +167,8 @@ public slots:
     bool openProxy(const QString& address, const int port, bool isTcp);
     bool closeProxy();
     bool upgradeFW(const QString& name, QObject* dev);
+    /// Every ring board on the line of dev, the last one first (docs/RING_UPDATE.md).
+    bool upgradeFWAll(const QString& name, QObject* dev);
     void upgradeChanged(int progressStatus);
     void setKlfLogging(bool isLogging);
     void setFixBlackStripesState(bool state);

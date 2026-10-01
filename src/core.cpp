@@ -17,11 +17,13 @@
 #include <QClipboard>
 #include <QGuiApplication>
 #include <QPointer>
+#include <QRegularExpression>
 #include <QThreadPool>
 #include "app_log.h"
 #include "bottom_track.h"
 #include "tile_provider_ids.h"
 #include "notifications.h"
+#include "ring_upgrade.h"
 
 extern Notifications notifications;
 #ifdef Q_OS_WINDOWS
@@ -1053,10 +1055,29 @@ bool Core::upgradeFW(const QString& name, QObject* dev)
     }
 
     if (auto* devQProp = dynamic_cast<DevQProperty*>(dev); devQProp) {
+        devQProp->setUpgradeExpect(RingUpgrade::versionFromFileName(file.fileName()));
         devQProp->sendUpdateFW(file.readAll());
     }
 
     return true;
+}
+
+bool Core::upgradeFWAll(const QString& name, QObject* dev)
+{
+    QUrl url(name);
+    QFile file(url.isLocalFile() ? url.toLocalFile() : name);
+
+    if (!file.open(QIODevice::ReadOnly)) {
+        return false;
+    }
+
+    if (auto* devQProp = dynamic_cast<DevQProperty*>(dev); devQProp && devQProp->isRingBoard()) {
+        devQProp->setUpgradeExpect(RingUpgrade::versionFromFileName(file.fileName()));
+        devQProp->sendUpdateFWAll(file.readAll());
+        return true;
+    }
+
+    return false;
 }
 
 void Core::upgradeChanged(int progressStatus)

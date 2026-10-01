@@ -1,3 +1,5 @@
+#include <QFile>
+#include <algorithm>
 #include "device_manager.h"
 #include "device_defs.h"
 #include <QDateTime>
@@ -254,6 +256,16 @@ void DeviceManager::frameInput(QUuid uuid, Link* link, Parsers::FrameParser fram
             return; //continue;
         }
 
+        if (link != nullptr)
+            linkOf_[uuid] = link;
+        // A ring firmware update sees every frame of its line. The bootloader answers on route 0: those are
+        // not a device of their own, so they stop here while the update runs.
+        if (ringUp_ && ringUp_->active() && uuid == ringLink_ && frame.completeAsKBP()) {
+            ringUp_->onFrame(QByteArray(reinterpret_cast<const char*>(frame.frame()), frame.frameLen()));
+            if (frame.route() == 0)
+                return;
+        }
+
         if (frame.completeAsKBP() || frame.completeAsKBP2()) {
             DevQProperty* dev = getDevice(uuid, link, frame.route());
 
@@ -290,6 +302,7 @@ void DeviceManager::frameInput(QUuid uuid, Link* link, Parsers::FrameParser fram
             }
 #endif
             dev->protoComplete(frame);
+            autoRingUpgrade(uuid);
         }
 
         if (frame.isCompleteAsNMEA()) {
@@ -894,6 +907,121 @@ void DeviceManager::onUpgradingFirmwareDone()
     upgradeData_.clear();
 }
 
+void DeviceManager::onRingUpgradeRequested(QUuid linkUuid, int address, QByteArray firmware, QString expect, bool everyBoard)
+{
+    DevQProperty* requester = devTree_.value(linkUuid).value(uint8_t(address), nullptr);
+    Link* link = linkOf_.value(linkUuid).data();
+    auto refuse = [&](const QString& why) {
+        qInfo().noquote() << "ring-upgrade: refused:" << why;
+        if (requester)
+            requester->setRingUpgradeStatus(RingUpgrade::kStatusFail, true);
+    };
+    if (ringUp_ && ringUp_->active()) {
+        refuse(QStringLiteral("a ring update is already running"));
+        return;
+    }
+    if (!link) {
+        refuse(QStringLiteral("the line of the device is not known"));
+        return;
+    }
+
+    // The ring boards of that line: Basic2D sonars answering on a bus address 1..15.
+    QList<int> boards;
+    const auto devs = devTree_.value(linkUuid);
+    for (auto it = devs.cbegin(); it != devs.cend(); ++it)
+        if (it.value() && it.value()->isRingBoard())
+            boards.append(int(it.key()));
+    std::sort(boards.begin(), boards.end());
+
+    if (!ringUp_) {
+        RingUpgrade::Io io;
+        io.write = [this](const QByteArray& bytes) {
+            if (QPointer<Link> l = ringLinkPtr_)
+                QMetaObject::invokeMethod(l, [l, bytes] { if (l) l->write(bytes); }, Qt::QueuedConnection);
+        };
+        io.setRate = [this](int rate) {
+            if (QPointer<Link> l = ringLinkPtr_)
+                QMetaObject::invokeMethod(l, [l, rate] { if (l) l->setBaudrateAfterWrite(rate); }, Qt::QueuedConnection);
+        };
+        io.nowMs = [this] { return ringClock_.elapsed(); };
+        ringUp_ = new RingUpgrade(io, this);
+        ringClock_.start();
+        ringTimer_ = new QTimer(this);
+        ringTimer_->setInterval(5);
+        connect(ringTimer_, &QTimer::timeout, ringUp_, &RingUpgrade::tick);
+        connect(ringUp_, &RingUpgrade::logLine, this, [](const QString& line) { qInfo().noquote() << line; });
+        connect(ringUp_, &RingUpgrade::targetProgress, this, [this](int addr, int pct) {
+            if (DevQProperty* dev = devTree_.value(ringLink_).value(uint8_t(addr), nullptr))
+                dev->setRingUpgradeStatus(pct, false);
+        });
+        connect(ringUp_, &RingUpgrade::targetFinished, this, [this](int addr, bool ok, const QString&) {
+            if (DevQProperty* dev = devTree_.value(ringLink_).value(uint8_t(addr), nullptr))
+                dev->setRingUpgradeStatus(ok ? RingUpgrade::kStatusOk : RingUpgrade::kStatusFail, true);
+        });
+        connect(ringUp_, &RingUpgrade::finished, this, [this](bool, const QString&) { endRingUpgrade(); });
+    }
+
+    RingUpgrade::Plan plan;
+    plan.boards = boards;
+    plan.targets = everyBoard ? RingUpgrade::allTargets(boards) : QList<int>{ address };
+    plan.image = firmware;
+    plan.expect = expect;
+    plan.lineRate = link->getBaudrate();
+
+    ringLink_ = linkUuid;
+    ringLinkPtr_ = link;
+    QMetaObject::invokeMethod(link, [l = QPointer<Link>(link)] { if (l) l->setRatePinned(true); }, Qt::QueuedConnection);
+    if (!ringUp_->start(plan)) {        // finished(false) has run endRingUpgrade() already
+        if (requester)
+            requester->setRingUpgradeStatus(RingUpgrade::kStatusFail, true);
+        return;
+    }
+    ringTimer_->start();
+}
+
+// Headless test hook (docs/RING_UPDATE.md): KOGGER_AUTOUPGRADE=<file.ufw>|<all|address>|<ring boards>
+// starts a ring update the way the device page does, once that many ring boards answer on a line.
+// Off unless set; with KOGGER_AUTOTEST=<port> the whole run needs no click.
+void DeviceManager::autoRingUpgrade(QUuid uuid)
+{
+    static const QStringList kAuto = qEnvironmentVariable("KOGGER_AUTOUPGRADE").split(QLatin1Char('|'));
+    if (kAuto.size() != 3 || autoUpgradeStarted_)
+        return;
+    QList<DevQProperty*> ring;
+    const auto devs = devTree_.value(uuid);
+    for (auto it = devs.cbegin(); it != devs.cend(); ++it)
+        if (it.value() && it.value()->isRingBoard())
+            ring.append(it.value());
+    if (ring.isEmpty() || ring.size() < kAuto[2].toInt())
+        return;
+    autoUpgradeStarted_ = true;
+    QFile file(kAuto[0]);
+    if (!file.open(QIODevice::ReadOnly)) {
+        qInfo().noquote() << "ring-upgrade: KOGGER_AUTOUPGRADE cannot open" << kAuto[0];
+        return;
+    }
+    DevQProperty* dev = ring.first();
+    for (DevQProperty* d : ring)
+        if (kAuto[1] != QLatin1String("all") && d->getBusAddress() == kAuto[1].toInt())
+            dev = d;
+    qInfo().noquote() << "ring-upgrade: KOGGER_AUTOUPGRADE" << kAuto[1] << "with" << kAuto[0];
+    dev->setUpgradeExpect(RingUpgrade::versionFromFileName(kAuto[0]));
+    if (kAuto[1] == QLatin1String("all"))
+        dev->sendUpdateFWAll(file.readAll());
+    else
+        dev->sendUpdateFW(file.readAll());
+}
+
+void DeviceManager::endRingUpgrade()
+{
+    if (ringTimer_)
+        ringTimer_->stop();
+    if (QPointer<Link> l = ringLinkPtr_)
+        QMetaObject::invokeMethod(l, [l] { if (l) l->setRatePinned(false); }, Qt::QueuedConnection);
+    ringLinkPtr_ = nullptr;
+    ringLink_ = QUuid();
+}
+
 void DeviceManager::createLocationReader()
 {
     //qDebug() << "DeviceManager::createLocationReader";
@@ -1052,6 +1180,7 @@ DevQProperty* DeviceManager::createDev(QUuid uuid, Link* link, uint8_t addr)
 
     connect(dev, &DevQProperty::startUpgradingFirmwareDM, this, &DeviceManager::onStartUpgradingFirmware, connType);
     connect(dev, &DevQProperty::upgradingFirmwareDoneDM, this, &DeviceManager::onUpgradingFirmwareDone, connType);
+    connect(dev, &DevQProperty::ringUpgradeRequested, this, &DeviceManager::onRingUpgradeRequested, connType);
 
     //
     connect(dev, &DevQProperty::sendChartSetup, this, &DeviceManager::sendChartSetup, connType);
@@ -1096,6 +1225,7 @@ DevQProperty* DeviceManager::createDev(QUuid uuid, Link* link, uint8_t addr)
 
     connect(dev, &DevQProperty::startUpgradingFirmwareDM, this, &DeviceManager::onStartUpgradingFirmware);
     connect(dev, &DevQProperty::upgradingFirmwareDoneDM, this, &DeviceManager::onUpgradingFirmwareDone);
+    connect(dev, &DevQProperty::ringUpgradeRequested, this, &DeviceManager::onRingUpgradeRequested);
 
     //
     connect(dev, &DevQProperty::sendChartSetup,  this, &DeviceManager::sendChartSetup);

@@ -96,6 +96,17 @@ public:
     bool isUpdatingFw() { return m_state.in_update; }
     int upgradeFWStatus() {return m_upgrade_status; }
 
+    /// A sonar answering on a bus address 1..15: one board of a ring on a shared line (or a lone board
+    /// with an address). The stock flow cannot reach its bootloader; its update goes through
+    /// RingUpgrade (docs/RING_UPDATE.md), which sendUpdateFW() hands it to.
+    bool isRingBoard() { return boardVersion() == BoardBasic2D && lastAddress_ >= 1 && lastAddress_ <= 15; }
+    /// Version the image is expected to report ("1.12"), taken from the file name; empty = not checked.
+    void setUpgradeExpect(const QString& version) { upgradeExpect_ = version; }
+    /// Every ring board on this device's line, the last one first.
+    void sendUpdateFWAll(QByteArray update_data);
+    /// Progress and outcome of a ring update, in the stock convention: 0..100, 101 done, -1 failed.
+    void setRingUpgradeStatus(int status, bool done);
+
     void sendFactoryFW(QByteArray update_data);
 
     int transFreq();
@@ -444,6 +455,7 @@ signals:
     // deviceManager
     void startUpgradingFirmwareDM(QUuid linkUuid, uint8_t address, QByteArray firmware);
     void upgradingFirmwareDoneDM();
+    void ringUpgradeRequested(QUuid linkUuid, int address, QByteArray firmware, QString expect, bool everyBoard);
 
     //
     void sendChartSetup(const ChannelId& channelId, uint16_t resol, uint16_t count, uint16_t offset);
@@ -741,6 +753,7 @@ protected:
     bool m_bootloaderLagacyMode = true;
     bool rebootFlag_ = false;
     int m_upgrade_status = 0;
+    QString upgradeExpect_;
     int64_t _lastUpgradeAnswerTime = 0;
     int64_t _timeoutUpgradeAnswerTime = 0;
     int64_t upgradeStartedTime_ = 0;

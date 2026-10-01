@@ -400,6 +400,18 @@ void Link::setAutoSpeedSelection(bool autoSpeedSelection)
     resetLastSearchIndx();
 }
 
+void Link::setRatePinned(bool pinned)
+{
+    ratePinned_ = pinned;
+}
+
+void Link::setBaudrateAfterWrite(int baudrate)
+{
+    if (auto port = qobject_cast<QSerialPort*>(ioDevice_); port && port->bytesToWrite() > 0)
+        port->waitForBytesWritten(50);
+    setBaudrate(baudrate);
+}
+
 void Link::setIsUpgradingState(bool state)
 {
     if (onUpgradingFirmware_ != state) {
@@ -632,7 +644,8 @@ void Link::onCheckedTimerEnd()
     // autosearch; boot-attributed links have their baudrate managed externally — never cycle it
     // here (the protocol on them stays silent for seconds at a time, which looks like a dead link)
     bool isAutoSpeedSelection = autoSpeedSelection_ || (!autoSpeedSelection_ && onUpgradingFirmware_) || localGhostIgnoreCount_;
-    bool isNeedSearch = attribute_ == LinkAttribute::kLinkAttributeNone && isAutoSpeedSelection && !isReceivesData_ && !timeoutCnt_ && !baudrateSearchList_.empty();
+    bool isNeedSearch = attribute_ == LinkAttribute::kLinkAttributeNone && isAutoSpeedSelection && !isReceivesData_ && !timeoutCnt_ && !baudrateSearchList_.empty()
+                        && !ratePinned_;
 
     if (isNeedSearch) {
         timeoutCnt_ = linkNumTimeoutsSmall;
@@ -646,7 +659,7 @@ void Link::onCheckedTimerEnd()
 
     // Every device on the link is asked for its version: each tick while nothing comes in; while data comes in only
     // once the link has gone quiet (LinkAskAll).
-    if (askAll_.tick(newDataReceived, isReceivesData_, onUpgradingFirmware_)
+    if (askAll_.tick(newDataReceived, isReceivesData_, onUpgradingFirmware_) && !ratePinned_
         && attribute_ == LinkAttribute::kLinkAttributeNone) {
         emit sendDoRequestAll(uuid_);
     }
