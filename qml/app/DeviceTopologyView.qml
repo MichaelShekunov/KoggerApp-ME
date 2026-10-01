@@ -10,6 +10,10 @@ Item {
 
     property var groups: []
     property var activeDevice
+    // A row wider than the view - one line's whole chain stays on one row, and a line of five (two Wi-Fi modules,
+    // the logger, two sonars) does not fit a grid of four columns - scrolls sideways; its cut edge fades into this,
+    // the colour under the view (owner 2026-10-01).
+    property color fadeColor: AppPalette.bg
     signal deviceClicked(var device)
 
     readonly property int _gap: Tokens.spaceSm
@@ -279,49 +283,55 @@ Item {
 
         Repeater {
             model: view._rows
-            delegate: Row {
+            delegate: KScrollStrip {
                 required property var modelData
-                spacing: 0
+                maxWidth: view._contentW
+                fadeColor: view.fadeColor
+                fadeWidth: Math.round(16 * AppPalette.scale)
 
-                Repeater {
-                    model: view._flat(modelData)
-                    delegate: Item {
-                        required property var modelData
+                Row {
+                    spacing: 0
 
-                        readonly property var cell: modelData
-                        readonly property bool _isBtn: cell.kind === "btn"
+                    Repeater {
+                        model: view._flat(modelData)
+                        delegate: Item {
+                            required property var modelData
 
-                        width: _isBtn ? view._cellW : view._gap
-                        height: view._btnH
-                        z: _isBtn ? 1 : 0
+                            readonly property var cell: modelData
+                            readonly property bool _isBtn: cell.kind === "btn"
 
-                        DevPill {
-                            anchors.fill: parent
-                            visible: parent._isBtn
-                            device: parent._isBtn ? parent.cell.device : null
-                            master: parent._isBtn ? parent.cell.master : null
-                            port: parent._isBtn ? parent.cell.port : -1
-                            showLink: parent._isBtn ? parent.cell.showLink : false
-                            linkLabel: parent._isBtn ? parent.cell.linkLabel : ""
-                        }
+                            width: _isBtn ? view._cellW : view._gap
+                            height: view._btnH
+                            z: _isBtn ? 1 : 0
 
-                        Rectangle {
-                            anchors.centerIn: parent
-                            width: parent.width
-                            height: Math.max(2, Math.round(2 * AppPalette.scale))
-                            color: AppPalette.textMuted
-                            visible: parent.cell.kind === "conn"
-                        }
-                        Row {
-                            id: radioRow
-                            anchors.centerIn: parent
-                            spacing: Math.max(1, Math.round(view._gap / 9))
-                            visible: parent.cell.kind === "radio"
-                            readonly property real dashW: Math.max(1, Math.round(view._gap / 5))
-                            readonly property real dashH: Math.max(2, Math.round(2 * AppPalette.scale))
-                            Rectangle { width: radioRow.dashW; height: radioRow.dashH; radius: height / 2; color: AppPalette.textMuted }
-                            Rectangle { width: radioRow.dashW; height: radioRow.dashH; radius: height / 2; color: AppPalette.textMuted }
-                            Rectangle { width: radioRow.dashW; height: radioRow.dashH; radius: height / 2; color: AppPalette.textMuted }
+                            DevPill {
+                                anchors.fill: parent
+                                visible: parent._isBtn
+                                device: parent._isBtn ? parent.cell.device : null
+                                master: parent._isBtn ? parent.cell.master : null
+                                port: parent._isBtn ? parent.cell.port : -1
+                                showLink: parent._isBtn ? parent.cell.showLink : false
+                                linkLabel: parent._isBtn ? parent.cell.linkLabel : ""
+                            }
+
+                            Rectangle {
+                                anchors.centerIn: parent
+                                width: parent.width
+                                height: Math.max(2, Math.round(2 * AppPalette.scale))
+                                color: AppPalette.textMuted
+                                visible: parent.cell.kind === "conn"
+                            }
+                            Row {
+                                id: radioRow
+                                anchors.centerIn: parent
+                                spacing: Math.max(1, Math.round(view._gap / 9))
+                                visible: parent.cell.kind === "radio"
+                                readonly property real dashW: Math.max(1, Math.round(view._gap / 5))
+                                readonly property real dashH: Math.max(2, Math.round(2 * AppPalette.scale))
+                                Rectangle { width: radioRow.dashW; height: radioRow.dashH; radius: height / 2; color: AppPalette.textMuted }
+                                Rectangle { width: radioRow.dashW; height: radioRow.dashH; radius: height / 2; color: AppPalette.textMuted }
+                                Rectangle { width: radioRow.dashW; height: radioRow.dashH; radius: height / 2; color: AppPalette.textMuted }
+                            }
                         }
                     }
                 }

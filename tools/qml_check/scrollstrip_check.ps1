@@ -12,7 +12,10 @@
     4. a tap reaches the cell under it, scrolling or not;
     5. a chain that got shorter, or more room, leaves it in view (not scrolled past its end);
     6. no fade colour, no fade.
-  Then reads qml/app/HotActionsPanel.qml: the chain component is a KScrollStrip, and both places that load it (the
+  Then the real qml/app/DeviceTopologyView.qml (the main menu's chain of devices, the one the owner saw cut) over
+  the head unit's line - two Wi-Fi modules, the logger, the ring's two sonars: five cells on a grid of at most four
+  columns scroll, the fifth device can be reached and tapped; a line of three fits. Then reads
+  qml/app/HotActionsPanel.qml: the chain component is a KScrollStrip, and both places that load it (the
   collapsed row and the expanded menu) give it its room (connRoom) and fade (connFade). Exit code 0 when all pass,
   1 when a check fails, 2 when qmltestrunner is not found.
 
@@ -183,6 +186,119 @@ Item {
             s.destroy()
         }
     }
+
+    // the head unit's line: its Wi-Fi module (a bridge: the hop after it is by radio), the boat's, the logger, the
+    // ring's two sonars
+    function dev(name, kind) {
+        return { devName: name, isWifi: kind === "wifi", isSonar: kind === "sonar", isRecorder: kind === "rec",
+                 isDoppler: false, isUSBL: false, isUSBLBeacon: false, dataStale: false, wifiRssi: -52, wifiSignalLevel: 3,
+                 linkConnected: true, linkNotAvailable: false, linkReceivesData: true, recorderStatusValid: false }
+    }
+    readonly property var five: [{ portName: "ttyS6", baudrate: 2000000, master: null, members: [
+        { device: dev("Wi-Fi 87", "wifi"), role: 3 }, { device: dev("Wi-Fi 88", "wifi"), role: 0 },
+        { device: dev("Logger 250", "rec"), role: 0 }, { device: dev("Sonar 1", "sonar"), role: 0, port: 1 },
+        { device: dev("Sonar 2", "sonar"), role: 0, port: 2 }] }]
+    readonly property var three: [{ portName: "COM5", baudrate: 921600, master: null, members: [
+        { device: dev("Wi-Fi 87", "wifi"), role: 3 }, { device: dev("Wi-Fi 88", "wifi"), role: 0 },
+        { device: dev("Sonar 1", "sonar"), role: 0 }] }]
+    property var clicked: null
+    Component {
+        id: topoComp
+        DeviceTopologyView { onDeviceClicked: function(d) { root.clicked = d } }
+    }
+    Component {
+        id: pageComp
+        Flickable {
+            id: page
+            property alias groups: pageView.groups
+            readonly property alias view: pageView
+            width: 360; height: 220
+            contentWidth: width
+            contentHeight: pageCol.height
+            flickableDirection: Flickable.VerticalFlick
+            boundsBehavior: Flickable.StopAtBounds
+            clip: true
+            Column {
+                id: pageCol
+                width: page.width
+                Item {
+                    width: parent.width
+                    height: pageView.implicitHeight
+                    clip: true
+                    DeviceTopologyView { id: pageView; width: parent.width }
+                }
+                Rectangle { width: parent.width; height: 600; color: "#334155" }
+            }
+        }
+    }
+    function strips(v) {
+        var out = []
+        var walk = function(it) {
+            if (it.hasOwnProperty("overflows") && it.hasOwnProperty("maxWidth")) out.push(it)
+            var kids = it.children || []
+            for (var i = 0; i < kids.length; ++i) walk(kids[i])
+        }
+        walk(v)
+        return out
+    }
+
+    TestCase {
+        name: "Topology"
+        when: windowShown
+
+        function test_1_five_scroll() {
+            var v = topoComp.createObject(root, { width: 360, groups: root.five })
+            wait(50)
+            var st = strips(v)
+            compare(st.length, 1, "one line, one row")
+            verify(st[0].overflows, "five cells on " + v._cols + " columns: the row scrolls")
+            compare(st[0].width, v._contentW, "no wider than the view")
+            mouseDrag(st[0], st[0].width - 20, v._btnH / 2, -160, 0, Qt.LeftButton, Qt.NoModifier, 20)
+            tryVerify(function() { return st[0].contentX > 40 }, 2000, "a finger scrolls it: " + st[0].contentX)
+            for (var i = 0; i < 20; ++i) mouseWheel(st[0], st[0].width / 2, v._btnH / 2, 0, -120)
+            verify(st[0].atEnd, "to its end")
+            root.clicked = null
+            mouseClick(st[0], st[0].width - 20, v._btnH / 2)
+            verify(root.clicked !== null && root.clicked.devName === "Sonar 2", "the fifth device tapped: "
+                   + (root.clicked ? root.clicked.devName : "none"))
+            v.destroy()
+        }
+
+        // as on the settings page: a vertical Flickable around a clipped column with the view and more below. Swipes
+        // by touch, as on the kiosk (QtTest's mouseDrag does not start an upward drag of a Flickable at all).
+        function swipe(item, x, y, dx, dy) {
+            var t = touchEvent(item)
+            t.press(0, item, x, y).commit()
+            for (var i = 1; i <= 8; ++i) { wait(16); t.move(0, item, x + dx * i / 8, y + dy * i / 8).commit() }
+            t.release(0, item, x + dx, y + dy).commit()
+        }
+        function test_3_inside_the_page() {
+            var page = pageComp.createObject(root, { groups: root.five })
+            wait(50)
+            var v = page.view
+            var st = strips(v)
+            verify(st[0].overflows)
+            var rowY = v._pad + v._btnH / 2
+            swipe(page, 200, rowY, -160, 0)
+            tryVerify(function() { return st[0].contentX > 40 }, 2000, "sideways: the row: " + st[0].contentX)
+            compare(page.contentY, 0, "and not the page")
+            tryVerify(function() { return !flickOf(st[0]).moving }, 3000, "the row comes to rest")
+            var x0 = st[0].contentX
+            swipe(page, 100, rowY, 0, -120)
+            tryVerify(function() { return page.contentY > 30 }, 2000, "up and down on the row: the page: " + page.contentY)
+            compare(st[0].contentX, x0, "and not the row")
+            page.destroy()
+        }
+
+        function test_2_three_fit() {
+            var v = topoComp.createObject(root, { width: 360, groups: root.three })
+            wait(50)
+            var st = strips(v)
+            compare(st.length, 1)
+            verify(!st[0].overflows, "three fit, no scrolling")
+            v.destroy()
+        }
+    }
 }
 '@
 
@@ -206,6 +322,8 @@ $work = Join-Path ([System.IO.Path]::GetTempPath()) ('scrollstrip_check_' + [gui
 New-Item -ItemType Directory -Force $work | Out-Null
 try {
     New-ModuleDir $work
+    Copy-Item (Join-Path $repo 'qml\app\DeviceTopologyView.qml') (Join-Path $work 'DeviceTopologyView.qml')
+    Copy-Item (Join-Path $repo 'qml\app\RecorderStatus.js') (Join-Path $work 'RecorderStatus.js')
     $path = Join-Path $work 'tst_scrollstrip.qml'
     Write-Utf8 $path $test
     $env:PATH = "$QtBin;$env:PATH"
