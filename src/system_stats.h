@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QHash>
 #include <QString>
 #include <QStringList>
 #include <QVector>
@@ -9,7 +10,8 @@
 
 /**
  * @brief Parsers of the Linux system files SystemMonitor reads (/proc/stat, /proc/meminfo, an eMMC's life_time, a
- * thermal zone's type, the disk and name of a volume), pure so the offline checks run them on samples.
+ * thermal zone's type, the disk and name of a volume, a DRM client's fdinfo), pure so the offline checks run them on
+ * samples.
  */
 namespace system_stats {
 
@@ -148,6 +150,59 @@ inline bool hiddenMount(const QString& rootPath)
 {
     return rootPath == QLatin1String("/boot") || rootPath.startsWith(QLatin1String("/boot/"))
            || rootPath == QLatin1String("/efi");
+}
+
+/** One DRM client's lines in an fdinfo (/proc/<pid>/fdinfo/<fd> of a /dev/dri node): its id, the driver, resident
+ *  memory in KiB, each engine's busy time in ns ("drm-engine-<e>: N ns"; panthor reports it only with its job
+ *  profiling on) and how many engines of a class there are ("drm-engine-capacity-<e>: N"). id -1 when the text is
+ *  not a DRM client's. */
+struct DrmClient {
+    qint64 id = -1;
+    QString driver;
+    qint64 residentKiB = -1;
+    QHash<QString, quint64> engineNs;
+    QHash<QString, int> capacity;
+};
+
+inline DrmClient parseDrmFdinfo(const QString& text)
+{
+    DrmClient c;
+    for (const QString& line : text.split(QLatin1Char('\n'))) {
+        const int colon = line.indexOf(QLatin1Char(':'));
+        if (colon <= 0)
+            continue;
+        const QString key = line.left(colon).trimmed();
+        const QStringList v = line.mid(colon + 1).simplified().split(QLatin1Char(' '));
+        if (key == QLatin1String("drm-client-id"))
+            c.id = v.value(0).toLongLong();
+        else if (key == QLatin1String("drm-driver"))
+            c.driver = v.value(0);
+        else if (key == QLatin1String("drm-resident-memory"))
+            c.residentKiB = v.value(0).toLongLong();
+        else if (key.startsWith(QLatin1String("drm-engine-capacity-")))
+            c.capacity.insert(key.mid(20), v.value(0).toInt());
+        else if (key.startsWith(QLatin1String("drm-engine-")) && v.value(1) == QLatin1String("ns"))
+            c.engineNs.insert(key.mid(11), v.value(0).toULongLong());
+    }
+    return c;
+}
+
+/** The GPU's busy share between two sums of its engines' busy time: the busiest engine class's time over the wall
+ *  time (and over its capacity), 0..1; -1 when no engine is in both samples or no time passed. */
+inline double drmBusy(const QHash<QString, quint64>& before, const QHash<QString, quint64>& after,
+                      const QHash<QString, int>& capacity, qint64 wallNs)
+{
+    if (wallNs <= 0)
+        return -1.0;
+    double busiest = -1.0;
+    for (auto it = after.cbegin(); it != after.cend(); ++it) {
+        const auto was = before.constFind(it.key());
+        if (was == before.cend() || it.value() < was.value())
+            continue;
+        const int engines = std::max(1, capacity.value(it.key(), 1));
+        busiest = std::max(busiest, std::clamp(double(it.value() - was.value()) / (double(wallNs) * engines), 0.0, 1.0));
+    }
+    return busiest;
 }
 
 /** What a thermal zone measures, from its type ("bigcore0-thermal", "gpu-thermal", "x86_pkg_temp", ...). */
