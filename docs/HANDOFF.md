@@ -216,7 +216,7 @@ genuine upstream bug and a candidate to report back.
 | `docs/fork-overview.ru.md` | the fork for upstream's GUI developer (Russian): upstream behaviour it changes, new ids and keys, and in its appendix every touched file, listed by git |
 
 This table is not complete (the boat mission's files, among others, are missing); the appendix of
-`docs/fork-overview.ru.md` is, as of `8344f012`.
+`docs/fork-overview.ru.md` is, as of `c7f9f1c2`.
 
 `tools/sonifier_check` and `tools/deconv_check` are separate CMake projects, not
 part of the application build. Nothing in the app references them. `deconv_check`
