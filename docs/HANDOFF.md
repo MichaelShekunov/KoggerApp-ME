@@ -866,7 +866,9 @@ the line shows the frequency and a plain bar. The stall monitor's GPU memory rea
 too; the footer keeps the uptime only. Measured on the kiosk with profiling on: 10.3 ms of GPU time in 2.09 s
 (0.5 %) at idle. Checks: mission_check offline 225/225 (+5 on the kiosk's own fdinfo lines), four C++ mutants
 caught; sysgui_check 11/11 in both fonts, 25 mutants caught; qmllint adds nothing; the Windows build. The same day
-the head unit got its clock (chrony, the RTC set; HeadUnit docs/STATE.md, "Часы").
+the head unit got its clock (chrony, the RTC set; HeadUnit docs/STATE.md, "Часы"). On the kiosk as `headunit`
+94b7e725 from 2026-10-01 by the owner's word (no QML errors; at start `GPU 500 of 1000 MHz, load 50.4 %, 48.1 C`, so
+the load is read there); this PC runs 8ee2cbb1.
 
 **A working sonar behind a recorder that is not recording is not red.** Owner 2026-09-30: the logger has no flash drive (red, rightly), and the sonar behind it turned red too while it worked. `RecorderStatus.pillState` took a device's colour from the recorder's per-port flags; a recorder that is not recording (severity "crit": storage lost, a failed recording, recording off) calls its ports lost. Such a recorder's port flags are now ignored and the device is shown by its own frames (dataStale, then the link). Check: `tools/qml_check/recorderpill_check.ps1` (fails on the rule before: "the working sonar behind it green"). On the kiosk as `headunit` 54ae4e46 from 2026-09-30, the owner: the sonar is green. This PC still runs 60073967 (the owner cancelled the UAC prompt for 0eb37775).
 
