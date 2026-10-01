@@ -25,6 +25,8 @@
 #include "mission_progress.h"
 #include "link_track.h"
 #include "air_meter.h"
+#include "system_stats.h"
+#include "system_monitor.h"
 #include "link/link_ask_all.h"
 
 #if defined(__GNUC__) || defined(__clang__)
@@ -1363,6 +1365,88 @@ void vehicleProgressRules()
     check("vehicle: disarmed - no progress", stopped);
 }
 
+// The system files' parsers (system_stats.h), on samples shaped like the head unit's (RK3588, 8 cores).
+void systemStatsRules()
+{
+    namespace st = system_stats;
+    const QString stat1 = QStringLiteral(
+        "cpu  1000 0 500 8000 100 0 20 0 0 0\n"
+        "cpu0 100 0 50 1000 10 0 5 0 0 0\n"
+        "cpu1 200 0 100 900 10 0 5 0 0 0\n"
+        "intr 12345\nctxt 999\n");
+    const QString stat2 = QStringLiteral(
+        "cpu  1100 0 550 8100 100 0 20 0 0 0\n"
+        "cpu0 175 0 50 1025 10 0 5 0 0 0\n"   // +75 busy, +25 idle: 75 %
+        "cpu1 200 0 100 1000 10 0 5 0 0 0\n"  // +0 busy, +100 idle: 0 %
+        "intr 12345\n");
+    const auto a = st::parseProcStat(stat1);
+    const auto b = st::parseProcStat(stat2);
+    check("system: /proc/stat - the cores, not the summary line", a.size() == 2 && b.size() == 2, QString::number(a.size()));
+    const auto l = st::loads(a, b);
+    check("system: a core's load between two samples", l.size() == 2 && std::abs(l[0] - 0.75) < 1e-9 && l[1] == 0.0,
+          QStringLiteral("%1 %2").arg(l.value(0)).arg(l.value(1)));
+    check("system: no earlier sample - 0", st::loads({}, b).value(0) == 0.0);
+    qint64 total = 0, avail = 0;
+    const bool mem = st::parseMeminfo(QStringLiteral("MemTotal:       16337488 kB\nMemFree:  1000 kB\nMemAvailable:   13104512 kB\n"),
+                                      &total, &avail);
+    check("system: /proc/meminfo - total and available", mem && total == 16337488 && avail == 13104512);
+    check("system: /proc/meminfo without MemAvailable - no", !st::parseMeminfo(QStringLiteral("MemTotal: 100 kB\n"), &total, &avail));
+    check("system: eMMC life_time 0x01 0x02 - wear up to 20 %", st::emmcWearPercent(QStringLiteral("0x01 0x02\n")) == 20);
+    check("system: eMMC beyond its rated life (0x0B) - 110", st::emmcWearPercent(QStringLiteral("0x0B 0x01")) == 110);
+    check("system: no life_time - unknown", st::emmcWearPercent(QString()) == -1 && st::emmcWearPercent(QStringLiteral("0x00 0x00")) == -1);
+    check("system: thermal zones by type",
+          st::thermalKind(QStringLiteral("bigcore0-thermal")) == st::ThermalCpu
+              && st::thermalKind(QStringLiteral("littlecore-thermal")) == st::ThermalCpu
+              && st::thermalKind(QStringLiteral("package-thermal")) == st::ThermalCpu
+              && st::thermalKind(QStringLiteral("soc-thermal")) == st::ThermalCpu
+              && st::thermalKind(QStringLiteral("x86_pkg_temp")) == st::ThermalCpu
+              && st::thermalKind(QStringLiteral("gpu-thermal")) == st::ThermalGpu
+              && st::thermalKind(QStringLiteral("npu-thermal")) == st::ThermalNpu
+              && st::thermalKind(QStringLiteral("acpitz")) == st::ThermalOther
+              && st::thermalKind(QStringLiteral("center-thermal")) == st::ThermalOther);
+    check("system: a volume's disk",
+          st::diskOf(QStringLiteral("/dev/mmcblk0p1")) == QLatin1String("mmcblk0")
+              && st::diskOf(QStringLiteral("/dev/mmcblk1")) == QLatin1String("mmcblk1")
+              && st::diskOf(QStringLiteral("/dev/nvme0n1p3")) == QLatin1String("nvme0n1")
+              && st::diskOf(QStringLiteral("/dev/nvme0n1")) == QLatin1String("nvme0n1")
+              && st::diskOf(QStringLiteral("/dev/sda1")) == QLatin1String("sda")
+              && st::diskOf(QStringLiteral("/dev/mapper/root")).isEmpty() && st::diskOf(QStringLiteral("C:")).isEmpty(),
+          st::diskOf(QStringLiteral("/dev/mmcblk0p1")) + QLatin1Char(' ') + st::diskOf(QStringLiteral("/dev/nvme0n1p3")));
+    check("system: a disk's kind",
+          st::diskKind(QStringLiteral("mmcblk0"), QStringLiteral("MMC\n"), false) == QLatin1String("eMMC")
+              && st::diskKind(QStringLiteral("mmcblk1"), QStringLiteral("SD"), true) == QLatin1String("SD")
+              && st::diskKind(QStringLiteral("nvme0n1"), QString(), false) == QLatin1String("NVMe")
+              && st::diskKind(QStringLiteral("sda"), QString(), true) == QLatin1String("USB")
+              && st::diskKind(QStringLiteral("sda"), QString(), false).isEmpty());
+    check("system: a volume's name and the mounts left out",
+          st::volumeName(QStringLiteral("/")) == QLatin1String("/") && st::volumeName(QStringLiteral("/data")) == QLatin1String("/data")
+              && st::volumeName(QStringLiteral("/media/orangepi/KINGSTON")) == QLatin1String("KINGSTON")
+              && st::hiddenMount(QStringLiteral("/boot")) && st::hiddenMount(QStringLiteral("/boot/efi"))
+              && !st::hiddenMount(QStringLiteral("/")) && !st::hiddenMount(QStringLiteral("/bootstrap")));
+    check("system: eMMC life_time as the head unit reads it (0x01 0x00) - up to 10 %",
+          st::emmcWearPercent(QStringLiteral("0x01 0x00\n")) == 10);
+}
+
+// SystemMonitor on this computer, live: whatever it is, it has cores, memory, a volume and an uptime.
+void systemMonitorLiveRules()
+{
+    SystemMonitor m;
+    m.subscribe();
+    waitFor([&] { return m.coreLoad().size() > 0 && !m.volumes().isEmpty(); }, 2500);
+    QThread::msleep(1100);
+    QCoreApplication::processEvents();
+    const QString seen = QStringLiteral("%1 cores, max MHz %2, now %3 MHz, load %4, memory %5/%6 GB, %7 volumes, uptime %8 s, CPU %9 C")
+        .arg(m.coreLoad().size()).arg(m.coreMaxMHz().value(0)).arg(m.cpuFreqMHz()).arg(m.cpuLoad(), 0, 'f', 2)
+        .arg(m.memUsedGB(), 0, 'f', 1).arg(m.memTotalGB(), 0, 'f', 1).arg(m.volumes().size()).arg(m.uptimeS()).arg(m.cpuTempC());
+    check("system live: available, cores, memory, a volume, the uptime",
+          m.available() && m.coreLoad().size() >= 1 && m.memTotalGB() > 0.5 && m.memUsedGB() > 0.0
+              && m.memUsedGB() < m.memTotalGB() && !m.volumes().isEmpty() && m.uptimeS() > 0, seen);
+    check("system live: each core's frequency and maximum", m.coreFreqMHz().size() == m.coreLoad().size()
+              && m.coreMaxMHz().value(0) > 0 && m.cpuFreqMHz() > 0, seen);
+    check("system live: loads 0..1", std::all_of(m.coreLoad().cbegin(), m.coreLoad().cend(), [](double l) { return l >= 0.0 && l <= 1.0; }) && m.cpuLoad() >= 0.0, seen);
+    m.unsubscribe();
+}
+
 int main(int argc, char* argv[])
 {
     QCoreApplication app(argc, argv);
@@ -1395,6 +1479,8 @@ int main(int argc, char* argv[])
     linkTrackRules();
     airMeterRules();
     vehicleProgressRules();
+    systemStatsRules();
+    systemMonitorLiveRules();
     if (cli.isSet(QStringLiteral("offline"))) {
         std::printf("\n%d checks, %d failed (offline)\nMISSION_CHECK_%s\n", g_checks, g_failed, g_failed ? "FAILED" : "DONE");
         return g_failed ? 1 : 0;

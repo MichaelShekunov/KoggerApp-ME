@@ -208,6 +208,8 @@ genuine upstream bug and a candidate to report back.
 | `qml/kqml_types/KScreenKeyboard.qml` | on-screen keyboard panel |
 | `docs/WIFI_MODULE.md` | the Wi-Fi module: protocol contract and what the app does with it |
 | `qml/kqml_types/WifiSignalIcon.qml` | the Wi-Fi symbol lit by signal level (Devices chips, toolbar badges) |
+| `src/system_monitor.{h,cpp}`, `src/system_stats.h` | the computer the app runs on, for the "System" widget |
+| `qml/app/SystemOverview.qml` | the "System" widget's cell |
 
 `tools/sonifier_check` and `tools/deconv_check` are separate CMake projects, not
 part of the application build. Nothing in the app references them. `deconv_check`
@@ -823,6 +825,33 @@ topology group), `hideOnPage` in the catalog; checked under qmltestrunner with t
 stays, as upstream has it (the same retune of that link, not changed). On the kiosk as `headunit` 131c957b from
 2026-09-29 by the owner's word (no QML errors in kogger.log; the boat was away, so the hidden row on its devices
 is not seen on the hardware yet); this PC runs a937fa06.
+
+**The "System" widget: the computer the app runs on.** Owner 2026-10-01: a compact, good-looking widget for the
+system's state - the cores' frequencies, memory, the CPU temperature, the drives, and what else. `SystemMonitor`
+(`src/system_monitor.*`, context property `systemMonitor`) reads once a second while a widget cell shows one of its
+fields (`subscribe` / `unsubscribe` from WidgetCellContent; the volumes every tenth time), and for a moment 3 s after
+the start, so kogger.log has its line once with no widget shown (`system monitor: N cores (max MHz ...), throttled ..., CPU .. C, GPU .. MHz .. C, memory ../.. GB, volumes ..,
+uptime .. s`). Linux: each core's cpufreq (now, `cpuinfo_max_freq`, and `scaling_max_freq` below it = "held below
+its maximum"), `/proc/stat` (loads), `/proc/meminfo` (MemAvailable), the thermal zones (the hottest CPU zone, the
+GPU's), devfreq (the GPU's frequency), QStorageInfo (local volumes, not /boot, three at most) with `/sys/block` (the
+disk's kind eMMC / SD / NVMe / USB, an eMMC's `life_time` as its wear, on the disk's first volume), `/proc/uptime`.
+Windows: loads (ntdll), frequencies (powrprof), memory, volumes, uptime; no temperatures. The parsers are pure, in
+`src/system_stats.h`. Fields (group "system"): "System" - all of it in one cell (`qml/app/SystemOverview.qml`) -
+and "CPU", "CPU temperature", "Memory", "Storage", "Uptime". The overview: the mean load and a temperature chip (and
+a red mark when held back), a bar per core (height its frequency of its maximum, colour its load, a gap between the
+clusters), memory and the volumes as lines over bars (the disk's kind as a chip coloured by its wear), the GPU and
+the uptime; a wide cell (2x1, 4x2) in two columns. What does not fit is left out from the bottom up; a line too long
+drops its least needed part (the frequency, the wear's number, the GPU's frequency) or shows a percentage instead of
+the amount - measured in the font it is drawn in. The head unit as read on 2026-10-01 (*Verified*): 8 cores, 4 to
+1800 MHz and 4 to 2400 MHz; zones package, bigcore0, bigcore2, littlecore, center, gpu, npu; devfreq fb000000.gpu;
+one eMMC (mmcblk0, type MMC, life_time 0x01 0x00: up to 10 % of its life) with "/" (12 GB, 74 % used) and "/data"
+(17 GB); its font DejaVu Sans (`fc-match sans-serif`). Checks: mission_check offline 220/220 (+16: the parsers on the
+head unit's names, the live monitor on this PC), four C++ mutants caught; `tools/qml_check/sysgui_check.ps1` (the
+real overview, cell and catalog over mock monitors: the bars, the fallbacks, every cell size at two scales, every
+height, the subscription; `-FontDir` with DejaVu Sans measures as the head unit does) 10/10 in both fonts, 18
+mutants caught; qmllint adds only the kinds those files already have; the Windows build. QtTest takes a test
+function whose name ends in `_data` for the data of another and silently does not run it. Not done (asked "what
+else"): the NPU's load (debugfs, root), the app's own memory, the network per interface.
 
 **A working sonar behind a recorder that is not recording is not red.** Owner 2026-09-30: the logger has no flash drive (red, rightly), and the sonar behind it turned red too while it worked. `RecorderStatus.pillState` took a device's colour from the recorder's per-port flags; a recorder that is not recording (severity "crit": storage lost, a failed recording, recording off) calls its ports lost. Such a recorder's port flags are now ignored and the device is shown by its own frames (dataStale, then the link). Check: `tools/qml_check/recorderpill_check.ps1` (fails on the rule before: "the working sonar behind it green"). On the kiosk as `headunit` 54ae4e46 from 2026-09-30, the owner: the sonar is green. This PC still runs 60073967 (the owner cancelled the UAC prompt for 0eb37775).
 

@@ -120,6 +120,8 @@ qt_add_executable(KoggerApp
     src/screen_keyboard.h          src/screen_keyboard.cpp
     src/vehicle/mav_vehicle.h      src/vehicle/mav_vehicle.cpp
     src/system_battery.h           src/system_battery.cpp
+    src/system_monitor.h           src/system_monitor.cpp
+    src/system_stats.h
     src/xtf_conf.h
     src/location_reader.h          src/location_reader.cpp
     src/mosaic_index_provider.h    src/mosaic_index_provider.cpp

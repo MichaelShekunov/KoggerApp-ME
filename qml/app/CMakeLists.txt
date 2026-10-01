@@ -90,6 +90,7 @@ qt_add_qml_module(kogger_app
         VideoSurface.qml
         WidgetCard.qml
         WidgetCellContent.qml
+        SystemOverview.qml
         WidgetDragHandle.qml
         WidgetEditOverlay.qml
         WidgetEditPage.qml

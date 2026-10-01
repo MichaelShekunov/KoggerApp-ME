@@ -253,6 +253,7 @@ try {
     Copy-Item (Join-Path $repo 'qml\scene3d\BoatMissionLayer.qml') (Join-Path $work 'BoatMissionLayer.qml')
     Copy-Item (Join-Path $repo 'qml\scene3d\BoatMissionPanel.qml') (Join-Path $work 'BoatMissionPanel.qml')
     Copy-Item (Join-Path $repo 'qml\app\WidgetCellContent.qml') (Join-Path $work 'WidgetCellContent.qml')
+    Copy-Item (Join-Path $repo 'qml\app\SystemOverview.qml') (Join-Path $work 'SystemOverview.qml')   # WidgetCellContent's
     $pic = if ($Picture) { [System.IO.Path]::GetFullPath($Picture).Replace('\', '/') } else { '' }
     $path = Join-Path $work 'tst_boatgui.qml'
     Write-Utf8 $path $test.Replace('%PICTURE%', $pic)

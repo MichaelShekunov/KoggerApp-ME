@@ -42,6 +42,9 @@ QtObject {
     readonly property var linkQualityColors: ["#22C55E", "#A3E635", "#F59E0B", "#EF4444", "#94A3B8", "#EF4444"]
     // The "On the link" widget's bar: echogram, telemetry, service.
     readonly property var airColors: ["#38BDF8", "#F59E0B", "#94A3B8"]
+    // The "System" widget: a load, a temperature or a fill by level (fine, high, critical), and a fill's own colour.
+    readonly property var systemLevelColors: ["#22C55E", "#F59E0B", "#EF4444"]
+    readonly property color systemFill: "#38BDF8"
 
     // Sidebar slide-in/out animation duration (panel.x, opacity). Tunable
     // independently from the workspace rubber-band so the two motions can

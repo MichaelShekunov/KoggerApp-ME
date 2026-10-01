@@ -11,6 +11,35 @@ Item {
     property real gap: 0
     // A stacked bar under the value (DataFieldCatalog.bars): [{ v, c }], each part as wide as its share of the sum.
     property var bars: []
+    // The field and SystemMonitor (or its sample): "System" is drawn whole by SystemOverview, and a cell of a
+    // system field keeps the monitor reading while it lives.
+    property string field: ""
+    property var sys: null
+    readonly property bool _overview: content.field === "sysOverview"
+    property var _subscribed: null
+    function _syncSubscription() {
+        var want = (DataFieldCatalog.usesSystem(content.field) && content.sys && typeof content.sys.subscribe === "function")
+                   ? content.sys : null
+        if (want === content._subscribed)
+            return
+        if (content._subscribed)
+            content._subscribed.unsubscribe()
+        content._subscribed = want
+        if (want)
+            want.subscribe()
+    }
+    onFieldChanged: _syncSubscription()
+    onSysChanged: _syncSubscription()
+    Component.onCompleted: _syncSubscription()
+    Component.onDestruction: if (content._subscribed) content._subscribed.unsubscribe()
+
+    SystemOverview {
+        objectName: "sysOverview"
+        visible: content._overview
+        anchors.fill: parent
+        sys: content.sys
+        k: content.k
+    }
 
     readonly property real _margin: Math.round(6 * k)
     readonly property real _minPx: Math.max(6, Math.round(7 * k))
@@ -62,7 +91,7 @@ Item {
     }
 
     ValueView {
-        visible: content.rep === "value"
+        visible: content.rep === "value" && !content._overview
         anchors.fill: parent
         anchors.margins: content._margin
         anchors.bottomMargin: content._margin + content._barSpace
@@ -73,7 +102,7 @@ Item {
     }
 
     Item {
-        visible: content.rep === "labelValueStacked"
+        visible: content.rep === "labelValueStacked" && !content._overview
         anchors.fill: parent
         anchors.margins: content._margin
         anchors.bottomMargin: content._margin + content._barSpace
@@ -108,7 +137,7 @@ Item {
     }
 
     Item {
-        visible: content.rep === "labelValueRow"
+        visible: content.rep === "labelValueRow" && !content._overview
         anchors.fill: parent
         anchors.margins: content._margin
         anchors.bottomMargin: content._margin + content._barSpace
