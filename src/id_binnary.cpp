@@ -3,9 +3,8 @@
 #include <QDateTime>
 #include <utility>
 
-// The codec is kept byte-identical to the copy the device runs, so it carries
-// no C++ linkage guard of its own and gets one here instead. Do not "fix" this
-// by editing kec.h: the two copies drifting apart is the failure this avoids.
+// src/kec is the decoder half of the device's codec, kept as the device runs it,
+// so it carries no C++ linkage guard of its own and gets one here instead.
 extern "C" {
 #include "kec.h"
 }

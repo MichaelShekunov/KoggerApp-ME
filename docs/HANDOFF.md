@@ -706,3 +706,25 @@ with a control for the reset race), live on the two boards (C++ engine, 10.5 s f
 through `KOGGER_AUTOTEST=COM13` + `KOGGER_AUTOUPGRADE=<file>|all|2` (kogger.log 2026-10-01 11:56:06-11:56:16:
 both boards 1.12, 469 chunks each). Details, the measured bootloader behaviour and the limits:
 `docs/RING_UPDATE.md`. Not done: the head unit, where the rate is the Wi-Fi module's port, not the PC's.
+
+## Echogram codec: the decoder only (owner, 2026-10-01)
+
+Owner: the app goes without the sonar-side codec. `src/kec` is now the decoder half of the device's codec, cut
+from the file the device runs by line ranges, so the decoder's code is unchanged (`git diff` shows only removed
+encoder lines and comments); the encoder, its rate control and the forward DCT stay in the firmware tree, and
+`kec.h` declares only `kec_decode_ping` and `kec_decode_frame`. `kec_tab.h` (the DCT table the inverse needs) is
+unchanged.
+
+The file used to be kept byte-identical to the device's so the two ends could not drift apart. That guard is
+replaced by vectors: `tools/mission_check/kec_vectors.h` holds 16 pings encoded by the device's encoder (1 to
+2000 samples, zero, saturated, noise and echogram shapes, rate control carried across pings) with the FNV-1a of
+what the device's decoder returns; `kecDecodeRules()` decodes them with the app's decoder (4 checks).
+`kec_vectors_gen.c` made them and builds only against the device's codec, never against `src/kec`.
+
+Verified by machine: the stripped decoder against the original one on the 16 vectors and on a million random
+and mutated streams (same return, same output buffer, 0 differences); five decoder mutants (adaptation rate,
+coefficient clamp, dead zone, Exp-Golomb cap, the coder's start byte) each fail the vectors; mission_check
+offline 229/229; the Windows build (no warnings; `kec.c.obj` exports the two decoder functions only).
+
+Left: the encoder is still in this repository's history (from ae8cbf65 on); only a history rewrite removes it,
+which nobody has asked for. Old head-unit deploy trees and builds made before this commit still carry it too.
