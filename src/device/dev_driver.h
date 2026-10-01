@@ -98,8 +98,19 @@ public:
 
     /// A sonar answering on a bus address 1..15: one board of a ring on a shared line (or a lone board
     /// with an address). The stock flow cannot reach its bootloader; its update goes through
-    /// RingUpgrade (docs/RING_UPDATE.md), which sendUpdateFW() hands it to.
-    bool isRingBoard() { return boardVersion() == BoardBasic2D && lastAddress_ >= 1 && lastAddress_ <= 15; }
+    /// RingUpgrade (docs/RING_UPDATE.md), which sendUpdateFW() hands it to. Not a sonar behind a
+    /// recorder: its "address" is the recorder's port number, its frames come as KP2, and the ring
+    /// procedure cannot drive the recorder's port.
+    bool isRingBoard() { return boardVersion() == BoardBasic2D && lastAddress_ >= 1 && lastAddress_ <= 15 && !viaRecorder_; }
+    /// A sonar of a ring (bus address 1..15, firmware 1.14+) behind a recorder. The recorder hands every
+    /// frame to its sonar port as a broadcast, so this sonar's commands go wrapped in ID_NODE_CMD naming
+    /// it (docs/RING_UPDATE.md). Its firmware cannot be updated through the recorder: the bootloader
+    /// needs 115200 on a port the recorder keeps at its own rate.
+    bool isRingBehindRecorder() {
+        const int fw = idVersion->fwVersion(), fwMinor = idVersion->fwVersionMinor();
+        return boardVersion() == BoardBasic2D && viaRecorder_ && lastAddress_ >= 1 && lastAddress_ <= 15
+               && (fw > 1 || (fw == 1 && fwMinor >= 14));
+    }
     /// Version the image is expected to report ("1.12"), taken from the file name; empty = not checked.
     void setUpgradeExpect(const QString& version) { upgradeExpect_ = version; }
     /// Every ring board on this device's line, the last one first.
@@ -754,6 +765,8 @@ protected:
     bool rebootFlag_ = false;
     int m_upgrade_status = 0;
     QString upgradeExpect_;
+    bool viaRecorder_ = false;   ///< frames came as KP2: the device sits behind a recorder
+    void onIdFrameOut(Parsers::ProtoBinOut out);   ///< a command leaving; wrapped for a ring sonar behind a recorder
     int64_t _lastUpgradeAnswerTime = 0;
     int64_t _timeoutUpgradeAnswerTime = 0;
     int64_t upgradeStartedTime_ = 0;

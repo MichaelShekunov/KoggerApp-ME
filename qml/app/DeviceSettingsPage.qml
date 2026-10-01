@@ -5094,6 +5094,15 @@ Column {
 
         DevIslandTitle { label: qsTr("Upgrade") }
 
+        // A ring sonar behind a recorder: the recorder keeps its sonar port at its own rate, and the
+        // bootloader needs 115200 -- no update through it (docs/RING_UPDATE.md).
+        Text {
+            visible: !!(dev && dev.isRingBehindRecorder)
+            width: parent.width
+            text: qsTr("This sonar shares a line behind a recorder. To update it, connect the ring to a computer directly.")
+            color: AppPalette.textMuted; font.pixelSize: Tokens.fontSm; wrapMode: Text.WordWrap
+        }
+
         property var upgradeFolder: StandardPaths.writableLocation(StandardPaths.HomeLocation)
         property string selectedUpgradePathSource: ""
 
@@ -5209,7 +5218,7 @@ Column {
         }
 
         DevStackedRow {
-            open: upgradePathInput.text !== ""
+            open: upgradePathInput.text !== "" && !(dev && dev.isRingBehindRecorder)
             DevButton {
                 width: parent.width; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
                 text: qsTr("UPGRADE")
