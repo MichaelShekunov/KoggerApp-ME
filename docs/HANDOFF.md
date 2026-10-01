@@ -897,7 +897,10 @@ right after memory (`/data 0.1/16.5`), and the Storage field shows it. Found on 
 recordings (KLF) go by default to Documents/KoggerApp/logs (`Logger`, empty `logging/recordFolder`) - on the head
 unit ~/Documents on "/", where 5 files lie (1.5 MB); exports too. Checks: sysgui_check 12/12 in both fonts (the
 acceptance test asks for the data volume in numbers, `/data` on the head unit; the catalog's Storage), two more
-mutants caught; on this PC the log marks `C: (app data)`.
+mutants caught; on this PC the log marks `C: (app data)`. On the owner's word the head unit's ~/Documents is now a
+bind mount from /data too (HeadUnit docs/STATE.md, `move_documents_to_data.sh`), so the recordings and the
+exports land on /data; the app's paths are unchanged. On the kiosk as `headunit` 302cba27 from 2026-10-01 (no QML
+errors; `/data (app data) 1.0/16.5 GB` in its line); this PC runs a60bde45.
 
 **A working sonar behind a recorder that is not recording is not red.** Owner 2026-09-30: the logger has no flash drive (red, rightly), and the sonar behind it turned red too while it worked. `RecorderStatus.pillState` took a device's colour from the recorder's per-port flags; a recorder that is not recording (severity "crit": storage lost, a failed recording, recording off) calls its ports lost. Such a recorder's port flags are now ignored and the device is shown by its own frames (dataStale, then the link). Check: `tools/qml_check/recorderpill_check.ps1` (fails on the rule before: "the working sonar behind it green"). On the kiosk as `headunit` 54ae4e46 from 2026-09-30, the owner: the sonar is green. This PC still runs 60073967 (the owner cancelled the UAC prompt for 0eb37775).
 
