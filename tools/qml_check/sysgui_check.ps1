@@ -116,6 +116,27 @@ Item {
                                { name: "KINGSTON", kind: "USB", wearPct: -1, totalGB: 58.6, usedGB: 41.0 }]
         property int uptimeS: 309600
     }
+    // everything at its top: the widest numbers each line can have
+    QtObject {
+        id: peak
+        property bool available: true
+        property var coreFreqMHz: [1800, 1800, 1800, 1800, 2400, 2400, 2400, 2400]
+        property var coreMaxMHz: [1800, 1800, 1800, 1800, 2400, 2400, 2400, 2400]
+        property var coreLoad: [1, 1, 1, 1, 1, 1, 1, 1]
+        property real cpuLoad: 1.0
+        property int cpuFreqMHz: 2400
+        property real cpuTempC: 101
+        property real gpuTempC: 101
+        property int gpuFreqMHz: 1000
+        property int gpuMaxMHz: 1000
+        property real gpuLoad: 1.0
+        property bool throttled: true
+        property real memTotalGB: 15.6
+        property real memUsedGB: 15.5
+        property var volumes: [{ name: "/", kind: "eMMC", wearPct: 110, totalGB: 11.7, usedGB: 11.6 },
+                               { name: "/data", kind: "", wearPct: -1, totalGB: 16.5, usedGB: 16.4 }]
+        property int uptimeS: 8639999
+    }
     // a Windows computer: no temperatures, no GPU, two disks
     QtObject {
         id: win
@@ -224,13 +245,11 @@ Item {
             compare(findOne(ov, "sysCpu").text, "\u2014", "no load yet")
             mon.cpuLoad = 0.40
             ov.destroy()
-            // the smallest cell: the load and the temperature only, nothing cut
+            // the smallest cell is compact: no header, its CPU line instead (test_3b)
             var small = overview(cellPx(1, 1.11), cellPx(1, 1.11), 1.11, mon)
             wait(20)
-            compare(findOne(small, "sysCpu").text, "40 %")
-            verify(!findOne(small, "sysCpu").truncated)
-            verify(!findOne(small, "sysCpuGhz").visible, "narrow: no frequency")
-            verify(shown(findOne(small, "sysTemp")), "narrow: the temperature stays")
+            verify(small._compact, "1 x 1: compact")
+            verify(!shown(findOne(small, "sysCpu")) && !shown(findOne(small, "sysCores")), "no header, no cores")
             small.destroy()
         }
 
@@ -286,25 +305,62 @@ Item {
             verify(Qt.colorEqual(rowParts(hrows[0]).fill.color, "#EF4444"), "95 % red")
             compare(findOne(hotOv, "sysUptime").text, "up 3 d 14 h")
             hotOv.destroy()
-            // a small wide cell (2 x 1): percentages on the right, the disk's kind stays
+            // a small wide cell (2 x 1): the amounts kept, shortened (the unit, the spaces); the disk as the name
             var two = overview(cellPx(2, 1.11), cellPx(1, 1.11), 1.11, mon)
             wait(20)
             var trows = byIndex(findAll(two, "sysRow", []))
-            compare(rowParts(trows[0]).value.text, "20 %")
-            compare(trows[1].form, 2)
-            compare(rowParts(trows[1]).pill.children[0].text, "eMMC")
-            compare(rowParts(trows[1]).value.text, "74 %")
+            verify(/3\.1 ?\/ ?15\.6/.test(rowParts(trows[0]).value.text), "memory in numbers: " + rowParts(trows[0]).value.text)
+            verify(/8\.7 ?\/ ?11\.7/.test(rowParts(trows[1]).value.text), "the eMMC in numbers: " + rowParts(trows[1]).value.text)
+            verify(rowParts(trows[1]).label.text === "eMMC" || rowParts(trows[1]).pill.children[0].text.indexOf("eMMC") === 0,
+                   "the disk named: " + rowParts(trows[1]).label.text)
             two.destroy()
-            // the smallest cell: the GPU and memory; no room for the volumes and the footer
-            var small = overview(cellPx(1, 1.11), cellPx(1, 1.11), 1.11, mon)
-            wait(20)
-            var srows = byIndex(findAll(small, "sysRow", []))
-            compare(srows[0].line.key, "gpu")
-            compare(srows[1].line.key, "ram")
-            verify(srows[0].visible && srows[1].visible && !srows[2].visible, "two lines fit")
-            compare(rowParts(srows[1]).value.text, "20 %")
-            verify(!findOne(small, "sysFoot").visible, "no room for the footer")
-            small.destroy()
+        }
+
+        // The owner's 1 x 1 (2026-10-01): the CPU and the GPU, each with its temperature and load, memory and the
+        // system volume in numbers - at both scales, in every mock, in the font given, whichever layout it takes.
+        function test_3b_compact() {
+            var mocks = [{ m: mon, name: "head unit", gpu: true }, { m: hot, name: "hot", gpu: true },
+                         { m: peak, name: "peak", gpu: true }, { m: win, name: "Windows", gpu: false }]
+            var scales = [1.11, 1.5]
+            for (var c = 0; c < scales.length; ++c) for (var q = 0; q < mocks.length; ++q) {
+                var k = scales[c], s = mocks[q].m
+                var tag = "1x1 k " + k + " " + mocks[q].name
+                var ov = overview(cellPx(1, k), cellPx(1, k), k, s)
+                wait(10)
+                var rows = byIndex(findAll(ov, "sysRow", [])).filter(function(r) { return r.visible })
+                var byKey = {}
+                for (var i = 0; i < rows.length; ++i) byKey[rows[i].line.key] = rowParts(rows[i])
+                var load = Math.round(s.cpuLoad * 100), temp = Math.round(s.cpuTempC) + "\u00b0"
+                if (ov._compact) {
+                    var cpu = byKey["cpu"]
+                    verify(cpu !== undefined, tag + ": the CPU line")
+                    verify(new RegExp("^" + load + " ?%").test(cpu.value.text), tag + ": the CPU's load " + cpu.value.text)
+                    if (isFinite(s.cpuTempC))
+                        verify(shown(cpu.pill) && cpu.pill.children[0].text.indexOf(temp) >= 0, tag + ": the CPU's temperature")
+                } else {
+                    verify(new RegExp("^" + load + " ?%").test(findOne(ov, "sysCpu").text), tag + ": the CPU's load in the header")
+                    if (isFinite(s.cpuTempC))
+                        verify(shown(findOne(ov, "sysTemp")), tag + ": the CPU's temperature in the header")
+                }
+                if (mocks[q].gpu) {
+                    var gpu = byKey["gpu"]
+                    verify(gpu !== undefined, tag + ": the GPU line")
+                    verify(new RegExp("^" + Math.round(s.gpuLoad * 100) + " ?%").test(gpu.value.text), tag + ": the GPU's load " + gpu.value.text)
+                    verify(shown(gpu.pill) && gpu.pill.children[0].text === Math.round(s.gpuTempC) + "\u00b0", tag + ": the GPU's temperature")
+                } else {
+                    verify(byKey["gpu"] === undefined, tag + ": no GPU line without a GPU")
+                }
+                var ram = byKey["ram"]
+                verify(ram !== undefined && /\d+\.\d ?\/ ?\d+(\.\d)?/.test(ram.value.text), tag + ": memory in numbers " + (ram ? ram.value.text : ""))
+                var vol = byKey["vol0"]
+                verify(vol !== undefined && /\d+\.\d ?\/ ?\d+(\.\d)?/.test(vol.value.text), tag + ": the system volume in numbers " + (vol ? vol.value.text : ""))
+                if (s === mon)
+                    compare(vol.label.text, "eMMC", tag + ": the head unit's disk named")
+                var tx = texts(ov, [])
+                for (i = 0; i < tx.length; ++i)
+                    if (shown(tx[i])) verify(!tx[i].truncated, tag + ": \"" + tx[i].text + "\" cut")
+                ov.destroy()
+            }
         }
 
         function test_3a_gpu() {
@@ -323,10 +379,11 @@ Item {
             compare(gp.pill.children[0].text, "48\u00b0")
             verify(Qt.colorEqual(gp.pill.border.color, "#22C55E"), "48 green")
             compare(gp.value.text, "12 % \u00b7 300 MHz")
-            compare(gp.fill.width, Math.max(gp.fill.height, Math.round(gp.fill.parent.width * 0.3)), "the bar: 300 of 1000 MHz")
+            compare(gp.fill.width, Math.max(gp.fill.height, Math.round(gp.fill.parent.width * 0.12)), "the bar: its load")
             verify(Qt.colorEqual(gp.fill.color, "#22C55E"), "12 % green")
             mon.gpuLoad = -1
             compare(gp.value.text, "300 MHz", "no load reported: the frequency")
+            compare(gp.fill.width, Math.max(gp.fill.height, Math.round(gp.fill.parent.width * 0.3)), "no load: 300 of 1000 MHz")
             verify(Qt.colorEqual(gp.fill.color, AppPalette.systemFill), "no load: the plain colour")
             mon.gpuLoad = 0.12
             ov.destroy()
@@ -345,7 +402,7 @@ Item {
             compare(hp.value.text, "97 % \u00b7 1000 MHz")
             verify(Qt.colorEqual(hp.pill.border.color, "#EF4444"), "81 red")
             verify(Qt.colorEqual(hp.fill.color, "#EF4444"), "97 % red")
-            compare(hp.fill.width, hp.fill.parent.width, "1000 of 1000 MHz")
+            compare(hp.fill.width, Math.round(hp.fill.parent.width * 0.97), "97 % of the bar")
             h.destroy()
             // nothing known of the GPU (the Windows mock): no line
             var w = overview(700, cellPx(2, 1.11), 1.11, win)
@@ -358,7 +415,7 @@ Item {
         function test_4_sizes() {
             var units = [[1, 1], [2, 1], [2, 2], [4, 2]]
             var scales = [1.11, 1.5]
-            var sources = [mon, hot, win]
+            var sources = [mon, hot, peak, win]
             for (var u = 0; u < units.length; ++u) for (var c = 0; c < scales.length; ++c) for (var m = 0; m < sources.length; ++m) {
                 var k = scales[c]
                 var w = cellPx(units[u][0], k), h = cellPx(units[u][1], k)
@@ -386,7 +443,7 @@ Item {
                 var labels = findAll(ov, "sysRowLabel", [])
                 for (i = 0; i < labels.length; ++i)
                     if (shown(labels[i]) && labels[i].truncated) {
-                        compare(labels[i].parent.form, 3, tag + ": \"" + labels[i].text + "\" cut before the rest gave way")
+                        compare(labels[i].parent.form, labels[i].parent._cands.length - 1, tag + ": \"" + labels[i].text + "\" cut before the rest gave way")
                         verify(!rowParts(labels[i].parent).pill.visible, tag + ": \"" + labels[i].text + "\" cut for the disk's kind")
                     }
                 var rows = byIndex(findAll(ov, "sysRow", []))
@@ -415,6 +472,23 @@ Item {
                 if (box.n > 1)
                     verify(box.barW >= Math.max(1, box.gap), tag + ": bars " + box.barW + " px against gaps " + box.gap)
                 ov.destroy()
+            }
+            // every width of a cell one and two units high: no text cut but a name with nothing else to give
+            var hs = [cellPx(1, 1.11), cellPx(2, 1.11)]
+            for (var hi = 0; hi < hs.length; ++hi) {
+                var sweep = overview(80, hs[hi], 1.11, mon)
+                for (var ww = 80; ww <= 420; ww += 2) {
+                    sweep.width = ww
+                    var swTag = "w " + ww + " h " + hs[hi]
+                    var swTexts = texts(sweep, [])
+                    for (var ti = 0; ti < swTexts.length; ++ti) {
+                        var tt = swTexts[ti]
+                        if (!shown(tt) || !tt.truncated) continue
+                        verify(tt.objectName === "sysRowLabel" && tt.parent.form === tt.parent._cands.length - 1,
+                               swTag + ": \"" + tt.text + "\" cut")
+                    }
+                }
+                sweep.destroy()
             }
             // every height of a column and of a wide cell: the footer only after all the rows, nothing past the bottom
             var probes = [{ w: cellPx(2, 1.11), wide: false }, { w: cellPx(4, 1.11), wide: true }]

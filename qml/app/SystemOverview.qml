@@ -5,16 +5,21 @@ import kqml_types 1.0
 // (context property systemMonitor) or a sample with its names (DataFieldCatalog.systemSample, the palette).
 //   CPU 40 %  2.40 GHz        ▼ (52°)    the mean load, the fastest core; ▼ held below its maximum; the hottest zone
 //   ▂▃▂▅ ▇▆▅▇                           each core: height its frequency of its maximum, colour its load
-//   GPU  (48°)        12 % · 300 MHz     the GPU like one more core: the bar its frequency of its maximum, coloured
-//   ━━━━━━━━━──────────────────────────  by its load
+//   GPU  (48°)        12 % · 300 MHz     the GPU: the bar its load
+//   ━━━━━──────────────────────────────
 //   RAM                  3.1 / 15.6 GB
 //   ━━━━━━─────────────────────────────
 //   /  (eMMC ≤10 %)       8.7 / 11.7 GB  a volume; its disk's kind on the disk's first volume, coloured by its wear
 //   ━━━━━━━━━━━━━━━━━━━━━━━━━━─────────
 //                         up 3 h 12 min
-// A wide cell puts the CPU and the GPU on the left, the rest on the right spread over the height. What does not fit
-// is left out from the bottom up, and a line too long for its width drops its least needed part (the frequency, the
-// wear) or shows a percentage instead of the amount.
+// A wide cell puts the CPU and the GPU on the left, the rest on the right spread over the height. A cell too small
+// for the CPU, the GPU, memory and the system volume under the cores (a 1 x 1, owner 2026-10-01: "CPU and GPU on one
+// widget, RAM and eMMC with numbers") drops the header and the cores for a CPU line:
+//   CPU (52°)  40%
+//   GPU (48°)  12%
+//   RAM   3.1/15.6
+//   eMMC  8.7/11.7
+// What does not fit is left out from the bottom up, and each line shows the fullest of its texts that fits.
 Item {
     id: ov
 
@@ -23,10 +28,10 @@ Item {
 
     readonly property bool _ok: !!sys && sys.available === true
 
-    readonly property real _pad: Math.round(6 * k)
+    // a small cell (1 x 1, 2 x 1) keeps less margin: the panel has its own around it
+    readonly property real _pad: Math.round((Math.min(width, height) < 110 * k ? 3 : 6) * k)
     readonly property real _gapX: Math.round(10 * k)
     readonly property real _gapY: Math.max(2, Math.round(3 * k))
-    readonly property real _sp: Math.round(5 * k)
     readonly property real _innerW: Math.max(0, width - 2 * _pad)
     readonly property real _innerH: Math.max(0, height - 2 * _pad)
     readonly property bool _wide: _innerW >= _innerH * 1.7
@@ -45,28 +50,62 @@ Item {
         return w < 0 ? AppPalette.textMuted : AppPalette.systemLevelColors[w <= 70 ? 0 : w <= 90 ? 1 : 2]
     }
     function pct(f) { return Math.round(f * 100) + " %" }
+    function pctTight(f) { return Math.round(f * 100) + "%" }
+    // "8.7 / 11.7 GB", "8.7/11.7 GB", "8.7/11.7"
+    function amounts(used, total) {
+        var u = used.toFixed(1), t = total.toFixed(total >= 100 ? 0 : 1)
+        return [DataFieldCatalog.gbPair(used, total), u + "/" + t + " " + qsTr("GB"), u + "/" + t]
+    }
+    // A line's texts, the fullest first: each value with the fullest chip, then the shortest value with each shorter
+    // chip, then that chip's text without its frame (bare: coloured text, no margins), then without one.
+    function lineTexts(label, chips, values) {
+        var out = [], last = values[values.length - 1]
+        var chip = chips.length ? chips[0] : ""
+        for (var i = 0; i < values.length; ++i)
+            out.push({ label: label, pill: chip, value: values[i] })
+        for (var j = 1; j < chips.length; ++j)
+            out.push({ label: label, pill: chips[j], value: last })
+        if (chip.length) {
+            out.push({ label: label, pill: chips[chips.length - 1], value: last, bare: true })
+            out.push({ label: label, pill: "", value: last })
+        }
+        return out
+    }
 
     readonly property var _cores: _ok && sys.coreLoad ? sys.coreLoad : []
     readonly property string _loadText: _ok && sys.cpuLoad >= 0 ? pct(sys.cpuLoad) : "—"
     readonly property string _ghzText: _ok && sys.cpuFreqMHz > 0 ? (sys.cpuFreqMHz / 1000).toFixed(2) + " " + qsTr("GHz") : ""
     readonly property bool _hasTemp: _ok && isFinite(sys.cpuTempC)
 
-    // A line over a bar: { key, label, pillFull, pillShort, pillColor, pillTextColor, longValue, shortValue, frac,
-    // fillColor }; pillFull and pillShort are the chip's text in full and at its shortest ("" for no chip).
+    // A line over a bar: { key, cands: [{ label, pill, value }] the fullest first, pillColor, pillTextColor, frac,
+    // fillColor }.
+    readonly property var _cpuRow: {
+        if (!_ok) return null
+        var load = sys.cpuLoad
+        var t = isFinite(sys.cpuTempC)
+        var held = sys.throttled === true
+        var temp = t ? Math.round(sys.cpuTempC) + "°" : ""
+        // held back: the mark in the chip, given up before the temperature
+        var chips = held ? (t ? ["▼" + temp, temp] : ["▼"]) : (t ? [temp] : [])
+        var level = t ? DataFieldCatalog.sysTempColor(sys.cpuTempC) : AppPalette.systemLevelColors[2]
+        var values = load >= 0 ? (_ghzText ? [pct(load) + " · " + _ghzText] : []).concat([pct(load), pctTight(load)]) : ["—"]
+        return { key: "cpu", cands: lineTexts("CPU", chips, values), pillColor: level, pillTextColor: level,
+                 frac: Math.max(0, load), fillColor: DataFieldCatalog.sysLoadColor(Math.max(0, load)) }
+    }
     readonly property var _gpuRow: {
         if (!_ok) return null
         var load = (typeof sys.gpuLoad === "number") ? sys.gpuLoad : -1
         var f = sys.gpuFreqMHz > 0 ? sys.gpuFreqMHz : 0
         var t = isFinite(sys.gpuTempC)
         if (f <= 0 && load < 0 && !t) return null
-        var parts = []
-        if (load >= 0) parts.push(pct(load))
-        if (f > 0) parts.push(f + " " + qsTr("MHz"))
+        var mhz = f > 0 ? f + " " + qsTr("MHz") : ""
+        var values = load >= 0 ? (mhz ? [pct(load) + " · " + mhz] : []).concat([pct(load), pctTight(load)])
+                               : [mhz || "—"]
         var chip = t ? Math.round(sys.gpuTempC) + "°" : ""
         var level = t ? DataFieldCatalog.sysTempColor(sys.gpuTempC) : AppPalette.textMuted
-        return { key: "gpu", label: "GPU", pillFull: chip, pillShort: chip, pillColor: level, pillTextColor: level,
-                 longValue: parts.join(" · "), shortValue: parts.length ? parts[0] : "—",
-                 frac: f > 0 && sys.gpuMaxMHz > 0 ? Math.min(1, f / sys.gpuMaxMHz) : Math.max(0, load),
+        // the bar its load; without one reported, its frequency of the top of its table, uncoloured
+        return { key: "gpu", cands: lineTexts("GPU", chip ? [chip] : [], values), pillColor: level, pillTextColor: level,
+                 frac: load >= 0 ? load : (f > 0 && sys.gpuMaxMHz > 0 ? Math.min(1, f / sys.gpuMaxMHz) : 0),
                  fillColor: load >= 0 ? DataFieldCatalog.sysLoadColor(load) : AppPalette.systemFill }
     }
     // memory, then the volumes
@@ -75,19 +114,32 @@ Item {
         var out = []
         if (sys.memTotalGB > 0) {
             var m = Math.max(0, Math.min(1, sys.memUsedGB / sys.memTotalGB))
-            out.push({ key: "ram", label: qsTr("RAM"), pillFull: "", pillShort: "", pillColor: AppPalette.textMuted,
-                       pillTextColor: AppPalette.textSecond, longValue: DataFieldCatalog.gbPair(sys.memUsedGB, sys.memTotalGB),
-                       shortValue: pct(m), frac: m, fillColor: DataFieldCatalog.sysFillColor(m) })
+            var ma = amounts(sys.memUsedGB, sys.memTotalGB)
+            out.push({ key: "ram", cands: lineTexts(qsTr("RAM"), [], ma.concat([pctTight(m)])),
+                       pillColor: AppPalette.textMuted, pillTextColor: AppPalette.textSecond, frac: m,
+                       fillColor: DataFieldCatalog.sysFillColor(m) })
         }
         var v = sys.volumes || []
         for (var i = 0; i < v.length; ++i) {
+            var name = String(v[i].name)
             var kind = v[i].kind ? String(v[i].kind) : ""
             var w = (typeof v[i].wearPct === "number") ? v[i].wearPct : -1
             var wear = w > 100 ? qsTr("worn out") : w >= 0 ? "≤" + w + " %" : ""
             var fv = v[i].totalGB > 0 ? Math.max(0, Math.min(1, v[i].usedGB / v[i].totalGB)) : 0
-            out.push({ key: "vol" + i, label: String(v[i].name), pillFull: kind + (kind && wear ? " " + wear : ""),
-                       pillShort: kind, pillColor: wearColor(w), pillTextColor: w >= 0 ? wearColor(w) : AppPalette.textSecond,
-                       longValue: DataFieldCatalog.gbPair(v[i].usedGB, v[i].totalGB), shortValue: pct(fv), frac: fv,
+            var a = amounts(v[i].usedGB, v[i].totalGB)
+            var c = []
+            if (kind) {
+                // the name and the disk; then the disk alone as the name ("eMMC"); the numbers kept before the disk
+                if (wear) c.push({ label: name, pill: kind + " " + wear, value: a[0] })
+                c.push({ label: name, pill: kind, value: a[0] }, { label: name, pill: kind, value: a[1] },
+                       { label: kind, pill: "", value: a[1] }, { label: kind, pill: "", value: a[2] },
+                       { label: name, pill: "", value: a[2] }, { label: kind, pill: "", value: pctTight(fv) })
+            } else {
+                c = lineTexts(name, [], a.concat([pctTight(fv)]))
+            }
+            c.push({ label: name, pill: "", value: pctTight(fv) })
+            out.push({ key: "vol" + i, cands: c, pillColor: wearColor(w),
+                       pillTextColor: w >= 0 ? wearColor(w) : AppPalette.textSecond, frac: fv,
                        fillColor: DataFieldCatalog.sysFillColor(fv) })
         }
         return out
@@ -95,11 +147,17 @@ Item {
     readonly property string _upText: _ok && sys.uptimeS >= 0 ? qsTr("up %1").arg(DataFieldCatalog.uptimeText(sys.uptimeS)) : ""
 
     // What fits. One column: the header, the cores (a fifth of the height), the GPU, the rows, the footer. Wide: the
-    // header, the cores and the GPU on the left; the rows and the footer on the right.
+    // header, the cores and the GPU on the left; the rows and the footer on the right. Compact (the one column cannot
+    // show the GPU, memory and the system volume): lines only, the CPU's first.
     readonly property bool _gpuLeft: _wide && _gpuRow !== null
-    readonly property var _infoRows: (_wide || _gpuRow === null) ? _rows : [_gpuRow].concat(_rows)
     readonly property real _cores1H: Math.max(4, Math.round(_innerH * 0.2))
-    readonly property real _infoRoom: _wide ? _innerH : _innerH - _headH - _gapY - _cores1H - _gapY
+    readonly property real _oneRoom: _innerH - _headH - _gapY - _cores1H - _gapY
+    readonly property int _essentials: (_gpuRow !== null ? 1 : 0) + (_ok && sys.memTotalGB > 0 ? 1 : 0)
+                                       + (_ok && sys.volumes && sys.volumes.length > 0 ? 1 : 0)
+    readonly property bool _compact: _ok && !_wide && Math.floor((_oneRoom + _gapY) / (_rowH + _gapY)) < _essentials
+    readonly property var _infoRows: _compact ? [_cpuRow].concat(_gpuRow !== null ? [_gpuRow] : [], _rows)
+                                   : (_wide || _gpuRow === null) ? _rows : [_gpuRow].concat(_rows)
+    readonly property real _infoRoom: (_wide || _compact) ? _innerH : _oneRoom
     readonly property int _rowsShown: {
         var n = 0
         while (n < _infoRows.length && (n + 1) * _rowH + n * _gapY <= _infoRoom)
@@ -110,12 +168,16 @@ Item {
     readonly property bool _showFoot: _ok && _upText.length > 0 && _rowsShown === _infoRows.length
                                       && _infoRoom - _rowsH - (_rowsShown > 0 ? _gapY : 0) >= _lineH
     readonly property real _coresH: _wide ? Math.max(4, _innerH - _headH - _gapY - (_gpuLeft ? _gapY + _rowH : 0)) : _cores1H
-    // wide: the rows and the footer spread over the column's height
+    // wide and compact: the lines and the footer spread over the height
     readonly property real _infoSpacing: {
         var parts = _rowsShown + (_showFoot ? 1 : 0)
-        if (!_wide || parts < 2) return _gapY
+        if (!(_wide || _compact) || parts < 2) return _gapY
         return Math.max(_gapY, (_innerH - _rowsShown * _rowH - (_showFoot ? _lineH : 0)) / (parts - 1))
     }
+    // tighter in the compact lines and a narrow column, so the numbers and the chips stay
+    readonly property bool _tight: _compact || _colW < 110 * k
+    readonly property real _sp: Math.round((_tight ? 3 : 5) * k)
+    readonly property real _pillPad: Math.round((_tight ? 6 : 8) * k)
 
     // A line over a bar. Its sizes come in as properties: an inline component does not see this file's ids.
     component SysRow: Item {
@@ -126,34 +188,34 @@ Item {
         property real lineH: 12
         property real barH: 3
         property real sp: 5
+        property real pillPad: 8
         property color track: "transparent"
 
         readonly property bool _has: line !== null && line !== undefined
-        readonly property string _label: _has ? line.label : ""
-        readonly property string _pillFull: _has ? line.pillFull : ""
-        readonly property string _pillShort: _has ? line.pillShort : ""
-        readonly property string _long: _has ? line.longValue : ""
-        readonly property string _short: _has ? line.shortValue : ""
+        readonly property var _cands: _has ? line.cands : []
         readonly property real frac: _has ? line.frac : 0
-        readonly property real pillPad: Math.round(8 * k)
         height: lineH + barH
-        TextMetrics { id: tmLabel; font: rowLabel.font; text: row._label }
-        TextMetrics { id: tmPillFull; font: pillText.font; text: row._pillFull }
-        TextMetrics { id: tmPillShort; font: pillText.font; text: row._pillShort }
-        TextMetrics { id: tmLong; font: rowValue.font; text: row._long }
-        TextMetrics { id: tmShort; font: rowValue.font; text: row._short }
-        function need(pillW, valueW) {
-            return tmLabel.advanceWidth + (pillW > 0 ? sp + pillW + pillPad : 0) + sp + valueW
+        FontMetrics { id: fmLabel; font.pixelSize: row.labelPx; font.bold: true }
+        FontMetrics { id: fmPill; font.pixelSize: Math.max(7, Math.round(row.labelPx * 0.85)) }
+        FontMetrics { id: fmValue; font.pixelSize: row.labelPx }
+        // rounded up as a Text's implicit width is, and some room: a Text lays a bold label out wider than FontMetrics
+        // measures it (seen with DejaVu Sans Bold and a synthetic bold Arial; the width sweep in sysgui_check)
+        function need(c) {
+            return Math.ceil(fmLabel.advanceWidth(c.label)) + Math.ceil(labelPx * 0.15)
+                   + (c.pill.length ? sp + Math.ceil(fmPill.advanceWidth(c.pill)) + (c.bare ? 0 : pillPad) : 0)
+                   + sp + Math.ceil(fmValue.advanceWidth(c.value))
         }
-        // the fullest line that fits: 0 the chip in full and the amount, 1 the chip at its shortest and the amount,
-        // 2 the short chip and the short value, 3 the short value alone
+        // the first of the texts that fits (the fonts read here, so a change of size measures again)
         readonly property int form: {
-            var pill = _pillShort.length > 0
-            if (need(_pillFull.length ? tmPillFull.advanceWidth : 0, tmLong.advanceWidth) <= width) return 0
-            if (pill && need(tmPillShort.advanceWidth, tmLong.advanceWidth) <= width) return 1
-            if (pill && need(tmPillShort.advanceWidth, tmShort.advanceWidth) <= width) return 2
-            return 3
+            if (fmLabel.font.pixelSize + fmPill.font.pixelSize + fmValue.font.pixelSize <= 0 || _cands.length === 0)
+                return 0
+            for (var i = 0; i < _cands.length; ++i)
+                if (need(_cands[i]) <= width)
+                    return i
+            return _cands.length - 1
         }
+        readonly property var cand: _cands.length ? _cands[Math.min(form, _cands.length - 1)] : { label: "", pill: "", value: "" }
+        readonly property bool bare: cand.bare === true
         Text {
             id: rowLabel
             objectName: "sysRowLabel"
@@ -164,7 +226,7 @@ Item {
                                                        - (pill.visible ? pill.width + row.sp : 0)))
             verticalAlignment: Text.AlignVCenter
             elide: Text.ElideRight
-            text: row._label
+            text: row.cand.label
             color: AppPalette.textSecond
             font.pixelSize: row.labelPx
             font.bold: true
@@ -172,23 +234,23 @@ Item {
         Rectangle {
             id: pill
             objectName: "sysRowPill"
-            visible: row._pillShort.length > 0 && row.form < 3
+            visible: row.cand.pill.length > 0
             readonly property color level: row._has ? row.line.pillColor : AppPalette.textMuted
             anchors.left: rowLabel.right
             anchors.leftMargin: row.sp
             anchors.verticalCenter: rowLabel.verticalCenter
-            width: pillText.implicitWidth + row.pillPad
+            width: pillText.implicitWidth + (row.bare ? 0 : row.pillPad)
             height: Math.round(row.lineH * 0.86)
             radius: height / 2
-            color: Qt.rgba(level.r, level.g, level.b, 0.16)
-            border.width: 1
+            color: row.bare ? "transparent" : Qt.rgba(level.r, level.g, level.b, 0.16)
+            border.width: row.bare ? 0 : 1
             border.color: level
             Text {
                 id: pillText
                 anchors.centerIn: parent
-                text: row.form === 0 ? row._pillFull : row._pillShort
+                text: row.cand.pill
                 color: row._has ? row.line.pillTextColor : AppPalette.textSecond
-                font.pixelSize: Math.max(7, Math.round(row.labelPx * 0.85))
+                font.pixelSize: fmPill.font.pixelSize
             }
         }
         Text {
@@ -198,7 +260,7 @@ Item {
             anchors.top: parent.top
             height: row.lineH
             verticalAlignment: Text.AlignVCenter
-            text: row.form <= 1 ? row._long : row._short
+            text: row.cand.value
             color: AppPalette.textStrong
             font.pixelSize: row.labelPx
         }
@@ -240,6 +302,7 @@ Item {
 
         Column {
             id: cpuCol
+            visible: !ov._compact
             width: ov._colW
             spacing: ov._gapY
 
@@ -399,16 +462,17 @@ Item {
                 lineH: ov._lineH
                 barH: ov._barH
                 sp: ov._sp
+                pillPad: ov._pillPad
                 track: ov._track
             }
         }
 
-        // the GPU (one column), memory and the volumes: the label (and its chip) on the left, the amount on the
-        // right, the bar under them; then the uptime
+        // the lines: the CPU (compact) and the GPU (one column), memory and the volumes - the label (and its chip)
+        // on the left, the amount on the right, the bar under them; then the uptime
         Column {
             id: infoCol
             x: ov._wide ? ov._colW + ov._gapX : 0
-            y: ov._wide ? 0 : ov._headH + ov._gapY + ov._cores1H + ov._gapY
+            y: (ov._wide || ov._compact) ? 0 : ov._headH + ov._gapY + ov._cores1H + ov._gapY
             width: ov._colW
             spacing: ov._infoSpacing
 
@@ -426,6 +490,7 @@ Item {
                     lineH: ov._lineH
                     barH: ov._barH
                     sp: ov._sp
+                    pillPad: ov._pillPad
                     track: ov._track
                 }
             }
