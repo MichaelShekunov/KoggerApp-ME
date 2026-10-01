@@ -213,6 +213,10 @@ genuine upstream bug and a candidate to report back.
 | `src/device/ring_upgrade.{h,cpp}` | firmware update of two sonars sharing one line as a ring (and of a lone sonar with a bus address) |
 | `tools/ringupdate_check/` | standalone program: the ring update against a simulated ring, and live on a serial port |
 | `docs/RING_UPDATE.md` | two sonars on one line: how they show up, how they are updated, what was verified |
+| `docs/fork-overview.ru.md` | the fork for upstream's GUI developer (Russian): upstream behaviour it changes, new ids and keys, and in its appendix every touched file, listed by git |
+
+This table is not complete (the boat mission's files, among others, are missing); the appendix of
+`docs/fork-overview.ru.md` is, as of `8344f012`.
 
 `tools/sonifier_check` and `tools/deconv_check` are separate CMake projects, not
 part of the application build. Nothing in the app references them. `deconv_check`
@@ -271,7 +275,8 @@ that answers `ID_VERSION` with board 87 gets the island. Contract and field mean
 - `DevQProperty` exposes `isWifi` and the `wifi*` properties; the island in
   `DeviceSettingsPage.qml` is visible for `dev.isWifi` only and, like the basic sonars, gets the
   "Advanced settings" cut. The join rows use `WifiField` (a `TextInput` with `echoMode` toggled by
-  an eye button), which is what the on-screen keyboard reads to switch into its password layout.
+  an eye button). `ScreenKeyboard::passwordMode` reports that `echoMode`, but `KScreenKeyboard.qml`
+  does not read it: there is no password layout (corrected 2026-10-01; this line used to say there was).
 - The module joins with exactly the password it is sent and never reveals a stored one, so a saved
   network is rejoined either by its own auto-connect or by typing the password once more; the
   island says so in the caption.
