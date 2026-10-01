@@ -885,7 +885,8 @@ test at 1 x 1, both scales, four mocks (the head unit, hot, everything at its to
 GPU's temperature and load, memory and the system volume in numbers, the head unit's disk named eMMC, nothing cut;
 a sweep over every width of a 1- and a 2-unit-high cell: no text cut but a name with nothing else to give (it is
 what showed that a Text lays a bold label out wider than FontMetrics measures it, in DejaVu Sans Bold too). 31
-mutants caught in either font; qmllint adds only the kind the file has; the Windows build.
+mutants caught in either font; qmllint adds only the kind the file has; the Windows build. On the kiosk as
+`headunit` e1f821b8 from 2026-10-01 by the owner's word (no QML errors); this PC runs 2783f4bf.
 
 **A working sonar behind a recorder that is not recording is not red.** Owner 2026-09-30: the logger has no flash drive (red, rightly), and the sonar behind it turned red too while it worked. `RecorderStatus.pillState` took a device's colour from the recorder's per-port flags; a recorder that is not recording (severity "crit": storage lost, a failed recording, recording off) calls its ports lost. Such a recorder's port flags are now ignored and the device is shown by its own frames (dataStale, then the link). Check: `tools/qml_check/recorderpill_check.ps1` (fails on the rule before: "the working sonar behind it green"). On the kiosk as `headunit` 54ae4e46 from 2026-09-30, the owner: the sonar is green. This PC still runs 60073967 (the owner cancelled the UAC prompt for 0eb37775).
 
