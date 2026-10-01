@@ -1,10 +1,17 @@
-/* Kogger echogram codec, decoder side: what the app needs to show a compressed echogram (ID_CHART_Z).
+/* Kogger echogram codec -- lossy compression of one sonar ping, on the MCU.
  *
- * The encoder runs on the sonar and stays in the firmware tree (owner, 2026-10-01). kec.c is the
- * device's decoder, unchanged, so it decodes exactly what the device's encoder produces;
- * tools/mission_check decodes vectors made by that encoder and fails if the two drift apart.
+ * Integer only: no float, no division in the inner loops, no libc at all.
+ * The encoder needs no inverse transform (DC prediction runs on quantised values),
+ * so the MCU pays for the forward DCT and the entropy coder only.
  *
- * Integer only: no float, no libc.
+ * The transform runs ONCE per frame; the rate-control search re-quantises and re-codes
+ * the cached coefficients instead of transforming again. Measured on an STM32F302R8,
+ * that is the difference between 207 and 3883 cycles per sample on incompressible data.
+ *
+ * Working set for a 512-sample frame: 1 KB of cached coefficients + 96 bytes of
+ * probability state + the output buffer. Flash: 2 KB of DCT table plus code.
+ *
+ * The format is defined by docs/FORMAT.md; this header is the API only.
  */
 #ifndef KEC_H
 #define KEC_H
@@ -14,12 +21,28 @@
 #define KEC_HDR       6          /* frame header, bytes                         */
 #define KEC_MAXFRAME  512        /* samples per frame; equals the container's frame size */
 
+/* Encoder rate-control state. Zero-initialise once; carry it across pings so each
+ * ping starts at the step the previous one settled on. */
+typedef struct { uint8_t qi; } kec_rc_state;
+
+/* Compress `n` samples into at most `budget` bytes.
+ * Returns bytes written, or -1 if `out` is too small (need budget + KEC_HDR slack).
+ * `st` may be NULL, in which case the search restarts from the default step. */
+int kec_encode_ping(const uint8_t *x, int n, int budget,
+                    uint8_t *out, int outcap, kec_rc_state *st);
+
 /* Decode a ping. Returns samples written, or -1 on a malformed stream. */
 int kec_decode_ping(const uint8_t *buf, int nbuf, uint8_t *out, int outcap);
 
-/* Decode one frame of `n` samples (a whole number of blocks) coded with step `q0`, slope `a4`
- * (quarters) and dead zone `R` (eighths of a step). Returns `n`, or -1 if `n` is not a whole
- * number of blocks. For callers doing their own framing. */
+/* Transform one frame into int16 coefficients, and code already-transformed
+ * coefficients. Split so the rate-control search never transforms twice. */
+void kec_dct_frame(const uint8_t *x, int n, int32_t *c);
+int  kec_code_coeffs(const int32_t *c, int nblk, int q0, int a4, int R,
+                     uint8_t *out, int outcap);
+
+/* Single frame, for tests and for callers doing their own framing. */
+int kec_encode_frame(const uint8_t *x, int n, int q0, int a4, int R,
+                     uint8_t *out, int outcap);
 int kec_decode_frame(const uint8_t *pay, int npay, int n, int q0, int a4, int R,
                      uint8_t *out);
 

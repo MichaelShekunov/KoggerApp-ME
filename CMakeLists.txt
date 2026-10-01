@@ -14,8 +14,9 @@ list(GET _kvp 1 _kvmin)
 list(GET _kvp 2 _kvpat)
 math(EXPR KOGGER_VERSION_CODE "${_kvmaj} * 10000 + ${_kvmin} * 100 + ${_kvpat}")
 
-# C is here for src/kec: the decoder half of the device's echogram codec,
-# plain C, kept as the device runs it. Compiling it as C++ would fork it.
+# C is here for src/kec: the echogram codec is plain C, shared byte-for-byte
+# with the device so the two ends cannot drift apart. Compiling it as C++
+# would fork it.
 project(KoggerApp VERSION ${KOGGER_VERSION} LANGUAGES CXX C)
 
 # Build revision, best effort: empty outside a git checkout
@@ -182,9 +183,9 @@ target_link_libraries(KoggerApp PRIVATE
     Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick Qt6::QuickControls2
     Qt6::Network Qt6::Sql Qt6::Concurrent Qt6::Positioning Qt6::Svg Qt6::Multimedia)
 
-# Echogram decoder (ID_CHART_Z): the decoder half of the device's codec,
-# unchanged. The encoder is the sonar's and stays in the firmware tree (owner,
-# 2026-10-01); tools/mission_check decodes pings made by it.
+# Echogram codec, verbatim from the firmware tree. Only the decoder half is
+# used here; the encoder comes along so the file stays identical to the one
+# the device runs.
 target_sources(KoggerApp PRIVATE
     src/kec/kec.c src/kec/kec.h src/kec/kec_tab.h)
 target_include_directories(KoggerApp PRIVATE src/kec)

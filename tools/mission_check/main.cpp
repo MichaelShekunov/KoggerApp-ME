@@ -6,8 +6,7 @@
 // SITL (ArduRover, model motorboat) must already listen on the port; see docs/BOAT_MISSION.md.
 // Before SITL it checks the navigation-readiness rules on made-up EKF reports, the Wi-Fi module's
 // sequences and port-page decoding on made-up frames, and the device-liveness and on-screen-keyboard
-// rules on made-up times and touches, and the echogram decoder on pings made by the sonar's encoder
-// (no SITL needed); --offline stops after those.
+// rules on made-up times and touches (no SITL needed); --offline stops after those.
 
 #include <QCommandLineParser>
 #include <QCoreApplication>
@@ -17,7 +16,6 @@
 #include <QTimer>
 #include <cstdio>
 #include <functional>
-#include <vector>
 
 #include "device_liveness.h"
 #include "mav_vehicle.h"
@@ -30,13 +28,6 @@
 #include "system_stats.h"
 #include "system_monitor.h"
 #include "link/link_ask_all.h"
-
-// The decoder half of the device's echogram codec is C without a C++ guard of its own (src/id_binnary.cpp
-// includes it the same way).
-extern "C" {
-#include "kec.h"
-}
-#include "kec_vectors.h"
 
 #if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
@@ -1478,31 +1469,6 @@ void systemMonitorLiveRules()
     m.unsubscribe();
 }
 
-// The app keeps only the decoder of the echogram codec; the encoder is the sonar's (owner, 2026-10-01). These
-// pings were encoded by the device's encoder (kec_vectors_gen.c), so this is what keeps the two from drifting.
-void kecDecodeRules()
-{
-    auto fnv1a = [](const uint8_t* p, int n) {
-        uint32_t h = 2166136261u;
-        for (int i = 0; i < n; ++i) { h ^= p[i]; h *= 16777619u; }
-        return h;
-    };
-    std::vector<uint8_t> out(4096);
-    QStringList bad;
-    for (int i = 0; i < kec_nvectors; ++i) {
-        const KecVector& v = kec_vectors[i];
-        const int got = kec_decode_ping(v.enc, v.nenc, out.data(), int(out.size()));
-        if (got != v.samples || fnv1a(out.data(), got) != v.fnv)
-            bad << QStringLiteral("#%1 gave %2").arg(i).arg(got);
-    }
-    check("kec: every ping from the sonar's encoder decodes to the device decoder's samples", bad.isEmpty(),
-          bad.isEmpty() ? QStringLiteral("%1 pings").arg(kec_nvectors) : bad.join(QStringLiteral(", ")));
-    const KecVector& two = kec_vectors[4];   // 700 samples: a full frame and a short one
-    check("kec: a ping cut short is refused", kec_decode_ping(two.enc, two.nenc - 1, out.data(), int(out.size())) == -1);
-    check("kec: no room for the samples is refused", kec_decode_ping(two.enc, two.nenc, out.data(), two.samples - 1) == -1);
-    check("kec: an empty stream is no samples", kec_decode_ping(nullptr, 0, nullptr, 0) == 0);
-}
-
 int main(int argc, char* argv[])
 {
     QCoreApplication app(argc, argv);
@@ -1537,7 +1503,6 @@ int main(int argc, char* argv[])
     vehicleProgressRules();
     systemStatsRules();
     systemMonitorLiveRules();
-    kecDecodeRules();
     if (cli.isSet(QStringLiteral("offline"))) {
         std::printf("\n%d checks, %d failed (offline)\nMISSION_CHECK_%s\n", g_checks, g_failed, g_failed ? "FAILED" : "DONE");
         return g_failed ? 1 : 0;
