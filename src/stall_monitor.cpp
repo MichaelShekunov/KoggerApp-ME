@@ -1,4 +1,5 @@
 #include "stall_monitor.h"
+#include "system_stats.h"
 
 #include <QDebug>
 #include <QDir>
@@ -125,22 +126,12 @@ long findThread(const QString& comm)
 // The process's GPU memory (panthor fdinfo, resident, per DRM client), MB; -1 when there is none.
 double gpuMemoryMb()
 {
-    QHash<QString, qint64> byClient;
+    QHash<qint64, qint64> byClient;
     const QStringList fds = QDir(QStringLiteral("/proc/self/fdinfo")).entryList(QDir::Files);
     for (const QString& fd : fds) {
-        const QString info = readSmall(QStringLiteral("/proc/self/fdinfo/") + fd);
-        if (!info.contains(QStringLiteral("drm-driver:\tpanthor")))
-            continue;
-        QString client;
-        qint64 resident = -1;
-        for (const QString& line : info.split(QLatin1Char('\n'))) {
-            if (line.startsWith(QStringLiteral("drm-client-id:")))
-                client = line.section(QLatin1Char(':'), 1).trimmed();
-            else if (line.startsWith(QStringLiteral("drm-resident-memory:")))
-                resident = line.section(QLatin1Char(':'), 1).trimmed().section(QLatin1Char(' '), 0, 0).toLongLong();
-        }
-        if (!client.isEmpty() && resident >= 0)
-            byClient.insert(client, resident);
+        const system_stats::DrmClient c = system_stats::parseDrmFdinfo(readSmall(QStringLiteral("/proc/self/fdinfo/") + fd));
+        if (c.driver == QLatin1String("panthor") && c.id >= 0 && c.residentKiB >= 0)
+            byClient.insert(c.id, c.residentKiB);
     }
     if (byClient.isEmpty())
         return -1;

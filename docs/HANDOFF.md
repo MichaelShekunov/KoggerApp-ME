@@ -839,8 +839,8 @@ Windows: loads (ntdll), frequencies (powrprof), memory, volumes, uptime; no temp
 `src/system_stats.h`. Fields (group "system"): "System" - all of it in one cell (`qml/app/SystemOverview.qml`) -
 and "CPU", "CPU temperature", "Memory", "Storage", "Uptime". The overview: the mean load and a temperature chip (and
 a red mark when held back), a bar per core (height its frequency of its maximum, colour its load, a gap between the
-clusters), memory and the volumes as lines over bars (the disk's kind as a chip coloured by its wear), the GPU and
-the uptime; a wide cell (2x1, 4x2) in two columns. What does not fit is left out from the bottom up; a line too long
+clusters), memory and the volumes as lines over bars (the disk's kind as a chip coloured by its wear), the GPU
+(the next paragraph) and the uptime; a wide cell (2x1, 4x2) in two columns. What does not fit is left out from the bottom up; a line too long
 drops its least needed part (the frequency, the wear's number, the GPU's frequency) or shows a percentage instead of
 the amount - measured in the font it is drawn in. The head unit as read on 2026-10-01 (*Verified*): 8 cores, 4 to
 1800 MHz and 4 to 2400 MHz; zones package, bigcore0, bigcore2, littlecore, center, gpu, npu; devfreq fb000000.gpu;
@@ -855,6 +855,18 @@ else"): the NPU's load (debugfs, root), the app's own memory, the network per in
 9c824fee from 2026-10-01 by the owner's word (no QML errors; its line: `8 cores (max MHz 1800 x4, 2400 x4),
 throttled no, CPU 45.3 C, GPU 1000 MHz 45.3 C, memory 0.9/15.6 GB, volumes / (eMMC, wear <=10 %) 8.8/11.7 GB, /data
 1.0/16.5 GB`); this PC runs b1f77ce6. The owner, on the kiosk's screen 2026-10-01: the widget works.
+
+**The GPU in the "System" widget.** Owner 2026-10-01: add the GPU to the main widget. It is now a line like the
+memory's, right under the cores (wide: under them in the left column): its temperature as a chip, "12 % · 300 MHz",
+the bar its frequency of the top of its devfreq table, coloured by its load - the GPU drawn like one more core. The
+load: this process's DRM fdinfo (`drm-engine-<e>: N ns`, each client once, the busiest engine class over the wall
+time; `system_stats::parseDrmFdinfo` / `drmBusy`), which panthor reports only with its job profiling on - on the
+head unit a udev rule turns that on at boot (HeadUnit docs/STATE.md); the kiosk is the GPU's only user. Without it
+the line shows the frequency and a plain bar. The stall monitor's GPU memory reads the same parser. A field "GPU"
+too; the footer keeps the uptime only. Measured on the kiosk with profiling on: 10.3 ms of GPU time in 2.09 s
+(0.5 %) at idle. Checks: mission_check offline 225/225 (+5 on the kiosk's own fdinfo lines), four C++ mutants
+caught; sysgui_check 11/11 in both fonts, 25 mutants caught; qmllint adds nothing; the Windows build. The same day
+the head unit got its clock (chrony, the RTC set; HeadUnit docs/STATE.md, "Часы").
 
 **A working sonar behind a recorder that is not recording is not red.** Owner 2026-09-30: the logger has no flash drive (red, rightly), and the sonar behind it turned red too while it worked. `RecorderStatus.pillState` took a device's colour from the recorder's per-port flags; a recorder that is not recording (severity "crit": storage lost, a failed recording, recording off) calls its ports lost. Such a recorder's port flags are now ignored and the device is shown by its own frames (dataStale, then the link). Check: `tools/qml_check/recorderpill_check.ps1` (fails on the rule before: "the working sonar behind it green"). On the kiosk as `headunit` 54ae4e46 from 2026-09-30, the owner: the sonar is green. This PC still runs 60073967 (the owner cancelled the UAC prompt for 0eb37775).
 

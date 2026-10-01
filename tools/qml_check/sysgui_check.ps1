@@ -86,6 +86,8 @@ Item {
         property real cpuTempC: 52
         property real gpuTempC: 48
         property int gpuFreqMHz: 300
+        property int gpuMaxMHz: 1000
+        property real gpuLoad: 0.12
         property bool throttled: false
         property real memTotalGB: 15.6
         property real memUsedGB: 3.1
@@ -105,6 +107,8 @@ Item {
         property real cpuTempC: 86
         property real gpuTempC: 81
         property int gpuFreqMHz: 1000
+        property int gpuMaxMHz: 1000
+        property real gpuLoad: 0.97
         property bool throttled: true
         property real memTotalGB: 15.6
         property real memUsedGB: 14.8
@@ -124,6 +128,8 @@ Item {
         property real cpuTempC: NaN
         property real gpuTempC: NaN
         property int gpuFreqMHz: -1
+        property int gpuMaxMHz: -1
+        property real gpuLoad: -1
         property bool throttled: false
         property real memTotalGB: 125.6
         property real memUsedGB: 20.1
@@ -239,7 +245,7 @@ Item {
             wait(20)
             verify(ov._wide, "two columns")
             var rows = byIndex(findAll(ov, "sysRow", []))
-            compare(rows.length, 3, "memory and two volumes")
+            compare(rows.length, 3, "memory and two volumes on the right")
             for (var i = 0; i < 3; ++i) { verify(rows[i].visible, "row " + i); compare(rows[i].form, 0, "row " + i + " in full") }
             var r0 = rowParts(rows[0]), r1 = rowParts(rows[1]), r2 = rowParts(rows[2])
             compare(r0.label.text, "RAM")
@@ -255,16 +261,16 @@ Item {
             compare(r2.value.text, "0.1 / 16.5 GB")
             for (i = 0; i < 3; ++i) {
                 var p = rowParts(rows[i])
-                var f = Math.min(1, rows[i].modelData.used / rows[i].modelData.total)
+                var f = rows[i].frac
                 compare(p.fill.width, Math.max(p.fill.height, Math.round(p.fill.parent.width * f)), "row " + i + " fill")
                 verify(Qt.colorEqual(p.fill.color, DataFieldCatalog.sysFillColor(f)), "row " + i + " colour")
                 verify(p.label.x + p.label.width <= p.value.x, "row " + i + ": the label left of the amount")
             }
+            fuzzyCompare(rows[0].frac, 3.1 / 15.6, 1e-9)
             verify(Qt.colorEqual(r0.fill.color, "#38BDF8"), "20 % blue")
             verify(Qt.colorEqual(r1.fill.color, "#F59E0B"), "74 % amber")
             var foot = findOne(ov, "sysFoot")
             verify(shown(foot), "the footer")
-            compare(findOne(ov, "sysGpu").text, "GPU 300 MHz \u00b7 48\u00b0")
             compare(findOne(ov, "sysUptime").text, "up 3 h 12 min")
             var bottom = foot.mapToItem(ov, 0, foot.height).y
             fuzzyCompare(bottom, ov.height - ov._pad, 1, "wide: spread down to the bottom")
@@ -280,17 +286,73 @@ Item {
             verify(Qt.colorEqual(rowParts(hrows[0]).fill.color, "#EF4444"), "95 % red")
             compare(findOne(hotOv, "sysUptime").text, "up 3 d 14 h")
             hotOv.destroy()
-            // the smallest cell: memory and the system volume, as percentages; the kind stays
+            // a small wide cell (2 x 1): percentages on the right, the disk's kind stays
+            var two = overview(cellPx(2, 1.11), cellPx(1, 1.11), 1.11, mon)
+            wait(20)
+            var trows = byIndex(findAll(two, "sysRow", []))
+            compare(rowParts(trows[0]).value.text, "20 %")
+            compare(trows[1].form, 2)
+            compare(rowParts(trows[1]).pill.children[0].text, "eMMC")
+            compare(rowParts(trows[1]).value.text, "74 %")
+            two.destroy()
+            // the smallest cell: the GPU and memory; no room for the volumes and the footer
             var small = overview(cellPx(1, 1.11), cellPx(1, 1.11), 1.11, mon)
             wait(20)
             var srows = byIndex(findAll(small, "sysRow", []))
-            verify(srows[0].visible && srows[1].visible && !srows[2].visible, "two rows fit")
-            compare(rowParts(srows[0]).value.text, "20 %")
-            compare(srows[1].form, 2)
-            compare(rowParts(srows[1]).pill.children[0].text, "eMMC")
-            compare(rowParts(srows[1]).value.text, "74 %")
+            compare(srows[0].line.key, "gpu")
+            compare(srows[1].line.key, "ram")
+            verify(srows[0].visible && srows[1].visible && !srows[2].visible, "two lines fit")
+            compare(rowParts(srows[1]).value.text, "20 %")
             verify(!findOne(small, "sysFoot").visible, "no room for the footer")
             small.destroy()
+        }
+
+        function test_3a_gpu() {
+            // wide: under the cores, on the left
+            var ov = overview(700, cellPx(2, 1.11), 1.11, mon)
+            wait(20)
+            var g = findOne(ov, "sysGpuRow")
+            verify(shown(g), "the GPU line")
+            verify(g.mapToItem(ov, 0, 0).x < ov.width / 2, "on the left")
+            var box = findOne(ov, "sysCores")
+            verify(g.mapToItem(ov, 0, 0).y >= box.mapToItem(ov, 0, box.height).y, "under the cores")
+            fuzzyCompare(g.mapToItem(ov, 0, g.height).y, ov.height - ov._pad, 1, "down to the bottom")
+            var gp = rowParts(g)
+            compare(gp.label.text, "GPU")
+            verify(shown(gp.pill), "its temperature")
+            compare(gp.pill.children[0].text, "48\u00b0")
+            verify(Qt.colorEqual(gp.pill.border.color, "#22C55E"), "48 green")
+            compare(gp.value.text, "12 % \u00b7 300 MHz")
+            compare(gp.fill.width, Math.max(gp.fill.height, Math.round(gp.fill.parent.width * 0.3)), "the bar: 300 of 1000 MHz")
+            verify(Qt.colorEqual(gp.fill.color, "#22C55E"), "12 % green")
+            mon.gpuLoad = -1
+            compare(gp.value.text, "300 MHz", "no load reported: the frequency")
+            verify(Qt.colorEqual(gp.fill.color, AppPalette.systemFill), "no load: the plain colour")
+            mon.gpuLoad = 0.12
+            ov.destroy()
+            // one column: the first line under the cores
+            var sq = overview(cellPx(2, 1.11), cellPx(2, 1.11), 1.11, mon)
+            wait(20)
+            verify(!findOne(sq, "sysGpuRow").visible, "not on the left in one column")
+            var srows = byIndex(findAll(sq, "sysRow", []))
+            compare(srows[0].line.key, "gpu")
+            verify(srows[0].visible)
+            sq.destroy()
+            // hot: a red chip and bar, the top frequency
+            var h = overview(700, cellPx(2, 1.11), 1.11, hot)
+            wait(20)
+            var hp = rowParts(findOne(h, "sysGpuRow"))
+            compare(hp.value.text, "97 % \u00b7 1000 MHz")
+            verify(Qt.colorEqual(hp.pill.border.color, "#EF4444"), "81 red")
+            verify(Qt.colorEqual(hp.fill.color, "#EF4444"), "97 % red")
+            compare(hp.fill.width, hp.fill.parent.width, "1000 of 1000 MHz")
+            h.destroy()
+            // nothing known of the GPU (the Windows mock): no line
+            var w = overview(700, cellPx(2, 1.11), 1.11, win)
+            wait(20)
+            verify(!findOne(w, "sysGpuRow").visible)
+            verify(findAll(w, "sysRow", []).every(function(r) { return r.line.key !== "gpu" }), "no GPU line")
+            w.destroy()
         }
 
         function test_4_sizes() {
@@ -333,7 +395,9 @@ Item {
                 var foot = findOne(ov, "sysFoot")
                 if (!ov._wide && foot.visible)
                     verify(rows.every(function(r) { return r.visible }), tag + ": the footer after all the rows")
-                verify(rows.length === 0 || rows[0].visible, tag + ": memory always")
+                verify(rows.length === 0 || rows[0].visible, tag + ": the first line always")
+                var gpuRow = findOne(ov, "sysGpuRow")
+                if (shown(gpuRow)) rows.push(gpuRow)
                 // on a line: the name, then the disk, then the amount, none over another
                 for (i = 0; i < rows.length; ++i) {
                     if (!rows[i].visible) continue
@@ -360,7 +424,7 @@ Item {
                     sw.height = hh
                     var t2 = (probes[q].wide ? "wide" : "column") + " h " + hh
                     if (sw._showFoot)
-                        compare(sw._rowsShown, sw._rows.length, t2 + ": the footer after all the rows")
+                        compare(sw._rowsShown, sw._infoRows.length, t2 + ": the footer after all the rows")
                     var used = sw._rowsH + (sw._showFoot ? (sw._rowsShown > 0 ? sw._gapY : 0) + sw._lineH : 0)
                     verify(used <= sw._infoRoom + 0.01, t2 + ": " + used + " px of " + sw._infoRoom)
                     if (!sw._wide)
@@ -383,7 +447,7 @@ Item {
         }
 
         function test_6_catalog() {
-            var keys = ["sysOverview", "sysCpu", "sysCpuTemp", "sysRam", "sysStorage", "sysUptime"]
+            var keys = ["sysOverview", "sysCpu", "sysCpuTemp", "sysGpu", "sysRam", "sysStorage", "sysUptime"]
             for (var i = 0; i < keys.length; ++i) {
                 verify(DataFieldCatalog.hasField(keys[i]), keys[i])
                 verify(DataFieldCatalog.usesSystem(keys[i]), keys[i])
@@ -398,6 +462,11 @@ Item {
             compare(fmt("sysCpu", mon), "2.40 GHz \u00b7 40 %")
             compare(fmt("sysCpuTemp", mon), "52 \u00b0C")
             compare(fmt("sysCpuTemp", hot), "86 \u00b0C \u25bc")
+            compare(fmt("sysGpu", mon), "12 % \u00b7 300 MHz \u00b7 48 \u00b0C")
+            compare(fmt("sysGpu", win), "\u2014", "nothing known of the GPU")
+            verify(!DataFieldCatalog.isValid("sysGpu", null, null, null, null, undefined, null, win))
+            fuzzyCompare(DataFieldCatalog.bars("sysGpu", null, mon)[0].v, 0.12, 1e-9)
+            compare(DataFieldCatalog.bars("sysGpu", null, win).length, 0)
             compare(fmt("sysRam", mon), "3.1 / 15.6 GB")
             compare(fmt("sysStorage", mon), "8.7 / 11.7 GB")
             compare(fmt("sysStorage", win), "512.0 / 930 GB")

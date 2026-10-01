@@ -1425,6 +1425,28 @@ void systemStatsRules()
               && !st::hiddenMount(QStringLiteral("/")) && !st::hiddenMount(QStringLiteral("/bootstrap")));
     check("system: eMMC life_time as the head unit reads it (0x01 0x00) - up to 10 %",
           st::emmcWearPercent(QStringLiteral("0x01 0x00\n")) == 10);
+    const st::DrmClient kiosk = st::parseDrmFdinfo(QStringLiteral(
+        "pos:\t0\nflags:\t02100002\nmnt_id:\t26\nino:\t1060\ndrm-driver:\tpanthor\ndrm-client-id:\t9\n"
+        "drm-engine-panthor:\t5165417 ns\ndrm-maxfreq-panthor:\t1000000000 Hz\ndrm-curfreq-panthor:\t300000000 Hz\n"
+        "drm-total-memory:\t127676 KiB\ndrm-shared-memory:\t24504 KiB\ndrm-resident-memory:\t127676 KiB\n"));
+    check("system: a DRM client's fdinfo (the kiosk's: panthor, profiling on)",
+          kiosk.id == 9 && kiosk.driver == QLatin1String("panthor") && kiosk.residentKiB == 127676
+              && kiosk.engineNs.value(QStringLiteral("panthor")) == 5165417 && kiosk.engineNs.size() == 1,
+          QStringLiteral("id %1, %2 ns").arg(kiosk.id).arg(kiosk.engineNs.value(QStringLiteral("panthor"))));
+    check("system: an fdinfo that is no DRM client's",
+          st::parseDrmFdinfo(QStringLiteral("pos:\t0\nflags:\t02\nmnt_id:\t15\n")).id == -1);
+    const QHash<QString, quint64> was{ { QStringLiteral("panthor"), 5165417 } };
+    const QHash<QString, quint64> now{ { QStringLiteral("panthor"), 15511417 } };
+    const double busy = st::drmBusy(was, now, {}, 2087000000LL);
+    check("system: the GPU's busy share (10.346 ms in 2.087 s)", std::abs(busy - 10346000.0 / 2087000000.0) < 1e-12,
+          QString::number(busy, 'f', 5));
+    check("system: no engine time, or no time passed - unknown",
+          st::drmBusy({}, now, {}, 1000000000LL) == -1.0 && st::drmBusy(was, now, {}, 0) == -1.0
+              && st::drmBusy(now, was, {}, 1000000000LL) == -1.0);
+    const QHash<QString, quint64> twoWas{ { QStringLiteral("gfx"), 0 }, { QStringLiteral("compute"), 0 } };
+    const QHash<QString, quint64> twoNow{ { QStringLiteral("gfx"), 500000000 }, { QStringLiteral("compute"), 1600000000 } };
+    const double busiest = st::drmBusy(twoWas, twoNow, { { QStringLiteral("compute"), 2 } }, 1000000000LL);
+    check("system: the busiest engine class, over its engines", std::abs(busiest - 0.8) < 1e-12, QString::number(busiest));
 }
 
 // SystemMonitor on this computer, live: whatever it is, it has cores, memory, a volume and an uptime.

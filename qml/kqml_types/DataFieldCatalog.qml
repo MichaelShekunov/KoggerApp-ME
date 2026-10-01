@@ -41,6 +41,7 @@ QtObject {
         { key: "sysOverview", label: qsTr("System"),          unit: "",           group: "system" },
         { key: "sysCpu",      label: qsTr("CPU"),             unit: qsTr("GHz"),  group: "system" },
         { key: "sysCpuTemp",  label: qsTr("CPU temperature"), unit: "°C",         group: "system" },
+        { key: "sysGpu",      label: qsTr("GPU"),             unit: "%",          group: "system" },
         { key: "sysRam",      label: qsTr("Memory"),          unit: qsTr("GB"),   group: "system" },
         { key: "sysStorage",  label: qsTr("Storage"),         unit: qsTr("GB"),   group: "system" },
         { key: "sysUptime",   label: qsTr("Uptime"),          unit: "",           group: "system" }
@@ -53,7 +54,8 @@ QtObject {
         coreFreqMHz: [1416, 1008, 1800, 1200, 2400, 1800, 2208, 816],
         coreMaxMHz: [1800, 1800, 1800, 1800, 2400, 2400, 2400, 2400],
         coreLoad: [0.22, 0.10, 0.64, 0.31, 0.86, 0.45, 0.57, 0.08],
-        cpuLoad: 0.40, cpuFreqMHz: 2400, cpuTempC: 52, gpuTempC: 48, gpuFreqMHz: 300, throttled: false,
+        cpuLoad: 0.40, cpuFreqMHz: 2400, cpuTempC: 52, throttled: false,
+        gpuLoad: 0.12, gpuFreqMHz: 300, gpuMaxMHz: 1000, gpuTempC: 48,
         memTotalGB: 15.6, memUsedGB: 3.1,
         volumes: [{ name: "/", kind: "eMMC", wearPct: 10, totalGB: 11.7, usedGB: 8.7 },
                   { name: "/data", kind: "", wearPct: -1, totalGB: 16.5, usedGB: 0.1 }],
@@ -160,7 +162,7 @@ QtObject {
     }
     // The fields SystemMonitor feeds (a cell showing one subscribes to it while it lives).
     function usesSystem(key) {
-        return key === "sysOverview" || key === "sysCpu" || key === "sysCpuTemp" || key === "sysRam"
+        return key === "sysOverview" || key === "sysCpu" || key === "sysCpuTemp" || key === "sysGpu" || key === "sysRam"
                || key === "sysStorage" || key === "sysUptime"
     }
     function _sysOk(sys) {
@@ -200,6 +202,8 @@ QtObject {
             var dim = Qt.rgba(AppPalette.textSecond.r, AppPalette.textSecond.g, AppPalette.textSecond.b, 0.18)
             if (key === "sysCpu" && sys.cpuLoad >= 0)
                 return [{ v: sys.cpuLoad, c: sysLoadColor(sys.cpuLoad) }, { v: 1 - sys.cpuLoad, c: dim }]
+            if (key === "sysGpu" && sys.gpuLoad >= 0)
+                return [{ v: sys.gpuLoad, c: sysLoadColor(sys.gpuLoad) }, { v: 1 - sys.gpuLoad, c: dim }]
             if (key === "sysCpuTemp" && isFinite(sys.cpuTempC)) {
                 var t = Math.max(0, Math.min(1, (sys.cpuTempC - 20) / 80))   // 20..100 degrees
                 return [{ v: t, c: sysTempColor(sys.cpuTempC) }, { v: 1 - t, c: dim }]
@@ -257,6 +261,7 @@ QtObject {
         case "sysOverview":    return _sysOk(sys)
         case "sysCpu":         return _sysOk(sys) && sys.cpuLoad >= 0
         case "sysCpuTemp":     return _sysOk(sys) && isFinite(sys.cpuTempC)
+        case "sysGpu":         return _sysOk(sys) && (sys.gpuLoad >= 0 || sys.gpuFreqMHz > 0)
         case "sysRam":         return _sysOk(sys) && sys.memTotalGB > 0
         case "sysStorage":     return _sysOk(sys) && !!sys.volumes && sys.volumes.length > 0
         case "sysUptime":      return _sysOk(sys) && sys.uptimeS >= 0
@@ -317,6 +322,14 @@ QtObject {
                    + Math.round(sys.cpuLoad * 100) + " %"
         case "sysCpuTemp":
             return (_sysOk(sys) && isFinite(sys.cpuTempC)) ? (Math.round(sys.cpuTempC) + " °C" + (sys.throttled ? " ▼" : "")) : "—"
+        case "sysGpu": {
+            if (!_sysOk(sys) || !(sys.gpuLoad >= 0 || sys.gpuFreqMHz > 0)) return "—"
+            var g = []
+            if (sys.gpuLoad >= 0) g.push(Math.round(sys.gpuLoad * 100) + " %")
+            if (sys.gpuFreqMHz > 0) g.push(sys.gpuFreqMHz + " " + qsTr("MHz"))
+            if (isFinite(sys.gpuTempC)) g.push(Math.round(sys.gpuTempC) + " °C")
+            return g.join(" · ")
+        }
         case "sysRam":
             return (_sysOk(sys) && sys.memTotalGB > 0) ? gbPair(sys.memUsedGB, sys.memTotalGB) : "—"
         case "sysStorage":
@@ -382,6 +395,7 @@ QtObject {
         case "sysOverview":    return qsTr("System")
         case "sysCpu":         return "2.40 " + qsTr("GHz") + " · 40 %"
         case "sysCpuTemp":     return "52 °C"
+        case "sysGpu":         return "12 % · 300 " + qsTr("MHz") + " · 48 °C"
         case "sysRam":         return gbPair(3.1, 15.6)
         case "sysStorage":     return gbPair(8.7, 11.7)
         case "sysUptime":      return uptimeText(11520)

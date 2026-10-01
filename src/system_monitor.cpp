@@ -70,6 +70,7 @@ SystemMonitor::SystemMonitor(QObject* parent)
 {
     timer_.setInterval(1000);
     connect(&timer_, &QTimer::timeout, this, &SystemMonitor::refresh);
+    clock_.start();
     // One look a few seconds after the start (two readings, for the loads), so the log line is there with no widget
     // showing the values.
     QTimer::singleShot(3000, this, [this] {
@@ -82,6 +83,8 @@ void SystemMonitor::subscribe()
 {
     if (subscribers_++ == 0) {
         ticks_ = 0;
+        lastTimes_.clear();   // the loads over the next second, not over the pause
+        lastGpuAt_ = -1;
         refresh();
         timer_.start();
     }
@@ -98,6 +101,7 @@ void SystemMonitor::refresh()
     readCpu();
     readMemory();
     readThermal();
+    readGpu();
     if (ticks_ % 10 == 0)
         readVolumes();
     readUptime();
@@ -126,12 +130,19 @@ void SystemMonitor::refresh()
                              disk.isEmpty() ? QString() : QStringLiteral(" (%1)").arg(disk),
                              gb(m.value(QStringLiteral("usedGB")).toDouble()), gb(m.value(QStringLiteral("totalGB")).toDouble()));
         }
-        qInfo().noquote() << QStringLiteral("system monitor: %1 cores (max MHz %2), throttled %3, CPU %4 C, GPU %5 MHz %6 C, "
-                                            "memory %7/%8 GB, volumes %9, uptime %10 s")
+        QStringList gpu;
+        if (gpuFreq_ > 0)
+            gpu << (gpuMax_ > 0 ? QStringLiteral("%1 of %2 MHz").arg(gpuFreq_).arg(gpuMax_) : QStringLiteral("%1 MHz").arg(gpuFreq_));
+        if (gpuLoad_ >= 0.0)
+            gpu << QStringLiteral("load %1 %").arg(gpuLoad_ * 100.0, 0, 'f', 1);
+        if (std::isfinite(gpuTemp_))
+            gpu << QStringLiteral("%1 C").arg(gpuTemp_, 0, 'f', 1);
+        qInfo().noquote() << QStringLiteral("system monitor: %1 cores (max MHz %2), throttled %3, CPU %4 C, GPU %5, "
+                                            "memory %6/%7 GB, volumes %8, uptime %9 s")
                                  .arg(coreLoad_.size()).arg(cores.join(QStringLiteral(", ")))
                                  .arg(throttled_ ? QStringLiteral("yes") : QStringLiteral("no"))
                                  .arg(std::isfinite(cpuTemp_) ? QString::number(cpuTemp_, 'f', 1) : QStringLiteral("-"))
-                                 .arg(gpuFreq_).arg(std::isfinite(gpuTemp_) ? QString::number(gpuTemp_, 'f', 1) : QStringLiteral("-"))
+                                 .arg(gpu.isEmpty() ? QStringLiteral("-") : gpu.join(QStringLiteral(", ")))
                                  .arg(gb(memUsed_), gb(memTotal_), vols.join(QStringLiteral(", ")))
                                  .arg(uptime_);
     }
@@ -247,16 +258,53 @@ void SystemMonitor::readThermal()
     }
     cpuTemp_ = cpu;
     gpuTemp_ = gpu;
+#endif
+}
+
+void SystemMonitor::readGpu()
+{
+#if defined(Q_OS_LINUX) || defined(Q_OS_ANDROID)
+    // devfreq: now, and the top of its table (its max_freq may be held below it)
     gpuFreq_ = -1;
+    gpuMax_ = -1;
     const QDir devfreq(QStringLiteral("/sys/class/devfreq"));
     for (const QString& d : devfreq.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
         if (!d.contains(QLatin1String("gpu"), Qt::CaseInsensitive))
             continue;
-        const long long hz = readNumber(devfreq.filePath(d) + QStringLiteral("/cur_freq"), -1);
+        const QString base = devfreq.filePath(d) + QLatin1Char('/');
+        const long long hz = readNumber(base + QStringLiteral("cur_freq"), -1);
         if (hz > 0)
             gpuFreq_ = int(hz / 1000000);
+        long long top = 0;
+        for (const QString& f : readSmall(base + QStringLiteral("available_frequencies")).simplified().split(QLatin1Char(' ')))
+            top = std::max(top, f.toLongLong());
+        if (top <= 0)
+            top = readNumber(base + QStringLiteral("max_freq"), -1);
+        if (top > 0)
+            gpuMax_ = int(top / 1000000);
         break;
     }
+    // this process's GPU time: each DRM client once (a client's file can be open on several fds)
+    QHash<QString, quint64> engines;
+    QHash<QString, int> capacity;
+    QList<qint64> clients;
+    const QDir fds(QStringLiteral("/proc/self/fd"));
+    for (const QString& fd : fds.entryList(QDir::AllEntries | QDir::System | QDir::NoDotAndDotDot)) {
+        if (!QFile::symLinkTarget(fds.filePath(fd)).startsWith(QLatin1String("/dev/dri/")))
+            continue;
+        const system_stats::DrmClient c = system_stats::parseDrmFdinfo(readSmall(QStringLiteral("/proc/self/fdinfo/") + fd));
+        if (c.id < 0 || clients.contains(c.id))
+            continue;
+        clients << c.id;
+        for (auto it = c.engineNs.cbegin(); it != c.engineNs.cend(); ++it)
+            engines[it.key()] += it.value();
+        for (auto it = c.capacity.cbegin(); it != c.capacity.cend(); ++it)
+            capacity[it.key()] = std::max(capacity.value(it.key()), it.value());
+    }
+    const qint64 now = clock_.nsecsElapsed();
+    gpuLoad_ = lastGpuAt_ >= 0 ? system_stats::drmBusy(lastEngines_, engines, capacity, now - lastGpuAt_) : -1.0;
+    lastEngines_ = engines;
+    lastGpuAt_ = now;
 #endif
 }
 

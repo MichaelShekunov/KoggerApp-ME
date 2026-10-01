@@ -1,5 +1,7 @@
 #pragma once
 
+#include <QElapsedTimer>
+#include <QHash>
 #include <QList>
 #include <QObject>
 #include <QTimer>
@@ -18,8 +20,8 @@
  * 3 s after it is made, so the log has its line (once) with no widget showing it. Linux: cpufreq,
  * /proc/stat, /proc/meminfo, the thermal zones, devfreq (GPU), QStorageInfo, /sys/block (kind, life_time),
  * /proc/uptime.
- * Windows: memory, each core's load and frequency (ntdll, powrprof, loaded at run time), the volumes, the uptime;
- * no temperatures without administrator rights. Unknown values: -1, NaN or empty.
+ * The GPU: devfreq and this process's DRM fdinfo (drm-engine-*). Windows: memory, each core's load and frequency
+ * (ntdll, powrprof, loaded at run time), the volumes, the uptime; no temperatures, no GPU. Unknown values: -1, NaN or empty.
  */
 class SystemMonitor : public QObject
 {
@@ -33,6 +35,8 @@ class SystemMonitor : public QObject
     Q_PROPERTY(double cpuTempC READ cpuTempC NOTIFY changed)
     Q_PROPERTY(double gpuTempC READ gpuTempC NOTIFY changed)
     Q_PROPERTY(int gpuFreqMHz READ gpuFreqMHz NOTIFY changed)
+    Q_PROPERTY(int gpuMaxMHz READ gpuMaxMHz NOTIFY changed)
+    Q_PROPERTY(double gpuLoad READ gpuLoad NOTIFY changed)
     Q_PROPERTY(bool throttled READ throttled NOTIFY changed)
     Q_PROPERTY(double memTotalGB READ memTotalGB NOTIFY changed)
     Q_PROPERTY(double memUsedGB READ memUsedGB NOTIFY changed)
@@ -60,7 +64,12 @@ public:
     /** The hottest CPU thermal zone, degrees C; NaN unknown. */
     double cpuTempC() const { return cpuTemp_; }
     double gpuTempC() const { return gpuTemp_; }
+    /** The GPU now and the top of its frequency table, MHz; -1 unknown. */
     int gpuFreqMHz() const { return gpuFreq_; }
+    int gpuMaxMHz() const { return gpuMax_; }
+    /** This app's share of the GPU over the last second, 0..1 (on the head unit's kiosk, the GPU's only user); -1
+     *  when the driver does not report its engines' time (panthor does only with its job profiling on). */
+    double gpuLoad() const { return gpuLoad_; }
     /** A cpufreq policy held below its maximum (thermal or power capping). */
     bool throttled() const { return throttled_; }
     double memTotalGB() const { return memTotal_; }
@@ -79,6 +88,7 @@ private:
     void readCpu();
     void readMemory();
     void readThermal();
+    void readGpu();
     void readVolumes();
     void readUptime();
 
@@ -96,7 +106,11 @@ private:
     double cpuLoad_ = -1.0;
     int cpuFreq_ = -1;
     double cpuTemp_ = kNaN, gpuTemp_ = kNaN;
-    int gpuFreq_ = -1;
+    int gpuFreq_ = -1, gpuMax_ = -1;
+    double gpuLoad_ = -1.0;
+    QElapsedTimer clock_;
+    QHash<QString, quint64> lastEngines_;
+    qint64 lastGpuAt_ = -1;
     bool throttled_ = false;
     double memTotal_ = 0.0, memUsed_ = 0.0;
     QVariantList volumes_;
