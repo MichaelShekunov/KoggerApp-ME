@@ -838,7 +838,8 @@ none). A badge's menu is a Popup, so the clip does not cut it. Check: `tools/qml
 (the real strip over a row of cells: fits, overflows, the wheel to its end and no further, a drag, a tap through,
 back in view when the chain shrinks or the room grows, no fade colour; and the menu's use of it), nine mutants -
 seven caught, the two surviving showed that Flickable keeps its content in bounds by itself, so those handlers
-went; qmllint adds only the kind the component's other lines have; the Windows build.
+went; qmllint adds only the kind the component's other lines have; the Windows build. On the kiosk as `headunit`
+cc29162b from 2026-10-01 by the owner's word (no QML errors); this PC runs ea8eb8a5.
 
 **The "System" widget: the computer the app runs on.** Owner 2026-10-01: a compact, good-looking widget for the
 system's state - the cores' frequencies, memory, the CPU temperature, the drives, and what else. `SystemMonitor`
