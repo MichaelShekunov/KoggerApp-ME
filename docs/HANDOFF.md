@@ -854,7 +854,7 @@ function whose name ends in `_data` for the data of another and silently does no
 else"): the NPU's load (debugfs, root), the app's own memory, the network per interface. On the kiosk as `headunit`
 9c824fee from 2026-10-01 by the owner's word (no QML errors; its line: `8 cores (max MHz 1800 x4, 2400 x4),
 throttled no, CPU 45.3 C, GPU 1000 MHz 45.3 C, memory 0.9/15.6 GB, volumes / (eMMC, wear <=10 %) 8.8/11.7 GB, /data
-1.0/16.5 GB`); this PC runs b1f77ce6. Not yet seen on the head unit's screen.
+1.0/16.5 GB`); this PC runs b1f77ce6. The owner, on the kiosk's screen 2026-10-01: the widget works.
 
 **A working sonar behind a recorder that is not recording is not red.** Owner 2026-09-30: the logger has no flash drive (red, rightly), and the sonar behind it turned red too while it worked. `RecorderStatus.pillState` took a device's colour from the recorder's per-port flags; a recorder that is not recording (severity "crit": storage lost, a failed recording, recording off) calls its ports lost. Such a recorder's port flags are now ignored and the device is shown by its own frames (dataStale, then the link). Check: `tools/qml_check/recorderpill_check.ps1` (fails on the rule before: "the working sonar behind it green"). On the kiosk as `headunit` 54ae4e46 from 2026-09-30, the owner: the sonar is green. This PC still runs 60073967 (the owner cancelled the UAC prompt for 0eb37775).
 
