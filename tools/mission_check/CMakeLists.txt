@@ -22,11 +22,15 @@ add_executable(mission_check
     ${KOGGER_SRC}/device/wifi_ops.h
     ${KOGGER_SRC}/device/wifi_ops.cpp
     ${KOGGER_SRC}/device/device_liveness.h
-    ${KOGGER_SRC}/touch_tap_gate.h)
+    ${KOGGER_SRC}/touch_tap_gate.h
+    ${KOGGER_SRC}/kec/kec.h
+    ${KOGGER_SRC}/kec/kec.c
+    kec_vectors.h)
 
 target_include_directories(mission_check PRIVATE
     ${KOGGER_SRC}
     ${KOGGER_SRC}/vehicle
     ${KOGGER_SRC}/device
+    ${KOGGER_SRC}/kec
     ${CMAKE_CURRENT_SOURCE_DIR}/../../third_party)
 target_link_libraries(mission_check PRIVATE Qt6::Core Qt6::Network)
