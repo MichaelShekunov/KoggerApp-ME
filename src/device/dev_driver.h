@@ -117,6 +117,18 @@ public:
     void sendUpdateFWAll(QByteArray update_data);
     /// Progress and outcome of a ring update, in the stock convention: 0..100, 101 done, -1 failed.
     void setRingUpgradeStatus(int status, bool done);
+    /// A sonar whose bus address the app sets (BusAddress, docs/RING_UPDATE.md): a Basic2D board running
+    /// the ring firmware (1.12+), not behind a recorder -- there the route is the recorder's port number.
+    bool isBusAddressSettable() {
+        const int fw = idVersion->fwVersion(), fwMinor = idVersion->fwVersionMinor();
+        return boardVersion() == BoardBasic2D && !viaRecorder_ && (fw > 1 || (fw == 1 && fwMinor >= 12));
+    }
+    /// Sets this sonar's bus address and saves it in its flash; DeviceManager runs it and
+    /// busAddressDone() tells the outcome. The run first checks that the board is alone on its line.
+    Q_INVOKABLE void assignBusAddress(int address);
+    /// The outcome of assignBusAddress(), from DeviceManager. On success this device answers on `address`.
+    void setBusAddressResult(bool ok, int address, const QString& detail);
+    bool busAddressBusy() const { return busAddressBusy_; }
 
     void sendFactoryFW(QByteArray update_data);
 
@@ -467,6 +479,9 @@ signals:
     void startUpgradingFirmwareDM(QUuid linkUuid, uint8_t address, QByteArray firmware);
     void upgradingFirmwareDoneDM();
     void ringUpgradeRequested(QUuid linkUuid, int address, QByteArray firmware, QString expect, bool everyBoard);
+    void busAddressRequested(QUuid linkUuid, int fromAddress, int toAddress);
+    void busAddressDone(bool ok, int address, QString detail);
+    void busAddressBusyChanged();
 
     //
     void sendChartSetup(const ChannelId& channelId, uint16_t resol, uint16_t count, uint16_t offset);
@@ -765,6 +780,7 @@ protected:
     bool rebootFlag_ = false;
     int m_upgrade_status = 0;
     QString upgradeExpect_;
+    bool busAddressBusy_ = false;
     bool viaRecorder_ = false;   ///< frames came as KP2: the device sits behind a recorder
     void onIdFrameOut(Parsers::ProtoBinOut out);   ///< a command leaving; wrapped for a ring sonar behind a recorder
     int64_t _lastUpgradeAnswerTime = 0;

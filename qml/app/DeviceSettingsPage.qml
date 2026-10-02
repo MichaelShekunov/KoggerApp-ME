@@ -5284,6 +5284,68 @@ Column {
         }
     }
 
+    // ── Bus address: the number of a sonar on a line it shares (BusAddress, docs/RING_UPDATE.md) ──
+    DevIsland {
+        id: devBusAddressGroup
+        visible: !!(dev && dev.isBusAddressSettable)
+
+        DevIslandTitle { label: qsTr("Bus address") }
+
+        readonly property int current: (dev && dev.uartState === true) ? dev.devAddress : -1
+        property string result: ""
+        property bool resultOk: false
+        onCurrentChanged: if (current >= 0 && current <= 2) busAddrTab.currentValue = current
+
+        Text {
+            width: parent.width; wrapMode: Text.WordWrap
+            color: AppPalette.textSecond; font.pixelSize: Tokens.fontMd
+            text: qsTr("The number of this sonar on a line it shares. 0: alone on its line. 1: first in the ring, its RX on the host's TX (left). 2: last, its TX on the host's RX (right). Only this board may be on the line while the address is set.")
+        }
+
+        KTabBar {
+            id: busAddrTab
+            width: parent.width
+            trackColor: AppPalette.bgDeep
+            options: [{ label: "0", value: 0 }, { label: "1", value: 1 }, { label: "2", value: 2 }]
+            Component.onCompleted: currentValue = (devBusAddressGroup.current >= 0 && devBusAddressGroup.current <= 2) ? devBusAddressGroup.current : 1
+            onValueSelected: function(v) { currentValue = v }
+        }
+
+        DevButton {
+            width: parent.width; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
+            enabled: !!(dev && !dev.busAddressBusy)
+            text: (dev && dev.busAddressBusy) ? qsTr("Setting the address...") : qsTr("Set and save address %1").arg(busAddrTab.currentValue)
+            toolTipText: qsTr("Checks that this board is alone on the line, sets the address, writes it to the board's memory and reads it back from there")
+            onClicked: {
+                if (!dev) return
+                devBusAddressGroup.result = ""
+                dev.assignBusAddress(busAddrTab.currentValue)
+            }
+        }
+
+        Text {
+            visible: devBusAddressGroup.result.length > 0
+            width: parent.width; wrapMode: Text.WordWrap
+            color: devBusAddressGroup.resultOk ? AppPalette.textSecond : AppPalette.dangerText
+            font.pixelSize: Tokens.fontMd
+            text: devBusAddressGroup.result
+        }
+
+        Connections {
+            target: dev
+            ignoreUnknownSignals: true
+            function onBusAddressDone(ok, address, detail) {
+                devBusAddressGroup.resultOk = ok
+                devBusAddressGroup.result = ok ? qsTr("Address %1 is set and saved in the board.").arg(address)
+                                               : qsTr("Address not set: %1").arg(detail)
+                if (ok)
+                    notifications.info(qsTr("Bus address %1 is set and saved").arg(address))
+                else
+                    notifications.warning(qsTr("Bus address not set: %1").arg(detail))
+            }
+        }
+    }
+
                 }
             }
         }

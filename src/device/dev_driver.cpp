@@ -1197,6 +1197,22 @@ void DevDriver::setRingUpgradeStatus(int status, bool done) {
         emit upgradingFirmwareDone();
 }
 
+void DevDriver::assignBusAddress(int address) {
+    if (busAddressBusy_ || !isBusAddressSettable())
+        return;
+    busAddressBusy_ = true;
+    emit busAddressBusyChanged();
+    emit busAddressRequested(linkUuid_, m_busAddress, address);
+}
+
+void DevDriver::setBusAddressResult(bool ok, int address, const QString& detail) {
+    busAddressBusy_ = false;
+    emit busAddressBusyChanged();
+    if (ok)
+        idUART->simpleRequest(v1);   // the info row shows what the board says, not what was sent
+    emit busAddressDone(ok, address, detail);
+}
+
 void DevDriver::sendUpdateFW(QByteArray update_data) {
     if (isRingBoard()) {
         emit ringUpgradeRequested(linkUuid_, lastAddress_, update_data, upgradeExpect_, false);

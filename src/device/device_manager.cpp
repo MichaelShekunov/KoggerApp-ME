@@ -266,6 +266,15 @@ void DeviceManager::frameInput(QUuid uuid, Link* link, Parsers::FrameParser fram
                 return;
         }
 
+        // Setting a bus address: the board answers on its old route, the new one and a temporary one in
+        // turn. Every frame of its line goes to the procedure only, or each route would become a device.
+        if (busAddr_ && busAddr_->active() && uuid == busLink_) {
+            if (frame.completeAsKBP())
+                busAddr_->onFrame(QByteArray(reinterpret_cast<const char*>(frame.frame()), frame.frameLen()));
+            if (frame.completeAsKBP() || frame.completeAsKBP2())
+                return;
+        }
+
         if (frame.completeAsKBP() || frame.completeAsKBP2()) {
             DevQProperty* dev = getDevice(uuid, link, frame.route());
 
@@ -303,6 +312,7 @@ void DeviceManager::frameInput(QUuid uuid, Link* link, Parsers::FrameParser fram
 #endif
             dev->protoComplete(frame);
             autoRingUpgrade(uuid);
+            autoBusAddress(uuid);
         }
 
         if (frame.isCompleteAsNMEA()) {
@@ -1022,6 +1032,103 @@ void DeviceManager::endRingUpgrade()
     ringLink_ = QUuid();
 }
 
+void DeviceManager::onBusAddressRequested(QUuid linkUuid, int fromAddress, int toAddress)
+{
+    DevQProperty* dev = devTree_.value(linkUuid).value(fromAddress, nullptr);
+    Link* link = linkOf_.value(linkUuid).data();
+    auto refuse = [&](const QString& why) {
+        qInfo().noquote() << "bus-address: refused:" << why;
+        if (dev)
+            dev->setBusAddressResult(false, fromAddress, why);
+    };
+    if ((busAddr_ && busAddr_->active()) || (ringUp_ && ringUp_->active()))
+        return refuse(QStringLiteral("an address change or a ring update is running"));
+    if (!link)
+        return refuse(QStringLiteral("the line of the device is not known"));
+
+    if (!busAddr_) {
+        BusAddress::Io io;
+        io.write = [this](const QByteArray& bytes) {
+            if (QPointer<Link> l = busLinkPtr_)
+                QMetaObject::invokeMethod(l, [l, bytes] { if (l) l->write(bytes); }, Qt::QueuedConnection);
+        };
+        io.nowMs = [this] { return busClock_.elapsed(); };
+        busAddr_ = new BusAddress(io, this);
+        busClock_.start();
+        busTimer_ = new QTimer(this);
+        busTimer_->setInterval(5);
+        connect(busTimer_, &QTimer::timeout, busAddr_, &BusAddress::tick);
+        connect(busAddr_, &BusAddress::logLine, this, [](const QString& line) { qInfo().noquote() << line; });
+        connect(busAddr_, &BusAddress::finished, this, &DeviceManager::onBusAddressFinished);
+    }
+    busLink_ = linkUuid;
+    busLinkPtr_ = link;
+    busFrom_ = fromAddress;
+    if (!busAddr_->start(toAddress))     // finished(false) has run onBusAddressFinished() already
+        return;
+    busTimer_->start();
+}
+
+void DeviceManager::onBusAddressFinished(bool ok, int address, const QString& detail)
+{
+    if (busTimer_)
+        busTimer_->stop();
+    const QUuid uuid = busLink_;
+    const int from = busFrom_;
+    busLink_ = QUuid();
+    busLinkPtr_ = nullptr;
+    busFrom_ = -1;
+    DevQProperty* dev = devTree_.value(uuid).value(from, nullptr);
+    if (ok && dev && from != address)
+        rekeyDevice(uuid, from, address);
+    if (dev)
+        dev->setBusAddressResult(ok, address, detail);
+}
+
+// The device keeps its object -- its page, settings and plots stay -- and is keyed by its new route.
+void DeviceManager::rekeyDevice(QUuid uuid, int from, int to)
+{
+    auto& devs = devTree_[uuid];
+    DevQProperty* dev = devs.value(from, nullptr);
+    if (!dev || from == to)
+        return;
+    // A device already keyed by the new route -- the empty one a link's opening makes at 0, or one left
+    // from an earlier address -- goes: that route is this board's now.
+    if (DevQProperty* other = devs.value(to, nullptr); other && other != dev) {
+        if (lastDevice_ == other)
+            lastDevice_ = nullptr;
+        disconnect(other);
+#ifdef SEPARATE_READING
+        QMetaObject::invokeMethod(other, "deleteLater", Qt::QueuedConnection);
+#else
+        other->deleteLater();
+#endif
+    }
+    devs.remove(from);
+    devs[to] = dev;
+    dev->setBusAddress(to);
+    lastDevice_ = nullptr;             // getDevice() caches the last (link, route) pair
+    qInfo().noquote() << QStringLiteral("bus-address: the device of route %1 answers on %2 now").arg(from).arg(to);
+    emit devChanged();
+}
+
+// Headless test hook (docs/RING_UPDATE.md): KOGGER_AUTOADDRESS=<address> sets the bus address of the
+// first sonar on a line that can take one, the way its device page does. Off unless set.
+void DeviceManager::autoBusAddress(QUuid uuid)
+{
+    static const QString kAuto = qEnvironmentVariable("KOGGER_AUTOADDRESS");
+    if (kAuto.isEmpty() || autoAddressStarted_)
+        return;
+    const auto devs = devTree_.value(uuid);
+    for (auto it = devs.cbegin(); it != devs.cend(); ++it)
+        if (it.value() && it.value()->isBusAddressSettable()) {
+            autoAddressStarted_ = true;
+            qInfo().noquote() << "bus-address: KOGGER_AUTOADDRESS" << kAuto << "for the device of route" << it.key();
+            it.value()->assignBusAddress(kAuto.toInt());
+            return;
+        }
+}
+
 void DeviceManager::createLocationReader()
 {
     //qDebug() << "DeviceManager::createLocationReader";
@@ -1181,6 +1288,7 @@ DevQProperty* DeviceManager::createDev(QUuid uuid, Link* link, uint8_t addr)
     connect(dev, &DevQProperty::startUpgradingFirmwareDM, this, &DeviceManager::onStartUpgradingFirmware, connType);
     connect(dev, &DevQProperty::upgradingFirmwareDoneDM, this, &DeviceManager::onUpgradingFirmwareDone, connType);
     connect(dev, &DevQProperty::ringUpgradeRequested, this, &DeviceManager::onRingUpgradeRequested, connType);
+    connect(dev, &DevQProperty::busAddressRequested, this, &DeviceManager::onBusAddressRequested, connType);
 
     //
     connect(dev, &DevQProperty::sendChartSetup, this, &DeviceManager::sendChartSetup, connType);
@@ -1226,6 +1334,7 @@ DevQProperty* DeviceManager::createDev(QUuid uuid, Link* link, uint8_t addr)
     connect(dev, &DevQProperty::startUpgradingFirmwareDM, this, &DeviceManager::onStartUpgradingFirmware);
     connect(dev, &DevQProperty::upgradingFirmwareDoneDM, this, &DeviceManager::onUpgradingFirmwareDone);
     connect(dev, &DevQProperty::ringUpgradeRequested, this, &DeviceManager::onRingUpgradeRequested);
+    connect(dev, &DevQProperty::busAddressRequested, this, &DeviceManager::onBusAddressRequested);
 
     //
     connect(dev, &DevQProperty::sendChartSetup,  this, &DeviceManager::sendChartSetup);
