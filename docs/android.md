@@ -40,7 +40,7 @@ All of it seen on the tablet, most of it in the app's own log (logcat, tag
   restarted. Opening a file closes the live link, as on the desktop.
 - **Deconvolution, on the CPU.** OpenCL is not there for apps ("OpenCL runtime not
   present"), so the threads take over. `tools/deconv_check` cross-compiled with the
-  NDK and run on the tablet (2000 x 800, 8 iterations, the shipped default):
+  NDK and run on the tablet once (2000 x 800, 8 iterations, the shipped default):
   1 thread 144 ms, 2 100 ms, 4 74 ms, 8 53 ms, auto 64 ms; its checks PASS. The PC
   does the same in 9 ms on threads and 6 ms on its GPU, so a full echogram pass is
   six to ten times dearer here: fine for a recording, heavy on live data, where
@@ -87,6 +87,22 @@ the FGS state, the block is lifted (`effective=NONE` in the same dump), and the
 service also holds a Wi-Fi lock and a partial wake lock. Same test afterwards:
 3.40, 3.45 and 3.41 KB/s logged in the three background minutes, no "restored"
 line on return.
+
+Then a soak, read only: the app on the live link sent to the background at
+22:16, the screen left to turn itself off (it did at 22:26), the app's log
+streamed off the tablet for 70 minutes. The same process all along, a traffic
+line every minute - 71 of them, no gap over 90 s, 3.18 to 3.64 KB/s - no "lost"
+or "restored" line, no crash; RSS fell from 556 to 319 MB as Android trimmed the
+backgrounded app. The screen-off case is therefore held by the service's Wi-Fi
+and wake locks as well.
+
+One limit, by design of Android rather than of the code: from Android 12 on, a
+foreground service cannot be started from the background. The service stops when
+the last link closes, so a link that closed and opened again while the app was
+off screen would run without it, and be cut. A UDP link here closes only when
+told to (Close, opening a file), which the operator cannot do from the background;
+discovery picking a new address for the module there is the one way it could
+happen. Not seen, not tested.
 
 On Android 13 and later the service's notification shows only if the app has the
 notification permission, which it does not ask for; the service runs either way
@@ -160,6 +176,5 @@ it is, as a decision about the picture rather than a fix.
 ## Not tested on the device yet
 
 The relief cloud in a 2/3D pane as such (it was checked as a layer in the 3D
-pane), USB-OTG serial, and the screen actually turning off with the service
-holding the locks (not tried: if the tablet has a PIN, a locked screen would have
-ended the night's testing).
+pane), USB-OTG serial, recording a KLF on the tablet, and the boat's sonars, which
+were not on the link that night.
