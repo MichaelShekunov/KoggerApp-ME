@@ -12,7 +12,8 @@
  * @brief Sets the bus address of the one sonar on a line and proves it was saved: the sequence of
  * tools/bench/chain_addr.py in the firmware tree, which numbered the boards of the bench ring.
  *  1. A broadcast GET of ID_UART v1 must be answered exactly once. With two boards on the line both
- *     may take the address.
+ *     may take the address. The count starts after a short pause: an answer to a request someone else
+ *     sent just before (the app polls its devices) must not be taken for a second board.
  *  2. SET ID_UART v1 [key][1][address] on route 0; a GET on the new route must read the address back.
  *  3. ID_FLASH v0 on the new route saves the settings, the address with them.
  *  4. Proof: the address in RAM is moved away (to 0, or to 15 when 0 is being set), ID_FLASH v1
@@ -53,7 +54,7 @@ signals:
     void logLine(const QString& line);
 
 private:
-    enum class Phase { Idle, Count, Set, ReadBack, Save, MoveAway, Restore, Prove };
+    enum class Phase { Idle, Settle, Count, Set, ReadBack, Save, MoveAway, Restore, Prove };
 
     void send(uint8_t route, uint8_t mode, uint8_t id, const QByteArray& payload);
     void ask(uint8_t route);            ///< GET ID_UART v1; the answers are collected from here on

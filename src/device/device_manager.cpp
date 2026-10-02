@@ -1064,6 +1064,13 @@ void DeviceManager::onBusAddressRequested(QUuid linkUuid, int fromAddress, int t
     busLink_ = linkUuid;
     busLinkPtr_ = link;
     busFrom_ = fromAddress;
+    // The line is the procedure's for the run: no baud search or "ask everybody", no device frames.
+    QMetaObject::invokeMethod(link, [l = QPointer<Link>(link)] {
+        if (l) {
+            l->setRatePinned(true);
+            l->setDevicesMuted(true);
+        }
+    }, Qt::QueuedConnection);
     if (!busAddr_->start(toAddress))     // finished(false) has run onBusAddressFinished() already
         return;
     busTimer_->start();
@@ -1074,6 +1081,13 @@ void DeviceManager::onBusAddressFinished(bool ok, int address, const QString& de
     if (busTimer_)
         busTimer_->stop();
     const QUuid uuid = busLink_;
+    if (QPointer<Link> l = busLinkPtr_)
+        QMetaObject::invokeMethod(l, [l] {
+            if (l) {
+                l->setDevicesMuted(false);
+                l->setRatePinned(false);
+            }
+        }, Qt::QueuedConnection);
     const int from = busFrom_;
     busLink_ = QUuid();
     busLinkPtr_ = nullptr;
