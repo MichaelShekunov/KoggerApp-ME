@@ -11,6 +11,8 @@ constexpr uint8_t kSetV0 = 0x02, kSetV1 = 0x0A, kGetV1 = 0x0B;  // mode: type 2/
 constexpr uint32_t kKey = 0xC96B5D4Au;
 // The pauses of chain_addr.py, which numbered the bench ring (firmware tree, docs/CHAIN.md).
 constexpr int kAnswerMs = 400, kSetMs = 200, kSaveMs = 500, kRestoreMs = 300;
+// Before the count: answers to requests sent before the start (the app's own polling) arrive and are dropped.
+constexpr int kSettleMs = 150;
 
 QByteArray key()
 {
@@ -53,9 +55,8 @@ bool BusAddress::start(int address)
     target_ = address;
     temp_ = address ? 0 : 15;
     log(QStringLiteral("setting bus address %1").arg(target_));
-    phase_ = Phase::Count;
-    ask(0);
-    due_ = io_.nowMs() + kAnswerMs;
+    phase_ = Phase::Settle;
+    due_ = io_.nowMs() + kSettleMs;
     return true;
 }
 
@@ -76,6 +77,9 @@ void BusAddress::tick()
         return;
     const auto next = [this](Phase p, int ms) { phase_ = p; due_ = io_.nowMs() + ms; };
     switch (phase_) {
+    case Phase::Settle:
+        ask(0);
+        return next(Phase::Count, kAnswerMs);
     case Phase::Count:
         if (answers_.isEmpty())
             return finish(false, -1, QStringLiteral("no board answered: is it a sonar with firmware 1.12 or newer, alone on the line?"));

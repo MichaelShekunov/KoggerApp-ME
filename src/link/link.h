@@ -71,6 +71,9 @@ public:
     /// A ring firmware update (src/device/ring_upgrade.h) drives the rate itself: no baud rate search
     /// and no "ask everybody" while it runs -- its bootloader stays silent for over a second at times.
     void setRatePinned(bool pinned);
+    /// Setting a bus address (src/device/bus_address.h) owns the line for its ~2.5 s: the devices' own
+    /// frames are dropped meanwhile, or their answers would be counted among the ones it asked for.
+    void setDevicesMuted(bool muted);
     /// Rate change after the bytes already written have left (serial); otherwise as setBaudrate().
     void setBaudrateAfterWrite(int baudrate);
     void setAutoConnOnce(bool state);
@@ -171,6 +174,7 @@ private:
     int lastSearchIndx_;
     bool onUpgradingFirmware_;
     bool ratePinned_ = false;
+    bool devicesMuted_ = false;
     int localGhostIgnoreCount_;
     LinkAskAll askAll_;   // when every device on the link is asked for its version
     bool autoConnOnce_;

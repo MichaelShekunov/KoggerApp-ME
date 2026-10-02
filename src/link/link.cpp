@@ -405,6 +405,11 @@ void Link::setRatePinned(bool pinned)
     ratePinned_ = pinned;
 }
 
+void Link::setDevicesMuted(bool muted)
+{
+    devicesMuted_ = muted;
+}
+
 void Link::setBaudrateAfterWrite(int baudrate)
 {
     if (auto port = qobject_cast<QSerialPort*>(ioDevice_); port && port->bytesToWrite() > 0)
@@ -549,7 +554,7 @@ void Link::setAttribute(LinkAttribute attribute) {
 
 bool Link::writeFrame(FrameParser frame)
 {
-    return  attribute_ == LinkAttribute::kLinkAttributeNone && frame.isComplete() && write(QByteArray((const char*)frame.frame(), frame.frameLen()));
+    return  attribute_ == LinkAttribute::kLinkAttributeNone && !devicesMuted_ && frame.isComplete() && write(QByteArray((const char*)frame.frame(), frame.frameLen()));
 }
 
 bool Link::write(QByteArray data)

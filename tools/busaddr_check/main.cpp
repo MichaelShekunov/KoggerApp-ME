@@ -135,12 +135,7 @@ struct Board {
                 ++sets;
                 changed();
             }
-            QByteArray r;
-            for (int i = 0; i < 4; ++i)
-                r.append(char((kKey >> (8 * i)) & 0xFF));
-            r.append(char(1));
-            r.append(char(addr));
-            out(0x09, kIdUart, r);                                // CONTENT v1
+            answerAddress();
         } else if (k.id == kIdFlash && k.type() == 2 && k.pl.size() >= 4 && u32(k.pl, 0) == kKey) {
             if (k.ver() == 0 && !saveBroken) {
                 flash = addr;
@@ -151,6 +146,16 @@ struct Board {
                 changed();
             }
         }
+    }
+
+    void answerAddress()                                          // CONTENT v1 [key][1][address]
+    {
+        QByteArray r;
+        for (int i = 0; i < 4; ++i)
+            r.append(char((kKey >> (8 * i)) & 0xFF));
+        r.append(char(1));
+        r.append(char(addr));
+        out(0x09, kIdUart, r);
     }
 
     void schedulePing()
@@ -170,6 +175,7 @@ struct Line {
     std::unique_ptr<BusAddress> engine;
     bool done = false, ok = false;
     int address = -2, sent = 0;
+    qint64 strayUs = -1;          // the first board answers someone else's GET of ID_UART v1 this long after the start
     QString detail;
 
     explicit Line(const std::vector<int>& addrsInWiringOrder)
@@ -215,6 +221,10 @@ struct Line {
         for (auto& b : boards)
             if (b->pinging)
                 b->schedulePing();
+        if (strayUs >= 0 && !boards.empty()) {
+            Board* b = boards[0].get();
+            sim.after(strayUs, [b] { b->answerAddress(); });
+        }
         if (!engine->start(target))
             return;                                               // finished(false) has come already
         std::function<void()> tick = [this, &tick] {
@@ -258,6 +268,13 @@ void offline()
         l.boards[0]->pinging = true;
         l.run(2);
         check("lone board at 1, pinging, -> 2", l.ok && l.boards[0]->addr == 2 && l.boards[0]->flash == 2, l.state());
+    }
+    {
+        Line l({2});
+        l.strayUs = 40000;          // the app asked the device for its address just before the click
+        l.run(1);
+        check("an answer to someone else's request just before the start is no second board",
+              l.ok && l.boards[0]->addr == 1 && l.boards[0]->flash == 1, l.state());
     }
     {
         Line l({1, 2});
