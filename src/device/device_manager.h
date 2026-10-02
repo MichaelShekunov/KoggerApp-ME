@@ -15,6 +15,7 @@
 #include "traffic_tally.h"
 #include "air_meter.h"
 #include "ring_upgrade.h"
+#include "bus_address.h"
 #include <QElapsedTimer>
 #include <QPointer>
 #include <QTimer>
@@ -79,6 +80,8 @@ public slots:
     void onUpgradingFirmwareDone();
     /// A ring board asked for its update (or for every ring board of its line): RingUpgrade runs it.
     void onRingUpgradeRequested(QUuid linkUuid, int address, QByteArray firmware, QString expect, bool everyBoard);
+    /// A sonar asked for its bus address to be set and saved: BusAddress runs it on the sonar's line.
+    void onBusAddressRequested(QUuid linkUuid, int fromAddress, int toAddress);
 
     void createLocationReader();
     void destroyLocationReader();
@@ -232,6 +235,17 @@ private:
     QPointer<Link> ringLinkPtr_;
     QTimer* ringTimer_{ nullptr };
     QElapsedTimer ringClock_;
+    // bus address setting (src/device/bus_address.h): one run at a time, on one line
+    BusAddress* busAddr_{ nullptr };
+    QUuid busLink_;
+    QPointer<Link> busLinkPtr_;
+    int busFrom_ = -1;
+    QTimer* busTimer_{ nullptr };
+    QElapsedTimer busClock_;
+    bool autoAddressStarted_ = false;
+    void onBusAddressFinished(bool ok, int address, const QString& detail);
+    void rekeyDevice(QUuid uuid, int from, int to);
+    void autoBusAddress(QUuid uuid);
     QHash<QUuid, QPointer<Link>> linkOf_;
     bool autoUpgradeStarted_ = false;
     void endRingUpgrade();

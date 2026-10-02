@@ -4,6 +4,7 @@ target_sources(KoggerApp PRIVATE
     device_defs.h
     device_manager.h          device_manager.cpp
     device_manager_wrapper.h  device_manager_wrapper.cpp
+    bus_address.h             bus_address.cpp
     device_topology_model.h   device_topology_model.cpp
     ring_upgrade.h            ring_upgrade.cpp
     usb_tap.h                 usb_tap.cpp

@@ -213,6 +213,8 @@ genuine upstream bug and a candidate to report back.
 | `src/device/ring_upgrade.{h,cpp}` | firmware update of two sonars sharing one line as a ring (and of a lone sonar with a bus address) |
 | `tools/ringupdate_check/` | standalone program: the ring update against a simulated ring, and live on a serial port |
 | `docs/RING_UPDATE.md` | two sonars on one line: how they show up, how they are updated, what was verified |
+| `src/device/bus_address.{h,cpp}` | setting and saving a sonar's bus address, with the proof that it was saved |
+| `tools/busaddr_check/` | standalone program: the bus address setting against simulated boards, and live on a serial port |
 | `docs/fork-overview.ru.md` | the fork for upstream's GUI developer (Russian): upstream behaviour it changes, new ids and keys, and in its appendix every touched file, listed by git |
 
 This table is not complete (the boat mission's files, among others, are missing); the appendix of
