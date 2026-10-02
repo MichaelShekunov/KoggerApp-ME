@@ -92,6 +92,18 @@ android {
         targetSdkVersion qtTargetSdkVersion
         ndk.abiFilters = qtTargetAbiList.split(",")
 
+        // A side-by-side build: KOGGER_APP_ID_SUFFIX=.myedition gives the package
+        // its own application id and its own name on the launcher, so a test-signed
+        // build installs next to a release-signed KoggerApp instead of being refused
+        // for a signature clash. Unset, nothing about the package changes.
+        // The file provider's authority already follows ${applicationId}.
+        def koggerIdSuffix = providers.environmentVariable("KOGGER_APP_ID_SUFFIX").getOrElse("")
+        if (!koggerIdSuffix.isEmpty()) {
+            applicationIdSuffix koggerIdSuffix
+        }
+        manifestPlaceholders = [koggerAppLabel: koggerIdSuffix.isEmpty() ? "KoggerApp" : "KoggerApp myEdition"]
+        println "applicationIdSuffix: '${koggerIdSuffix}'"
+
         println "timestamp: " + getTimestampStr()
         // println "applicationId: ${applicationId}"
         println "minSdkVersion: ${minSdkVersion}"

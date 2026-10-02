@@ -37,7 +37,7 @@
     <application
         android:name="org.qtproject.qt.android.bindings.QtApplication"
         android:hardwareAccelerated="true"
-        android:label="KoggerApp"
+        android:label="${koggerAppLabel}"
         android:requestLegacyExternalStorage="true"
         android:allowBackup="true"
         android:fullBackupOnly="false"
@@ -49,7 +49,7 @@
         <activity
             android:name="org.kogger.koggerapp.KoggerActivity"
             android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation|mcc|mnc|density"
-            android:label="KoggerApp"
+            android:label="${koggerAppLabel}"
             android:launchMode="singleTop"
             android:exported="true">
 

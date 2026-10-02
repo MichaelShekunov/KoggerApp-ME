@@ -34,12 +34,29 @@ Three of those versions are pinned by the project rather than chosen:
 ## Installing Qt
 
 ```
-python -m aqt install-qt windows android 6.8.3 android_arm64_v8a -m qtmultimedia qtpositioning qt5compat qtserialport -O D:\Qt
-python -m aqt install-qt windows android 6.8.3 android_armv7   -m qtmultimedia qtpositioning qt5compat qtserialport -O D:\Qt
+python -m aqt install-qt windows android 6.8.3 android_arm64_v8a -m qtmultimedia qtpositioning qt5compat qtserialport qtshadertools -O D:\Qt
+python -m aqt install-qt windows android 6.8.3 android_armv7   -m qtmultimedia qtpositioning qt5compat qtserialport qtshadertools -O D:\Qt
 ```
 
 479 MB and 402 MB on disk, both together about 30 seconds on a warm connection.
-`qtshadertools` is a desktop build-time dependency only and is left out.
+
+`qtshadertools` is **a runtime dependency on Android**, not only a desktop build
+tool: the private plugin of `Qt5Compat.GraphicalEffects`
+(`libqml_Qt5Compat_GraphicalEffects_private_qtgraphicaleffectsprivateplugin`)
+lists `libQt6ShaderTools` in its `NEEDED`. Without the module the APK builds,
+signs and installs, and then dies on start: `ColorOverlay` in
+`qml/scene2d/KThemeSwitcher.qml` cannot load, `main.qml` fails, and the app
+crashes with SIGSEGV in `Core::UILoad`. The log line that gives it away:
+
+```
+Cannot load library .../libqml_Qt5Compat_GraphicalEffects_private_..._arm64-v8a.so:
+dlopen failed: library "_data_app_..._libqml_Qt5Compat_..." not found
+```
+
+— the mangled name is how Qt reports a dependency it could not satisfy, not a
+missing file; the plugin itself is in the APK. To check any APK for this whole
+class of problem, list every `NEEDED` of every bundled `.so` with the NDK's
+`llvm-readelf -d` and subtract what the APK carries: the result must be empty.
 
 `qtserialport` looks unnecessary — Android serial goes through
 `platform/android/src/qtandroidserialport`, a vendored copy that talks to the
@@ -100,6 +117,14 @@ toolchain file itself). A correct configure says:
 The build directory is `build\Qt_6_8_3_for_Android_Universal-Release`, the name
 `scripts\win_deploy_android_release.bat` and the Qt Creator kit both expect.
 
+**The stale-package trap.** Ninja reruns `androiddeployqt` only when
+`libKoggerApp` or the deployment settings change. A Qt module added to the kit
+changes neither, so a rebuild after `aqt install-qt ... -m <module>` keeps the
+old package, prints `ninja: no work to do`, and the new module's libraries never
+reach the APK. The script therefore removes the packaging rule's declared output
+(`android-build\KoggerApp.apk`) before every build, and accepts only an APK
+written by the current run.
+
 CMake prints deprecation warnings from the NDK's own `android.toolchain.cmake`
 (it still declares compatibility with CMake 3.6). They come from Google's files,
 not from this project, and are harmless.
@@ -119,6 +144,38 @@ Measured on the first clean run: 73.0 MB unsigned, `arm64-v8a` and `armeabi-v7a`
 side by side (22.3 MB and 17.8 MB of `libKoggerApp`, 94 shared objects each),
 `versionCode 10003`, `versionName 1.0.3`, `minSdkVersion 28`,
 `targetSdkVersion 34`. The Gradle half of the build takes about 3 minutes.
+
+## Checking the APK before it goes on a device
+
+```
+powershell -ExecutionPolicy Bypass -File tools\android_check\apk_deps_check.ps1 [-Apk <path>]
+```
+
+reads the `NEEDED` entries of every `lib/<abi>/*.so` in the APK with the NDK's
+`llvm-readelf` and fails on any dependency that neither the APK nor Android
+provides (Android's own set is taken from the NDK sysroot at the minimum API
+level). Without `-Apk` it takes the newest APK under `build\`. Proven both ways
+on 2026-10-02: the package without `qtshadertools` fails on exactly
+`libQt6ShaderTools` for both ABIs, the fixed one passes with 95 libraries per ABI.
+
+## Installing next to a release-signed KoggerApp
+
+A tablet that already has KoggerApp from the official release refuses a
+test-signed package with the same application id. Uninstalling it would take its
+settings, so the fork can be built as a separate app instead — the arrangement the
+PC has, where "KoggerApp myEdition" is installed beside the official one:
+
+```
+scripts\win_build_android_release.ps1 -AppIdSuffix .myedition
+```
+
+The suffix reaches `platform/android/build.gradle` as `KOGGER_APP_ID_SUFFIX`,
+which appends it to the application id (`org.kogger.koggerapp.myedition`) and
+names the app "KoggerApp myEdition" on the launcher, through the
+`${koggerAppLabel}` placeholder in `AndroidManifest.xml`. The file provider's
+authority was already `${applicationId}.qtprovider`, so the two apps do not
+collide there either. The Java package stays `org.kogger.koggerapp`; only the
+installed identity changes. Without the switch the package is the normal one.
 
 ## What the fork had to change
 

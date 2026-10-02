@@ -7,6 +7,10 @@ param(
     [string] $NdkVersion  = '27.3.13750724',
     [ValidateSet('Release', 'Debug', 'RelWithDebInfo')]
     [string] $Config    = 'Release',
+    # Side-by-side build: '.myedition' gives the package its own application id and
+    # launcher name, so a test-signed build installs next to a release-signed
+    # KoggerApp. Empty produces the normal package.
+    [string] $AppIdSuffix = '',
     [switch] $Clean,
     [switch] $ConfigureOnly
 )
@@ -65,6 +69,8 @@ $env:JAVA_HOME        = $jdk.FullName
 $env:ANDROID_SDK_ROOT = $sdk
 $env:ANDROID_NDK_ROOT = $ndk
 $env:PATH             = "$($jdk.FullName)\bin;$env:PATH"
+# platform/android/build.gradle reads this; empty means the normal package.
+$env:KOGGER_APP_ID_SUFFIX = $AppIdSuffix
 
 Write-Host "repo    : $repo"
 Write-Host "qt      : $qtArm64"
@@ -106,12 +112,21 @@ Invoke-Native $cmake @(
 
 if ($ConfigureOnly) { Write-Host 'configure only - stopping here'; exit 0 }
 
+# Ninja reruns androiddeployqt only when libKoggerApp or the deployment settings
+# change. A Qt module added to the kit changes neither, so the old package would be
+# kept - and a library the new module brings would never reach the APK (this is how
+# libQt6ShaderTools went missing once). Removing the rule's declared output makes
+# every run deploy afresh; Gradle's own up-to-date checks keep that cheap.
+$stamp = Get-Date
+Remove-Item -LiteralPath (Join-Path $buildDir 'android-build\KoggerApp.apk') -ErrorAction SilentlyContinue
+
 Invoke-Native $cmake @('--build', (ToCMakePath $buildDir), '--target', 'apk') 'apk build'
 
 # Qt 6.8's own CMake deployment writes to 'android-build'; Qt Creator used to name
 # that directory 'android-build-KoggerApp', which is what win_deploy_android_release.bat
-# still looks for. Accept either.
+# still looks for. Accept either - but only a package written by this run.
 $apk = Get-ChildItem $buildDir -Recurse -Filter *.apk -ErrorAction SilentlyContinue |
+       Where-Object { $_.LastWriteTime -ge $stamp -and $_.Name -ne 'KoggerApp.apk' } |
        Sort-Object LastWriteTime -Descending | Select-Object -First 1
-if (-not $apk) { throw "build reported success but no .apk under $buildDir" }
+if (-not $apk) { throw "build reported success but this run wrote no .apk under $buildDir" }
 Write-Host ("OK: {0} ({1:N1} MB)" -f $apk.FullName, ($apk.Length / 1MB))
