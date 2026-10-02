@@ -1077,3 +1077,18 @@ with a control for the reset race), live on the two boards (C++ engine, 10.5 s f
 through `KOGGER_AUTOTEST=COM13` + `KOGGER_AUTOUPGRADE=<file>|all|2` (kogger.log 2026-10-01 11:56:06-11:56:16:
 both boards 1.12, 469 chunks each). Details, the measured bootloader behaviour and the limits:
 `docs/RING_UPDATE.md`. Not done: the head unit, where the rate is the Wi-Fi module's port, not the PC's.
+
+## Bus address from the app (2026-10-02, f18a7077 + 0b7ab76e)
+
+The owner, before a trip: everything from the GUI, no Python. A Basic2D sonar with the ring firmware (1.12+), not
+behind a recorder (`DevDriver::isBusAddressSettable()`), has a "Bus address" island: 0 / 1 / 2 and "Set and save
+address N". `BusAddress` (`src/device/bus_address.*`) runs the sequence of the firmware tree's chain_addr.py: one
+answer to a broadcast GET of ID_UART v1, SET, read back, ID_FLASH v0, proof by a restore from flash. While it runs
+its line belongs to it: frames go to it only, the devices' own frames are dropped (`Link::setDevicesMuted`), the
+rate is pinned; on success `DeviceManager::rekeyDevice` keys the same device object by the new route.
+Verified: `tools/busaddr_check` 14/14 offline, three mutants caught; live on ring board 2427959761 - the class
+alone 2 -> 0 -> 2, inside the packaged app 0b7ab76e 2 -> 1 right after the device showed up
+(`KOGGER_AUTOTEST=COM13`, `KOGGER_AUTOADDRESS=1`), and by the owner's click 1 -> 2 (kogger.log 19:40:25); no QML
+warnings. Found on the way: f18a7077 refused a lone board inside the app ("2 answers to one request (2, 2)": the
+board's answer to the app's own poll was counted), fixed in 0b7ab76e. Not done: the `headunit` branch (handed to
+its session), Android. `docs/RING_UPDATE.md` "Адрес шины из приложения".
