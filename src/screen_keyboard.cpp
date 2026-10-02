@@ -220,11 +220,18 @@ void ScreenKeyboard::refreshFocusInfo()
 
 bool ScreenKeyboard::computeVisible() const
 {
+#ifdef Q_OS_ANDROID
+    // Android raises its own input method when a text field takes focus, and every
+    // input there is touch, so Auto would open this panel on top of it: two
+    // keyboards for one field. The panel exists for the head unit, which has none.
+    return false;
+#else
     if (!m_inputActive || m_dismissed || m_gate.heldBack() || m_mode == Off)
         return false;
     if (m_mode == On)
         return true;
     return m_tracker && m_tracker->touchMode();
+#endif
 }
 
 void ScreenKeyboard::emitIfChanged()

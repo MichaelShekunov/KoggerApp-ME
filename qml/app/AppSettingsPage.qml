@@ -316,7 +316,9 @@ Column {
         Column {
             width: parent.width
             spacing: Tokens.spaceMd
+            // Android has its own keyboard and the panel never opens there (ScreenKeyboard)
             visible: typeof screenKeyboard !== "undefined" && screenKeyboard !== null
+                     && Qt.platform.os !== "android"
 
             Text { text: qsTr("On-screen keyboard:"); color: AppPalette.textSecond; font.pixelSize: Tokens.fontBase }
 

@@ -257,6 +257,8 @@ pane overlays call `forceActiveFocus()` on hover enter, and a touch synthesises 
 items behind the panel. Fixed by a hover-enabled MouseArea shield under the keys (commit
 fd301826). Not verified: Cyrillic glyphs rely on the app font.
 To try it on a desktop set the mode to On and tap any text field.
+On Android the panel never opens and the mode choice is hidden: there every input is touch and Android raises its
+own keyboard, so a tap on a field opened both (Xiaomi tablet, 2026-10-02; `docs/android.md`).
 
 ## Feature: Wi-Fi module (board 87)
 
@@ -1092,3 +1094,15 @@ alone 2 -> 0 -> 2, inside the packaged app 0b7ab76e 2 -> 1 right after the devic
 warnings. Found on the way: f18a7077 refused a lone board inside the app ("2 answers to one request (2, 2)": the
 board's answer to the app's own poll was counted), fixed in 0b7ab76e. Not done: the `headunit` branch (handed to
 its session), Android. `docs/RING_UPDATE.md` "Адрес шины из приложения".
+
+## Android (2026-10-02)
+
+Android is an upstream platform (platform/android: Java USB serial, GLES shaders, manifest); the fork now builds
+and runs there too. Building: `docs/build-android-cli.md` (`scripts/win_build_android_release.ps1`, the toolchain
+in D:\Android, `-AppIdSuffix .myedition` for a package beside the official app, `tools/android_check/apk_deps_check.ps1`).
+On a device: `docs/android.md`. Tested on a Xiaomi tablet, Android 16, over the boat's Wi-Fi: the link, the Wi-Fi
+island, the autopilot and its mission work as on the head unit. Found there and fixed, each checked again on the
+device: two keyboards for one field (`ScreenKeyboard` off on Android), the link cut in the background (Android 16
+blocks a background app's network; `KoggerLinkService`, a foreground service while a link is open), the "System"
+widget's cores, uptime and disks. Open: the black echogram on the boat link that night, file opening, sound,
+deconvolution time, the relief cloud, USB-OTG.

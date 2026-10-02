@@ -188,6 +188,19 @@ void setKeepScreenOn(bool on)
     //-- Screen is locked on while KoggerApp is running on Android
 }
 
+void setLinkServiceActive(bool active)
+{
+    QJniObject::callStaticMethod<void>(
+        kJniKoggerActivityClassName,
+        "setLinkServiceActive",
+        "(Z)V",
+        jboolean(active));
+
+    if (cleanJavaException()) {
+        qCWarning(AndroidInterfaceLog) << "Java exception in setLinkServiceActive";
+    }
+}
+
 void moveTaskToBack()
 {
     QJniObject::callStaticMethod<void>(

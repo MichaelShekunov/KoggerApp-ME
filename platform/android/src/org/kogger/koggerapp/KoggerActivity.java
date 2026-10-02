@@ -117,6 +117,7 @@ public class KoggerActivity extends QtActivity {
     @Override
     protected void onDestroy() {
         try {
+            stopService(new Intent(this, KoggerLinkService.class));
             releaseMulticastLock();
             releaseWakeLock();
             KoggerUsbSerialManager.cleanup(this);
@@ -178,6 +179,33 @@ public class KoggerActivity extends QtActivity {
             m_wifiMulticastLock.release();
             Log.d(TAG, "Multicast lock released.");
         }
+    }
+
+    /**
+     * Starts or stops KoggerLinkService: on while at least one device link is
+     * open, so the link outlives the app leaving the screen.
+     *
+     * @param active true when a link is open.
+     */
+    public static void setLinkServiceActive(final boolean active) {
+        if (m_instance == null) {
+            Log.w(TAG, "setLinkServiceActive: activity instance is null");
+            return;
+        }
+        m_instance.runOnUiThread(() -> {
+            final Intent intent = new Intent(m_instance, KoggerLinkService.class);
+            try {
+                if (active) {
+                    ContextCompat.startForegroundService(m_instance, intent);
+                } else {
+                    m_instance.stopService(intent);
+                }
+            } catch (final Exception e) {
+                // Android 12+ refuses to start one from the background; the next
+                // link opened in the foreground starts it.
+                Log.e(TAG, "link service " + (active ? "start" : "stop") + " failed", e);
+            }
+        });
     }
 
     /**

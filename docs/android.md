@@ -1,0 +1,119 @@
+# KoggerApp on an Android tablet
+
+What the fork does on a real Android device, measured rather than assumed. The
+build itself is `build-android-cli.md`; this is what happens after install.
+
+Tested on 2026-10-02 on a Xiaomi tablet, model 2410CRP4CG, Android 16, arm64-v8a,
+Adreno GPU, screen 3200 x 2136. The package was the side-by-side build
+(`org.kogger.koggerapp.myedition`) next to the official KoggerApp 1.0.3. The
+tablet was on the boat's Wi-Fi (`KoggerBoat`, the access point of the boat's
+Wi-Fi module); the boat was on land, autopilot in HOLD, disarmed. Every
+check below watched the app and the boat only: nothing was armed, started,
+applied, saved, recorded or flashed.
+
+## What works
+
+All of it seen on the tablet, most of it in the app's own log (logcat, tag
+`default`):
+
+- **Start and drawing.** The QML loads, the split 3D/echogram view draws on GLES,
+  70-80 frames/s on the stall monitor's minute line. Turned to portrait, the
+  layout restacks itself (Interface → "Rotate layout with device").
+- **The link to the boat over Wi-Fi.** UDP discovery found the module and opened
+  `UDP 10.0.0.10 · 14444 → 14444` with no setup; about 3.5 KB/s in,
+  0.08 KB/s out.
+- **The Wi-Fi island.** Module `[88]`, firmware 0.19, access point `KoggerBoat`
+  channel 10, -67 dBm, radio power, DHCP pool, line and port rates (X1 5 Mbit/s,
+  connected) — the same lines the head unit logs.
+- **The boat.** ArduPilot found, mode, EKF and GPS state (3D, 19 satellites,
+  HDOP 0.7), the mission read back ("The boat holds this plan (3 points)") and
+  drawn in 3D with the home mark.
+- **The device chain** in the top bar and in Settings: Wi-Fi → Recorder, with the
+  module's signal on its chip.
+- **The fork's echogram settings**, deconvolution among them.
+- **The stall monitor**, now including in the background (see the fix below).
+- **The top-left menu button.** It sits inside the 90 px band of the hidden status
+  bar; a tap there opens the app's menu, not the system shade.
+
+## What was broken, and is fixed
+
+Each one found on the device, fixed, and checked again on the device.
+
+### Two keyboards for one field
+
+`ScreenKeyboard` in Auto opens the head unit's on-screen keyboard when the last
+input was touch. On Android every input is touch, and Android raises its own
+keyboard on focus, so a tap on a number field opened both: the fork's panel next
+to the field and the system keyboard at the bottom. Now the panel never opens on
+Android, and the "On-screen keyboard" choice is hidden there. Same field, same
+tap afterwards: only the system keyboard.
+
+### The link died with the screen
+
+Pressed Home, the app kept running — the stall monitor's line came every minute —
+but not one frame arrived from the boat, and on return the app logged
+**"Link to the boat restored after 209.8 s"**, the whole time it had been away.
+Android's own network policy says why:
+
+```
+UID=10379 ... blocked_state={blocked=APP_BACKGROUND,allowed=FOREGROUND|TOP|NOT_IN_BACKGROUND|...}
+```
+
+Android 16 cuts the network of an app in the background. A recording would have
+lost everything from the moment the operator switched apps.
+
+`KoggerLinkService` (platform/android/src/org/kogger/koggerapp/) is a foreground
+service of type `connectedDevice`, started when the first link opens and stopped
+when the last one closes (`Core`, `openLinkOrder_`). While it runs the app is in
+the FGS state, the block is lifted (`effective=NONE` in the same dump), and the
+service also holds a Wi-Fi lock and a partial wake lock. Same test afterwards:
+3.40, 3.45 and 3.41 KB/s logged in the three background minutes, no "restored"
+line on return.
+
+On Android 13 and later the service's notification shows only if the app has the
+notification permission, which it does not ask for; the service runs either way
+and is listed in the system's active apps.
+
+### "System" widget: no cores, no uptime, the wrong disks
+
+Android keeps `/proc/stat` and `/proc/uptime` from apps, and mounts its read-only
+system images first. The widget's log line read
+
+```
+system monitor: 0 cores (max MHz ), ... volumes / 0.7/0.7 GB, /system_ext 0.6/0.6 GB, /product 3.4/3.4 GB, uptime -1 s
+```
+
+and after the fix
+
+```
+system monitor: 8 cores (max MHz 1900 x3, 2611 x4, 2803 x1), ... volumes /data (app data) 44.7/225.0 GB, /storage/emulated 44.7/225.0 GB, uptime 2717835 s
+```
+
+The cores and their clocks come from sysfs when `/proc/stat` gives nothing, the
+uptime from `CLOCK_BOOTTIME`, and read-only volumes are skipped on Android. The
+CPU load stays unknown — no public source left — and the widget already shows a
+dash for that. Temperatures and memory were right from the start.
+
+## Observed, not explained
+
+- **The echogram stayed black on the boat link.** `CHART` frames do arrive
+  (about 8 a second through the module, `[88]`, and the recorder, `[250]`), but
+  they are about 60 bytes each and no sonar became a device. The same link was
+  not looked at from the PC or the head unit that night, so whether this is the
+  boat's state or the Android build is open.
+- **`throttled yes`.** On Android the vendor's power service lowers
+  `scaling_max_freq` as a matter of course, so the "held below its maximum" mark
+  is on most of the time. It is true, but it is not the warning it is on the
+  head unit.
+- **`/storage/emulated` next to `/data`.** The same storage seen through Android's
+  FUSE layer: a second line with the same numbers.
+- **SELinux denials for `/dev/pmsg0`** (getattr from `qtMainLoopThread`) in
+  logcat. Harmless; where in the code they come from was not traced.
+
+## Not tested on the device yet
+
+Opening a recording (the Android file picker), sonification's sound and its
+underruns (`dumpsys media.audio_flinger` counts them per track), deconvolution's
+time on the tablet's CPU (OpenCL is absent, the threads take over), the relief
+cloud in a 2/3D pane, USB-OTG serial, and the screen actually turning off with the
+service holding the locks.

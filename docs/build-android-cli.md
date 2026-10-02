@@ -3,7 +3,7 @@
 `README.md` describes the Qt Creator workflow. This document covers the scripted
 alternative: `scripts/win_build_android_release.ps1`, no IDE, no Qt account,
 reproducible from a clean machine. It is the Android counterpart of
-`build-windows-cli.md`.
+`build-windows-cli.md`; what the app then does on a tablet is `android.md`.
 
 Provisioned and verified on 2026-10-02 against `myedition` at `ceef7929`
 (version 1.0.3) on a machine that had nothing Android on it beforehand.

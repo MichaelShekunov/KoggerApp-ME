@@ -5,6 +5,7 @@
 #include <QFile>
 #include <QStandardPaths>
 #include <QStorageInfo>
+#include <QThread>
 
 #include <algorithm>
 #include <climits>
@@ -12,6 +13,9 @@
 
 #if defined(Q_OS_WIN)
 #include <windows.h>
+#endif
+#if defined(Q_OS_LINUX) || defined(Q_OS_ANDROID)
+#include <time.h>
 #endif
 
 namespace {
@@ -145,7 +149,7 @@ void SystemMonitor::refresh()
             gpu << QStringLiteral("%1 C").arg(gpuTemp_, 0, 'f', 1);
         qInfo().noquote() << QStringLiteral("system monitor: %1 cores (max MHz %2), throttled %3, CPU %4 C, GPU %5, "
                                             "memory %6/%7 GB, volumes %8, uptime %9 s")
-                                 .arg(coreLoad_.size()).arg(cores.join(QStringLiteral(", ")))
+                                 .arg(std::max(coreLoad_.size(), coreMax_.size())).arg(cores.join(QStringLiteral(", ")))
                                  .arg(throttled_ ? QStringLiteral("yes") : QStringLiteral("no"))
                                  .arg(std::isfinite(cpuTemp_) ? QString::number(cpuTemp_, 'f', 1) : QStringLiteral("-"))
                                  .arg(gpu.isEmpty() ? QStringLiteral("-") : gpu.join(QStringLiteral(", ")))
@@ -165,7 +169,14 @@ void SystemMonitor::readCpu()
     coreFreq_.clear();
     coreMax_.clear();
     throttled_ = false;
-    for (int i = 0; i < times.size(); ++i) {
+    int cores = times.size();
+#if defined(Q_OS_ANDROID)
+    // Android keeps /proc/stat from apps (since 8.0), so the load stays unknown and the
+    // widget says so. The cores and their clocks are still in sysfs.
+    if (cores == 0)
+        cores = QThread::idealThreadCount();
+#endif
+    for (int i = 0; i < cores; ++i) {
         const QString base = QStringLiteral("/sys/devices/system/cpu/cpu%1/cpufreq/").arg(i);
         const long long cur = readNumber(base + QStringLiteral("scaling_cur_freq"), 0);
         const long long max = readNumber(base + QStringLiteral("cpuinfo_max_freq"), 0);
@@ -337,6 +348,12 @@ void SystemMonitor::readVolumes()
             continue;
         if (mountOf.value(v.device()) != v.rootPath())
             continue;
+#if defined(Q_OS_ANDROID)
+        // Android mounts its system images read-only, and first: /, /system_ext and
+        // /product took all three places, always "full", and /data never showed
+        if (v.isReadOnly())
+            continue;
+#endif
         const QString dev = QString::fromLocal8Bit(v.device());
         const QString fs = QString::fromLatin1(v.fileSystemType());
 #if !defined(Q_OS_WIN)
@@ -382,6 +399,10 @@ void SystemMonitor::readUptime()
     bool ok = false;
     const double s = readSmall(QStringLiteral("/proc/uptime")).section(QLatin1Char(' '), 0, 0).toDouble(&ok);
     uptime_ = ok ? qint64(s) : -1;
+    // Android keeps /proc/uptime from apps; the clock behind it needs no file
+    timespec boot = {};
+    if (!ok && clock_gettime(CLOCK_BOOTTIME, &boot) == 0)
+        uptime_ = qint64(boot.tv_sec);
 #elif defined(Q_OS_WIN)
     uptime_ = qint64(GetTickCount64() / 1000);
 #endif

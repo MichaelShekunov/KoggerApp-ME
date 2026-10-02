@@ -2933,6 +2933,10 @@ void Core::createLinkManagerConnections()
                                                                                                                                      datasetPtr_->setState(Dataset::DatasetState::kConnection);
 
                                                                                                                                      if (!openLinkOrder_.contains(uuid)) openLinkOrder_.append(uuid);
+#ifdef Q_OS_ANDROID
+                                                                                                                                     // the first link: Android would cut its network once the app leaves the screen
+                                                                                                                                     if (openLinkOrder_.size() == 1) AndroidInterface::setLinkServiceActive(true);
+#endif
                                                                                                                                      rateClock_.invalidate();   // мерить заново: канал новый
                                                                                                                                      rateShown_ = false;
                                                                                                                                      emit fileTitleChanged();
@@ -2947,6 +2951,9 @@ void Core::createLinkManagerConnections()
                                                                                                                                      }
 
                                                                                                                                      if (openLinkOrder_.removeOne(uuid)) emit fileTitleChanged();
+#ifdef Q_OS_ANDROID
+                                                                                                                                     if (openLinkOrder_.isEmpty()) AndroidInterface::setLinkServiceActive(false);
+#endif
 
                                                                                                                                      const QString linkName = getLinkNames().value(uuid);
                                                                                                                                      notifications.info(linkName.isEmpty() ? tr("Disconnected") : tr("Disconnected: %1").arg(linkName));
@@ -2968,6 +2975,9 @@ void Core::createLinkManagerConnections()
 
     linkManagerWrapperConnections_.append(QObject::connect(linkManagerWrapperPtr_->getWorker(), &LinkManager::linkDeleted, this, [this](QUuid uuid) {
                                                                                                                                      if (openLinkOrder_.removeOne(uuid)) emit fileTitleChanged();
+#ifdef Q_OS_ANDROID
+                                                                                                                                     if (openLinkOrder_.isEmpty()) AndroidInterface::setLinkServiceActive(false);
+#endif
                                                                                                                                  }, linkManagerConnection));
 
     linkManagerWrapperConnections_.append(QObject::connect(linkManagerWrapperPtr_->getWorker(), &LinkManager::sendDoRequestAll, deviceManagerWrapperPtr_->getWorker(), &DeviceManager::onSendRequestAll, linkManagerConnection));

@@ -32,6 +32,9 @@ namespace AndroidInterface
     QString getSDCardPath();
     void setKeepScreenOn(bool on);
     void moveTaskToBack();
+    /// Starts (true) or stops (false) KoggerLinkService, the foreground service that
+    /// keeps a device link alive while the app is not on screen.
+    void setLinkServiceActive(bool active);
 
     constexpr const char *kJniKoggerActivityClassName = "org/kogger/koggerapp/KoggerActivity";
 };
