@@ -45,6 +45,13 @@ All of it seen on the tablet, most of it in the app's own log (logcat, tag
   does the same in 9 ms on threads and 6 ms on its GPU, so a full echogram pass is
   six to ten times dearer here: fine for a recording, heavy on live data, where
   every ping repaints the whole image.
+- **Sonification.** On touch it follows the aim cursor, which comes after holding
+  a finger still for 350 ms (a finger that moves at once scrolls the echogram -
+  the head unit's field-test design); a plain tap and swipe gives silence, which is
+  correct. Held and dragged over the recording: Android's AudioFlinger shows the
+  app's track at 48 kHz stereo, a 768-frame buffer (16 ms), **0 underruns and
+  37 ms latency** (the PC measured 35 ms); MIUI's own counter logged 5 s of signal,
+  peak amplitude 15762 of 32767.
 
 ## What was broken, and is fixed
 
@@ -116,8 +123,16 @@ hidden, `Core` keeps the requested state and applies it once the view exists,
 and a rebuild, when the layer is on, waits until the last one is a second old
 (a timer builds the rest when the growth pauses); `clearData()` also forgets the
 old count, which kept a second file's cloud from building until it outgrew the
-first. Same file afterwards: no rebuild, and the 3D pane shows the track.
+first. Same file afterwards: no rebuild, and the 3D pane shows the track. Switched on
+in Settings (toolset Bottom Track or Maximum), the layer builds once, and a
+reload of the same file rebuilds it **4 times instead of about 40** - at 500,
+7142 and 13745 pings a second apart each, and once more after the load over all
+19691 - with the same GUI stall as without the cloud.
 This is the same code on the desktop (an inference; only the tablet was checked).
+
+Seen on the way: from above, a cloud of one colour reads as a flat blob, with
+nothing of the relief it carries. Colouring it by depth would show it; left as
+it is, as a decision about the picture rather than a fix.
 
 ## Observed, not explained
 
@@ -144,7 +159,7 @@ This is the same code on the desktop (an inference; only the tablet was checked)
 
 ## Not tested on the device yet
 
-Sonification's sound and its underruns (`dumpsys media.audio_flinger` counts
-them per track), the relief cloud switched on in a 2/3D pane, USB-OTG serial, and
-the screen actually turning off with the service holding the locks (not tried: if
-the tablet has a PIN, a locked screen would have ended the night's testing).
+The relief cloud in a 2/3D pane as such (it was checked as a layer in the 3D
+pane), USB-OTG serial, and the screen actually turning off with the service
+holding the locks (not tried: if the tablet has a PIN, a locked screen would have
+ended the night's testing).
