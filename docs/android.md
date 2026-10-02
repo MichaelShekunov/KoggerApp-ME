@@ -34,6 +34,17 @@ All of it seen on the tablet, most of it in the app's own log (logcat, tag
 - **The stall monitor**, now including in the background (see the fix below).
 - **The top-left menu button.** It sits inside the 90 px band of the hidden status
   bar; a tap there opens the app's menu, not the system shade.
+- **Opening a recording.** Settings → Files → open goes to Android's own file
+  picker; a 43 MB side-scan KLF from Downloads opened, the echogram and the track
+  drew, and "Recently opened" reopened it after the app had been reinstalled and
+  restarted. Opening a file closes the live link, as on the desktop.
+- **Deconvolution, on the CPU.** OpenCL is not there for apps ("OpenCL runtime not
+  present"), so the threads take over. `tools/deconv_check` cross-compiled with the
+  NDK and run on the tablet (2000 x 800, 8 iterations, the shipped default):
+  1 thread 144 ms, 2 100 ms, 4 74 ms, 8 53 ms, auto 64 ms; its checks PASS. The PC
+  does the same in 9 ms on threads and 6 ms on its GPU, so a full echogram pass is
+  six to ten times dearer here: fine for a recording, heavy on live data, where
+  every ping repaints the whole image.
 
 ## What was broken, and is fixed
 
@@ -94,7 +105,26 @@ uptime from `CLOCK_BOOTTIME`, and read-only volumes are skipped on Android. The
 CPU load stays unknown — no public source left — and the widget already shows a
 dash for that. Temperatures and memory were right from the start.
 
+### The relief cloud was on by default, and covered the 3D view
+
+The layer's store says off, but it restores before `Core::UILoad` finds the 3D
+view, so `Core::setReliefCloudVisible(false)` returned without doing anything,
+and a scene object starts visible. The cloud was therefore built on every file
+load - about 40 rebuilds of 60 ms each for that recording, one every 500 pings - and drawn in the
+ordinary 3D pane as a light-blue blob over the track. Now the cloud starts
+hidden, `Core` keeps the requested state and applies it once the view exists,
+and a rebuild, when the layer is on, waits until the last one is a second old
+(a timer builds the rest when the growth pauses); `clearData()` also forgets the
+old count, which kept a second file's cloud from building until it outgrew the
+first. Same file afterwards: no rebuild, and the 3D pane shows the track.
+This is the same code on the desktop (an inference; only the tablet was checked).
+
 ## Observed, not explained
+
+- **Opening a 43 MB recording stops the GUI for 3.4-3.7 s.** The stall monitor
+  catches it every time, with the relief cloud off as well as on: the file is
+  read on the GUI thread (`KOGGER_SEPARATE_READING`, upstream's option for a
+  reading thread, is off by default). Only measured on the tablet.
 
 - **The echogram stayed black on the boat link.** `CHART` frames do arrive
   (about 8 a second through the module, `[88]`, and the recorder, `[250]`), but
@@ -107,13 +137,14 @@ dash for that. Temperatures and memory were right from the start.
   head unit.
 - **`/storage/emulated` next to `/data`.** The same storage seen through Android's
   FUSE layer: a second line with the same numbers.
-- **SELinux denials for `/dev/pmsg0`** (getattr from `qtMainLoopThread`) in
-  logcat. Harmless; where in the code they come from was not traced.
+- **SELinux denials** in logcat: `getattr` on `/dev/pmsg0` from
+  `qtMainLoopThread` (where in the code was not traced), and `read` on
+  `/proc/loadavg` - the stall monitor's system line, which therefore has no load
+  on Android. Both harmless.
 
 ## Not tested on the device yet
 
-Opening a recording (the Android file picker), sonification's sound and its
-underruns (`dumpsys media.audio_flinger` counts them per track), deconvolution's
-time on the tablet's CPU (OpenCL is absent, the threads take over), the relief
-cloud in a 2/3D pane, USB-OTG serial, and the screen actually turning off with the
-service holding the locks.
+Sonification's sound and its underruns (`dumpsys media.audio_flinger` counts
+them per track), the relief cloud switched on in a 2/3D pane, USB-OTG serial, and
+the screen actually turning off with the service holding the locks (not tried: if
+the tablet has a PIN, a locked screen would have ended the night's testing).

@@ -3,6 +3,9 @@
 #include "scene_object.h"
 #include "dataset.h"
 
+#include <QElapsedTimer>
+#include <QTimer>
+
 class GraphicsScene3dView;
 
 // Point cloud of seabed relief inferred from side-scan brightness.
@@ -52,7 +55,10 @@ public:
 
 public Q_SLOTS:
     // Called as data arrives. Rebuilds only when the dataset has grown by
-    // kRebuildGrowth epochs, because a full pass is not free.
+    // kRebuildGrowth epochs, and not more often than every kMinRebuildMs: a full
+    // pass is not free, and a file loading grows the dataset by thousands of
+    // epochs a second. What a skipped call leaves unbuilt, a timer builds once
+    // the growth pauses.
     void onDatasetGrew();
 
     // Walks the dataset and rebuilds the whole cloud. Cheap enough to call on
@@ -62,6 +68,12 @@ public Q_SLOTS:
 
 private:
     static constexpr int kRebuildGrowth = 500;
+    // A pass over 20 000 pings took 60 ms on a tablet; every 500 of them while a
+    // file loaded stopped the GUI thread for 3.4 s (Xiaomi Pad 7, 2026-10-02).
+    static constexpr int kMinRebuildMs = 1000;
+
+    QElapsedTimer lastBuild_;
+    QTimer tail_;
 
     Dataset* datasetPtr_ = nullptr;
     int   builtAtEpochCount_ = 0;

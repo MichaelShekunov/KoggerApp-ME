@@ -34,6 +34,19 @@ ReliefCloud::ReliefCloud(GraphicsScene3dView* view, QObject* parent) :
     SceneObject(new ReliefCloudRenderImplementation, view, parent)
 {
     setPrimitiveType(GL_POINTS);
+
+    tail_.setSingleShot(true);
+    tail_.setInterval(kMinRebuildMs);
+    connect(&tail_, &QTimer::timeout, this, [this]() {
+        if (isVisible() && datasetPtr_ && datasetPtr_->size() > builtAtEpochCount_) {
+            rebuild();
+        }
+    });
+
+    // Off until the layer is switched on, as the layer store has it. A scene
+    // object starts visible, and the store's "off" arrives before the 3D view
+    // exists, so the cloud was built on every file load with nothing to show it.
+    setVisible(false);
 }
 
 ReliefCloud::~ReliefCloud() = default;
@@ -93,9 +106,19 @@ void ReliefCloud::onDatasetGrew()
     }
     // Rebuilt as the file loads, but not on every update: the builder walks
     // every ping, so it waits until the dataset has grown enough to be worth
-    // another pass.
+    // another pass, and until the last pass is kMinRebuildMs old.
     const int now = datasetPtr_->size();
-    if (now <= 0 || now < builtAtEpochCount_ + kRebuildGrowth) {
+    if (now < builtAtEpochCount_) {
+        builtAtEpochCount_ = 0;   // another dataset: what was built is not its own
+    }
+    if (now <= builtAtEpochCount_) {
+        return;
+    }
+    tail_.start();   // whatever is left unbuilt, once the growth pauses
+    if (now < builtAtEpochCount_ + kRebuildGrowth) {
+        return;
+    }
+    if (lastBuild_.isValid() && lastBuild_.elapsed() < kMinRebuildMs) {
         return;
     }
     rebuild();
@@ -124,6 +147,8 @@ void ReliefCloud::setAltitudeLimits(float minAltitudeM, float maxAltitudeM)
 
 void ReliefCloud::clearData()
 {
+    builtAtEpochCount_ = 0;
+    tail_.stop();
     SceneObject::clearData();
 }
 
@@ -262,4 +287,6 @@ void ReliefCloud::rebuild()
           noEpoch, noAltitude, noPosition, noHeading, noChannels, noProfile, noRelief, fromProfile);
 
     setData(points, GL_POINTS);
+    lastBuild_.restart();   // the interval counts from the end of a pass
+    tail_.stop();
 }

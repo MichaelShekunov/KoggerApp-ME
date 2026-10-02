@@ -390,6 +390,9 @@ private:
     QQmlApplicationEngine* qmlAppEnginePtr_;
     Dataset* datasetPtr_;
     QPointer<GraphicsScene3dView> scene3dViewPtr_;
+    // the relief-cloud layer as the store last asked for it: the store restores
+    // before UILoad finds the 3D view, so UILoad applies it again
+    bool reliefCloudVisible_ = false;
     ConverterXTF converterXtf_;
     Logger logger_;
     UsbTap usbTap_;   // IQ / RAW stream from the sonar's second core, see usb_tap.h

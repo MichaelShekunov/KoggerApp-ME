@@ -1380,6 +1380,7 @@ void Core::setFixBlackStripesBackwardSteps(int val)
 
 void Core::setReliefCloudVisible(bool state)
 {
+    reliefCloudVisible_ = state;
     if (!scene3dViewPtr_) {
         return;
     }
@@ -2091,6 +2092,7 @@ void Core::UILoad(QObject* object, const QUrl& url)
 #endif
 
     scene3dViewPtr_ = object->findChild<GraphicsScene3dView*> ();
+    setReliefCloudVisible(reliefCloudVisible_);
     syncLoupePlot3dPtr_.clear();
     const auto allPlots = object->findChildren<qPlot2D*>();
     for (auto* plot : allPlots) {
