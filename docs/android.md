@@ -96,6 +96,14 @@ or "restored" line, no crash; RSS fell from 556 to 319 MB as Android trimmed the
 backgrounded app. The screen-off case is therefore held by the service's Wi-Fi
 and wake locks as well.
 
+Left on the link for the night and sampled every 15 minutes up to 01:13: the same
+process, 3.30-3.50 KB/s, still no "lost" or "restored" - about three hours on the
+link, nearly all of it with the screen off. RSS, after Android's trim, grew again
+by about 40 MB an hour (340 to 403 MB in 90 minutes). The app keeps every ping of
+a session in memory, so a growing live dataset is the plain reading of that - an
+inference, no leak was looked for - and it is the same on the desktop. A session
+of several days would want it measured.
+
 One limit, by design of Android rather than of the code: from Android 12 on, a
 foreground service cannot be started from the background. The service stops when
 the last link closes, so a link that closed and opened again while the app was
