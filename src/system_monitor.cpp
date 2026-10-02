@@ -350,8 +350,9 @@ void SystemMonitor::readVolumes()
             continue;
 #if defined(Q_OS_ANDROID)
         // Android mounts its system images read-only, and first: /, /system_ext and
-        // /product took all three places, always "full", and /data never showed
-        if (v.isReadOnly())
+        // /product took all three places, always "full", and /data never showed.
+        // /storage/emulated is /data once more, through FUSE.
+        if (v.isReadOnly() || v.fileSystemType() == "fuse")
             continue;
 #endif
         const QString dev = QString::fromLocal8Bit(v.device());

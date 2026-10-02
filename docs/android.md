@@ -108,7 +108,9 @@ system monitor: 8 cores (max MHz 1900 x3, 2611 x4, 2803 x1), ... volumes /data (
 ```
 
 The cores and their clocks come from sysfs when `/proc/stat` gives nothing, the
-uptime from `CLOCK_BOOTTIME`, and read-only volumes are skipped on Android. The
+uptime from `CLOCK_BOOTTIME`, and on Android read-only volumes and FUSE views are
+skipped (`/storage/emulated` was `/data` once more, `fuse` in `/proc/mounts`):
+the line now reads `volumes /data (app data) 44.8/225.0 GB` alone. The
 CPU load stays unknown — no public source left — and the widget already shows a
 dash for that. Temperatures and memory were right from the start.
 
@@ -150,12 +152,10 @@ it is, as a decision about the picture rather than a fix.
   `scaling_max_freq` as a matter of course, so the "held below its maximum" mark
   is on most of the time. It is true, but it is not the warning it is on the
   head unit.
-- **`/storage/emulated` next to `/data`.** The same storage seen through Android's
-  FUSE layer: a second line with the same numbers.
-- **SELinux denials** in logcat: `getattr` on `/dev/pmsg0` from
-  `qtMainLoopThread` (where in the code was not traced), and `read` on
-  `/proc/loadavg` - the stall monitor's system line, which therefore has no load
-  on Android. Both harmless.
+- **SELinux denials** for `getattr` on `/dev/pmsg0` from `qtMainLoopThread` in
+  logcat. Harmless; where in the code they come from was not traced. (The other
+  one, `read` on `/proc/loadavg` from the stall monitor, is gone: on Android that
+  line now says `load -`, and the whole log holds no such denial.)
 
 ## Not tested on the device yet
 

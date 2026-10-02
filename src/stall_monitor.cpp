@@ -11,9 +11,10 @@
 #include <chrono>
 
 // Qt counts Android as a Linux, and most of what this file reads is there too:
-// /proc/self/task, /proc/loadavg, the thread states. The unwinder is not -
-// bionic declares backtrace() only from API 33 and the app targets 28 - so the
-// backtrace half is a desktop and head-unit facility, and the rest still runs.
+// /proc/self/task and the thread states. /proc/loadavg is not (SELinux denies
+// the read, seen on a tablet), nor is the unwinder - bionic declares backtrace()
+// only from API 33 and the app targets 28 - so the backtrace half is a desktop
+// and head-unit facility, and the rest still runs.
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
 #define KOGGER_STALL_BACKTRACE
 #endif
@@ -323,7 +324,11 @@ void StallMonitor::report(bool first, qint64 gapMs, qint64 now)
     }
     g_lastTicksAt = now;
     qWarning().noquote() << QStringLiteral("stall threads: ") + parts.join(QStringLiteral(" | "));
+#if defined(Q_OS_ANDROID)
+    const QString load = QStringLiteral("-");   // see the top of the file
+#else
     const QString load = readSmall(QStringLiteral("/proc/loadavg")).section(QLatin1Char(' '), 0, 2);
+#endif
     qWarning().noquote() << QStringLiteral("stall system: load %1, MemAvailable %2 MB, RSS %3 MB, GPU memory %4 MB, threads in D state %5")
                                 .arg(load).arg(memAvailableMb()).arg(rssMb(), 0, 'f', 0).arg(gpuMemoryMb(), 0, 'f', 1).arg(inKernel);
 #endif

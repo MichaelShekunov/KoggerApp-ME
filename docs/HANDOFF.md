@@ -1104,5 +1104,8 @@ On a device: `docs/android.md`. Tested on a Xiaomi tablet, Android 16, over the 
 island, the autopilot and its mission work as on the head unit. Found there and fixed, each checked again on the
 device: two keyboards for one field (`ScreenKeyboard` off on Android), the link cut in the background (Android 16
 blocks a background app's network; `KoggerLinkService`, a foreground service while a link is open), the "System"
-widget's cores, uptime and disks. Open: the black echogram on the boat link that night, file opening, sound,
-deconvolution time, the relief cloud, USB-OTG.
+widget's cores, uptime and disks, and the relief cloud, which was on by default on every platform (the store
+restores before UILoad finds the 3D view) and covered the 3D pane with a blob. Also checked there: the file picker
+and recent files, sonification (0 underruns, 37 ms), deconvolution on the CPU (53-64 ms a pass, no OpenCL for apps).
+Open: the black echogram on the boat link that night, a 3.5 s GUI stall opening a 43 MB file (read on the GUI
+thread, upstream's default), USB-OTG, the screen turning off.
