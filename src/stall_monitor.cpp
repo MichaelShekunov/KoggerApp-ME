@@ -10,14 +10,25 @@
 #include <algorithm>
 #include <chrono>
 
+// Qt counts Android as a Linux, and most of what this file reads is there too:
+// /proc/self/task, /proc/loadavg, the thread states. The unwinder is not -
+// bionic declares backtrace() only from API 33 and the app targets 28 - so the
+// backtrace half is a desktop and head-unit facility, and the rest still runs.
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
+#define KOGGER_STALL_BACKTRACE
+#endif
+
 #ifdef Q_OS_LINUX
 #include <QHash>
 #include <QStringList>
+#include <sys/syscall.h>
+#include <unistd.h>
+#endif
+
+#ifdef KOGGER_STALL_BACKTRACE
 #include <execinfo.h>
 #include <fcntl.h>
 #include <signal.h>
-#include <sys/syscall.h>
-#include <unistd.h>
 #endif
 
 namespace {
@@ -35,7 +46,7 @@ constexpr int kRepeatMs = 5000;
 constexpr int kSummaryMs = 60000;
 constexpr int kLookMs = 250;
 
-#ifdef Q_OS_LINUX
+#ifdef KOGGER_STALL_BACKTRACE
 int g_btFd = -1;
 std::atomic<int> g_btCount{0};
 
@@ -71,7 +82,9 @@ void backtraceHandler(int)
     }
     g_btCount.fetch_add(1);
 }
+#endif
 
+#ifdef Q_OS_LINUX
 QString readSmall(const QString& path)
 {
     QFile f(path);
@@ -188,6 +201,8 @@ void StallMonitor::start(QQuickWindow* window, const QString& logDir)
 
 #ifdef Q_OS_LINUX
     guiTid_ = syscall(SYS_gettid);
+#endif
+#ifdef KOGGER_STALL_BACKTRACE
     btPath_ = QDir(logDir).filePath(QStringLiteral("stall.log"));
     g_btFd = ::open(btPath_.toLocal8Bit().constData(), O_WRONLY | O_CREAT | O_APPEND | O_CLOEXEC, 0644);
     void* warm[4];
@@ -197,6 +212,8 @@ void StallMonitor::start(QQuickWindow* window, const QString& logDir)
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = SA_RESTART;
     sigaction(SIGUSR2, &sa, nullptr);
+#else
+    Q_UNUSED(logDir)
 #endif
 
     auto* timer = new QTimer(this);
@@ -315,7 +332,7 @@ void StallMonitor::report(bool first, qint64 gapMs, qint64 now)
 void StallMonitor::takeBacktraces(qint64 now)
 {
     ++backtraces_;
-#ifdef Q_OS_LINUX
+#ifdef KOGGER_STALL_BACKTRACE
     if (g_btFd < 0)
         return;
     const QByteArray head = QStringLiteral("=== stall, the GUI thread silent for %1 s: backtraces (pid %2) ===\n")

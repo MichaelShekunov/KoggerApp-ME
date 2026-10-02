@@ -5,7 +5,11 @@
 #include <QFile>
 #include <QHostAddress>
 #include <QObject>
+#if defined(Q_OS_ANDROID)
+#include "qserialport.h"   // vendored, platform/android/src/qtandroidserialport
+#else
 #include <QSerialPort>
+#endif
 #include <QString>
 #include <QTimer>
 #include <QUdpSocket>

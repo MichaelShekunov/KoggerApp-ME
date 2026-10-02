@@ -4,7 +4,11 @@
 #include <QDir>
 #include <QNetworkDatagram>
 #include <QNetworkInterface>
+#if defined(Q_OS_ANDROID)
+#include "qserialportinfo.h"   // vendored, platform/android/src/qtandroidserialport
+#else
 #include <QSerialPortInfo>
+#endif
 #include <QtEndian>
 
 #include <cmath>
