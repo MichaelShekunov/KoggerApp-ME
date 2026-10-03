@@ -98,11 +98,12 @@ and wake locks as well.
 
 Left on the link for the night and sampled every 15 minutes up to 01:13: the same
 process, 3.30-3.50 KB/s, still no "lost" or "restored" - about three hours on the
-link, nearly all of it with the screen off. RSS, after Android's trim, grew again
-by about 40 MB an hour (340 to 403 MB in 90 minutes). The app keeps every ping of
-a session in memory, so a growing live dataset is the plain reading of that - an
-inference, no leak was looked for - and it is the same on the desktop. A session
-of several days would want it measured.
+link, nearly all of it with the screen off. RSS rose from 340 to 408 MB in the
+small hours and then fell back: at 14:46 the next day, 16.5 hours on the link in
+the same process, it was 270 MB, so the night showed no leak. The only drop in
+what the log still held was one of 3.1 s at 14:44 that morning ("Link to the boat
+restored after 3.1 s"), with the boat's autopilot busy at the time; the hours
+between 02:12 and the morning had already left the log's ring buffer.
 
 One limit, by design of Android rather than of the code: from Android 12 on, a
 foreground service cannot be started from the background. The service stops when
