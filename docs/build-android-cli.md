@@ -207,7 +207,7 @@ with `adb`.
 For a build that is only going on a test tablet, a throwaway key is enough:
 
 ```
-keytool -genkeypair -keystore test.keystore -alias koggertest -keyalg RSA -keysize 2048 -validity 3650
+keytool -genkeypair -keystore test.keystore -alias test -keyalg RSA -keysize 2048 -validity 3650
 apksigner sign --ks test.keystore --out KoggerApp-<version>-universal-testsigned.apk <unsigned>.apk
 apksigner verify --verbose KoggerApp-<version>-universal-testsigned.apk
 ```
