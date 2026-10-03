@@ -73,7 +73,7 @@ QtObject {
         // devices on the head unit): there the link is the head unit's own port, which the row would retune and
         // save while the rate went to the far device.
         { key: "action.baudrate", group: "actions", labelInFavoritesOnly: true,
-          label: qsTr("Baudrate"), kind: "baudrate", stacked: true, hideWhen: "isWifi", hideOnPage: "behindModule" },
+          label: qsTr("Baudrate"), kind: "baudrate", stacked: true, hideWhen: "baudrateHidden", hideOnPage: "behindModule" },
         { key: "action.settingsFile", group: "actions", labelInFavoritesOnly: true,
           label: qsTr("Settings file"), kind: "settingsFile", stacked: true }
     ]

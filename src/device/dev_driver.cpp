@@ -1213,6 +1213,22 @@ void DevDriver::setBusAddressResult(bool ok, int address, const QString& detail)
     emit busAddressDone(ok, address, detail);
 }
 
+void DevDriver::setRingLineRate(int rate) {
+    if (ringRateBusy_ || !isRingBoard())
+        return;
+    ringRateBusy_ = true;
+    emit ringRateBusyChanged();
+    emit ringRateRequested(linkUuid_, m_busAddress, rate);
+}
+
+void DevDriver::setRingRateResult(bool ok, int rate, const QString& detail) {
+    ringRateBusy_ = false;
+    emit ringRateBusyChanged();
+    if (ok)
+        idUART->simpleRequest(v0);   // the device's own view of its rate follows
+    emit ringRateDone(ok, rate, detail);
+}
+
 void DevDriver::sendUpdateFW(QByteArray update_data) {
     if (isRingBoard()) {
         emit ringUpgradeRequested(linkUuid_, lastAddress_, update_data, upgradeExpect_, false);

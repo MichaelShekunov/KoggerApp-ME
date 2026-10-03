@@ -266,6 +266,14 @@ void DeviceManager::frameInput(QUuid uuid, Link* link, Parsers::FrameParser fram
                 return;
         }
 
+        // Changing the line rate: every frame of the line goes to the procedure, which owns the line meanwhile.
+        if (rate_ && rate_->active() && uuid == rateLink_) {
+            if (frame.completeAsKBP())
+                rate_->onFrame(QByteArray(reinterpret_cast<const char*>(frame.frame()), frame.frameLen()));
+            if (frame.completeAsKBP() || frame.completeAsKBP2())
+                return;
+        }
+
         // Setting a bus address: the board answers on its old route, the new one and a temporary one in
         // turn. Every frame of its line goes to the procedure only, or each route would become a device.
         if (busAddr_ && busAddr_->active() && uuid == busLink_) {
@@ -313,6 +321,7 @@ void DeviceManager::frameInput(QUuid uuid, Link* link, Parsers::FrameParser fram
             dev->protoComplete(frame);
             autoRingUpgrade(uuid);
             autoBusAddress(uuid);
+            autoRingRate(uuid);
         }
 
         if (frame.isCompleteAsNMEA()) {
@@ -926,8 +935,8 @@ void DeviceManager::onRingUpgradeRequested(QUuid linkUuid, int address, QByteArr
         if (requester)
             requester->setRingUpgradeStatus(RingUpgrade::kStatusFail, true);
     };
-    if (ringUp_ && ringUp_->active()) {
-        refuse(QStringLiteral("a ring update is already running"));
+    if ((ringUp_ && ringUp_->active()) || (rate_ && rate_->active()) || (busAddr_ && busAddr_->active())) {
+        refuse(QStringLiteral("a ring update, a line rate change or an address change is running"));
         return;
     }
     if (!link) {
@@ -1041,8 +1050,8 @@ void DeviceManager::onBusAddressRequested(QUuid linkUuid, int fromAddress, int t
         if (dev)
             dev->setBusAddressResult(false, fromAddress, why);
     };
-    if ((busAddr_ && busAddr_->active()) || (ringUp_ && ringUp_->active()))
-        return refuse(QStringLiteral("an address change or a ring update is running"));
+    if ((busAddr_ && busAddr_->active()) || (ringUp_ && ringUp_->active()) || (rate_ && rate_->active()))
+        return refuse(QStringLiteral("an address change, a ring update or a line rate change is running"));
     if (!link)
         return refuse(QStringLiteral("the line of the device is not known"));
 
@@ -1124,6 +1133,105 @@ void DeviceManager::rekeyDevice(QUuid uuid, int from, int to)
     lastDevice_ = nullptr;             // getDevice() caches the last (link, route) pair
     qInfo().noquote() << QStringLiteral("bus-address: the device of route %1 answers on %2 now").arg(from).arg(to);
     emit devChanged();
+}
+
+void DeviceManager::onRingRateRequested(QUuid linkUuid, int fromAddress, int rate)
+{
+    DevQProperty* dev = devTree_.value(linkUuid).value(fromAddress, nullptr);
+    Link* link = linkOf_.value(linkUuid).data();
+    auto refuse = [&](const QString& why) {
+        qInfo().noquote() << "ring-rate: refused:" << why;
+        if (dev)
+            dev->setRingRateResult(false, link ? link->getBaudrate() : 0, why);
+    };
+    if ((rate_ && rate_->active()) || (ringUp_ && ringUp_->active()) || (busAddr_ && busAddr_->active()))
+        return refuse(QStringLiteral("a line rate change, a ring update or an address change is running"));
+    if (!link)
+        return refuse(QStringLiteral("the line of the device is not known"));
+
+    // The ring boards of that line: Basic2D sonars answering on a bus address 1..15, the smaller one first.
+    QList<int> boards;
+    const auto devs = devTree_.value(linkUuid);
+    for (auto it = devs.cbegin(); it != devs.cend(); ++it)
+        if (it.value() && it.value()->isRingBoard())
+            boards.append(int(it.key()));
+    std::sort(boards.begin(), boards.end());
+
+    if (!rate_) {
+        RingRate::Io io;
+        io.write = [this](const QByteArray& bytes) {
+            if (QPointer<Link> l = rateLinkPtr_)
+                QMetaObject::invokeMethod(l, [l, bytes] { if (l) l->write(bytes); }, Qt::QueuedConnection);
+        };
+        io.setRate = [this](int r) {
+            if (QPointer<Link> l = rateLinkPtr_)
+                QMetaObject::invokeMethod(l, [l, r] { if (l) l->setBaudrateAfterWrite(r); }, Qt::QueuedConnection);
+        };
+        io.nowMs = [this] { return rateClock_.elapsed(); };
+        rate_ = new RingRate(io, this);
+        rateClock_.start();
+        rateTimer_ = new QTimer(this);
+        rateTimer_->setInterval(5);
+        connect(rateTimer_, &QTimer::timeout, rate_, &RingRate::tick);
+        connect(rate_, &RingRate::logLine, this, [](const QString& line) { qInfo().noquote() << line; });
+        connect(rate_, &RingRate::finished, this, &DeviceManager::onRingRateFinished);
+    }
+    rateLink_ = linkUuid;
+    rateLinkPtr_ = link;
+    rateFrom_ = fromAddress;
+    // The line is the procedure's for the run: no baud search or "ask everybody", no device frames.
+    QMetaObject::invokeMethod(link, [l = QPointer<Link>(link)] {
+        if (l) {
+            l->setRatePinned(true);
+            l->setDevicesMuted(true);
+        }
+    }, Qt::QueuedConnection);
+    RingRate::Plan plan;
+    plan.boards = boards;
+    plan.from = link->getBaudrate();
+    plan.to = rate;
+    if (!rate_->start(plan))            // finished(false) has run onRingRateFinished() already
+        return;
+    rateTimer_->start();
+}
+
+void DeviceManager::onRingRateFinished(bool ok, int rate, const QString& detail)
+{
+    if (rateTimer_)
+        rateTimer_->stop();
+    if (QPointer<Link> l = rateLinkPtr_)
+        QMetaObject::invokeMethod(l, [l] {
+            if (l) {
+                l->setDevicesMuted(false);
+                l->setRatePinned(false);
+            }
+        }, Qt::QueuedConnection);
+    const QUuid uuid = rateLink_;
+    const int from = rateFrom_;
+    rateLink_ = QUuid();
+    rateLinkPtr_ = nullptr;
+    rateFrom_ = -1;
+    if (DevQProperty* dev = devTree_.value(uuid).value(from, nullptr))
+        dev->setRingRateResult(ok, rate, detail);
+}
+
+// Headless test hook (docs/RING_UPDATE.md): KOGGER_AUTORATE=<rate>|<ring boards> moves the line to that rate
+// the way a ring sonar's page does, once that many ring boards answer on it. Off unless set.
+void DeviceManager::autoRingRate(QUuid uuid)
+{
+    static const QStringList kAuto = qEnvironmentVariable("KOGGER_AUTORATE").split(QLatin1Char('|'));
+    if (kAuto.size() != 2 || autoRateStarted_)
+        return;
+    QList<DevQProperty*> ring;
+    const auto devs = devTree_.value(uuid);
+    for (auto it = devs.cbegin(); it != devs.cend(); ++it)
+        if (it.value() && it.value()->isRingBoard())
+            ring.append(it.value());
+    if (ring.isEmpty() || ring.size() < kAuto[1].toInt())
+        return;
+    autoRateStarted_ = true;
+    qInfo().noquote() << "ring-rate: KOGGER_AUTORATE" << kAuto[0] << "with" << ring.size() << "ring boards";
+    ring.first()->setRingLineRate(kAuto[0].toInt());
 }
 
 // Headless test hook (docs/RING_UPDATE.md): KOGGER_AUTOADDRESS=<address> sets the bus address of the
@@ -1303,6 +1411,7 @@ DevQProperty* DeviceManager::createDev(QUuid uuid, Link* link, uint8_t addr)
     connect(dev, &DevQProperty::upgradingFirmwareDoneDM, this, &DeviceManager::onUpgradingFirmwareDone, connType);
     connect(dev, &DevQProperty::ringUpgradeRequested, this, &DeviceManager::onRingUpgradeRequested, connType);
     connect(dev, &DevQProperty::busAddressRequested, this, &DeviceManager::onBusAddressRequested, connType);
+    connect(dev, &DevQProperty::ringRateRequested, this, &DeviceManager::onRingRateRequested, connType);
 
     //
     connect(dev, &DevQProperty::sendChartSetup, this, &DeviceManager::sendChartSetup, connType);
@@ -1349,6 +1458,7 @@ DevQProperty* DeviceManager::createDev(QUuid uuid, Link* link, uint8_t addr)
     connect(dev, &DevQProperty::upgradingFirmwareDoneDM, this, &DeviceManager::onUpgradingFirmwareDone);
     connect(dev, &DevQProperty::ringUpgradeRequested, this, &DeviceManager::onRingUpgradeRequested);
     connect(dev, &DevQProperty::busAddressRequested, this, &DeviceManager::onBusAddressRequested);
+    connect(dev, &DevQProperty::ringRateRequested, this, &DeviceManager::onRingRateRequested);
 
     //
     connect(dev, &DevQProperty::sendChartSetup,  this, &DeviceManager::sendChartSetup);

@@ -16,6 +16,7 @@
 #include "air_meter.h"
 #include "ring_upgrade.h"
 #include "bus_address.h"
+#include "ring_rate.h"
 #include <QElapsedTimer>
 #include <QPointer>
 #include <QTimer>
@@ -82,6 +83,8 @@ public slots:
     void onRingUpgradeRequested(QUuid linkUuid, int address, QByteArray firmware, QString expect, bool everyBoard);
     /// A sonar asked for its bus address to be set and saved: BusAddress runs it on the sonar's line.
     void onBusAddressRequested(QUuid linkUuid, int fromAddress, int toAddress);
+    /// A ring board asked for its whole line to move to another UART rate: RingRate runs it.
+    void onRingRateRequested(QUuid linkUuid, int fromAddress, int rate);
 
     void createLocationReader();
     void destroyLocationReader();
@@ -246,6 +249,16 @@ private:
     void onBusAddressFinished(bool ok, int address, const QString& detail);
     void rekeyDevice(QUuid uuid, int from, int to);
     void autoBusAddress(QUuid uuid);
+    // ring line rate change (src/device/ring_rate.h): one run at a time, on one line
+    RingRate* rate_{ nullptr };
+    QUuid rateLink_;
+    QPointer<Link> rateLinkPtr_;
+    int rateFrom_ = -1;
+    QTimer* rateTimer_{ nullptr };
+    QElapsedTimer rateClock_;
+    bool autoRateStarted_ = false;
+    void onRingRateFinished(bool ok, int rate, const QString& detail);
+    void autoRingRate(QUuid uuid);
     QHash<QUuid, QPointer<Link>> linkOf_;
     bool autoUpgradeStarted_ = false;
     void endRingUpgrade();

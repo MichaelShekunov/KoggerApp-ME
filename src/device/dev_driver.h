@@ -129,6 +129,16 @@ public:
     /// The outcome of assignBusAddress(), from DeviceManager. On success this device answers on `address`.
     void setBusAddressResult(bool ok, int address, const QString& detail);
     bool busAddressBusy() const { return busAddressBusy_; }
+    /// The whole line's UART rate, asked by a ring board (RingRate, docs/RING_UPDATE.md): both boards and the
+    /// host's port move together and keep it -- a board's RX and TX are one UART and each board passes the
+    /// other's bytes on, so the line runs at one rate. ringRateDone() tells the outcome.
+    Q_INVOKABLE void setRingLineRate(int rate);
+    /// The outcome of setRingLineRate(), from DeviceManager; `rate` is where the host's port was left.
+    void setRingRateResult(bool ok, int rate, const QString& detail);
+    bool ringRateBusy() const { return ringRateBusy_; }
+    /// The per-device baud control is hidden: a Wi-Fi module has its own port settings, and a ring board's
+    /// rate is the whole line's (setRingLineRate) -- changed on one board alone it breaks the ring.
+    bool baudrateHidden() { return isWifi() || isRingBoard(); }
 
     void sendFactoryFW(QByteArray update_data);
 
@@ -482,6 +492,9 @@ signals:
     void busAddressRequested(QUuid linkUuid, int fromAddress, int toAddress);
     void busAddressDone(bool ok, int address, QString detail);
     void busAddressBusyChanged();
+    void ringRateRequested(QUuid linkUuid, int fromAddress, int rate);
+    void ringRateDone(bool ok, int rate, QString detail);
+    void ringRateBusyChanged();
 
     //
     void sendChartSetup(const ChannelId& channelId, uint16_t resol, uint16_t count, uint16_t offset);
@@ -781,6 +794,7 @@ protected:
     int m_upgrade_status = 0;
     QString upgradeExpect_;
     bool busAddressBusy_ = false;
+    bool ringRateBusy_ = false;
     bool viaRecorder_ = false;   ///< frames came as KP2: the device sits behind a recorder
     void onIdFrameOut(Parsers::ProtoBinOut out);   ///< a command leaving; wrapped for a ring sonar behind a recorder
     int64_t _lastUpgradeAnswerTime = 0;

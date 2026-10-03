@@ -93,6 +93,8 @@ public:
     Q_PROPERTY(bool isRingBehindRecorder READ isRingBehindRecorder NOTIFY deviceVersionChanged)
     Q_PROPERTY(bool isBusAddressSettable READ isBusAddressSettable NOTIFY deviceVersionChanged)
     Q_PROPERTY(bool busAddressBusy READ busAddressBusy NOTIFY busAddressBusyChanged)
+    Q_PROPERTY(bool ringRateBusy READ ringRateBusy NOTIFY ringRateBusyChanged)
+    Q_PROPERTY(bool baudrateHidden READ baudrateHidden NOTIFY deviceVersionChanged)
 
     // Wi-Fi module (board 87). Status fields follow ID_WIFI v0, the rates and totals v1; the
     // scan result is a list of {ssid, rssi, channel, security, saved, current, bssid} maps.

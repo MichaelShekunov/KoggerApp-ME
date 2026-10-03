@@ -7,6 +7,7 @@ target_sources(KoggerApp PRIVATE
     bus_address.h             bus_address.cpp
     device_topology_model.h   device_topology_model.cpp
     ring_upgrade.h            ring_upgrade.cpp
+    ring_rate.h               ring_rate.cpp
     usb_tap.h                 usb_tap.cpp
     wifi_ops.h                wifi_ops.cpp)
 

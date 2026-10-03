@@ -25,6 +25,7 @@
 #include <optional>
 
 #include "ring_upgrade.h"
+#include "ring_rate.h"
 
 namespace {
 
@@ -43,7 +44,7 @@ bool check(const QString& name, bool ok, const QString& detail = QString())
 }
 
 constexpr uint8_t kIdDataset = 0x10, kIdChartSetup = 0x12, kIdUart = 0x18, kIdVersion = 0x20,
-                  kIdBoot = 0x24, kIdUpdate = 0x25;
+                  kIdBoot = 0x24, kIdUpdate = 0x25, kIdFlash = 0x23;
 constexpr uint32_t kKey = 0xC96B5D4Au;
 constexpr int kLine = 921600, kSlow = 115200;
 
@@ -155,6 +156,10 @@ struct Board {
     int dieAtChunk = -1;
     qint64 resetUs = 30000;              // answer to ID_BOOT -> reset
     int boots = 0, chunksStored = 0;
+    // the UART rate as the ring firmware keeps it: running, reported (g_baud, reloaded from flash by ID_FLASH v1
+    // but applied only at boot) and saved
+    int savedRate = kLine, baudReported = kLine;
+    bool ignoreRate = false, saveBroken = false;
 
     int curRate() const { return inLoader ? loaderRate : rate; }
     void out(uint8_t route, uint8_t mode, uint8_t id, const QByteArray& pl) { tx->send(RingUpgrade::kp1(route, mode, id, pl), curRate()); }
@@ -202,8 +207,22 @@ struct Board {
                 ack(k);
             }
         } else if (k.id == kIdUart && k.ver() == 0 && k.type() == 2 && k.pl.size() >= 9 && u32(k.pl, 0) == kKey) {
-            ack(k);
-            rate = int(u32(k.pl, 5));
+            ack(k);                                       // at the old rate, then the switch
+            if (!ignoreRate)
+                rate = baudReported = int(u32(k.pl, 5));
+        } else if (k.id == kIdUart && k.ver() == 0 && k.type() == 3) {
+            QByteArray b(4, 0);
+            for (int i = 0; i < 4; ++i)
+                b[i] = char((uint32_t(baudReported) >> (8 * i)) & 0xFF);
+            out(uint8_t(addr), 0x01, kIdUart, b);
+        } else if (k.id == kIdFlash && k.type() == 2 && k.pl.size() >= 4 && u32(k.pl, 0) == kKey) {
+            if (k.ver() == 0 && !saveBroken) {
+                savedRate = baudReported;
+                savedDs = ds;
+            } else if (k.ver() == 1) {
+                baudReported = savedRate;
+                ds = savedDs;
+            }
         } else if (k.id == kIdBoot && k.ver() == 0 && k.type() == 2 && k.pl.size() >= 4 && u32(k.pl, 0) == kKey) {
             ack(k);
             if (ignoreBoot)
@@ -234,7 +253,7 @@ struct Board {
     {
         inLoader = false;
         version = v;
-        rate = kLine;                                     // saved rate
+        rate = baudReported = savedRate;                  // the saved rate
         down = false;
         ds = savedDs;                                     // saved settings, pings included
     }
@@ -311,7 +330,10 @@ struct Ring {
         for (size_t i = 0; i + 1 < boards.size(); ++i)
             boards[i]->tx = wire([this, i] { return boards[i + 1]->curRate(); },
                                  [this, i](const QByteArray& f) { boards[i + 1]->receive(f); });
-        boards.back()->tx = wire([this] { return hostRate; }, [this](const QByteArray& f) { if (up) up->onFrame(f); });
+        boards.back()->tx = wire([this] { return hostRate; }, [this](const QByteArray& f) {
+            if (up) up->onFrame(f);
+            if (rr) rr->onFrame(f);
+        });
 
         RingUpgrade::Io io;
         io.write = [this](const QByteArray& b) { hostTx->send(b, hostRate); };
@@ -352,6 +374,39 @@ struct Ring {
     }
 
     Wire* hostTx = nullptr;
+
+    // RingRate on the same line
+    std::unique_ptr<RingRate> rr;
+    bool rrDone = false, rrOk = false;
+    int rrRate = 0;
+    QString rrDetail;
+    bool runRate(const RingRate::Plan& plan)
+    {
+        RingRate::Io io;
+        io.write = [this](const QByteArray& b) { hostTx->send(b, hostRate); };
+        io.setRate = [this](int r) { hostRate = r; };
+        io.nowMs = [this] { return sim.now / 1000; };
+        rr = std::make_unique<RingRate>(io);
+        rrDone = false;
+        QObject::connect(rr.get(), &RingRate::finished, [this](bool o, int r, const QString& d) {
+            rrDone = true; rrOk = o; rrRate = r; rrDetail = d;
+        });
+        if (qEnvironmentVariableIsSet("RINGUPDATE_CHECK_LOG"))
+            QObject::connect(rr.get(), &RingRate::logLine, [this](const QString& s) {
+                std::printf("      [%7.3f] %s\n", double(sim.now) / 1e6, qPrintable(s));
+            });
+        if (!rr->start(plan))
+            return false;
+        std::function<void()> tick = [this, &tick] {
+            rr->tick();
+            if (!rrDone)
+                sim.after(5000, tick);
+        };
+        sim.after(5000, tick);
+        sim.runUntil([this] { return rrDone; }, sim.now + 30LL * 1000000);
+        sim.runUntil([] { return false; }, sim.now + 500000);
+        return rrDone;
+    }
 };
 
 QByteArray makeImage(int size)
@@ -506,9 +561,154 @@ void offline()
         }
         check(QStringLiteral("bad plans are refused before anything is sent"), !any && r.sim.q.empty());
     }
+
+    // ---- RingRate: the whole line to another UART rate
+    auto ratePlan = [](const QList<int>& boards, int to) { RingRate::Plan p; p.boards = boards; p.from = kLine; p.to = to; return p; };
+    for (int to : {460800, 115200}) {
+        Ring r({1, 2}, img);
+        r.runRate(ratePlan({1, 2}, to));
+        const QString tag = QStringLiteral("line rate %1, ring: ").arg(to);
+        check(tag + QStringLiteral("run succeeds"), r.rrOk && r.rrRate == to, r.rrDetail);
+        check(tag + QStringLiteral("both boards and the host run it"),
+              r.byAddr(1).rate == to && r.byAddr(2).rate == to && r.hostRate == to,
+              QStringLiteral("%1/%2/%3").arg(r.byAddr(1).rate).arg(r.byAddr(2).rate).arg(r.hostRate));
+        check(tag + QStringLiteral("both keep it in flash"), r.byAddr(1).savedRate == to && r.byAddr(2).savedRate == to);
+        check(tag + QStringLiteral("pings back and saved as they were"),
+              r.byAddr(1).ds == dataset(80, 1u << 21) && r.byAddr(2).ds == dataset(80, 1u << 21)
+              && r.byAddr(1).savedDs == dataset(80, 1u << 21) && r.byAddr(2).savedDs == dataset(80, 1u << 21));
+    }
+    {
+        Ring r({2}, img);
+        r.runRate(ratePlan({2}, 230400));
+        check(QStringLiteral("line rate 230400, a lone board: run, rate, flash"),
+              r.rrOk && r.byAddr(2).rate == 230400 && r.byAddr(2).savedRate == 230400 && r.hostRate == 230400, r.rrDetail);
+    }
+    {
+        Ring r({2, 1}, img);                              // wired the other way round
+        r.runRate(ratePlan({1, 2}, 460800));
+        check(QStringLiteral("line rate, ring wired the other way: fails, nothing saved, host back"),
+              r.rrDone && !r.rrOk && r.byAddr(1).savedRate == kLine && r.byAddr(2).savedRate == kLine && r.hostRate == kLine,
+              r.rrDetail);
+    }
+    {
+        Ring r({1, 2}, img);
+        r.byAddr(1).ignoreRate = true;
+        r.runRate(ratePlan({1, 2}, 460800));
+        check(QStringLiteral("line rate, the first board does not switch: fails, nothing saved, host back"),
+              r.rrDone && !r.rrOk && r.byAddr(1).savedRate == kLine && r.byAddr(2).savedRate == kLine && r.hostRate == kLine,
+              r.rrDetail);
+    }
+    {
+        Ring r({1, 2}, img);
+        r.byAddr(2).saveBroken = true;
+        r.runRate(ratePlan({1, 2}, 460800));
+        check(QStringLiteral("line rate, the last board's flash write lost: caught by the proof"),
+              r.rrDone && !r.rrOk && r.rrDetail.contains(QLatin1String("did not keep")), r.rrDetail);
+    }
+    {
+        Ring r({1, 2}, img);
+        const bool started = r.runRate(ratePlan({1, 2}, 500000)) || !r.sim.q.empty();
+        check(QStringLiteral("line rate 500000 (not in the firmware's table) refused before anything is sent"), !started && r.rrDone && !r.rrOk);
+    }
+    {   // the firmware update on a ring that runs at 460800 and keeps it
+        Ring r({1, 2}, img);
+        r.runRate(ratePlan({1, 2}, 460800));
+        RingUpgrade::Plan p = plan({1, 2}, RingUpgrade::allTargets({1, 2}), img);
+        p.lineRate = 460800;
+        r.run(p);
+        check(QStringLiteral("update on a ring at 460800 (bootloader taking 460800 in the model): both 1.12, back at 460800"),
+              r.ok && r.byAddr(1).version == QLatin1String("1.12") && r.byAddr(2).version == QLatin1String("1.12")
+              && r.byAddr(1).rate == 460800 && r.byAddr(2).rate == 460800 && r.hostRate == 460800, r.detail);
+    }
 }
 
 // ---------------------------------------------------------------- live
+
+// --live-rate COMx --to N [--from 921600]: the boards answering at --from move to N with RingRate
+int liveRate(const QStringList& args)
+{
+    auto arg = [&args](const QString& k) { const int i = args.indexOf(k); return i >= 0 && i + 1 < args.size() ? args[i + 1] : QString(); };
+    const QString port = arg(QStringLiteral("--live-rate"));
+    const int from = arg(QStringLiteral("--from")).isEmpty() ? kLine : arg(QStringLiteral("--from")).toInt();
+    const int to = arg(QStringLiteral("--to")).toInt();
+    QSerialPort sp(port);
+    sp.setBaudRate(from);
+    if (port.isEmpty() || to <= 0 || !sp.open(QIODevice::ReadWrite)) {
+        std::printf("need --live-rate COMx --to N [--from N]: %s\n", qPrintable(sp.errorString()));
+        return 3;
+    }
+    QByteArray buf;
+    std::function<void(const QByteArray&)> sink;
+    auto pump = [&] {
+        buf.append(sp.readAll());
+        int i = 0;
+        while (i + 8 <= buf.size()) {
+            if (uint8_t(buf[i]) != 0xBB || uint8_t(buf[i + 1]) != 0x55) { ++i; continue; }
+            const int n = uint8_t(buf[i + 5]);
+            if (i + 8 + n > buf.size())
+                break;
+            uint8_t c1 = 0, c2 = 0;
+            for (int j = i + 2; j < i + 6 + n; ++j) { c1 = uint8_t(c1 + uint8_t(buf[j])); c2 = uint8_t(c2 + c1); }
+            if (c1 == uint8_t(buf[i + 6 + n]) && c2 == uint8_t(buf[i + 7 + n])) {
+                if (sink) sink(buf.mid(i, 8 + n));
+                i += 8 + n;
+            } else {
+                ++i;
+            }
+        }
+        buf.remove(0, i);
+    };
+    QList<int> boards;
+    sink = [&boards](const QByteArray& fr) {
+        const auto k = parseKp1(fr);
+        if (k && k->id == kIdVersion && k->type() == 1 && k->ver() == 2 && k->pl.size() >= 9 && uint8_t(k->pl[0]) == 0
+            && uint8_t(k->pl[2]) == 12 && k->route >= 1 && k->route <= 15 && !boards.contains(k->route))
+            boards.append(k->route);
+    };
+    sp.write(RingUpgrade::kp1(0, 0x03, kIdVersion));
+    sp.flush();
+    QElapsedTimer t;
+    t.start();
+    while (t.elapsed() < 600) {
+        sp.waitForReadyRead(20);
+        pump();
+    }
+    std::sort(boards.begin(), boards.end());
+    QStringList bl;
+    for (int b : boards) bl << QString::number(b);
+    std::printf("ring boards on %s at %d: %s; to %d\n", qPrintable(port), from, qPrintable(bl.join(QLatin1Char(','))), to);
+    QElapsedTimer clock;
+    clock.start();
+    RingRate::Io io;
+    io.write = [&sp](const QByteArray& b) { sp.write(b); sp.flush(); };
+    io.setRate = [&sp](int r) { sp.waitForBytesWritten(50); sp.setBaudRate(r); };
+    io.nowMs = [&clock] { return clock.elapsed(); };
+    RingRate rr(io);
+    int result = 1;
+    bool finished = false;
+    QObject::connect(&rr, &RingRate::logLine, [&clock](const QString& s) {
+        std::printf("[%7.3f] %s\n", double(clock.elapsed()) / 1000.0, qPrintable(s));
+        std::fflush(stdout);
+    });
+    QObject::connect(&rr, &RingRate::finished, [&](bool ok, int r, const QString& d) {
+        std::printf("%s at %d: %s\n", ok ? "DONE" : "FAILED", r, qPrintable(d));
+        result = ok ? 0 : 1;
+        finished = true;
+    });
+    sink = [&rr](const QByteArray& fr) { rr.onFrame(fr); };
+    RingRate::Plan p;
+    p.boards = boards;
+    p.from = from;
+    p.to = to;
+    if (!rr.start(p))
+        return 3;
+    while (!finished) {
+        sp.waitForReadyRead(5);
+        pump();
+        rr.tick();
+    }
+    return result;
+}
 
 int live(const QStringList& args)
 {
@@ -632,6 +832,8 @@ int main(int argc, char** argv)
     const QStringList args = app.arguments();
     if (args.contains(QStringLiteral("--live")))
         return live(args);
+    if (args.contains(QStringLiteral("--live-rate")))
+        return liveRate(args);
     offline();
     std::printf("\n%d checks, %d failed\n", g_checks, g_failed);
     return g_failed ? 1 : 0;

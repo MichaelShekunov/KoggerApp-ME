@@ -5346,6 +5346,83 @@ Column {
         }
     }
 
+    // ── Line speed of a ring: both sonars and this computer's port move together (RingRate, docs/RING_UPDATE.md) ──
+    DevIsland {
+        id: devRingRateGroup
+        visible: !!(dev && dev.isRingBoard)
+
+        DevIslandTitle { label: qsTr("Line speed") }
+
+        readonly property int current: {
+            var m = devInfoGroup.linkMeta
+            return (m && m.baudrate > 0) ? m.baudrate : 0
+        }
+        readonly property var choices: [921600, 460800, 230400, 115200]
+        property string result: ""
+        property bool resultOk: false
+
+        Text {
+            width: parent.width; wrapMode: Text.WordWrap
+            color: AppPalette.textSecond; font.pixelSize: Tokens.fontMd
+            text: qsTr("In a ring every board passes the other's bytes on, so both sonars and this computer's port run at one rate: pick it for the longest wire. Estimate, not measured: 921600 up to about 5 m, 460800 about 10 m, 230400 about 20 m, 115200 about 40 m. The new rate is checked on both sonars, then written to their memory.")
+        }
+
+        Text {
+            visible: devRingRateGroup.current > 0
+            width: parent.width; wrapMode: Text.WordWrap
+            color: AppPalette.textStrong; font.pixelSize: Tokens.fontMd
+            text: qsTr("Now: %1").arg(devRingRateGroup.current)
+        }
+
+        KTabBar {
+            id: ringRateTab
+            width: parent.width
+            trackColor: AppPalette.bgDeep
+            options: [{ label: "921600", value: 921600 }, { label: "460800", value: 460800 },
+                      { label: "230400", value: 230400 }, { label: "115200", value: 115200 }]
+            Component.onCompleted: currentValue = devRingRateGroup.choices.indexOf(devRingRateGroup.current) >= 0
+                                   ? devRingRateGroup.current : 921600
+            onValueSelected: function(v) { currentValue = v }
+        }
+
+        DevButton {
+            width: parent.width; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
+            enabled: !!(dev && !dev.ringRateBusy)
+            text: (dev && dev.ringRateBusy) ? qsTr("Changing the line speed...") : qsTr("Set %1 for the whole line and save").arg(ringRateTab.currentValue)
+            toolTipText: qsTr("Moves both sonars and this port to the new rate, checks that both answer on it, writes it to their memory and reads it back from there")
+            onClicked: {
+                if (!dev) return
+                devRingRateGroup.result = ""
+                dev.setRingLineRate(ringRateTab.currentValue)
+            }
+        }
+
+        Text {
+            visible: devRingRateGroup.result.length > 0
+            width: parent.width; wrapMode: Text.WordWrap
+            color: devRingRateGroup.resultOk ? AppPalette.textSecond : AppPalette.dangerText
+            font.pixelSize: Tokens.fontMd
+            text: devRingRateGroup.result
+        }
+
+        Connections {
+            target: dev
+            ignoreUnknownSignals: true
+            function onRingRateDone(ok, rate, detail) {
+                devRingRateGroup.resultOk = ok
+                devRingRateGroup.result = ok ? qsTr("The line runs at %1; both sonars keep it.").arg(rate)
+                                             : qsTr("Line speed: %1").arg(detail)
+                var uuid = root._linkUuidOfDev()
+                if (uuid.length > 0 && rate > 0 && rate !== devRingRateGroup.current)
+                    Qt.callLater(root._applyLinkBaudrate, uuid, rate)
+                if (ok)
+                    notifications.info(qsTr("Line speed %1 is set on both sonars and saved").arg(rate))
+                else
+                    notifications.warning(qsTr("Line speed: %1").arg(detail))
+            }
+        }
+    }
+
                 }
             }
         }
