@@ -161,6 +161,32 @@ Seen on the way: from above, a cloud of one colour reads as a flat blob, with
 nothing of the relief it carries. Colouring it by depth would show it; left as
 it is, as a decision about the picture rather than a fix.
 
+### Swiped out of Recents, the process stayed without a window
+
+The morning after the soak, the task was removed from Recents
+(`removetask notifyTaskRemoved`), `KoggerActivity.onDestroy` ran (the service
+stopped, `Multicast lock released`), and then Qt's own `onDestroy` never
+returned: Android logged `Activity destroy timeout` 10 s later and did not kill the
+process. Qt 6.8's `QtActivityBase.onDestroy` (read from `Qt6Android.jar`) calls
+`QtNative.terminateQt()` and only then `System.exit(0)`; that wait is where it
+stuck, after the GUI thread had spent 15 s in state D. The next launch got a new
+activity in the old process and showed nothing but the splash window; only a
+force stop brought the app back. The service kept the process alive long enough
+for this - without it MIUI would most likely have killed it overnight.
+
+Now `KoggerActivity`, when it is finishing for good, starts a watchdog before
+Qt's `onDestroy`: if the process is still alive 3 s later it ends it, and the
+next launch is a clean start. Checked on the tablet: the app runs with it, and a
+plain swipe-up is ended by MIUI itself (`Killing ... SwipeUpClean`, 0.6 s). The
+hang itself could not be produced on demand, so the watchdog has not been seen
+firing.
+
+After the cold start the ring was on the boat: Wi-Fi -> Recorder -> two sonars
+behind it, `CHART_Z` from both at 20 frames/s (10.4 KB/s on the link), and the
+echogram drawing - a thin band at zero range, the sonars being out of water on
+land (an inference). So the black echogram of the first night was the boat
+without its sonars, not Android.
+
 ## Observed, not explained
 
 - **Opening a 43 MB recording stops the GUI for 3.4-3.7 s.** The stall monitor
@@ -168,11 +194,6 @@ it is, as a decision about the picture rather than a fix.
   read on the GUI thread (`KOGGER_SEPARATE_READING`, upstream's option for a
   reading thread, is off by default). Only measured on the tablet.
 
-- **The echogram stayed black on the boat link.** `CHART` frames do arrive
-  (about 8 a second through the module, `[88]`, and the recorder, `[250]`), but
-  they are about 60 bytes each and no sonar became a device. The same link was
-  not looked at from the PC or the head unit that night, so whether this is the
-  boat's state or the Android build is open.
 - **`throttled yes`.** On Android the vendor's power service lowers
   `scaling_max_freq` as a matter of course, so the "held below its maximum" mark
   is on most of the time. It is true, but it is not the warning it is on the

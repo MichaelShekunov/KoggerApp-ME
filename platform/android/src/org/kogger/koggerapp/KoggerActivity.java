@@ -125,7 +125,33 @@ public class KoggerActivity extends QtActivity {
             Log.e(TAG, "Exception onDestroy()", e);
         }
 
+        if (isFinishing()) {
+            startExitWatchdog();
+        }
         super.onDestroy();
+    }
+
+    /**
+     * Makes leaving for good certain. Qt's own onDestroy ends the process with
+     * System.exit(0), but only after QtNative.terminateQt() returns, and on a
+     * tablet it did not: the app, kept alive overnight by KoggerLinkService, was
+     * swiped out of Recents, Android logged "Activity destroy timeout", and the
+     * process stayed with its main thread stuck - the next launch showed nothing
+     * but the splash window. If the process is still here 3 s after the activity
+     * is gone, this ends it, and the next launch is a clean start.
+     */
+    private static void startExitWatchdog() {
+        final Thread watchdog = new Thread(() -> {
+            try {
+                Thread.sleep(3000);
+            } catch (final InterruptedException e) {
+                return;
+            }
+            Log.w(TAG, "Qt did not exit 3 s after the activity was destroyed - ending the process");
+            android.os.Process.killProcess(android.os.Process.myPid());
+        }, "KoggerExitWatchdog");
+        watchdog.setDaemon(true);
+        watchdog.start();
     }
 
     /**

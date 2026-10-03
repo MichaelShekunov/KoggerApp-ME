@@ -1107,5 +1107,8 @@ blocks a background app's network; `KoggerLinkService`, a foreground service whi
 widget's cores, uptime and disks, and the relief cloud, which was on by default on every platform (the store
 restores before UILoad finds the 3D view) and covered the 3D pane with a blob. Also checked there: the file picker
 and recent files, sonification (0 underruns, 37 ms), deconvolution on the CPU (53-64 ms a pass, no OpenCL for apps).
-Open: the black echogram on the boat link that night, a 3.5 s GUI stall opening a 43 MB file (read on the GUI
-thread, upstream's default), USB-OTG, the screen turning off.
+Later: a 70-minute soak with the screen off and 16.5 hours on the link in one process, no leak; the black
+echogram was the boat without its sonars (with the ring aboard, 2026-10-03: both sonars behind the recorder,
+CHART_Z at 20/s). Swiped out of Recents, Qt's terminateQt() once hung and left a windowless process; KoggerActivity
+now ends it 3 s after a final onDestroy. Open: a 3.5 s GUI stall opening a 43 MB file (read on the GUI thread,
+upstream's default), USB-OTG.
