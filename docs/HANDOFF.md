@@ -1080,7 +1080,7 @@ through `KOGGER_AUTOTEST=COM13` + `KOGGER_AUTOUPGRADE=<file>|all|2` (kogger.log 
 both boards 1.12, 469 chunks each). Details, the measured bootloader behaviour and the limits:
 `docs/RING_UPDATE.md`. Not done: the head unit, where the rate is the Wi-Fi module's port, not the PC's.
 
-## Ring line speed (2026-10-03, a89ffc8b)
+## Ring line speed (2026-10-03, a89ffc8b + b72b9a7b)
 
 The owner wants other wire lengths in a ring. A board's RX and TX are one UART with one rate register and each
 board passes the other's bytes on, so the whole line runs at one rate, picked for the longest wire. A ring sonar's
@@ -1090,7 +1090,13 @@ first, then the host; both must answer at the new rate; pings back, ID_FLASH v0,
 reloads the rate, applies it at boot). Verified: `tools/ringupdate_check` 40/40 (14 new), three mutants caught; live
 on the bench ring 921600 -> 460800 (3.2 s, independent probe), a ring update of both boards at 460800 (the
 bootloader takes it), and inside the packaged app 460800 -> 921600 (`KOGGER_AUTORATE=921600|2`). Not tried on
-hardware: 230400, 115200. Wire lengths in the UI are an estimate (220 ohm, 100 pF/m), not measured.
+hardware then: 230400, 115200. Wire lengths in the UI are an estimate (220 ohm, 100 pF/m), not measured.
+The owner's own run found the weak spot: at 115200 with 50 ms pings the last board could not relay the first
+board's frames (6.9-13.5/s of 20) and a change from there refused at its first step. b72b9a7b: pings off on the
+last board first, ID_DATASET asked up to three times, each board restored, saved and proven alone (pings checked
+too); ringupdate_check 43/43, five mutants caught; live 115200 -> 921600 on the congested ring (4.8 s), in the app
+921600 -> 230400, and the owner's clicks 230400 -> 460800 -> 921600 plus a power cycle (both back at 921600).
+A lower rate carries less: raise Period if an echogram drops out (the island says so).
 `docs/RING_UPDATE.md` "Скорость линии кольца".
 
 ## Bus address from the app (2026-10-02, f18a7077 + 0b7ab76e)
