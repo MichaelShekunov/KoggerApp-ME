@@ -160,6 +160,8 @@ struct Board {
     // but applied only at boot) and saved
     int savedRate = kLine, baudReported = kLine;
     bool ignoreRate = false, saveBroken = false;
+    bool dropRelayWhilePinging = false;  // a slow line: while it pings, the board loses what it should relay
+    int datasetAnswersToLose = 0;        // its next ID_DATASET answers are lost on the way
 
     int curRate() const { return inLoader ? loaderRate : rate; }
     void out(uint8_t route, uint8_t mode, uint8_t id, const QByteArray& pl) { tx->send(RingUpgrade::kp1(route, mode, id, pl), curRate()); }
@@ -180,8 +182,11 @@ struct Board {
         const bool fwd = k->route != addr && (!down || k->type() == 1);
         if (mine && cmd && k->pl.size() <= 64)
             firmware(*k);
-        if (fwd && !inLoader)
+        if (fwd && !inLoader) {
+            if (dropRelayWhilePinging && k->type() == 1 && pinging(ds))
+                return;
             tx->send(f, rate);
+        }
     }
 
     void ack(const Kp1& k) { if (k.resp()) out(uint8_t(addr), uint8_t(0x81 | (k.mode & 0x38)), k.id, QByteArray(1, char(1))); }
@@ -200,8 +205,12 @@ struct Board {
         } else if (k.id == kIdChartSetup && k.type() == 3) {
             out(uint8_t(addr), 0x01, kIdChartSetup, QByteArray(6, char(1)));
         } else if (k.id == kIdDataset) {
-            if (k.type() == 3)
-                out(uint8_t(addr), 0x01, kIdDataset, ds);
+            if (k.type() == 3) {
+                if (datasetAnswersToLose > 0)
+                    --datasetAnswersToLose;
+                else
+                    out(uint8_t(addr), 0x01, kIdDataset, ds);
+            }
             else {
                 ds = k.pl;
                 ack(k);
@@ -576,6 +585,27 @@ void offline()
         check(tag + QStringLiteral("pings back and saved as they were"),
               r.byAddr(1).ds == dataset(80, 1u << 21) && r.byAddr(2).ds == dataset(80, 1u << 21)
               && r.byAddr(1).savedDs == dataset(80, 1u << 21) && r.byAddr(2).savedDs == dataset(80, 1u << 21));
+    }
+    {   // 2026-10-03: at 115200 with 50 ms pings the last board lost the first board's answer
+        Ring r({1, 2}, img);
+        r.byAddr(2).dropRelayWhilePinging = true;
+        r.runRate(ratePlan({1, 2}, 230400));
+        check(QStringLiteral("line rate, a pinging last board drops what it relays: pings off on it first, run succeeds"),
+              r.rrOk && r.byAddr(1).rate == 230400 && r.byAddr(2).rate == 230400 && r.byAddr(1).savedRate == 230400, r.rrDetail);
+    }
+    {
+        Ring r({1, 2}, img);
+        r.byAddr(1).datasetAnswersToLose = 2;
+        r.runRate(ratePlan({1, 2}, 460800));
+        check(QStringLiteral("line rate, two ID_DATASET answers lost: asked again, run succeeds"), r.rrOk, r.rrDetail);
+    }
+    {
+        Ring r({1, 2}, img);
+        r.byAddr(1).datasetAnswersToLose = 3;
+        r.runRate(ratePlan({1, 2}, 460800));
+        check(QStringLiteral("line rate, three ID_DATASET answers lost: fails, nothing changed, pings back"),
+              r.rrDone && !r.rrOk && r.byAddr(1).rate == kLine && r.byAddr(2).rate == kLine && pinging(r.byAddr(2).ds)
+              && r.hostRate == kLine, r.rrDetail);
     }
     {
         Ring r({2}, img);

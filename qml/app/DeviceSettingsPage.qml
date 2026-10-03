@@ -5364,7 +5364,7 @@ Column {
         Text {
             width: parent.width; wrapMode: Text.WordWrap
             color: AppPalette.textSecond; font.pixelSize: Tokens.fontMd
-            text: qsTr("In a ring every board passes the other's bytes on, so both sonars and this computer's port run at one rate: pick it for the longest wire. Estimate, not measured: 921600 up to about 5 m, 460800 about 10 m, 230400 about 20 m, 115200 about 40 m. The new rate is checked on both sonars, then written to their memory.")
+            text: qsTr("In a ring every board passes the other's bytes on, so both sonars and this computer's port run at one rate: pick it for the longest wire. Estimate, not measured: 921600 up to about 5 m, 460800 about 10 m, 230400 about 20 m, 115200 about 40 m. A lower rate carries less: if a sonar's echogram drops out, raise Period. The new rate is checked on both sonars, then written to their memory.")
         }
 
         Text {

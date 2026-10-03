@@ -1080,6 +1080,19 @@ through `KOGGER_AUTOTEST=COM13` + `KOGGER_AUTOUPGRADE=<file>|all|2` (kogger.log 
 both boards 1.12, 469 chunks each). Details, the measured bootloader behaviour and the limits:
 `docs/RING_UPDATE.md`. Not done: the head unit, where the rate is the Wi-Fi module's port, not the PC's.
 
+## Ring line speed (2026-10-03, a89ffc8b)
+
+The owner wants other wire lengths in a ring. A board's RX and TX are one UART with one rate register and each
+board passes the other's bytes on, so the whole line runs at one rate, picked for the longest wire. A ring sonar's
+page has a "Line speed" island (921600 / 460800 / 230400 / 115200); the per-device baud control is hidden for ring
+boards (`baudrateHidden`). `RingRate` (`src/device/ring_rate.*`): pings off, ID_UART v0 to the last board, then the
+first, then the host; both must answer at the new rate; pings back, ID_FLASH v0, proof by ID_FLASH v1 (the firmware
+reloads the rate, applies it at boot). Verified: `tools/ringupdate_check` 40/40 (14 new), three mutants caught; live
+on the bench ring 921600 -> 460800 (3.2 s, independent probe), a ring update of both boards at 460800 (the
+bootloader takes it), and inside the packaged app 460800 -> 921600 (`KOGGER_AUTORATE=921600|2`). Not tried on
+hardware: 230400, 115200. Wire lengths in the UI are an estimate (220 ohm, 100 pF/m), not measured.
+`docs/RING_UPDATE.md` "Скорость линии кольца".
+
 ## Bus address from the app (2026-10-02, f18a7077 + 0b7ab76e)
 
 The owner, before a trip: everything from the GUI, no Python. A Basic2D sonar with the ring firmware (1.12+), not

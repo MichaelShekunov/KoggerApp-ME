@@ -11,6 +11,7 @@ constexpr uint8_t kSetResp = 0x82, kSetV0 = 0x02, kSetV1 = 0x0A, kGet = 0x03;   
 constexpr uint32_t kKey = 0xC96B5D4Au;
 constexpr int kSettleMs = 150;      // answers to requests sent before the start arrive and are dropped
 constexpr int kAnswerMs = 300;
+constexpr int kDatasetTries = 3;   // a busy slow line may lose an answer of the first board
 constexpr int kDrainMs = 400;       // the last chart of each board is out before the rate changes
 constexpr int kSwitchMs = 60;       // acknowledgement at the old rate, transmitter drained, rate switched
 constexpr int kRestoreMs = 150;
@@ -75,6 +76,8 @@ bool RingRate::start(const Plan& plan)
     datasets_.clear();
     lastDataset_.clear();
     reported_.clear();
+    originals_.clear();
+    redone_ = false;
     log(QStringLiteral("line rate %1 -> %2, boards %3").arg(plan.from).arg(plan.to).arg(
         plan.boards.size() == 2 ? QStringLiteral("%1 (first), %2 (last)").arg(plan.boards[0]).arg(plan.boards[1])
                                 : QStringLiteral("%1 (alone)").arg(plan.boards[0])));
@@ -106,20 +109,26 @@ void RingRate::tick()
     const QList<int>& boards = plan_.boards;
     switch (phase_) {
     case Phase::Settle:
-        lastDataset_.clear();
-        send(uint8_t(boards[0]), kGet, kIdDataset);
         step_ = 0;
+        tries_ = 0;
+        askDataset();
         return next(Phase::PingsAsk, kAnswerMs);
 
     case Phase::PingsAsk: {
-        const int board = boards[step_];
-        if (!lastDataset_.contains(board))
-            return fail(QStringLiteral("board %1 did not answer ID_DATASET at %2").arg(board).arg(plan_.from));
+        const int board = pingBoard();
+        if (!lastDataset_.contains(board)) {
+            if (++tries_ < kDatasetTries) {
+                askDataset();
+                return next(Phase::PingsAsk, kAnswerMs);
+            }
+            return fail(QStringLiteral("board %1 did not answer ID_DATASET at %2 (%3 asks)").arg(board).arg(plan_.from).arg(kDatasetTries));
+        }
         datasets_.append({board, lastDataset_.value(board)});
+        originals_[board] = lastDataset_.value(board);
         send(uint8_t(board), kSetResp, kIdDataset, QByteArray(1, char(1)) + u32le(0) + u32le(0));   // pings off
         if (++step_ < boards.size()) {
-            lastDataset_.clear();
-            send(uint8_t(boards[step_]), kGet, kIdDataset);
+            tries_ = 0;
+            askDataset();
             return next(Phase::PingsAsk, kAnswerMs);
         }
         return next(Phase::Drain, kDrainMs);
@@ -151,33 +160,53 @@ void RingRate::tick()
             if (reported_.value(b, 0) != plan_.to)
                 return fail(QStringLiteral("at %1 the line does not answer as it should (%2)").arg(plan_.to).arg(ratesText()));
         log(QStringLiteral("every board answers at %1").arg(plan_.to));
-        for (const auto& d : datasets_)
-            send(uint8_t(d.first), kSetResp, kIdDataset, d.second);              // pings as they were
         datasets_.clear();
-        return next(Phase::Restore, kRestoreMs);
+        step_ = 0;
+        redone_ = false;
+        return restoreBoard();
     }
 
+    // One board at a time, the first one first: while its pings come back and it saves and reloads, the last
+    // board is still quiet and relays its answers -- a pinging last board loses them on a slow line.
     case Phase::Restore:
-        for (int b : boards)
-            send(uint8_t(b), kSetV0, kIdFlash, keyBytes());                      // save the settings
+        send(uint8_t(boards[step_]), kSetV0, kIdFlash, keyBytes());              // save the settings
         return next(Phase::Save, kSaveMs);
 
     case Phase::Save:
-        for (int b : boards)
-            send(uint8_t(b), kSetV1, kIdFlash, keyBytes());                      // reload them: the rate comes from flash
-        return next(Phase::Prove, kReloadMs);
+        send(uint8_t(boards[step_]), kSetV1, kIdFlash, keyBytes());              // reload them: the rate comes from flash
+        tries_ = 0;
+        return next(Phase::Reload, kReloadMs);
 
-    case Phase::Prove:
-        askRates();
+    case Phase::Reload:
+        askBoard(boards[step_]);
         return next(Phase::Check, kAnswerMs + 100);
 
     case Phase::Check: {
-        for (int b : boards)
-            if (reported_.value(b, 0) != plan_.to)
-                return finish(false, plan_.to,
-                              QStringLiteral("the line runs at %1, but board %2 did not keep it: from flash it reports %3. "
-                                             "After a power cycle it comes back at that rate")
-                                  .arg(plan_.to).arg(b).arg(reported_.value(b, 0)));
+        const int b = boards[step_];
+        if (!reported_.contains(b) || !lastDataset_.contains(b)) {
+            if (++tries_ < kDatasetTries) {
+                askBoard(b);
+                return next(Phase::Check, kAnswerMs + 100);
+            }
+            return finish(false, plan_.to, QStringLiteral("the line runs at %1, but board %2 does not answer after its settings "
+                                                          "were saved").arg(plan_.to).arg(b));
+        }
+        if (reported_.value(b) != plan_.to)
+            return finish(false, plan_.to,
+                          QStringLiteral("the line runs at %1, but board %2 did not keep it: from flash it reports %3. "
+                                         "After a power cycle it comes back at that rate").arg(plan_.to).arg(b).arg(reported_.value(b)));
+        if (lastDataset_.value(b) != originals_.value(b)) {
+            if (!redone_) {                                                      // its pings setting was lost: once more
+                redone_ = true;
+                return restoreBoard();
+            }
+            return finish(false, plan_.to, QStringLiteral("the line runs at %1, but board %2 did not keep its pings: set Period "
+                                                          "and Echogram on its page and save them").arg(plan_.to).arg(b));
+        }
+        if (++step_ < boards.size()) {
+            redone_ = false;
+            return restoreBoard();
+        }
         return finish(true, plan_.to, QStringLiteral("the line runs at %1 and every board keeps it").arg(plan_.to));
     }
 
@@ -189,6 +218,27 @@ void RingRate::tick()
 void RingRate::send(uint8_t route, uint8_t mode, uint8_t id, const QByteArray& payload)
 {
     io_.write(RingUpgrade::kp1(route, mode, id, payload));
+}
+
+void RingRate::askDataset()
+{
+    lastDataset_.clear();
+    send(uint8_t(pingBoard()), kGet, kIdDataset);
+}
+
+void RingRate::restoreBoard()
+{
+    const int b = plan_.boards[step_];
+    send(uint8_t(b), kSetResp, kIdDataset, originals_.value(b));               // pings as they were
+    next(Phase::Restore, kRestoreMs);
+}
+
+void RingRate::askBoard(int board)
+{
+    reported_.remove(board);
+    lastDataset_.remove(board);
+    send(uint8_t(board), kGet, kIdUart);
+    send(uint8_t(board), kGet, kIdDataset);
 }
 
 void RingRate::askRates()

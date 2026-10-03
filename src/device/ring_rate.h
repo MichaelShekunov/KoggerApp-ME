@@ -18,13 +18,16 @@
  * the path to every board must work at the moment its command goes out (docs/RING_UPDATE.md, "Скорость
  * линии кольца"):
  *  1. each board's ID_DATASET is read and its pings stopped -- the line is quiet, no sync BREAK at a rate
- *     the other board does not run at;
+ *     the other board does not run at. The last board goes first: its answers come straight to the host,
+ *     and once its pings are off it has the time to relay the first board's answer. A pinging last board
+ *     drops them on a slow line (115200 at 50 ms pings, 2026-10-03), so the ask is repeated too;
  *  2. ID_UART v0 to the LAST board (it acknowledges at the old rate, then switches), then to the FIRST
  *     board (its acknowledgement is lost: the last board already listens at the new rate), then the host;
  *  3. both boards must answer a GET of ID_UART v0 at the new rate, reporting it;
- *  4. pings back as they were, then ID_FLASH v0 on each board;
- *  5. proof: ID_FLASH v1 reloads the settings from flash -- the firmware takes the rate from there but
- *     applies it only at boot -- and a GET of ID_UART v0 must report the new rate again.
+ *  4. one board at a time, the first one first: its pings back as they were, ID_FLASH v0, and the proof --
+ *     ID_FLASH v1 reloads the settings from flash (the firmware takes the rate from there but applies it
+ *     only at boot), then a GET of ID_UART v0 must report the new rate and a GET of ID_DATASET the pings
+ *     as they were. While the first board is done the last one is still quiet and relays its answers.
  * Nothing is saved before step 3 holds; a failed run leaves the old rate in flash, so a power cycle brings
  * the boards back at it. A lone board (one entry) goes the same way without the second.
  *
@@ -69,10 +72,14 @@ signals:
     void logLine(const QString& line);
 
 private:
-    enum class Phase { Idle, Settle, PingsAsk, Drain, SetLast, SetFirst, HostRate, Verify, Restore, Save, Prove, Check };
+    enum class Phase { Idle, Settle, PingsAsk, Drain, SetLast, SetFirst, HostRate, Verify, Restore, Save, Reload, Check };
 
     void send(uint8_t route, uint8_t mode, uint8_t id, const QByteArray& payload = {});
     void askRates();                        ///< GET ID_UART v0 to every board; answers collected from here on
+    int pingBoard() const { return plan_.boards[plan_.boards.size() - 1 - step_]; }   ///< pings off: last board first
+    void askDataset();                      ///< GET ID_DATASET to pingBoard()
+    void restoreBoard();                    ///< pings of plan_.boards[step_] back as they were, then Restore
+    void askBoard(int board);               ///< GET ID_UART v0 and ID_DATASET to one board
     QString ratesText() const;
     void next(Phase p, int ms);
     void fail(const QString& detail);
@@ -84,10 +91,12 @@ private:
     Plan plan_;
     Phase phase_ = Phase::Idle;
     qint64 due_ = 0;
-    int step_ = 0;
+    int step_ = 0, tries_ = 0;
     bool asked_ = false;
     bool switched_ = false;                 ///< a rate change went out: the boards may be off the old rate
     QList<QPair<int, QByteArray>> datasets_;    ///< boards whose pings were stopped, and the setting to restore
     QHash<int, QByteArray> lastDataset_;    ///< ID_DATASET answers since the last ask, by route
+    QHash<int, QByteArray> originals_;      ///< each board's ID_DATASET as it was before the run
+    bool redone_ = false;                   ///< the current board's pings were sent once more
     QHash<int, int> reported_;              ///< ID_UART v0 answers since the last ask: route -> rate
 };
