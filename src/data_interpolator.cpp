@@ -126,6 +126,14 @@ void DataInterpolator::flushPos()
     announcePositions(finalBefore);
 }
 
+void DataInterpolator::setSmoothing(bool enabled, double targetAccuracyM)
+{
+    TrackSmoother::Params params = smoother_.params();
+    params.enabled = enabled;
+    params.targetAccuracyM = targetAccuracyM;
+    smoother_.setParams(params);
+}
+
 void DataInterpolator::announcePositions(int finalBefore)
 {
     // Downstream (DataHorizon: the sonar position, the mosaic, the boat track) takes every epoch up
@@ -134,6 +142,7 @@ void DataInterpolator::announcePositions(int finalBefore)
     if (finalNow > finalBefore && finalNow > 0) {
         emit datasetPtr_->positionAdded(uint64_t(finalNow - 1));
     }
+    datasetPtr_->publishTrackSmoothing(smoother_.status());
 }
 
 void DataInterpolator::interpolateAtt(bool fromStart)

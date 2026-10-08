@@ -1935,6 +1935,77 @@ Column {
                     Settings { category: "scene3d/mosaic"; property alias mosaicTraceLine: mosaicTraceLine.checked }
                 }
 
+                // Track smoothing (TrackSmoother, docs/track-interpolation.md): on and "normal" out of
+                // the box. A change reads an open recording again, so that all of it is drawn one way.
+                KSwitch {
+                    id: trackSmoothing
+                    text: qsTr("Track smoothing")
+                    toolTipText: qsTr("Pings and the boat track on a line fitted through the GNSS fixes around them. Off: straight between neighbouring fixes and drawn at once, as before. Raw fixes are never changed.")
+                    checked: true
+                    Layout.fillWidth: true
+                    onToggled: core.setTrackSmoothing(checked, trackSmoothingMode.currentIndex, true)
+                    Component.onCompleted: core.setTrackSmoothing(checked, trackSmoothingMode.currentIndex, false)
+                    Settings { category: "scene3d/mosaic"; property alias trackSmoothing: trackSmoothing.checked }
+                }
+
+                RowLayout {
+                    spacing: Tokens.spaceMd
+                    enabled: trackSmoothing.checked
+                    opacity: enabled ? 1.0 : 0.5
+                    Text {
+                        text: qsTr("Smoothing:")
+                        color: AppPalette.textStrong
+                        font.pixelSize: Tokens.fontLg
+                        elide: Text.ElideRight
+                        Layout.fillWidth: true
+                    }
+                    KCombo {
+                        id: trackSmoothingMode
+                        Layout.preferredWidth: mosaicGroup.ctrlW
+                        model: [qsTr("Responsive"), qsTr("Normal"), qsTr("Smooth")]
+                        currentIndex: 1
+                        toolTipText: qsTr("Accuracy against delay: a longer window averages more fixes and colours the mosaic later")
+                        onActivated: function(index) { core.setTrackSmoothing(trackSmoothing.checked, index, true) }
+                        Settings { category: "scene3d/mosaic"; property alias trackSmoothingMode: trackSmoothingMode.currentIndex }
+                    }
+                }
+
+                Text {
+                    // The window and the delay of the epoch placed last, or why the line is not used:
+                    // with the switch on and no effect, this says why.
+                    Layout.fillWidth: true
+                    wrapMode: Text.WordWrap
+                    color: dataset.trackSmoothingState === 2 ? AppPalette.textStrong : AppPalette.textMuted
+                    font.pixelSize: Tokens.fontSm
+                    text: {
+                        if (core.trackReprocessing) {
+                            return qsTr("Reprocessing the recording…")
+                        }
+                        switch (dataset.trackSmoothingState) {
+                        case 0:
+                            return qsTr("Off: the mosaic is coloured at once")
+                        case 1:
+                            return qsTr("Waiting for timed GNSS fixes")
+                        case 2:
+                            return qsTr("Smoothing inactive: too few fixes (N=%1 in a %2 s window, 12 needed)")
+                                .arg(dataset.trackFixesInWindow.toFixed(0)).arg(dataset.trackWindowS.toFixed(1))
+                        default:
+                            return qsTr("Window %1 s, mosaic delay %2 s (%3 fixes)")
+                                .arg(dataset.trackWindowS.toFixed(1)).arg((dataset.trackWindowS / 2).toFixed(1))
+                                .arg(dataset.trackFixesInWindow.toFixed(0))
+                        }
+                    }
+                }
+
+                Text {
+                    visible: core.openedFilePath === "" && !core.trackReprocessing
+                    Layout.fillWidth: true
+                    wrapMode: Text.WordWrap
+                    color: AppPalette.textMuted
+                    font.pixelSize: Tokens.fontSm
+                    text: qsTr("Live data: a change applies to what comes next. To compare, open a recording.")
+                }
+
                 RowLayout {
                     spacing: Tokens.spaceMd
                     Text {

@@ -1217,9 +1217,14 @@ Asked for by the session "GODIO автопилот интеграция KoggerAp
 sends float32 coordinates (a 0.42 x 0.63 m grid), consecutive fixes are often equal, and pairwise
 interpolation put every ping between two equal fixes on one spot. `TrackSmoother` (`src/track_smoother.*`,
 transport-free; `DataInterpolator` adapts it to `Dataset`) places an epoch without a fix of its own on the
-least-squares line through the raw fixes within +-1 s -- only with two fixes or more on each side, the value
-held to their range, else pairwise as before -- and refines an interpolated heading on a +-0.5 s line,
-unwrapped (one raw heading on each side at least). An epoch that carries a raw fix keeps it (`kRaw`,
+least-squares line through the raw fixes within a window of its own -- clamp(min((0.48/T)^2 / fixes per
+second, 5 m / speed), 1 s, 6 s), rate and speed from the fixes of the 5 s before it, T 0.08 m by default;
+only with 12 fixes in it (else pairwise at once: 1 Hz recordings draw exactly as before), two fixes or more
+on each side, the value held to their range -- and refines an interpolated heading on a +-0.5 s line,
+unwrapped (one raw heading on each side at least). An epoch waits half its window (2.7 s at the boat's
+6.58 Hz and 0.7 m/s). The mosaic settings carry a "Track smoothing" switch (on), a responsive / normal /
+smooth choice (T 0.12 / 0.08 / 0.06 m) and a line with the window, the delay or why it is inactive; a
+change reads an open recording again with the view kept (`Core::setTrackSmoothing`). An epoch that carries a raw fix keeps it (`kRaw`,
 `getPositionGNSS()`, used by export and log); the same line at its time goes beside it
 (`Epoch::setTrackPosition`/`getTrackPosition`), and the sonar position -- mosaic, bottom track, tiles,
 echogram cursor -- the relief cloud and the 3D boat track line are built from that. Raw values are never

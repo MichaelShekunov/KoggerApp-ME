@@ -17,6 +17,10 @@ public:
     void interpolatePos(bool fromStart);
     // No more fixes will come (a file has been read): places the rest with the fixes there are.
     void flushPos();
+    // Track smoothing on or off, and the accuracy aimed at (TrackSmoother::Params); for the epochs
+    // not yet final.
+    void setSmoothing(bool enabled, double targetAccuracyM);
+    const TrackSmoother::Status& smoothingStatus() const { return smoother_.status(); }
     void interpolateAtt(bool fromStart);
     void interpolateArtificalAtt(bool fromStart);
     void clear();

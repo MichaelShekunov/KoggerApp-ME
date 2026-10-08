@@ -2,12 +2,17 @@
 // survey with the GODIO boat's float32 coordinates. The survey, its noise and its quantisation are
 // Godio_autopilot/tools/interp_prototype.py ported line by line (same LCG, same numbers), with the
 // GNSS noise at 0.30 m as calibrated there on the lake recording of 2026-10-07 (the prototype's
-// default is 0.10). What is added is the order in which Dataset sees the data: a ping opens an epoch,
-// a fix goes into the newest epoch that has no position, a heading into the newest epoch, and headings
-// between two raw ones are filled pairwise (Dataset::interpolateAtt) before positions are placed.
+// default is 0.10) and fixes at 6.58 Hz as the boat sent them on the water on 2026-10-08. What is
+// added is the order in which Dataset sees the data: a ping opens an epoch, a fix goes into the newest
+// epoch that has no position, a heading into the newest epoch, and headings between two raw ones are
+// filled pairwise (Dataset::interpolateAtt) before positions are placed.
 //
 // An epoch is "drawn" where Epoch::getTrackPosition() puts it, which is what the sonar position is
 // built from: its track fix when TrackSmoother gave it one (an epoch with a raw fix), else its position.
+//
+// The window rule is worked out here a second time, from the epochs alone and with the numbers as
+// decided (Godio_autopilot/docs/INTERP_WINDOW_TASK.md and that session's answers), not with the
+// class's Params: a changed default shows up as a miss.
 //
 //     interp_check            all checks, exit code 0 when they pass
 //     interp_check --table    also the error table per speed
@@ -32,8 +37,6 @@ constexpr double kMPerDeg = 111320.0;
 constexpr double kTrackRot = 37.4;                     // the survey is not aligned with north
 constexpr double kPi = 3.14159265358979323846;
 constexpr double kBootS = 1000.0;                      // positions carry time_boot_ms: never zero here
-constexpr qint64 kPosHalfNs = 1000000000LL;            // TrackSmoother::Params, as the app uses them
-constexpr qint64 kYawHalfNs = 500000000LL;
 const double kNaN = std::numeric_limits<double>::quiet_NaN();
 
 double rad(double d) { return d * kPi / 180.0; }
@@ -85,6 +88,20 @@ double fitInRange(const std::vector<double>& dt, const std::vector<double>& y)
     const auto [lo, hi] = std::minmax_element(y.begin(), y.end());
     return std::min(std::max(v, *lo), *hi);
 }
+
+// The rule as decided: INTERP_WINDOW_TASK.md, with the GODIO session's answers of 2026-10-08 (rate as
+// fixes per second, at least 12 fixes in the window).
+struct Rule {
+    bool enabled = true;
+    double target = 0.08;          // normal; responsive 0.12, smooth 0.06
+    double noise = 0.48;
+    double maxPath = 5.0;
+    double minWindow = 1.0, maxWindow = 6.0;
+    double rateSpan = 5.0, minSpeedSpan = 2.0;
+    double minFixes = 12.0;
+    qint64 yawHalfNs = 500000000LL;
+    int posEachSide = 2, yawEachSide = 1;
+};
 
 // --- the epochs, as Dataset holds them ----------------------------------------------------------
 
@@ -143,10 +160,68 @@ public:
     int misplaced = 0;   // a raw fix placed over, or a track fix given to an epoch without a raw fix
 };
 
+// --- the window rule, worked out on its own -----------------------------------------------------
+
+enum class State { Off, NoRate, TooFew, Active };   // the order of TrackSmoother::Status::State
+
+struct Expect {
+    State state = State::NoRate;
+    double windowS = 0.0, fixes = 0.0;
+};
+
+// The window for epoch j: rate and speed from the raw fixes within 5 s before it (its own included).
+Expect expectWindow(const std::vector<Epoch>& v, size_t j, const Rule& r)
+{
+    Expect x;
+    if (!r.enabled) {
+        x.state = State::Off;
+        return x;
+    }
+    const qint64 tj = v[j].tNs;
+    const qint64 spanNs = qint64(r.rateSpan * 1e9);
+    std::vector<double> dt, yn, ye;
+    qint64 newer = 0;
+    for (size_t k = j + 1; k-- > 0;) {
+        if (v[k].pos != Kind::Raw) {
+            continue;
+        }
+        const qint64 tk = v[k].tNs;
+        if (tk <= 0 || (newer > 0 && tk > newer) || tj - tk > spanNs) {
+            break;
+        }
+        if (tk == newer) {
+            continue;
+        }
+        newer = tk;
+        dt.push_back(double(tk - tj) / 1e9);
+        yn.push_back(v[k].n);
+        ye.push_back(v[k].e);
+    }
+    const int n = int(dt.size());
+    const double span = n >= 2 ? dt.front() - dt.back() : 0.0;
+    if (span <= 0.0) {
+        return x;
+    }
+    const double rate = double(n - 1) / span;
+    const double k = r.noise / r.target;
+    double w = k * k / rate;
+    if (span >= r.minSpeedSpan) {
+        const double speed = std::hypot(TrackSmoother::lineSlope(dt.data(), yn.data(), n),
+                                        TrackSmoother::lineSlope(dt.data(), ye.data(), n));
+        if (speed > 0.0) {
+            w = std::min(w, r.maxPath / speed);
+        }
+    }
+    x.windowS = std::clamp(w, r.minWindow, r.maxWindow);
+    x.fixes = rate * x.windowS;
+    x.state = x.fixes >= r.minFixes ? State::Active : State::TooFew;
+    return x;
+}
+
 // --- the simulated survey -----------------------------------------------------------------------
 
 struct Survey {
-    double speed = 1.5, fixHz = 4.85, headHz = 2.5, pingHz = 10.0, noise = 0.30, headNoise = 0.3;
+    double speed = 1.5, fixHz = 6.58, headHz = 2.5, pingHz = 10.0, noise = 0.30, headNoise = 0.3;
     double gapFrom = -1.0, gapLen = 0.0;   // no fixes in [gapFrom, gapFrom + gapLen)
     struct Fix { double t; float lat, lon; };
     struct Head { double t; double deg; };
@@ -189,15 +264,27 @@ enum class Method { Old, New };
 
 struct Run {
     Epochs epochs;
-    TrackSmoother smoother;
+    TrackSmoother smoother;                          // the app's defaults unless a test sets them
+    Rule rule;                                       // what the checks expect
     // the check's own records
     std::vector<int> finalSeen;                      // finalCount after every advance
     std::vector<Epoch> snapshot;                     // each epoch as it was when it became final
     std::vector<std::pair<float, float>> rawWritten; // per epoch: the raw fix written, or NaN
     std::vector<float> rawYawWritten;                // per epoch: the raw heading written, or NaN
     int edgeWithoutPosition = 0;                     // epochs between two fixes found without one, live
+    double worstWaitOver = -1e9;                     // live: (newest fix - newest final epoch) - half window
+    int notAtOnce = 0;                               // smoothing off: advances after which not all is final
     bool zeroTimes = false;
     double timeJumpAt = -1.0;                        // a new session: times start again from 5 s
+
+    void setRule(const Rule& r)
+    {
+        rule = r;
+        TrackSmoother::Params p;
+        p.enabled = r.enabled;
+        p.targetAccuracyM = r.target;
+        smoother.setParams(p);
+    }
 };
 
 qint64 fixTimeNs(const Run& run, double t)
@@ -268,8 +355,9 @@ void fillYawPairwise(Run& run)
 }
 
 // The live edge: every epoch between the first and the newest fix has a position already - final, or
-// the pairwise one meanwhile.
-void countEdgeWithoutPosition(Run& run)
+// the pairwise one meanwhile. And the wait: the newest final epoch is no further behind the newest fix
+// than half the window of the epoch that waits; with smoothing off, nothing waits.
+void checkLive(Run& run, qint64 newestFixNs)
 {
     const std::vector<Epoch>& v = run.epochs.v;
     int lastRaw = -1;
@@ -282,6 +370,19 @@ void countEdgeWithoutPosition(Run& run)
         afterFirst = afterFirst || ep.pos == Kind::Raw;
         if (afterFirst && ep.pos != Kind::Raw && !std::isfinite(ep.n)) {
             ++run.edgeWithoutPosition;
+        }
+    }
+
+    const int fc = run.smoother.finalCount();
+    if (!run.rule.enabled) {
+        run.notAtOnce += fc != int(v.size()) ? 1 : 0;
+        return;
+    }
+    if (fc > 0 && fc < int(v.size()) && v[size_t(fc)].tNs > 0 && v[size_t(fc - 1)].tNs > 0) {
+        const Expect x = expectWindow(v, size_t(fc), run.rule);
+        if (x.state == State::Active) {
+            const double behind = double(newestFixNs - v[size_t(fc - 1)].tNs) / 1e9;
+            run.worstWaitOver = std::max(run.worstWaitOver, behind - x.windowS / 2.0);
         }
     }
 }
@@ -320,7 +421,7 @@ void runSurvey(const Survey& s, Method method, Run& run)
             } else {
                 run.smoother.advance(run.epochs);
                 recordFinal(run);
-                countEdgeWithoutPosition(run);
+                checkLive(run, ep.tNs);
             }
         } else {                                        // Dataset::addAtt
             if (v.empty()) {
@@ -361,9 +462,7 @@ struct Errors {
     int stuck = 0, pings = 0, unplaced = 0;
 };
 
-enum class View { Position, Drawn };   // the epoch's position (raw fixes on the grid), or where it is drawn
-
-Errors measure(const Survey& s, const Run& run, View view, bool verbose = false)
+Errors measure(const Survey& s, const Run& run, bool verbose = false)
 {
     Errors r;
     double se = 0, sc = 0, sy = 0;
@@ -375,8 +474,7 @@ Errors measure(const Survey& s, const Run& run, View view, bool verbose = false)
         if (!ep.chart) {
             continue;
         }
-        const double n = view == View::Drawn ? drawnN(ep) : ep.n;
-        const double e = view == View::Drawn ? drawnE(ep) : ep.e;
+        const double n = drawnN(ep), e = drawnE(ep);
         if (!std::isfinite(n) || !std::isfinite(e)) {
             ++r.unplaced;
             continue;
@@ -408,13 +506,15 @@ Errors measure(const Survey& s, const Run& run, View view, bool verbose = false)
 }
 
 // Where TrackSmoother should have drawn every epoch, worked out again from the final epochs alone:
-// with two fixes or more on each side within +-1 s, the line through those fixes held to their range
-// (a track fix for an epoch with a raw fix); otherwise the pairwise position between the neighbouring
-// fixes, or the raw fix itself. For surveys with monotonic times only. Returns the epochs that differ.
-int drawnOffRule(const std::vector<Epoch>& v, int& total)
+// where the rule is active and the window (+-half of it) holds two fixes or more on each side, the
+// line through those fixes held to their range (a track fix for an epoch with a raw fix); otherwise the
+// pairwise position between the neighbouring fixes, or the raw fix itself. For surveys with monotonic
+// times only. Returns the epochs that differ; `active` counts the epochs where the rule applied.
+int drawnOffRule(const std::vector<Epoch>& v, const Rule& r, int& total, int& active)
 {
     int off = 0;
     total = 0;
+    active = 0;
     int prevRaw = -1;
     for (size_t j = 0; j < v.size(); ++j) {
         const Epoch& ep = v[j];
@@ -424,24 +524,31 @@ int drawnOffRule(const std::vector<Epoch>& v, int& total)
         if (ep.pos == Kind::None) {
             continue;   // before the first fix, or after the last
         }
-        std::vector<double> dt, yn, ye;
+        const Expect x = expectWindow(v, j, r);
+        bool track = false, fitted = false;
+        double wn = ep.n, we = ep.e;
         int before = 0, after = 0;
-        for (const Epoch& f : v) {
-            if (f.pos == Kind::Raw && std::llabs(f.tNs - ep.tNs) <= kPosHalfNs) {
-                dt.push_back(double(f.tNs - ep.tNs) * 1e-9);
-                yn.push_back(f.n);
-                ye.push_back(f.e);
-                before += f.tNs < ep.tNs ? 1 : 0;
-                after += f.tNs > ep.tNs ? 1 : 0;
+        if (x.state == State::Active) {
+            ++active;
+            const qint64 halfNs = qint64(x.windowS * 0.5 * 1e9);
+            std::vector<double> dt, yn, ye;
+            for (const Epoch& f : v) {
+                if (f.pos == Kind::Raw && std::llabs(f.tNs - ep.tNs) <= halfNs) {
+                    dt.push_back(double(f.tNs - ep.tNs) * 1e-9);
+                    yn.push_back(f.n);
+                    ye.push_back(f.e);
+                    before += f.tNs < ep.tNs ? 1 : 0;
+                    after += f.tNs > ep.tNs ? 1 : 0;
+                }
+            }
+            if (before >= r.posEachSide && after >= r.posEachSide) {
+                wn = fitInRange(dt, yn);
+                we = fitInRange(dt, ye);
+                track = ep.pos == Kind::Raw;
+                fitted = true;
             }
         }
-        bool track = false;
-        double wn = ep.n, we = ep.e;
-        if (before >= 2 && after >= 2) {
-            wn = fitInRange(dt, yn);
-            we = fitInRange(dt, ye);
-            track = ep.pos == Kind::Raw;
-        } else if (ep.pos == Kind::Interpolated) {
+        if (!fitted && ep.pos == Kind::Interpolated) {
             int nextRaw = int(j) + 1;
             while (nextRaw < int(v.size()) && v[size_t(nextRaw)].pos != Kind::Raw) {
                 ++nextRaw;
@@ -462,7 +569,8 @@ int drawnOffRule(const std::vector<Epoch>& v, int& total)
             if (off == 0) {
                 describe("OFF", v, j);
                 if (g_debug) {
-                    std::printf("      expected n %.4f e %.4f track %d (%d before, %d after)\n", wn, we, int(track), before, after);
+                    std::printf("      expected n %.4f e %.4f track %d (state %d, window %.3f s, %d before, %d after)\n",
+                                wn, we, int(track), int(x.state), x.windowS, before, after);
                 }
             }
             ++off;
@@ -471,11 +579,11 @@ int drawnOffRule(const std::vector<Epoch>& v, int& total)
     return off;
 }
 
-// The same for the headings TrackSmoother refined: every epoch whose heading was interpolated when it
-// became final carries, with a raw heading on each side within +-0.5 s, the line through the raw
-// headings there (unwrapped) held to their range, and otherwise still the pairwise value between the
-// neighbouring raw headings. The raw headings are found as the class finds them, walking the epochs
-// while their times hold. Returns the epochs that differ.
+// The same for the headings: an epoch whose heading was interpolated when it became final, and where
+// the window rule was active, carries - with a raw heading on each side within +-0.5 s - the line
+// through the raw headings there (unwrapped) held to their range; every other one still the pairwise
+// value between the neighbouring raw headings. The raw headings are found as the class finds them,
+// walking the epochs while their times hold. Returns the epochs that differ.
 int yawOffRule(const Run& run, int& total, int& kept)
 {
     const std::vector<Epoch>& v = run.epochs.v;
@@ -492,7 +600,7 @@ int yawOffRule(const Run& run, int& total, int& kept)
         qint64 prev = ep.tNs;
         for (int k = int(j) - 1; k >= 0; --k) {
             const qint64 tk = v[size_t(k)].tNs;
-            if (tk <= 0 || tk > prev || ep.tNs - tk > kYawHalfNs) {
+            if (tk <= 0 || tk > prev || ep.tNs - tk > run.rule.yawHalfNs) {
                 break;
             }
             prev = tk;
@@ -507,7 +615,7 @@ int yawOffRule(const Run& run, int& total, int& kept)
         prev = ep.tNs;
         for (size_t k = j + 1; k < v.size(); ++k) {
             const qint64 tk = v[k].tNs;
-            if (tk <= 0 || tk < prev || tk - ep.tNs > kYawHalfNs) {
+            if (tk <= 0 || tk < prev || tk - ep.tNs > run.rule.yawHalfNs) {
                 break;
             }
             prev = tk;
@@ -516,9 +624,11 @@ int yawOffRule(const Run& run, int& total, int& kept)
                 deg.push_back(v[k].yaw);
             }
         }
+        const bool active = expectWindow(v, j, run.rule).state == State::Active;
+        const int laterCount = int(dt.size() - earlier.size());
         double want = kNaN;
-        if (earlier.empty() || dt.size() == earlier.size()) {
-            // One side only: the pairwise value stays (fillYawPairwise).
+        if (!active || int(earlier.size()) < run.rule.yawEachSide || laterCount < run.rule.yawEachSide) {
+            // Not refined: the pairwise value stays (fillYawPairwise).
             int k0 = int(j) - 1, k1 = int(j) + 1;
             while (k0 >= 0 && v[size_t(k0)].yawKind != Kind::Raw) { --k0; }
             while (k1 < int(v.size()) && v[size_t(k1)].yawKind != Kind::Raw) { ++k1; }
@@ -541,7 +651,7 @@ int yawOffRule(const Run& run, int& total, int& kept)
             if (off == 0) {
                 describe("YAW", v, j);
                 if (g_debug) {
-                    std::printf("      expected %.4f deg\n", want);
+                    std::printf("      expected %.4f deg (rule %s)\n", want, active ? "active" : "not active");
                 }
             }
             ++off;
@@ -609,6 +719,39 @@ bool handedOnKept(const Run& run)
     return monotonic && unchanged;
 }
 
+// Positions, track fixes and headings exactly as the old pairwise run has them.
+int differFromOld(const Run& oldRun, const Run& newRun, int& compared)
+{
+    compared = 0;
+    int differ = 0;
+    if (oldRun.epochs.v.size() != newRun.epochs.v.size()) {
+        return -1;
+    }
+    for (size_t j = 0; j < newRun.epochs.v.size(); ++j) {
+        const Epoch& a = oldRun.epochs.v[j];
+        const Epoch& b = newRun.epochs.v[j];
+        const bool yawSame = (std::isnan(a.yaw) && std::isnan(b.yaw)) || a.yaw == b.yaw;
+        if (std::isnan(a.n) && std::isnan(drawnN(b))) {
+            differ += yawSame ? 0 : 1;
+            continue;
+        }
+        ++compared;
+        differ += b.track || !(std::abs(a.n - drawnN(b)) < 1e-9 && std::abs(a.e - drawnE(b)) < 1e-9) || !yawSame ? 1 : 0;
+    }
+    return differ;
+}
+
+const char* stateName(TrackSmoother::Status::State s)
+{
+    switch (s) {
+    case TrackSmoother::Status::State::Off: return "off";
+    case TrackSmoother::Status::State::NoRate: return "no rate";
+    case TrackSmoother::Status::State::TooFewFixes: return "too few fixes";
+    case TrackSmoother::Status::State::Active: return "active";
+    }
+    return "?";
+}
+
 }   // namespace
 
 int main(int argc, char** argv)
@@ -619,17 +762,19 @@ int main(int argc, char** argv)
         g_debug = g_debug || std::strcmp(argv[a], "--debug") == 0;
     }
 
-    std::printf("TrackSmoother - pings between float32 fixes (fixes 4.85 Hz, pings 10 Hz, headings 2.5 Hz)\n");
-    char what[240];
+    std::printf("TrackSmoother - pings between float32 fixes (fixes 6.58 Hz, pings 10 Hz, headings 2.5 Hz)\n");
+    char what[260];
 
     // --- the arithmetic
     {
         const double dt[] = { -1.0, 0.5, 2.0 };
         const double y[] = { 3.0 - 2.0, 3.0 + 1.0, 3.0 + 4.0 };   // y = 3 + 2 t
-        check(std::abs(TrackSmoother::lineAtZero(dt, y, 3) - 3.0) < 1e-12, "lineAtZero: a line through three points gives its value at 0");
+        check(std::abs(TrackSmoother::lineAtZero(dt, y, 3) - 3.0) < 1e-12 && std::abs(TrackSmoother::lineSlope(dt, y, 3) - 2.0) < 1e-12,
+              "lineAtZero/lineSlope: a line through three points gives its value at 0 and its slope");
         const double same[] = { 0.2, 0.2 };
         const double ys[] = { 1.0, 2.0 };
-        check(std::abs(TrackSmoother::lineAtZero(same, ys, 2) - 1.5) < 1e-12, "lineAtZero: equal times give the mean");
+        check(std::abs(TrackSmoother::lineAtZero(same, ys, 2) - 1.5) < 1e-12 && TrackSmoother::lineSlope(same, ys, 2) == 0.0,
+              "lineAtZero/lineSlope: equal times give the mean and no slope");
         check(std::abs(TrackSmoother::wrap180(359.0 - 1.0) - (-2.0)) < 1e-12 && std::abs(TrackSmoother::wrap180(-190.0) - 170.0) < 1e-12,
               "wrap180 folds into [-180, 180)");
     }
@@ -669,9 +814,14 @@ int main(int argc, char** argv)
               "heading across 0/360 is fitted on the unwrapped angle (near north, not near 180)");
     }
 
-    // --- a step of the float32 grid inside the window: the line is held to the fixes' range
+    // --- a step of the float32 grid inside the window: the line is held to the fixes' range. The
+    //     window is pinned to 2 s here, so that it holds exactly the five fixes below.
     {
         Run run;
+        TrackSmoother::Params p;
+        p.minWindowS = p.maxWindowS = 2.0;
+        p.minFixesInWindow = 0;
+        run.smoother.setParams(p);
         const double q = 0.42;   // one step of the latitude grid
         const double ts[] = { -0.9, -0.6, -0.05, 0.05, 0.07, 1.5 };
         const double ns[] = { 0.0, q, q, q, q, q };
@@ -689,16 +839,16 @@ int main(int argc, char** argv)
         }
         run.smoother.flush(run.epochs);
         const double bare = TrackSmoother::lineAtZero(ts, ns, 5);   // the five fixes within 1 s
-        const Epoch& p = run.epochs.v[3];
+        const Epoch& pe = run.epochs.v[3];
         std::snprintf(what, sizeof what, "a grid step in the window: the ping stays on the step (%.4f m), the bare line overshoots to %.4f m",
-                      p.n, bare);
-        check(p.pos == Kind::Interpolated && std::abs(p.n - q) < 1e-12 && bare > q * 1.02, what);
+                      pe.n, bare);
+        check(pe.pos == Kind::Interpolated && std::abs(pe.n - q) < 1e-12 && bare > q * 1.02, what);
     }
 
-    // --- the survey at four speeds
+    // --- the survey at four speeds, fixes at 6.58 Hz
     const double speeds[] = { 0.5, 1.0, 1.5, 2.5 };
     if (table) {
-        std::printf("\n  speed | position RMS: pairwise -> fit between fixes -> fix-carrying pings too | stuck pings: the same three | heading RMS\n");
+        std::printf("\n  speed | window, delay (last epoch) | position RMS pairwise -> now | stuck pings | heading RMS\n");
     }
     for (double speed : speeds) {
         Survey s;
@@ -708,41 +858,110 @@ int main(int argc, char** argv)
         Run oldRun, newRun;
         runSurvey(s, Method::Old, oldRun);
         runSurvey(s, Method::New, newRun);
-        const Errors eo = measure(s, oldRun, View::Position);
-        const Errors eb = measure(s, newRun, View::Position);
-        const Errors en = measure(s, newRun, View::Drawn, true);
+        const Errors eo = measure(s, oldRun);
+        const Errors en = measure(s, newRun, true);
+        const TrackSmoother::Status st = newRun.smoother.status();
 
         if (table) {
-            std::printf("  %.1f m/s | %.3f -> %.3f -> %.3f m (%.2fx) | %d -> %d -> %d of %d | %.2f -> %.2f deg\n",
-                        speed, eo.posRms, eb.posRms, en.posRms, eo.posRms / en.posRms,
-                        eo.stuck, eb.stuck, en.stuck, en.pings, eo.yawRms, en.yawRms);
+            std::printf("  %.1f m/s | %.1f s, %.1f s (%s, %.0f fixes) | %.3f -> %.3f m (%.2fx) | %d -> %d of %d | %.2f -> %.2f deg\n",
+                        speed, st.windowS, st.windowS / 2.0, stateName(st.state), st.fixesInWindow,
+                        eo.posRms, en.posRms, eo.posRms / en.posRms, eo.stuck, en.stuck, en.pings, eo.yawRms, en.yawRms);
         }
 
         std::snprintf(what, sizeof what, "%.1f m/s: pings drawn on the spot of the one before: %d -> %d of %d (at most 1%%, 20x fewer)",
                       speed, eo.stuck, en.stuck, en.pings);
         check(en.stuck * 100 <= en.pings && en.stuck * 20 <= eo.stuck, what);
 
-        int total = 0;
-        const int off = drawnOffRule(newRun.epochs.v, total);
-        std::snprintf(what, sizeof what, "%.1f m/s: every epoch drawn by the rule - 2+2 fixes within 1 s: the line held to their range, "
-                      "else pairwise or at its fix (%d of %d)", speed, total - off, total);
-        check(off == 0 && total > 0, what);
+        int total = 0, active = 0;
+        const int off = drawnOffRule(newRun.epochs.v, newRun.rule, total, active);
+        std::snprintf(what, sizeof what, "%.1f m/s: every epoch drawn by the rule (%d of %d, the window rule active for %d)",
+                      speed, total - off, total, active);
+        check(off == 0 && total > 0 && active * 10 >= total * 9, what);
 
         int yawTotal = 0, yawKept = 0;
         const int yawOff = yawOffRule(newRun, yawTotal, yawKept);
-        std::snprintf(what, sizeof what, "%.1f m/s: every interpolated heading by the rule - a raw one on each side within 0.5 s: "
-                      "the line held to their range, else pairwise (%d of %d, %d one-sided)", speed, yawTotal - yawOff, yawTotal, yawKept);
+        std::snprintf(what, sizeof what, "%.1f m/s: every interpolated heading by the rule (%d of %d, %d left pairwise)",
+                      speed, yawTotal - yawOff, yawTotal, yawKept);
         check(yawOff == 0 && yawTotal > 0, what);
 
         std::snprintf(what, sizeof what, "%.1f m/s: position RMS better than pairwise (%.3f -> %.3f m)", speed, eo.posRms, en.posRms);
         check(en.posRms < eo.posRms, what);
-        std::snprintf(what, sizeof what, "%.1f m/s: every ping between the first and the last fix placed, live too (%d live without one)",
-                      speed, newRun.edgeWithoutPosition);
-        check(en.unplaced == eo.unplaced && newRun.edgeWithoutPosition == 0, what);
-        std::snprintf(what, sizeof what, "%.1f m/s: raw fixes and raw headings untouched", speed);
-        check(rawKept(newRun), what);
-        std::snprintf(what, sizeof what, "%.1f m/s: nothing handed on changes later, the final count never goes back", speed);
-        check(handedOnKept(newRun), what);
+        std::snprintf(what, sizeof what, "%.1f m/s: never waits past half its window (worst %+.2f s over); every ping placed, live too (%d without)",
+                      speed, newRun.worstWaitOver, newRun.edgeWithoutPosition);
+        check(newRun.worstWaitOver <= 0.35 && newRun.worstWaitOver > -1e8 && en.unplaced == eo.unplaced && newRun.edgeWithoutPosition == 0, what);
+        std::snprintf(what, sizeof what, "%.1f m/s: raw fixes and raw headings untouched; nothing handed on changes later", speed);
+        check(rawKept(newRun) && handedOnKept(newRun), what);
+    }
+
+    // --- smoothing off: exactly as before this class, and nothing waits
+    {
+        Survey s;
+        s.speed = 1.0;
+        s.build();
+        Run oldRun, newRun;
+        Rule off;
+        off.enabled = false;
+        newRun.setRule(off);
+        runSurvey(s, Method::Old, oldRun);
+        runSurvey(s, Method::New, newRun);
+        int compared = 0;
+        const int differ = differFromOld(oldRun, newRun, compared);
+        std::snprintf(what, sizeof what, "smoothing off: %d of %d epochs otherwise than before (headings too), %d times something waited, status %s",
+                      differ, compared, newRun.notAtOnce, stateName(newRun.smoother.status().state));
+        check(differ == 0 && compared > 0 && newRun.notAtOnce == 0
+              && newRun.smoother.status().state == TrackSmoother::Status::State::Off, what);
+    }
+
+    // --- the responsive setting (T = 0.12 m): a shorter window, still by the rule
+    {
+        Survey s;
+        s.speed = 0.5;
+        s.build();
+        Run run;
+        Rule responsive;
+        responsive.target = 0.12;
+        run.setRule(responsive);
+        runSurvey(s, Method::New, run);
+        int total = 0, active = 0;
+        const int off = drawnOffRule(run.epochs.v, run.rule, total, active);
+        const TrackSmoother::Status st = run.smoother.status();
+        std::snprintf(what, sizeof what, "responsive (0.12 m) at 0.5 m/s: by the rule (%d of %d, %d active), window %.2f s, never waits past half of it (%+.2f s)",
+                      total - off, total, active, st.windowS, run.worstWaitOver);
+        check(off == 0 && active * 10 >= total * 9 && std::abs(st.windowS - 2.4) < 0.3 && run.worstWaitOver <= 0.35, what);
+    }
+
+    // --- fixes at 20 Hz: the same accuracy in a shorter window, so a shorter wait
+    {
+        Survey s;
+        s.speed = 0.7;
+        s.fixHz = 20.0;
+        s.build();
+        Run oldRun, newRun;
+        runSurvey(s, Method::Old, oldRun);
+        runSurvey(s, Method::New, newRun);
+        const Errors eo = measure(s, oldRun);
+        const Errors en = measure(s, newRun);
+        int total = 0, active = 0;
+        const int off = drawnOffRule(newRun.epochs.v, newRun.rule, total, active);
+        const TrackSmoother::Status st = newRun.smoother.status();
+        std::snprintf(what, sizeof what, "fixes at 20 Hz, 0.7 m/s: window %.2f s, by the rule (%d of %d), waits at most %+.2f s past half of it, %.3f -> %.3f m",
+                      st.windowS, total - off, total, newRun.worstWaitOver, eo.posRms, en.posRms);
+        check(off == 0 && std::abs(st.windowS - 1.8) < 0.1 && newRun.worstWaitOver <= 0.35 && en.posRms < eo.posRms, what);
+    }
+
+    // --- fixes at 4.85 Hz, 0.5 m/s: 36 / 4.85 = 7.4 s, held at the 6 s ceiling
+    {
+        Survey s;
+        s.speed = 0.5;
+        s.fixHz = 4.85;
+        s.build();
+        Run run;
+        runSurvey(s, Method::New, run);
+        int total = 0, active = 0;
+        const int off = drawnOffRule(run.epochs.v, run.rule, total, active);
+        const TrackSmoother::Status st = run.smoother.status();
+        std::snprintf(what, sizeof what, "fixes at 4.85 Hz, 0.5 m/s: window %.2f s (the ceiling), by the rule (%d of %d)", st.windowS, total - off, total);
+        check(off == 0 && st.windowS == 6.0 && active * 10 >= total * 9, what);
     }
 
     // --- a boat standing still: every ping drawn at the fix, no spread
@@ -781,10 +1000,10 @@ int main(int argc, char** argv)
         Run oldRun, newRun;
         runSurvey(s, Method::Old, oldRun);
         runSurvey(s, Method::New, newRun);
-        const Errors eo = measure(s, oldRun, View::Position);
-        const Errors en = measure(s, newRun, View::Drawn);
-        int total = 0;
-        const int off = drawnOffRule(newRun.epochs.v, total);
+        const Errors eo = measure(s, oldRun);
+        const Errors en = measure(s, newRun);
+        int total = 0, active = 0;
+        const int off = drawnOffRule(newRun.epochs.v, newRun.rule, total, active);
         std::snprintf(what, sizeof what, "a 5 s gap in the fixes: drawn by the rule (%d of %d), every ping placed (%d live without one), "
                       "better than pairwise (%.3f -> %.3f m)", total - off, total, newRun.edgeWithoutPosition, eo.posRms, en.posRms);
         check(off == 0 && en.unplaced == eo.unplaced && newRun.edgeWithoutPosition == 0 && en.posRms < eo.posRms
@@ -801,10 +1020,10 @@ int main(int argc, char** argv)
         Run oldRun, newRun;
         runSurvey(s, Method::Old, oldRun);
         runSurvey(s, Method::New, newRun);
-        const Errors eo = measure(s, oldRun, View::Position);
-        const Errors en = measure(s, newRun, View::Drawn);
-        int total = 0;
-        const int off = drawnOffRule(newRun.epochs.v, total);
+        const Errors eo = measure(s, oldRun);
+        const Errors en = measure(s, newRun);
+        int total = 0, active = 0;
+        const int off = drawnOffRule(newRun.epochs.v, newRun.rule, total, active);
         std::snprintf(what, sizeof what, "pings at 2 Hz: drawn by the rule (%d of %d), every ping placed (%d live without one), "
                       "better than pairwise (%.3f -> %.3f m)", total - off, total, newRun.edgeWithoutPosition, eo.posRms, en.posRms);
         check(off == 0 && total > 0 && en.unplaced == eo.unplaced && newRun.edgeWithoutPosition == 0 && en.posRms < eo.posRms
@@ -821,13 +1040,13 @@ int main(int argc, char** argv)
         runSurvey(s, Method::New, run);
         int yawTotal = 0, yawKept = 0;
         const int yawOff = yawOffRule(run, yawTotal, yawKept);
-        std::snprintf(what, sizeof what, "headings at 1 Hz: by the rule (%d of %d), the %d one-sided ones still pairwise",
+        std::snprintf(what, sizeof what, "headings at 1 Hz: by the rule (%d of %d), %d left pairwise",
                       yawTotal - yawOff, yawTotal, yawKept);
         check(yawOff == 0 && yawKept > 0 && yawKept < yawTotal, what);
     }
 
-    // --- fixes at 0.99 Hz, as in the recordings made before the GODIO fix: two fixes on each side never
-    //     fit in +-1 s there, so every epoch is drawn exactly as before
+    // --- fixes at 0.99 Hz, as in the recordings made before the GODIO fix: fewer than 12 fixes in any
+    //     window, so every epoch is drawn exactly as before, and handed on at once
     {
         Survey s;
         s.speed = 1.25;
@@ -836,20 +1055,12 @@ int main(int argc, char** argv)
         Run oldRun, newRun;
         runSurvey(s, Method::Old, oldRun);
         runSurvey(s, Method::New, newRun);
-        int compared = 0, differ = 0;
-        bool sameSize = oldRun.epochs.v.size() == newRun.epochs.v.size();
-        for (size_t j = 0; sameSize && j < newRun.epochs.v.size(); ++j) {
-            const Epoch& a = oldRun.epochs.v[j];
-            const Epoch& b = newRun.epochs.v[j];
-            if (std::isnan(a.n) && std::isnan(drawnN(b))) {
-                continue;
-            }
-            ++compared;
-            differ += b.track || !(std::abs(a.n - drawnN(b)) < 1e-9 && std::abs(a.e - drawnE(b)) < 1e-9) ? 1 : 0;
-        }
-        std::snprintf(what, sizeof what, "fixes at 0.99 Hz (recordings before the GODIO fix): %d of %d epochs drawn otherwise than before",
-                      differ, compared);
-        check(sameSize && compared > 0 && differ == 0, what);
+        int compared = 0;
+        const int differ = differFromOld(oldRun, newRun, compared);
+        const TrackSmoother::Status st = newRun.smoother.status();
+        std::snprintf(what, sizeof what, "fixes at 0.99 Hz (recordings before the GODIO fix): %d of %d epochs otherwise than before; status %s, %.1f fixes in %.1f s",
+                      differ, compared, stateName(st.state), st.fixesInWindow, st.windowS);
+        check(differ == 0 && compared > 0 && st.state == TrackSmoother::Status::State::TooFewFixes && st.fixesInWindow < 12.0, what);
     }
 
     // --- no usable times: exactly the old placement
@@ -861,13 +1072,11 @@ int main(int argc, char** argv)
         oldRun.zeroTimes = newRun.zeroTimes = true;
         runSurvey(s, Method::Old, oldRun);
         runSurvey(s, Method::New, newRun);
-        bool same = oldRun.epochs.v.size() == newRun.epochs.v.size();
-        for (size_t j = 0; same && j < oldRun.epochs.v.size(); ++j) {
-            const Epoch& a = oldRun.epochs.v[j];
-            const Epoch& b = newRun.epochs.v[j];
-            same = !b.track && ((std::isnan(a.n) && std::isnan(b.n)) || (std::abs(a.n - b.n) < 1e-9 && std::abs(a.e - b.e) < 1e-9));
-        }
-        check(same, "fixes without times: placed exactly as before (pairwise), every fix drawn at itself");
+        int compared = 0;
+        const int differ = differFromOld(oldRun, newRun, compared);
+        std::snprintf(what, sizeof what, "fixes without times: placed exactly as before (%d of %d differ), status %s",
+                      differ, compared, stateName(newRun.smoother.status().state));
+        check(differ == 0 && compared > 0 && newRun.smoother.status().state == TrackSmoother::Status::State::NoRate, what);
     }
 
     // --- times stepping back mid-run (a new session): no wait for ever, nothing placed across it
@@ -878,10 +1087,10 @@ int main(int argc, char** argv)
         Run newRun;
         newRun.timeJumpAt = s.dur / 2.0;
         runSurvey(s, Method::New, newRun);
-        const Errors en = measure(s, newRun, View::Drawn);
+        const Errors en = measure(s, newRun);
         Run ref;
         runSurvey(s, Method::Old, ref);
-        const Errors eo = measure(s, ref, View::Position);
+        const Errors eo = measure(s, ref);
         if (g_debug) {
             std::printf("      time jump: unplaced %d (old %d), stuck %d, RMS %.3f (old %.3f)\n",
                         en.unplaced, eo.unplaced, en.stuck, en.posRms, eo.posRms);

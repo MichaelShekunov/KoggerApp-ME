@@ -71,6 +71,7 @@ public:
     Q_PROPERTY(bool              isAppendMode                 READ getIsAppendMode                 NOTIFY isAppendModeChanged)
     Q_PROPERTY(QString           fileTitle                    READ getFileTitle                    NOTIFY fileTitleChanged)
     Q_PROPERTY(bool              isFileOpening                READ getIsFileOpening                NOTIFY sendIsFileOpening)
+    Q_PROPERTY(bool              trackReprocessing            READ getTrackReprocessing            NOTIFY trackReprocessingChanged)
     Q_PROPERTY(bool              isSeparateReading            READ getIsSeparateReading            CONSTANT)
     Q_PROPERTY(QString           ch1Name                      READ getChannel1Name                 NOTIFY channelListUpdated FINAL)
     Q_PROPERTY(QString           ch2Name                      READ getChannel2Name                 NOTIFY channelListUpdated FINAL)
@@ -213,6 +214,15 @@ public slots:
     Q_INVOKABLE void setMosaicSource(int source);
     Q_INVOKABLE void setMosaicFakeCoordsLastN(int n);
     Q_INVOKABLE void setMosaicFakeCoordsClearOldData(bool state);
+    /**
+     * @brief Track smoothing from the mosaic settings (TrackSmoother, docs/track-interpolation.md).
+     * @param enabled   off: pings straight between neighbouring fixes and drawn at once, as before.
+     * @param mode      0 responsive, 1 normal, 2 smooth: the accuracy aimed at, 0.12 / 0.08 / 0.06 m.
+     * @param reprocess an open recording is read again, the view kept, so that all of it is drawn
+     *                  the new way; live data takes the change from the next epochs on.
+     */
+    Q_INVOKABLE void setTrackSmoothing(bool enabled, int mode, bool reprocess);
+    bool getTrackReprocessing() const { return trackReprocessing_; }
     bool getPosZeroing() const { return isActiveZeroing_; }
     int  getBottomTrackEditTool() const { return bottomTrackEditTool_; }
     Q_INVOKABLE void setBottomTrackEditTool(int tool);
@@ -274,6 +284,7 @@ signals:
     void fileTitleChanged();
     void fileOpenFailed(const QString& path);
     void sendIsFileOpening();
+    void trackReprocessingChanged();
     void channelListUpdated();
     void dataProcessorStateChanged();
     void needForceZoomingChanged();
@@ -415,6 +426,15 @@ private:
     bool isFileOpening_;
     bool isAppendMode_ = false;
     QStringList appendedFiles_;
+    // Reading the open recording again for the track smoothing (setTrackSmoothing), the view kept:
+    // the place being compared stays on screen.
+    void reopenFilesKeepingView();
+    void afterFileOpened(bool reprocess);
+    void setTrackReprocessing(bool state);
+    QStringList reopenQueue_;           // the files appended after the one being read again
+    bool nextOpenIsReprocess_ = false;  // taken by the next openLogFile; any other open ends the chain
+    bool reprocessPending_ = false;     // asked while a file was opening: read again once it is in
+    bool trackReprocessing_ = false;
     QList<QUuid> openLinkOrder_;
 
     /**

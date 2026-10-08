@@ -20,6 +20,23 @@ void TrackSmoother::clear()
     timedSegments_ = 0;
     provisional_ = 0;
     done_ = 0;
+    status_ = Status();
+    if (!params_.enabled) {
+        status_.state = Status::State::Off;
+    }
+}
+
+void TrackSmoother::setParams(const Params& params)
+{
+    params_ = params;
+    // Shown at once, before an epoch is placed the new way.
+    if (!params_.enabled) {
+        status_ = Status();
+        status_.state = Status::State::Off;
+    }
+    else if (status_.state == Status::State::Off) {
+        status_ = Status();
+    }
 }
 
 double TrackSmoother::wrap180(double deg)
@@ -54,6 +71,26 @@ double TrackSmoother::lineAtZero(const double* dt, const double* y, int n)
     }
     const double slope = (n * sty - st * sy) / det;
     return y0 + (sy - slope * st) / n;
+}
+
+double TrackSmoother::lineSlope(const double* dt, const double* y, int n)
+{
+    if (n <= 0) {
+        return 0.0;
+    }
+
+    const double y0 = y[0];
+    double st = 0.0, stt = 0.0, sy = 0.0, sty = 0.0;
+    for (int k = 0; k < n; ++k) {
+        const double v = y[k] - y0;
+        st  += dt[k];
+        stt += dt[k] * dt[k];
+        sy  += v;
+        sty += dt[k] * v;
+    }
+
+    const double det = n * stt - st * st;
+    return std::abs(det) < 1e-12 ? 0.0 : (n * sty - st * sy) / det;
 }
 
 double TrackSmoother::lineAtZeroInRange(const double* dt, const double* y, int n)
@@ -122,7 +159,13 @@ int TrackSmoother::run(Store& store, bool flushing)
                 ++done_;   // no time of its own: drawn at its fix, as before
                 continue;
             }
-            if (!collectWindow(m1, ti, flushing, window)) {
+            const Status chosen = chooseWindow(store, m1, ti);
+            if (chosen.state != Status::State::Active) {
+                status_ = chosen;
+                ++done_;   // drawn at its fix, as before
+                continue;
+            }
+            if (!collectWindow(m1, ti, halfWindowNs(chosen.windowS), flushing, window)) {
                 break;
             }
             if (hasBothSides(window, ti)) {
@@ -131,6 +174,7 @@ int TrackSmoother::run(Store& store, bool flushing)
             if (store.hasInterpolatedYaw(i)) {
                 refineYaw(store, i, ti);
             }
+            status_ = chosen;
             ++done_;
             continue;
         }
@@ -154,7 +198,14 @@ int TrackSmoother::run(Store& store, bool flushing)
         }
 
         const qint64 ti = store.timeNs(i);
-        if (!collectWindow(m1, ti, flushing, window)) {
+        const Status chosen = chooseWindow(store, m1, ti);
+        if (chosen.state != Status::State::Active) {
+            placePairwise(store, i, a.index, b.index);   // and handed on at once, as before
+            status_ = chosen;
+            ++done_;
+            continue;
+        }
+        if (!collectWindow(m1, ti, halfWindowNs(chosen.windowS), flushing, window)) {
             break;
         }
         if (hasBothSides(window, ti)) {
@@ -167,6 +218,7 @@ int TrackSmoother::run(Store& store, bool flushing)
         if (store.hasInterpolatedYaw(i)) {
             refineYaw(store, i, ti);
         }
+        status_ = chosen;
         ++done_;
     }
 
@@ -174,12 +226,68 @@ int TrackSmoother::run(Store& store, bool flushing)
     return done_;
 }
 
-bool TrackSmoother::collectWindow(size_t next, qint64 timeNs, bool flushing, std::vector<int>& window) const
+TrackSmoother::Status TrackSmoother::chooseWindow(Store& store, size_t next, qint64 timeNs) const
+{
+    Status s;
+    if (!params_.enabled) {
+        s.state = Status::State::Off;
+        return s;
+    }
+
+    // The fixes within rateSpanS before the epoch, newest first; raw_[next - 1] is the fix before it,
+    // or its own. Known as soon as the epoch's time is, so the window is too.
+    const qint64 spanNs = qint64(params_.rateSpanS * kNsPerS);
+    std::vector<double> dt, north, east;
+    qint64 newer = 0;   // the time of the fix taken last, the one after this
+    for (size_t m = next; m-- > 0;) {
+        const qint64 tm = raw_[m].timeNs;
+        if (tm <= 0 || (newer > 0 && tm > newer) || timeNs - tm > spanNs) {
+            break;      // no time, a step back in time (a new session), or past the span
+        }
+        if (tm == newer) {
+            continue;   // a repeat: one moment, counted once
+        }
+        newer = tm;
+        const Fix f = store.rawFix(raw_[m].index);
+        dt.push_back(double(tm - timeNs) / kNsPerS);
+        north.push_back(f.n);
+        east.push_back(f.e);
+    }
+
+    const int n = int(dt.size());
+    const double spanS = n >= 2 ? dt.front() - dt.back() : 0.0;
+    if (spanS <= 0.0) {
+        s.state = Status::State::NoRate;
+        return s;
+    }
+
+    // Fixes per second, not 1 / the median interval: the boat's intervals come in two humps (0.1 and
+    // 0.2 s), and the window has to hold a number of fixes.
+    const double rate = double(n - 1) / spanS;
+    const double k = params_.noiseConstantM / params_.targetAccuracyM;
+    double windowS = k * k / rate;
+    if (spanS >= params_.minSpeedSpanS) {
+        const double speed = std::hypot(lineSlope(dt.data(), north.data(), n), lineSlope(dt.data(), east.data(), n));
+        if (speed > 0.0) {
+            windowS = std::min(windowS, params_.maxPathM / speed);
+        }
+    }
+    s.windowS = std::clamp(windowS, params_.minWindowS, params_.maxWindowS);
+    s.fixesInWindow = rate * s.windowS;
+    s.state = s.fixesInWindow >= params_.minFixesInWindow ? Status::State::Active : Status::State::TooFewFixes;
+    return s;
+}
+
+qint64 TrackSmoother::halfWindowNs(double windowS)
+{
+    return qint64(windowS * 0.5 * kNsPerS);
+}
+
+bool TrackSmoother::collectWindow(size_t next, qint64 timeNs, qint64 halfNs, bool flushing, std::vector<int>& window) const
 {
     // The window is complete once a fix lies past its end, or the times step back (a new session) -
     // until then the epoch waits, so that it is placed only once. raw_[next - 1] is the fix before the
     // epoch, or its own.
-    const qint64 halfNs = qint64(params_.posHalfWindowS * kNsPerS);
     window.clear();
     bool complete = flushing;
     for (size_t m = next; m < raw_.size(); ++m) {

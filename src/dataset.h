@@ -13,6 +13,7 @@
 #include <QVector3D>
 #include <QVariantMap>
 #include <QReadWriteLock>
+#include <atomic>
 
 #include "black_stripes_processor.h"
 #include "dataset_defs.h"
@@ -45,6 +46,11 @@ public:
     Q_PROPERTY(float angleToContact           READ getAngleToContact        NOTIFY lastPositionChanged)
     Q_PROPERTY(bool  isActiveContactIndxValid READ isValidActiveContactIndx NOTIFY activeContactChanged)
     Q_PROPERTY(bool  isBoatCoordinateValid    READ isValidBoatCoordinate    NOTIFY lastPositionChanged)
+    // How the track smoothing went for the epoch placed last (TrackSmoother::Status): state 0 off,
+    // 1 no rate yet, 2 too few fixes for the line, 3 active; the window, s; the fixes it holds.
+    Q_PROPERTY(int    trackSmoothingState READ getTrackSmoothingState NOTIFY trackSmoothingChanged)
+    Q_PROPERTY(double trackWindowS        READ getTrackWindowS        NOTIFY trackSmoothingChanged)
+    Q_PROPERTY(double trackFixesInWindow  READ getTrackFixesInWindow  NOTIFY trackSmoothingChanged)
     Q_PROPERTY(float isLastDepthValid         READ isValidLastDepth         NOTIFY lastDepthChanged)
     Q_PROPERTY(float depth                    READ getLastDepth             NOTIFY lastDepthChanged)
     Q_PROPERTY(float isSpeedValid             READ isValidSpeed             NOTIFY speedChanged)
@@ -396,9 +402,18 @@ public:
     bool isSpatialPreparing() const        { return spatialPreparing_;          };
     float getBoatLatitude() const          { return boatLatitute_;             };
     float getBoatLongitude() const         { return boatLongitude_;            };
-    // The newest raw GNSS fix: where the boat is now. positionAdded hands epochs on about a second
-    // later, once TrackSmoother has placed the pings around them. Invalid before the first fix.
+    // The newest raw GNSS fix: where the boat is now. positionAdded hands epochs on half a smoothing
+    // window later, once TrackSmoother has placed the pings around them. Invalid before the first fix.
     Position getLastRawPosition() const;
+
+    // Track smoothing on or off and the accuracy aimed at, for the epochs not yet final; reading a
+    // recording again (Core::setTrackSmoothing) applies it to all of them.
+    void setTrackSmoothing(bool enabled, double targetAccuracyM);
+    int    getTrackSmoothingState() const { return trackSmoothingState_.load(); }
+    double getTrackWindowS() const        { return trackWindowS_.load(); }
+    double getTrackFixesInWindow() const  { return trackFixesInWindow_.load(); }
+    // DataInterpolator, after placing epochs: what the settings page shows.
+    void publishTrackSmoothing(const TrackSmoother::Status& status);
     float getDistToContact() const         { return distToActiveContact_;      };
     float getAngleToContact() const        { return angleToActiveContact_;     };
     float getLastDepth() const             { return lastDepth_;                };
@@ -507,6 +522,7 @@ signals:
     void channelsUpdated();
     void redrawEpochs(const QSet<int>& indxs);
     void lastPositionChanged();
+    void trackSmoothingChanged();
     void activeContactChanged();
     void lastDepthChanged();
     void speedChanged();
@@ -615,6 +631,10 @@ private:
     int64_t activeContactIndx_  = -1;
     float boatLatitute_         = 0.0f;
     float boatLongitude_        = 0.0f;
+    // Written where fixes are added, read by QML: atomics.
+    std::atomic<int>    trackSmoothingState_ { int(TrackSmoother::Status::State::NoRate) };
+    std::atomic<double> trackWindowS_ { 0.0 };
+    std::atomic<double> trackFixesInWindow_ { 0.0 };
     float distToActiveContact_  = 0.0f;
     float angleToActiveContact_ = 0.0f;
     float lastDepth_            = 0.0f;

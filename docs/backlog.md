@@ -624,8 +624,11 @@ choice "heading from the device or from the track" is to be made explicit. To be
 - A check that needs no choice: while moving, compare device yaw with track course; if the
   device yaw stands still while the track turns, or disagrees by more than a crab-angle
   allowance for long, say so.
-- Switching recomputes the mosaic from the dataset, as the angle offsets do, so a recorded
-  file can be compared both ways.
+- Switching redraws what is already drawn, so a recorded file can be compared both ways. Not
+  as the angle offsets do (an earlier version of this entry said so, wrongly): they, and the
+  sonar offset, only reach the data that comes after. The track smoothing switch reads the open
+  recording again (`Core::reopenFilesKeepingView`, docs/track-interpolation.md); that path fits
+  here too.
 
 ### Open questions
 

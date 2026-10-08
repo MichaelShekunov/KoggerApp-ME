@@ -1019,6 +1019,28 @@ Position Dataset::getLastRawPosition() const
     return Position();
 }
 
+void Dataset::setTrackSmoothing(bool enabled, double targetAccuracyM)
+{
+    interpolator_.setSmoothing(enabled, targetAccuracyM);
+    publishTrackSmoothing(interpolator_.smoothingStatus());
+}
+
+void Dataset::publishTrackSmoothing(const TrackSmoother::Status& status)
+{
+    // Only a change that shows: the window follows the speed estimate in hundredths of a second.
+    const int state = int(status.state);
+    const bool changed = state != trackSmoothingState_.load()
+                         || std::abs(status.windowS - trackWindowS_.load()) >= 0.05
+                         || std::abs(status.fixesInWindow - trackFixesInWindow_.load()) >= 0.5;
+    if (!changed) {
+        return;
+    }
+    trackSmoothingState_.store(state);
+    trackWindowS_.store(status.windowS);
+    trackFixesInWindow_.store(status.fixesInWindow);
+    emit trackSmoothingChanged();
+}
+
 void Dataset::flushInterpolation()
 {
     interpolator_.flushPos();
@@ -1177,6 +1199,7 @@ void Dataset::resetRenderBuffers()
     boatSignalQualityPercent_ = 0;
     bridgeSignalQualityPercent_ = 0;
     interpolator_.clear();
+    publishTrackSmoothing(interpolator_.smoothingStatus());
     _llaRef = LLARef();
     llaRefState_ = LlaRefState::kUndefined;
     bSProc_->clear();

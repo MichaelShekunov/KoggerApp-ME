@@ -2,6 +2,7 @@
 #include "core.h"
 
 #include <QSettings>
+#include <algorithm>
 #include <cmath>
 #include <ctime>
 #include <cstring>
@@ -700,10 +701,17 @@ void Core::onFileOpenBreaked(bool onOpen)
 #else
 void Core::openLogFile(const QString& filePath, bool isAppend, bool onCustomEvent)
 {
+    // Reading the open recording again for the track smoothing, or any other open, which ends that.
+    const bool reprocess = std::exchange(nextOpenIsReprocess_, false);
+    if (!reprocess) {
+        reopenQueue_.clear();
+        setTrackReprocessing(false);
+    }
+
     isFileOpening_ = true;
     emit sendIsFileOpening();
 
-    QTimer::singleShot(15, this, [this, filePath, isAppend, onCustomEvent]() ->void { // 15 ms delay
+    QTimer::singleShot(15, this, [this, filePath, isAppend, onCustomEvent, reprocess]() ->void { // 15 ms delay
         QString localfilePath = filePath;
 
         if (onCustomEvent) {
@@ -776,6 +784,7 @@ void Core::openLogFile(const QString& filePath, bool isAppend, bool onCustomEven
                     scene3dViewPtr_->setIsOpeningFile(false);
                 }
 
+                afterFileOpened(reprocess);
                 return;
             }
         }
@@ -803,12 +812,14 @@ void Core::openLogFile(const QString& filePath, bool isAppend, bool onCustomEven
             emit fileOpenFailed(localfilePath);
         }
 
-        if (scene3dViewPtr_) {
+        if (scene3dViewPtr_ && !reprocess) {
             scene3dViewPtr_->fitAllInView();
         }
         datasetPtr_->setRefPositionByFirstValid();
 
         onChannelsUpdated();
+
+        afterFileOpened(reprocess);
     });
 }
 
@@ -882,6 +893,57 @@ void Core::onFileOpened()
     bringWindowToFront();
 }
 #endif
+
+void Core::setTrackSmoothing(bool enabled, int mode, bool reprocess)
+{
+    static constexpr double kTargetAccuracyM[] = { 0.12, 0.08, 0.06 };   // responsive, normal, smooth
+    datasetPtr_->setTrackSmoothing(enabled, kTargetAccuracyM[std::clamp(mode, 0, 2)]);
+
+    if (!reprocess) {
+        return;
+    }
+#ifdef SEPARATE_READING
+    return;   // that openLogFile has no hook to read a recording again: the change applies to new data
+#endif
+    if (isFileOpening_ || trackReprocessing_) {
+        reprocessPending_ = true;   // once what is being read is in
+        return;
+    }
+    reopenFilesKeepingView();
+}
+
+void Core::reopenFilesKeepingView()
+{
+    if (openedfilePath_.isEmpty() || appendedFiles_.isEmpty()) {
+        return;   // live data: the change applies to the epochs to come
+    }
+    reopenQueue_ = appendedFiles_;
+    setTrackReprocessing(true);
+    nextOpenIsReprocess_ = true;
+    openLogFile(reopenQueue_.takeFirst(), false, false);
+}
+
+void Core::afterFileOpened(bool reprocess)
+{
+    if (reprocess && !reopenQueue_.isEmpty()) {
+        nextOpenIsReprocess_ = true;
+        openLogFile(reopenQueue_.takeFirst(), true, false);
+        return;
+    }
+    setTrackReprocessing(false);
+    if (reprocessPending_) {
+        reprocessPending_ = false;
+        reopenFilesKeepingView();
+    }
+}
+
+void Core::setTrackReprocessing(bool state)
+{
+    if (trackReprocessing_ != state) {
+        trackReprocessing_ = state;
+        emit trackReprocessingChanged();
+    }
+}
 
 void Core::onRequestClearing()
 {
