@@ -34,3 +34,6 @@ docs/KoggerApp-Docs/
 docs/*.html
 # packaging output
 /dist/
+# build archives and installer logs dropped in the root (packages go to /dist/)
+/*.zip
+/*.log
