@@ -5094,12 +5094,14 @@ Column {
 
         DevIslandTitle { label: qsTr("Upgrade") }
 
-        // A ring sonar behind a recorder: the recorder keeps its sonar port at its own rate, and the
-        // bootloader needs 115200 -- no update through it (docs/RING_UPDATE.md).
+        // Behind a recorder (docs/RING_UPDATE.md): a board with no bus address is updated through it, moved to
+        // 115200 first; a ring board with an address is not -- its bootloader's answers would come under the port.
         Text {
-            visible: !!(dev && dev.isRingBehindRecorder)
+            visible: !!(dev && dev.isBehindRecorder)
             width: parent.width
-            text: qsTr("This sonar shares a line behind a recorder. To update it, connect the ring to a computer directly.")
+            text: dev && dev.isRecorderUpgradeSupported
+                  ? qsTr("Behind a recorder: the sonar is moved to 115200 first and the recorder follows it. Keep the power on until the update ends.")
+                  : qsTr("This sonar is behind a recorder on a bus address. To update it, connect it to a computer directly.")
             color: AppPalette.textMuted; font.pixelSize: Tokens.fontSm; wrapMode: Text.WordWrap
         }
 
@@ -5218,7 +5220,7 @@ Column {
         }
 
         DevStackedRow {
-            open: upgradePathInput.text !== "" && !(dev && dev.isRingBehindRecorder)
+            open: upgradePathInput.text !== "" && !(dev && dev.isBehindRecorder && !dev.isRecorderUpgradeSupported)
             DevButton {
                 width: parent.width; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
                 text: qsTr("UPGRADE")

@@ -5,6 +5,7 @@ target_sources(KoggerApp PRIVATE
     device_manager.h          device_manager.cpp
     device_manager_wrapper.h  device_manager_wrapper.cpp
     bus_address.h             bus_address.cpp
+    node_probe.h              node_probe.cpp
     device_topology_model.h   device_topology_model.cpp
     ring_upgrade.h            ring_upgrade.cpp
     ring_rate.h               ring_rate.cpp

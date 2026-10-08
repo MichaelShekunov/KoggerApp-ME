@@ -91,6 +91,8 @@ public:
     Q_PROPERTY(bool isUpgradeSupport READ isUpgradeSupport NOTIFY deviceVersionChanged)
     Q_PROPERTY(bool isRingBoard READ isRingBoard NOTIFY deviceVersionChanged)
     Q_PROPERTY(bool isRingBehindRecorder READ isRingBehindRecorder NOTIFY deviceVersionChanged)
+    Q_PROPERTY(bool isBehindRecorder READ isBehindRecorder NOTIFY deviceVersionChanged)
+    Q_PROPERTY(bool isRecorderUpgradeSupported READ isRecorderUpgradeSupported NOTIFY deviceVersionChanged)
     Q_PROPERTY(bool isBusAddressSettable READ isBusAddressSettable NOTIFY deviceVersionChanged)
     Q_PROPERTY(bool busAddressBusy READ busAddressBusy NOTIFY busAddressBusyChanged)
     Q_PROPERTY(bool ringRateBusy READ ringRateBusy NOTIFY ringRateBusyChanged)

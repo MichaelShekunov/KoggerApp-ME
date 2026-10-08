@@ -637,7 +637,6 @@ void Dataset::addAtt(float yaw, float pitch, float roll)
 
             tryResetDataset(pos.lla.latitude, pos.lla.longitude);
 
-            uint64_t lastIndx = 0;
             {
                 QWriteLocker wl(&poolMtx_);
 
@@ -659,12 +658,10 @@ void Dataset::addAtt(float yaw, float pitch, float roll)
                 speed_ = 0.0;
                 boatLatitute_ = pos.lla.latitude;
                 boatLongitude_ = pos.lla.longitude;
-                lastIndx = static_cast<uint64_t>(lastIndex);
             }
 
-            interpolator_.interpolatePos(false);
+            interpolator_.interpolatePos(false);   // emits positionAdded, as in addPosition
             emit speedChanged();
-            emit positionAdded(lastIndx);
             emit dataUpdate();
             emit lastPositionChanged();
         }
@@ -716,7 +713,6 @@ void Dataset::addPosition(double lat, double lon, uint32_t unix_time, int32_t na
 
         markDataAvailable(hasPositionData_);
 
-        uint64_t lastIndx = 0;
         bool needEmitSpeedChanged = false;
 
         {
@@ -792,17 +788,16 @@ void Dataset::addPosition(double lat, double lon, uint32_t unix_time, int32_t na
                     }
                 }
             }
-
-            lastIndx = static_cast<uint64_t>(lastIndex);
         }
 
+        // Emits positionAdded up to the last epoch whose position is final: with the windowed
+        // fit (TrackSmoother) about a second behind this fix. lastPositionChanged is this fix.
         interpolator_.interpolatePos(false);
 
         if (needEmitSpeedChanged) {
             emit speedChanged();
         }
 
-        emit positionAdded(lastIndx);
         emit dataUpdate();
         emit lastPositionChanged();
     }
@@ -1006,6 +1001,27 @@ void Dataset::mergeGnssTrack(QList<Position> track) {
         }
     }
     emit dataUpdate();
+}
+
+Position Dataset::getLastRawPosition() const
+{
+    // A fix goes into the newest epoch that has no position, so the newest raw fix is a few epochs
+    // from the end.
+    static constexpr int kMaxScan = 256;
+
+    QReadLocker rl(&poolMtx_);
+    for (int i = int(pool_.size()) - 1, scanned = 0; i >= 0 && scanned < kMaxScan; --i, ++scanned) {
+        const Epoch& ep = pool_.at(i);
+        if (ep.getPositionDataType() == DataType::kRaw) {
+            return ep.getPositionGNSSCRef();
+        }
+    }
+    return Position();
+}
+
+void Dataset::flushInterpolation()
+{
+    interpolator_.flushPos();
 }
 
 
@@ -2092,11 +2108,13 @@ void Dataset::onSonarPosCanCalc(uint64_t indx)
 
     for (uint64_t i = sonarPosIndx_ + 1; i <= chunkTarget; ++i) {
         if (auto* ep = fromIndex(i); ep) {
+            // The track position: for a ping that carries a raw fix, the line fitted through the
+            // fixes around it (TrackSmoother), the fix itself staying raw.
             if (sonarOffset_.isNull()) {
-                ep->setSonarPosition(ep->getPositionGNSS()); // interp been before
+                ep->setSonarPosition(ep->getTrackPosition()); // interp been before
             }
             else {
-                Position boatPos = ep->getPositionGNSS(); // interp been before
+                Position boatPos = ep->getTrackPosition(); // interp been before
                 const NED d = fruOffsetToNed(sonarOffset_, ep->tryRetValidYaw());
                 NED sonarNed(boatPos.ned.n + d.n, boatPos.ned.e + d.e, /*always zero*/0.0);
                 LLA sonarLla(&sonarNed, &_llaRef, /*spherical=*/true);

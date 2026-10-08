@@ -1131,3 +1131,107 @@ echogram was the boat without its sonars (with the ring aboard, 2026-10-03: both
 CHART_Z at 20/s). Swiped out of Recents, Qt's terminateQt() once hung and left a windowless process; KoggerActivity
 now ends it 3 s after a final onDestroy. Open: a 3.5 s GUI stall opening a 43 MB file (read on the GUI thread,
 upstream's default), USB-OTG.
+
+## A sonar behind a recorder: commands and update (2026-10-05)
+
+A lone Basic2D (firmware 1.14, no bus address) behind the RECORDER Mini: the echogram came, every setup group
+stayed "Not applied". Upward the recorder passes a ring board's own address as its route, but stamps a board with
+no address with its port number -- the device plaque follows the connector, "Port 1" / "Port 2". The
+`ID_NODE_CMD` wrapper (ced45807) named that port as the sonar's address, and the board ignored every command.
+Plain commands work (the owner, through `KOGGER_NODE_WRAP=0`).
+
+`NodeProbe` (`src/device/node_probe.*`, transport-free like `BusAddress`): once a ring sonar behind a recorder
+shows up, `GET ID_UART` v1 wrapped, then plain, with a drain after each wait; the answer picks the mode. The setup
+is held meanwhile and asked again afterwards; the probe runs again after a silence. `KOGGER_NODE_WRAP=0|1` forces
+a mode, `KOGGER_NODE_ADDR` the address named. Verified: `tools/nodeprobe_check` 30/30 against a model of the
+recorder and boards, two mutants caught (no CONTENT filter, no drain); on hardware "the board (address 0) answers
+plain" in 1.4 s on route 2, by itself again after the update below, and on route 1.
+
+Update through the recorder, for a sonar whose commands go plain (`isRecorderUpgradeSupported`): `SET ID_UART`
+v0 115200 so the recorder follows the line (it detects its ports' rates), the sonar must be heard again, then the
+stock update with the IDBins on route 0 -- the bootloader takes route 0, not 1 -- and the route back at the end.
+The host port's rate is pinned meanwhile (`linkRatePinRequested` -> `Link::setRatePinned`). A ring board with an
+address behind a recorder is refused: its bootloader's route-0 answers would come under the port. Verified by the
+owner, 2026-10-05 15:33, SN 993653903 on SONAR 2: heard at 115200 after 1.3 s, 7.5 s to "successfully flashed",
+the bootloader's `ID_UPDATE` answers as `KP2 [2]`. The first build waited for the sonar to report 115200 in
+`ID_UART` v0 and failed twice -- this firmware hardly answers that through the recorder; after those two tries
+the echogram stopped until a power cycle, cause unknown.
+
+Open: the recorder answers route 0 itself -- `KP1 [250] id 0x25` for every chunk, and it got `ID_BOOT` v1 too; it
+kept running. What its firmware does with those is unknown, so update while it is not recording and with one sonar
+behind it (route 0 reaches every port). No offline check for the update path. Not tried: the update via SONAR 1,
+a retry of a board left in its bootloader. `docs/RING_UPDATE.md` "Одиночная плата за логгером".
+
+## Chinese UI and the rest of Russian (2026-10-06)
+
+Simplified Chinese is language index 3 (`zh`, appended so saved indexes keep their meaning): all 2383 messages
+of `translations/translation_zh.ts`, machine-translated by Claude and **not read by a native speaker yet**.
+`translation_ru.ts` lacked 1122 messages; all are filled now -- 49 of them were lupdate's same-text guesses,
+which lrelease ships as they are, and 6 of those were wrong for their context (minutes shown as metres in the
+USBL panel, the Wi-Fi security "Open" as the verb, ...). `tools/ts_check/ts_check.ps1` fails on unfinished
+messages and on placeholder, tag, line-break or edge-whitespace drift; four mutants of the zh file caught.
+
+Han glyphs: on a Russian Windows Qt drew Chinese with MS UI Gothic plus SimSun for what it lacks;
+`preferSimplifiedChineseFont()` in `src/main.cpp` puts Microsoft YaHei UI / Noto Sans CJK SC first (measured
+by glyph runs: 45 + 17 glyphs in two fonts before, 62 in one after). Not checked: the APK on a phone in
+Chinese, the HeadUnit kiosk (likely needs a CJK font package). Details, the update procedure and a glossary
+for a reviewer: `docs/TRANSLATIONS.md`.
+
+`scripts/win_deploy_windows_release.bat` needs `windeployqt` on `PATH` (its header says so) but empties
+`out_x64` before it finds out: run without `D:\Qt\6.8.3\llvm-mingw_64\bin` on `PATH`, it left the folder
+empty (rebuilt at once). Proposed, not done: look the tool up before the `rmdir`.
+
+## Android APKs had no TLS (2026-10-07)
+
+The owner: maps do not load on the phone, though the app shows internet. The APKs of 2026-10-05/06 carried
+Qt's OpenSSL backend plugin but not OpenSSL itself: `CMakeLists.txt` takes it from
+`<ANDROID_SDK_ROOT>/android_openssl` and skipped it silently, and this PC's SDK had no such folder. Without
+it every https request fails on Android (OpenStreetMap and Baidu tiles, the tile manifest); the internet
+indicator is Android's network status (`QNetworkInformation`), not a request. Google Satellite goes over
+plain http. Which source the phone used, and whether the default "Limit downloads on metered networks"
+(on by default, `deferTilesOnMetered_`) was holding tiles back as well, was not established.
+
+Fixed in the build: KDAB `android_openssl` cloned into the SDK (b71f147, OpenSSL 3), `CMakeLists.txt` warns
+when it is missing and prints the two libraries when found, and `tools/android_check/apk_deps_check.ps1` now
+fails an APK whose OpenSSL backend has no `libssl_3.so`/`libcrypto_3.so` beside it (the 2026-10-06 APK fails
+on exactly those, both ABIs; the new one passes with 97 libraries per ABI).
+`out_android/KoggerApp-1.0.3-myedition-zh-ssl-universal-testsigned.apk` (same test key) went onto the owner's
+phone at 11:20 over the old one, and the owner reported Baidu tiles loading -- an https source, so TLS works
+on the phone (verified 2026-10-07). Whether the metered limit was switched off as well was not reported.
+`docs/build-android-cli.md` has the details.
+
+Asked for a "normal signed APK", the owner chose to keep the test key:
+`out_android/KoggerApp-1.0.3-myedition-20261007-111802.apk` is the same file as
+`...-zh-ssl-universal-testsigned.apk` (SHA-256 `a6083aa7...`) under a plain name. It is for the owner's own
+devices: a device that has it cannot move on to a release-signed build without uninstalling. The owner's rule
+since then: a build's file name ends with the build's date and time, `YYYYMMDD-HHMMSS` (when the build wrote
+the file). The scripts do it themselves: `win_build_android_release.ps1` (now also checks the libraries and,
+given `-Keystore`/`-KeyAlias`/`-KeyPassFile`, signs; `-SkipBuild` re-signs the last build),
+`win_package_release.ps1` (`...-portable-<stamp>.zip`, `...-setup-<stamp>.exe`, `build_info.txt` now has
+`built` and `packaged` apart), and both `win_deploy_*.bat`. Details and checks in `docs/build-android-cli.md`,
+"Signing".
+
+## Pings between GNSS fixes: a windowed fit (2026-10-08)
+
+Asked for by the session "GODIO автопилот интеграция KoggerApp" on the owner's behalf: the GODIO boat
+sends float32 coordinates (a 0.42 x 0.63 m grid), consecutive fixes are often equal, and pairwise
+interpolation put every ping between two equal fixes on one spot. `TrackSmoother` (`src/track_smoother.*`,
+transport-free; `DataInterpolator` adapts it to `Dataset`) places an epoch without a fix of its own on the
+least-squares line through the raw fixes within +-1 s -- only with two fixes or more on each side, the value
+held to their range, else pairwise as before -- and refines an interpolated heading on a +-0.5 s line,
+unwrapped (one raw heading on each side at least). An epoch that carries a raw fix keeps it (`kRaw`,
+`getPositionGNSS()`, used by export and log); the same line at its time goes beside it
+(`Epoch::setTrackPosition`/`getTrackPosition`), and the sonar position -- mosaic, bottom track, tiles,
+echogram cursor -- the relief cloud and the 3D boat track line are built from that. Raw values are never
+written; an epoch is placed once, when a fix more than 1 s later exists, so `positionAdded` -- and the 3D
+track line and the mosaic with it -- runs about a second behind the boat; the 3D boat arrow, the grid circle
+and the camera follow take the newest raw fix instead (`Dataset::lastPositionChanged` ->
+`GraphicsScene3dView::onLastPositionChanged`, `Dataset::getLastRawPosition`) -- they were on
+`positionAdded` and lagged a second in the builds of 12:24/13:05 and APKs `-123142`/`-131126`, fixed from
+13:21; waiting epochs carry the pairwise position meanwhile;
+`Dataset::flushInterpolation` (from `Core::onFileStopsOpening`) places a file's last second. Recordings with
+1 Hz positions (before the GODIO fix) never have 2+2 fixes in +-1 s and draw exactly as before. Also fixed:
+`interpolateAtt`/`interpolateArtificalAtt` overwrote the time of every epoch between two headings, a raw fix's
+included, when those had none. `tools/interp_check`: 40/40, fifteen mutants caught; ping position error
+2.0-2.5x lower than pairwise in the simulation with the 0.30 m GNSS noise the GODIO session calibrated on
+the lake recording. Not tried on the water. Details: `docs/track-interpolation.md`.

@@ -49,6 +49,9 @@ Epoch Epoch::deepCopyForMosaic() const
     copy._positionGNSS = _positionGNSS;
     copy._positionExternal = _positionExternal;
     copy.sonarPosition_ = sonarPosition_;
+    copy.trackLla_ = trackLla_;
+    copy.trackNed_ = trackNed_;
+    copy.trackPosAvail_ = trackPosAvail_;
     copy.m_temp_c = m_temp_c;
     copy.contact_ = contact_;
     copy.flags.encoderAvail = flags.encoderAvail;
@@ -188,6 +191,25 @@ void Epoch::setSonarPosition(Position val)
     flags.sonarPosAvail = true;
 }
 
+void Epoch::setTrackPosition(const LLA& lla, const NED& ned)
+{
+    trackLla_ = lla;
+    trackNed_ = ned;
+    trackPosAvail_ = true;
+}
+
+Position Epoch::getTrackPosition() const
+{
+    Position p = _positionGNSS;
+    if (trackPosAvail_) {
+        p.lla = trackLla_;
+        p.ned.n = trackNed_.n;
+        p.ned.e = trackNed_.e;
+        p.ned.d = trackNed_.d;
+    }
+    return p;
+}
+
 void Epoch::setPositionLLA(const LLA &lla)
 {
     _positionGNSS.lla = lla;
@@ -205,6 +227,12 @@ void Epoch::setExternalPosition(Position position) {
 void Epoch::setPositionRef(LLARef* ref) {
     if (ref != nullptr && ref->isInit) {
         _positionGNSS.LLA2NED(ref);
+        if (trackPosAvail_) {
+            const NED ned(&trackLla_, ref);
+            trackNed_.n = ned.n;
+            trackNed_.e = ned.e;
+            trackNed_.d = ned.d;
+        }
     }
 }
 

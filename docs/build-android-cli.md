@@ -17,6 +17,7 @@ Provisioned and verified on 2026-10-02 against `myedition` at `ceef7929`
 | JDK | Temurin 17.0.20.1+1 | `D:\Android\jdk\jdk-17.0.20.1+1` |
 | Android SDK | cmdline-tools 11076708, platform-tools, platforms 34 and 35, build-tools 34.0.0 | `D:\Android\Sdk` |
 | NDK | 27.3.13750724 (2.3 GB unpacked) | `D:\Android\Sdk\ndk\27.3.13750724` |
+| OpenSSL for Android | KDAB `android_openssl` b71f147 (2026-01-26), OpenSSL 3, 209 MB | `D:\Android\Sdk\android_openssl` |
 | CMake | 4.3.1 | on PATH |
 | Ninja | 1.13.2 | on PATH |
 
@@ -87,6 +88,25 @@ sdkmanager.bat --sdk_root=D:\Android\Sdk platform-tools platforms;android-34 pla
 ```
 
 where `yes.txt` is a file of `y` lines.
+
+Then OpenSSL, which `sdkmanager` does not install:
+
+```
+git clone --depth 1 https://github.com/KDAB/android_openssl.git D:\Android\Sdk\android_openssl
+```
+
+**Without it the APK has no TLS, and nothing fails at build time.** Qt brings no TLS of its own to
+Android: its OpenSSL backend plugin is in the APK either way and loads `libssl_3.so`/`libcrypto_3.so` at
+run time. `CMakeLists.txt` adds them from `<ANDROID_SDK_ROOT>/android_openssl`; until 2026-10-07 it skipped
+them silently when the folder was missing, and the APKs of 2026-10-05/06 went out without them. Every https
+request then fails while the network status, which comes from Android, says online. The owner reported
+on 2026-10-07 that maps did not load on the phone though the app showed internet (which tile source was
+chosen, and whether the default "Limit downloads on metered networks" was holding them back too, was not
+established). By the code, OpenStreetMap and the Baidu sources go over https and cannot load without
+OpenSSL. Google Satellite goes over plain http (checked: `khm0.google.com` answers 200 with a JPEG, no
+redirect). Now a missing folder is a CMake warning, and a found one prints
+`-- Android OpenSSL: <the two libraries>`. The rebuilt APK with OpenSSL 3 inside: the owner's phone loaded
+Baidu tiles over https the same day.
 
 **The licence trap.** Feeding those `y` answers through a pipe
 (`"y`n" * 60 | sdkmanager --licenses`, or `echo y | ...`) does not work from
@@ -194,6 +214,17 @@ fork's own files were written without it in mind. All three are now fixed:
   include the vendored `"qserialport.h"` under `#if defined(Q_OS_ANDROID)`.
   The USB tap is a fork addition, which is why it never met Android before.
 
+## A second build PC (2026-10-05)
+
+The same toolchain was provisioned on a second PC from scratch, by these steps and the same versions (Temurin
+17.0.20.1+1, NDK 27.3.13750724, both Qt Android kits). The first Gradle run there took 12 minutes (Gradle 8.10
+and the Android Gradle Plugin's dependencies downloaded); the APK passed `apk_deps_check` (95 libraries per ABI).
+
+That PC has its own throwaway key, `D:\Android\keys\myedition-test.keystore` (alias `myedition-test`, the
+password in `myedition-test.password.txt` beside it; outside the repository and the synced folder). A device
+keeps accepting updates only from the key it was installed with: the phone installed on 2026-10-05 takes
+packages signed there, the tablet those signed with the first PC's key. Copy one key to both PCs to have one.
+
 ## Signing
 
 The build produces an **unsigned** release APK, and Android installs nothing
@@ -208,12 +239,35 @@ For a build that is only going on a test tablet, a throwaway key is enough:
 
 ```
 keytool -genkeypair -keystore test.keystore -alias test -keyalg RSA -keysize 2048 -validity 3650
-apksigner sign --ks test.keystore --out KoggerApp-<version>-universal-testsigned.apk <unsigned>.apk
-apksigner verify --verbose KoggerApp-<version>-universal-testsigned.apk
 ```
 
-`apksigner` signs with scheme v3 only, which Android 9 (API 28, our minimum)
-understands, so the result installs on every device the app supports. A tablet
+`win_build_android_release.ps1` then signs as well (since 2026-10-07), after it has run
+`apk_deps_check` on the package:
+
+```
+scripts\win_build_android_release.ps1 -AppIdSuffix .myedition -Keystore D:\Android\keys\myedition-test.keystore -KeyAlias myedition-test -KeyPassFile D:\Android\keys\myedition-test.password.txt
+scripts\win_build_android_release.ps1 -SkipBuild -Keystore ... -KeyAlias ... -KeyPassFile ...   # sign the last build again
+```
+
+The signed APK goes to `out_android\KoggerApp-<versionName>[-<suffix>]-<YYYYMMDD-HHMMSS>.apk`: name and
+version come from the package itself (`aapt2 dump badging`), the stamp is when the build wrote the APK
+(the owner's rule: every build says 1.0.3). Without the three key arguments a copy of the unsigned APK goes
+to `out_android\unsigned\KoggerApp-...-unsigned-<stamp>.apk`. An existing file is never overwritten.
+Checked 2026-10-07: `-SkipBuild` with the test key gives a byte-identical copy of the APK signed by hand
+(SHA-256 `a6083aa7...`); a full build named its APK `...-20261007-115216.apk`; a repeat run and a key given
+without its alias are refused. The password file is read by `apksigner` only (`--ks-pass file:`), never
+printed. The Windows packages follow the same rule: `win_package_release.ps1` names them
+`KoggerApp-<version>-myedition-<commit>[-dirty]-portable|setup-<stamp>` after the time of `KoggerApp.exe`,
+and `win_deploy_windows_release.bat` / `win_deploy_android_release.bat` stamp their archive and APK the same way.
+
+`apksigner` signs with schemes v2 and v3 by default (v1 only when minSdk is
+below 24; `--v1-signing-enabled true` adds it), and every device the app supports
+takes that. Mind the check: `apksigner verify --verbose` verifies only what the
+APK's own minSdk (28) needs and prints v1 and v2 as `false` even when they are
+there; `--min-sdk-version 24` shows v2 too. A package with no signature at all
+(the `-unsigned` output) is refused by every installer, and a phone's own
+installer says so as a parse error — a Xiaomi one on 2026-10-06: "problem
+parsing the package (33), packageInfo is null". A tablet
 that already carries a release-signed KoggerApp will refuse the test-signed one
 over the top — the signatures differ; uninstall first. Never ship a test-signed
 APK: a device cannot upgrade from it to a release build either.

@@ -3,11 +3,100 @@
 #include "dataset.h"
 
 
+namespace {
+
+// The dataset's epochs as TrackSmoother sees them.
+class DatasetEpochs final : public TrackSmoother::Store
+{
+public:
+    explicit DatasetEpochs(Dataset* dataset) : dataset_(dataset) {}
+
+    int count() const override { return dataset_->size(); }
+
+    bool hasRawFix(int i) const override
+    {
+        Epoch* ep = at(i);
+        return ep && ep->getPositionDataType() == DataType::kRaw && ep->getPositionGNSS().lla.isCoordinatesValid();
+    }
+
+    TrackSmoother::Fix rawFix(int i) const override
+    {
+        const Position p = at(i)->getPositionGNSS();
+        TrackSmoother::Fix f;
+        f.lat = p.lla.latitude;
+        f.lon = p.lla.longitude;
+        f.alt = p.lla.altitude;
+        f.n = p.ned.n;
+        f.e = p.ned.e;
+        f.d = p.ned.d;
+        return f;
+    }
+
+    qint64 timeNs(int i) const override
+    {
+        const Position p = at(i)->getPositionGNSS();
+        return qint64(p.time.sec) * kNsPerS + p.time.nanoSec;
+    }
+
+    void setTimeNs(int i, qint64 ns) override
+    {
+        Epoch* ep = at(i);
+        ep->setGNSSSec(time_t(ns / kNsPerS));
+        ep->setGNSSNanoSec(int(ns % kNsPerS));
+    }
+
+    void setPlacedFix(int i, const TrackSmoother::Fix& f) override
+    {
+        Epoch* ep = at(i);
+        ep->setPositionLLA(toLla(f));
+        ep->setPositionNED(toNed(f));
+        ep->setPositionDataType(DataType::kInterpolated);
+    }
+
+    void setTrackFix(int i, const TrackSmoother::Fix& f) override
+    {
+        at(i)->setTrackPosition(toLla(f), toNed(f));
+    }
+
+    bool hasRawYaw(int i) const override
+    {
+        Epoch* ep = at(i);
+        return ep && ep->getAttDataType() == DataType::kRaw && std::isfinite(ep->yaw());
+    }
+
+    bool hasInterpolatedYaw(int i) const override
+    {
+        Epoch* ep = at(i);
+        return ep && ep->getAttDataType() == DataType::kInterpolated && std::isfinite(ep->yaw());
+    }
+
+    float yawDeg(int i) const override { return at(i)->yaw(); }
+
+    void setInterpolatedYaw(int i, float deg) override
+    {
+        Epoch* ep = at(i);
+        ep->setAtt(deg, ep->pitch(), ep->roll(), DataType::kInterpolated);
+    }
+
+private:
+    static constexpr qint64 kNsPerS = 1000000000LL;
+
+    // Dataset::fromIndex() answers an index past the end with the last epoch, not nullptr.
+    Epoch* at(int i) const { return (i >= 0 && i < dataset_->size()) ? dataset_->fromIndex(i) : nullptr; }
+
+    static LLA toLla(const TrackSmoother::Fix& f) { return LLA(f.lat, f.lon, f.alt); }
+    static NED toNed(const TrackSmoother::Fix& f) { return NED(f.n, f.e, f.d); }
+
+    Dataset* dataset_;
+};
+
+}
+
+
 DataInterpolator::DataInterpolator(Dataset *datasetPtr) :
     datasetPtr_(datasetPtr),
     lastAttInterpIndx_(0),
-    lastArtificalAttInterpIndx_(0),
-    lastPosInterpIndx_(0)
+    lastArtificalAttInterpIndx_(0)
 {}
 
 void DataInterpolator::interpolatePos(bool fromStart)
@@ -15,106 +104,35 @@ void DataInterpolator::interpolatePos(bool fromStart)
     if (!datasetPtr_) {
         return;
     }
+    if (fromStart) {
+        smoother_.clear();
+    }
 
-    int startEpochIndx = fromStart ? 0 : lastPosInterpIndx_;
-    int endEpochIndx = datasetPtr_->size();
+    const int finalBefore = smoother_.finalCount();
+    DatasetEpochs epochs(datasetPtr_);
+    smoother_.advance(epochs);
+    announcePositions(finalBefore);
+}
 
-    if ((endEpochIndx - startEpochIndx) < 1) {
+void DataInterpolator::flushPos()
+{
+    if (!datasetPtr_) {
         return;
     }
 
-    int firstValidIndex = startEpochIndx;
-    //qDebug() << "firstValidIndex" << firstValidIndex;
-    bool beenInterp = false;
+    const int finalBefore = smoother_.finalCount();
+    DatasetEpochs epochs(datasetPtr_);
+    smoother_.flush(epochs);
+    announcePositions(finalBefore);
+}
 
-    while (firstValidIndex < endEpochIndx) {
-        while (firstValidIndex < endEpochIndx) {
-            if (auto* ep = datasetPtr_->fromIndex(firstValidIndex); ep) {
-                if (ep->getPositionDataType() == DataType::kRaw) {
-                    break;
-                }
-                ++firstValidIndex;
-            }
-        }
-
-        int secondValidIndex = firstValidIndex + 1;
-        while (secondValidIndex < endEpochIndx) {
-            if (auto* ep = datasetPtr_->fromIndex(secondValidIndex); ep) {
-                if (ep->getPositionDataType() == DataType::kRaw) {
-                    break;
-                }
-                ++secondValidIndex;
-            }
-        }
-
-        if (secondValidIndex > endEpochIndx) {
-            break;
-        }
-
-        int numInterpIndx = secondValidIndex - firstValidIndex;
-        if (numInterpIndx < 1) {
-            firstValidIndex = secondValidIndex;
-            continue;
-        }
-
-        auto* startEpoch = datasetPtr_->fromIndex(firstValidIndex);
-        auto* endEpoch   = datasetPtr_->fromIndex(secondValidIndex);
-        if (!startEpoch || !endEpoch) {
-            continue;
-        }
-
-        auto startPos = startEpoch->getPositionGNSS();
-        auto endPos = endEpoch->getPositionGNSS();
-
-        const int numSteps = secondValidIndex - firstValidIndex;
-
-        const quint64 startTimeNs = convertToNanosecs(startPos.time.sec, startPos.time.nanoSec);
-        const quint64 endTimeNs   = convertToNanosecs(endPos.time.sec,   endPos.time.nanoSec);
-        const bool haveTimes = (startTimeNs != 0 || endTimeNs != 0) && (endTimeNs > startTimeNs);
-        const quint64 timeDiffNs = haveTimes ? (endTimeNs - startTimeNs) : zeroNsecs;
-
-        const quint64 stepNs = haveTimes ? (timeDiffNs / numSteps) : oneHundredNsecs;
-
-        int cnt = 1;
-        for (int j = firstValidIndex + 1; j < secondValidIndex; ++j, ++cnt) {
-            if (auto* ep = datasetPtr_->fromIndex(j)) {
-                // quint64 currentNs = haveTimes ? (convertToNanosecs(ep->getPositionGNSS().time.sec, ep->getPositionGNSS().time.nanoSec)) : (startTimeNs + stepNs * cnt);
-                // if (!haveTimes) {
-                //     const auto t = convertFromNanosecs(currentNs);
-                //     ep->setGNSSSec(t.first);
-                //     ep->setGNSSNanoSec(t.second);
-                // }
-                quint64 currentNs = (startTimeNs + stepNs * cnt); // такое только в позиции
-                const auto t = convertFromNanosecs(currentNs);
-                ep->setGNSSSec(t.first);
-                ep->setGNSSNanoSec(t.second);
-
-                double progress = haveTimes ? double(currentNs - startTimeNs) / double(timeDiffNs) : double(cnt) / double(numSteps);
-                if (!haveTimes || currentNs <= startTimeNs || currentNs >= endTimeNs) {
-                    progress = double(cnt) / double(numSteps);
-                }
-                progress = qBound(0.0, progress, 1.0);
-
-                const auto resNed = interpNED(startPos.ned, endPos.ned, float(progress));
-                const auto resLla = interpLLA(startPos.lla, endPos.lla, float(progress));
-
-                ep->setPositionNED(resNed);
-                ep->setPositionLLA(resLla);
-                ep->setPositionDataType(DataType::kInterpolated);
-                emit datasetPtr_->positionAdded(j);
-                lastPosInterpIndx_ = j;
-                beenInterp = true;
-            }
-        }
-
-        firstValidIndex = secondValidIndex;
-    }
-
-    if (beenInterp) {
-        //emit datasetPtr_->interpPos(endEpochIndx);
-    }
-    else {
-        lastPosInterpIndx_ = firstValidIndex - 1;
+void DataInterpolator::announcePositions(int finalBefore)
+{
+    // Downstream (DataHorizon: the sonar position, the mosaic, the boat track) takes every epoch up
+    // to the index it is given as final, and takes an index below the last one for a new session.
+    const int finalNow = smoother_.finalCount();
+    if (finalNow > finalBefore && finalNow > 0) {
+        emit datasetPtr_->positionAdded(uint64_t(finalNow - 1));
     }
 }
 
@@ -199,7 +217,9 @@ void DataInterpolator::interpolateAtt(bool fromStart)
 
                 quint64 currentNs = haveTimes ? convertToNanosecs(ep->getPositionGNSS().time.sec, ep->getPositionGNSS().time.nanoSec) : (startTimeNs + stepNs * cnt);
 
-                if (!haveTimes) {
+                // Only an epoch with no time yet: one with a fix, or placed between two (TrackSmoother),
+                // has its own, and the track is fitted against the fixes' times.
+                if (!haveTimes && ep->getPositionGNSS().time.sec == 0 && ep->getPositionGNSS().time.nanoSec == 0) {
                     const auto t = convertFromNanosecs(currentNs);
                     ep->setGNSSSec(t.first);
                     ep->setGNSSNanoSec(t.second);
@@ -315,7 +335,8 @@ void DataInterpolator::interpolateArtificalAtt(bool fromStart)
 
                 quint64 currentNs = haveTimes ? convertToNanosecs(ep->getPositionGNSS().time.sec, ep->getPositionGNSS().time.nanoSec) : (startTimeNs + stepNs * cnt);
 
-                if (!haveTimes) {
+                // As in interpolateAtt: never over a time an epoch already has.
+                if (!haveTimes && ep->getPositionGNSS().time.sec == 0 && ep->getPositionGNSS().time.nanoSec == 0) {
                     const auto t = convertFromNanosecs(currentNs);
                     ep->setGNSSSec(t.first);
                     ep->setGNSSNanoSec(t.second);
@@ -354,7 +375,7 @@ void DataInterpolator::clear()
 {
     lastAttInterpIndx_= 0;
     lastArtificalAttInterpIndx_ = 0;
-    lastPosInterpIndx_ = 0;
+    smoother_.clear();
 }
 
 float DataInterpolator::interpAttParam(float start, float end, float progress) const
@@ -376,24 +397,6 @@ float DataInterpolator::interpAttParam(float start, float end, float progress) c
     }
 
     return interpolated;
-}
-
-NED DataInterpolator::interpNED(const NED &start, const NED &end, float progress) const
-{
-    NED result;
-    result.n = (1.0 - progress) * start.n + progress * end.n;
-    result.e = (1.0 - progress) * start.e + progress * end.e;
-    result.d = (1.0 - progress) * start.d + progress * end.d;
-    return result;
-}
-
-LLA DataInterpolator::interpLLA(const LLA &start, const LLA &end, float progress) const
-{
-    LLA result;
-    result.latitude  = (1.0 - progress) * start.latitude  + progress * end.latitude;
-    result.longitude = (1.0 - progress) * start.longitude + progress * end.longitude;
-    result.altitude  = (1.0 - progress) * start.altitude  + progress * end.altitude;
-    return result;
 }
 
 float DataInterpolator::interpDist(float start, float end, float progress) const

@@ -3513,15 +3513,28 @@ void GraphicsScene3dView::onPositionAdded(uint64_t indx)
         return;
     }
 
-    const Position boatPos = epPtr->getPositionGNSS();
+    if (!epPtr->getPositionGNSS().ned.isCoordinatesValid()) {
+        return;
+    }
+
+    // The track takes the epochs handed on as final, about a second behind the boat (TrackSmoother);
+    // the boat itself follows the newest fix, onLastPositionChanged().
+    boatTrack_->onPositionAdded(indx);
+}
+
+void GraphicsScene3dView::onLastPositionChanged()
+{
+    if (!datasetPtr_) {
+        return;
+    }
+
+    const Position boatPos = datasetPtr_->getLastRawPosition();
     if (!boatPos.ned.isCoordinatesValid()) {
         return;
     }
 
     positionsLive_ = true;
     positionsLiveTimer_->start();
-
-    boatTrack_->onPositionAdded(indx); // сюда лодка
 
     // Yaw
     float lastYaw = datasetPtr_->getLastYaw();

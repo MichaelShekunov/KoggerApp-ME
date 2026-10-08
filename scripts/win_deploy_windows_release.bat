@@ -23,7 +23,6 @@ set qmlPath=qml
 set outPath=out_x64
 set /p version=<resources\version.txt
 if not defined version set "version=unknown"
-set zip_file=out_x64\KoggerApp-%version%-windows-x86_64-portable.zip
 echo version: %version%
 
 echo executable file path: "%binPath%"
@@ -38,6 +37,13 @@ if not exist "%binPath%" (
     pause
     exit /b 1
 )
+
+REM The archive name ends with when the build wrote KoggerApp.exe: every build says the same version.
+set "stamp="
+for /f "usebackq delims=" %%T in (`powershell -NoProfile -Command "(Get-Item -LiteralPath '%binPath%').LastWriteTime.ToString('yyyyMMdd-HHmmss')"`) do set "stamp=%%T"
+if not defined stamp set "stamp=unknown-time"
+set zip_file=out_x64\KoggerApp-%version%-windows-x86_64-portable-%stamp%.zip
+echo built at: %stamp%
 
 REM 4. remove old ouput directory if exist
 if exist "%outPath%" (

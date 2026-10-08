@@ -384,6 +384,8 @@ public Q_SLOTS:
 
     // from DataHorizon
     void onPositionAdded(uint64_t indx);
+    // from Dataset: a raw fix came - the boat, the plane grid circle and the camera follow it
+    void onLastPositionChanged();
     void setIsNorth(bool state);
     void setIsUpdateMosaic(bool state);
     void setIsUpdateSurface(bool state);

@@ -12,6 +12,7 @@
 #include "id_binnary.h"
 #include "wifi_ops.h"
 #include "device_liveness.h"
+#include "node_probe.h"
 
 
 using namespace Parsers;
@@ -111,6 +112,13 @@ public:
         return boardVersion() == BoardBasic2D && viaRecorder_ && lastAddress_ >= 1 && lastAddress_ <= 15
                && (fw > 1 || (fw == 1 && fwMinor >= 14));
     }
+    /// Any device behind a recorder (its frames come as KP2), ring or not, except the recorder itself and a
+    /// Wi-Fi module. Its firmware cannot be updated through the recorder, for the reason above.
+    bool isBehindRecorder() { return viaRecorder_ && !isRecorder() && !isWifi(); }
+    /// A device behind a recorder whose commands go plain on the route the app sees -- a board with no bus
+    /// address, which the recorder stamps with its port. It is updated through the recorder: moved to 115200
+    /// first, then the stock update with the bootloader on route 0 (docs/RING_UPDATE.md).
+    bool isRecorderUpgradeSupported() { return isBehindRecorder() && !(isRingBehindRecorder() && commandsGoWrapped()); }
     /// Version the image is expected to report ("1.12"), taken from the file name; empty = not checked.
     void setUpgradeExpect(const QString& version) { upgradeExpect_ = version; }
     /// Every ring board on this device's line, the last one first.
@@ -487,6 +495,8 @@ signals:
     void upgradingFirmwareDone();
     // deviceManager
     void startUpgradingFirmwareDM(QUuid linkUuid, uint8_t address, QByteArray firmware);
+    /// The host port's rate must not be searched or changed (an update through a recorder).
+    void linkRatePinRequested(bool pinned);
     void upgradingFirmwareDoneDM();
     void ringUpgradeRequested(QUuid linkUuid, int address, QByteArray firmware, QString expect, bool everyBoard);
     void busAddressRequested(QUuid linkUuid, int fromAddress, int toAddress);
@@ -797,6 +807,33 @@ protected:
     bool ringRateBusy_ = false;
     bool viaRecorder_ = false;   ///< frames came as KP2: the device sits behind a recorder
     void onIdFrameOut(Parsers::ProtoBinOut out);   ///< a command leaving; wrapped for a ring sonar behind a recorder
+    NodeProbe* nodeProbe_ = nullptr;               ///< how a ring sonar behind a recorder takes commands
+    NodeProbe::Mode nodeMode_ = NodeProbe::Mode::Unknown;
+    bool nodeProbeDone_ = false;
+    void startNodeProbeIfDue();
+    bool nodeProbeRunning() const;
+    bool commandsGoWrapped() const;
+    uint8_t nodeAddress() const;                   ///< the address the wrapper names
+
+    enum class RecorderUpgrade { Idle, SlowLine };
+    RecorderUpgrade recorderUpgrade_ = RecorderUpgrade::Idle;   ///< SlowLine: waiting for the sonar at 115200
+    QByteArray recorderUpgradeImage_;
+    int64_t recorderUpgradeAskAt_ = 0, recorderUpgradeUntil_ = 0;
+    bool recorderUpgradeAsked_ = false;            ///< the settle time is over: a frame of the sonar now counts
+    bool recorderRoute0_ = false;                  ///< the bootloader is talked to on route 0
+    static constexpr int kBootloaderRate = 115200;
+    static constexpr int64_t kRecorderSettleMs = 500;    ///< the sonar moves, the recorder starts following
+    static constexpr int64_t kRecorderAskMs = 700;
+    static constexpr int64_t kRecorderFollowMs = 8000;   ///< the recorder's time to follow the line
+    static constexpr int kRecorderUnpinMs = 10000;
+    void recorderLog(const QString& line);
+    void beginRecorderUpgrade(const QByteArray& image);
+    void stepRecorderUpgrade(int64_t now);
+    void onRecorderUpgradeHeard();
+    void failRecorderUpgrade(const QString& reason);
+    void startStockUpgrade(const QByteArray& update_data);
+    void setIdRoute(uint8_t route);
+    void endRecorderRoute();
     int64_t _lastUpgradeAnswerTime = 0;
     int64_t _timeoutUpgradeAnswerTime = 0;
     int64_t upgradeStartedTime_ = 0;

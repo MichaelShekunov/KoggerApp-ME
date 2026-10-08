@@ -1,7 +1,7 @@
 @echo off
 setlocal enabledelayedexpansion
 
-REM Copy the signed release APK to out_android\KoggerApp-<versionName>-universal.apk
+REM Copy the signed release APK to out_android\KoggerApp-<versionName>-universal-<YYYYMMDD-HHMMSS>.apk
 REM Refuses to copy if the APK is missing or its signature does not verify.
 
 REM 1. Go to repo root
@@ -45,9 +45,13 @@ if not defined apksigner (
     echo Signature OK.
 )
 
-REM 5. Copy to out_android with the versioned name
+REM 5. Copy to out_android with the versioned name; it ends with when the build wrote the APK,
+REM    because every build says the same version.
+set "stamp="
+for /f "usebackq delims=" %%T in (`powershell -NoProfile -Command "(Get-Item -LiteralPath '%apk%').LastWriteTime.ToString('yyyyMMdd-HHmmss')"`) do set "stamp=%%T"
+if not defined stamp set "stamp=unknown-time"
 if not exist "%outDir%" mkdir "%outDir%"
-set "dest=%outDir%\KoggerApp-%version%-universal.apk"
+set "dest=%outDir%\KoggerApp-%version%-universal-%stamp%.apk"
 copy /y "%apk%" "%dest%" >nul
 if errorlevel 1 (
     echo [ERROR] Copy failed.

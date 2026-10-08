@@ -95,6 +95,7 @@ qt_add_executable(KoggerApp
     src/dataset.h                  src/dataset.cpp
     src/dataset_defs.h
     src/data_interpolator.h        src/data_interpolator.cpp
+    src/track_smoother.h           src/track_smoother.cpp
     src/data_horizon.h             src/data_horizon.cpp
     src/dsp_defs.h
     src/epoch.h                    src/epoch.cpp
@@ -216,6 +217,7 @@ qt_add_translations(KoggerApp
         translations/translation_en.ts
         translations/translation_ru.ts
         translations/translation_pl.ts
+        translations/translation_zh.ts
     RESOURCE_PREFIX "/translations")
 
 # ── Desktop-only sources ─────────────────────────────────────────────────
@@ -242,6 +244,12 @@ if(ANDROID)
     if(EXISTS "${ANDROID_SDK_ROOT}/android_openssl/android_openssl.cmake")
         include("${ANDROID_SDK_ROOT}/android_openssl/android_openssl.cmake")
         add_android_openssl_libraries(KoggerApp)
+        message(STATUS "Android OpenSSL: ${_OPENSSL_EXTRA_LIBS_PATHS}")
+    else()
+        # Qt on Android has no TLS of its own: without these libraries every https request fails
+        # (OpenStreetMap and Baidu tiles, the tile manifest) while the network status looks fine.
+        message(WARNING "android_openssl is not in ${ANDROID_SDK_ROOT}: this APK will have no TLS, "
+                        "https requests will fail. Clone https://github.com/KDAB/android_openssl there.")
     endif()
     add_subdirectory(platform/android/src)
 elseif(WIN32)

@@ -13,6 +13,11 @@
   NDK's llvm-readelf. A dependency is satisfied when the same ABI directory of the
   APK carries it, or when the NDK sysroot has it for that ABI at the minimum API
   level - that is, Android itself provides it. Anything else is reported.
+
+  Libraries loaded with dlopen have no NEEDED entry, so one rule covers the case
+  that hit on 2026-10-07: Qt's OpenSSL backend plugin is packaged either way and
+  loads libssl_3.so and libcrypto_3.so at run time. Without them every https
+  request fails (docs/build-android-cli.md), so they must sit next to it.
   Exit code 0 when nothing is missing, 1 otherwise.
 
 .EXAMPLE
@@ -93,6 +98,15 @@ try {
                         if (-not $missing.ContainsKey($dep)) { $missing[$dep] = New-Object System.Collections.Generic.List[string] }
                         $missing[$dep].Add($f.Name)
                     }
+                }
+            }
+        }
+
+        if (@($present.Keys | Where-Object { $_ -like 'libplugins_tls_qopensslbackend*' }).Count -gt 0) {
+            foreach ($lib in 'libssl_3.so', 'libcrypto_3.so') {
+                if (-not $present.ContainsKey($lib)) {
+                    if (-not $missing.ContainsKey($lib)) { $missing[$lib] = New-Object System.Collections.Generic.List[string] }
+                    $missing[$lib].Add('libplugins_tls_qopensslbackend (dlopen at run time)')
                 }
             }
         }

@@ -224,6 +224,11 @@ public:
     void setPositionLLA(double lat, double lon, LLARef* ref = nullptr, uint32_t unix_time = 0, int32_t nanosec = 0);
     void setPositionLLA(Position position);
     void setSonarPosition(Position val);
+    // For an epoch with a raw fix: the track fitted through the fixes around it, at the fix's time
+    // (TrackSmoother) - where the epoch's sonar is drawn. The raw fix stays in getPositionGNSS().
+    void setTrackPosition(const LLA& lla, const NED& ned);
+    // The track position when the epoch has one, otherwise getPositionGNSS().
+    Position getTrackPosition() const;
     void setPositionLLA(const LLA& lla);
     void setPositionNED(const NED& ned);
     void setExternalPosition(Position position);
@@ -498,6 +503,7 @@ public:
     double lon() { return _positionGNSS.lla.longitude; }
 
     Position getPositionGNSS() { return _positionGNSS; }
+    const Position& getPositionGNSSCRef() const { return _positionGNSS; }
     Position getExternalPosition() { return _positionExternal; }
     Position getSonarPosition() { return sonarPosition_; }
     const Position& getSonarPositionCRef() const { return sonarPosition_; }
@@ -707,6 +713,9 @@ protected:
     Position _positionGNSS;
     Position _positionExternal;
     Position sonarPosition_;
+    LLA trackLla_;               // setTrackPosition()
+    NED trackNed_;
+    bool trackPosAvail_ = false;
 
     struct {
         double hspeed = NAN;

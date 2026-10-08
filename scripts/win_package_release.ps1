@@ -12,7 +12,8 @@
     The version stamped on the artifacts is resources\version.txt plus the
     short commit the build came from, so a downloaded file can always be traced
     back to a commit. A dirty working tree is marked as such in the name,
-    because then the commit does not describe what was built.
+    because then the commit does not describe what was built. The names end
+    with the time the build wrote KoggerApp.exe, YYYYMMDD-HHMMSS.
 
 .EXAMPLE
     powershell -ExecutionPolicy Bypass -File scripts\win_package_release.ps1
@@ -75,7 +76,6 @@ if ($dirty) {
 }
 
 $fullVersion = "$version-$suffix"
-$baseName    = "KoggerApp-$fullVersion"
 
 # Windows wants four numeric fields and nothing else.
 $numeric = ($version -split '-')[0]
@@ -98,6 +98,15 @@ if ($SkipBuild) {
 }
 
 Require-Path $binPath 'KoggerApp.exe' 'Build the Release configuration first, or drop -SkipBuild.' | Out-Null
+
+# Every build says 1.0.3; the time the build wrote KoggerApp.exe tells two apart (owner, 2026-10-07).
+# With -SkipBuild that is the earlier build, not this packaging run.
+$built     = (Get-Item -LiteralPath $binPath).LastWriteTime
+$builtTag  = $built.ToString('yyyyMMdd-HHmmss')
+$baseName  = "KoggerApp-$fullVersion"
+$zipName   = "$baseName-portable-$builtTag.zip"
+$setupBase = "$baseName-setup-$builtTag"
+Write-Host "files:    $zipName, $setupBase.exe"
 
 # -------------------------------------------------------------------- deploy
 
@@ -127,7 +136,8 @@ $buildInfo = @(
     "version:   $fullVersion",
     "commit:    $(& git -C $repo rev-parse HEAD)",
     "dirty:     $(if ($dirty) { 'yes' } else { 'no' })",
-    "built:     $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss zzz')",
+    "built:     $($built.ToString('yyyy-MM-dd HH:mm:ss zzz'))",
+    "packaged:  $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss zzz')",
     "qt:        $QtVersion llvm-mingw_64",
     "config:    $Config"
 )
@@ -142,7 +152,7 @@ $artifacts = @()
 
 if (-not $NoZip) {
     Write-Step 'Packing the portable zip'
-    $zipPath = "$dist\$baseName-portable.zip"
+    $zipPath = "$dist\$zipName"
     if (Test-Path -LiteralPath $zipPath) { Remove-Item -LiteralPath $zipPath -Force }
     Add-Type -AssemblyName System.IO.Compression.FileSystem
     [System.IO.Compression.ZipFile]::CreateFromDirectory(
@@ -175,15 +185,15 @@ if (-not $NoInstaller) {
         "/DMyAppVersionInfo=$numeric" `
         "/DPayloadDir=$stage" `
         "/DOutputDir=$issOut" `
-        "/DOutputBase=$baseName-setup" `
+        "/DOutputBase=$setupBase" `
         "/DIconFile=$repo\resources\icons\app\kogger_app.ico" `
         "$repo\packaging\koggerapp.iss"
     if ($LASTEXITCODE -ne 0) { throw "ISCC failed (exit $LASTEXITCODE)" }
 
-    Move-Item -LiteralPath "$issOut\$baseName-setup.exe" `
-              -Destination "$dist\$baseName-setup.exe" -Force
+    Move-Item -LiteralPath "$issOut\$setupBase.exe" `
+              -Destination "$dist\$setupBase.exe" -Force
     Remove-Item -LiteralPath $issOut -Recurse -Force -ErrorAction SilentlyContinue
-    $artifacts += "$dist\$baseName-setup.exe"
+    $artifacts += "$dist\$setupBase.exe"
 }
 
 # -------------------------------------------------------------------- report

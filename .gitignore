@@ -4,6 +4,7 @@ build
 build-*/
 # deploy folder
 out_x64
+out_x64_*/
 out_android
 # compiled translations
 translations/*.qm

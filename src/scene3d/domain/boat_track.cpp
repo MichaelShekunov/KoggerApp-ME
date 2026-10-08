@@ -61,9 +61,11 @@ void BoatTrack::onPositionAdded(uint64_t indx)
     QVector<QVector3D> prepData;
     prepData.reserve(need);
 
+    // The track position: a ping with a raw fix sits on the line fitted through the fixes around it,
+    // like the pings between them, not on the float32 grid of its fix (TrackSmoother).
     for (int i = fromIndx + 1; i <= toIndx; ++i) {
         if (auto* ep = datasetPtr_->fromIndex(i); ep) {
-            if (auto posNed = ep->getPositionGNSS().ned; posNed.isCoordinatesValid()) {
+            if (auto posNed = ep->getTrackPosition().ned; posNed.isCoordinatesValid()) {
                 prepData.push_back(QVector3D(posNed.n, posNed.e, 0));
             }
         }
@@ -98,7 +100,7 @@ void BoatTrack::selectEpoch(int epochIndex)
     bool selected = false;
 
     if (auto* epoch = datasetPtr_->fromIndex(epochIndex); epoch) {
-        NED boatPosNed = epoch->getPositionGNSS().ned;
+        NED boatPosNed = epoch->getTrackPosition().ned;   // on the track line
         NED sonarPosNed = epoch->getSonarPosition().ned;
 
         if (boatPosNed.isCoordinatesValid()) {
@@ -165,7 +167,7 @@ void BoatTrack::mousePressEvent(Qt::MouseButtons buttons, qreal x, qreal y)
                 if (!hits.isEmpty()) {
                     auto indice = hits.first().indices().first;
                     if (auto* epoch = datasetPtr_->fromIndex(indice); epoch) {
-                        NED epNed = epoch->getPositionGNSS().ned;
+                        NED epNed = epoch->getTrackPosition().ned;   // on the track line
 
                         QVector3D pos(epNed.n, epNed.e, 0.0f);
                         RENDER_IMPL(BoatTrack)->boatTrackVertice_ = pos;

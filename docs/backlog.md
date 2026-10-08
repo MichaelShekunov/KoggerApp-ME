@@ -595,3 +595,62 @@ assumption. If both are wanted, 9 before 5.
 - What is done where there is no shadow and no texture — flat, featureless mud
   returns no shape information at all, and the honest output there is "unknown"
   rather than "flat".
+
+## 10. Heading source: device or track
+
+Owner, 2026-10-07: with the new boat the mosaic looked as if turns were ignored; the
+choice "heading from the device or from the track" is to be made explicit. To be discussed.
+
+### What exists today
+
+- `Epoch::tryRetValidYaw()` (`src/epoch.h`) returns the device yaw if there is one, else
+  the course from the track (`Dataset::addArtificalYaw`: atan2 of the last two GNSS fixes,
+  kept while standing still).
+- Device yaw arrives through `attitudeComplete` from the boat's autopilot (MAVLink ATTITUDE,
+  its EKF yaw), NMEA HDT, the sonar's `ID_ATTITUDE`, SimpleNavV2 and the USBL solution.
+  Whichever writes into an epoch last wins; there is no priority between them.
+- That one yaw is read by the mosaic strips (`MosaicProcessor`) and their bounds
+  (`Dataset::calcDimensionRects`), the sonar lever arm (`fruOffsetToNed` in `Dataset`), the
+  relief cloud, the echogram motion compensation and the 3D boat.
+- Not established for the 2026-10-07 case: which source the new boat delivered. No
+  recording or log of that session reached this PC.
+
+### Proposal
+
+- One setting, Heading: Auto / Device / Track. Auto is today's rule, so existing data
+  looks the same.
+- Track course over a baseline of a few metres instead of two consecutive fixes, kept
+  below a minimum speed, so that it holds at survey speed and in GNSS jitter.
+- A check that needs no choice: while moving, compare device yaw with track course; if the
+  device yaw stands still while the track turns, or disagrees by more than a crab-angle
+  allowance for long, say so.
+- Switching recomputes the mosaic from the dataset, as the angle offsets do, so a recorded
+  file can be compared both ways.
+
+### Open questions
+
+- Scope: the mosaic only, or every reader above? The mosaic and the sonar lever arm must
+  agree, or strips and sonar position drift apart.
+- Several devices sending yaw: a priority, or a source picker?
+- Device chosen, a ping without device yaw: skip the strip, or fall back to the track?
+- Side-scan beams are square to the hull, not to the track. A boat crabbing in current or
+  wind puts a track-oriented image off by the crab angle: right as a fallback, wrong as a
+  default where the device heading is good.
+
+## 11. Controls as widgets
+
+Owner, 2026-10-08, marked as an idea for the future and unrelated to the work of that
+day: "выносить контролы в виде виджетов" — take the controls out as widgets. Recorded as
+said; nothing about it has been discussed yet.
+
+### What exists today
+
+Not surveyed yet.
+
+### Open questions
+
+- What "widget" means here: a control taken out of the settings panel and put on the
+  2D/3D view as a floating, movable panel; a dockable pane; or something outside the
+  app.
+- Which controls first, and whether the user chooses which ones go out.
+- Whether the arrangement is saved per user and per platform (desktop, phone, Head Unit).

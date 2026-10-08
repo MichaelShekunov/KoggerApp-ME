@@ -19,6 +19,7 @@
 #include <QWindow>
 #include <QStyleHints>
 #include <QLoggingCategory>
+#include <QFontDatabase>
 #if defined(Q_OS_WIN)
 #include <windows.h>
 #endif
@@ -57,7 +58,7 @@ EchogramStateSerializer echogramStateSerializer;
 Notifications notifications;
 VideoStreamPool videoStreams;
 QTranslator translator;
-QVector<QString> availableLanguages{"en", "ru", "pl"};
+QVector<QString> availableLanguages{"en", "ru", "pl", "zh"};
 // NOLINTEND(bugprone-throwing-static-initialization)
 
 #ifndef Q_OS_ANDROID
@@ -95,6 +96,27 @@ void loadLanguage(QGuiApplication &app)
 
     if (translator.load(translationFile)) {
         app.installTranslator(&translator);
+    }
+}
+
+// Measured on a Russian Windows 11 (QTextLayout glyph runs of the default Segoe UI): Qt's own
+// fallback drew Chinese UI text with the Japanese MS UI Gothic, and the simplified forms it lacks
+// (缩, 键, 击 ...) with SimSun -- two typefaces in one line, Japanese glyph shapes. With one
+// Simplified Chinese family put first every Han glyph came from it. The first family found is the
+// only one added.
+static void preferSimplifiedChineseFont()
+{
+    static const char *const families[] = {
+        "Microsoft YaHei UI",       // Windows
+        "Noto Sans CJK SC",         // Android, most Linux distributions
+        "Source Han Sans SC",
+    };
+    for (const char *name : families) {
+        const QString family = QString::fromLatin1(name);
+        if (QFontDatabase::hasFamily(family)) {
+            QFontDatabase::addApplicationFallbackFontFamily(QChar::Script_Han, family);
+            return;
+        }
     }
 }
 
@@ -360,6 +382,7 @@ int main(int argc, char *argv[])
     QSurfaceFormat::setDefaultFormat(format);
 
     QGuiApplication app(argc, argv);
+    preferSimplifiedChineseFont();   // before any text is laid out; harmless for the other languages
 
     app.styleHints()->setMouseDoubleClickInterval(320);
 

@@ -396,6 +396,9 @@ public:
     bool isSpatialPreparing() const        { return spatialPreparing_;          };
     float getBoatLatitude() const          { return boatLatitute_;             };
     float getBoatLongitude() const         { return boatLongitude_;            };
+    // The newest raw GNSS fix: where the boat is now. positionAdded hands epochs on about a second
+    // later, once TrackSmoother has placed the pings around them. Invalid before the first fix.
+    Position getLastRawPosition() const;
     float getDistToContact() const         { return distToActiveContact_;      };
     float getAngleToContact() const        { return angleToActiveContact_;     };
     float getLastDepth() const             { return lastDepth_;                };
@@ -459,6 +462,8 @@ public slots:
     void addBoatStatus(uint8_t batteryBoatPercent, uint8_t batteryBridgePercent, uint8_t signalQualityBoatPercent, uint8_t signalQualityBridgePercent);
 
     void mergeGnssTrack(QList<Position> track);
+    // A file has been read: the epochs waiting for later fixes are placed with the fixes there are.
+    void flushInterpolation();
 
     void resetDataset();
     void softResetDataset();

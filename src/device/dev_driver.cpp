@@ -364,23 +364,90 @@ void DevDriver::regID(IDBin* id_bin, ParseCallback method, bool is_setup) {
     connect(id_bin, &IDBin::binFrameOut, this, &DevDriver::onIdFrameOut);
 }
 
+// Field switches for a sonar behind a recorder (docs/RING_UPDATE.md), off unless set.
+// KOGGER_NODE_WRAP=0 / =1: its commands go plain / wrapped in ID_NODE_CMD, and NodeProbe does not run.
+// KOGGER_NODE_ADDR=<0..15>: the wrapper names this address instead of the route.
+namespace {
+int nodeWrapOverride()
+{
+    static const int mode = [] {
+        const QString v = qEnvironmentVariable("KOGGER_NODE_WRAP");
+        if (v == QLatin1String("0") || v == QLatin1String("1")) {
+            qInfo("node-cmd: KOGGER_NODE_WRAP=%s, commands to a sonar behind a recorder go %s, no probe",
+                  qPrintable(v), v == QLatin1String("0") ? "plain" : "wrapped");
+            return v.toInt();
+        }
+        return -1;
+    }();
+    return mode;
+}
+
+int nodeAddressOverride()
+{
+    static const int addr = [] {
+        bool ok = false;
+        const int v = qEnvironmentVariable("KOGGER_NODE_ADDR").toInt(&ok);
+        if (ok && v >= 0 && v <= 15) {
+            qInfo("node-cmd: KOGGER_NODE_ADDR=%d, the wrapper names this address", v);
+            return v;
+        }
+        return -1;
+    }();
+    return addr;
+}
+} // namespace
+
+uint8_t DevDriver::nodeAddress() const
+{
+    return nodeAddressOverride() >= 0 ? uint8_t(nodeAddressOverride()) : lastAddress_;
+}
+
+bool DevDriver::commandsGoWrapped() const
+{
+    if (recorderRoute0_)
+        return false;   // a bootloader on route 0 knows no ID_NODE_CMD
+    if (nodeWrapOverride() >= 0)
+        return nodeWrapOverride() == 1;
+    return nodeMode_ != NodeProbe::Mode::Plain;   // wrapped until a probe finds otherwise, as before it
+}
+
 void DevDriver::onIdFrameOut(Parsers::ProtoBinOut out) {
-    // The ring firmware runs a wrapped command of at most 61 bytes (the wrapper stays within its 64) and only
-    // a command (SETTING or GETTING); anything else goes as it is.
-    const uint8_t* f = out.frame();
-    if (!isRingBehindRecorder() || out.frameLen() < 8 || (f[3] & 0x3) < 2 || f[5] > 61) {
+    if (!isRingBehindRecorder() || !commandsGoWrapped() || !canWrapNodeCmd(out)) {
         emit binFrameOut(out);
         return;
     }
-    ProtoBinOut node;
-    node.create(Type(f[3] & 0x3), v0, ID_NODE_CMD, 0);
-    node.write<U1>(lastAddress_);
-    node.write<U1>(f[3]);
-    node.write<U1>(f[4]);
-    for (int i = 0; i < f[5]; ++i)
-        node.write<U1>(f[6 + i]);
-    node.end();
-    emit binFrameOut(node);
+    emit binFrameOut(wrapNodeCmd(out, nodeAddress()));
+}
+
+// Runs NodeProbe once for a ring sonar behind a recorder. While it runs the setup is held back (process());
+// its end asks for the setup again, in the mode it found.
+void DevDriver::startNodeProbeIfDue()
+{
+    if (nodeProbeDone_ || nodeWrapOverride() >= 0 || !isRingBehindRecorder()
+        || m_state.in_boot || m_state.in_update)
+        return;
+    if (!nodeProbe_) {
+        NodeProbe::Io io;
+        io.send = [this](Parsers::ProtoBinOut f) { emit binFrameOut(f); };
+        io.nowMs = [] { return QDateTime::currentMSecsSinceEpoch(); };
+        nodeProbe_ = new NodeProbe(io, this);
+        connect(nodeProbe_, &NodeProbe::logLine, this, [this](const QString& line) {
+            qInfo().noquote() << QStringLiteral("[%1] %2").arg(m_busAddress).arg(line);
+        });
+        connect(nodeProbe_, &NodeProbe::finished, this, [this](NodeProbe::Mode mode, int, const QString&) {
+            nodeProbeDone_ = true;
+            nodeMode_ = mode;
+            emit deviceVersionChanged();   // isRecorderUpgradeSupported follows the mode
+            requestSetup();
+        });
+    }
+    if (!nodeProbe_->active())
+        nodeProbe_->start(lastAddress_, nodeAddress());
+}
+
+bool DevDriver::nodeProbeRunning() const
+{
+    return nodeProbe_ && nodeProbe_->active();
 }
 
 
@@ -979,8 +1046,10 @@ void DevDriver::protoComplete(Parsers::FrameParser& proto)
 
     int64_t curr_time = QDateTime::currentMSecsSinceEpoch();
 
-    if (proto.completeAsKBP2())
-        viaRecorder_ = true;   // a recorder re-wraps its port devices' frames and stamps its port as their route
+    if (proto.completeAsKBP2() && !viaRecorder_) {
+        viaRecorder_ = true;   // a recorder re-wraps its port devices' frames (their route: docs/RING_UPDATE.md)
+        emit deviceVersionChanged();
+    }
     m_state.mark = proto.mark();
     unanswered_.heard(curr_time);
 
@@ -1017,6 +1086,14 @@ void DevDriver::protoComplete(Parsers::FrameParser& proto)
             }
         }
     }
+
+    if (nodeProbeRunning()) {
+        const bool uartAddress = proto.id() == ID_UART && proto.ver() == v1 && proto.type() == CONTENT;
+        nodeProbe_->onFrame(uint8_t(proto.id()), uint8_t(proto.ver()), uint8_t(proto.type()),
+                            uartAddress ? int(idUART->devAddress()) : -1);
+    }
+    // Any frame of this sonar once the settle time is over: the recorder hears it at the new rate.
+    onRecorderUpgradeHeard();
 }
 
 void DevDriver::startConnection(bool duplex) {
@@ -1056,6 +1133,8 @@ void DevDriver::stopConnection() {
 
 void DevDriver::restartState() {
     m_processTimer.stop();
+    nodeProbeDone_ = false;
+    nodeMode_ = NodeProbe::Mode::Unknown;
     //qDebug() << "restart";
     m_state.resetState();
     updateDataStale(QDateTime::currentMSecsSinceEpoch());
@@ -1230,15 +1309,35 @@ void DevDriver::setRingRateResult(bool ok, int rate, const QString& detail) {
 }
 
 void DevDriver::sendUpdateFW(QByteArray update_data) {
+    if (isBehindRecorder()) {
+        if (!isRecorderUpgradeSupported()) {
+            recorderLog(QStringLiteral("refused: a ring sonar with a bus address behind a recorder, "
+                                       "connect it to a computer directly (docs/RING_UPDATE.md)"));
+            return;
+        }
+        beginRecorderUpgrade(update_data);
+        return;
+    }
     if (isRingBoard()) {
         emit ringUpgradeRequested(linkUuid_, lastAddress_, update_data, upgradeExpect_, false);
         return;
     }
+    startStockUpgrade(update_data);
+}
+
+void DevDriver::startStockUpgrade(const QByteArray& update_data) {
     if (fwTraceEnabled()) {
         qInfo("FWTRACE %lld start size=%lld bytes packet=%d",
               fwTraceNow(), (long long)update_data.size(), 96);
     }
     reboot();
+    if (recorderUpgrade_ != RecorderUpgrade::Idle) {
+        // The bootloader takes route 0, not the port's (docs/RING_UPDATE.md). The recorder hands route 0 to its
+        // sonar ports and stamps the bootloader's answers with the port, so they come to this device as they are.
+        recorderUpgrade_ = RecorderUpgrade::Idle;
+        recorderRoute0_ = true;
+        setIdRoute(0);
+    }
     restartState();
 
     _timeoutUpgradeAnswerTime = 5000;
@@ -1253,6 +1352,94 @@ void DevDriver::sendUpdateFW(QByteArray update_data) {
     emit startUpgradingFirmwareDM(linkUuid_, lastAddress_, update_data);
 
     // QTimer::singleShot(500, idUpdate, SLOT(putUpdate()));
+}
+
+// Firmware update of a sonar behind a recorder (docs/RING_UPDATE.md). The bootloader starts at 115200 and the
+// recorder follows the rate of its sonar line, so the sonar is moved to 115200 first, and the stock update starts
+// once the sonar is heard through the recorder again; a silent sonar is not rebooted. The stock update itself sends
+// no chunk before the bootloader answers, so a sonar that never moved fails the handshake, safely.
+void DevDriver::recorderLog(const QString& line)
+{
+    const QString s = QStringLiteral("recorder-upgrade: ") + line;
+    qInfo().noquote() << QStringLiteral("[%1] %2").arg(m_busAddress).arg(s);
+#ifndef SEPARATE_READING
+    core.consoleInfo(QStringLiteral("Upgrade: ") + s);
+#endif
+}
+
+void DevDriver::beginRecorderUpgrade(const QByteArray& image)
+{
+    if (recorderUpgrade_ != RecorderUpgrade::Idle || recorderRoute0_ || m_state.in_boot || m_state.in_update)
+        return;
+    const int64_t now = QDateTime::currentMSecsSinceEpoch();
+    recorderUpgradeImage_ = image;
+    recorderUpgrade_ = RecorderUpgrade::SlowLine;
+    recorderUpgradeAsked_ = false;
+    recorderUpgradeAskAt_ = now + kRecorderSettleMs;
+    recorderUpgradeUntil_ = now + kRecorderFollowMs;
+    emit linkRatePinRequested(true);
+    recorderLog(QStringLiteral("the sonar is moved to %1, the recorder has to follow it").arg(kBootloaderRate));
+    idUART->setBaudrate(U4(kBootloaderRate));
+    m_upgrade_status = 0;
+    emit upgradeProgressChanged(m_upgrade_status);
+}
+
+void DevDriver::stepRecorderUpgrade(int64_t now)
+{
+    if (recorderUpgrade_ != RecorderUpgrade::SlowLine)
+        return;
+    if (now >= recorderUpgradeUntil_) {
+        failRecorderUpgrade(QStringLiteral("the sonar went silent after the move to %1: the recorder did not follow it. "
+                                           "Nothing was rebooted; a power cycle brings back its saved rate").arg(kBootloaderRate));
+        return;
+    }
+    if (now >= recorderUpgradeAskAt_) {
+        // The version is asked because the sonar answers it at once; this firmware hardly answers GET ID_UART v0.
+        recorderUpgradeAsked_ = true;
+        recorderUpgradeAskAt_ = now + kRecorderAskMs;
+        idVersion->simpleRequest(v0);
+    }
+}
+
+void DevDriver::onRecorderUpgradeHeard()
+{
+    if (recorderUpgrade_ != RecorderUpgrade::SlowLine || !recorderUpgradeAsked_)
+        return;
+    recorderLog(QStringLiteral("the sonar is heard through the recorder after the move, the update starts; "
+                               "nothing is written before its bootloader answers"));
+    const QByteArray image = recorderUpgradeImage_;
+    recorderUpgradeImage_.clear();
+    startStockUpgrade(image);
+}
+
+void DevDriver::failRecorderUpgrade(const QString& reason)
+{
+    recorderUpgrade_ = RecorderUpgrade::Idle;
+    recorderUpgradeImage_.clear();
+    recorderLog(QStringLiteral("failed: ") + reason);
+    emit linkRatePinRequested(false);
+    m_upgrade_status = failUpgrade;
+    emit upgradeProgressChanged(m_upgrade_status);
+    emit upgradeChanged();
+}
+
+void DevDriver::setIdRoute(uint8_t route)
+{
+    QHashIterator<ID, ID_Instance> i(_hashID);
+    while (i.hasNext()) {
+        i.next();
+        i.value().instance->setAddress(route);
+    }
+}
+
+void DevDriver::endRecorderRoute()
+{
+    if (!recorderRoute0_)
+        return;
+    recorderRoute0_ = false;
+    setIdRoute(uint8_t(m_busAddress));
+    // The board starts its firmware at its saved rate and the recorder follows it; the host port stays put meanwhile.
+    QTimer::singleShot(kRecorderUnpinMs, this, [this] { if (!recorderRoute0_) emit linkRatePinRequested(false); });
 }
 
 void DevDriver::sendFactoryFW(QByteArray update_data) {
@@ -3059,6 +3246,7 @@ void DevDriver::fwUpgradeProcess() {
             qInfo("FWTRACE %lld runFW (ID_BOOT v1) - body complete", fwTraceNow());
         }
         idBoot->runFW();
+        endRecorderRoute();
         m_state.in_boot = false;
         m_state.in_update = false;
         m_upgrade_status = successUpgrade;
@@ -3116,6 +3304,7 @@ bool DevDriver::checkUpgradeTimeouts(int64_t curr_time) {
 }
 
 void DevDriver::abortUpgrade(const QString& reason) {
+    endRecorderRoute();
 #ifndef SEPARATE_READING
     core.consoleInfo(QString("Upgrade: aborted -- %1").arg(reason));
 #else
@@ -3377,6 +3566,10 @@ void DevDriver::receivedModemSolution(Parsers::Type type, Parsers::Version ver, 
 void DevDriver::process() {
     int64_t curr_time = QDateTime::currentMSecsSinceEpoch();
 
+    if (nodeProbeRunning())
+        nodeProbe_->tick();
+    stepRecorderUpgrade(curr_time);
+
     updateDataStale(curr_time);
 
     if(checkUpgradeTimeouts(curr_time)) {
@@ -3498,7 +3691,8 @@ void DevDriver::process() {
                     //qDebug() << "To upgrading";
                 }
 
-                if(!(m_state.in_boot || m_state.in_update) && m_state.conf < ConfRequest) {
+                startNodeProbeIfDue();
+                if(!(m_state.in_boot || m_state.in_update) && m_state.conf < ConfRequest && !nodeProbeRunning()) {
                     requestSetup();
                     //qDebug() << "Request setup";
                 }

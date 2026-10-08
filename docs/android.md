@@ -11,6 +11,12 @@ Wi-Fi module); the boat was on land, autopilot in HOLD, disarmed. Every
 check below watched the app and the boat only: nothing was armed, started,
 applied, saved, recorded or flashed.
 
+A second device on 2026-10-05: a Xiaomi phone, model 2201116TG, Android 13 (API 33),
+arm64-v8a, beside the official KoggerApp. Installed with `adb install`; on the first start the app opens the
+system "All files access" screen, and MIUI kills the cached process meanwhile, so the app starts afresh on the
+way back — not a crash (no FATAL, no tombstone). Then `App is created`, the map and the echogram pane drawn.
+That package is signed with the test key of the 2026-10-05 build PC, not the tablet's (`build-android-cli.md`).
+
 ## What works
 
 All of it seen on the tablet, most of it in the app's own log (logcat, tag

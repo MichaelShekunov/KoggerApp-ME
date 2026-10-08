@@ -2687,6 +2687,9 @@ int Core::loadSavedMapTileProviderId() const
 
 void Core::onFileStopsOpening()
 {
+    // The last second of a file has no later fixes for its windows; place it before the horizon
+    // hands everything on.
+    datasetPtr_->flushInterpolation();
     isFileOpening_ = false;
     emit sendIsFileOpening();
     dataHorizon_->setIsFileOpening(isFileOpening_);
@@ -2867,6 +2870,7 @@ void Core::createDeviceManagerConnections()
     deviceManagerWrapperConnections_.append(QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::fileStartOpening,       this,        &Core::onFileStartOpening, deviceManagerConnection));
     deviceManagerWrapperConnections_.append(QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::encoderComplete,        datasetPtr_, &Dataset::addEncoder,      deviceManagerConnection));
     deviceManagerWrapperConnections_.append(QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::fileStopsOpening,       this, [this]() {
+                                                                                                                                                      datasetPtr_->flushInterpolation();   // as in onFileStopsOpening
                                                                                                                                                       isFileOpening_ = false;
                                                                                                                                                       emit sendIsFileOpening();
                                                                                                                                                   }, deviceManagerConnection));
@@ -3544,6 +3548,7 @@ void Core::destroyDataProcessor()
 void Core::createScene3dConnections()
 {
     QObject::connect(dataHorizon_.get(), &DataHorizon::positionAdded, scene3dViewPtr_, &GraphicsScene3dView::onPositionAdded);
+    QObject::connect(datasetPtr_, &Dataset::lastPositionChanged, scene3dViewPtr_, &GraphicsScene3dView::onLastPositionChanged);
     QObject::connect(scene3dViewPtr_->bottomTrack().get(), &BottomTrack::updatedPoints, dataHorizon_.get(), &DataHorizon::onAddedBottomTrack3D);
 
     // res work proc

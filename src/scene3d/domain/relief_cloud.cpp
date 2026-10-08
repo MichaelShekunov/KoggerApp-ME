@@ -211,7 +211,7 @@ void ReliefCloud::rebuild()
             continue; // no bottom under the boat means no datum to hang relief from
         }
 
-        const Position pos = epoch->getPositionGNSS();
+        const Position pos = epoch->getTrackPosition(); // a ping with a raw fix: on the fitted track
         if (!std::isfinite(pos.ned.n) || !std::isfinite(pos.ned.e)) {
             ++noPosition;
             continue;
