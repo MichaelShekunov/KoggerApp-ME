@@ -1406,3 +1406,63 @@ heading pointer), says how long the chart's release took, and how many pings the
 (`Dataset::chartHoldEpochs`).
 
 Verified by machine: builds. Not verified: the new line in a live session.
+
+## Circular mosaic: arcs between pings, and the last ping of lag (2026-10-17)
+
+The owner's screenshot: range rings drawn as polygons. `MosaicProcessor::updateData` joined the two
+pings' samples at each range with a straight 4-connected Bresenham chord; turning on the spot those
+samples lie on a circle, and the chord cuts inside it by r (1 - cos(turn / 2)).
+
+Now (`src/data_processor/mosaic_arc.h`) the sonar's pose between two pings is interpolated -- origin
+on the straight line, heading the short way, range linearly -- and the sample at range r goes along
+origin(u) + r(u) dir(heading(u)). Moving straight that is the old chord exactly; turning on the spot,
+the arc. Chord or arc is chosen once a pair, by the far ends (`pathFor`): the chord stays where the
+arc would not leave it by half a pixel even there, and for a turn over 60 deg between two pings (a
+heading glitch). Chosen per range, the last chords and the first arcs left a seam of holes.
+
+`tools/arc_check`: 20/20 -- 20000 chord cases identical to the old Bresenham pixel, u and step; the
+arc on its circle (0.96 px), moving and turning with differing ranges on the interpolated pose
+(1.11 px), 4-connected, the short way across 180 deg, nothing outside the mesh; range rings round
+within 0.95 px against 2.18 / 4.69 / 10.45 px for the old chord at 6 / 12 / 20 deg a ping; no hole in
+a whole turn walked as `updateData` walks it. A mutation run (control passes first) caught 10 of 10.
+On a synthetic recording (`ring_bench.ps1 -Klf`, 12 deg a ping) the old build drew 30-gons and the new
+one circles, in the app.
+
+**Live latency**, on the bench below (30 pings/s, 6 deg a ping), ping -> first painted: 82 ms at
+a43a11bb with the arc. A per-epoch trace found two waits of a ping each:
+
+1. **An 8-bit echogram (ID_CHART, sent in parts) was one epoch off its heading.** `IDBinChart` compared
+   a part's resolution and offset with the last *completed* chart's. On connecting (zero) the first
+   part completed an empty chart and the second part completed the first part alone; that went into
+   an epoch of its own, and for the rest of the session every epoch held one ping's echogram with the
+   next ping's heading, its horizon closing a ping late. The same after every change of resolution or
+   offset. Now compared with the chart being filled, and only when there is one; `DevDriver` also
+   drops an empty chart. 48 ms after. The compressed echogram (ID_CHART_Z, the owner's) is decoded
+   through `acceptDecoded`, not this branch (read from the code, not checked on the board); the
+   8-bit fix is not checked on the board either.
+2. **The look-ahead of a43a11bb was undone.** The newest epoch's 3D bottom-track vertex arrives before
+   its indexing, and `onBottomTrack3DAdded` took it out of the queue, putting back only indexed
+   epochs. A queued epoch now stays queued. 16 ms after: the 10 ms coalescing timer and 6 ms of
+   painting. The owner's live session of 11:26 (compressed, a43a11bb) showed exactly that queue wait,
+   37-59 ms, with no wait for the bottom track or the horizon.
+
+The latency line now starts at the epoch's position (`DataHorizon::positionAdded` connected to
+`DataProcessor::onPositionAdded`; with Pos zeroing, the attitude frame that moves the heading
+pointer), so a hold before the chart's release -- the black-stripe filter's -- is in it.
+
+**Test bench.** `KOGGER_AUTOTEST=UDP:<port>` opens a hidden UDP link listening on <port>, never written
+to `pinned_links.xml`. `tools/mosaic_bench/ring_bench.ps1` writes the synthetic sonar as a KLF, or
+plays it to the app live in real time, nudges the window by a pixel and prints the latency lines; the
+app grabs its window (`KOGGER_UI_PROBE_PNG`) and quits. It runs on the user's own settings (Pos
+zeroing on, the mosaic shown): `reg export HKCU\Software\KOGGER\KoggerApp` before, `reg import` after.
+The nudge is there because the 3D view computes its visible tiles only when the camera moves, and the
+mosaic paints only visible tiles: with Pos zeroing and no touch on the view, a live mosaic does not
+start. Seen headless, not changed.
+
+**Careful with a live serial link in a test run.** A run with `KOGGER_AUTOTEST=COM13` hung when
+UiProbe quit the app (the GUI thread stopped right after the window grab), and the process could not
+be killed: one thread stayed in the CP2105 driver and kept COM13 until the cable is replugged.
+Quitting the app from its window with the board connected worked all day; stop a stream before the
+probe quits.
+
+Not verified: on the owner's board turning; the 8-bit fix on hardware.

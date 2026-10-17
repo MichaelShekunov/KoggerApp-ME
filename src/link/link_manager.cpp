@@ -257,6 +257,23 @@ void LinkManager::openAutoConnections()
     // names a port (e.g. KOGGER_AUTOTEST=COM17). Normal runs are unaffected.
     static const QString kAutotestPort = qEnvironmentVariable("KOGGER_AUTOTEST");
 
+    // KOGGER_AUTOTEST=UDP:<port>: once, a UDP link that listens on <port> -- a recorded or synthetic
+    // stream played to the app as a live device, no hardware and no click. Hidden, so it is never
+    // written to pinned_links.xml and does not come back in a normal run.
+    static bool udpAutotestOpened = false;
+    if (!udpAutotestOpened && kAutotestPort.startsWith(QStringLiteral("UDP:"))) {
+        udpAutotestOpened = true;
+        const int port = kAutotestPort.mid(4).toInt();
+        if (port > 0 && port < 65535) {
+            Link* link = createNewLink();
+            link->createAsUdp(QStringLiteral("127.0.0.1"), port, port + 1);
+            link->setIsHided(true);
+            list_.append(link);
+            doEmitAppendModifyModel(link);
+            link->openAsUdp();
+        }
+    }
+
     for (int i = 0; i < list_.size(); ++i) {
         Link* link = list_.at(i);
 
