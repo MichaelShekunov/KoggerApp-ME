@@ -238,10 +238,15 @@ void checkPosePath()
             ends = false;
         }
         for (size_t j = 0; j < p.size(); ++j) {
-            const float u = p[j].u;
-            const float r = rf + u * (rs - rf), a = th + u * turn;
-            const float px = ox + u * (osx - ox) + r * std::cos(a), py = oy + u * (osy - oy) + r * std::sin(a);
-            const float d = std::hypot(p[j].x + 0.5f - px, p[j].y + 0.5f - py);
+            // Distance to the pose path itself, near the pixel's u: a corner pixel carries the next
+            // step's u, so P(u) alone would count the step along the path as an error off it.
+            float d = 1e9f;
+            for (int q = -100; q <= 100; ++q) {
+                const float u = std::clamp(p[j].u + q * 0.0005f, 0.0f, 1.0f);
+                const float r = rf + u * (rs - rf), a = th + u * turn;
+                const float px = ox + u * (osx - ox) + r * std::cos(a), py = oy + u * (osy - oy) + r * std::sin(a);
+                d = std::min(d, std::hypot(p[j].x + 0.5f - px, p[j].y + 0.5f - py));
+            }
             worst = std::max(worst, d);
             if (d > 1.5f) {
                 onPath = false;

@@ -103,11 +103,26 @@ int walk(float ofx, float ofy, float fx, float fy,
         return k + 1;
     }
 
-    const float thf = std::atan2(fy - ofy, fx - ofx);
-    const float turn = shortTurn(thf, std::atan2(sy - osy, sx - osx));
-    // |P'(u)| <= |dO| + |dr| + r_max |turn|: n steps of at most half a pixel each.
+    const float turn = shortTurn(std::atan2(fy - ofy, fx - ofx), std::atan2(sy - osy, sx - osx));
+    // |P'(u)| <= |dO| + |dr| + r_max |turn|: n steps of at most a pixel each, so a coordinate crosses
+    // at most one pixel edge a step and the corner pixel below keeps the path 4-connected.
     const float bound = std::hypot(osx - ofx, osy - ofy) + std::fabs(rs - rf) + std::max(rf, rs) * std::fabs(turn);
-    const int n = std::max(1, int(std::ceil(2.0f * bound)));
+    const int n = std::max(1, int(std::ceil(bound)));
+
+    // Stepped, not recomputed: the heading turns by a constant rotation, origin and range by constant
+    // increments -- a cos and a sin a step made the arc ten times dearer than the chord (2026-10-17,
+    // the owner's "Clear old data" repainting the last N pings on every ping).
+    const float du = 1.0f / float(n);
+    const float rotC = std::cos(turn * du);
+    const float rotS = std::sin(turn * du);
+    const float stepOx = (osx - ofx) * du;
+    const float stepOy = (osy - ofy) * du;
+    const float stepR = (rs - rf) * du;
+    float dirC = (fx - ofx) / rf;
+    float dirS = (fy - ofy) / rf;
+    float cx = ofx;
+    float cy = ofy;
+    float r = rf;
 
     int k = 0;
     int px = x0;
@@ -119,14 +134,18 @@ int walk(float ofx, float ofy, float fx, float fy,
     };
     visit(px, py, 0.0f);
     for (int i = 1; i <= n; ++i) {
-        const float u = float(i) / float(n);
+        const float u = float(i) * du;
+        const float c = dirC * rotC - dirS * rotS;
+        dirS = dirS * rotC + dirC * rotS;
+        dirC = c;
+        cx += stepOx;
+        cy += stepOy;
+        r += stepR;
         int ix = x1;
         int iy = y1;
         if (i < n) {
-            const float r = rf + u * (rs - rf);
-            const float th = thf + u * turn;
-            ix = int(ofx + u * (osx - ofx) + r * std::cos(th));
-            iy = int(ofy + u * (osy - ofy) + r * std::sin(th));
+            ix = int(cx + r * dirC);
+            iy = int(cy + r * dirS);
         }
         if (ix == px && iy == py) {
             continue;
