@@ -5,6 +5,7 @@
 #include "stddef.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <cmath>
 #include "mav_link_conf.h"
 
@@ -186,6 +187,23 @@ public:
             _proxyState = ProxyContent;
         }
         while (availContextPrivate() > 0) {
+            // The body of a frame whose length is known, copied as a block: byte by byte through the
+            // switch below it was a seventh of opening a file (348 MB, 2026-10-17). Past the frame's
+            // limit it goes byte by byte as before, so frameAppend reports the error as it did.
+            if ((_protoState == StateKP1Ending || _protoState == StateKP2Ending || _protoState == StateUBXEnding)
+                    && _frameLen < _completeLen) {
+                int32_t n = int32_t(_completeLen) - int32_t(_frameLen);
+                if (n > availContextPrivate()) {
+                    n = availContextPrivate();
+                }
+                if (int32_t(_frameLen) + n <= int32_t(_frameMaxLen)) {
+                    memcpy(&_frame[_frameLen], _contextData, size_t(n));
+                    _frameLen = int16_t(_frameLen + n);
+                    _contextData += n;
+                    _contextLen -= n;
+                    continue;
+                }
+            }
             uint8_t b = *_contextData;
 
             switch (_protoState) {
@@ -409,9 +427,9 @@ public:
     }
 
     void read(uint8_t* b, int16_t len) {
-        for(int16_t i = 0; i < len; i++) {
-            b[i] = _frame[_readPosition];
-            _readPosition++;
+        if (len > 0) {
+            memmove(b, &_frame[_readPosition], size_t(len));
+            _readPosition = int16_t(_readPosition + len);
         }
     }
 
