@@ -10,10 +10,10 @@
     the new zoom came, from the zoom change ("mosaic zoom: A -> B" to the digest, less the digest's
     1.5 s wait), and the precompute's lines. Then mosaic_dump_compare.ps1 on the last dump of each.
 
-    PASS: the same tiles, the same heights and marks, and at most -MaxPixels pixels painted with
-    another value, none more than -MaxApart apart -- a judgement, not an exact match: on the test file
-    of 2026-10-17 seven pixels of 6.1 million came out 1 to 3 apart, in three tiles at the edge of the
-    survey, the cause not found (docs/HANDOFF.md). FAIL otherwise, or when a run has no zoom or digest.
+    The verdict is mosaic_dump_compare.ps1 -Judge's, at -MaxCoverage, -MaxOther and -MaxHeights: shares
+    of the pixels and height points, not an exact match -- two pictures of the same pings painted by
+    different jobs differ a little, both right (its help says why). FAIL also when a run has no zoom or
+    digest. -WheelAt "35,42,49" zooms several times, a level or so each.
 
     The window grabs differ between two runs alike too (the camera after the wheel), so they are not
     compared. A run takes about -Seconds plus the start; keep the mouse off its window.
@@ -28,11 +28,12 @@ param(
     [string] $PathPrefix,
     [string] $Profile = 'perf',
     [double] $Seconds = 34,
-    [double] $WheelAt = 20,
+    [string] $WheelAt = '20',      # several, "30,40": each time -Wheel notches (open_bench.ps1)
     [int]    $Wheel = 6,
     [string] $Out = "$env:TEMP\kogger_precompute_check",
-    [int]    $MaxPixels = 64,
-    [int]    $MaxApart = 8
+    [double] $MaxCoverage = 0.0001,
+    [double] $MaxOther = 0.01,
+    [double] $MaxHeights = 0.1
 )
 
 $ErrorActionPreference = 'Stop'
@@ -86,15 +87,6 @@ finally {
 
 if ($failed -or $dumps.Count -ne 2) { 'FAIL: a run gave nothing to compare'; exit 1 }
 "== tiles, with the precompute (A) and without (B): $($dumps['on']) vs $($dumps['off'])"
-$res = & powershell -NoProfile -ExecutionPolicy Bypass -File $compare -A $dumps['on'] -B $dumps['off'] -Picture (Join-Path $Out 'diff.png') 2>&1 | ForEach-Object { "$_" }
-$res
-$sum = $res | Select-Object -First 1
-if ($sum -notmatch '(\d+) only in A, (\d+) only in B; of \d+ pixels: painted only in A (\d+), only in B (\d+), another value (\d+) \(at most (\d+) apart\); heights (\d+), marks (\d+)') {
-    'FAIL: no summary from mosaic_dump_compare.ps1'; exit 1
-}
-$m = $Matches
-$ok = ([int]$m[1] -eq 0) -and ([int]$m[2] -eq 0) -and ([int]$m[3] -eq 0) -and ([int]$m[4] -eq 0) -and ([int]$m[5] -le $MaxPixels) -and
-      ([int]$m[6] -le $MaxApart) -and ([int]$m[7] -eq 0) -and ([int]$m[8] -eq 0)
-if ($ok) { "PASS: the same tiles, heights and marks; {0} pixels of another value (at most {1}), at most {2} apart (at most {3})" -f $m[5], $MaxPixels, $m[6], $MaxApart; exit 0 }
-"FAIL: beyond the tolerance (tiles or coverage or heights differ, or more than $MaxPixels pixels, or more than $MaxApart apart)"
-exit 1
+& powershell -NoProfile -ExecutionPolicy Bypass -File $compare -A $dumps['on'] -B $dumps['off'] -Picture (Join-Path $Out 'diff.png') `
+    -Judge -MaxCoverage $MaxCoverage -MaxOther $MaxOther -MaxHeights $MaxHeights 2>&1 | ForEach-Object { "$_" }
+exit $LASTEXITCODE

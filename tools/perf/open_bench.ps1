@@ -24,8 +24,10 @@ param(
     [string] $PathPrefix,          # a build tree's exe needs the Qt and toolchain bin folders on PATH
     [string] $Pattern = 'log opened|File opened|file opened|perf:|stall|health|mosaic view|failed|error',
     [switch] $Threads,             # every second, the threads that used the CPU (ids in hex, as kogger.log tags them)
-    [double] $WheelAt = 0,         # this many seconds in, -Wheel notches of the mouse wheel at the 3D view's middle
-    [int]    $Wheel = 0            # (posted to the window; the cursor stays): positive zooms in
+    [switch] $Memory,              # every 5 s the process's private bytes and working set; the peak at the end
+    [string] $WheelAt = '0',       # this many seconds in, -Wheel notches of the mouse wheel at the 3D view's middle
+    [int]    $Wheel = 0            # (posted to the window; the cursor stays): positive zooms in. Several times
+                                   # apart, "30,40,50": a few notches move the camera by a level at most
 )
 
 $ErrorActionPreference = 'Stop'
@@ -48,8 +50,11 @@ if ($Wheel -ne 0) {
 public struct POINT { public int X, Y; }
 '@
 }
+$wheelTimes = @($WheelAt -split ',' | ForEach-Object { [double]::Parse($_.Trim(), [Globalization.CultureInfo]::InvariantCulture) })
+$wheelNext = 0
 $wheeled = ($Wheel -eq 0)
-if ($Threads -or -not $wheeled) {
+[long]$memPeak = 0; [long]$memLast = 0; [long]$wsPeak = 0
+if ($Threads -or $Memory -or -not $wheeled) {
     $prev = @{}
     while (-not $app.HasExited) {
         Start-Sleep -Milliseconds 1000
@@ -61,8 +66,16 @@ if ($Threads -or -not $wheeled) {
             if ($cpu - $was -ge 100) { '{0:x}:{1:N0}' -f $th.Id, ($cpu - $was) }
         }
         if ($Threads -and $busy) { "{0,6:N1} s  cpu ms by thread  {1}" -f $clock.Elapsed.TotalSeconds, ($busy -join '  ') }
-        if (-not $wheeled -and $clock.Elapsed.TotalSeconds -ge $WheelAt) {
-            $wheeled = $true
+        if ($Memory) {
+            try { $memLast = $app.PrivateMemorySize64; $ws = $app.WorkingSet64 } catch { $memLast = 0; $ws = 0 }
+            $memPeak = [Math]::Max($memPeak, $memLast); $wsPeak = [Math]::Max($wsPeak, $ws)
+            if ([int]$clock.Elapsed.TotalSeconds % 5 -eq 0) {
+                "{0,6:N1} s  memory: private {1:N0} MB, working set {2:N0} MB" -f $clock.Elapsed.TotalSeconds, ($memLast / 1MB), ($ws / 1MB)
+            }
+        }
+        if (-not $wheeled -and $clock.Elapsed.TotalSeconds -ge $wheelTimes[$wheelNext]) {
+            $wheelNext++
+            $wheeled = ($wheelNext -ge $wheelTimes.Count)
             $h = $app.MainWindowHandle
             $pt = New-Object KoggerPerf.Win+POINT
             $pt.X = 360; $pt.Y = 360                       # the 3D view is the window's left half
@@ -79,6 +92,7 @@ if ($Threads -or -not $wheeled) {
 }
 if (-not $app.WaitForExit([int](($Seconds + 120) * 1000))) { throw 'the app did not quit after its window grab' }
 "app ran {0:N1} s, exit {1}" -f $clock.Elapsed.TotalSeconds, $app.ExitCode
+if ($Memory) { "memory: private peak {0:N0} MB, last {1:N0} MB; working set peak {2:N0} MB" -f ($memPeak / 1MB), ($memLast / 1MB), ($wsPeak / 1MB) }
 
 $log = Join-Path $env:APPDATA "KOGGER\KoggerApp-$Profile\AppLogs\kogger.log"
 $lines = Get-Content -LiteralPath $log -Encoding UTF8

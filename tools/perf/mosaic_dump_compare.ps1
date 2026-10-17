@@ -10,7 +10,16 @@
     the two, tiles put together: grey where they agree, red/yellow where both painted another value
     (more/less than 16 apart), green where only the first painted, blue where only the second did.
 
-    Exits 0 whatever it finds; the caller judges the numbers (precompute_check.ps1 does).
+    Exits 0 whatever it finds, unless -Judge: then a last line PASS or FAIL, and exit 1 on FAIL. PASS
+    when B has no tile A lacks and, over the tiles of both, at most -MaxCoverage of B's painted pixels
+    are painted in one only, at most -MaxOther painted with another value, and at most -MaxHeights of
+    the height points have another height or mark. Shares, not counts: two pictures of the same pings
+    differ when they come from different jobs (docs/HANDOFF.md, "Comparing two mosaics"). Measured on
+    the test file 00008, 2026-10-17: the precompute against the view, 0.1 to 0.25 % of the pixels up to
+    26 apart, single pixels along the pairs' edges -- most likely the float32 pixel positions, taken
+    from the mesh's origin, another for another set of tiles; and the same view painted on 6 threads
+    in chunks of 64 and on 1 in chunks of 10: the same pixels, 6.7 % of the height points another.
+    Tiles only in A are allowed: the precompute paints past the view.
 
 .EXAMPLE
     powershell -ExecutionPolicy Bypass -File tools\perf\mosaic_dump_compare.ps1 -A D:\Temp\on\digest_2.bin -B D:\Temp\off\digest_2.bin
@@ -20,7 +29,11 @@ param(
     [Parameter(Mandatory = $true)] [string] $A,
     [Parameter(Mandatory = $true)] [string] $B,
     [string] $Picture,          # a .png to draw into
-    [switch] $Quiet             # only the summary line
+    [switch] $Quiet,            # only the summary line
+    [switch] $Judge,            # a PASS or FAIL line; exit 1 on FAIL
+    [double] $MaxCoverage = 0.0001,
+    [double] $MaxOther = 0.01,
+    [double] $MaxHeights = 0.1
 )
 
 $ErrorActionPreference = 'Stop'
@@ -62,7 +75,7 @@ public static class MosaicDump {
 
     public class Result {
         public int OnlyA, OnlyB, Common, TilesDiffering;
-        public long PaintedOnlyA, PaintedOnlyB, BothDiffer, MaxAbs, Heights, Marks, Pixels;
+        public long PaintedOnlyA, PaintedOnlyB, BothDiffer, MaxAbs, Heights, Marks, Pixels, PaintedB, HeightPoints;
         public List<string> Lines = new List<string>();
     }
 
@@ -78,11 +91,13 @@ public static class MosaicDump {
             res.Pixels += n;
             for (int p = 0; p < n; ++p) {
                 int va = ta.Image[p], vb = tb.Image[p];
+                if (vb != 0) res.PaintedB++;
                 if (va == vb) continue;
                 if (va == 0) onlyB++;
                 else if (vb == 0) onlyA++;
                 else { both++; maxAbs = Math.Max(maxAbs, Math.Abs(va - vb)); }
             }
+            res.HeightPoints += Math.Min(ta.Heights.Length, tb.Heights.Length);
             for (int i = 0; i < Math.Min(ta.Heights.Length, tb.Heights.Length); ++i)
                 if (Math.Abs(ta.Heights[i] - tb.Heights[i]) > 1e-4f) h++;
             for (int i = 0; i < Math.Min(ta.Marks.Length, tb.Marks.Length); ++i)
@@ -139,7 +154,18 @@ public static class MosaicDump {
 $da = [MosaicDump]::Load((Resolve-Path $A).Path)
 $db = [MosaicDump]::Load((Resolve-Path $B).Path)
 $r = [MosaicDump]::Compare($da, $db)
-"tiles: {0} in both, {1} only in A, {2} only in B; of {3} pixels: painted only in A {4}, only in B {5}, another value {6} (at most {7} apart); heights {8}, marks {9}; tiles that differ {10}" -f `
-    $r.Common, $r.OnlyA, $r.OnlyB, $r.Pixels, $r.PaintedOnlyA, $r.PaintedOnlyB, $r.BothDiffer, $r.MaxAbs, $r.Heights, $r.Marks, $r.TilesDiffering
+"tiles: {0} in both, {1} only in A, {2} only in B; of {3} pixels ({11} painted in B): painted only in A {4}, only in B {5}, another value {6} (at most {7} apart); of {12} height points: heights {8}, marks {9}; tiles that differ {10}" -f `
+    $r.Common, $r.OnlyA, $r.OnlyB, $r.Pixels, $r.PaintedOnlyA, $r.PaintedOnlyB, $r.BothDiffer, $r.MaxAbs, $r.Heights, $r.Marks, $r.TilesDiffering, $r.PaintedB, $r.HeightPoints
 if (-not $Quiet) { $r.Lines }
 if ($Picture) { [MosaicDump]::Draw($da, $db, [System.IO.Path]::GetFullPath($Picture)) }
+if ($Judge) {
+    $painted = [Math]::Max(1, $r.PaintedB)
+    $points = [Math]::Max(1, $r.HeightPoints)
+    $coverage = ($r.PaintedOnlyA + $r.PaintedOnlyB) / $painted
+    $other = $r.BothDiffer / $painted
+    $heights = [Math]::Max($r.Heights, $r.Marks) / $points
+    $text = "tiles only in B {0}; painted in one only {1:P3} (at most {2:P3}), another value {3:P2} (at most {4:P2}), heights or marks {5:P1} (at most {6:P1})" -f `
+        $r.OnlyB, $coverage, $MaxCoverage, $other, $MaxOther, $heights, $MaxHeights
+    if ($r.Common -gt 0 -and $r.OnlyB -eq 0 -and $coverage -le $MaxCoverage -and $other -le $MaxOther -and $heights -le $MaxHeights) { "PASS: $text" }
+    else { "FAIL: $text"; exit 1 }
+}
