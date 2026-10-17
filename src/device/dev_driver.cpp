@@ -2698,6 +2698,7 @@ void DevDriver::setChartSamples(int smpls) {
     if(!m_state.connect) return;
     bool is_changed = smpls != chartSamples();
     idChartSetup->setCount((U2)smpls);
+    logChartSetupSent();
     if (is_changed) {
         emit sendChartSetup(getChannelId(), idChartSetup->resolution(), static_cast<uint16_t>(smpls), idChartSetup->offset());
         emit chartSetupChanged();
@@ -2712,6 +2713,7 @@ void DevDriver::setChartResolution(int resol) {
     if(!m_state.connect) return;
     bool is_changed = resol != chartResolution();
     idChartSetup->setResolution((U2)resol);
+    logChartSetupSent();
     if (is_changed) {
         emit sendChartSetup(getChannelId(), static_cast<uint16_t>(resol), idChartSetup->count(), idChartSetup->offset());
         emit chartSetupChanged();
@@ -2726,10 +2728,25 @@ void DevDriver::setChartOffset(int offset) {
     if(!m_state.connect) return;
     bool is_changed = offset != chartOffset();
     idChartSetup->setOffset((U2)offset);
+    logChartSetupSent();
     if (is_changed) {
         emit sendChartSetup(getChannelId(), idChartSetup->resolution(), idChartSetup->count(), static_cast<uint16_t>(offset));
         emit chartSetupChanged();
     }
+}
+
+// What went out in SETTING ID_CHART_SETUP, from the values setV0 actually wrote (it may lower the
+// resolution). The owner set 20 mm and saw 10 m a side while the board held count 998
+// (2026-10-17): without this line nothing showed which side of the link the number came from.
+void DevDriver::logChartSetupSent()
+{
+    const int count = idChartSetup->count();
+    const int resol = idChartSetup->resolution();
+    const int sides = qMax(1, chartSides_);
+    qInfo().noquote() << QStringLiteral("chart setup sent: count %1, resolution %2 mm, offset %3; %4 a side over %5 side(s) = %6 m")
+                             .arg(count).arg(resol).arg(idChartSetup->offset())
+                             .arg(count / sides).arg(sides)
+                             .arg(0.001 * resol * (count / sides), 0, 'f', 2);
 }
 
 int DevDriver::dspSmoothFactor() {
@@ -2982,6 +2999,12 @@ void DevDriver::receivedChart(Parsers::Type type, Parsers::Version ver, Parsers:
         return;
     }
 
+    const int sides = (ver == v1) ? 2 : 1;
+    if (sides != chartSides_) {
+        chartSides_ = sides;
+        emit chartSidesChanged();
+    }
+
     // connection quality
     if (errorFreezeCnt_ > 100) {
         averageChartLosses_ = idChart->getAverageLosses();
@@ -3156,6 +3179,12 @@ void DevDriver::receivedChartSetup(Parsers::Type type, Parsers::Version ver, Par
     Q_UNUSED(ver);
 
     if(resp == respNone) {
+        const QString held = QStringLiteral("count %1, resolution %2 mm, offset %3")
+                                 .arg(idChartSetup->count()).arg(idChartSetup->resolution()).arg(idChartSetup->offset());
+        if (held != lastChartSetupLog_) {
+            lastChartSetupLog_ = held;
+            qInfo().noquote() << QStringLiteral("chart setup on the device: %1").arg(held);
+        }
         emit sendChartSetup(getChannelId(), idChartSetup->resolution(), idChartSetup->count(), idChartSetup->offset());
         emit chartSetupChanged();
     }

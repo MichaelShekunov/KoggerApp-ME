@@ -23,6 +23,7 @@ public:
     Q_PROPERTY(int chartResolution READ chartResolution WRITE setChartResolution NOTIFY chartSetupChanged)
     Q_PROPERTY(int chartOffset READ chartOffset WRITE setChartOffset NOTIFY chartSetupChanged)
     Q_PROPERTY(bool chartSetupState READ getChartSetupState NOTIFY chartSetupChanged)
+    Q_PROPERTY(int chartSides READ chartSides NOTIFY chartSidesChanged)
 
     Q_PROPERTY(int datasetTimestamp READ datasetTimestamp WRITE setDatasetTimestamp NOTIFY datasetChanged)
     Q_PROPERTY(int datasetDist READ datasetDist WRITE setDatasetDist NOTIFY datasetChanged)

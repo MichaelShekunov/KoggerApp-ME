@@ -568,6 +568,14 @@ Column {
 
     readonly property int chartSamplesMin: 100
     readonly property int chartSamplesMax: 15000
+    // A two-sided device (ID_CHART v1, both sides interleaved; nanoSSS) counts both sides in
+    // chartSamples, so the distance of one side is half of resolution x samples. Taken from the
+    // frames the device sends; before the first one, from its name.
+    readonly property int chartSides: dev ? (dev.chartSides > 0 ? dev.chartSides : (_isNanoSSS ? 2 : 1)) : 1
+    function clampChartSamples(n) {
+        n = Math.max(chartSamplesMin, Math.min(chartSamplesMax, n))
+        return chartSides === 2 ? Math.round(n / 2) * 2 : n   // the firmware drops an odd one
+    }
     readonly property var distanceStepsM: [1, 2, 3, 4, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100, 125, 150]
     readonly property var periodStepsMs: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150, 175, 200, 250, 300, 350, 400, 450, 500, 750, 1000, 1500, 2000]
 
@@ -1674,10 +1682,10 @@ Column {
                 DevSpin {
                     from: 1; to: 150; divisor: 1; decimals: 0
                     stepValues: root.distanceStepsM
-                    devValue: (dev && dev.chartResolution > 0) ? Math.round(dev.chartResolution * dev.chartSamples / 1000) : 0
+                    devValue: (dev && dev.chartResolution > 0) ? Math.round(dev.chartResolution * dev.chartSamples / root.chartSides / 1000) : 0
                     writeBack: function(v) {
                         if (dev && dev.chartResolution > 0)
-                            dev.chartSamples = Math.max(root.chartSamplesMin, Math.min(root.chartSamplesMax, Math.round(v * 1000 / dev.chartResolution)))
+                            dev.chartSamples = root.clampChartSamples(Math.round(v * 1000 * root.chartSides / dev.chartResolution))
                     }
                 }
             }
@@ -1741,7 +1749,7 @@ Column {
                         var distCm = (dev.chartResolution > 0) ? Math.round(dev.chartResolution * dev.chartSamples / 10) : 0
                         dev.chartResolution = v
                         if (distCm > 0)
-                            dev.chartSamples = Math.max(root.chartSamplesMin, Math.min(root.chartSamplesMax, Math.round(distCm * 10 / v)))
+                            dev.chartSamples = root.clampChartSamples(Math.round(distCm * 10 / v))
                     }
                 }
             }

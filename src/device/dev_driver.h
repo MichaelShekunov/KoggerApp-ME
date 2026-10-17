@@ -61,6 +61,11 @@ public:
     int chartOffset();
     void setChartOffset(int offset);
 
+    /// Sides in the last complete echogram frame: 2 for ID_CHART / ID_CHART_Z v1 (both sides
+    /// interleaved), 1 for v0, 0 before the first frame. A two-sided device counts both sides in
+    /// ID_CHART_SETUP, so one side gets chartSamples() / 2 of them.
+    int chartSides() const { return chartSides_; }
+
     int dspSmoothFactor();
     void setDspSmoothFactor(int dsp_smooth);
 
@@ -547,6 +552,7 @@ signals:
     void boatStatusComplete(uint8_t batteryBoatPercent, uint8_t batteryBridgePercent, uint8_t signalQualityBoatPercent, uint8_t signalQualityBridgePercent);
     void depthComplete(float depth);
     void chartSetupChanged();
+    void chartSidesChanged();
     void dspSetupChanged();
     void distSetupChanged();
     void datasetChanged();
@@ -972,6 +978,9 @@ private:
     QTimer m_devSyncDebounceTimer;
     int errorFreezeCnt_;
     int averageChartLosses_;
+    int chartSides_ = 0;
+    QString lastChartSetupLog_;        // the device's chart setup as last logged
+    void logChartSetupSent();
     QUuid linkUuid_;
     bool linkConnected_    = false;
     bool linkReceivesData_ = false;
