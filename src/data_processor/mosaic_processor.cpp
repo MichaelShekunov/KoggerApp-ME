@@ -3,10 +3,13 @@
 #include <QtMath>
 #include <QDebug>
 #include <QElapsedTimer>
+#include <QSemaphore>
 #include <QThread>
 #include <functional>
 #include <limits>
+#include <memory>
 #include <queue>
+#include <unordered_map>
 #include "data_processor.h"
 #include "data_processor_defs.h"
 #include "dataset.h"
@@ -69,6 +72,13 @@ MosaicProcessor::MosaicProcessor(DataProcessor* parent, ComputeWorker* computeWo
     lastTraceLineEpoch_(-1)
 {
     qRegisterMetaType<TileMap>("TileMap");
+
+    // The cores less two (the GUI and the data processor threads), at most 8; the worker's own thread
+    // paints one run, the pool the others.
+    const int forced = qEnvironmentVariableIntValue("KOGGER_MOSAIC_THREADS");
+    paintThreads_ = forced > 0 ? forced : std::clamp(QThread::idealThreadCount() - 2, 1, 8);
+    paintPool_.setMaxThreadCount(std::max(1, paintThreads_ - 1));
+    paintPool_.setExpiryTimeout(-1);
 }
 
 MosaicProcessor::~MosaicProcessor()
@@ -212,7 +222,9 @@ void MosaicProcessor::updateDataWrapper(const QVector<int>& indxs, bool batchEmi
     }
 
     // чанкование задачи
-    const int kStep = 10;
+    // A big job (a file, a zoom) in chunks of 64: painted on several threads, a chunk of 10 is three
+    // pairs a thread and the buffers and the merge cost more than they save. Live, 10 as before.
+    const int kStep = (paintThreads_ > 1 && indxs.size() >= 128) ? 64 : 10;
     const int kProgressStep = 100; // batch sending completed indxs
     QSet<int> usedEpochs;
     QSet<int> blockedEpochs;
@@ -956,51 +968,7 @@ void MosaicProcessor::updateData(const QVector<int>& indxs, QSet<int>& usedEpoch
     const int stepSizeHeightMatrix = surfaceMeshPtr_->getStepSizeHeightMatrix();
     const int meshPixW = surfaceMeshPtr_->getPixelWidth();
     const int meshPixH = surfaceMeshPtr_->getPixelHeight();
-    bool* pairOutOfFovPtr = nullptr;
-    int pairOwner = -1;   // the older epoch of the pair being walked, for owners_
-    // The owners of the tile painted last: a walk stays in a tile for many pixels, so the hash is
-    // looked up once per tile change. A lookup that inserts may move the other entries, and none
-    // but this one is held.
-    const SurfaceTile* ownTile = nullptr;
-    OwnedPixels* ownPix = nullptr;
-
-    // helpers
-    auto putPixel = [&](int x, int y, uint8_t color, int headIndx) -> SurfaceTile* {
-        const int meshX = x / tileSidePixelSize_;
-        const int meshY = (numHeightTiles - 1) - (y / tileSidePixelSize_);
-        SurfaceTile* t  = surfaceMeshPtr_->getTileByXYIndxs(meshY, meshX);
-        if (!t || !t->getInFov()) {
-            if (pairOutOfFovPtr) {
-                *pairOutOfFovPtr = true;
-            }
-            return nullptr;
-        }
-
-        if (headIndx > t->getHeadIndx()) {
-            const int tileX = x % tileSidePixelSize_;
-            const int tileY = y % tileSidePixelSize_;
-            const int pix = tileY * tileSidePixelSize_ + tileX;
-
-            auto& img = t->getMosaicImageDataRef();
-            img.data()[pix] = color;
-            t->setIsUpdated(true);
-            traceCnt++;
-            if (trackOwners_) {
-                if (t != ownTile) {
-                    ownPix = &owners_[t->getKey()];
-                    ownTile = t;
-                    if (ownPix->owner.size() != img.size()) {
-                        ownPix->owner.assign(img.size(), -1);
-                    }
-                }
-                ownPix->owner[size_t(pix)] = pairOwner;
-                ownPix->oldest = std::min(ownPix->oldest, int32_t(pairOwner));
-            }
-
-            return t;
-        }
-        return nullptr;
-    };
+    const int heightSide = tileSidePixelSize_ / stepSizeHeightMatrix + 1;   // height points along a tile side
 
     if (bench) {
         qDebug() << "prep time,    ms" << et.elapsed(); // test
@@ -1008,14 +976,21 @@ void MosaicProcessor::updateData(const QVector<int>& indxs, QSet<int>& usedEpoch
         et.start();
     }
 
-    QSet<SurfaceTile*> usedTiles;
-    int lastHead = -1;
-    bool cancelPending = false;
-    int cancelEpochF = -1;
-    int cancelEpochS = -1;
-    char cancelSide = 0;
-
-    // ray tracing
+    // The pairs: a line and the next line of its side, in the order the lines came -- by epoch, the
+    // left side before the right. A later pair paints over an earlier one, so that order is the result.
+    struct PairJob {
+        int segFIndx;
+        int segSIndx;
+        int segFBegVertIndx;
+        int segFEndVertIndx;
+        int segSBegVertIndx;
+        int segSEndVertIndx;
+        int epochF;
+        int epochS;
+        char side;
+    };
+    QVector<PairJob> jobs;
+    jobs.reserve(measLinesVertices.size() / 2);
     for (int i = 0; i < measLinesVertices.size(); i += 2) {
         if (i + 5 > measLinesVertices.size() - 1) {
             break;
@@ -1044,31 +1019,30 @@ void MosaicProcessor::updateData(const QVector<int>& indxs, QSet<int>& usedEpoch
             continue;
         }
 
-        const int pairEpochF = epochIndxs[segFIndx];
-        const int pairEpochS = epochIndxs[segSIndx];
-        pairOwner = pairEpochF;
-        const char pairSide = isOdds[segFIndx];
-        bool stopAfterThis = false;
-        if (cancelPending) {
-            const bool isCounterpart = (pairEpochF == cancelEpochF &&
-                                        pairEpochS == cancelEpochS &&
-                                        pairSide != cancelSide);
-            if (!isCounterpart) {
-                break;
-            }
-            stopAfterThis = true;
-        }
+        jobs.append(PairJob{ segFIndx, segSIndx, segFBegVertIndx, segFEndVertIndx, segSBegVertIndx, segSEndVertIndx,
+                             epochIndxs[segFIndx], epochIndxs[segSIndx], isOdds[segFIndx] });
+    }
 
-        auto segFEpoch = datasetPtr_->fromIndexMosaicCopy(pairEpochF);
-        auto segSEpoch = datasetPtr_->fromIndexMosaicCopy(pairEpochS);
+    struct PairResult {
+        bool used = false;
+        bool outOfFov = false;
+    };
+    QVector<PairResult> results(jobs.size());
+
+    // One pair, as the loop painted it before 2026-10-17; where a pixel and a height go is the sink's:
+    // in place (DirectSink), or into a thread's own buffers merged afterwards (BufferSink). Returns
+    // false for a pair skipped before painting (no epoch, chart or bottom, too short).
+    auto paintPair = [&](const PairJob& job, int seq, PairResult& res, auto& sink) -> bool {
+        auto segFEpoch = datasetPtr_->fromIndexMosaicCopy(job.epochF);
+        auto segSEpoch = datasetPtr_->fromIndexMosaicCopy(job.epochS);
         if (!segFEpoch.isValid() || !segSEpoch.isValid()) {
-            continue;
+            return false;
         }
 
-        bool segFIsOdd = isOdds[segFIndx] == '1';
-        bool segSIsOdd = isOdds[segSIndx] == '1';
+        bool segFIsOdd = isOdds[job.segFIndx] == '1';
+        bool segSIsOdd = isOdds[job.segSIndx] == '1';
         if (segFIsOdd != segSIsOdd) {
-            continue;
+            return false;
         }
 
         auto segFCh  = segFIsOdd ? segSChannelId_    : segFChannelId_;
@@ -1078,11 +1052,11 @@ void MosaicProcessor::updateData(const QVector<int>& indxs, QSet<int>& usedEpoch
         auto* segFCharts = segFEpoch.chart(segFCh, segFSCh);
         auto* segSCharts = segSEpoch.chart(segSCh, segSSCh);
         if (!segFCharts || !segSCharts) {
-            continue;
+            return false;
         }
         if (!isfinite(segFCharts->bottomProcessing.getDistance()) ||
             !isfinite(segSCharts->bottomProcessing.getDistance())) {
-            continue;
+            return false;
         }
         switch (source_) {
         case Source::Amplitude:
@@ -1107,8 +1081,8 @@ void MosaicProcessor::updateData(const QVector<int>& indxs, QSet<int>& usedEpoch
         }
 
         // Bresenham, first segment
-        QVector3D segFPhBegPnt = segFIsOdd ? measLinesVertices[segFBegVertIndx] : measLinesVertices[segFEndVertIndx];
-        QVector3D segFPhEndPnt = segFIsOdd ? measLinesVertices[segFEndVertIndx] : measLinesVertices[segFBegVertIndx];
+        QVector3D segFPhBegPnt = segFIsOdd ? measLinesVertices[job.segFBegVertIndx] : measLinesVertices[job.segFEndVertIndx];
+        QVector3D segFPhEndPnt = segFIsOdd ? measLinesVertices[job.segFEndVertIndx] : measLinesVertices[job.segFBegVertIndx];
         auto segFBegPixPos = surfaceMeshPtr_->convertPhToPixCoords(segFPhBegPnt);
         auto segFEndPixPos = surfaceMeshPtr_->convertPhToPixCoords(segFPhEndPnt);
         int segFPixX1 = segFBegPixPos.x();
@@ -1122,8 +1096,8 @@ void MosaicProcessor::updateData(const QVector<int>& indxs, QSet<int>& usedEpoch
         int segFPixSy = (segFPixY1 < segFPixY2) ? 1 : -1;
         int segFPixErr = segFPixDx - segFPixDy;
         // second segment
-        QVector3D segSPhBegPnt = segSIsOdd ? measLinesVertices[segSBegVertIndx] : measLinesVertices[segSEndVertIndx];
-        QVector3D segSPhEndPnt = segSIsOdd ? measLinesVertices[segSEndVertIndx] : measLinesVertices[segSBegVertIndx];
+        QVector3D segSPhBegPnt = segSIsOdd ? measLinesVertices[job.segSBegVertIndx] : measLinesVertices[job.segSEndVertIndx];
+        QVector3D segSPhEndPnt = segSIsOdd ? measLinesVertices[job.segSEndVertIndx] : measLinesVertices[job.segSBegVertIndx];
         auto segSBegPixPos = surfaceMeshPtr_->convertPhToPixCoords(segSPhBegPnt);
         auto segSEndPixPos = surfaceMeshPtr_->convertPhToPixCoords(segSPhEndPnt);
         int segSPixX1 = segSBegPixPos.x();
@@ -1139,7 +1113,7 @@ void MosaicProcessor::updateData(const QVector<int>& indxs, QSet<int>& usedEpoch
         // pixel length checking
         if (!checkLength(segFPixTotDist) ||
             !checkLength(segSPixTotDist)) {
-            continue;
+            return false;
         }
 
         float segFDistProc = -1.0f * static_cast<float>(segFCharts->bottomProcessing.getDistance());
@@ -1183,14 +1157,11 @@ void MosaicProcessor::updateData(const QVector<int>& indxs, QSet<int>& usedEpoch
             return false;
         };
 
-        const int freshEpIndx = pairEpochS;
+        const int freshEpIndx = job.epochS;
         // Chord or arc, chosen once for the pair by its far ends (mosaic_arc.h).
         const auto pairPath = mosaic_arc::pathFor(segFBegPixPos.x(), segFBegPixPos.y(), segFEndPixPos.x(), segFEndPixPos.y(),
                                                   segSBegPixPos.x(), segSBegPixPos.y(), segSEndPixPos.x(), segSEndPixPos.y(),
                                                   kMaxArcTurnRad);
-        bool pairUsed = false;
-        bool pairOutOfFov = false;
-        pairOutOfFovPtr = &pairOutOfFov;
 
         while (true) { // follow the biggest segment
             const float rem = std::sqrt(float((bigX2 - bigX1) * (bigX2 - bigX1) + (bigY2 - bigY1) * (bigY2 - bigY1))); // moving on longest line
@@ -1217,23 +1188,15 @@ void MosaicProcessor::updateData(const QVector<int>& indxs, QSet<int>& usedEpoch
                 const auto iClrIndx = static_cast<uint8_t>((1 - iP) * segFColorIndx + iP * segSColorIndx);
 
                 // рисуем текущий пиксель
-                auto* t = putPixel(x0, y0, iClrIndx, freshEpIndx);
+                SurfaceTile* t = sink.pixel(x0, y0, iClrIndx, freshEpIndx, job.epochF, seq, res);
 
                 if (t) {
-                    pairUsed = true;
+                    res.used = true;
                     if (!(stepsDone % tileHeightMatrixRatio_)) {
-                        usedTiles.insert(t);
-                        lastHead = pairEpochF;
-
                         const int tileX = x0 % tileSidePixelSize_;
                         const int tileY = y0 % tileSidePixelSize_;
-                        const int numSteps = tileSidePixelSize_ / stepSizeHeightMatrix + 1;
-                        const int hIdx = (tileY / stepSizeHeightMatrix) * numSteps + (tileX / stepSizeHeightMatrix);
-                        auto& hT = t->getHeightMarkVerticesRef()[hIdx];
-                        if (hT != HeightType::kTriangulation) {
-                            t->getHeightVerticesRef()[hIdx][2] = segFCurrPhPos[2];
-                            hT = HeightType::kMosaic;
-                        }
+                        const int hIdx = (tileY / stepSizeHeightMatrix) * heightSide + (tileX / stepSizeHeightMatrix);
+                        sink.height(t, hIdx, segFCurrPhPos[2], job.epochF, seq);
                     }
                 }
             });
@@ -1242,41 +1205,318 @@ void MosaicProcessor::updateData(const QVector<int>& indxs, QSet<int>& usedEpoch
                 break;
             }
         } // while interp line
-        auto addBlocked = [&](int idx) {
-            if (!blockedEpochs.contains(idx)) {
-                blockedEpochs.insert(idx);
+        return true;
+    };
+
+    // Writes in place, pair after pair: the loop as it was.
+    struct DirectSink {
+        MosaicProcessor* self;
+        int numHeightTiles;
+        uint64_t& traceCnt;
+        QSet<SurfaceTile*>& usedTiles;
+        int& lastHead;
+        // The owners of the tile painted last: a walk stays in a tile for many pixels, so the hash is
+        // looked up once per tile change. A lookup that inserts may move the other entries, and none
+        // but this one is held.
+        const SurfaceTile* ownTile = nullptr;
+        OwnedPixels* ownPix = nullptr;
+
+        SurfaceTile* pixel(int x, int y, uint8_t color, int headIndx, int owner, int, PairResult& res)
+        {
+            const int side = self->tileSidePixelSize_;
+            const int meshX = x / side;
+            const int meshY = (numHeightTiles - 1) - (y / side);
+            SurfaceTile* t  = self->surfaceMeshPtr_->getTileByXYIndxs(meshY, meshX);
+            if (!t || !t->getInFov()) {
+                res.outOfFov = true;
+                return nullptr;
+            }
+            if (headIndx <= t->getHeadIndx()) {
+                return nullptr;
+            }
+            const int pix = (y % side) * side + (x % side);
+            auto& img = t->getMosaicImageDataRef();
+            img.data()[pix] = color;
+            t->setIsUpdated(true);
+            traceCnt++;
+            if (self->trackOwners_) {
+                if (t != ownTile) {
+                    ownPix = &self->owners_[t->getKey()];
+                    ownTile = t;
+                    if (ownPix->owner.size() != img.size()) {
+                        ownPix->owner.assign(img.size(), -1);
+                    }
+                }
+                ownPix->owner[size_t(pix)] = owner;
+                ownPix->oldest = std::min(ownPix->oldest, int32_t(owner));
+            }
+            return t;
+        }
+
+        void height(SurfaceTile* t, int hIdx, float z, int owner, int)
+        {
+            usedTiles.insert(t);
+            lastHead = owner;
+            auto& hT = t->getHeightMarkVerticesRef()[hIdx];
+            if (hT != HeightType::kTriangulation) {
+                t->getHeightVerticesRef()[hIdx][2] = z;
+                hT = HeightType::kMosaic;
+            }
+        }
+    };
+
+    // A thread's writes, each pixel and height point with the number of the pair that wrote it last.
+    struct TileBuf {
+        std::vector<uint8_t> color;
+        std::vector<uint32_t> stamp;    // pair number + 1, 0: not written
+        std::vector<float> hz;
+        std::vector<uint32_t> hstamp;
+        int x0 = std::numeric_limits<int>::max();
+        int y0 = std::numeric_limits<int>::max();
+        int x1 = -1;
+        int y1 = -1;
+    };
+    struct BufferSink {
+        MosaicProcessor* self;
+        int numHeightTiles;
+        int heightCells;
+        std::unordered_map<SurfaceTile*, TileBuf> bufs;   // node-based: a held reference stays valid
+        SurfaceTile* lastTile = nullptr;
+        TileBuf* lastBuf = nullptr;
+        QSet<SurfaceTile*> usedTiles;
+        int lastHead = -1;
+        uint64_t traceCnt = 0;
+
+        TileBuf& buf(SurfaceTile* t)
+        {
+            if (t != lastTile) {
+                TileBuf& b = bufs[t];
+                if (b.stamp.empty()) {
+                    const size_t n = size_t(self->tileSidePixelSize_) * size_t(self->tileSidePixelSize_);
+                    b.color.resize(n);
+                    b.stamp.assign(n, 0);
+                    b.hz.resize(size_t(heightCells));
+                    b.hstamp.assign(size_t(heightCells), 0);
+                }
+                lastTile = t;
+                lastBuf = &b;
+            }
+            return *lastBuf;
+        }
+
+        SurfaceTile* pixel(int x, int y, uint8_t color, int headIndx, int, int seq, PairResult& res)
+        {
+            const int side = self->tileSidePixelSize_;
+            const int meshX = x / side;
+            const int meshY = (numHeightTiles - 1) - (y / side);
+            SurfaceTile* t  = self->surfaceMeshPtr_->getTileByXYIndxs(meshY, meshX);
+            if (!t || !t->getInFov()) {
+                res.outOfFov = true;
+                return nullptr;
+            }
+            if (headIndx <= t->getHeadIndx()) {
+                return nullptr;
+            }
+            const int tx = x % side;
+            const int ty = y % side;
+            const int pix = ty * side + tx;
+            TileBuf& b = buf(t);
+            b.color[size_t(pix)] = color;
+            b.stamp[size_t(pix)] = uint32_t(seq) + 1u;
+            b.x0 = std::min(b.x0, tx);
+            b.x1 = std::max(b.x1, tx);
+            b.y0 = std::min(b.y0, ty);
+            b.y1 = std::max(b.y1, ty);
+            traceCnt++;
+            return t;
+        }
+
+        void height(SurfaceTile* t, int hIdx, float z, int owner, int seq)
+        {
+            usedTiles.insert(t);
+            lastHead = std::max(lastHead, owner);
+            TileBuf& b = buf(t);
+            b.hz[size_t(hIdx)] = z;
+            b.hstamp[size_t(hIdx)] = uint32_t(seq) + 1u;
+        }
+    };
+
+    QSet<SurfaceTile*> usedTiles;
+    int lastHead = -1;
+
+    const int threads = paintThreads_;
+    const bool parallel = threads > 1 && jobs.size() >= 2 * threads;
+    if (!parallel) {
+        DirectSink sink{ this, numHeightTiles, traceCnt, usedTiles, lastHead };
+        bool cancelPending = false;
+        int cancelEpochF = -1;
+        int cancelEpochS = -1;
+        char cancelSide = 0;
+        for (int seq = 0; seq < jobs.size(); ++seq) {
+            const PairJob& job = jobs[seq];
+            bool stopAfterThis = false;
+            if (cancelPending) {
+                const bool isCounterpart = (job.epochF == cancelEpochF &&
+                                            job.epochS == cancelEpochS &&
+                                            job.side != cancelSide);
+                if (!isCounterpart) {
+                    break;
+                }
+                stopAfterThis = true;
+            }
+            if (!paintPair(job, seq, results[seq], sink)) {
+                continue;
+            }
+            if (!cancelPending && canceled()) {
+                cancelPending = true;
+                cancelEpochF = job.epochF;
+                cancelEpochS = job.epochS;
+                cancelSide = job.side;
+            }
+            if (stopAfterThis) {
+                break;
+            }
+        }
+    }
+    else {
+        // Contiguous runs of pairs, one a thread, each into buffers of its own; a run is finished even
+        // when the job is cancelled meanwhile (it is a chunk of updateDataWrapper, a few ms).
+        const int heightCells = heightSide * heightSide;
+        std::vector<std::unique_ptr<BufferSink>> sinks;
+        for (int k = 0; k < threads; ++k) {
+            sinks.push_back(std::make_unique<BufferSink>(BufferSink{ this, numHeightTiles, heightCells, {}, nullptr, nullptr, {}, -1, 0 }));
+        }
+        auto runSlice = [&](int k) {
+            const int from = int((qint64(jobs.size()) * k) / threads);
+            const int to = int((qint64(jobs.size()) * (k + 1)) / threads);
+            for (int seq = from; seq < to; ++seq) {
+                paintPair(jobs[seq], seq, results[seq], *sinks[size_t(k)]);
+            }
+        };
+        QSemaphore done(0);
+        for (int k = 1; k < threads; ++k) {
+            paintPool_.start([&runSlice, &done, k]() {
+                runSlice(k);
+                done.release();
+            });
+        }
+        runSlice(0);
+        done.acquire(threads - 1);
+
+        // Merge: each pixel and height point from the pair numbered last, as painting in order leaves it.
+        std::unordered_map<SurfaceTile*, std::vector<const TileBuf*>> byTile;
+        for (const auto& s : sinks) {
+            for (const auto& kv : s->bufs) {
+                byTile[kv.first].push_back(&kv.second);
+            }
+            usedTiles.unite(s->usedTiles);
+            lastHead = std::max(lastHead, s->lastHead);
+            traceCnt += s->traceCnt;
+        }
+        const int side = tileSidePixelSize_;
+        for (const auto& kv : byTile) {
+            SurfaceTile* t = kv.first;
+            const auto& bs = kv.second;
+            int x0 = std::numeric_limits<int>::max();
+            int y0 = std::numeric_limits<int>::max();
+            int x1 = -1;
+            int y1 = -1;
+            for (const TileBuf* b : bs) {
+                x0 = std::min(x0, b->x0);
+                y0 = std::min(y0, b->y0);
+                x1 = std::max(x1, b->x1);
+                y1 = std::max(y1, b->y1);
+            }
+            auto& img = t->getMosaicImageDataRef();
+            OwnedPixels* own = nullptr;
+            if (trackOwners_ && x1 >= x0) {
+                own = &owners_[t->getKey()];
+                if (own->owner.size() != img.size()) {
+                    own->owner.assign(img.size(), -1);
+                }
+            }
+            bool written = false;
+            for (int y = y0; y <= y1; ++y) {
+                for (int x = x0; x <= x1; ++x) {
+                    const size_t pix = size_t(y * side + x);
+                    uint32_t best = 0;
+                    const TileBuf* from = nullptr;
+                    for (const TileBuf* b : bs) {
+                        if (b->stamp[pix] > best) {
+                            best = b->stamp[pix];
+                            from = b;
+                        }
+                    }
+                    if (!from) {
+                        continue;
+                    }
+                    img.data()[pix] = from->color[pix];
+                    written = true;
+                    if (own) {
+                        const int32_t ow = jobs[int(best - 1u)].epochF;
+                        own->owner[pix] = ow;
+                        own->oldest = std::min(own->oldest, ow);
+                    }
+                }
+            }
+            if (written) {
+                t->setIsUpdated(true);
+            }
+            auto& verts = t->getHeightVerticesRef();
+            auto& marks = t->getHeightMarkVerticesRef();
+            for (int h = 0; h < heightCells && h < verts.size() && h < marks.size(); ++h) {
+                uint32_t best = 0;
+                const TileBuf* from = nullptr;
+                for (const TileBuf* b : bs) {
+                    if (b->hstamp[size_t(h)] > best) {
+                        best = b->hstamp[size_t(h)];
+                        from = b;
+                    }
+                }
+                if (!from) {
+                    continue;
+                }
+                auto& hT = marks[h];
+                if (hT != HeightType::kTriangulation) {
+                    verts[h][2] = from->hz[size_t(h)];
+                    hT = HeightType::kMosaic;
+                }
+            }
+        }
+    }
+
+    for (int seq = 0; seq < jobs.size(); ++seq) {
+        const PairJob& job = jobs[seq];
+        const PairResult& res = results[seq];
+        if (res.outOfFov) {
+            if (!blockedEpochs.contains(job.epochF)) {
+                blockedEpochs.insert(job.epochF);
                 if (newBlocked) {
-                    newBlocked->append(idx);
+                    newBlocked->append(job.epochF);
                 }
             }
-        };
-        auto addUsed = [&](int idx) {
-            if (!usedEpochs.contains(idx)) {
-                usedEpochs.insert(idx);
+            if (!blockedEpochs.contains(job.epochS)) {
+                blockedEpochs.insert(job.epochS);
+                if (newBlocked) {
+                    newBlocked->append(job.epochS);
+                }
+            }
+        }
+        else if (res.used) {
+            if (!usedEpochs.contains(job.epochF)) {
+                usedEpochs.insert(job.epochF);
                 if (newUsed) {
-                    newUsed->append(idx);
+                    newUsed->append(job.epochF);
                 }
             }
-        };
-
-        if (pairOutOfFov) {
-            addBlocked(pairEpochF);
-            addBlocked(pairEpochS);
-        } else if (pairUsed) {
-            addUsed(pairEpochF);
-            addUsed(pairEpochS);
+            if (!usedEpochs.contains(job.epochS)) {
+                usedEpochs.insert(job.epochS);
+                if (newUsed) {
+                    newUsed->append(job.epochS);
+                }
+            }
         }
-
-        if (!cancelPending && canceled()) {
-            cancelPending = true;
-            cancelEpochF = pairEpochF;
-            cancelEpochS = pairEpochS;
-            cancelSide = pairSide;
-        }
-        if (stopAfterThis) {
-            break;
-        }
-    } // for rays
+    }
 
     { // unmark tiles
         for (auto it = visAndPrefTileKeys.cbegin(); it != visAndPrefTileKeys.cend(); ++it) {

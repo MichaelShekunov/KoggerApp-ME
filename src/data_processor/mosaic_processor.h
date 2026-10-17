@@ -4,6 +4,7 @@
 #include <limits>
 #include <vector>
 #include <QHash>
+#include <QThreadPool>
 #include <QVariantMap>
 
 #include "dataset_defs.h"
@@ -107,6 +108,10 @@ private:
     };
     bool trackOwners_ = false;
     QHash<TileKey, OwnedPixels> owners_;
+    // updateData paints the pairs of a chunk on this many threads (KOGGER_MOSAIC_THREADS, else the
+    // cores less two, at most 8; 1 paints in place as before), each into buffers merged in pair order.
+    int paintThreads_ = 1;
+    QThreadPool paintPool_;
     int lastTraceLineEpoch_;
     QVector3D lastLeftBeg_;
     QVector3D lastLeftEnd_;
