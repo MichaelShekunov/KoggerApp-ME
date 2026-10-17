@@ -1388,3 +1388,21 @@ count, resolution, offset; per side") on every change, and what the device holds
 the device: ...") when its answer changes.
 
 Verified by machine: builds. Not verified: on the device.
+
+## The rest of the lag was the black-stripe filter (2026-10-17)
+
+The owner found it: with FBS ("Fix black stripes", forward / backward 5 / 5, Settings -> Dataset)
+switched off, the circular mosaic is real-time. `Dataset::addChart` fills a black stripe in a ping
+from the pings after it (backward steps), so it releases charts only up to `endIndx -
+backwardSteps` (`chartAdded(lastIndx)`): the mosaic horizon trails the newest ping by the backward
+steps -- 5 pings, about 250 ms at 20 pings/s. Forward steps fill from the pings before and hold
+nothing back, so FBS with backward 0 should keep the filling without the lag (read from the code,
+not tried).
+
+The latency line could not see it, because its clock started at that very release; my 5 ms of the
+11:11 session was true for the part it measured and said nothing about the hold. It now starts
+when the epoch appears (`onEpochAdded`; with Pos zeroing, the attitude frame that also moves the
+heading pointer), says how long the chart's release took, and how many pings the filter holds
+(`Dataset::chartHoldEpochs`).
+
+Verified by machine: builds. Not verified: the new line in a live session.

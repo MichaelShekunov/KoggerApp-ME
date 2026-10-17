@@ -445,6 +445,9 @@ public slots:
     void setFixBlackStripesState(bool state);
     void setFixBlackStripesForwardSteps(int val);
     void setFixBlackStripesBackwardSteps(int val);
+    /// Epochs chartAdded() trails the newest chart by: the black-stripe filter's backward steps
+    /// when it is on (the last ones may still be filled from later pings), else 0.
+    int chartHoldEpochs() const;
     void addChart(const ChannelId& channelId, const ChartParameters& chartParams, const QVector<QVector<uint8_t>>& data, float resolution, float offset);
     void rawDataRecieved(const ChannelId& channelId, RawData raw_data);
     void addDist(const ChannelId& channelId, int dist);

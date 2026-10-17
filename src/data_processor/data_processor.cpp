@@ -772,6 +772,8 @@ void DataProcessor::onBottomTrack3DAdded(const QVector<int>& epIndxs, const QVec
 void DataProcessor::onEpochAdded(uint64_t indx)
 {
     epochCounter_    = indx;
+    latencyStamp(LatStage::Created, latLastEpoch_ + 1, int(indx));
+    latLastEpoch_ = std::max(latLastEpoch_, int(indx));
     tryScheduleAutoBottomTrack(indx);
 }
 
@@ -1415,8 +1417,13 @@ void DataProcessor::latencyStamp(LatStage stage, int fromIndx, int toIndx)
     fromIndx = std::max(fromIndx, toIndx - 4096);   // a jump (new session, catching up): keep it bounded
     const qint64 now = latClock_.elapsed();
     for (int i = fromIndx; i <= toIndx; ++i) {
-        if (stage == LatStage::Chart) {
-            latStamps_[i].chart = now;
+        // An entry starts when its epoch appears -- with Pos zeroing, the attitude frame that also
+        // moves the heading pointer -- or else when its chart is released.
+        if (stage == LatStage::Created || stage == LatStage::Chart) {
+            qint64& t = (stage == LatStage::Created) ? latStamps_[i].created : latStamps_[i].chart;
+            if (t == 0) {
+                t = now;
+            }
             continue;
         }
         auto it = latStamps_.find(i);
@@ -1430,7 +1437,7 @@ void DataProcessor::latencyStamp(LatStage stage, int fromIndx, int toIndx)
     }
     if (latStamps_.size() > 8192) {                 // epochs that were never painted
         for (auto it = latStamps_.begin(); it != latStamps_.end();) {
-            it = (now - it->chart > 30000) ? latStamps_.erase(it) : std::next(it);
+            it = (now - std::max(it->created, it->chart) > 30000) ? latStamps_.erase(it) : std::next(it);
         }
     }
 }
@@ -1466,7 +1473,11 @@ void DataProcessor::latencyFirstPaint(const QVector<int>& indxs)
         if (s.chart <= 0) {
             continue;
         }
-        latTotal_.append(int(now - s.chart));
+        // From the epoch's appearance when known: the chart's release can itself trail it -- the
+        // black-stripe filter holds the newest charts back by its backward steps (the owner's FBS
+        // 5/5, ~250 ms at 20 pings/s, unseen by this line while it started at the release).
+        latTotal_.append(int(now - (s.created > 0 ? s.created : s.chart)));
+        if (s.created > 0)  latChartWait_.append(int(s.chart - s.created));
         if (s.pending > 0)  latBottom_.append(int(s.pending - s.chart));
         if (s.released > 0) latHorizon_.append(int(s.released - s.chart));
         if (s.sent > 0) {
@@ -1483,20 +1494,23 @@ void DataProcessor::latencyReport()
         return;
     }
     const auto params = datasetPtr_ ? datasetPtr_->getBottomTrackParam() : BottomTrackParam();
-    qInfo().noquote() << QStringLiteral("mosaic latency: %1 pings in %2 s, chart -> first painted median %3 ms (p90 %4, max %5); "
-                                        "waiting for the bottom track %6 ms, for the horizon %7 ms, in the queue %8 ms, painting %9 ms; "
-                                        "painted %10 times a ping; bottom track window %11")
+    qInfo().noquote() << QStringLiteral("mosaic latency: %1 pings in %2 s, ping -> first painted median %3 ms (p90 %4, max %5); "
+                                        "chart released after %6 ms, then waiting for the bottom track %7 ms, for the horizon %8 ms, "
+                                        "in the queue %9 ms, painting %10 ms; painted %11 times a ping; bottom track window %12, "
+                                        "black-stripe filter holds %13 pings")
                              .arg(latTotal_.size())
                              .arg((now - latLastReport_) / 1000.0, 0, 'f', 1)
                              .arg(latMedian(latTotal_))
                              .arg(latPercentile(latTotal_, 90))
                              .arg(*std::max_element(latTotal_.cbegin(), latTotal_.cend()))
+                             .arg(latMedian(latChartWait_))
                              .arg(latMedian(latBottom_))
                              .arg(latMedian(latHorizon_))
                              .arg(latMedian(latQueue_))
                              .arg(latMedian(latPaint_))
                              .arg(double(latPaintReports_) / latTotal_.size(), 0, 'f', 1)
-                             .arg(params.windowSize);
+                             .arg(params.windowSize)
+                             .arg(datasetPtr_ ? datasetPtr_->chartHoldEpochs() : 0);
     qInfo().noquote() << QStringLiteral("mosaic latency, per job: surface %1 ms median (max %2) in %3 of %4 jobs, of which "
                                         "waiting for the GUI thread %10 ms median (max %11), %5 new points, %6 points in the "
                                         "surface; mosaic %7 ms median (max %8), %9 epochs")
@@ -1519,6 +1533,7 @@ void DataProcessor::latencyReport()
     latMosaicEpochs_ = 0;
     latJobs_ = 0;
     latTotal_.clear();
+    latChartWait_.clear();
     latBottom_.clear();
     latHorizon_.clear();
     latQueue_.clear();
@@ -1550,7 +1565,9 @@ void DataProcessor::latencyReset()
 {
     latStamps_.clear();
     latLastChart_ = -1;
+    latLastEpoch_ = -1;
     latLastReleased_ = -1;
+    latChartWait_.clear();
     latTotal_.clear();
     latBottom_.clear();
     latHorizon_.clear();

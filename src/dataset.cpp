@@ -244,6 +244,11 @@ void Dataset::setFixBlackStripesBackwardSteps(int val)
     bSProc_->setBackwardSteps(val);
 }
 
+int Dataset::chartHoldEpochs() const
+{
+    return bSProc_->getState() ? bSProc_->getBackwardSteps() : 0;
+}
+
 void Dataset::addChart(const ChannelId& channelId, const ChartParameters& chartParams, const QVector<QVector<uint8_t>>& data, float resolution, float offset)
 {
     if (data.empty() || qFuzzyIsNull(resolution)) {
