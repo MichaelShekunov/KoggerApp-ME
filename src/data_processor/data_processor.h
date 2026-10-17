@@ -204,6 +204,9 @@ private slots:
     // diagnostics
     void postPipelineStats(const QVariantMap& stats);
     void postMosaicStats(const QVariantMap& stats);
+    // one compute job: ms on the bottom surface (-1 = none) for so many new points, the surface's
+    // point count after it, ms on the mosaic (-1 = none) for so many epochs
+    void postBundleTiming(int surfaceMs, int surfaceItems, int surfacePoints, int mosaicMs, int mosaicEpochs);
 
     void onBottomTrackStarted();
     void onBottomTrackFinished();
@@ -329,6 +332,8 @@ private:
     int                    latLastChart_ = -1;
     int                    latLastReleased_ = -1;
     QVector<int>           latTotal_, latBottom_, latHorizon_, latQueue_, latPaint_;
+    QVector<int>           latSurfaceMs_, latMosaicMs_;   // per compute job, this window
+    int                    latSurfaceItems_ = 0, latSurfacePoints_ = 0, latMosaicEpochs_ = 0, latJobs_ = 0;
     qint64                 latLastReport_ = 0;
     bool                   pendingIsobathsWork_;
     QTimer                 pendingWorkTimer_;

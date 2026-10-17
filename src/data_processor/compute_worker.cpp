@@ -2,6 +2,7 @@
 #include "data_processor.h"
 #include "dataset.h"
 #include "surface_mesh.h"
+#include <QElapsedTimer>
 #include <QMetaType>
 #include <QVariantMap>
 #include <QDebug>
@@ -193,9 +194,15 @@ void ComputeWorker::processBundle(const WorkBundle& wb)
 {
     //qDebug() << "ComputeWorker::processBundle: task" <<  wb.mosaicVec.size() ;
     // последовательно. cабы сами шлют сигналы наружу
+    // Each part is timed for the mosaic latency line (DataProcessor::latencyPainted).
+    QElapsedTimer partClock;
+    partClock.start();
+    int surfaceMs = -1;
+    int mosaicMs = -1;
     if (!wb.surfaceVec.isEmpty()) { // && !isCanceled()
         surface_.onUpdatedBottomTrackData(wb.surfaceVec);
         surface_.rebuildColorIntervals();
+        surfaceMs = int(partClock.restart());
     }
 
     if (wb.doIsobaths && !isCanceled()) {
@@ -203,9 +210,15 @@ void ComputeWorker::processBundle(const WorkBundle& wb)
     }
 
     if (!wb.mosaicVec.isEmpty() && !isCanceled()) {
+        partClock.restart();
         mosaic_.updateDataWrapper(wb.mosaicVec, wb.batchMosaicEmit);
+        mosaicMs = int(partClock.elapsed());
     }
 
+    QMetaObject::invokeMethod(dp_, "postBundleTiming", Qt::QueuedConnection,
+                              Q_ARG(int, surfaceMs), Q_ARG(int, int(wb.surfaceVec.size())),
+                              Q_ARG(int, surface_.getTriangulationPointCount()),
+                              Q_ARG(int, mosaicMs), Q_ARG(int, int(wb.mosaicVec.size())));
     emit jobFinished();
 }
 

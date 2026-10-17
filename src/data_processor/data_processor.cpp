@@ -1481,12 +1481,45 @@ void DataProcessor::latencyPainted()
                              .arg(latMedian(latQueue_))
                              .arg(latMedian(latPaint_))
                              .arg(params.windowSize);
+    qInfo().noquote() << QStringLiteral("mosaic latency, per job: surface %1 ms median (max %2) in %3 of %4 jobs, "
+                                        "%5 new points, %6 points in the surface; mosaic %7 ms median (max %8), %9 epochs")
+                             .arg(latMedian(latSurfaceMs_))
+                             .arg(latSurfaceMs_.isEmpty() ? -1 : *std::max_element(latSurfaceMs_.cbegin(), latSurfaceMs_.cend()))
+                             .arg(latSurfaceMs_.size())
+                             .arg(latJobs_)
+                             .arg(latSurfaceItems_)
+                             .arg(latSurfacePoints_)
+                             .arg(latMedian(latMosaicMs_))
+                             .arg(latMosaicMs_.isEmpty() ? -1 : *std::max_element(latMosaicMs_.cbegin(), latMosaicMs_.cend()))
+                             .arg(latMosaicEpochs_);
+    latSurfaceMs_.clear();
+    latMosaicMs_.clear();
+    latSurfaceItems_ = 0;
+    latMosaicEpochs_ = 0;
+    latJobs_ = 0;
     latTotal_.clear();
     latBottom_.clear();
     latHorizon_.clear();
     latQueue_.clear();
     latPaint_.clear();
     latLastReport_ = now;
+}
+
+void DataProcessor::postBundleTiming(int surfaceMs, int surfaceItems, int surfacePoints, int mosaicMs, int mosaicEpochs)
+{
+    if (datasetState_ != 2 || isOpeningFile_ || !updateMosaic_) {
+        return;
+    }
+    ++latJobs_;
+    if (surfaceMs >= 0) {
+        latSurfaceMs_.append(surfaceMs);
+        latSurfaceItems_ += surfaceItems;
+    }
+    latSurfacePoints_ = surfacePoints;
+    if (mosaicMs >= 0) {
+        latMosaicMs_.append(mosaicMs);
+        latMosaicEpochs_ += mosaicEpochs;
+    }
 }
 
 void DataProcessor::latencyReset()
