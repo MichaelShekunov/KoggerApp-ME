@@ -1527,5 +1527,5 @@ Bench, no nudge (`ring_bench.ps1 -NoNudge`), N = 80: 0 of 360 deg before (df2f85
 the nudge 360. The diagnosis by a temporary log in a test build: 16 tiles at start, dropped by the
 clear, then 200 epochs without one.
 
-Not verified: the toolbar's reset in the app; the owner's connect through the connection page (the
-same `clearAllProcessings`, read, not run).
+Seen on the owner's board the same day (0bfdd1fd): the mosaic draws at once after connecting, the
+zoom untouched. Not verified: the toolbar's reset in the app.
