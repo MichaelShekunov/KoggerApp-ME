@@ -13,6 +13,8 @@
 #include <QVector3D>
 #include <QVariantMap>
 #include <QReadWriteLock>
+#include <QElapsedTimer>
+#include <QTimer>
 #include <atomic>
 
 #include "black_stripes_processor.h"
@@ -579,6 +581,13 @@ protected:
     float lastYaw_           = NAN;
     float lastPitch_         = NAN;
     float lastRoll_          = NAN;
+    // attitudeUpdated, QML's lastYaw/Pitch/Roll, at most every kUiNotifyMs and the last value always:
+    // emitted for every attitude message it re-ran QML bindings thousands of times a second while a
+    // file loaded, a tenth of the GUI thread (2026-10-17).
+    static constexpr int kUiNotifyMs = 33;
+    QElapsedTimer attitudeNotifyClock_;
+    QTimer attitudeNotifyTimer_;
+    void notifyAttitudeUpdated();
     bool hasTemperatureData_ = false;
     bool hasDopplerBeamData_ = false;
     bool hasDvlSolutionData_ = false;

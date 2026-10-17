@@ -73,6 +73,7 @@ private:
     static constexpr int kMinRebuildMs = 1000;
 
     QElapsedTimer lastBuild_;
+    QElapsedTimer lastGrowth_;
     QTimer tail_;
 
     Dataset* datasetPtr_ = nullptr;

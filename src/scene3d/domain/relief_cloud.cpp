@@ -38,6 +38,11 @@ ReliefCloud::ReliefCloud(GraphicsScene3dView* view, QObject* parent) :
     tail_.setSingleShot(true);
     tail_.setInterval(kMinRebuildMs);
     connect(&tail_, &QTimer::timeout, this, [this]() {
+        const qint64 quiet = lastGrowth_.isValid() ? lastGrowth_.elapsed() : kMinRebuildMs;
+        if (quiet < kMinRebuildMs) {   // still growing: once the growth pauses
+            tail_.start(int(kMinRebuildMs - quiet));
+            return;
+        }
         if (isVisible() && datasetPtr_ && datasetPtr_->size() > builtAtEpochCount_) {
             rebuild();
         }
@@ -114,7 +119,12 @@ void ReliefCloud::onDatasetGrew()
     if (now <= builtAtEpochCount_) {
         return;
     }
-    tail_.start();   // whatever is left unbuilt, once the growth pauses
+    // Whatever is left unbuilt, once the growth pauses. Restarted on every epoch, the timer cost two
+    // window-system calls an epoch: a tenth of the GUI thread while a file loaded (2026-10-17).
+    lastGrowth_.restart();
+    if (!tail_.isActive()) {
+        tail_.start(kMinRebuildMs);
+    }
     if (now < builtAtEpochCount_ + kRebuildGrowth) {
         return;
     }

@@ -1,5 +1,7 @@
 #include "dataset.h"
 
+#include <QThread>
+
 #include "core.h"
 #include "data_processor_defs.h"
 extern Core core;
@@ -25,6 +27,27 @@ Dataset::Dataset() :
     // connection cannot marshal a type the metatype system has not been told about.
     qRegisterMetaType<IDBinUsblSolution::UsblSolution>("IDBinUsblSolution::UsblSolution");
     resetDataset();
+
+    attitudeNotifyTimer_.setSingleShot(true);
+    connect(&attitudeNotifyTimer_, &QTimer::timeout, this, [this]() {
+        attitudeNotifyClock_.restart();
+        emit attitudeUpdated();
+    });
+}
+
+void Dataset::notifyAttitudeUpdated()
+{
+    if (QThread::currentThread() != thread()) {   // the timer works in this object's thread only
+        emit attitudeUpdated();
+        return;
+    }
+    if (!attitudeNotifyClock_.isValid() || attitudeNotifyClock_.elapsed() >= kUiNotifyMs) {
+        attitudeNotifyClock_.restart();
+        emit attitudeUpdated();
+    }
+    else if (!attitudeNotifyTimer_.isActive()) {
+        attitudeNotifyTimer_.start(int(kUiNotifyMs - attitudeNotifyClock_.elapsed()));
+    }
 }
 
 Dataset::~Dataset()
@@ -624,7 +647,7 @@ void Dataset::addAtt(float yaw, float pitch, float roll)
     lastYaw_ = yaw;
     lastPitch_ = pitch;
     lastRoll_ = roll;
-    emit attitudeUpdated();
+    notifyAttitudeUpdated();
 
     if (activeZeroing_) {
         ++testTime_;

@@ -2,6 +2,7 @@
 
 #include <time.h>
 #include <QMutex>
+#include <QThread>
 #include <QPixmap>
 #include <QPainter>
 #include <QSGSimpleTextureNode>
@@ -25,6 +26,11 @@ qPlot2D::qPlot2D(QQuickItem* parent)
 //    setRenderTarget(QQuickPaintedItem::FramebufferObject);
     connect(m_updateTimer, &QTimer::timeout, this, &qPlot2D::timerUpdater);
     m_updateTimer->start(30);
+    timelineNotifyTimer_.setSingleShot(true);
+    connect(&timelineNotifyTimer_, &QTimer::timeout, this, [this]() {
+        timelineNotifyClock_.restart();
+        emit timelinePositionChanged();
+    });
     connect(this, &QQuickItem::widthChanged, this, &qPlot2D::updater);
     connect(this, &QQuickItem::heightChanged, this, &qPlot2D::updater);
     connect(this, &QQuickItem::visibleChanged, this, &qPlot2D::updater);
@@ -243,7 +249,14 @@ void qPlot2D::plotUpdate()
 //        qInfo("HHHHHHHHHHHHHHHHHHHHHHHHHH==================HHHHHHHHHHHHHHHHHHHHHHHHHH");
         return;
     }
-    emit timelinePositionChanged();
+    if (QThread::currentThread() != thread()
+            || !timelineNotifyClock_.isValid() || timelineNotifyClock_.elapsed() >= kTimelineNotifyMs) {
+        timelineNotifyClock_.restart();
+        emit timelinePositionChanged();
+    }
+    else if (!timelineNotifyTimer_.isActive()) {
+        timelineNotifyTimer_.start(int(kTimelineNotifyMs - timelineNotifyClock_.elapsed()));
+    }
 
     update();
 

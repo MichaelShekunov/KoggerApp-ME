@@ -314,6 +314,11 @@ private:
 
     EchogramSonifier* sonifier_ = nullptr;
     QElapsedTimer lastLiveColumn_;
+    // timelinePositionChanged at most every kTimelineNotifyMs and the last one always: plotUpdate runs
+    // for every piece of data, and the notification re-ran the timeline's QML bindings each time.
+    static constexpr int kTimelineNotifyMs = 33;
+    QElapsedTimer timelineNotifyClock_;
+    QTimer timelineNotifyTimer_;
     int sonifiedEpochIndx_ = -1;
     int sonifiedColumn_ = -1;
     int soundScale_ = 0;
