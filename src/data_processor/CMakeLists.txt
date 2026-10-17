@@ -5,6 +5,7 @@ target_sources(KoggerApp PRIVATE
     data_processor_defs.h
     isobaths_processor.h      isobaths_processor.cpp
     mosaic_processor.h        mosaic_processor.cpp
+    mosaic_precomputer.h      mosaic_precomputer.cpp
     mosaic_arc.h
     surface_processor.h       surface_processor.cpp
     surface_mesh.h            surface_mesh.cpp

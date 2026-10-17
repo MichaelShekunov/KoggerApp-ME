@@ -29,6 +29,7 @@
 class Dataset;
 class BottomTrack;
 class ComputeWorker;
+class MosaicPrecomputer;
 class BtWorker;
 
 class DataProcessor : public QObject {
@@ -190,6 +191,11 @@ private slots:
     void postLastBottomTrackEpochChanged(const ChannelId& channelId, int val, const BottomTrackParam& btP, bool manual, bool redrawAll);
     // Surface/Mosaic
     void postSurfaceTiles(TileMap tiles, bool isMosaic);
+    // MosaicPrecomputer: the zoom levels next to the view's, painted in the background
+    void postPrecomputedTiles(TileMap tiles, quint64 generation);
+    void onMosaicEpochsPrecomputed(const QVector<int>& indxs, int zoom, quint64 generation);
+    void onPrecomputeFinished(quint64 generation);
+    void maybeStartPrecompute();
     // Surface
     void postMinZ(float val);
     void postMaxZ(float val);
@@ -218,6 +224,7 @@ private:
     void flushPendingDbKeys();
     void tryFinalizeResetProcessing();
     void requeueViewRect();
+    void cancelPrecompute();
 
     // this
     void changeState(const DataProcessorType& state);
@@ -278,6 +285,22 @@ private:
     
     QThread computeThread_;
     ComputeWorker* worker_;
+
+    // The zoom levels next to the view's, painted ahead in the background so a zoom finds its tiles
+    // in the hot cache (maybeStartPrecompute; the owner's request, 2026-10-17). A new generation
+    // (cancelPrecompute) stops the running one and drops what it still sends.
+    QThread precomputeThread_;
+    MosaicPrecomputer* precomputer_ = nullptr;
+    QTimer precomputeTimer_;
+    quint64 precomputeGeneration_ = 1;
+    bool precomputeRunning_ = false;
+    QElapsedTimer precomputeClock_;
+    QHash<int, QSet<int>> precomputeTried_;   // per zoom, sent for the present view (edge pairs stay unfinished)
+    QSet<int> precomputedZooms_;              // levels other than the view's with precomputed tiles in the cache
+    int precomputeMaxEpoch_ = -1;             // the newest epoch sent to it since the last drop
+    QString precomputeRunInfo_;               // the running one, for its line in the log
+    QElapsedTimer bottomTrackChanged_;        // the precompute waits for the bottom track to settle
+    void dropPrecomputed();
 
     QThread btThread_;
     BtWorker* btWorker_;

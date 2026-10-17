@@ -179,7 +179,7 @@ void MosaicProcessor::eraseOwnersBelow(int keepFrom)
     }
 
     if (!res.isEmpty()) {
-        QMetaObject::invokeMethod(dataProcessor_, "postSurfaceTiles", Qt::QueuedConnection, Q_ARG(TileMap, res), Q_ARG(bool, true));
+        postTiles(res);
     }
 }
 
@@ -212,7 +212,9 @@ void MosaicProcessor::updateDataWrapper(const QVector<int>& indxs, bool batchEmi
         return;
     }
 
-    QMetaObject::invokeMethod(dataProcessor_, "postState", Qt::QueuedConnection, Q_ARG(DataProcessorType, DataProcessorType::kMosaic));
+    if (!background_) {
+        QMetaObject::invokeMethod(dataProcessor_, "postState", Qt::QueuedConnection, Q_ARG(DataProcessorType, DataProcessorType::kMosaic));
+    }
 
     // Batch chunk emissions only when the caller opted in (FAKE_COORDS+N radical repaints).
     // Default off preserves the original incremental streaming behavior for real-time paint.
@@ -249,9 +251,7 @@ void MosaicProcessor::updateDataWrapper(const QVector<int>& indxs, bool batchEmi
         }
 
         std::sort(progressBatch.begin(), progressBatch.end());
-        QMetaObject::invokeMethod(dataProcessor_, "onMosaicEpochsProcessed", Qt::QueuedConnection,
-                                  Q_ARG(QVector<int>, progressBatch),
-                                  Q_ARG(int, progressZoom));
+        reportEpochs(progressBatch, progressZoom);
         for (int idx : std::as_const(progressBatch)) {
             reportedEpochs.insert(idx);
         }
@@ -365,20 +365,54 @@ void MosaicProcessor::updateDataWrapper(const QVector<int>& indxs, bool batchEmi
         }
         std::sort(usedVec.begin(), usedVec.end());
         const int zoom = zoomFromMpp(tileResolution_);
-        QMetaObject::invokeMethod(dataProcessor_, "onMosaicEpochsProcessed", Qt::QueuedConnection,
-                                  Q_ARG(QVector<int>, usedVec),
-                                  Q_ARG(int, zoom));
+        reportEpochs(usedVec, zoom);
     }
 
     // Flush all accumulated chunks as a single tile delta — renderer transitions in one shot.
     inBatch_ = false;
     if (!batchedTiles_.isEmpty()) {
-        QMetaObject::invokeMethod(dataProcessor_, "postSurfaceTiles", Qt::QueuedConnection,
-                                  Q_ARG(TileMap, batchedTiles_), Q_ARG(bool, true));
+        postTiles(batchedTiles_);
         batchedTiles_.clear();
     }
 
-    QMetaObject::invokeMethod(dataProcessor_, "postState", Qt::QueuedConnection, Q_ARG(DataProcessorType, DataProcessorType::kUndefined));
+    if (!background_) {
+        QMetaObject::invokeMethod(dataProcessor_, "postState", Qt::QueuedConnection, Q_ARG(DataProcessorType, DataProcessorType::kUndefined));
+    }
+}
+
+void MosaicProcessor::setBackground(const QSet<TileKey>* tiles, const std::atomic<quint64>* latest, quint64 generation)
+{
+    background_ = true;
+    allowedTiles_ = tiles;
+    latestGeneration_ = latest;
+    generation_ = generation;
+}
+
+void MosaicProcessor::setPaintThreads(int n)
+{
+    paintThreads_ = std::max(1, n);
+    paintPool_.setMaxThreadCount(std::max(1, paintThreads_ - 1));
+}
+
+void MosaicProcessor::postTiles(const TileMap& tiles)
+{
+    if (background_) {   // into the cache only, and only if this run is still the one wanted
+        QMetaObject::invokeMethod(dataProcessor_, "postPrecomputedTiles", Qt::QueuedConnection,
+                                  Q_ARG(TileMap, tiles), Q_ARG(quint64, generation_));
+        return;
+    }
+    QMetaObject::invokeMethod(dataProcessor_, "postSurfaceTiles", Qt::QueuedConnection, Q_ARG(TileMap, tiles), Q_ARG(bool, true));
+}
+
+void MosaicProcessor::reportEpochs(const QVector<int>& indxs, int zoom)
+{
+    if (background_) {
+        QMetaObject::invokeMethod(dataProcessor_, "onMosaicEpochsPrecomputed", Qt::QueuedConnection,
+                                  Q_ARG(QVector<int>, indxs), Q_ARG(int, zoom), Q_ARG(quint64, generation_));
+        return;
+    }
+    QMetaObject::invokeMethod(dataProcessor_, "onMosaicEpochsProcessed", Qt::QueuedConnection,
+                              Q_ARG(QVector<int>, indxs), Q_ARG(int, zoom));
 }
 
 void MosaicProcessor::setLAngleOffset(float val)
@@ -912,7 +946,7 @@ void MosaicProcessor::updateData(const QVector<int>& indxs, QSet<int>& usedEpoch
     }
     surfaceMeshPtr_->concatenate(expanded);
 
-    QSet<TileKey> visAndPrefTileKeys = computeWorker_->getVisibleTileKeysCPtr();
+    QSet<TileKey> visAndPrefTileKeys = allowedTiles_ ? *allowedTiles_ : computeWorker_->getVisibleTileKeysCPtr();
     { // prefetch tiles
         QSet<TileKey> toRestore = forecastTilesToTouch(measLinesVertices, isOdds, epochIndxs, expandMargin_/*for prefetch*/);
         visAndPrefTileKeys.intersect(toRestore);
@@ -1574,10 +1608,10 @@ void MosaicProcessor::updateData(const QVector<int>& indxs, QSet<int>& usedEpoch
             batchedTiles_.insert(it.key(), it.value());
         }
     } else {
-        QMetaObject::invokeMethod(dataProcessor_, "postSurfaceTiles", Qt::QueuedConnection, Q_ARG(TileMap, res), Q_ARG(bool, true));
+        postTiles(res);
     }
 
-    if (traceLineUpdated) {
+    if (traceLineUpdated && !background_) {
         QMetaObject::invokeMethod(dataProcessor_, "postTraceLines", Qt::QueuedConnection,
             Q_ARG(QVector3D, lastLeftBeg_),
             Q_ARG(QVector3D, lastLeftEnd_),
@@ -1642,6 +1676,9 @@ int MosaicProcessor::getColorIndx(Epoch::Echogram* charts, int ampIndx) const
 }
 bool MosaicProcessor::canceled() const noexcept
 {
+    if (background_) {   // a newer precompute, a zoom change, a reset
+        return latestGeneration_ && latestGeneration_->load() != generation_;
+    }
     return dataProcessor_ && dataProcessor_->isCancelRequested();
 }
 

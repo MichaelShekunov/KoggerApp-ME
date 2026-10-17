@@ -80,6 +80,22 @@ bool HotTileCache::checkAnyTileForZoom(int targetZoom) const
     return false;
 }
 
+QVector<TileKey> HotTileCache::removeZoom(int zoom)
+{
+    QVector<TileKey> removed;
+    for (auto it = nodes_.begin(); it != nodes_.end();) {
+        if (it->key.zoom == zoom) {
+            removed.append(it->key);
+            index_.remove(it->key);
+            it = nodes_.erase(it);
+        }
+        else {
+            ++it;
+        }
+    }
+    return removed;
+}
+
 size_t HotTileCache::size() const
 {
     return size_t(index_.size());

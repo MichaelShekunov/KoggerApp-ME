@@ -20,6 +20,8 @@ public:
     TileMap getForKeys(const QSet<TileKey>& keys, QSet<TileKey>* missing);
     bool contains(const TileKey& k) const;
     bool checkAnyTileForZoom(int targetZoom) const;
+    /// Drops every tile of `zoom` (a pending save included); returns their keys.
+    QVector<TileKey> removeZoom(int zoom);
     size_t size() const;
 
     void onSendSavedTiles(const QVector<TileKey>& savedKeys);

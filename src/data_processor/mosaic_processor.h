@@ -1,5 +1,6 @@
 #pragma once
 
+#include <atomic>
 #include <cstdint>
 #include <limits>
 #include <vector>
@@ -50,6 +51,11 @@ public:
     /// tiles that changed on, as a paint does. Only tiles that may hold such a pixel are scanned, so
     /// the cost follows what left the window, not its length.
     void eraseOwnersBelow(int keepFrom);
+    /// A precomputing instance (MosaicPrecomputer): paints `tiles` only instead of the worker's
+    /// visible ones, sends tiles and finished epochs to the data processor's precompute slots tagged
+    /// with `generation`, and stops once `latest` has moved past it.
+    void setBackground(const QSet<TileKey>* tiles, const std::atomic<quint64>* latest, quint64 generation);
+    void setPaintThreads(int n);
 
     QPair<ChannelId, uint8_t> getFirstChannelId()  const { return qMakePair(segFChannelId_, segFSubChannelId_); };
     QPair<ChannelId, uint8_t> getSecondChannelId() const { return qMakePair(segSChannelId_, segSSubChannelId_); };
@@ -112,6 +118,13 @@ private:
     // cores less two, at most 8; 1 paints in place as before), each into buffers merged in pair order.
     int paintThreads_ = 1;
     QThreadPool paintPool_;
+    // setBackground
+    bool background_ = false;
+    const QSet<TileKey>* allowedTiles_ = nullptr;
+    const std::atomic<quint64>* latestGeneration_ = nullptr;
+    quint64 generation_ = 0;
+    void postTiles(const TileMap& tiles);
+    void reportEpochs(const QVector<int>& indxs, int zoom);
     int lastTraceLineEpoch_;
     QVector3D lastLeftBeg_;
     QVector3D lastLeftEnd_;

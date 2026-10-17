@@ -9,6 +9,7 @@
 #include <cmath>
 #include "bt_worker.h"
 #include "compute_worker.h"
+#include "mosaic_precomputer.h"
 #include "dataset.h"
 #include "data_processor_defs.h"
 
@@ -143,6 +144,17 @@ DataProcessor::DataProcessor(QObject *parent, Dataset* datasetPtr)
     computeThread_.setObjectName("ComputeWorkerThread");
     computeThread_.start();
 
+    precomputer_ = new MosaicPrecomputer(this);
+    precomputer_->setDatasetPtr(datasetPtr_);   // as the worker gets it: setDatasetPtr is not called later
+    precomputer_->setLatestGeneration(precomputeGeneration_);
+    precomputer_->moveToThread(&precomputeThread_);
+    precomputeThread_.setObjectName("MosaicPrecomputeThread");
+    precomputeThread_.start(QThread::LowPriority);
+    precomputeTimer_.setParent(this);
+    precomputeTimer_.setSingleShot(true);
+    precomputeTimer_.setInterval(300);
+    connect(&precomputeTimer_, &QTimer::timeout, this, &DataProcessor::maybeStartPrecompute);
+
     btWorker_ = new BtWorker(this, datasetPtr_);
     btWorker_->moveToThread(&btThread_);
 
@@ -157,6 +169,16 @@ DataProcessor::~DataProcessor()
 {
     if (!shuttingDown_.load()) {
         shutdown();
+    }
+
+    if (precomputer_) {
+        cancelPrecompute();
+        if (precomputeThread_.isRunning()) {
+            precomputeThread_.quit();
+            precomputeThread_.wait();
+        }
+        delete precomputer_;
+        precomputer_ = nullptr;
     }
 
     if (worker_) {
@@ -183,6 +205,7 @@ void DataProcessor::setDatasetPtr(Dataset *datasetPtr)
     datasetPtr_ = datasetPtr;
 
     QMetaObject::invokeMethod(worker_,   "setDatasetPtr", Qt::QueuedConnection, Q_ARG(Dataset*, datasetPtr_));
+    QMetaObject::invokeMethod(precomputer_, "setDatasetPtr", Qt::QueuedConnection, Q_ARG(Dataset*, datasetPtr_));
     QMetaObject::invokeMethod(btWorker_, "setDatasetPtr", Qt::QueuedConnection, Q_ARG(Dataset*, datasetPtr_));
     updateDatasetSpatialIndexingState();
 }
@@ -325,6 +348,8 @@ void DataProcessor::tryFinalizeResetProcessing()
     QMetaObject::invokeMethod(worker_, "setVisibleTileKeys", Qt::BlockingQueuedConnection,
                               Q_ARG(QSet<TileKey>, QSet<TileKey>()));
     requeueViewRect();   // the worker's tiles are gone, and with an unchanged view no rect comes
+    cancelPrecompute();
+    QMetaObject::invokeMethod(precomputer_, "clear", Qt::QueuedConnection);
 
     closeDB();
 
@@ -353,6 +378,165 @@ void DataProcessor::requeueViewRect()
     if (!cameraRectCoalesceTimer_.isActive()) {
         cameraRectCoalesceTimer_.start();
     }
+}
+
+void DataProcessor::cancelPrecompute()
+{
+    ++precomputeGeneration_;
+    precomputeTried_.clear();
+    if (precomputer_) {
+        precomputer_->setLatestGeneration(precomputeGeneration_);
+    }
+}
+
+void DataProcessor::dropPrecomputed()
+{
+    // Painted ahead with an older bottom track: not kept, a zoom there paints afresh (or the precompute
+    // again, once the track has settled). Their keys go to the DB's not-found list, so a copy saved
+    // there earlier is not brought back either.
+    precomputeMaxEpoch_ = -1;
+    if (!precomputeRunning_ && precomputedZooms_.isEmpty()) {
+        return;
+    }
+    cancelPrecompute();
+    for (const int zoom : std::as_const(precomputedZooms_)) {
+        if (zoom == lastDataZoomIndx_) {
+            continue;
+        }
+        for (const TileKey& k : hotCache_.removeZoom(zoom)) {
+            nfTouch(k);
+        }
+        mosaicTaskEpochIndxsByZoom_.remove(zoom);
+    }
+    precomputedZooms_.clear();
+}
+
+void DataProcessor::maybeStartPrecompute()
+{
+    // The view's own work first, then the levels next to its own: the finer one (zooming in), the
+    // coarser one over about twice the view (zooming out). Not with FAKE_COORDS+N, where a zoom
+    // change restarts the mosaic anyway.
+    constexpr int kMinZoom = 2;   // the levels pickZoomByDistance gives
+    constexpr int kMaxZoom = 6;
+    static const bool kOff = qEnvironmentVariable("KOGGER_MOSAIC_PRECOMPUTE") == QStringLiteral("0");
+    if (kOff || !precomputer_ || precomputeRunning_ || shuttingDown_.load() || resetInProgress_.load() || suppressResults_.load()) {
+        return;
+    }
+    if (!updateMosaic_ || isOpeningFile_ || (activeZeroing_ && mosaicFakeCoordsLastN_ > 0)) {
+        return;
+    }
+    static const bool kTrace = qEnvironmentVariableIsSet("KOGGER_PRECOMPUTE_TRACE");
+    static QString lastWait;
+    auto waiting = [](const QString& why) {
+        if (kTrace && why != lastWait) {
+            lastWait = why;
+            qInfo().noquote() << QStringLiteral("mosaic precompute: waits, %1").arg(why);
+        }
+    };
+    // Epochs queued past the mosaic horizon wait for it, not the view's worker: in a file the last
+    // few stay there for good, and waiting for them never let the precompute start.
+    int ready = 0;
+    for (const int idx : std::as_const(pendingMosaicIndxs_)) {
+        ready += idx <= mosaicCounter_;
+    }
+    if (jobRunning_.load() || ready > 0 || !mosaicInFlightIndxs_.isEmpty()) {
+        waiting(QStringLiteral("job %1, %2 queued, %3 in flight").arg(jobRunning_.load()).arg(ready).arg(mosaicInFlightIndxs_.size()));
+        precomputeTimer_.start();
+        return;
+    }
+    if (!haveViewRect_ || !isValidZoomIndx(lastDataZoomIndx_)) {
+        waiting(QStringLiteral("no view"));
+        return;
+    }
+    // The colours follow the bottom track (the slant range), and a tile painted before a change keeps
+    // its older pings: painted ahead too early, a level differed from one painted on arrival.
+    static const qint64 kBottomTrackQuietMs = qEnvironmentVariableIsSet("KOGGER_PRECOMPUTE_QUIET_MS")
+        ? qEnvironmentVariableIntValue("KOGGER_PRECOMPUTE_QUIET_MS") : 1500;
+    if (btBusy_ || (bottomTrackChanged_.isValid() && bottomTrackChanged_.elapsed() < kBottomTrackQuietMs)) {
+        waiting(QStringLiteral("the bottom track is changing"));
+        precomputeTimer_.start();
+        return;
+    }
+    lastWait.clear();
+
+    const int zoom = lastDataZoomIndx_;
+    const QRectF view = viewRectFromView_.normalized();
+    for (const int target : { zoom - 1, zoom + 1 }) {
+        if (target < kMinZoom || target > kMaxZoom) {
+            continue;
+        }
+        QRectF area = view;
+        if (target > zoom) {
+            area = QRectF(view.center() - QPointF(view.width(), view.height()), QSizeF(2.0 * view.width(), 2.0 * view.height()));
+        }
+        const std::array<QPointF, 4> quad = { area.topLeft(), area.topRight(), area.bottomRight(), area.bottomLeft() };
+        const QSet<TileKey> tiles = mosaicIndexProvider_.tilesInQuadNed(quad, target, 0);
+        if (tiles.isEmpty()) {
+            continue;
+        }
+        QSet<int> epochs = collectEpochsForTilesSet(target, tiles);
+        if (const auto done = mosaicTaskEpochIndxsByZoom_.constFind(target); done != mosaicTaskEpochIndxsByZoom_.cend()) {
+            epochs.subtract(done.value());
+        }
+        auto& tried = precomputeTried_[target];
+        epochs.subtract(tried);
+        QVector<int> list;
+        list.reserve(epochs.size());
+        for (const int idx : std::as_const(epochs)) {
+            if (idx <= mosaicCounter_) {
+                list.append(idx);
+            }
+        }
+        if (list.isEmpty()) {
+            continue;
+        }
+        std::sort(list.begin(), list.end());
+        for (const int idx : std::as_const(list)) {
+            tried.insert(idx);
+        }
+        precomputeRunning_ = true;
+        precomputeClock_.start();
+        precomputeMaxEpoch_ = std::max(precomputeMaxEpoch_, list.back());
+        precomputeRunInfo_ = QStringLiteral("zoom %1 (the view is on %2), %3 epochs over %4 tiles")
+                             .arg(target).arg(zoom).arg(list.size()).arg(tiles.size());
+        QMetaObject::invokeMethod(precomputer_, "run", Qt::QueuedConnection, Q_ARG(int, target),
+                                  Q_ARG(QSet<TileKey>, tiles), Q_ARG(QVector<int>, list), Q_ARG(quint64, precomputeGeneration_));
+        return;
+    }
+}
+
+void DataProcessor::postPrecomputedTiles(TileMap tiles, quint64 generation)
+{
+    if (generation != precomputeGeneration_ || tiles.isEmpty() || suppressResults_.load()) {
+        return;
+    }
+    for (auto it = tiles.cbegin(); it != tiles.cend(); ++it) {
+        nfErase(it.key());
+    }
+    if (const int zoom = tiles.cbegin().key().zoom; zoom != lastDataZoomIndx_) {
+        precomputedZooms_.insert(zoom);
+    }
+    hotCache_.putBatch(std::move(tiles), DataSource::kCalculation);   // another level: nothing to render
+    notifyPrefetchProgress();
+}
+
+void DataProcessor::onMosaicEpochsPrecomputed(const QVector<int>& indxs, int zoom, quint64 generation)
+{
+    if (generation != precomputeGeneration_ || indxs.isEmpty()) {
+        return;
+    }
+    auto& processed = mosaicTaskEpochIndxsByZoom_[zoom];
+    for (const int idx : indxs) {
+        processed.insert(idx);
+    }
+}
+
+void DataProcessor::onPrecomputeFinished(quint64 generation)
+{
+    qInfo().noquote() << QStringLiteral("mosaic precompute: %1, %2 ms%3").arg(precomputeRunInfo_).arg(precomputeClock_.elapsed())
+                         .arg(generation == precomputeGeneration_ ? QString() : QStringLiteral(", cancelled"));
+    precomputeRunning_ = false;
+    precomputeTimer_.start();   // the next level, or the view it has moved to
 }
 
 void DataProcessor::setUpdateBottomTrack(bool state)
@@ -714,13 +898,22 @@ void DataProcessor::onBottomTrack3DAdded(const QVector<int>& epIndxs, const QVec
         epochToBottomTrackVertIndx_.clear();
         bottomTrackFullRecalcPending_ = false;
         clearOldTracking_ = false;   // "Clear old data" rebuilt every job before: a new bottom track showed at once
+        cancelPrecompute();
     }
 
     QSet<int> changedEpochs;
     changedEpochs.reserve(epIndxs.size());
+    int oldestChanged = std::numeric_limits<int>::max();
     for (int itm : epIndxs) {
         epIndxsFromBottomTrack_.insert(itm);
         changedEpochs.insert(itm);
+        oldestChanged = std::min(oldestChanged, itm);
+    }
+    bottomTrackChanged_.start();
+    // A new ping's track leaves alone what was painted ahead before it; a change reaching back to
+    // painted epochs drops it all (a precomputed tile cannot be repainted under its head index).
+    if (oldestChanged <= precomputeMaxEpoch_) {
+        dropPrecomputed();
     }
 
     if (!changedEpochs.isEmpty()) {
@@ -937,6 +1130,10 @@ void DataProcessor::setMosaicChannels(const ChannelId &ch1, uint8_t sub1, const 
     QMetaObject::invokeMethod(worker_, "setMosaicChannels", Qt::QueuedConnection,
                               Q_ARG(ChannelId, ch1), Q_ARG(uint8_t, sub1),
                               Q_ARG(ChannelId, ch2), Q_ARG(uint8_t, sub2));
+    cancelPrecompute();
+    QMetaObject::invokeMethod(precomputer_, "setChannels", Qt::QueuedConnection,
+                              Q_ARG(ChannelId, ch1), Q_ARG(uint8_t, sub1),
+                              Q_ARG(ChannelId, ch2), Q_ARG(uint8_t, sub2));
 
     //return;
 
@@ -965,11 +1162,15 @@ void DataProcessor::setMosaicTheme(int indx)
 void DataProcessor::setMosaicLAngleOffset(float val)
 {
     QMetaObject::invokeMethod(worker_, "setMosaicLAngleOffset", Qt::QueuedConnection, Q_ARG(float, val));
+    cancelPrecompute();
+    QMetaObject::invokeMethod(precomputer_, "setLAngleOffset", Qt::QueuedConnection, Q_ARG(float, val));
 }
 
 void DataProcessor::setMosaicRAngleOffset(float val)
 {
     QMetaObject::invokeMethod(worker_, "setMosaicRAngleOffset", Qt::QueuedConnection, Q_ARG(float, val));
+    cancelPrecompute();
+    QMetaObject::invokeMethod(precomputer_, "setRAngleOffset", Qt::QueuedConnection, Q_ARG(float, val));
 }
 
 void DataProcessor::setMosaicTileResolution(float val)
@@ -1047,6 +1248,7 @@ void DataProcessor::askColorTableForMosaic()
 void DataProcessor::setMosaicSource(int source)
 {
     QMetaObject::invokeMethod(worker_, "setMosaicSource", Qt::QueuedConnection, Q_ARG(int, source));
+    QMetaObject::invokeMethod(precomputer_, "setSource", Qt::QueuedConnection, Q_ARG(int, source));
     restartMosaic();
 }
 
@@ -1080,6 +1282,7 @@ void DataProcessor::setMosaicFakeCoordsClearOldData(bool state)
 
 void DataProcessor::restartMosaic()
 {
+    cancelPrecompute();
     hotCache_.clear();
     clearOldTracking_ = false;
 
@@ -1441,6 +1644,9 @@ void DataProcessor::onWorkerFinished()
 
     if (nextRunPending_.load() && !shuttingDown_.load()) {
         startTimerIfNeeded();
+    }
+    else {
+        precomputeTimer_.start();
     }
 }
 
@@ -2027,6 +2233,7 @@ void DataProcessor::clearIsobathsProcessing()
 
 void DataProcessor::clearMosaicProcessing()
 {
+    cancelPrecompute();
     clearOldTracking_ = false;
     pendingMosaicIndxs_.clear();
     mosaicTaskEpochIndxsByZoom_.clear();
@@ -2070,6 +2277,8 @@ void DataProcessor::clearAllProcessings()
     forceVisibleRefreshAfterBottomTrack_ = false;
 
     QMetaObject::invokeMethod(worker_, "clearAll", Qt::QueuedConnection);
+    cancelPrecompute();
+    QMetaObject::invokeMethod(precomputer_, "clear", Qt::QueuedConnection);
 
     state_ = DataProcessorType::kUndefined;
 
@@ -2429,6 +2638,7 @@ void DataProcessor::onUpdateDataZoom(int zoom) // calc or db
     mosaicInFlightIndxs_.clear();
     pendingSurfaceIndxs_.clear();
 
+    qInfo().noquote() << QStringLiteral("mosaic zoom: %1 -> %2").arg(lastDataZoomIndx_).arg(zoom);
     lastDataZoomIndx_ = zoom;
 
     const float pxPerMeter = ZL[zoom - 1].pxPerMeter;
@@ -2443,6 +2653,8 @@ void DataProcessor::onUpdateDataZoom(int zoom) // calc or db
     // camera has kept it a moment (GraphicsScene3dView::applyPendingDataZoom), by then the rect itself
     // need not change, and an unchanged rect is not recomputed.
     requeueViewRect();
+    cancelPrecompute();   // its level may be this one: what it sends now would race the view's worker
+    precomputedZooms_.remove(zoom);
 
     surfaceZoomChangedPending_ = updateSurface_;
     surfaceCameraPassPending_ = updateSurface_;
@@ -2563,6 +2775,8 @@ void DataProcessor::onSendDataRectRequest(float minX, float minY, float maxX, fl
         epochsWithoutView_ = 0;
     }
     QMetaObject::invokeMethod(worker_, "setVisibleTileKeys", Qt::QueuedConnection, Q_ARG(QSet<TileKey>, tiles));
+    precomputeTried_.clear();   // another view: its own neighbourhood
+    precomputeTimer_.start();
 
     // store new request
     lastViewRect_ = viewRect;
@@ -2693,6 +2907,16 @@ void DataProcessor::shutdown()
         return !thread.isRunning();
     };
 
+    cancelPrecompute();
+    precomputeTimer_.stop();
+    precomputeThread_.requestInterruption();
+    precomputeThread_.quit();
+    if (!waitForThread(precomputeThread_, 3000)) {
+        qWarning() << "MosaicPrecomputeThread did not stop in time; retrying graceful wait";
+        precomputeThread_.quit();
+        waitForThread(precomputeThread_, 7000);
+    }
+
     computeThread_.quit();
     if (!waitForThread(computeThread_, 3000)) {
         qWarning() << "ComputeWorkerThread did not stop in time; retrying graceful wait";
@@ -2737,6 +2961,11 @@ void DataProcessor::shutdown()
         }
         delete dbWriter_;
         dbWriter_ = nullptr;
+    }
+
+    if (precomputer_) {
+        delete precomputer_;
+        precomputer_ = nullptr;
     }
 
     if (worker_) {
