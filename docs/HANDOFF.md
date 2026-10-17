@@ -1529,3 +1529,22 @@ clear, then 200 epochs without one.
 
 Seen on the owner's board the same day (0bfdd1fd): the mosaic draws at once after connecting, the
 zoom untouched. Not verified: the toolbar's reset in the app.
+
+## Ctrl + drag does not tilt the 3D view (2026-10-17, a question, nothing changed)
+
+The owner: Ctrl + left drag should tilt the map, and does not always. `GraphicsScene3dView::mouseMoveTrigger`
+tilts (and turns) only when the camera is in perspective and North mode is off
+(`m_camera->getIsPerspective() && !isNorth_`); with Ctrl held and either false the drag does nothing at
+all, not even a pan. North mode ("North mode" in the 3D settings, `scene3d/view/isNorthViewButton`) was
+on in the owner's settings; switching it on also resets the view to straight down. Perspective ends
+above ~5 km from the ground (`perspectiveEdge_` 5000 m, 100 m of hysteresis): a flat map, no tilt. The
+tilt is at most 30 deg from straight down (`Camera::rotate`): further the same way does nothing. Follow
+the boat with the navigator view pulls the tilt back to 30 deg on every position (off for the owner).
+Ctrl is read from each mouse event (`PaneInputBridge.modifierKey`), so keyboard focus does not matter.
+
+Bench: `ring_bench.ps1 -CtrlDrag` posts a Ctrl + left drag 150 px up into the 3D view 8 s in and prints
+where the disc meets the dark each way. Qt 6 takes Ctrl from the thread's key state, not from
+MK_CONTROL (posted alone, the drag panned the view 150 px), so the bench sets Ctrl in the key state it
+shares with the app's GUI thread through AttachThreadInput: no key reaches the keyboard or another
+window. N = 80: North mode on -- the disc stays round and in place (up 308, down 319, left 323, right
+304 px); off -- tilted (up 227, down 336).

@@ -39,7 +39,8 @@ param(
     [int]    $ResolutionMm = 30,
     [string] $PathPrefix,        # e.g. D:\Qt\6.8.3\llvm-mingw_64\bin;D:\Qt\Tools\llvm-mingw1706_64\bin for a build tree's exe
     [string] $Profile,           # KOGGER_PROFILE: settings and a log of their own, beside the user's running app
-    [switch] $NoNudge            # no window nudge: as a user who connects and does not touch the view
+    [switch] $NoNudge,           # no window nudge: as a user who connects and does not touch the view
+    [switch] $CtrlDrag           # 8 s in, a Ctrl + left-button drag 150 px up in the 3D view (posted, the cursor stays)
 )
 
 $ErrorActionPreference = 'Stop'
@@ -109,6 +110,12 @@ if (-not $Exe) { throw 'give -Klf <file> or -Exe <KoggerApp.exe>' }
 Add-Type -Namespace KoggerBench -Name Win -MemberDefinition @'
 [DllImport("user32.dll")] public static extern bool GetWindowRect(System.IntPtr h, out RECT r);
 [DllImport("user32.dll")] public static extern bool SetWindowPos(System.IntPtr h, System.IntPtr after, int x, int y, int cx, int cy, uint flags);
+[DllImport("user32.dll")] public static extern bool PostMessage(System.IntPtr h, uint msg, System.IntPtr w, System.IntPtr l);
+[DllImport("user32.dll")] public static extern uint GetWindowThreadProcessId(System.IntPtr h, out uint pid);
+[DllImport("kernel32.dll")] public static extern uint GetCurrentThreadId();
+[DllImport("user32.dll")] public static extern bool AttachThreadInput(uint from, uint to, bool attach);
+[DllImport("user32.dll")] public static extern bool GetKeyboardState(byte[] keys);
+[DllImport("user32.dll")] public static extern bool SetKeyboardState(byte[] keys);
 public struct RECT { public int Left, Top, Right, Bottom; }
 '@
 
@@ -128,6 +135,7 @@ $udp = New-Object System.Net.Sockets.UdpClient
 Start-Sleep -Seconds 4                              # the link opens about a second after start
 $clock = [System.Diagnostics.Stopwatch]::StartNew()
 $resized = [bool]$NoNudge
+$dragged = -not $CtrlDrag
 for ($k = 0; $k -lt $pings; $k++) {
     $due = $k * 1000.0 / $Rate
     while ($clock.Elapsed.TotalMilliseconds -lt $due) { Start-Sleep -Milliseconds 1 }
@@ -141,6 +149,34 @@ for ($k = 0; $k -lt $pings; $k++) {
             $r = New-Object KoggerBench.Win+RECT
             [void][KoggerBench.Win]::GetWindowRect($h, [ref]$r)
             [void][KoggerBench.Win]::SetWindowPos($h, [System.IntPtr]::Zero, $r.Left, $r.Top, ($r.Right - $r.Left) + 1, ($r.Bottom - $r.Top), 0x0014)
+        }
+    }
+    if (-not $dragged -and $clock.Elapsed.TotalSeconds -ge 8) {
+        $dragged = $true
+        $app.Refresh()
+        $h = $app.MainWindowHandle
+        if ($h -ne [System.IntPtr]::Zero) {
+            # Client coordinates in the 3D view (the left half of the window). Qt takes Ctrl from the
+            # thread's key state, not from MK_CONTROL, so Ctrl is set in the key state this thread shares
+            # with the app's GUI thread while attached: nothing reaches the keyboard or another window.
+            $post = { param([uint32] $msg, [int] $keys, [int] $y)
+                      [void][KoggerBench.Win]::PostMessage($h, $msg, [System.IntPtr]$keys, [System.IntPtr](($y -shl 16) -bor 360)) }
+            $appPid = [uint32]0
+            $gui = [KoggerBench.Win]::GetWindowThreadProcessId($h, [ref]$appPid)
+            $me = [KoggerBench.Win]::GetCurrentThreadId()
+            $attached = [KoggerBench.Win]::AttachThreadInput($me, $gui, $true)
+            $ks = New-Object byte[] 256
+            [void][KoggerBench.Win]::GetKeyboardState($ks)
+            $ks[0x11] = 0x80; $ks[0xA2] = 0x80                  # VK_CONTROL, VK_LCONTROL down
+            [void][KoggerBench.Win]::SetKeyboardState($ks)
+            & $post 0x0201 0x0009 520
+            for ($s = 1; $s -le 30; $s++) { Start-Sleep -Milliseconds 10; & $post 0x0200 0x0009 (520 - 5 * $s) }
+            & $post 0x0202 0x0008 370
+            Start-Sleep -Milliseconds 300                         # let the app take the messages with Ctrl down
+            $ks[0x11] = 0; $ks[0xA2] = 0
+            [void][KoggerBench.Win]::SetKeyboardState($ks)
+            if ($attached) { [void][KoggerBench.Win]::AttachThreadInput($me, $gui, $false) }
+            "ctrl drag posted ({0})" -f $(if ($attached) { 'key state shared' } else { 'NOT attached: Ctrl not set' })
         }
     }
 }
@@ -193,3 +229,16 @@ for ($a = 0; $a -lt 360; $a++) {
     if ($all -gt 0 -and $lit * 2 -gt $all) { $covered++ }
 }
 "mosaic: covers {0} of 360 deg at 100-250 px around the sonar ({1:N0}, {2:N0})" -f $covered, $cx, $cy
+# A tilted camera turns the disc into an ellipse, its far side shortest: where each way meets the dark.
+$edges = foreach ($d in @(@(0, -1, 'up'), @(0, 1, 'down'), @(-1, 0, 'left'), @(1, 0, 'right'))) {
+    $r = 40
+    while ($r -lt 400) {
+        $x = [int]($cx + $d[0] * $r); $y = [int]($cy + $d[1] * $r)
+        if ($x -lt 0 -or $y -lt 0 -or $x -ge $w -or $y -ge $h) { break }
+        $i = $y * $stride + 4 * $x
+        if ([Math]::Max([Math]::Max($px[$i], $px[$i + 1]), $px[$i + 2]) -le 60) { break }
+        $r++
+    }
+    '{0} {1}' -f $d[2], $r
+}
+"mosaic: its edge {0} px from the sonar" -f ($edges -join ', ')
