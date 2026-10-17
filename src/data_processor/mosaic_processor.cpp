@@ -11,10 +11,12 @@
 #include "data_processor_defs.h"
 #include "dataset.h"
 #include "compute_worker.h"
+#include "mosaic_arc.h"
 
 
 static constexpr int sampleLimiter    = 2;
 static constexpr int colorTableSize_  = 255;
+static constexpr float kMaxArcTurnRad  = 1.0471976f; // 60 deg: a bigger turn between two pings is a heading glitch
 
 static bool checkLength(float dist)
 {
@@ -865,6 +867,8 @@ void MosaicProcessor::updateData(const QVector<int>& indxs, QSet<int>& usedEpoch
     // after expand by martix
     const int numHeightTiles = surfaceMeshPtr_->getNumHeightTiles();
     const int stepSizeHeightMatrix = surfaceMeshPtr_->getStepSizeHeightMatrix();
+    const int meshPixW = surfaceMeshPtr_->getPixelWidth();
+    const int meshPixH = surfaceMeshPtr_->getPixelHeight();
     bool* pairOutOfFovPtr = nullptr;
 
     // helpers
@@ -1074,6 +1078,10 @@ void MosaicProcessor::updateData(const QVector<int>& indxs, QSet<int>& usedEpoch
         };
 
         const int freshEpIndx = pairEpochS;
+        // Chord or arc, chosen once for the pair by its far ends (mosaic_arc.h).
+        const auto pairPath = mosaic_arc::pathFor(segFBegPixPos.x(), segFBegPixPos.y(), segFEndPixPos.x(), segFEndPixPos.y(),
+                                                  segSBegPixPos.x(), segSBegPixPos.y(), segSEndPixPos.x(), segSEndPixPos.y(),
+                                                  kMaxArcTurnRad);
         bool pairUsed = false;
         bool pairOutOfFov = false;
         pairOutOfFovPtr = &pairOutOfFov;
@@ -1095,53 +1103,34 @@ void MosaicProcessor::updateData(const QVector<int>& indxs, QSet<int>& usedEpoch
             auto segFCurrPixPos = surfaceMeshPtr_->convertPhToPixCoords(segFCurrPhPos);
             auto segSCurrPixPos = surfaceMeshPtr_->convertPhToPixCoords(segSCurrPhPos);
 
-            // interp Bres
-            int x0 = int(segFCurrPixPos.x());
-            int y0 = int(segFCurrPixPos.y());
-            const int x1 = int(segSCurrPixPos.x());
-            const int y1 = int(segSCurrPixPos.y());
-            const int dx = std::abs(x1 - x0);
-            const int dy = std::abs(y1 - y0);
-            const int sx = (x0 < x1) ? 1 : -1;
-            const int sy = (y0 < y1) ? 1 : -1;
-            int err = dx - dy;
-            const int stepsTot = dx + dy;
+            // Between the two pings: the chord as before, or the arc of a turning sonar (mosaic_arc.h).
+            mosaic_arc::walk(segFBegPixPos.x(), segFBegPixPos.y(), segFCurrPixPos.x(), segFCurrPixPos.y(),
+                             segSBegPixPos.x(), segSBegPixPos.y(), segSCurrPixPos.x(), segSCurrPixPos.y(),
+                             pairPath, meshPixW, meshPixH,
+                             [&](int x0, int y0, float iP, int stepsDone) {
+                const auto iClrIndx = static_cast<uint8_t>((1 - iP) * segFColorIndx + iP * segSColorIndx);
 
-            if (checkLength(stepsTot)) { // color interpolation between two pixels
-                int stepsDone = 0;
+                // рисуем текущий пиксель
+                auto* t = putPixel(x0, y0, iClrIndx, freshEpIndx);
 
-                while (true) { // follow between pixels
-                    const float iP       = static_cast<float>(stepsDone) / float(stepsTot); /*stepsTot*/
-                    const auto  iClrIndx = static_cast<uint8_t>((1 - iP) * segFColorIndx + iP * segSColorIndx);
+                if (t) {
+                    pairUsed = true;
+                    if (!(stepsDone % tileHeightMatrixRatio_)) {
+                        usedTiles.insert(t);
+                        lastHead = pairEpochF;
 
-                    // рисуем текущий пиксель
-                    auto* t = putPixel(x0, y0, iClrIndx, freshEpIndx);
-
-                    if (t) {
-                        pairUsed = true;
-                        if (!(stepsDone % tileHeightMatrixRatio_)) {
-                            usedTiles.insert(t);
-                            lastHead = pairEpochF;
-
-                            const int tileX = x0 % tileSidePixelSize_;
-                            const int tileY = y0 % tileSidePixelSize_;
-                            const int numSteps = tileSidePixelSize_ / stepSizeHeightMatrix + 1;
-                            const int hIdx = (tileY / stepSizeHeightMatrix) * numSteps + (tileX / stepSizeHeightMatrix);
-                            auto& hT = t->getHeightMarkVerticesRef()[hIdx];
-                            if (hT != HeightType::kTriangulation) {
-                                t->getHeightVerticesRef()[hIdx][2] = segFCurrPhPos[2];
-                                hT = HeightType::kMosaic;
-                            }
+                        const int tileX = x0 % tileSidePixelSize_;
+                        const int tileY = y0 % tileSidePixelSize_;
+                        const int numSteps = tileSidePixelSize_ / stepSizeHeightMatrix + 1;
+                        const int hIdx = (tileY / stepSizeHeightMatrix) * numSteps + (tileX / stepSizeHeightMatrix);
+                        auto& hT = t->getHeightMarkVerticesRef()[hIdx];
+                        if (hT != HeightType::kTriangulation) {
+                            t->getHeightVerticesRef()[hIdx][2] = segFCurrPhPos[2];
+                            hT = HeightType::kMosaic;
                         }
                     }
-
-                    if (bresStep(x0, y0, x1, y1, err, dx, dy, sx, sy)) {
-                        break;
-                    }
-
-                    ++stepsDone;
                 }
-            }
+            });
 
             if (bresStep(bigX1, bigY1, bigX2, bigY2, bigErr, bigDx, bigDy, bigSx, bigSy)) {
                 break;
