@@ -6,6 +6,7 @@
 #include <QPolygonF>
 #include <QtMath>
 #include <algorithm>
+#include <limits>
 
 
 MosaicIndexProvider::MosaicIndexProvider(uint64_t maxTiles, bool initByDefault) :
@@ -147,18 +148,43 @@ QSet<TileKey> MosaicIndexProvider::tilesInQuadNed(const std::array<QPointF, 4>& 
         return {};
     }
 
-    QPainterPath polyPath;
-    polyPath.addPolygon(poly);
-
+    // Row by row: in each row of tiles, the quad's extent across it, from the parts of its edges inside
+    // the row. Exact for a convex quad, the axis-aligned box calcDimensionRects passes among them; for a
+    // crossed one (a sharp turn) it can take tiles in the notch too. Testing every tile of the bounding
+    // box with QPainterPath::intersects was half of the GUI thread after a file opened (2026-10-17).
     QSet<TileKey> out;
     out.reserve(int(count));
 
     for (int ty = iy0; ty <= iy1; ++ty) {
-        for (int tx = ix0; tx <= ix1; ++tx) {
-            const QRectF tileRect(S * tx, S * ty, S, S);
-            if (!polyPath.intersects(tileRect)) {
+        const double y0 = S * ty;
+        const double y1 = y0 + S;
+        double xMin = std::numeric_limits<double>::max();
+        double xMax = std::numeric_limits<double>::lowest();
+        for (size_t i = 0; i < quadNed.size(); ++i) {
+            const QPointF& a = quadNed[i];
+            const QPointF& b = quadNed[(i + 1) % quadNed.size()];
+            const double lo = std::max(std::min(a.y(), b.y()), y0);
+            const double hi = std::min(std::max(a.y(), b.y()), y1);
+            if (lo > hi) {
                 continue;
             }
+            if (a.y() == b.y()) {
+                xMin = std::min({ xMin, a.x(), b.x() });
+                xMax = std::max({ xMax, a.x(), b.x() });
+                continue;
+            }
+            const double k = (b.x() - a.x()) / (b.y() - a.y());
+            const double xLo = a.x() + (lo - a.y()) * k;
+            const double xHi = a.x() + (hi - a.y()) * k;
+            xMin = std::min({ xMin, xLo, xHi });
+            xMax = std::max({ xMax, xLo, xHi });
+        }
+        if (xMin > xMax) {
+            continue;
+        }
+        const int tx0 = int(std::floor(xMin / S));
+        const int tx1 = std::max(tx0, int(std::ceil(xMax / S)) - 1);
+        for (int tx = tx0; tx <= tx1; ++tx) {
             out.insert(TileKey{ tx, ty, z });
         }
     }
