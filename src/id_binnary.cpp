@@ -215,9 +215,12 @@ Resp IDBinDist::parsePayload(FrameParser &proto) {
 }
 
 Resp IDBinChartZ::parsePayload(FrameParser &proto) {
-    if (proto.ver() != v0) {
+    // v0 is one channel, v1 means the stream holds both sides end to end -- the same meaning the
+    // version carries on an uncompressed ID_CHART.
+    if (proto.ver() != v0 && proto.ver() != v1) {
         return respErrorVersion;
     }
+    const int channels = (proto.ver() == v1) ? 2 : 1;
 
     const U2 seqOffset = proto.read<U2>();
     const U2 resol     = proto.read<U2>();
@@ -231,7 +234,7 @@ Resp IDBinChartZ::parsePayload(FrameParser &proto) {
 
     // A slice at offset zero starts a ping; so does any change in the ping's
     // shape, which means the previous one was cut short.
-    if (seqOffset == 0 || total != expected_ ||
+    if (seqOffset == 0 || total != expected_ || channels != channels_ ||
         resol != resol_ || absOffset != absOffset_ || samples != samples_) {
         if (expected_ != 0 && filled_ < expected_) {
             ++dropped_;
@@ -243,6 +246,7 @@ Resp IDBinChartZ::parsePayload(FrameParser &proto) {
         resol_ = resol;
         absOffset_ = absOffset;
         samples_ = samples;
+        channels_ = channels;
     }
 
     const int part = proto.readAvailable();
@@ -281,7 +285,7 @@ Resp IDBinChartZ::parsePayload(FrameParser &proto) {
 
     if (sink_ != nullptr) {
         sink_->acceptDecoded(reinterpret_cast<const uint8_t*>(decoded_.constData()),
-                             got, resol_, absOffset_);
+                             got, resol_, absOffset_, channels_);
     }
 
     return respOk;
@@ -451,10 +455,14 @@ Resp IDBinAttitude::parsePayload(FrameParser &proto) {
         m_pitch = static_cast<float>(proto.read<S2>())*scale_to_deg;
         m_roll = static_cast<float>(proto.read<S2>())*scale_to_deg;
     } else if(proto.ver() == v1) {
+       /* All four used to land in m_w0, each overwriting the last, leaving the fourth component
+          in the first slot and zeros in the other three -- not an orientation at all. Nothing
+          sends v1 today and nothing calls w1()..w3(), so it never showed; it would have shown up
+          as a silently wrong attitude the first time a device did send a quaternion. */
        m_w0 = proto.read<F4>();
-       m_w0 = proto.read<F4>();
-       m_w0 = proto.read<F4>();
-       m_w0 = proto.read<F4>();
+       m_w1 = proto.read<F4>();
+       m_w2 = proto.read<F4>();
+       m_w3 = proto.read<F4>();
     } else {
         return respErrorVersion;
     }
@@ -2037,6 +2045,8 @@ Resp IDBinVoltage::parsePayload(FrameParser &proto) {
         uint8_t ch_id = proto.read<U1>();
         int32_t u_v = proto.read<S4>();
         _v[ch_id] =  float(u_v);
+        _last_id = ch_id;
+        _last_raw = u_v;
     } else {
         return respErrorVersion;
     }

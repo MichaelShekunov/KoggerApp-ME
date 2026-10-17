@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QSet>
 #include <QObject>
 #include <QHash>
 #include <QVector>
@@ -517,6 +518,7 @@ signals:
     void iqComplete(QByteArray data, uint8_t type);
     void attitudeComplete(float yaw, float pitch, float roll);
     void tempComplete(float val);
+    void voltageComplete(quint8 channel, qint32 value);
     void distComplete(const ChannelId& channelId, int dist);
     void encoderComplete(float e1, float e2, float e3);
 
@@ -697,6 +699,9 @@ protected:
     IDBinChartZ* idChartZ = nullptr;
     IDBinAttitude* idAtt = nullptr;
     IDBinTemp* idTemp = nullptr;
+    IDBinVoltage* idVoltage = nullptr;
+    QSet<quint8> loggedVoltageChannels_;   /* report each channel once, not on every ping */
+    qint32 lastSupplyLogged_ = 0;
     IDBinEncoder* idEncoder = nullptr;
 
     IDBinDataset* idDataset = nullptr;
@@ -875,6 +880,7 @@ protected slots:
     void receivedAtt        (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
     void receivedTemp       (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
     void receivedEncoder    (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
+    void receivedVoltage    (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
 
     void receivedDataset    (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
     void receivedDistSetup  (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);

@@ -250,16 +250,24 @@ public:
      * @param n      number of samples
      * @param resol  cell size, mm
      * @param absOffset  index of the first cell
+     * @param channels   1, or 2 when the samples are both sides end to end: first half port,
+     *                   second half starboard. That is how a two-channel sonar compresses a
+     *                   ping — interleaving the sides would be coded along the wrong axis — and
+     *                   it lands in the same two buffers an ID_CHART v1 fills.
      */
-    void acceptDecoded(const uint8_t* data, int n, U2 resol, U2 absOffset) {
-        if (n < 0) {
+    void acceptDecoded(const uint8_t* data, int n, U2 resol, U2 absOffset, int channels = 1) {
+        if (n < 0 || channels < 1 || channels > 2) {
             return;
         }
-        if (n > static_cast<int>(sizeof(m_completeChart))) {
-            n = static_cast<int>(sizeof(m_completeChart));
+        int per = n / channels;
+        if (per > static_cast<int>(sizeof(m_completeChart))) {
+            per = static_cast<int>(sizeof(m_completeChart));
         }
-        memcpy(m_completeChart, data, static_cast<size_t>(n));
-        m_chartSize = static_cast<uint32_t>(n);
+        memcpy(m_completeChart, data, static_cast<size_t>(per));
+        if (channels == 2) {
+            memcpy(m_completeChart2, data + n / 2, static_cast<size_t>(per));
+        }
+        m_chartSize = static_cast<uint32_t>(per);
         m_sampleResol = resol;
         m_absOffset = absOffset;
         // A compressed ping is all-or-nothing, so there is never a partial
@@ -347,6 +355,7 @@ public:
 
 private:
     IDBinChart* sink_ = nullptr;
+    int channels_ = 1;            ///< 1, or 2 when the stream carries both sides
 
     QByteArray stream_;          // coded bytes of the ping being reassembled
     QByteArray decoded_;         // one byte per cell, after decoding
@@ -1644,8 +1653,14 @@ public:
     Resp  parsePayload(FrameParser &proto) override;
 
     float voltage(int v_id) { return _v[v_id]; }
+    /* The payload carries the channel, and a handler has no other way to learn which one this
+       frame was about -- _v alone cannot say what just changed. */
+    uint8_t lastId() const { return _last_id; }
+    int32_t lastRaw() const { return _last_raw; }
 protected:
-    float _v[255];
+    float _v[256];   // indexed by a uint8_t channel id, so 0..255 -- 255 entries overran by one
+    uint8_t _last_id = 0;
+    int32_t _last_raw = 0;
 };
 
 

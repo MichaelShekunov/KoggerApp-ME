@@ -59,6 +59,7 @@ DevDriver::DevDriver(QObject *parent)
     regID(idAtt = new IDBinAttitude(), &DevDriver::receivedAtt);
     regID(idTemp = new IDBinTemp(), &DevDriver::receivedTemp);
     regID(idEncoder = new IDBinEncoder(), &DevDriver::receivedEncoder);
+    regID(idVoltage = new IDBinVoltage(), &DevDriver::receivedVoltage);
 
     regID(idDataset = new IDBinDataset(), &DevDriver::receivedDataset, true);
     regID(idDistSetup = new IDBinDistSetup(), &DevDriver::receivedDistSetup, true);
@@ -3041,6 +3042,44 @@ void DevDriver::receivedTemp(Parsers::Type type, Parsers::Version ver, Parsers::
 
     emit tempComplete(idTemp->temp());
     //core.getDatasetPtr()->addTemp(idTemp->temp());
+}
+
+/* ID_VOLTAGE 0x31. The class has existed for a long time but was never registered, so every
+ * one of these frames was silently dropped. Channel 0 is the supply rail in millivolts. The
+ * nanoSSS v4 firmware also uses the spare channels as the only diagnostic path that reaches this
+ * application at all -- it has no parser for ID_IMU or ID_MAG -- so they are named here instead
+ * of being shown as nonsensical voltages. */
+void DevDriver::receivedVoltage(Parsers::Type type, Parsers::Version ver, Parsers::Resp resp) {
+    Q_UNUSED(type);
+    Q_UNUSED(ver);
+    Q_UNUSED(resp);
+
+    const quint8 ch = idVoltage->lastId();
+    const qint32 raw = idVoltage->lastRaw();
+    emit voltageComplete(ch, raw);
+
+#ifndef SEPARATE_READING
+    QString line;
+    switch (ch) {
+    case 0: line = QString("Supply: %1 V").arg(raw / 1000.0, 0, 'f', 3); break;
+    case 1: line = QString("IMU id: 0x%1%2").arg(raw, 2, 16, QChar('0'))
+                       .arg(raw == 0x47 ? " (ICM-42688-P)" : " (not the expected 0x47)"); break;
+    case 2: line = QString("Magnetometer id: 0x%1%2").arg(raw, 2, 16, QChar('0'))
+                       .arg(raw == 0x30 ? " (MMC5983MA)" : " (not the expected 0x30)"); break;
+    case 3: line = QString("Raw ADC, temperature node: %1").arg(raw); break;
+    case 4: line = QString("Raw ADC, supply divider: %1").arg(raw); break;
+    default: line = QString("Voltage channel %1: %2").arg(ch).arg(raw); break;
+    }
+    /* These arrive every ping. Report each channel the first time it is seen, and the supply
+       again only when it has actually moved, so the console stays readable. */
+    const bool first = !loggedVoltageChannels_.contains(ch);
+    const bool supplyMoved = (ch == 0) && (qAbs(raw - lastSupplyLogged_) > 100);
+    if (first || supplyMoved) {
+        loggedVoltageChannels_.insert(ch);
+        if (ch == 0) lastSupplyLogged_ = raw;
+        core.consoleInfo(line);
+    }
+#endif
 }
 
 void DevDriver::receivedEncoder(Parsers::Type type, Parsers::Version ver, Parsers::Resp resp) {
