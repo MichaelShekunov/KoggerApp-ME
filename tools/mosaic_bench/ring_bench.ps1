@@ -14,9 +14,9 @@
     -Klf writes the stream to a file (open it in the app; Pos zeroing on draws it).
     -Exe starts that app with KOGGER_AUTOTEST=UDP:<Port> (a hidden UDP link, never saved),
     KOGGER_UI_PROBE=<Out> and KOGGER_UI_PROBE_PNG=1, plays the stream in real time, resizes the window
-    by a pixel nine seconds in (headless, nothing else moves the camera, and the mosaic paints only
-    visible tiles), and once the stream has stopped the app grabs its window to <Out>\ui-auto.png and
-    quits. The app reads the user's own settings: Pos zeroing must be on, the mosaic shown. Back them
+    by a pixel five seconds in (headless, nothing else moves the camera, and the mosaic paints only
+    visible tiles; -NoNudge leaves it, as a user who does not touch the view), and once the stream
+    has stopped the app grabs its window to <Out>\ui-auto.png and quits. The app reads the user's own settings: Pos zeroing must be on, the mosaic shown. Back them
     up first (reg export HKCU\Software\KOGGER\KoggerApp) if the run must leave them as they were.
     Stop the stream before the app quits: quitting with a live serial link open has hung the app.
 
@@ -38,7 +38,8 @@ param(
     [int]    $Samples = 500,     # a side
     [int]    $ResolutionMm = 30,
     [string] $PathPrefix,        # e.g. D:\Qt\6.8.3\llvm-mingw_64\bin;D:\Qt\Tools\llvm-mingw1706_64\bin for a build tree's exe
-    [string] $Profile            # KOGGER_PROFILE: settings and a log of their own, beside the user's running app
+    [string] $Profile,           # KOGGER_PROFILE: settings and a log of their own, beside the user's running app
+    [switch] $NoNudge            # no window nudge: as a user who connects and does not touch the view
 )
 
 $ErrorActionPreference = 'Stop'
@@ -126,7 +127,7 @@ $app = [System.Diagnostics.Process]::Start($psi)
 $udp = New-Object System.Net.Sockets.UdpClient
 Start-Sleep -Seconds 4                              # the link opens about a second after start
 $clock = [System.Diagnostics.Stopwatch]::StartNew()
-$resized = $false
+$resized = [bool]$NoNudge
 for ($k = 0; $k -lt $pings; $k++) {
     $due = $k * 1000.0 / $Rate
     while ($clock.Elapsed.TotalMilliseconds -lt $due) { Start-Sleep -Milliseconds 1 }

@@ -1455,9 +1455,9 @@ to `pinned_links.xml`. `tools/mosaic_bench/ring_bench.ps1` writes the synthetic 
 plays it to the app live in real time, nudges the window by a pixel and prints the latency lines; the
 app grabs its window (`KOGGER_UI_PROBE_PNG`) and quits. It runs on the user's own settings (Pos
 zeroing on, the mosaic shown): `reg export HKCU\Software\KOGGER\KoggerApp` before, `reg import` after.
-The nudge is there because the 3D view computes its visible tiles only when the camera moves, and the
-mosaic paints only visible tiles: with Pos zeroing and no touch on the view, a live mosaic does not
-start. Seen headless, not changed.
+The nudge was there because a live mosaic did not start until the camera moved -- not the view's
+doing but the clear before the stream (see "The mosaic after connecting" below, fixed the same day);
+`-NoNudge` runs as a user who does not touch the view.
 
 **Careful with a live serial link in a test run.** A run with `KOGGER_AUTOTEST=COM13` hung when
 UiProbe quit the app (the GUI thread stopped right after the window grab), and the process could not
@@ -1507,3 +1507,25 @@ owner's with "Clear old data" on; N is `main\dataset\fakeCoordsLastNSlider` ther
 Not verified: switching the box or moving the N slider in a running app (the rebuild path, read
 and not driven by the bench); a mosaic of more than 512 tiles (the hot-cache return in the erase); on
 the owner's board turning.
+
+## The mosaic after connecting (2026-10-17)
+
+The owner: after starting the app and connecting to the sonar the mosaic stays empty, everything on;
+a touch of the zoom and it draws. The mosaic paints only visible tiles, and `DataProcessor` learns
+them from the view's rect, which the view sends when its camera moves. The clear before a stream
+(`clearAllProcessings`: on connecting `Core::resetRealtimeSessionState`, on the bench something at
+start) dropped the visible tiles with everything else; the camera had not moved, so no rect came, and
+every epoch was indexed with no tile visible (`onSendTilesByZoom` returned). The same after the
+toolbar's "reset processing": the worker's tiles emptied, `lastVisTileKeys_` left as it was, so an
+unchanged view was taken as already sent.
+
+Now `requeueViewRect` keeps the last rect the view sent and applies it again after either clear.
+kogger.log says when the view starts or stops showing tiles ("mosaic view: N visible tiles at zoom Z,
+M epochs indexed without any") and when an epoch comes with none ("mosaic view: no visible tiles").
+Bench, no nudge (`ring_bench.ps1 -NoNudge`), N = 80: 0 of 360 deg before (df2f85e6), 360 after, ping
+-> painted 11 ms from the first seconds (the nudge had cost the first five); N = 15 still 205 deg; with
+the nudge 360. The diagnosis by a temporary log in a test build: 16 tiles at start, dropped by the
+clear, then 200 epochs without one.
+
+Not verified: the toolbar's reset in the app; the owner's connect through the connection page (the
+same `clearAllProcessings`, read, not run).

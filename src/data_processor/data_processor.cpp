@@ -324,6 +324,7 @@ void DataProcessor::tryFinalizeResetProcessing()
     QMetaObject::invokeMethod(worker_, "clearSurfaceMosaicContext", Qt::BlockingQueuedConnection);
     QMetaObject::invokeMethod(worker_, "setVisibleTileKeys", Qt::BlockingQueuedConnection,
                               Q_ARG(QSet<TileKey>, QSet<TileKey>()));
+    requeueViewRect();   // the worker's tiles are gone, and with an unchanged view no rect comes
 
     closeDB();
 
@@ -334,6 +335,24 @@ void DataProcessor::tryFinalizeResetProcessing()
     emit isobathsProcessingCleared();
 
     resetInProgress_.store(false);
+}
+
+void DataProcessor::requeueViewRect()
+{
+    // The view sends its rect only when its camera moves, and after a clear nothing has moved: the
+    // last rect is still the screen. Dropped with the visible tiles, a live mosaic did not start
+    // after connecting until the user touched the zoom (2026-10-17, the owner's report).
+    lastViewRect_ = QRectF();
+    lastVisTileKeys_.clear();
+    lastVisTilesZoom_ = 0;
+    if (!haveViewRect_) {
+        return;
+    }
+    pendingCameraRect_ = viewRectFromView_;
+    cameraRectPending_ = true;
+    if (!cameraRectCoalesceTimer_.isActive()) {
+        cameraRectCoalesceTimer_.start();
+    }
 }
 
 void DataProcessor::setUpdateBottomTrack(bool state)
@@ -2067,12 +2086,10 @@ void DataProcessor::clearAllProcessings()
     requestedMask_ = 0;
     hotCache_.clear();
     dbReaderInWork_ = false;
-    lastViewRect_ = QRectF();
     pendingCameraRect_ = QRectF();
     cameraRectPending_ = false;
     cameraRectProcessing_ = false;
-    lastVisTileKeys_.clear();
-    lastVisTilesZoom_ = 0;
+    requeueViewRect();
     //lastDataZoomIndx_ = 0;
     dbPendingKeys_.clear();
     dbInWorkKeys_.clear();
@@ -2465,6 +2482,8 @@ void DataProcessor::onSendDataRectRequest(float minX, float minY, float maxX, fl
 
     if (!cameraRectProcessing_) {
         pendingCameraRect_ = QRectF(QPointF(minX, minY), QPointF(maxX, maxY));
+        viewRectFromView_ = pendingCameraRect_;
+        haveViewRect_ = true;
         cameraRectPending_ = true;
         if (!cameraRectCoalesceTimer_.isActive()) {
             cameraRectCoalesceTimer_.start();
@@ -2534,6 +2553,11 @@ void DataProcessor::onSendDataRectRequest(float minX, float minY, float maxX, fl
         }
     }
 
+    if (lastVisTileKeys_.isEmpty() != tiles.isEmpty()) {
+        qInfo().noquote() << QStringLiteral("mosaic view: %1 visible tiles at zoom %2, %3 epochs indexed without any")
+                             .arg(tiles.size()).arg(reqZoom).arg(epochsWithoutView_);
+        epochsWithoutView_ = 0;
+    }
     QMetaObject::invokeMethod(worker_, "setVisibleTileKeys", Qt::QueuedConnection, Q_ARG(QSet<TileKey>, tiles));
 
     // store new request
@@ -2759,7 +2783,10 @@ void DataProcessor::onSendTilesByZoom(int epochIndx, const QMap<int, QSet<TileKe
         return;
     }
 
-    if (lastVisTileKeys_.isEmpty()) {
+    if (lastVisTileKeys_.isEmpty()) {   // the view has sent nothing since the last clear
+        if (epochsWithoutView_++ == 0) {
+            qInfo().noquote() << QStringLiteral("mosaic view: no visible tiles, epoch %1 not queued").arg(epochIndx);
+        }
         return;
     }
 

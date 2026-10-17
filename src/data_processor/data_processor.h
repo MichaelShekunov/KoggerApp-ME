@@ -217,6 +217,7 @@ private slots:
 private:
     void flushPendingDbKeys();
     void tryFinalizeResetProcessing();
+    void requeueViewRect();
 
     // this
     void changeState(const DataProcessorType& state);
@@ -366,6 +367,10 @@ private:
     QThread                dbWriteThread_;
     int                    engineVer_;
     QRectF                 lastViewRect_;
+    // The last rect the view sent, kept through a clear (requeueViewRect).
+    QRectF                 viewRectFromView_;
+    bool                   haveViewRect_ = false;
+    int                    epochsWithoutView_ = 0;   // indexed while no tile was visible, for the log
     QTimer                 cameraRectCoalesceTimer_;
     QRectF                 pendingCameraRect_;
     bool                   cameraRectPending_ = false;
