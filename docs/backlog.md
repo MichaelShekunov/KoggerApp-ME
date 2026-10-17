@@ -661,7 +661,8 @@ Not surveyed yet.
 ## 12. "LR 500 kbit/s" in Link speed
 
 Owner, 2026-10-02: "не надо пока, но потом напомни" -- not now, remind later. Reminded
-2026-10-17; no answer yet. Moved here from the assistant's notes on the first PC.
+2026-10-17; the owner, the same evening: "Пока не надо" -- still not now. Moved here from the
+assistant's notes on the first PC.
 
 ### What exists today
 

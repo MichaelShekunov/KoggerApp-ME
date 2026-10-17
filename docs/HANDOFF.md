@@ -1549,6 +1549,8 @@ shares with the app's GUI thread through AttachThreadInput: no key reaches the k
 window. N = 80: North mode on -- the disc stays round and in place (up 308, down 319, left 323, right
 304 px); off -- tilted (up 227, down 336).
 
+The owner's decision, 2026-10-17 evening: leave it as it is (North mode keeps forbidding the tilt).
+
 ## Performance: opening a file, zooming the mosaic (2026-10-17)
 
 The owner: open files much faster; paint the mosaic faster (in parallel, per side or per channel);
@@ -1616,19 +1618,21 @@ normals of every tile on screen (12 603 deliveries in 25 s).
   it and without, zooms and compares the tiles: on the 348 MB file the last tile of the new level
   0.01-0.02 s after the zoom against 1.0-1.3 s (five runs each way), the same 93 tiles, heights and
   marks, 7 pixels of 6.1 million 1-3 apart in three tiles at the survey's edge -- PASS within its
-  tolerance (64 pixels, 8 apart).
+  tolerance then (64 pixels, 8 apart; now shares, "Comparing two mosaics" in the next section).
 
-**Not yet / open**:
+**Not yet / open** (as left on the first PC; the next section takes them up):
 - The 7 pixels: not the bottom track (the precompute 9 s later: the same), not the job the view's
   worker does after it (with its epochs marked done: the same). A guess, unchecked: a tile's head
   index is set per chunk from the tiles the chunk touched, and the precompute's chunks see more.
+  -> Larger on another file and the same on the build before: "Comparing two mosaics" below.
 - While data streams the bottom track is never quiet for 1.5 s, so the precompute waits until the
-  stream stops; nothing is precomputed during a live survey.
+  stream stops; nothing is precomputed during a live survey. -> Done below.
 - The precomputed levels add to the hot cache (on the test file ~1 000 tiles over three levels,
   ~64 KB each); past its 2 048 the oldest go to the DB, the view's own among them when they were
-  not touched lately. Not measured on a big survey.
+  not touched lately. Not measured on a big survey. -> Measured below: +140 MB on 1.1 GB.
 - The old level kept on screen until the new one covers it (the renderer drops it on the first tile
-  of the new level). The DB of tiles lives only for the session (deleted on open and close).
+  of the new level). -> Done below. The DB of tiles lives only for the session (deleted on open and
+  close).
 
 **To continue on another PC** (the owner moves to another machine after 2026-10-17 17:40; the
 owner's summary in Russian: `docs/perf-2026-10-17.ru.md`). On the first PC 273964bc is installed.
@@ -1661,3 +1665,91 @@ owner's summary in Russian: `docs/perf-2026-10-17.ru.md`). On the first PC 27396
   hand); window grabs differ between runs alike -- compare tiles, not grabs.
 - Next, by the owner's word: the "Not yet / open" list above; the owner's open questions -- tilt in
   the North mode ("Ctrl + drag does not tilt the 3D view" above) and the LR label (`backlog.md` 12).
+  Answered on the second PC the same evening: tilt as it is, the label not now.
+
+## Performance, continued: live, every level, the old level kept, memory (2026-10-17, evening)
+
+On the second PC, from ff8a2816 (the same build installed there per user); the commits 29f39dcb
+(precompute), 84f3b03a (old level kept), 4a015bd2 (memory), 7e0c6445 (tools) and the one with
+this section, which is the build installed there after it. The owner: the
+precompute during a live survey, memory on a big survey, the old level kept on screen; then "every
+zoom level has to be worked in the background, else zooming in further repaints it all"; runs kept
+short, about a minute. Test files, copies in `D:\Temp\perf\`: 00014 (348 MB) and 00008 (325 MB,
+`LOGS\01.05.2025_Ереванское_DSSS`), 00017_03.05.2025 (1.1 GB, 186 085 pings). [verified] below is
+a measurement or a check that ran; [inference] is not.
+
+**Precompute while data streams.** `DataProcessor::bottomTrackSettledBefore()`: once the bottom
+track has been quiet `KOGGER_PRECOMPUTE_QUIET_MS` (1.5 s) every epoch; while it streams those before
+the latest streaming run's `indexFrom` less max(its window, 32) -- a streaming run reworks only its
+window and the next one starts no earlier. Such a run logs ", streaming: epochs before N"; a
+bottom-track result reaching back to an epoch already sent drops the precomputed levels and says so.
+The job-finished handler armed the precompute's timer only when no next run was pending, never while
+data streams: now after every job unless it is armed (60 s of 00014 at 45 pings a second: no run
+while streaming before, 101 after [verified]). The levels are taken in turn from the one after the
+last run: the nearest always had new epochs (100 runs of 101 on it), now 17-18 on each of levels
+5..2 [verified]. Live latency the same with it and without: median 197-198 ms, p90 243-246
+[verified].
+
+**Every level.** Targets: levels 2..6 but the view's, nearest first, at equal distance the finer. A
+coarser one over 2^k the view (what zooming out shows), the next finer over the view, a deeper one
+over twice what zooming in to it shows, about the ground point under the cursor
+(`GraphicsScene3dView::sendZoomFocus`: after the mouse rests 300 ms, and at every wheel turn ->
+`DataProcessor::onZoomFocus`). `MosaicIndexProvider::tilesInQuadNed` returns nothing past 2 000
+tiles, so from an overview the deeper levels got no tiles at all [verified by
+`KOGGER_PRECOMPUTE_TRACE`, ff8a2816 too]. `dataTilesNear` takes the tiles with data from the
+tile-epoch index (walking the area's grid or the index, the smaller), at most 320 a level, the
+nearest to the focus: four levels and the view's fit the hot cache's 2 048. An epoch reaching past
+them is painted inside them only and stays unmarked (MosaicProcessor's outOfFov), and the view
+paints it again when it comes there: from an overview of 00008 that is 4 413 of 5 252 epochs at
+level 2 -- work spent twice, not a wrong picture. A focus moved more than an eighth of the view's
+diagonal re-opens the levels chosen about it. On 00008 from the overview (level 6): 6 -> 5, the last
+tile 0.04 s after the zoom against 1.38 s without; 6 -> 5 -> 3 -> 2, at level 2 0.01 against 0.84 s
+[verified, `precompute_check.ps1 -WheelAt "35,42,49" -Wheel 18`]. 00014 as on the first PC: 0.02
+against 1.71 s, the same 7 pixels [verified].
+
+**The old level kept** (`SurfaceView::keepAsFallback`): on a zoom the textured tiles of the old level
+move to `fallbackTiles_` and are drawn first, pushed back by a polygon offset, so the new level wins
+where both lie. A kept tile goes once the new level's visible tiles over it (its children, or its
+parent) are there and the new level has not changed for 400 ms -- a tile comes in pieces while its
+job paints, and going at the first piece left holes (seen in a grab); all of them 6 s after the zoom
+at the latest, and at once on zooming back. One log line: "mosaic zoom fallback: N tiles of zoom A
+kept under zoom B, covered after T ms", or "..., K left after T ms (why)". Window grabs 0.7 s after a
+6 -> 5 zoom without the precompute: ff8a2816 shows the screen mostly empty, this build the old level
+under the new one, and 1.65 s after it the new level whole [verified by looking at the grabs]. At a
+survey's edge a kept tile whose new tiles hold no data stays the 6 s: drawn under, harmless.
+
+**Memory** (`open_bench.ps1 -Memory` on 00017, 1.1 GB): private bytes 4.56 GB, 4.70 with the
+precompute (+140 MB) [verified]. 1.7 GB of it were two copies of the tile-epoch index no code read
+since 47fb15e5: `Epoch::setTraceTileIndxs` (a QMap of QSets a ping) and
+`Dataset::appendTileEpochIndex`; only the data processor's own copy is read. Without them 2.81 GB
+settled, 3.20 GB at the peak [verified], the mosaic the same (00008, zoom 6 -> 5: digest
+f159bd6c17acc561 before and after [verified]). Most of what is left should be the echograms, 5 000
+one-byte samples a side a ping, ~1.9 GB here [inference: from the chart setup line and the ping
+count, not measured apart].
+
+**Comparing two mosaics.** The precompute and the view paint the same pings into tiles that differ
+a little. On 00008 0.1-0.42 % of the pixels, up to 26 apart, single pixels along the pairs' edges,
+and 1-3.4 % of the height points; on 00014 the 7 pixels. ff8a2816 gives the same on 00008 whenever
+its precompute gets to run (6 -> 5 -> 3 -> 2: 0.24 %, heights 3.4 %) [verified], so not this
+evening's change. The view alone painted twice, on 6 threads in chunks of 64 and on 1 in chunks of
+10: the same pixels, 6.7 % of the height points another [verified]. The pixels most likely come from
+the float32 pixel positions, measured from the mesh's origin, which is another one for another set
+of tiles [inference, no change tried]. So `mosaic_dump_compare.ps1 -Judge` judges shares: PASS with
+no tile of B missing in A, at most 0.01 % painted in one only, 1 % another value, 10 % of the height
+points another. The live check at 0.2 % and 3 %: two live runs without the precompute differed by
+0.044-0.067 % and 0.02-1.7 % [verified]; a live run with it gave the very digest of one without.
+
+**Tools.** `tools/perf/live_zoom_check.ps1`: plays a recording to the app as a live device over UDP
+(`KOGGER_AUTOTEST=UDP:<port>`), zooms out 5 s in and back in as it stops, prints the precompute's
+runs while streaming, the latency lines, the zoom and its last tile, and compares two modes' tiles.
+`open_bench.ps1 -Memory`; `-WheelAt "35,42,49"` turns the wheel several times (a few notches move
+the camera about a level). `precompute_check.ps1` passes both on.
+
+**Seen, not changed:**
+- Opening the 1.1 GB file stops the GUI thread for 5.2 s (the stall monitor's two lines): the file
+  is read on it. The CMake option `KOGGER_SEPARATE_READING` (off) reads on a thread of its own;
+  not tried.
+- ~2.8 GB for a 1.1 GB file after the fix above, the echograms one byte a sample.
+- From an overview the deepest levels repaint most of their epochs when the view comes (above).
+- Over a finished level the green bottom-track line shows in dashes, the mosaic's heights covering
+  it in places; ff8a2816 the same [verified in grabs of both after a 6 -> 5 zoom on 00008].
