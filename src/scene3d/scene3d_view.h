@@ -395,6 +395,9 @@ signals:
     void updateSurfaceChanged();
     void sendRectRequest(QVector<LLA> rect, bool isPerspective, LLARef viewLlaRef, bool moveUp, map::CameraTilt tiltCam);
     void sendDataRectRequest(float minX, float minY, float maxX, float maxY);
+    // The ground point under the cursor (sendDataRectRequest's coordinates), once the mouse rests on the
+    // view or the wheel turns: the wheel zooms there, and the mosaic precompute paints deep levels about it.
+    void sendZoomFocus(float x, float y);
     void sendLlaRef(LLARef viewLlaRef);
     void sendDataZoom(int zoom);
     void sendMapTextureIdByTileIndx(const map::TileIndex& tileIndx, GLuint textureId);
@@ -518,6 +521,8 @@ private:
     Animator animator_;
     Smoother wheelZoomSmoother_;
     QTimer* wheelZoomTimer_ = nullptr;
+    QTimer* zoomFocusTimer_ = nullptr;   // sendZoomFocus after the cursor rests
+    QPointF zoomFocus_;
     qreal wheelZoomResidual_ = 0.0;
     QPointF wheelZoomAnchor_;
     bool followSuspended_ = false;

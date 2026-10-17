@@ -114,6 +114,9 @@ public slots:
     void setFilePath(QString filePath);
 
     void onSendDataRectRequest(float minX, float minY, float maxX, float maxY); // на движение камеры
+    // The point under the cursor on the 3D view, in the view rect's coordinates: the wheel zooms there,
+    // so the precompute paints the deeper levels about it (maybeStartPrecompute).
+    void onZoomFocus(float x, float y);
     void tryCalcTiles();
 
     TileMap fetchFromHotCache(const QSet<TileKey>& keys, QSet<TileKey>* missing);
@@ -286,8 +289,8 @@ private:
     QThread computeThread_;
     ComputeWorker* worker_;
 
-    // The zoom levels next to the view's, painted ahead in the background so a zoom finds its tiles
-    // in the hot cache (maybeStartPrecompute; the owner's request, 2026-10-17). A new generation
+    // The other zoom levels, painted ahead in the background so a zoom finds its tiles in the hot
+    // cache (maybeStartPrecompute; the owner's request, 2026-10-17). A new generation
     // (cancelPrecompute) stops the running one and drops what it still sends.
     QThread precomputeThread_;
     MosaicPrecomputer* precomputer_ = nullptr;
@@ -300,6 +303,18 @@ private:
     int precomputeMaxEpoch_ = -1;             // the newest epoch sent to it since the last drop
     QString precomputeRunInfo_;               // the running one, for its line in the log
     QElapsedTimer bottomTrackChanged_;        // the precompute waits for the bottom track to settle
+    int btAutoFrom_ = 0;                      // where the latest streaming bottom-track run starts
+    QPointF zoomFocus_;                       // onZoomFocus
+    bool haveZoomFocus_ = false;
+    QSet<int> precomputeAboutFocus_;          // levels whose tiles were chosen about zoomFocus_
+    int precomputeLastTarget_ = -1;           // the level of the latest run; the next looks from the one after
+    // The tiles with data at `zoom` (the tile-epoch index, not the area's grid: an overview's next level
+    // has more than tilesInQuadNed's 2000) that meet `area`, the nearest to `focus`, at most `budget`;
+    // *cut tells whether some were left out.
+    QSet<TileKey> dataTilesNear(int zoom, const QRectF& area, const QPointF& focus, int budget, bool* cut = nullptr) const;
+    // Epochs before this one keep their bottom track: all of them once it has been quiet a while,
+    // while data streams those before the streaming run's window (bottomTrackSettledBefore()).
+    int bottomTrackSettledBefore() const;
     void dropPrecomputed();
 
     QThread btThread_;

@@ -1,6 +1,8 @@
 #include "data_processor.h"
 
+#include <algorithm>
 #include <cmath>
+#include <limits>
 #include <QtConcurrent/QtConcurrentRun>
 #include <QMetaObject>
 #include <QEventLoop>
@@ -384,9 +386,111 @@ void DataProcessor::cancelPrecompute()
 {
     ++precomputeGeneration_;
     precomputeTried_.clear();
+    precomputeAboutFocus_.clear();
+    precomputeLastTarget_ = -1;
     if (precomputer_) {
         precomputer_->setLatestGeneration(precomputeGeneration_);
     }
+}
+
+void DataProcessor::onZoomFocus(float x, float y)
+{
+    const QPointF focus(x, y);
+    // Far from where the deep levels were painted: paint them about the new place. An epoch sent before
+    // painted only the tiles about the old one (one reaching past them stays unmarked, see
+    // MosaicProcessor's outOfFov), so the sent ones may go again.
+    const QRectF view = viewRectFromView_.normalized();
+    const double far = 0.125 * std::hypot(view.width(), view.height());
+    const bool moved = !haveZoomFocus_ || std::hypot(focus.x() - zoomFocus_.x(), focus.y() - zoomFocus_.y()) > far;
+    zoomFocus_ = focus;
+    haveZoomFocus_ = true;
+    if (moved && precomputer_ && !precomputeAboutFocus_.isEmpty()) {
+        for (const int zoom : std::as_const(precomputeAboutFocus_)) {
+            precomputeTried_.remove(zoom);
+        }
+        precomputeAboutFocus_.clear();
+        precomputeTimer_.start();
+    }
+}
+
+QSet<TileKey> DataProcessor::dataTilesNear(int zoom, const QRectF& area, const QPointF& focus, int budget, bool* cut) const
+{
+    if (cut) {
+        *cut = false;
+    }
+    const int cZoom = zoom - 1;
+    if (cZoom < 0 || cZoom >= tileEpochIndxsByZoom_.size() || budget <= 0) {
+        return {};
+    }
+    const auto& index = tileEpochIndxsByZoom_.at(cZoom);
+    QVector<QPair<double, TileKey>> near;
+    auto take = [&](const TileKey& key) {
+        QRectF r;
+        if (!mosaicIndexProvider_.tileRectNed(key, &r) || !r.intersects(area)) {
+            return;
+        }
+        const QPointF d = r.center() - focus;
+        near.append(qMakePair(d.x() * d.x() + d.y() * d.y(), key));
+    };
+    // The area's grid or the whole index, the smaller: this runs every few hundred ms while data
+    // streams, and a long survey's finest level indexes some 10^5 tiles.
+    const double side = double(tileSideMetersFromZoom(zoom));
+    const QRectF a = area.normalized();
+    const qint64 x0 = qint64(std::floor(a.left() / side)), x1 = qint64(std::ceil(a.right() / side)) - 1;
+    const qint64 y0 = qint64(std::floor(a.top() / side)), y1 = qint64(std::ceil(a.bottom() / side)) - 1;
+    const qint64 cells = (x1 >= x0 && y1 >= y0) ? (x1 - x0 + 1) * (y1 - y0 + 1) : 0;
+    if (cells <= 0) {
+        return {};
+    }
+    if (cells < qint64(index.size())) {
+        for (qint64 y = y0; y <= y1; ++y) {
+            for (qint64 x = x0; x <= x1; ++x) {
+                const TileKey key(int(x), int(y), zoom);
+                if (const auto it = index.constFind(key); it != index.cend() && !it.value().isEmpty()) {
+                    take(key);
+                }
+            }
+        }
+    }
+    else {
+        for (auto it = index.cbegin(); it != index.cend(); ++it) {
+            if (!it.value().isEmpty()) {
+                take(it.key());
+            }
+        }
+    }
+    if (near.size() > budget) {
+        if (cut) {
+            *cut = true;
+        }
+        std::nth_element(near.begin(), near.begin() + budget, near.end(),
+                         [](const auto& a, const auto& b) { return a.first < b.first; });
+        near.resize(budget);
+    }
+    QSet<TileKey> out;
+    out.reserve(near.size());
+    for (const auto& n : std::as_const(near)) {
+        out.insert(n.second);
+    }
+    return out;
+}
+
+int DataProcessor::bottomTrackSettledBefore() const
+{
+    // Quiet a while: all of it (a file once read, a stream once stopped). While data streams it never
+    // is, and before 2026-10-17 nothing was precomputed during a survey. A streaming run reworks only
+    // its window [indexFrom, indexTo], and the next run's starts no earlier, so the epochs before the
+    // latest run's start keep their track. Less a margin: a run's results reach onBottomTrack3DAdded
+    // through the 3D scene and may come after the next run has started. A manual run reaching back
+    // drops what was painted ahead anyway (dropPrecomputed).
+    static const qint64 kQuietMs = qEnvironmentVariableIsSet("KOGGER_PRECOMPUTE_QUIET_MS")
+        ? qEnvironmentVariableIntValue("KOGGER_PRECOMPUTE_QUIET_MS") : 1500;
+    constexpr int kMinMarginEpochs = 32;   // 1 to 3 s of pings: painted at once after a zoom
+    if (!btBusy_ && (!bottomTrackChanged_.isValid() || bottomTrackChanged_.elapsed() >= kQuietMs)) {
+        return std::numeric_limits<int>::max();
+    }
+    const int window = datasetPtr_ ? datasetPtr_->getBottomTrackParam().windowSize : 1;
+    return btAutoFrom_ - std::max(window, kMinMarginEpochs);
 }
 
 void DataProcessor::dropPrecomputed()
@@ -413,18 +517,14 @@ void DataProcessor::dropPrecomputed()
 
 void DataProcessor::maybeStartPrecompute()
 {
-    // The view's own work first, then the levels next to its own: the finer one (zooming in), the
-    // coarser one over about twice the view (zooming out). Not with FAKE_COORDS+N, where a zoom
+    // The view's own work first, then the other levels (below). Not with FAKE_COORDS+N, where a zoom
     // change restarts the mosaic anyway.
     constexpr int kMinZoom = 2;   // the levels pickZoomByDistance gives
     constexpr int kMaxZoom = 6;
+    // Tiles a level at most, the nearest to the cursor: four levels of it and the view's own fit the hot
+    // cache's 2 048 (about 64 KB a tile). An epoch reaching past them is painted later, when its tiles show.
+    constexpr int kTilesPerLevel = 320;
     static const bool kOff = qEnvironmentVariable("KOGGER_MOSAIC_PRECOMPUTE") == QStringLiteral("0");
-    if (kOff || !precomputer_ || precomputeRunning_ || shuttingDown_.load() || resetInProgress_.load() || suppressResults_.load()) {
-        return;
-    }
-    if (!updateMosaic_ || isOpeningFile_ || (activeZeroing_ && mosaicFakeCoordsLastN_ > 0)) {
-        return;
-    }
     static const bool kTrace = qEnvironmentVariableIsSet("KOGGER_PRECOMPUTE_TRACE");
     static QString lastWait;
     auto waiting = [](const QString& why) {
@@ -433,6 +533,16 @@ void DataProcessor::maybeStartPrecompute()
             qInfo().noquote() << QStringLiteral("mosaic precompute: waits, %1").arg(why);
         }
     };
+    if (kOff || !precomputer_ || precomputeRunning_ || shuttingDown_.load()) {
+        return;   // a running one arms the timer when it ends
+    }
+    if (resetInProgress_.load() || suppressResults_.load() || isOpeningFile_) {
+        waiting(QStringLiteral("a reset, a file opening or results held back"));   // the next job's end arms it again
+        return;
+    }
+    if (!updateMosaic_ || (activeZeroing_ && mosaicFakeCoordsLastN_ > 0)) {
+        return;
+    }
     // Epochs queued past the mosaic horizon wait for it, not the view's worker: in a file the last
     // few stay there for good, and waiting for them never let the precompute start.
     int ready = 0;
@@ -448,46 +558,83 @@ void DataProcessor::maybeStartPrecompute()
         waiting(QStringLiteral("no view"));
         return;
     }
-    // The colours follow the bottom track (the slant range), and a tile painted before a change keeps
-    // its older pings: painted ahead too early, a level differed from one painted on arrival.
-    static const qint64 kBottomTrackQuietMs = qEnvironmentVariableIsSet("KOGGER_PRECOMPUTE_QUIET_MS")
-        ? qEnvironmentVariableIntValue("KOGGER_PRECOMPUTE_QUIET_MS") : 1500;
-    if (btBusy_ || (bottomTrackChanged_.isValid() && bottomTrackChanged_.elapsed() < kBottomTrackQuietMs)) {
+    // Only epochs whose bottom track will not change: the colours follow it (the slant range), and a
+    // tile painted before a change keeps its older pings.
+    const int settledBefore = bottomTrackSettledBefore();
+    if (settledBefore <= 0) {
         waiting(QStringLiteral("the bottom track is changing"));
         precomputeTimer_.start();
         return;
     }
     lastWait.clear();
 
+    // Every level, not only the two next to the view's (the owner, 2026-10-17: a zoom of several levels
+    // repainted it all): nearest first, at the same distance the finer one. A coarser level over what
+    // zooming out to it shows (twice the view a level); the next finer one over the view; a deeper one
+    // over twice what zooming in to it shows, about the point under the cursor, where the wheel zooms.
+    // Each level then costs about as much as the next finer one did alone: a deeper one over the whole
+    // view is four times the one before (level 2 over the 2026-10-17 test file's view: 27 000 tiles).
     const int zoom = lastDataZoomIndx_;
     const QRectF view = viewRectFromView_.normalized();
-    for (const int target : { zoom - 1, zoom + 1 }) {
-        if (target < kMinZoom || target > kMaxZoom) {
-            continue;
+    const QPointF focus = (haveZoomFocus_ && view.contains(zoomFocus_)) ? zoomFocus_ : view.center();
+    QVector<int> targets;
+    QStringList idle;   // KOGGER_PRECOMPUTE_TRACE: why each level had nothing to paint
+    for (int d = 1; d <= kMaxZoom - kMinZoom; ++d) {
+        if (zoom - d >= kMinZoom) {
+            targets.append(zoom - d);
         }
+        if (zoom + d <= kMaxZoom) {
+            targets.append(zoom + d);
+        }
+    }
+    // From the level after the last one run, round: while data streams the nearest always has new
+    // epochs, and the others never got a run (2026-10-17: 100 runs of 101 on the next level).
+    if (const int at = targets.indexOf(precomputeLastTarget_); at >= 0) {
+        std::rotate(targets.begin(), targets.begin() + at + 1, targets.end());
+    }
+    for (const int target : std::as_const(targets)) {
         QRectF area = view;
         if (target > zoom) {
-            area = QRectF(view.center() - QPointF(view.width(), view.height()), QSizeF(2.0 * view.width(), 2.0 * view.height()));
+            const double s = double(1 << (target - zoom));
+            area = QRectF(view.center() - QPointF(0.5 * s * view.width(), 0.5 * s * view.height()),
+                          QSizeF(s * view.width(), s * view.height()));
         }
-        const std::array<QPointF, 4> quad = { area.topLeft(), area.topRight(), area.bottomRight(), area.bottomLeft() };
-        const QSet<TileKey> tiles = mosaicIndexProvider_.tilesInQuadNed(quad, target, 0);
+        else if (zoom - target >= 2) {
+            const double s = 2.0 / double(1 << (zoom - target));
+            area = QRectF(focus - QPointF(0.5 * s * view.width(), 0.5 * s * view.height()),
+                          QSizeF(s * view.width(), s * view.height())).intersected(view);
+        }
+        bool cut = false;
+        const QSet<TileKey> tiles = dataTilesNear(target, area, focus, kTilesPerLevel, &cut);
+        if (cut || zoom - target >= 2) {
+            precomputeAboutFocus_.insert(target);
+        }
         if (tiles.isEmpty()) {
+            if (kTrace) {
+                idle << QStringLiteral("%1: no tiles with data").arg(target);
+            }
             continue;
         }
         QSet<int> epochs = collectEpochsForTilesSet(target, tiles);
+        const int found = epochs.size();
         if (const auto done = mosaicTaskEpochIndxsByZoom_.constFind(target); done != mosaicTaskEpochIndxsByZoom_.cend()) {
             epochs.subtract(done.value());
         }
+        const int notPainted = epochs.size();
         auto& tried = precomputeTried_[target];
         epochs.subtract(tried);
         QVector<int> list;
         list.reserve(epochs.size());
         for (const int idx : std::as_const(epochs)) {
-            if (idx <= mosaicCounter_) {
+            if (idx <= mosaicCounter_ && idx < settledBefore) {
                 list.append(idx);
             }
         }
         if (list.isEmpty()) {
+            if (kTrace) {
+                idle << QStringLiteral("%1: %2 tiles, %3 epochs, %4 not painted, %5 not sent, none before the horizon %6 and %7")
+                        .arg(target).arg(tiles.size()).arg(found).arg(notPainted).arg(epochs.size()).arg(mosaicCounter_).arg(settledBefore);
+            }
             continue;
         }
         std::sort(list.begin(), list.end());
@@ -495,13 +642,20 @@ void DataProcessor::maybeStartPrecompute()
             tried.insert(idx);
         }
         precomputeRunning_ = true;
+        precomputeLastTarget_ = target;
         precomputeClock_.start();
         precomputeMaxEpoch_ = std::max(precomputeMaxEpoch_, list.back());
         precomputeRunInfo_ = QStringLiteral("zoom %1 (the view is on %2), %3 epochs over %4 tiles")
                              .arg(target).arg(zoom).arg(list.size()).arg(tiles.size());
+        if (settledBefore != std::numeric_limits<int>::max()) {
+            precomputeRunInfo_ += QStringLiteral(", streaming: epochs before %1").arg(settledBefore);
+        }
         QMetaObject::invokeMethod(precomputer_, "run", Qt::QueuedConnection, Q_ARG(int, target),
                                   Q_ARG(QSet<TileKey>, tiles), Q_ARG(QVector<int>, list), Q_ARG(quint64, precomputeGeneration_));
         return;
+    }
+    if (kTrace) {
+        waiting(QStringLiteral("nothing to paint (view on %1): %2").arg(zoom).arg(idle.join(QStringLiteral("; "))));
     }
 }
 
@@ -862,6 +1016,7 @@ void DataProcessor::tryScheduleAutoBottomTrack(uint64_t indx)
     const DatasetChannel ch2 = (channels.size() >= 2) ? channels[1] : DatasetChannel();
 
     btBusy_ = true;
+    btAutoFrom_ = btP.indexFrom;   // the precompute stays before it while data streams
 
     QMetaObject::invokeMethod(btWorker_, "bottomTrackProcessing", Qt::QueuedConnection,
                               Q_ARG(DatasetChannel, ch1),
@@ -913,6 +1068,10 @@ void DataProcessor::onBottomTrack3DAdded(const QVector<int>& epIndxs, const QVec
     // A new ping's track leaves alone what was painted ahead before it; a change reaching back to
     // painted epochs drops it all (a precomputed tile cannot be repainted under its head index).
     if (oldestChanged <= precomputeMaxEpoch_) {
+        if (precomputeRunning_ || !precomputedZooms_.isEmpty()) {
+            qInfo().noquote() << QStringLiteral("mosaic precompute: dropped, the bottom track reworked epoch %1 (painted ahead up to %2)")
+                                 .arg(oldestChanged).arg(precomputeMaxEpoch_);
+        }
         dropPrecomputed();
     }
 
@@ -1645,7 +1804,10 @@ void DataProcessor::onWorkerFinished()
     if (nextRunPending_.load() && !shuttingDown_.load()) {
         startTimerIfNeeded();
     }
-    else {
+    // While data streams a next run is always pending: armed only in the else branch, the precompute
+    // was looked at again only on a change of view (2026-10-17: a 60 s stream, no run in it). Not
+    // restarted when armed: jobs end every few hundred ms and would put it off for good.
+    if (!precomputeTimer_.isActive()) {
         precomputeTimer_.start();
     }
 }
@@ -2218,6 +2380,7 @@ void DataProcessor::changeState(const DataProcessorType& state)
 void DataProcessor::clearBottomTrackProcessing()
 {
     bottomTrackWindowCounter_ = 0;
+    btAutoFrom_ = 0;
     btBusy_ = false;
     forceVisibleRefreshAfterBottomTrack_ = false;
 
@@ -2273,6 +2436,7 @@ void DataProcessor::clearAllProcessings()
     epochToBottomTrackVertIndx_.clear();
     clearOldTracking_ = false;
     bottomTrackWindowCounter_ = 0;
+    btAutoFrom_ = 0;
     btBusy_ = false;
     forceVisibleRefreshAfterBottomTrack_ = false;
 
@@ -2776,6 +2940,8 @@ void DataProcessor::onSendDataRectRequest(float minX, float minY, float maxX, fl
     }
     QMetaObject::invokeMethod(worker_, "setVisibleTileKeys", Qt::QueuedConnection, Q_ARG(QSet<TileKey>, tiles));
     precomputeTried_.clear();   // another view: its own neighbourhood
+    precomputeAboutFocus_.clear();
+    precomputeLastTarget_ = -1;   // nearest first again
     precomputeTimer_.start();
 
     // store new request
