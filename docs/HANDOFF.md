@@ -1240,3 +1240,53 @@ and the camera follow take the newest raw fix instead (`Dataset::lastPositionCha
 included, when those had none. `tools/interp_check`: 40/40, fifteen mutants caught; ping position error
 2.0-2.5x lower than pairwise in the simulation with the 0.30 m GNSS noise the GODIO session calibrated on
 the lake recording. Not tried on the water. Details: `docs/track-interpolation.md`.
+
+## Two-channel compressed echogram (2026-10-17, 588cb0f4)
+
+The nanoSSS firmware 11.9 (`l412_adc`, two channels) sends the compressed echogram as
+`ID_CHART_Z` **v1**: the stream holds both sides end to end, first half port, second half
+starboard. v0 stays what GODIO and the Baikal sonar send, one channel. The version carries the
+channel count exactly as it does on the plain `ID_CHART`.
+
+Why end to end and not interleaved like `ID_CHART` v1: the codec's transform runs along range,
+and interleaving puts a different channel in every other sample. Measured on ten real logs
+through the reference codec, 2000 cells a side: interleaved 469 B at rms 3.38, end to end
+430 B at rms 3.05. The firmware side is in `l412_adc/docs/COMPRESSION.md`.
+
+What changed here: `IDBinChartZ::parsePayload` accepts v1 and restarts reassembly when the
+channel count changes; `IDBinChart::acceptDecoded` takes `channels` and puts the second half in
+`m_completeChart2`. Nothing else was needed: `DevDriver::receivedChart` already splits a chart in
+two on `ver == v1`, and `ID_CHART_Z` uses that same callback.
+
+How it was found: the owner flashed 11.9, switched compression on and saw no echogram while the
+picture kept scrolling (with Pos zeroing on, every attitude frame opens an epoch). 6c38f881 refused
+every v1 frame with `respErrorVersion`.
+
+**Check:** `tools/chartz_check`, offline, on `nanosss_v119_both.bin` — 74 KB straight off the
+serial port of a real board with both DATASET bits set, so every ping is there plain AND
+compressed. The application's own classes decode the compressed one and it must match its plain
+twin side for side. The twin is found by content and accepted only when clearly closer than the
+neighbouring pings (a neighbour of the same noise is rms ~4-5 away and passed for the twin in the
+first version of the check). Build it like `busaddr_check` (Qt 6 Core + Gui, the llvm-mingw kit),
+run `chartz_check nanosss_v119_both.bin`. **Control:** built with `-DCHARTZ_SRC=<dir>` holding
+6c38f881's `id_binnary.*` it has to fail.
+
+Verified by machine: 588cb0f4 — 0 of 32 compressed frames refused, 16 pings decoded, 2000 cells a
+side, every ping's twin found (rms 1.24-1.46, next best 4.0-5.0, one index offset), sides not
+exchanged; the same figures, ping for ping, as the reference decoder `KoggerEchoCodec/ref/ping.py`.
+Control on 6c38f881: 32 of 32 refused, 0 pings, FAIL. `id_binnary.cpp` and `dev_driver.cpp`
+compile with no warnings.
+
+Also in 588cb0f4: `ID_VOLTAGE` registered at last (the class existed, the frames were dropped),
+with names for the channels the nanoSSS v4 firmware uses for diagnostics; `IDBinVoltage::_v` grows
+to 256 entries, since a `uint8_t` channel id overran 255; `IDBinAttitude` v1 read all four
+quaternion components into `m_w0`.
+
+Built and packaged from `D:\Temp\kogger_merge_test`: the build tree under `D:\YandexDisk\` cannot
+build at the moment. The sync client removes
+`build\...\qml\kqml_types\CMakeFiles\kogger_kqml_types_autogen.dir\AutogenInfo.json` (its conflict
+copies `AutogenInfo (2).json` and `(3).json` lie beside it); `cmake .` regenerates it and it is gone
+again within a minute. Same cure as "The sync client fights the deploy": exclude `build/` and
+`out_x64/` from sync.
+
+Not verified: the echogram on screen and the circular mosaic in the running app.
