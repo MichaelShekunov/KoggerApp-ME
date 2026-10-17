@@ -794,22 +794,28 @@ void SurfaceView::logMosaicDigest()
     std::sort(keys.begin(), keys.end(), [](const TileKey& a, const TileKey& b) {
         return std::tie(a.zoom, a.y, a.x) < std::tie(b.zoom, b.y, b.x);
     });
-    quint64 h = 1469598103934665603ULL;
-    auto mix = [&h](const void* data, size_t n) {
+    quint64 h = 1469598103934665603ULL;     // everything
+    quint64 hImg = 1469598103934665603ULL;  // keys and pixels only
+    auto mixInto = [](quint64& acc, const void* data, size_t n) {
         const auto* p = static_cast<const unsigned char*>(data);
         for (size_t i = 0; i < n; ++i) {
-            h = (h ^ p[i]) * 1099511628211ULL;
+            acc = (acc ^ p[i]) * 1099511628211ULL;
         }
     };
+    auto mix = [&](const void* data, size_t n) { mixInto(h, data, n); };
     qint64 painted = 0;
     for (const TileKey& k : keys) {
         const SurfaceTile& t = r->tiles_.constFind(k).value();
         mix(&k.x, sizeof k.x);
         mix(&k.y, sizeof k.y);
         mix(&k.zoom, sizeof k.zoom);
+        mixInto(hImg, &k.x, sizeof k.x);
+        mixInto(hImg, &k.y, sizeof k.y);
+        mixInto(hImg, &k.zoom, sizeof k.zoom);
         const auto& img = t.getMosaicImageDataCRef();
         if (!img.empty()) {
             mix(img.data(), img.size());
+            mixInto(hImg, img.data(), img.size());
             for (uint8_t v : img) {
                 painted += v != 0;
             }
@@ -822,8 +828,47 @@ void SurfaceView::logMosaicDigest()
             mix(&m, sizeof m);
         }
     }
-    qInfo().noquote() << QStringLiteral("mosaic digest: %1 tiles, %2 painted pixels, hash %3")
-                         .arg(keys.size()).arg(painted).arg(h, 16, 16, QLatin1Char('0'));
+    qInfo().noquote() << QStringLiteral("mosaic digest: %1 tiles, %2 painted pixels, hash %3, pixels alone %4")
+                         .arg(keys.size()).arg(painted).arg(h, 16, 16, QLatin1Char('0')).arg(hImg, 16, 16, QLatin1Char('0'));
+
+    // KOGGER_MOSAIC_DUMP=<folder>: the tiles themselves, digest_<n>.bin, for comparing two runs tile by
+    // tile. Per tile, little-endian: x, y, zoom, head (int32), then an int32 count and the image bytes,
+    // the heights (float z) and the marks (uint8).
+    static const QString kDumpDir = qEnvironmentVariable("KOGGER_MOSAIC_DUMP");
+    if (!kDumpDir.isEmpty()) {
+        static int dumpNo = 0;
+        QDir().mkpath(kDumpDir);
+        QFile f(QDir(kDumpDir).filePath(QStringLiteral("digest_%1.bin").arg(++dumpNo)));
+        if (f.open(QIODevice::WriteOnly)) {
+            auto put = [&f](const void* p, qint64 n) { f.write(static_cast<const char*>(p), n); };
+            const qint32 count = qint32(keys.size());
+            put("KMD1", 4);
+            put(&count, 4);
+            for (const TileKey& k : keys) {
+                const SurfaceTile& t = r->tiles_.constFind(k).value();
+                const qint32 head[4] = { qint32(k.x), qint32(k.y), qint32(k.zoom), qint32(t.getHeadIndx()) };
+                put(head, sizeof head);
+                const auto& img = t.getMosaicImageDataCRef();
+                const qint32 nImg = qint32(img.size());
+                put(&nImg, 4);
+                put(img.data(), nImg);
+                const auto& verts = t.getHeightVerticesCRef();
+                const qint32 nH = qint32(verts.size());
+                put(&nH, 4);
+                for (const QVector3D& v : verts) {
+                    const float z = v.z();
+                    put(&z, 4);
+                }
+                const auto& marks = t.getHeightMarkVerticesCRef();
+                const qint32 nM = qint32(marks.size());
+                put(&nM, 4);
+                for (const HeightType& m : marks) {
+                    const quint8 b = quint8(m);
+                    put(&b, 1);
+                }
+            }
+        }
+    }
 }
 
 void SurfaceView::setMosaicColorTableTextureTask(const std::vector<uint8_t> &colorTableTextureTask)
