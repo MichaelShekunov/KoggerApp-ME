@@ -1592,7 +1592,40 @@ normals of every tile on screen (12 603 deliveries in 25 s).
 0.73 s; the stall monitor no longer fires); CPU to open and settle 8.3 -> 5.4 s; after a 6-notch zoom
 3.7-5.5 -> 3.7-3.9 s, the GUI thread 1.56 -> 1.0 s. The live ring bench unchanged (205 / 360 deg).
 
-**Not yet**: the mosaic itself in parallel (the worker is one thread; after a zoom it is the busiest);
-other zoom levels computed in the background; the old level kept on screen until the new one covers
-it (the renderer drops it on the first tile of the new level). The DB of tiles lives only for the
-session (deleted on open and close).
+**Then, the mosaic itself:**
+- `KOGGER_MOSAIC_DIGEST=1` (956616b5): 1.5 s after the last delivery of tiles the view logs a hash
+  of the tiles it holds (keys, pixels, heights; and of keys and pixels alone). `KOGGER_MOSAIC_DUMP=
+  <folder>` (f69a90c8) also writes the tiles (`digest_<n>.bin`); `tools/perf/mosaic_dump_compare.ps1`
+  compares two dumps tile by tile (`-Picture` draws where they differ). Window grabs are no check:
+  two runs alike come out ~8 700 pixels apart there (the camera after the wheel).
+- Pairs painted on several threads (8c17d03d): `MosaicProcessor::updateData` lists a chunk's pairs,
+  contiguous runs go to `KOGGER_MOSAIC_THREADS` threads (else the cores less two, at most 8), each
+  into buffers of its own, merged point by point by the highest pair number -- what painting in
+  order leaves. A big job in chunks of 64, not 10. The digest the same with 1 thread and 8; after a
+  zoom the work ends at 12.2 s against 14.3 s.
+- The zoom levels next to the view's painted in the background (811cc6f2): `MosaicPrecomputer`, a
+  thread at low priority with two paint threads and a `MosaicProcessor` of its own (`setBackground`),
+  paints the next finer level over the view and the next coarser over twice the view (levels 2..6)
+  into the hot cache and the per-zoom processed sets. `DataProcessor::maybeStartPrecompute` starts it
+  once the view's work is done and the bottom track has been quiet 1.5 s; a generation number
+  cancels it (zoom change, settings, reset) and drops what an older one still sends; a bottom-track
+  change reaching back to an epoch sent to it drops the precomputed levels (`dropPrecomputed`: a
+  painted tile is not repainted under its head index), a new ping's does not. One log line a run;
+  `KOGGER_MOSAIC_PRECOMPUTE=0` off, `KOGGER_PRECOMPUTE_TRACE=1` what it waits for,
+  `KOGGER_PRECOMPUTE_QUIET_MS` the quiet time. `tools/perf/precompute_check.ps1` opens a file with
+  it and without, zooms and compares the tiles: on the 348 MB file the last tile of the new level
+  0.01-0.02 s after the zoom against 1.0-1.3 s (five runs each way), the same 93 tiles, heights and
+  marks, 7 pixels of 6.1 million 1-3 apart in three tiles at the survey's edge -- PASS within its
+  tolerance (64 pixels, 8 apart).
+
+**Not yet / open**:
+- The 7 pixels: not the bottom track (the precompute 9 s later: the same), not the job the view's
+  worker does after it (with its epochs marked done: the same). A guess, unchecked: a tile's head
+  index is set per chunk from the tiles the chunk touched, and the precompute's chunks see more.
+- While data streams the bottom track is never quiet for 1.5 s, so the precompute waits until the
+  stream stops; nothing is precomputed during a live survey.
+- The precomputed levels add to the hot cache (on the test file ~1 000 tiles over three levels,
+  ~64 KB each); past its 2 048 the oldest go to the DB, the view's own among them when they were
+  not touched lately. Not measured on a big survey.
+- The old level kept on screen until the new one covers it (the renderer drops it on the first tile
+  of the new level). The DB of tiles lives only for the session (deleted on open and close).
