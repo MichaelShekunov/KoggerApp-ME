@@ -132,6 +132,10 @@ public slots: // from dataprocessor
     void removeTiles(const QSet<TileKey>& ids);
 
 private:
+    // KOGGER_MOSAIC_DIGEST=1: once the tiles stop coming for 1.5 s, the log gets a hash of what is on
+    // screen (keys, mosaic pixels, heights), to compare two ways of painting the same data.
+    void logMosaicDigest();
+    class QTimer* digestTimer_ = nullptr;
     void updateMosaicTileTextureTask(const QHash<TileKey, SurfaceTile>& newTiles);
     void rebuildIsobathLabels();
     // isobaths

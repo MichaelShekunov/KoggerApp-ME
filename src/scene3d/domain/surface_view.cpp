@@ -8,6 +8,8 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QUrl>
+#include <QTimer>
+#include <tuple>
 #include "math_defs.h"
 #include "themes.h"
 
@@ -769,6 +771,59 @@ void SurfaceView::setTilesIncremental(const QHash<TileKey, SurfaceTile> &tiles, 
     rebuildIsobathLabels();
     Q_EMIT changed();
     Q_EMIT boundsChanged();
+
+    static const bool kDigest = qEnvironmentVariableIsSet("KOGGER_MOSAIC_DIGEST");
+    if (kDigest) {
+        if (!digestTimer_) {
+            digestTimer_ = new QTimer(this);
+            digestTimer_->setSingleShot(true);
+            digestTimer_->setInterval(1500);
+            connect(digestTimer_, &QTimer::timeout, this, &SurfaceView::logMosaicDigest);
+        }
+        digestTimer_->start();
+    }
+}
+
+void SurfaceView::logMosaicDigest()
+{
+    auto* r = RENDER_IMPL(SurfaceView);
+    if (!r) {
+        return;
+    }
+    QList<TileKey> keys = r->tiles_.keys();
+    std::sort(keys.begin(), keys.end(), [](const TileKey& a, const TileKey& b) {
+        return std::tie(a.zoom, a.y, a.x) < std::tie(b.zoom, b.y, b.x);
+    });
+    quint64 h = 1469598103934665603ULL;
+    auto mix = [&h](const void* data, size_t n) {
+        const auto* p = static_cast<const unsigned char*>(data);
+        for (size_t i = 0; i < n; ++i) {
+            h = (h ^ p[i]) * 1099511628211ULL;
+        }
+    };
+    qint64 painted = 0;
+    for (const TileKey& k : keys) {
+        const SurfaceTile& t = r->tiles_.constFind(k).value();
+        mix(&k.x, sizeof k.x);
+        mix(&k.y, sizeof k.y);
+        mix(&k.zoom, sizeof k.zoom);
+        const auto& img = t.getMosaicImageDataCRef();
+        if (!img.empty()) {
+            mix(img.data(), img.size());
+            for (uint8_t v : img) {
+                painted += v != 0;
+            }
+        }
+        for (const QVector3D& v : t.getHeightVerticesCRef()) {
+            const float z = v.z();
+            mix(&z, sizeof z);
+        }
+        for (const HeightType& m : t.getHeightMarkVerticesCRef()) {
+            mix(&m, sizeof m);
+        }
+    }
+    qInfo().noquote() << QStringLiteral("mosaic digest: %1 tiles, %2 painted pixels, hash %3")
+                         .arg(keys.size()).arg(painted).arg(h, 16, 16, QLatin1Char('0'));
 }
 
 void SurfaceView::setMosaicColorTableTextureTask(const std::vector<uint8_t> &colorTableTextureTask)
