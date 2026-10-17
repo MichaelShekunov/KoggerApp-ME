@@ -1743,8 +1743,9 @@ void Dataset::calcDimensionRects(uint64_t indx)
             return false;
         }
 
-        pool_[epochIndx].setTraceTileIndxs(tilesByZoom); // в эпоху в датасете
-        appendTileEpochIndex(static_cast<int>(epochIndx), tilesByZoom); // в датасет
+        // Only the data processor's index: the copies in the epoch (setTraceTileIndxs) and in the
+        // dataset (appendTileEpochIndex) had no reader since 47fb15e5, and on a 1.1 GB survey took
+        // 1.7 GB of the 4.5 (2026-10-17).
         emit sendTilesByZoom(static_cast<int>(epochIndx), tilesByZoom); // в dataProcessor
         return true;
     };
