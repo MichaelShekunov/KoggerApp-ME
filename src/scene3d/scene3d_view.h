@@ -525,6 +525,13 @@ private:
     QTimer* followResumeTimer_ = nullptr;
     QTimer* followTickTimer_ = nullptr;
     QTimer* positionsLiveTimer_ = nullptr;
+    // A new mosaic zoom level goes to the data processor once the camera has kept it this long
+    // (applyPendingDataZoom): a wheel zoom passes through levels on its way, and each one sent was a
+    // whole recomputation of the visible mosaic, thrown away a moment later (2026-10-17).
+    QTimer* dataZoomSettleTimer_ = nullptr;
+    int pendingDataZoom_ = -1;
+    static constexpr int kDataZoomSettleMs = 200;
+    void applyPendingDataZoom();
     QVector3D followReturnStartLookAt_;
     bool shadowsEnabled_;
     QVector3D shadowVector_;

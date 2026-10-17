@@ -256,6 +256,11 @@ GraphicsScene3dView::GraphicsScene3dView() :
     followTickTimer_->setInterval(250);
     QObject::connect(followTickTimer_, &QTimer::timeout, this, [this]() { emit followReturnStateChanged(); });
 
+    dataZoomSettleTimer_ = new QTimer(this);
+    dataZoomSettleTimer_->setSingleShot(true);
+    dataZoomSettleTimer_->setInterval(kDataZoomSettleMs);
+    QObject::connect(dataZoomSettleTimer_, &QTimer::timeout, this, [this]() { applyPendingDataZoom(); });
+
     positionsLiveTimer_ = new QTimer(this);
     positionsLiveTimer_->setSingleShot(true);
     positionsLiveTimer_->setInterval(3000);
@@ -3392,7 +3397,16 @@ void GraphicsScene3dView::onCameraMoved()
 
     updateProjection();
 
-    int currZoom = pickZoomByDistance(m_camera->distForMapView());
+    const float camDist = m_camera->distForMapView();
+    int currZoom = pickZoomByDistance(camDist);
+    // 10 % of hysteresis about each threshold: a camera resting by one flipped the level, and every
+    // flip re-initialised the mosaic mesh.
+    if (dataZoomIndx_ > 0 && currZoom != dataZoomIndx_ && !forceSingleZoom) {
+        const bool finer = currZoom < dataZoomIndx_;
+        if (pickZoomByDistance(camDist * (finer ? 1.1f : 0.9f)) == dataZoomIndx_) {
+            currZoom = dataZoomIndx_;
+        }
+    }
 
     //currZoom = 2; // 1 - best, 7 (test)
     if (forceSingleZoom) {
@@ -3400,9 +3414,20 @@ void GraphicsScene3dView::onCameraMoved()
     }
 
     if (currZoom != dataZoomIndx_) {
-        //qDebug() << "           CHANGED ZOOM" << currZoom;
-        dataZoomIndx_ = currZoom;
-        emit sendDataZoom(dataZoomIndx_);
+        if (dataZoomIndx_ <= 0 || forceSingleZoom) {   // a first or forced level: at once
+            dataZoomSettleTimer_->stop();
+            pendingDataZoom_ = -1;
+            dataZoomIndx_ = currZoom;
+            emit sendDataZoom(dataZoomIndx_);
+        }
+        else if (currZoom != pendingDataZoom_) {   // meanwhile the old level paints what comes into view
+            pendingDataZoom_ = currZoom;
+            dataZoomSettleTimer_->start();
+        }
+    }
+    else if (pendingDataZoom_ != -1) {   // back to the level in use before it settled
+        dataZoomSettleTimer_->stop();
+        pendingDataZoom_ = -1;
     }
     refreshSyncLoupePreview();
 
@@ -3435,6 +3460,17 @@ void GraphicsScene3dView::onCameraMoved()
 
     updateMapView();
     updateViews();
+}
+
+void GraphicsScene3dView::applyPendingDataZoom()
+{
+    if (pendingDataZoom_ <= 0 || pendingDataZoom_ == dataZoomIndx_) {
+        pendingDataZoom_ = -1;
+        return;
+    }
+    dataZoomIndx_ = pendingDataZoom_;
+    pendingDataZoom_ = -1;
+    emit sendDataZoom(dataZoomIndx_);   // the data processor takes the last rect again at the new level
 }
 
 void GraphicsScene3dView::updateMapView()

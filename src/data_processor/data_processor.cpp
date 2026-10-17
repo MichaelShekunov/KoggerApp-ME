@@ -2439,6 +2439,10 @@ void DataProcessor::onUpdateDataZoom(int zoom) // calc or db
 
     tileResolution_ = 1.0f / pxPerMeter;
     QMetaObject::invokeMethod(worker_, "setMosaicTileResolution", Qt::QueuedConnection, Q_ARG(float, tileResolution_));
+    // The visible tiles at the new level, from the view's last rect: the view sends a level once the
+    // camera has kept it a moment (GraphicsScene3dView::applyPendingDataZoom), by then the rect itself
+    // need not change, and an unchanged rect is not recomputed.
+    requeueViewRect();
 
     surfaceZoomChangedPending_ = updateSurface_;
     surfaceCameraPassPending_ = updateSurface_;
