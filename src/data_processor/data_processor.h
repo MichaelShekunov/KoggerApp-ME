@@ -206,7 +206,7 @@ private slots:
     void postMosaicStats(const QVariantMap& stats);
     // one compute job: ms on the bottom surface (-1 = none) for so many new points, the surface's
     // point count after it, ms on the mosaic (-1 = none) for so many epochs
-    void postBundleTiming(int surfaceMs, int surfaceItems, int surfacePoints, int mosaicMs, int mosaicEpochs);
+    void postBundleTiming(int surfaceMs, int surfaceWaitMs, int surfaceItems, int surfacePoints, int mosaicMs, int mosaicEpochs);
 
     void onBottomTrackStarted();
     void onBottomTrackFinished();
@@ -257,7 +257,8 @@ private:
     enum class LatStage { Chart, Pending, Released, Sent };
     void latencyStamp(LatStage stage, int fromIndx, int toIndx);
     void latencyStamp(LatStage stage, const QVector<int>& indxs);
-    void latencyPainted();
+    void latencyFirstPaint(const QVector<int>& indxs);
+    void latencyReport();
     void latencyReset();
 
 private:
@@ -333,6 +334,8 @@ private:
     int                    latLastReleased_ = -1;
     QVector<int>           latTotal_, latBottom_, latHorizon_, latQueue_, latPaint_;
     QVector<int>           latSurfaceMs_, latMosaicMs_;   // per compute job, this window
+    QVector<int>           latSurfaceWaitMs_;             // of the surface part: the 3D bottom track from the GUI thread
+    int                    latPaintReports_ = 0;          // "painted" reports, repeats included, this window
     int                    latSurfaceItems_ = 0, latSurfacePoints_ = 0, latMosaicEpochs_ = 0, latJobs_ = 0;
     qint64                 latLastReport_ = 0;
     bool                   pendingIsobathsWork_;

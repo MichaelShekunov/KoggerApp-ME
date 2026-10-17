@@ -3,6 +3,7 @@
 #include <cmath>
 #include <cstring>
 #include <QDebug>
+#include <QElapsedTimer>
 #include <QThread>
 #include "data_processor.h"
 #include "data_processor_defs.h"
@@ -323,6 +324,7 @@ void SurfaceProcessor::onUpdatedBottomTrackData(const QVector<QPair<char, int>> 
 {
     //qDebug() << "SurfaceProcessor::onUpdatedBottomTrackData" << indxs;
 
+    lastBtWaitMs_ = -1;
     if (indxs.empty()) {
         return;
     }
@@ -331,6 +333,8 @@ void SurfaceProcessor::onUpdatedBottomTrackData(const QVector<QPair<char, int>> 
     QVector<QVector3D> bTrData; // работает по кешу рендера трека дна!!!
     if (bottomTrackPtr_) {
         BottomTrack* bt = bottomTrackPtr_;
+        QElapsedTimer waitClock;
+        waitClock.start();
         if (bt->thread() == QThread::currentThread()) {
             bTrData = bt->data();
         }
@@ -339,6 +343,7 @@ void SurfaceProcessor::onUpdatedBottomTrackData(const QVector<QPair<char, int>> 
                 bTrData = bt->data();
             }, Qt::BlockingQueuedConnection);
         }
+        lastBtWaitMs_ = int(waitClock.elapsed());
     }
     if (bTrData.empty()) {
         return;

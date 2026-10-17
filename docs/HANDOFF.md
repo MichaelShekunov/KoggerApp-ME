@@ -1334,3 +1334,57 @@ table bounded.
 
 Verified by machine: builds with no warnings (`KoggerApp` target, llvm-mingw). Not verified: the
 lag on screen, and the latency line itself -- it needs the owner's live session.
+
+## Circular mosaic: what the latency line measured, the last ping, repeats (2026-10-17)
+
+The owner's log of 10:37-10:39 (76c1e271) gave "painting" 99-106 ms at bottom track window 3,
+0-1 ms at window 1 and 140-152 ms at 11. Read from the code, that number was not the time to the
+first paint, and the real lag was elsewhere:
+
+- **The line counted the wrong epochs.** `MosaicProcessor` reports an epoch painted
+  (`onMosaicEpochsProcessed`) before its job ends, and that report takes the epoch out of
+  `mosaicInFlightIndxs_`; `latencyPainted` then counted only what was still in flight -- the
+  epochs a job left unpainted, and those late.
+- **Every ping was painted about W + 1 times.** Each pass of a zeroed bottom track re-processes
+  the last W epochs, `BottomTrack::updateRenderData` reported all of them as updated, and
+  `onBottomTrack3DAdded` took such epochs out of the processed set and queued them again.
+- **The painted edge stood one ping behind the newest.** An epoch's footprint is the stretch to
+  the next epoch (`Dataset::calcDimensionRects`), so epoch i is indexed -- and queued, by
+  `onSendTilesByZoom` -- only once ping i+1 is in, and a job paints the pairs up to its last
+  epoch: 36-50 ms at 20-28 pings/s, before any processing.
+
+Changes:
+
+- `DataProcessor::onSendTilesByZoom`: live, the epoch after the indexed one is queued with it.
+  It is dispatched once the mosaic horizon has reached it (`runCoalescedWork`), and its job paints
+  the pair up to the newest ping.
+- `BottomTrack::updateRenderData`: with `BottomTrackParam::depthFixed` (and not a manual edit) an
+  existing vertex is reported only when its depth changed -- once, when zeroing is switched on;
+  new vertices always are. A new epoch still enters the mosaic queue through `onSendTilesByZoom`.
+  A real bottom track is unchanged.
+- The latency line counts an epoch at its first "painted" report (`latencyFirstPaint`) and says
+  how many reports came per ping ("painted N times a ping"); the per-job line adds how long the
+  surface part waited for the 3D bottom track, a blocking call into the GUI thread in every job
+  that carries surface work.
+
+Verified by machine: builds with no warnings (`KoggerApp`, llvm-mingw). Not verified: the edge on
+screen and the new line -- both need the owner's live session.
+
+## nanoSSS: the distance is per side (2026-10-17)
+
+The owner set 20 mm and expected 20 m a side; the board held count 998, 10 m a side. The firmware
+session checked the board: count 2000 at 20 mm gives 1000 cells a side, and the firmware only caps
+count at 5000 and drops an odd one (999 -> 998). A two-sided device (ID_CHART / ID_CHART_Z v1, both
+sides interleaved) counts both sides in ID_CHART_SETUP. The device page's "Distance, m" took
+resolution x count for the distance and wrote count back from it, and "Resolution, cm" kept that
+distance by recomputing count: "20 m" at 20 mm sent 1000, 10 m a side; 1996 samples at 10 mm
+changed to 20 mm sent 998. The owner's screenshot showed the same: Distance 30 m over 30 mm and
+1000 samples, 15 m a side.
+
+Now `DevDriver::chartSides()` (QML `chartSides`: 2 after a v1 frame, 1 after v0, 0 before the first;
+the page falls back to 2 for NanoSSS) makes the page's distance per side, count = sides x distance
+/ resolution, rounded to even for two sides. `kogger.log` says what went out ("chart setup sent:
+count, resolution, offset; per side") on every change, and what the device holds ("chart setup on
+the device: ...") when its answer changes.
+
+Verified by machine: builds. Not verified: on the device.

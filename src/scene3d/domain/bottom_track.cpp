@@ -463,6 +463,13 @@ void BottomTrack::updateRenderData(int lEpIndx, int rEpIndx, bool redraw, bool m
 
     const int need = toIndx - fromIndx;
 
+    // Each pass re-processes the last windowSize epochs, and every vertex in the range used to be
+    // reported as updated. With a zeroed bottom track (BottomTrackParam::depthFixed) no depth ever
+    // moves, so that only made the surface and the mosaic redo every ping windowSize more times
+    // (2026-10-17, the owner's circular mosaic). Then an existing vertex is reported only when its
+    // depth did change -- as it does once, when zeroing is switched on; new ones always are.
+    const bool depthFixed = !manually && datasetPtr_->getBottomTrackParam().depthFixed;
+
     auto* r = RENDER_IMPL(BottomTrack);
     r->selectedVertexIndices_.clear(); // ?
     int rSize = r->cdata().size();
@@ -489,6 +496,9 @@ void BottomTrack::updateRenderData(int lEpIndx, int rEpIndx, bool redraw, bool m
             const int vIndx = *vIt;
             if (vIndx >= 0 && vIndx < r->m_data.size()) {
                 const float dist = -1.f * static_cast<float>(ep->distProccesing(visibleChannel_.channelId_));
+                if (depthFixed && r->m_data[vIndx].z() == dist) {
+                    continue;
+                }
                 r->m_data[vIndx].setZ(dist);
 
                 epIndxUpdated.push_back(epIndx);

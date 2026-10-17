@@ -42,6 +42,9 @@ public:
     int getThemeId() const;
     int getExtraWidth() const;
     int getTriangulationPointCount() const;
+    /// ms the last onUpdatedBottomTrackData waited for the 3D bottom track (a blocking call into
+    /// the GUI thread when the track lives there); -1 if that call did not fetch it.
+    int getLastBottomTrackWaitMs() const { return lastBtWaitMs_; }
     int getTriangleCount() const;
     int getMeshPointCount() const;
     int getColorIntervalsCount() const;
@@ -63,6 +66,7 @@ private:
     BottomTrack* bottomTrackPtr_;
     SurfaceMesh* surfaceMeshPtr_;
     delaunay::Delaunay delaunayProc_;
+    int lastBtWaitMs_ = -1;
     kmath::MatrixParams lastMatParams_;
     QHash<uint64_t, QVector<int>> pointToTris_;
     QHash<QPair<int,int>, QVector3D>  cellPoints_; // fir - virt indx, sec - indx in tr

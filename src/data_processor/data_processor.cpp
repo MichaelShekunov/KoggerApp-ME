@@ -1108,6 +1108,8 @@ void DataProcessor::onMosaicEpochsProcessed(const QVector<int>& indxs, int zoom)
         zoom = zoomFromMpp(tileResolution_);
     }
 
+    latencyFirstPaint(indxs);
+
     auto& processed = mosaicTaskEpochIndxsByZoom_[zoom];
     for (int idx : indxs) {
         processed.insert(idx);
@@ -1360,10 +1362,10 @@ void DataProcessor::onWorkerFinished()
                 pendingMosaicIndxs_.insert(idx);
             }
         }
-        else {
-            latencyPainted();
-        }
         mosaicInFlightIndxs_.clear();
+    }
+    if (!wasCanceled) {
+        latencyReport();
     }
 
     cancelRequested_.store(false);
@@ -1440,13 +1442,21 @@ void DataProcessor::latencyStamp(LatStage stage, const QVector<int>& indxs)
     }
 }
 
-void DataProcessor::latencyPainted()
+// An epoch counts when the mosaic first reports it painted (MosaicProcessor posts its tiles before
+// that report). 76c1e271 counted it at the end of a job that still had it in flight -- but this
+// very report takes a painted epoch out of flight first, so it counted only epochs a job left
+// unpainted, and those late: "painting 100-150 ms" was not the time to the first paint.
+void DataProcessor::latencyFirstPaint(const QVector<int>& indxs)
 {
+    if (datasetState_ != 2 || isOpeningFile_ || !updateMosaic_) {
+        return;
+    }
+    latPaintReports_ += indxs.size();
     if (latStamps_.isEmpty()) {
         return;
     }
     const qint64 now = latClock_.elapsed();
-    for (int idx : std::as_const(mosaicInFlightIndxs_)) {
+    for (int idx : indxs) {
         auto it = latStamps_.find(idx);
         if (it == latStamps_.end()) {
             continue;
@@ -1464,13 +1474,18 @@ void DataProcessor::latencyPainted()
             latPaint_.append(int(now - s.sent));
         }
     }
+}
+
+void DataProcessor::latencyReport()
+{
+    const qint64 now = latClock_.elapsed();
     if (now - latLastReport_ < 10000 || latTotal_.isEmpty()) {
         return;
     }
     const auto params = datasetPtr_ ? datasetPtr_->getBottomTrackParam() : BottomTrackParam();
-    qInfo().noquote() << QStringLiteral("mosaic latency: %1 pings in %2 s, chart -> painted median %3 ms (p90 %4, max %5); "
+    qInfo().noquote() << QStringLiteral("mosaic latency: %1 pings in %2 s, chart -> first painted median %3 ms (p90 %4, max %5); "
                                         "waiting for the bottom track %6 ms, for the horizon %7 ms, in the queue %8 ms, painting %9 ms; "
-                                        "bottom track window %10")
+                                        "painted %10 times a ping; bottom track window %11")
                              .arg(latTotal_.size())
                              .arg((now - latLastReport_) / 1000.0, 0, 'f', 1)
                              .arg(latMedian(latTotal_))
@@ -1480,9 +1495,11 @@ void DataProcessor::latencyPainted()
                              .arg(latMedian(latHorizon_))
                              .arg(latMedian(latQueue_))
                              .arg(latMedian(latPaint_))
+                             .arg(double(latPaintReports_) / latTotal_.size(), 0, 'f', 1)
                              .arg(params.windowSize);
-    qInfo().noquote() << QStringLiteral("mosaic latency, per job: surface %1 ms median (max %2) in %3 of %4 jobs, "
-                                        "%5 new points, %6 points in the surface; mosaic %7 ms median (max %8), %9 epochs")
+    qInfo().noquote() << QStringLiteral("mosaic latency, per job: surface %1 ms median (max %2) in %3 of %4 jobs, of which "
+                                        "waiting for the GUI thread %10 ms median (max %11), %5 new points, %6 points in the "
+                                        "surface; mosaic %7 ms median (max %8), %9 epochs")
                              .arg(latMedian(latSurfaceMs_))
                              .arg(latSurfaceMs_.isEmpty() ? -1 : *std::max_element(latSurfaceMs_.cbegin(), latSurfaceMs_.cend()))
                              .arg(latSurfaceMs_.size())
@@ -1491,8 +1508,12 @@ void DataProcessor::latencyPainted()
                              .arg(latSurfacePoints_)
                              .arg(latMedian(latMosaicMs_))
                              .arg(latMosaicMs_.isEmpty() ? -1 : *std::max_element(latMosaicMs_.cbegin(), latMosaicMs_.cend()))
-                             .arg(latMosaicEpochs_);
+                             .arg(latMosaicEpochs_)
+                             .arg(latMedian(latSurfaceWaitMs_))
+                             .arg(latSurfaceWaitMs_.isEmpty() ? -1 : *std::max_element(latSurfaceWaitMs_.cbegin(), latSurfaceWaitMs_.cend()));
     latSurfaceMs_.clear();
+    latSurfaceWaitMs_.clear();
+    latPaintReports_ = 0;
     latMosaicMs_.clear();
     latSurfaceItems_ = 0;
     latMosaicEpochs_ = 0;
@@ -1505,7 +1526,7 @@ void DataProcessor::latencyPainted()
     latLastReport_ = now;
 }
 
-void DataProcessor::postBundleTiming(int surfaceMs, int surfaceItems, int surfacePoints, int mosaicMs, int mosaicEpochs)
+void DataProcessor::postBundleTiming(int surfaceMs, int surfaceWaitMs, int surfaceItems, int surfacePoints, int mosaicMs, int mosaicEpochs)
 {
     if (datasetState_ != 2 || isOpeningFile_ || !updateMosaic_) {
         return;
@@ -1514,6 +1535,9 @@ void DataProcessor::postBundleTiming(int surfaceMs, int surfaceItems, int surfac
     if (surfaceMs >= 0) {
         latSurfaceMs_.append(surfaceMs);
         latSurfaceItems_ += surfaceItems;
+    }
+    if (surfaceWaitMs >= 0) {
+        latSurfaceWaitMs_.append(surfaceWaitMs);
     }
     latSurfacePoints_ = surfacePoints;
     if (mosaicMs >= 0) {
@@ -1532,6 +1556,8 @@ void DataProcessor::latencyReset()
     latHorizon_.clear();
     latQueue_.clear();
     latPaint_.clear();
+    latSurfaceWaitMs_.clear();
+    latPaintReports_ = 0;
 }
 
 void DataProcessor::onDbTilesLoaded(const QList<DbTile> &dbTiles)
@@ -2709,11 +2735,22 @@ void DataProcessor::onSendTilesByZoom(int epochIndx, const QMap<int, QSet<TileKe
 
     if (updateMosaic_) {
         auto& processed = mosaicTaskEpochIndxsByZoom_[zoom];
-        if (!processed.contains(epochIndx) &&
-            !pendingMosaicIndxs_.contains(epochIndx) &&
-            !mosaicInFlightIndxs_.contains(epochIndx)) {
-            pendingMosaicIndxs_.insert(epochIndx);
-            addedMosaic = true;
+        // An epoch's footprint is the stretch to the next epoch (Dataset::calcDimensionRects), so
+        // it is indexed only when the next ping is in -- and a job paints up to its last epoch, so
+        // the live mosaic ended one ping behind the newest (2026-10-17, the owner's circular
+        // mosaic). Live, the next epoch is queued with it: its job paints up to the newest ping.
+        // It is dispatched only once the mosaic horizon has reached it (runCoalescedWork).
+        const bool live = (datasetState_ == 2) && !isOpeningFile_;
+        for (const int ep : { epochIndx, epochIndx + 1 }) {
+            if (ep != epochIndx && !live) {
+                break;
+            }
+            if (!processed.contains(ep) &&
+                !pendingMosaicIndxs_.contains(ep) &&
+                !mosaicInFlightIndxs_.contains(ep)) {
+                pendingMosaicIndxs_.insert(ep);
+                addedMosaic = true;
+            }
         }
     }
 

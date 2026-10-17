@@ -194,13 +194,15 @@ void ComputeWorker::processBundle(const WorkBundle& wb)
 {
     //qDebug() << "ComputeWorker::processBundle: task" <<  wb.mosaicVec.size() ;
     // последовательно. cабы сами шлют сигналы наружу
-    // Each part is timed for the mosaic latency line (DataProcessor::latencyPainted).
+    // Each part is timed for the mosaic latency line (DataProcessor::latencyReport).
     QElapsedTimer partClock;
     partClock.start();
     int surfaceMs = -1;
+    int surfaceWaitMs = -1;
     int mosaicMs = -1;
     if (!wb.surfaceVec.isEmpty()) { // && !isCanceled()
         surface_.onUpdatedBottomTrackData(wb.surfaceVec);
+        surfaceWaitMs = surface_.getLastBottomTrackWaitMs();
         surface_.rebuildColorIntervals();
         surfaceMs = int(partClock.restart());
     }
@@ -216,7 +218,7 @@ void ComputeWorker::processBundle(const WorkBundle& wb)
     }
 
     QMetaObject::invokeMethod(dp_, "postBundleTiming", Qt::QueuedConnection,
-                              Q_ARG(int, surfaceMs), Q_ARG(int, int(wb.surfaceVec.size())),
+                              Q_ARG(int, surfaceMs), Q_ARG(int, surfaceWaitMs), Q_ARG(int, int(wb.surfaceVec.size())),
                               Q_ARG(int, surface_.getTriangulationPointCount()),
                               Q_ARG(int, mosaicMs), Q_ARG(int, int(wb.mosaicVec.size())));
     emit jobFinished();
