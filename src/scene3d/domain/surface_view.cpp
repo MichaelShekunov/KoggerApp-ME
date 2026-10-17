@@ -108,6 +108,7 @@ void SurfaceView::SurfaceViewRenderImplementation::rebuildSeamlessTileNormals(co
                                                                                QHash<TileKey, QVector<QVector3D>>& outNormals) const
 {
     outNormals.clear();
+    tileNormalSums_.clear();
     if (tiles.isEmpty()) {
         return;
     }
@@ -160,25 +161,95 @@ void SurfaceView::SurfaceViewRenderImplementation::rebuildSeamlessTileNormals(co
             continue;
         }
 
-        QVector<QVector3D> normals(localSums.size(), QVector3D(0.0f, 0.0f, 1.0f));
-        for (int i = 0; i < localSums.size(); ++i) {
-            QVector3D n = localSums[i];
+        outNormals.insert(key, seamNormals(verts, localSums, sharedNormalSums));
+    }
+}
 
-            const auto sharedIt = sharedNormalSums.constFind(makeVertexXYKey(verts[i]));
-            if (sharedIt != sharedNormalSums.cend() && sharedIt.value().lengthSquared() > 1e-12f) {
-                n = sharedIt.value();
-            }
+QVector<QVector3D> SurfaceView::SurfaceViewRenderImplementation::seamNormals(const QVector<QVector3D>& verts,
+                                                                             const QVector<QVector3D>& localSums,
+                                                                             const QHash<VertexXYKey, QVector3D>& sharedNormalSums) const
+{
+    QVector<QVector3D> normals(localSums.size(), QVector3D(0.0f, 0.0f, 1.0f));
+    for (int i = 0; i < localSums.size(); ++i) {
+        QVector3D n = localSums[i];
 
-            if (n.lengthSquared() <= 1e-12f) {
-                n = QVector3D(0.0f, 0.0f, 1.0f);
-            }
-            else {
-                n.normalize();
-            }
-            normals[i] = n;
+        const auto sharedIt = sharedNormalSums.constFind(makeVertexXYKey(verts[i]));
+        if (sharedIt != sharedNormalSums.cend() && sharedIt.value().lengthSquared() > 1e-12f) {
+            n = sharedIt.value();
         }
 
-        outNormals.insert(key, normals);
+        if (n.lengthSquared() <= 1e-12f) {
+            n = QVector3D(0.0f, 0.0f, 1.0f);
+        }
+        else {
+            n.normalize();
+        }
+        normals[i] = n;
+    }
+    return normals;
+}
+
+void SurfaceView::SurfaceViewRenderImplementation::updateSeamlessTileNormals(const QHash<TileKey, SurfaceTile>& tiles,
+                                                                              const QSet<TileKey>& changed,
+                                                                              QHash<TileKey, QVector<QVector3D>>& outNormals) const
+{
+    // A tile shares border vertices with its 8 neighbours only (same zoom): the normals that change are
+    // those of the changed tiles' neighbourhood, and theirs need the sums of one ring further.
+    auto neighbourhood = [&tiles](const QSet<TileKey>& from) {
+        QSet<TileKey> out;
+        out.reserve(from.size() * 9);
+        for (const TileKey& k : from) {
+            for (int dy = -1; dy <= 1; ++dy) {
+                for (int dx = -1; dx <= 1; ++dx) {
+                    const TileKey n(k.x + dx, k.y + dy, k.zoom);
+                    if (tiles.contains(n)) {
+                        out.insert(n);
+                    }
+                }
+            }
+        }
+        return out;
+    };
+    for (const TileKey& k : changed) {
+        tileNormalSums_.remove(k);
+        if (!tiles.contains(k)) {
+            outNormals.remove(k);
+        }
+    }
+    const QSet<TileKey> renormal = neighbourhood(changed);
+    const QSet<TileKey> summed = neighbourhood(renormal);
+
+    QHash<VertexXYKey, QVector3D> sharedNormalSums;
+    sharedNormalSums.reserve(qMax(int(summed.size()) * 81, 64));
+    for (const TileKey& k : summed) {
+        const SurfaceTile& tile = tiles.constFind(k).value();
+        const auto& verts = tile.getHeightVerticesCRef();
+        if (!tile.getIsInited() || verts.isEmpty()) {
+            continue;
+        }
+        auto sumsIt = tileNormalSums_.find(k);
+        if (sumsIt == tileNormalSums_.end()) {
+            sumsIt = tileNormalSums_.insert(k, buildTileNormalSums(tile));
+        }
+        const auto& sums = sumsIt.value();
+        if (sums.size() != verts.size()) {
+            continue;
+        }
+        for (int i = 0; i < verts.size(); ++i) {
+            if (sums[i].lengthSquared() > 1e-12f) {
+                sharedNormalSums[makeVertexXYKey(verts[i])] += sums[i];
+            }
+        }
+    }
+
+    for (const TileKey& k : renormal) {
+        const auto& verts = tiles.constFind(k).value().getHeightVerticesCRef();
+        const auto sumsIt = tileNormalSums_.constFind(k);
+        if (sumsIt == tileNormalSums_.cend() || sumsIt.value().size() != verts.size()) {
+            outNormals.remove(k);
+            continue;
+        }
+        outNormals.insert(k, seamNormals(verts, sumsIt.value(), sharedNormalSums));
     }
 }
 
@@ -534,6 +605,7 @@ void SurfaceView::clear()
 
     r->tiles_.clear();
     r->tileNormals_.clear();
+    r->tileNormalSums_.clear();
     r->isoLabels_.clear();
 
     {
@@ -666,9 +738,30 @@ void SurfaceView::setTilesIncremental(const QHash<TileKey, SurfaceTile> &tiles, 
 
     if (!changedKeys.isEmpty() || !toRemove.isEmpty()) {
         if (r->shadowEnabled_) {
-            r->rebuildSeamlessTileNormals(cur, r->tileNormals_);
+            r->updateSeamlessTileNormals(cur, changedKeys + toRemove, r->tileNormals_);
+            static const bool kCheckNormals = qEnvironmentVariableIsSet("KOGGER_CHECK_NORMALS");
+            if (kCheckNormals) {   // the incremental result against a full rebuild, in the log
+                QHash<TileKey, QVector<QVector3D>> full;
+                r->rebuildSeamlessTileNormals(cur, full);
+                float worst = 0.0f;
+                int missing = 0;
+                for (auto it = full.cbegin(); it != full.cend(); ++it) {
+                    const auto got = r->tileNormals_.constFind(it.key());
+                    if (got == r->tileNormals_.cend() || got.value().size() != it.value().size()) {
+                        ++missing;
+                        continue;
+                    }
+                    for (int i = 0; i < it.value().size(); ++i) {
+                        worst = std::max(worst, (got.value()[i] - it.value()[i]).length());
+                    }
+                }
+                qInfo().noquote() << QStringLiteral("normals check: %1 tiles, %2 changed, %3 missing or extra, worst %4")
+                                     .arg(full.size()).arg(changedKeys.size() + toRemove.size())
+                                     .arg(missing + int(r->tileNormals_.size() - (full.size() - missing))).arg(worst);
+            }
         } else {
             r->tileNormals_.clear();
+            r->tileNormalSums_.clear();
         }
     }
 
@@ -741,6 +834,7 @@ void SurfaceView::removeTiles(const QSet<TileKey>& ids)
                 }
                 r->tiles_.erase(it);
             }
+            r->tileNormalSums_.remove(id);
         }
         rebuildIsobathLabels();
         Q_EMIT changed();

@@ -48,6 +48,15 @@ public:
         QVector<QVector3D> buildTileNormals(const SurfaceTile& tile) const;
         void rebuildSeamlessTileNormals(const QHash<TileKey, SurfaceTile>& tiles,
                                         QHash<TileKey, QVector<QVector3D>>& outNormals) const;
+        // The same for the tiles about `changed` (new content or gone) only: their 3x3 neighbourhood,
+        // from the sums of the ring around it. Rebuilding every tile for every delivery of mosaic tiles
+        // was a third of the GUI thread after a zoom (2026-10-17).
+        void updateSeamlessTileNormals(const QHash<TileKey, SurfaceTile>& tiles,
+                                       const QSet<TileKey>& changed,
+                                       QHash<TileKey, QVector<QVector3D>>& outNormals) const;
+        QVector<QVector3D> seamNormals(const QVector<QVector3D>& verts,
+                                       const QVector<QVector3D>& localSums,
+                                       const QHash<VertexXYKey, QVector3D>& sharedNormalSums) const;
         void updateBounds() final;
 
         friend class SurfaceView;
@@ -62,6 +71,7 @@ public:
         bool iVis_;
         bool mVis_;
         QHash<TileKey, QVector<QVector3D>> tileNormals_;
+        mutable QHash<TileKey, QVector<QVector3D>> tileNormalSums_;   // buildTileNormalSums per tile, for updateSeamlessTileNormals
         QVector<IsoLabel> isoLabels_;
         float labelStep_;
         float labelBaseSpacing_;
