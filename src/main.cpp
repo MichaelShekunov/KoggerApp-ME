@@ -344,7 +344,10 @@ int main(int argc, char *argv[])
 
     QCoreApplication::setOrganizationName("KOGGER");
     QCoreApplication::setOrganizationDomain("kogger.tech");
-    QCoreApplication::setApplicationName("KoggerApp");
+    // KOGGER_PROFILE=<name>: settings, logs and saved links of its own (HKCU\Software\KOGGER\KoggerApp-<name>,
+    // %APPDATA%\KOGGER\KoggerApp-<name>) -- a test instance beside the user's, sharing nothing with it.
+    const QString profile = qEnvironmentVariable("KOGGER_PROFILE");
+    QCoreApplication::setApplicationName(profile.isEmpty() ? QStringLiteral("KoggerApp") : QStringLiteral("KoggerApp-") + profile);
     QCoreApplication::setApplicationVersion("1-1-1");
 
     migrateSettingsSchema();

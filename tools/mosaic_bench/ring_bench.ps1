@@ -37,7 +37,8 @@ param(
     [int]    $Port = 23460,
     [int]    $Samples = 500,     # a side
     [int]    $ResolutionMm = 30,
-    [string] $PathPrefix         # e.g. D:\Qt\6.8.3\llvm-mingw_64\bin;D:\Qt\Tools\llvm-mingw1706_64\bin for a build tree's exe
+    [string] $PathPrefix,        # e.g. D:\Qt\6.8.3\llvm-mingw_64\bin;D:\Qt\Tools\llvm-mingw1706_64\bin for a build tree's exe
+    [string] $Profile            # KOGGER_PROFILE: settings and a log of their own, beside the user's running app
 )
 
 $ErrorActionPreference = 'Stop'
@@ -115,6 +116,7 @@ $psi = New-Object System.Diagnostics.ProcessStartInfo
 $psi.FileName = $Exe; $psi.UseShellExecute = $false; $psi.WorkingDirectory = Split-Path $Exe
 if ($PathPrefix) { $psi.EnvironmentVariables['PATH'] = $PathPrefix + ';' + $env:PATH }
 $psi.EnvironmentVariables['KOGGER_AUTOTEST'] = "UDP:$Port"
+if ($Profile) { $psi.EnvironmentVariables['KOGGER_PROFILE'] = $Profile }
 $psi.EnvironmentVariables['KOGGER_UI_PROBE'] = $Out
 $psi.EnvironmentVariables['KOGGER_UI_PROBE_DELAY_MS'] = [string][int](($Seconds + 10) * 1000)
 $psi.EnvironmentVariables['KOGGER_UI_PROBE_QUIT'] = '1'
@@ -145,8 +147,48 @@ $udp.Close()
 "sent {0} pings in {1:N1} s, {2} deg each" -f $pings, $clock.Elapsed.TotalSeconds, $Step
 if (-not $app.WaitForExit(60000)) { throw 'the app did not quit after its window grab' }
 
-$log = Join-Path $env:APPDATA 'KOGGER\KoggerApp\AppLogs\kogger.log'
+$appName = if ($Profile) { "KoggerApp-$Profile" } else { 'KoggerApp' }
+$log = Join-Path $env:APPDATA "KOGGER\$appName\AppLogs\kogger.log"
 $lines = Get-Content -LiteralPath $log -Encoding UTF8
 $start = ($lines | Select-String -Pattern 'log opened' | Select-Object -Last 1).LineNumber
 $lines[($start - 1)..($lines.Count - 1)] | Select-String -Pattern 'mosaic latency' | ForEach-Object { $_.Line -replace '^.*default: ', '' }
-"window: {0}" -f (Join-Path $Out 'ui-auto.png')
+$png = Join-Path $Out 'ui-auto.png'
+"window: {0}" -f $png
+
+# How much of the circle the mosaic covers, from the grab: around the sonar's red arrow (looked for in
+# the middle of the 3D view, the compass's red needle is in its corner), an angle is covered when most
+# of the radii 100-250 px are not the dark background. With "Clear old data" and N
+# pings a side it is about 2 (N + 2) Step degrees (two sides, the three pairs before the N), else 360.
+Add-Type -AssemblyName System.Drawing
+$bmp = [System.Drawing.Bitmap]::FromFile($png)
+try {
+    $rect = New-Object System.Drawing.Rectangle 0, 0, $bmp.Width, $bmp.Height
+    $bits = $bmp.LockBits($rect, [System.Drawing.Imaging.ImageLockMode]::ReadOnly, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
+    $px = New-Object byte[] ($bits.Stride * $bmp.Height)
+    [System.Runtime.InteropServices.Marshal]::Copy($bits.Scan0, $px, 0, $px.Length)
+    $stride = $bits.Stride
+    $bmp.UnlockBits($bits)
+} finally { $bmp.Dispose() }
+$w = $rect.Width; $h = $rect.Height
+$sx = 0.0; $sy = 0.0; $sn = 0
+for ($y = [int]($h / 4); $y -lt [int]($h * 3 / 4); $y++) {
+    for ($x = [int]($w / 8); $x -lt [int]($w * 3 / 8); $x++) {
+        $i = $y * $stride + 4 * $x
+        if ($px[$i + 2] -gt 180 -and $px[$i + 1] -lt 90 -and $px[$i] -lt 90) { $sx += $x; $sy += $y; $sn++ }
+    }
+}
+if ($sn -lt 20) { 'mosaic: the sonar arrow is not in the grab'; return }
+$cx = $sx / $sn; $cy = $sy / $sn
+$covered = 0
+for ($a = 0; $a -lt 360; $a++) {
+    $t = $a * [Math]::PI / 180; $lit = 0; $all = 0
+    for ($r = 100; $r -le 250; $r += 10) {
+        $x = [int]($cx + $r * [Math]::Cos($t)); $y = [int]($cy - $r * [Math]::Sin($t))
+        if ($x -lt 0 -or $y -lt 0 -or $x -ge $w -or $y -ge $h) { continue }
+        $i = $y * $stride + 4 * $x
+        $all++
+        if ([Math]::Max([Math]::Max($px[$i], $px[$i + 1]), $px[$i + 2]) -gt 60) { $lit++ }
+    }
+    if ($all -gt 0 -and $lit * 2 -gt $all) { $covered++ }
+}
+"mosaic: covers {0} of 360 deg at 100-250 px around the sonar ({1:N0}, {2:N0})" -f $covered, $cx, $cy
