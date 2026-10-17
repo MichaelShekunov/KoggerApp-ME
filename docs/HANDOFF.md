@@ -1290,3 +1290,47 @@ again within a minute. Same cure as "The sync client fights the deploy": exclude
 `out_x64/` from sync.
 
 Not verified: the echogram on screen and the circular mosaic in the running app.
+
+## Circular mosaic lag with a zeroed bottom track (2026-10-17, 76c1e271)
+
+The owner, nanoSSS on the bench with Pos zeroing and Bottom track zeroing on: the heading pointer
+followed the board at once, the circular mosaic trailed it. Settings at the time (registry,
+`HKCU\Software\KOGGER\KoggerApp`): bottom track window on, 3; last N 60; Clear old data off.
+
+Where the time went, read from the code (not measured before the fix):
+
+- **Not the track smoother.** Pos zeroing stamps its fake fixes one *second* apart
+  (`DateTime(testTime_, 100)`, `testTime_` + 1 per attitude frame) while they arrive at the ping
+  rate, so `chooseWindow` sees 1 Hz, under 12 fixes in any window, and places every epoch at once.
+- **Not the processor's coalescing.** A live link sets `kConnection`, which gives
+  `pendingWorkTimer_` 10 ms without the restart-on-every-event of file mode (333 ms).
+- **The bottom track, twice.** The mosaic horizon is `min(bottomTrack, chart, attitude, sonarPos)`
+  (`DataHorizon::tryCalcAndEmitMosaicIndx`), and the bottom-track part trails the last processed
+  epoch by `windowSize` (`Dataset::onDistCompletedBatch`, "guard interval", 52db3dfc). Separately,
+  the 3D bottom track -- whose `updatedPoints` put epochs into `pendingMosaicIndxs_` -- stops
+  `max(3, windowSize)` short of it (`Dataset::onLastBottomTrackEpochChanged`, "minMagicRenderGap",
+  upstream 1ea62fc7, no rationale given). A ping was painted only once the third after it had
+  arrived: ~170 ms at 18 pings/s, 30-40 degrees behind the pointer at a brisk hand turn.
+
+Both holds exist because the next pass re-processes the last `windowSize` epochs and a real depth
+can move. A zeroed depth (`BottomTrackProcessor::zeroDepth_`, the constant 0.01 m) cannot. The
+processor now says so on what it publishes -- `BottomTrackUpdate::settled` per update,
+`BottomTrackParam::depthFixed` on the parameters it posts back -- and both holds are zero for it.
+Per update rather than a dataset flag, because a pass's batches arrive before its parameters: a
+stored flag would let the first real pass after zeroing is switched off through unguarded.
+
+**A real bottom track is unchanged.** For the record: the algorithm assigns a window's result to
+its centre epoch (`btIndex = iepoch - epoch_min_index - windowSize/2`), so an epoch's depth depends
+on (windowSize - 1) / 2 epochs after it -- 1 at the owner's 3, against the 3 the two holds keep.
+Shortening them for a real bottom is possible but untested on water and touches upstream's
+"magic" minimum; left as it is.
+
+**Measured from now on:** while a live mosaic paints, `DataProcessor` logs every 10 s
+`mosaic latency: N pings in 10 s, chart -> painted median .. ms (p90 .., max ..); waiting for the
+bottom track .. ms, for the horizon .. ms, in the queue .. ms, painting .. ms; bottom track window
+W`. Stamps per epoch at `onChartsAdded`, `onBottomTrack3DAdded`, `onMosaicCanCalc`, the dispatch
+in `runCoalescedWork` and a non-cancelled `onWorkerFinished`; live link and mosaic on only, the
+table bounded.
+
+Verified by machine: builds with no warnings (`KoggerApp` target, llvm-mingw). Not verified: the
+lag on screen, and the latency line itself -- it needs the owner's live session.
