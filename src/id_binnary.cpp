@@ -297,7 +297,13 @@ Resp IDBinChart::parsePayload(FrameParser &proto) {
         U2 sampleResol = proto.read<U2>();
         U2 absOffset = proto.read<U2>();
 
-        if((m_seqOffset == 0 && m_chartSizeIncr != 0) || (m_sampleResol != sampleResol || m_absOffset != absOffset)) {
+        // A new resolution or offset ends the chart being filled -- compared with that chart's own
+        // (sampleResolLast_), and only when there is one. Compared with the last completed chart's,
+        // the first part after connecting and the second part after every change "completed" a
+        // chart too: an empty one, then the first part alone, which went into an epoch of its own
+        // and left every later chart one epoch off its heading (2026-10-17).
+        const bool newGeometry = m_chartSizeIncr != 0 && (sampleResolLast_ != sampleResol || absOffsetLast_ != absOffset);
+        if ((m_seqOffset == 0 && m_chartSizeIncr != 0) || newGeometry) {
             if(proto.ver() == v0) {
                 memcpy(m_completeChart, m_fillChart, m_chartSizeIncr);
                 m_chartSize = m_chartSizeIncr;

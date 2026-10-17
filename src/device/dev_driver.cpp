@@ -3014,6 +3014,11 @@ void DevDriver::receivedChart(Parsers::Type type, Parsers::Version ver, Parsers:
     ++errorFreezeCnt_;
 
     const int size = idChart->chartSize();
+    // An empty chart carries nothing and would only open an epoch of its own, putting every later
+    // chart one epoch off its heading (IDBinChart::parsePayload once produced one on connecting).
+    if (size <= 0) {
+        return;
+    }
     QVector<QVector<uint8_t>> data(1); // always size == 1 or 2 for chart logic *1
 
     if (idChart->logData8()) {
