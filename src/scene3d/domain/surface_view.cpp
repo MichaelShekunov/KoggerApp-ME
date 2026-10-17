@@ -600,6 +600,8 @@ void SurfaceView::clear()
         return;
     }
 
+    dropFallback("cleared");
+
     const auto& rTiles = r->tiles_;
     for (const auto& itm : rTiles) {
         mosaicTileTextureToDelete_.append(itm.getMosaicTextureId());
@@ -691,6 +693,14 @@ void SurfaceView::setTilesIncremental(const QHash<TileKey, SurfaceTile> &tiles, 
         }
     }
 
+    // A zoom: the level on screen stays under the new one until the new one covers it.
+    const int newZoom = !fullVisibleNow.isEmpty() ? fullVisibleNow.cbegin()->zoom
+                      : (!tiles.isEmpty() ? tiles.cbegin().key().zoom : -1);
+    QSet<TileKey> movedToFallback;
+    if (newZoom >= 0 && !toRemove.isEmpty()) {
+        keepAsFallback(toRemove, newZoom, movedToFallback);
+    }
+
     if (!toRemove.isEmpty()) {
         QMutexLocker lk(&mosaicTexTasksMutex_);
         for (const auto& k : toRemove) {
@@ -738,9 +748,9 @@ void SurfaceView::setTilesIncremental(const QHash<TileKey, SurfaceTile> &tiles, 
         }
     }
 
-    if (!changedKeys.isEmpty() || !toRemove.isEmpty()) {
+    if (!changedKeys.isEmpty() || !toRemove.isEmpty() || !movedToFallback.isEmpty()) {
         if (r->shadowEnabled_) {
-            r->updateSeamlessTileNormals(cur, changedKeys + toRemove, r->tileNormals_);
+            r->updateSeamlessTileNormals(cur, changedKeys + toRemove + movedToFallback, r->tileNormals_);
             static const bool kCheckNormals = qEnvironmentVariableIsSet("KOGGER_CHECK_NORMALS");
             if (kCheckNormals) {   // the incremental result against a full rebuild, in the log
                 QHash<TileKey, QVector<QVector3D>> full;
@@ -758,13 +768,17 @@ void SurfaceView::setTilesIncremental(const QHash<TileKey, SurfaceTile> &tiles, 
                     }
                 }
                 qInfo().noquote() << QStringLiteral("normals check: %1 tiles, %2 changed, %3 missing or extra, worst %4")
-                                     .arg(full.size()).arg(changedKeys.size() + toRemove.size())
+                                     .arg(full.size()).arg(changedKeys.size() + toRemove.size() + movedToFallback.size())
                                      .arg(missing + int(r->tileNormals_.size() - (full.size() - missing))).arg(worst);
             }
         } else {
             r->tileNormals_.clear();
             r->tileNormalSums_.clear();
         }
+    }
+
+    if (!r->fallbackTiles_.isEmpty()) {
+        scheduleFallbackPrune(fullVisibleNow, newZoom);
     }
 
     r->updateBounds();
@@ -782,6 +796,178 @@ void SurfaceView::setTilesIncremental(const QHash<TileKey, SurfaceTile> &tiles, 
         }
         digestTimer_->start();
     }
+}
+
+namespace {
+// The longest a kept level stays: a tile of it whose new tiles never come (no data there at the new
+// level, a cancelled job) goes then.
+constexpr int kFallbackMs = 6000;
+// A new tile comes in pieces as its job paints: a kept tile goes only once the new level has not
+// changed this long (until 2026-10-17 at its first piece, which left holes on screen).
+constexpr int kFallbackQuietMs = 400;
+
+int floorDiv(int a, int b)
+{
+    return a >= 0 ? a / b : -((-a + b - 1) / b);
+}
+}
+
+void SurfaceView::keepAsFallback(QSet<TileKey>& toRemove, int newZoom, QSet<TileKey>& moved)
+{
+    auto* r = RENDER_IMPL(SurfaceView);
+    for (auto k = toRemove.begin(); k != toRemove.end();) {
+        const auto it = r->tiles_.find(*k);
+        // Only what is on screen now: a tile of this zoom left the view, one without a texture shows nothing.
+        if (k->zoom == newZoom || it == r->tiles_.end() || it.value().getMosaicTextureId() == 0) {
+            ++k;
+            continue;
+        }
+        if (moved.isEmpty()) {
+            dropFallback("another zoom");   // one level kept at a time
+            fallbackFromZoom_ = k->zoom;
+            fallbackToZoom_ = newZoom;
+            fallbackClock_.start();
+        }
+        r->fallbackTiles_.insert(*k, it.value());
+        if (const auto n = r->tileNormals_.constFind(*k); n != r->tileNormals_.cend()) {
+            r->fallbackNormals_.insert(*k, n.value());
+        }
+        r->tiles_.erase(it);
+        r->tileNormals_.remove(*k);
+        {
+            QMutexLocker lk(&mosaicTexTasksMutex_);
+            mosaicTileTextureToAppend_.remove(*k);
+        }
+        moved.insert(*k);
+        k = toRemove.erase(k);
+    }
+    if (moved.isEmpty()) {
+        return;
+    }
+    fallbackKept_ = moved.size();
+    if (!fallbackTimer_) {
+        fallbackTimer_ = new QTimer(this);
+        fallbackTimer_->setSingleShot(true);
+        fallbackTimer_->setInterval(kFallbackMs);
+        connect(fallbackTimer_, &QTimer::timeout, this, [this]() { dropFallback("timed out"); });
+    }
+    fallbackTimer_->start();
+}
+
+void SurfaceView::scheduleFallbackPrune(const QSet<TileKey>& fullVisibleNow, int newZoom)
+{
+    if (newZoom == fallbackFromZoom_) {
+        dropFallback("zoomed back");   // the kept level is the view's again
+        return;
+    }
+    if (newZoom < 0) {
+        return;
+    }
+    fallbackVisible_ = fullVisibleNow;
+    if (!fallbackQuietTimer_) {
+        fallbackQuietTimer_ = new QTimer(this);
+        fallbackQuietTimer_->setSingleShot(true);
+        fallbackQuietTimer_->setInterval(kFallbackQuietMs);
+        connect(fallbackQuietTimer_, &QTimer::timeout, this, [this]() { pruneFallback(fallbackVisible_, fallbackToZoom_); });
+    }
+    fallbackQuietTimer_->start();
+}
+
+void SurfaceView::pruneFallback(const QSet<TileKey>& fullVisibleNow, int newZoom)
+{
+    auto* r = RENDER_IMPL(SurfaceView);
+    if (!r || r->fallbackTiles_.isEmpty() || newZoom < 0) {
+        return;
+    }
+
+    // A kept tile goes once the new level's visible tiles over it have come: its children at a finer
+    // level, its parent at a coarser one (the levels halve, the grids start at 0). One with none of them
+    // in view is off the screen.
+    auto there = [&](const TileKey& n) {
+        if (!fullVisibleNow.contains(n)) {
+            return true;
+        }
+        const auto t = r->tiles_.constFind(n);
+        return t != r->tiles_.cend() && !t.value().getMosaicImageDataCRef().empty();
+    };
+    QVector<TileKey> covered;
+    for (auto it = r->fallbackTiles_.cbegin(); it != r->fallbackTiles_.cend(); ++it) {
+        const TileKey& o = it.key();
+        const int d = o.zoom - newZoom;
+        bool all = true;
+        if (d > 0) {
+            const int f = 1 << std::min(d, 6);
+            for (int dx = 0; dx < f && all; ++dx) {
+                for (int dy = 0; dy < f && all; ++dy) {
+                    all = there(TileKey(o.x * f + dx, o.y * f + dy, newZoom));
+                }
+            }
+        }
+        else {
+            const int f = 1 << std::min(-d, 6);
+            all = there(TileKey(floorDiv(o.x, f), floorDiv(o.y, f), newZoom));
+        }
+        if (all) {
+            covered.append(o);
+        }
+    }
+    if (covered.isEmpty()) {
+        return;
+    }
+    {
+        QMutexLocker lk(&mosaicTexTasksMutex_);
+        for (const TileKey& k : std::as_const(covered)) {
+            const auto t = r->fallbackTiles_.constFind(k);
+            if (const GLuint id = t != r->fallbackTiles_.cend() ? t.value().getMosaicTextureId() : 0; id) {
+                mosaicTileTextureToDelete_.append(id);
+            }
+        }
+    }
+    if (covered.size() == r->fallbackTiles_.size()) {
+        r->fallbackTiles_.clear();   // the textures are already queued for deletion
+        r->fallbackNormals_.clear();
+        qInfo().noquote() << QStringLiteral("mosaic zoom fallback: %1 tiles of zoom %2 kept under zoom %3, covered after %4 ms")
+                             .arg(fallbackKept_).arg(fallbackFromZoom_).arg(fallbackToZoom_).arg(fallbackClock_.elapsed());
+        if (fallbackTimer_) {
+            fallbackTimer_->stop();
+        }
+    }
+    else {
+        for (const TileKey& k : std::as_const(covered)) {
+            r->fallbackTiles_.remove(k);
+            r->fallbackNormals_.remove(k);
+        }
+    }
+    Q_EMIT changed();
+}
+
+void SurfaceView::dropFallback(const char* why)
+{
+    auto* r = RENDER_IMPL(SurfaceView);
+    if (!r || r->fallbackTiles_.isEmpty()) {
+        return;
+    }
+    {
+        QMutexLocker lk(&mosaicTexTasksMutex_);
+        for (const SurfaceTile& t : std::as_const(r->fallbackTiles_)) {
+            if (const GLuint id = t.getMosaicTextureId(); id) {
+                mosaicTileTextureToDelete_.append(id);
+            }
+        }
+    }
+    qInfo().noquote() << QStringLiteral("mosaic zoom fallback: %1 tiles of zoom %2 kept under zoom %3, %4 left after %5 ms (%6)")
+                         .arg(fallbackKept_).arg(fallbackFromZoom_).arg(fallbackToZoom_).arg(r->fallbackTiles_.size())
+                         .arg(fallbackClock_.elapsed()).arg(QString::fromLatin1(why));
+    r->fallbackTiles_.clear();
+    r->fallbackNormals_.clear();
+    if (fallbackTimer_) {
+        fallbackTimer_->stop();
+    }
+    if (fallbackQuietTimer_) {
+        fallbackQuietTimer_->stop();
+    }
+    fallbackVisible_.clear();
+    Q_EMIT changed();
 }
 
 void SurfaceView::logMosaicDigest()
@@ -1283,50 +1469,63 @@ void SurfaceView::SurfaceViewRenderImplementation::render(QOpenGLFunctions *ctx,
                 ctx->glBindTexture(GL_TEXTURE_2D, mosaicColorTableTextureId_);
                 ctx->glActiveTexture(GL_TEXTURE0);
 
-                for (auto tileIt = tiles_.cbegin(); tileIt != tiles_.cend(); ++tileIt) {
-                    const TileKey& tileKey = tileIt.key();
-                    const SurfaceTile& itm = tileIt.value();
+                auto drawTiles = [&](const QHash<TileKey, SurfaceTile>& tiles,
+                                     const QHash<TileKey, QVector<QVector3D>>& normals) {
+                    for (auto tileIt = tiles.cbegin(); tileIt != tiles.cend(); ++tileIt) {
+                        const TileKey& tileKey = tileIt.key();
+                        const SurfaceTile& itm = tileIt.value();
 
-                    if (!itm.getIsInited()) {
-                        continue;
-                    }
-
-                    const auto& texVerts = itm.getMosaicTextureVerticesCRef();
-                    const auto& heightVerts = itm.getHeightVerticesCRef();
-                    if (texVerts.isEmpty() || texVerts.size() != heightVerts.size()) {
-                        continue;
-                    }
-
-                    QVector<QVector3D> localNormals;
-                    const QVector<QVector3D>* normalsPtr = nullptr;
-                    if (shadowsOn) {
-                        const auto normalsIt = tileNormals_.constFind(tileKey);
-                        if (normalsIt != tileNormals_.cend() && normalsIt.value().size() == heightVerts.size()) {
-                            normalsPtr = &normalsIt.value();
-                        }
-                        else {
-                            localNormals = buildTileNormals(itm);
-                            if (!localNormals.isEmpty() && localNormals.size() == heightVerts.size()) {
-                                normalsPtr = &localNormals;
-                            }
-                        }
-                        if (!normalsPtr) {
+                        if (!itm.getIsInited()) {
                             continue;
                         }
-                    }
 
-                    shP->setAttributeArray(positionLoc, heightVerts.constData());
-                    shP->setAttributeArray(texCoordLoc, texVerts.constData());
-                    if (shadowsOn) {
-                        shP->setAttributeArray(normalLoc, normalsPtr->constData());
-                    }
+                        const auto& texVerts = itm.getMosaicTextureVerticesCRef();
+                        const auto& heightVerts = itm.getHeightVerticesCRef();
+                        if (texVerts.isEmpty() || texVerts.size() != heightVerts.size()) {
+                            continue;
+                        }
 
-                    ctx->glBindTexture(GL_TEXTURE_2D, itm.getMosaicTextureId());
-                    ctx->glDrawElements(GL_TRIANGLES,
-                                        itm.getHeightIndicesCRef().size(),
-                                        GL_UNSIGNED_INT,
-                                        itm.getHeightIndicesCRef().constData());
+                        QVector<QVector3D> localNormals;
+                        const QVector<QVector3D>* normalsPtr = nullptr;
+                        if (shadowsOn) {
+                            const auto normalsIt = normals.constFind(tileKey);
+                            if (normalsIt != normals.cend() && normalsIt.value().size() == heightVerts.size()) {
+                                normalsPtr = &normalsIt.value();
+                            }
+                            else {
+                                localNormals = buildTileNormals(itm);
+                                if (!localNormals.isEmpty() && localNormals.size() == heightVerts.size()) {
+                                    normalsPtr = &localNormals;
+                                }
+                            }
+                            if (!normalsPtr) {
+                                continue;
+                            }
+                        }
+
+                        shP->setAttributeArray(positionLoc, heightVerts.constData());
+                        shP->setAttributeArray(texCoordLoc, texVerts.constData());
+                        if (shadowsOn) {
+                            shP->setAttributeArray(normalLoc, normalsPtr->constData());
+                        }
+
+                        ctx->glBindTexture(GL_TEXTURE_2D, itm.getMosaicTextureId());
+                        ctx->glDrawElements(GL_TRIANGLES,
+                                            itm.getHeightIndicesCRef().size(),
+                                            GL_UNSIGNED_INT,
+                                            itm.getHeightIndicesCRef().constData());
+                    }
+                };
+
+                // The level kept from before a zoom first, pushed back in depth, so that where both
+                // levels lie the new one wins and no seam fights over the same heights.
+                if (!fallbackTiles_.isEmpty()) {
+                    ctx->glEnable(GL_POLYGON_OFFSET_FILL);
+                    ctx->glPolygonOffset(1.0f, 4.0f);
+                    drawTiles(fallbackTiles_, fallbackNormals_);
+                    ctx->glDisable(GL_POLYGON_OFFSET_FILL);
                 }
+                drawTiles(tiles_, tileNormals_);
 
                 if (shadowsOn) {
                     shP->disableAttributeArray(normalLoc);

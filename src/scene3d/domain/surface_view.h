@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <QElapsedTimer>
 #include <QMutex>
 #include <QVector>
 #include <QVector3D>
@@ -62,6 +63,10 @@ public:
         friend class SurfaceView;
 
         QHash<TileKey, SurfaceTile> tiles_; // from dataProcessor
+        // The level on screen before a zoom, drawn under the new one until it covers them
+        // (SurfaceView::keepAsFallback); before 2026-10-17 the view emptied on the new level's first tile.
+        QHash<TileKey, SurfaceTile> fallbackTiles_;
+        QHash<TileKey, QVector<QVector3D>> fallbackNormals_;
         GLuint surfaceColorTableTextureId_;
         GLuint mosaicColorTableTextureId_;
         float minZ_; // from dataprocessor
@@ -136,6 +141,22 @@ private:
     // screen (keys, mosaic pixels, heights), to compare two ways of painting the same data.
     void logMosaicDigest();
     class QTimer* digestTimer_ = nullptr;
+
+    // A zoom: the textured tiles of the other level leave `toRemove` for fallbackTiles_ (the level kept
+    // before goes); `moved` gets their keys. Each leaves once the new level's visible tiles over it have
+    // come and the new level has stopped changing a while (pruneFallback: a tile comes in pieces while
+    // its job paints), all of them kFallbackMs after the zoom at the latest.
+    void keepAsFallback(QSet<TileKey>& toRemove, int newZoom, QSet<TileKey>& moved);
+    void scheduleFallbackPrune(const QSet<TileKey>& fullVisibleNow, int newZoom);
+    void pruneFallback(const QSet<TileKey>& fullVisibleNow, int newZoom);
+    void dropFallback(const char* why);
+    class QTimer* fallbackTimer_ = nullptr;
+    class QTimer* fallbackQuietTimer_ = nullptr;   // the new level unchanged this long: pruneFallback
+    QSet<TileKey> fallbackVisible_;                // the new level's visible tiles at its latest change
+    QElapsedTimer fallbackClock_;
+    int fallbackKept_ = 0;
+    int fallbackFromZoom_ = 0;
+    int fallbackToZoom_ = 0;
     void updateMosaicTileTextureTask(const QHash<TileKey, SurfaceTile>& newTiles);
     void rebuildIsobathLabels();
     // isobaths
