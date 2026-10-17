@@ -1548,3 +1548,51 @@ MK_CONTROL (posted alone, the drag panned the view 150 px), so the bench sets Ct
 shares with the app's GUI thread through AttachThreadInput: no key reaches the keyboard or another
 window. N = 80: North mode on -- the disc stays round and in place (up 308, down 319, left 323, right
 304 px); off -- tilted (up 227, down 336).
+
+## Performance: opening a file, zooming the mosaic (2026-10-17)
+
+The owner: open files much faster; paint the mosaic faster (in parallel, per side or per channel);
+compute the other zoom levels in the background. Measured on a 348 MB DSSS recording (57 079 pings,
+2 083 621 frames; a copy outside the synced folder) with `tools/perf/open_bench.ps1`: the app opens
+the file as a double click does, in a profile of its own (`-Profile perf`, a copy of the owner's
+settings with Pos zeroing off), grabs its window and quits; `-Threads` prints CPU per thread each
+second, `-WheelAt/-Wheel` zoom the 3D view by posted wheel notches. Where the time went came from a
+sampling profiler outside the tree (every 2 ms each running thread suspended, its stack walked with
+dbghelp on the process's unwind data, the exe's symbols from llvm-nm).
+
+**Where it was.** The file is read on the GUI thread (`DeviceManager::openFile`, no
+`SEPARATE_READING`: that variant reads on a thread of its own but sleeps a millisecond every 11
+frames). Of the GUI thread while opening: the frame parser walking every byte through its state
+machine, `ReliefCloud::onDatasetGrew` re-arming a QTimer for every epoch (a tenth), QML bindings
+re-run for every attitude message and every piece of data (`attitudeUpdated`,
+`timelinePositionChanged`, a tenth). After it, half of the GUI thread was the epoch index
+(`Dataset::calcDimensionRects`), most of that a `QPainterPath::intersects` per 2.56 m tile of a
+swath's bounding box -- the box itself, so every tile passed. After a zoom: every level passed on the
+way recomputed the visible mosaic, and with shadows on every delivery of tiles rebuilt the shading
+normals of every tile on screen (12 603 deliveries in 25 s).
+
+**Done** (each with its check):
+- Frame parser: a frame's body copied as a block, `read()` one memmove (13579c4b). `tools/parse_check`
+  parses a file and fingerprints every frame; `compare.ps1` against a git revision: same 2 083 621
+  frames, 1.29 -> 0.42 s; a mutant copying a byte too many caught.
+- No timer re-arm and no QML update per epoch (a7a57f05): the cloud's tail timer re-arms itself for
+  the rest of the quiet second; `attitudeUpdated` and `timelinePositionChanged` at most every 33 ms,
+  the last always. `dataUpdate` itself untouched (the epoch rate and CSV logging count it).
+- Tile cover row by row (2456a865): `tools/tiles_check`, 120 000 quads against the old test --
+  boxes and convex quads the same, crossed ones a superset, none lost, 5-8 times faster.
+- Zoom level sent once the camera keeps it 200 ms, 10 % hysteresis (265f954a); the data processor
+  then takes the view's last rect again (an unchanged rect is otherwise skipped).
+- Shading normals about the changed tiles only (60266e4f); `KOGGER_CHECK_NORMALS=1` compares with a
+  full rebuild after every delivery: worst 1.2e-7 over 12 603.
+- `KOGGER_PROFILE` everywhere (2a4320b7): fifteen `QSettings("KOGGER", "KoggerApp")` wrote the owner's
+  settings from test profiles -- the owner's saved 3D camera was a test's. `koggerAppName()`
+  (`src/app_profile.h`) works before `main()` too. The owner's camera restored from the 15:28 copy.
+
+**Result** on that file: "file opened!" 4.5 s from the app's start -> 1.93 s (the app starts in
+0.73 s; the stall monitor no longer fires); CPU to open and settle 8.3 -> 5.4 s; after a 6-notch zoom
+3.7-5.5 -> 3.7-3.9 s, the GUI thread 1.56 -> 1.0 s. The live ring bench unchanged (205 / 360 deg).
+
+**Not yet**: the mosaic itself in parallel (the worker is one thread; after a zoom it is the busiest);
+other zoom levels computed in the background; the old level kept on screen until the new one covers
+it (the renderer drops it on the first tile of the new level). The DB of tiles lives only for the
+session (deleted on open and close).
