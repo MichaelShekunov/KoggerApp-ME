@@ -60,7 +60,7 @@ void BottomTrackProcessor::bottomTrackProcessing(const DatasetChannel &channel1,
         return;
     }
 
-    auto publishBatch = [&](auto&& distAt) {
+    auto publishBatch = [&](auto&& distAt, bool settled) {
         bool flushEachEpoch = datasetPtr_->getState() == Dataset::DatasetState::kConnection;
 #ifdef SEPARATE_READING
         flushEachEpoch = true;
@@ -91,14 +91,14 @@ void BottomTrackProcessor::bottomTrackProcessing(const DatasetChannel &channel1,
             if (epPtr.chartAvail(channel1.channelId_, channel1.subChannelId_)) {
                 Epoch::Echogram* chart = epPtr.chart(channel1.channelId_, channel1.subChannelId_);
                 if (chart && chart->bottomProcessing.source < Epoch::DistProcessing::DistanceSource::DistanceSourceDirectHand) {
-                    batch.push_back(BottomTrackUpdate{iepoch, channel1.channelId_, dist});
+                    batch.push_back(BottomTrackUpdate{iepoch, channel1.channelId_, dist, settled});
                 }
             }
 
             if (epPtr.chartAvail(channel2.channelId_, channel2.subChannelId_)) {
                 Epoch::Echogram* chart = epPtr.chart(channel2.channelId_, channel2.subChannelId_);
                 if (chart && chart->bottomProcessing.source < Epoch::DistProcessing::DistanceSource::DistanceSourceDirectHand) {
-                    batch.push_back(BottomTrackUpdate{iepoch, channel2.channelId_, dist});
+                    batch.push_back(BottomTrackUpdate{iepoch, channel2.channelId_, dist, settled});
                 }
             }
 
@@ -115,10 +115,12 @@ void BottomTrackProcessor::bottomTrackProcessing(const DatasetChannel &channel1,
         flushBatch();
 
         QMetaObject::invokeMethod(dataProcessor_, "postState", Qt::QueuedConnection, Q_ARG(DataProcessorType, DataProcessorType::kUndefined));
+        BottomTrackParam posted = btP;
+        posted.depthFixed = settled;
         QMetaObject::invokeMethod(dataProcessor_, "postLastBottomTrackEpochChanged", Qt::QueuedConnection,
                                   Q_ARG(ChannelId, channel1.channelId_),
                                   Q_ARG(int, epoch_stop_index),
-                                  Q_ARG(BottomTrackParam, btP),
+                                  Q_ARG(BottomTrackParam, posted),
                                   Q_ARG(bool, manual),
                                   Q_ARG(bool, redrawAll));
     };
@@ -126,7 +128,7 @@ void BottomTrackProcessor::bottomTrackProcessing(const DatasetChannel &channel1,
     if (zeroDepth_.load()) {
         // setting 0.01f for dp pipeline
         QMetaObject::invokeMethod(dataProcessor_, "postState", Qt::QueuedConnection, Q_ARG(DataProcessorType, DataProcessorType::kBottomTrack));
-        publishBatch([](int) { return 0.01f; });
+        publishBatch([](int) { return 0.01f; }, true);   // a constant: final as published
         return;
     }
 
@@ -447,7 +449,7 @@ void BottomTrackProcessor::bottomTrackProcessing(const DatasetChannel &channel1,
 
     publishBatch([&](int iepoch) {
         return bottom_track[iepoch - epoch_min_index];
-    });
+    }, false);
 }
 
 bool BottomTrackProcessor::canceled() const noexcept

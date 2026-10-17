@@ -112,6 +112,7 @@ DataProcessor::DataProcessor(QObject *parent, Dataset* datasetPtr)
     pendingWorkTimer_.setSingleShot(true);
     pendingWorkTimer_.setInterval(333);
     connect(&pendingWorkTimer_, &QTimer::timeout, this, &DataProcessor::runCoalescedWork);
+    latClock_.start();
 
     cameraRectCoalesceTimer_.setParent(this);
     cameraRectCoalesceTimer_.setSingleShot(true);
@@ -259,6 +260,7 @@ void DataProcessor::clearProcessing(DataProcessorType procType)
     mosaicCounter_ = 0;
 
     tileEpochIndxsByZoom_.clear();
+    latencyReset();
     tileEpochIndxsByZoom_.shrink_to_fit();
     surfaceTaskEpochIndxsByZoom_.clear();
     surfaceManualEpochIndxsByZoom_.clear();
@@ -594,6 +596,8 @@ void DataProcessor::onCameraMoved()
 void DataProcessor::onChartsAdded(uint64_t indx)
 {
     chartsCounter_ = indx;
+    latencyStamp(LatStage::Chart, latLastChart_ + 1, int(indx));
+    latLastChart_ = std::max(latLastChart_, int(indx));
     // Fallback trigger: charts may appear after epochs, when channels list becomes available.
     tryScheduleAutoBottomTrack(indx);
 }
@@ -676,6 +680,8 @@ void DataProcessor::onBottomTrack3DAdded(const QVector<int>& epIndxs, const QVec
     if (epIndxs.isEmpty() || vertIndxs.isEmpty()) {
         return;
     }
+
+    latencyStamp(LatStage::Pending, epIndxs);
 
     if (bottomTrackFullRecalcPending_) {
         surfaceTaskEpochIndxsByZoom_.clear();
@@ -782,6 +788,8 @@ void DataProcessor::onAttitudeAdded(uint64_t indx)
 void DataProcessor::onMosaicCanCalc(uint64_t indx)
 {
     mosaicCounter_   = indx;
+    latencyStamp(LatStage::Released, latLastReleased_ + 1, int(indx));
+    latLastReleased_ = std::max(latLastReleased_, int(indx));
 
     // Pending mosaic epochs may be blocked only by horizon counter.
     // When counter advances, immediately retry scheduling.
@@ -1307,6 +1315,8 @@ void DataProcessor::runCoalescedWork()
     cancelRequested_.store(false);
     jobRunning_.store(true);
 
+    latencyStamp(LatStage::Sent, wb.mosaicVec);
+
     // queue в воркер в его поток
     QMetaObject::invokeMethod(worker_, "processBundle", Qt::QueuedConnection, Q_ARG(WorkBundle, wb));
 }
@@ -1350,6 +1360,9 @@ void DataProcessor::onWorkerFinished()
                 pendingMosaicIndxs_.insert(idx);
             }
         }
+        else {
+            latencyPainted();
+        }
         mosaicInFlightIndxs_.clear();
     }
 
@@ -1369,6 +1382,123 @@ void DataProcessor::onWorkerFinished()
     if (nextRunPending_.load() && !shuttingDown_.load()) {
         startTimerIfNeeded();
     }
+}
+
+namespace {
+int latMedian(QVector<int> v)
+{
+    if (v.isEmpty()) {
+        return -1;
+    }
+    std::sort(v.begin(), v.end());
+    return v[v.size() / 2];
+}
+int latPercentile(QVector<int> v, int pct)
+{
+    if (v.isEmpty()) {
+        return -1;
+    }
+    std::sort(v.begin(), v.end());
+    return v[std::min(int(v.size()) - 1, int(v.size()) * pct / 100)];
+}
+} // namespace
+
+void DataProcessor::latencyStamp(LatStage stage, int fromIndx, int toIndx)
+{
+    // Only a live connection with the mosaic on: a file is read far faster than it was recorded,
+    // and with the mosaic off nothing would ever take an epoch out of the table.
+    if (datasetState_ != 2 || isOpeningFile_ || !updateMosaic_ || toIndx < fromIndx) {
+        return;
+    }
+    fromIndx = std::max(fromIndx, toIndx - 4096);   // a jump (new session, catching up): keep it bounded
+    const qint64 now = latClock_.elapsed();
+    for (int i = fromIndx; i <= toIndx; ++i) {
+        if (stage == LatStage::Chart) {
+            latStamps_[i].chart = now;
+            continue;
+        }
+        auto it = latStamps_.find(i);
+        if (it == latStamps_.end()) {
+            continue;
+        }
+        qint64& t = (stage == LatStage::Pending) ? it->pending : (stage == LatStage::Released) ? it->released : it->sent;
+        if (t == 0) {
+            t = now;
+        }
+    }
+    if (latStamps_.size() > 8192) {                 // epochs that were never painted
+        for (auto it = latStamps_.begin(); it != latStamps_.end();) {
+            it = (now - it->chart > 30000) ? latStamps_.erase(it) : std::next(it);
+        }
+    }
+}
+
+void DataProcessor::latencyStamp(LatStage stage, const QVector<int>& indxs)
+{
+    for (int i : indxs) {
+        latencyStamp(stage, i, i);
+    }
+}
+
+void DataProcessor::latencyPainted()
+{
+    if (latStamps_.isEmpty()) {
+        return;
+    }
+    const qint64 now = latClock_.elapsed();
+    for (int idx : std::as_const(mosaicInFlightIndxs_)) {
+        auto it = latStamps_.find(idx);
+        if (it == latStamps_.end()) {
+            continue;
+        }
+        const EpochStamps s = it.value();
+        latStamps_.erase(it);
+        if (s.chart <= 0) {
+            continue;
+        }
+        latTotal_.append(int(now - s.chart));
+        if (s.pending > 0)  latBottom_.append(int(s.pending - s.chart));
+        if (s.released > 0) latHorizon_.append(int(s.released - s.chart));
+        if (s.sent > 0) {
+            latQueue_.append(int(s.sent - std::max({s.chart, s.pending, s.released})));
+            latPaint_.append(int(now - s.sent));
+        }
+    }
+    if (now - latLastReport_ < 10000 || latTotal_.isEmpty()) {
+        return;
+    }
+    const auto params = datasetPtr_ ? datasetPtr_->getBottomTrackParam() : BottomTrackParam();
+    qInfo().noquote() << QStringLiteral("mosaic latency: %1 pings in %2 s, chart -> painted median %3 ms (p90 %4, max %5); "
+                                        "waiting for the bottom track %6 ms, for the horizon %7 ms, in the queue %8 ms, painting %9 ms; "
+                                        "bottom track window %10")
+                             .arg(latTotal_.size())
+                             .arg((now - latLastReport_) / 1000.0, 0, 'f', 1)
+                             .arg(latMedian(latTotal_))
+                             .arg(latPercentile(latTotal_, 90))
+                             .arg(*std::max_element(latTotal_.cbegin(), latTotal_.cend()))
+                             .arg(latMedian(latBottom_))
+                             .arg(latMedian(latHorizon_))
+                             .arg(latMedian(latQueue_))
+                             .arg(latMedian(latPaint_))
+                             .arg(params.windowSize);
+    latTotal_.clear();
+    latBottom_.clear();
+    latHorizon_.clear();
+    latQueue_.clear();
+    latPaint_.clear();
+    latLastReport_ = now;
+}
+
+void DataProcessor::latencyReset()
+{
+    latStamps_.clear();
+    latLastChart_ = -1;
+    latLastReleased_ = -1;
+    latTotal_.clear();
+    latBottom_.clear();
+    latHorizon_.clear();
+    latQueue_.clear();
+    latPaint_.clear();
 }
 
 void DataProcessor::onDbTilesLoaded(const QList<DbTile> &dbTiles)
@@ -1815,6 +1945,7 @@ void DataProcessor::clearAllProcessings()
     attitudeCounter_ = 0;
     mosaicCounter_ = 0;
     cancelRequested_ = false;
+    latencyReset();
     jobRunning_ = false;
     nextRunPending_ = false;
     requestedMask_ = 0;

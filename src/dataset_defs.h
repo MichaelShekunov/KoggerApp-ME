@@ -486,6 +486,9 @@ struct BottomTrackParam {
     int indexFrom = 0;
     int indexTo = 0;
     int windowSize = 1;
+    // The depth is a constant (bottom track zeroing): no later pass can change it, so nothing
+    // downstream has to hold epochs back waiting for one. Set by the processor on what it posts.
+    bool depthFixed = false;
 
     BottomTrackPreset preset = BottomTrackPreset::BottomTrackOneBeam;
 
@@ -498,6 +501,7 @@ struct BottomTrackUpdate {
     int       epochIndex = -1;
     ChannelId channelId;
     float     distance = NAN;
+    bool      settled = false;   // final as published: no later pass can change it (zeroed depth)
 };
 Q_DECLARE_METATYPE(BottomTrackUpdate) // NOLINT(performance-enum-size)
 Q_DECLARE_METATYPE(QVector<BottomTrackUpdate>) // NOLINT(performance-enum-size)

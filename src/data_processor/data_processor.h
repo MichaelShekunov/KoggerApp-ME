@@ -2,6 +2,7 @@
 
 #include <atomic>
 #include <list>
+#include <QElapsedTimer>
 #include <QHash>
 #include <QMutex>
 #include <QObject>
@@ -249,6 +250,12 @@ private:
     void emitMosaicColorTable();
     void updateDatasetSpatialIndexingState();
     void setUpdateBottomTrackSourceState(bool state, bool fromSettings);
+    // Live mosaic latency (see latStamps_)
+    enum class LatStage { Chart, Pending, Released, Sent };
+    void latencyStamp(LatStage stage, int fromIndx, int toIndx);
+    void latencyStamp(LatStage stage, const QVector<int>& indxs);
+    void latencyPainted();
+    void latencyReset();
 
 private:
     friend class SurfaceProcessor;
@@ -313,6 +320,16 @@ private:
     bool                   mosaicBootstrapPending_ = false;
     QSet<int>              pendingMosaicIndxs_;
     QSet<int>              mosaicInFlightIndxs_;
+    // Live mosaic latency, stage by stage, one log line every 10 s while it paints (2026-10-17:
+    // the owner's circular mosaic trailed the heading pointer and nothing measured where the
+    // time went). Times are ms on latClock_; an epoch leaves the table when it is painted.
+    struct EpochStamps { qint64 chart = 0, pending = 0, released = 0, sent = 0; };
+    QHash<int, EpochStamps> latStamps_;
+    QElapsedTimer          latClock_;
+    int                    latLastChart_ = -1;
+    int                    latLastReleased_ = -1;
+    QVector<int>           latTotal_, latBottom_, latHorizon_, latQueue_, latPaint_;
+    qint64                 latLastReport_ = 0;
     bool                   pendingIsobathsWork_;
     QTimer                 pendingWorkTimer_;
     std::atomic_bool       cancelRequested_;

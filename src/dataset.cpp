@@ -1432,7 +1432,11 @@ void Dataset::onDistCompletedBatch(const QVector<BottomTrackUpdate>& updates)
                 continue;
             }
 
-            const int guardInterval = bottomTrackParam_.windowSize;
+            // The next pass re-processes the last windowSize epochs, so their depth may still move
+            // and the horizon stays that far back -- unless the depth is a constant (bottom track
+            // zeroing), which no pass changes. Holding the circular mosaic behind the heading
+            // pointer for it was the lag the owner saw on 2026-10-17.
+            const int guardInterval = update.settled ? 0 : bottomTrackParam_.windowSize;
             const int compIndx = update.epochIndex > guardInterval ? update.epochIndex - guardInterval : update.epochIndex;
             if (compIndx > maxCompIndx) {
                 maxCompIndx = compIndx;
@@ -1454,7 +1458,8 @@ void Dataset::onLastBottomTrackEpochChanged(const ChannelId& channelId, int val,
     bottomTrackParam_ = btP;
     lastBottomTrackEpoch_ = val;
 
-    const int minMagicRenderGap = std::max(3, bottomTrackParam_.windowSize);
+    // A zeroed depth is final as published (see onDistCompletedBatch): no gap to keep.
+    const int minMagicRenderGap = btP.depthFixed ? 0 : std::max(3, bottomTrackParam_.windowSize);
     const int lEpoch = std::max(0, bottomTrackParam_.indexFrom - minMagicRenderGap);
     const int rEpoch = std::max(0, bottomTrackParam_.indexTo   - minMagicRenderGap);
 
