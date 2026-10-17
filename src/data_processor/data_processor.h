@@ -332,6 +332,7 @@ private:
     QElapsedTimer          latClock_;
     int                    latLastChart_ = -1;
     int                    latLastEpoch_ = -1;
+    int                    latLastPosition_ = -1;
     int                    latLastReleased_ = -1;
     QVector<int>           latTotal_, latChartWait_, latBottom_, latHorizon_, latQueue_, latPaint_;
     QVector<int>           latSurfaceMs_, latMosaicMs_;   // per compute job, this window

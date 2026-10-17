@@ -3678,6 +3678,8 @@ void Core::setDataProcessorConnections()
     dataProcessorConnections_.append(QObject::connect(datasetPtr_,        &Dataset::datasetStateChanged,               dataProcessor_, &DataProcessor::onDatasetStateChanged,       connType));
 
     dataProcessorConnections_.append(QObject::connect(dataHorizon_.get(), &DataHorizon::epochAdded,                    dataProcessor_, &DataProcessor::onEpochAdded,            connType));
+    // For the mosaic latency line only: Pos zeroing opens its epochs with a position, not epochAdded.
+    dataProcessorConnections_.append(QObject::connect(dataHorizon_.get(), &DataHorizon::positionAdded,                 dataProcessor_, &DataProcessor::onPositionAdded,         connType));
     dataProcessorConnections_.append(QObject::connect(dataHorizon_.get(), &DataHorizon::mosaicCanCalc,                 dataProcessor_, &DataProcessor::onMosaicCanCalc,         connType));
 
     dataProcessorConnections_.append(QObject::connect(dataProcessor_,     &DataProcessor::distCompletedByProcessing,      datasetPtr_,    &Dataset::onDistCompleted,               connType));

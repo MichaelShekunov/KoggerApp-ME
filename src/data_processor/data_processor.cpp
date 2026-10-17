@@ -717,8 +717,11 @@ void DataProcessor::onBottomTrack3DAdded(const QVector<int>& epIndxs, const QVec
                     processed.remove(ep);
                 }
             }
+            // A queued epoch is not painted yet and will be painted with the new depth, so it stays
+            // queued. Taken out, it came back only if already indexed -- and the newest epoch is
+            // indexed with the next ping, so its 3D bottom track, which arrives first, sent it back
+            // a ping (onSendTilesByZoom's look-ahead undone; 2026-10-17, ~33 ms at 30 pings/s).
             for (int ep : std::as_const(changedEpochs)) {
-                pendingMosaicIndxs_.remove(ep);
                 mosaicInFlightIndxs_.remove(ep);
             }
         }
@@ -780,6 +783,10 @@ void DataProcessor::onEpochAdded(uint64_t indx)
 void DataProcessor::onPositionAdded(uint64_t indx)
 {
     positionCounter_ = indx;
+    // Pos zeroing opens its epochs in Dataset::addAtt, which emits no epochAdded but a position:
+    // that is when the heading pointer moves.
+    latencyStamp(LatStage::Created, latLastPosition_ + 1, int(indx));
+    latLastPosition_ = std::max(latLastPosition_, int(indx));
 }
 
 void DataProcessor::onAttitudeAdded(uint64_t indx)
@@ -1566,6 +1573,7 @@ void DataProcessor::latencyReset()
     latStamps_.clear();
     latLastChart_ = -1;
     latLastEpoch_ = -1;
+    latLastPosition_ = -1;
     latLastReleased_ = -1;
     latChartWait_.clear();
     latTotal_.clear();
