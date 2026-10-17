@@ -1,4 +1,6 @@
 #include "ui_state_serializer.h"
+
+#include "app_profile.h"
 #include "link_manager_wrapper.h"
 #include "notifications.h"
 
@@ -353,7 +355,7 @@ bool UIStateSerializer::exportToJsonFile(const QString& path)
         return false;
     }
 
-    QSettings settings(QStringLiteral("KOGGER"), QStringLiteral("KoggerApp"));
+    QSettings settings(QStringLiteral("KOGGER"), koggerAppName());
     const QStringList keys = settings.allKeys();
 
     QJsonObject settingsObject;
@@ -523,7 +525,7 @@ bool UIStateSerializer::importFromJsonFile(const QString& path)
                                  normalizedDumpOsFamily != normalizedCurrentOsFamily;
 
     int skippedPathKeys = 0;
-    QSettings settings(QStringLiteral("KOGGER"), QStringLiteral("KoggerApp"));
+    QSettings settings(QStringLiteral("KOGGER"), koggerAppName());
     for (auto it = settingsObject.constBegin(); it != settingsObject.constEnd(); ++it) {
         const QVariant rawValue = jsonValueToVariant(it.value());
 

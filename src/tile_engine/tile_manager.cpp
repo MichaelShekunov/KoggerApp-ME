@@ -1,5 +1,7 @@
 #include "tile_manager.h"
 
+#include "app_profile.h"
+
 #include <algorithm>
 
 #include <QDebug>
@@ -245,7 +247,7 @@ void TileManager::seedProviderVersion()
     }
 
     const int floor = tileProvider_->imageryVersion();
-    QSettings settings(QStringLiteral("KOGGER"), QStringLiteral("KoggerApp"));
+    QSettings settings(QStringLiteral("KOGGER"), koggerAppName());
     const int persisted = settings.value(versionSettingsKey(tileProvider_->manifestKey()), floor).toInt();
     tileProvider_->setImageryVersion(std::max(floor, persisted));
 }
@@ -391,7 +393,7 @@ void TileManager::applyResolvedVersion(int version)
 
     tileProvider_->setImageryVersion(version);
 
-    QSettings settings(QStringLiteral("KOGGER"), QStringLiteral("KoggerApp"));
+    QSettings settings(QStringLiteral("KOGGER"), koggerAppName());
     settings.setValue(versionSettingsKey(tileProvider_->manifestKey()), version);
 
     if (tileDownloader_) {

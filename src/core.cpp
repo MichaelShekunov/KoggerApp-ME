@@ -1,4 +1,6 @@
 #include "link/link.h"
+
+#include "app_profile.h"
 #include "core.h"
 
 #include <QSettings>
@@ -76,7 +78,7 @@ Core::Core() :
 {
     qRegisterMetaType<uint8_t>("uint8_t");
     {
-        QSettings settings("KOGGER", "KoggerApp");
+        QSettings settings(QStringLiteral("KOGGER"), koggerAppName());
         bringWindowToFrontEnabled_ = settings.value("main/bringWindowToFrontEnabled", true).toBool();
     }
     logger_.setDatasetPtr(datasetPtr_);
@@ -1653,7 +1655,7 @@ void Core::loadCsvExportFields()
     if (csvExportFieldsLoaded_) {
         return;
     }
-    QSettings settings("KOGGER", "KoggerApp");
+    QSettings settings(QStringLiteral("KOGGER"), koggerAppName());
     settings.beginGroup("main/csvExportFields");
     for (const auto& f : kCsvFieldDefs) {
         const QString key = QString::fromLatin1(f.key);
@@ -1665,7 +1667,7 @@ void Core::loadCsvExportFields()
 
 void Core::saveCsvExportFields()
 {
-    QSettings settings("KOGGER", "KoggerApp");
+    QSettings settings(QStringLiteral("KOGGER"), koggerAppName());
     settings.beginGroup("main/csvExportFields");
     for (auto it = csvExportFields_.constBegin(); it != csvExportFields_.constEnd(); ++it) {
         settings.setValue(it.key(), it.value());
@@ -2515,7 +2517,7 @@ void Core::setMapTileProvider(int providerId)
         scene3dViewPtr_->updateMapView();
     }
 
-    QSettings settings("KOGGER", "KoggerApp");
+    QSettings settings(QStringLiteral("KOGGER"), koggerAppName());
     settings.setValue("scene3d/map/TileProviderId", providerId);
 }
 
@@ -2531,7 +2533,7 @@ void Core::toggleMapTileProvider()
         scene3dViewPtr_->updateMapView();
     }
 
-    QSettings settings("KOGGER", "KoggerApp");
+    QSettings settings(QStringLiteral("KOGGER"), koggerAppName());
     settings.setValue("scene3d/map/TileProviderId", tileManager_->currentProviderId());
 }
 
@@ -2716,7 +2718,7 @@ void Core::setBringWindowToFrontEnabled(bool enabled)
 
     bringWindowToFrontEnabled_ = enabled;
 
-    QSettings settings("KOGGER", "KoggerApp");
+    QSettings settings(QStringLiteral("KOGGER"), koggerAppName());
     settings.setValue("main/bringWindowToFrontEnabled", enabled);
 
     emit bringWindowToFrontEnabledChanged();
@@ -2743,7 +2745,7 @@ void Core::setActiveTransientUi(QObject* who)
 
 int Core::loadSavedMapTileProviderId() const
 {
-    QSettings settings("KOGGER", "KoggerApp");
+    QSettings settings(QStringLiteral("KOGGER"), koggerAppName());
     return settings.value("scene3d/map/TileProviderId", map::kGoogleProviderId).toInt();
 }
 
@@ -3207,7 +3209,7 @@ void Core::saveLLARefToSettings()
     try {
         auto ref = datasetPtr_->getLlaRef();
 
-        QSettings settings("KOGGER", "KoggerApp");
+        QSettings settings(QStringLiteral("KOGGER"), koggerAppName());
         QString group{"scene3d/llaRef"};
 
         settings.beginGroup(group);
@@ -3240,7 +3242,7 @@ void Core::loadLLARefFromSettings()
     }
 
     try {
-        QSettings settings("KOGGER", "KoggerApp");
+        QSettings settings(QStringLiteral("KOGGER"), koggerAppName());
         QString group{"scene3d/llaRef"};
 
         settings.beginGroup(group);
@@ -3291,7 +3293,7 @@ void Core::saveCameraViewToSettings()
             return;
         }
 
-        QSettings settings("KOGGER", "KoggerApp");
+        QSettings settings(QStringLiteral("KOGGER"), koggerAppName());
         settings.beginGroup("scene3d/cameraView");
         settings.setValue("refLatSin", ref.refLatSin);
         settings.setValue("refLatCos", ref.refLatCos);
@@ -3324,7 +3326,7 @@ void Core::loadCameraViewFromSettings()
     }
 
     try {
-        QSettings settings("KOGGER", "KoggerApp");
+        QSettings settings(QStringLiteral("KOGGER"), koggerAppName());
         settings.beginGroup("scene3d/cameraView");
         const bool has = settings.contains("isInit");
         LLARef ref;
