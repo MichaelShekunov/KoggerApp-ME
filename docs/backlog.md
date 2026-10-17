@@ -657,3 +657,25 @@ Not surveyed yet.
   app.
 - Which controls first, and whether the user chooses which ones go out.
 - Whether the arrangement is saved per user and per platform (desktop, phone, Head Unit).
+
+## 12. "LR 500 kbit/s" in Link speed
+
+Owner, 2026-10-02: "не надо пока, но потом напомни" -- not now, remind later. Reminded
+2026-10-17; no answer yet. Moved here from the assistant's notes on the first PC.
+
+### What exists today
+
+The island's "Link speed" (WIFI_MODULE.md 2m) shows LR as "LR, speed not calibrated": the
+module does not decode LR (kbit/s 0). Since module firmware 0.19 (contract v9; both modules
+on 0.19 since 2026-10-02) ID_WIFI_SURVEY v1 CONTENT is 16 + 13n bytes and after the n rate
+records come n x U4 "rate by timing, kbit/s"; for LR the module sets 500 and `by_timing`
+when the timing bound is 300...550 (two large LR frames in a row needed; 250 cannot be
+proven by timing). Measured by the module session on 2026-10-02: LR code 0x1A = 500 kbit/s
+(bound 372-380 kbit/s in 6 windows of 6). The app does not read that tail yet (compatible):
+`WifiLinkRate::parse` / `text()` in `src/device/wifi_ops.h`, `DevDriver::wifiLinkRates()`.
+
+### Proposal
+
+For code 0x1A always "LR 500 kbit/s" (measured 2026-10-02), any other LR code "speed not
+calibrated"; or "500 kbit/s, measured" only once the module proved it by timing, kept for
+the session (it flickers window to window otherwise). Released only on the owner's word.

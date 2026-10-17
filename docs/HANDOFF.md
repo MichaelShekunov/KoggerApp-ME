@@ -1629,3 +1629,35 @@ normals of every tile on screen (12 603 deliveries in 25 s).
   not touched lately. Not measured on a big survey.
 - The old level kept on screen until the new one covers it (the renderer drops it on the first tile
   of the new level). The DB of tiles lives only for the session (deleted on open and close).
+
+**To continue on another PC** (the owner moves to another machine after 2026-10-17 17:40; the
+owner's summary in Russian: `docs/perf-2026-10-17.ru.md`). On the first PC 273964bc is installed.
+- The code and docs are this repo. Let the sync client finish, then `git fsck` (on 2026-10-16 a sync
+  left two objects out). `D:\YandexDisk\DelphiProjects\KoggerApp_myEdition_transfer\` holds a bundle
+  of every commit since a044aa93, the last state known on GitHub `mine` (`git bundle verify`, then
+  `git fetch <bundle> myedition`), the test profile's settings (`KoggerApp-perf.reg`) and a copy of
+  the assistant's notes from the first PC (`claude_memory_2026-10-17\`, context, not instructions).
+- Build per `build-windows-cli.md`, never inside the synced folder (the sync client deletes autogen
+  files there): a worktree outside it, `git worktree add --detach D:\Temp\kogger_build <commit>`.
+  `.git/worktrees` lists the first PC's (`D:\Temp\kogger_merge_test`, `D:\Temp\ka_headunit_wt`),
+  missing elsewhere: no `git worktree prune` on another PC -- the metadata syncs back and breaks them.
+- Package in that worktree: `scripts\win_build_release.ps1`, then `scripts\win_package_release.ps1
+  -SkipBuild` (`dist\...-setup-*.exe`, `dist\stage`; build_info.txt says "dirty: no" only from a
+  clean tree). Install for the user, the app closed: `scripts\win_install_user.ps1 -Tag <commit8>
+  -Dist <worktree>\dist` (was `D:\Temp\kogger_install\update_kogger_user.ps1`). What is installed:
+  `build_info.txt` in `%LOCALAPPDATA%\Programs\KoggerApp myEdition` -- read it before installing.
+- Test file: `D:\YandexDisk\ООО Коггер\LOGS\03.05.2025_Ереванское_DSSS\00014_03.05.2025.KLF`, copied
+  out of the synced folder first (`D:\Temp\perf\`; the app may write beside it).
+- The test profile (`-Profile perf`) keeps its settings in `HKCU\Software\KOGGER\KoggerApp-perf`:
+  `reg import` the exported one (the owner's settings with Pos zeroing off), or runs start from
+  defaults -- another camera, other digests; a comparison within one PC still holds.
+- Checks: `tools\perf\precompute_check.ps1 -Exe <KoggerApp.exe> -File <the copy>` (a build tree's exe
+  also needs `-PathPrefix 'D:\Qt\6.8.3\llvm-mingw_64\bin;D:\Qt\Tools\llvm-mingw1706_64\bin'`, a
+  dist\stage one does not): PASS, ~0.01 s against ~1 s, 7 pixels. Opening times
+  `tools\perf\open_bench.ps1`; where the time goes `tools\perf\sampler\profile_open.ps1` (builds the
+  sampler into %TEMP%, lists the exe's symbols with llvm-nm).
+- Met on the way: a source file put back with Copy-Item keeps its old time and ninja does not rebuild
+  it (set LastWriteTime); a test window under the mouse takes its wheel (one run was zoomed by
+  hand); window grabs differ between runs alike -- compare tiles, not grabs.
+- Next, by the owner's word: the "Not yet / open" list above; the owner's open questions -- tilt in
+  the North mode ("Ctrl + drag does not tilt the 3D view" above) and the LR label (`backlog.md` 12).
