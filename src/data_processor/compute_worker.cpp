@@ -155,6 +155,11 @@ void ComputeWorker::setMosaicSource(int source)
     mosaic_.setSource(static_cast<MosaicProcessor::Source>(source));
 }
 
+void ComputeWorker::setMosaicTrackOwners(bool on)
+{
+    mosaic_.setTrackOwners(on);
+}
+
 void ComputeWorker::setMosaicTileResolution(float res)
 {
     //qDebug() << "ComputeWorker::setMosaicTileResolution" << res;
@@ -215,6 +220,13 @@ void ComputeWorker::processBundle(const WorkBundle& wb)
         partClock.restart();
         mosaic_.updateDataWrapper(wb.mosaicVec, wb.batchMosaicEmit);
         mosaicMs = int(partClock.elapsed());
+    }
+    // After the paint: a pixel the new pairs painted over is theirs by now, so a sector the sonar
+    // has come round to again is never shown empty in between.
+    if (wb.mosaicEraseBelow >= 0 && !isCanceled()) {
+        partClock.restart();
+        mosaic_.eraseOwnersBelow(wb.mosaicEraseBelow);
+        mosaicMs = std::max(0, mosaicMs) + int(partClock.elapsed());
     }
 
     QMetaObject::invokeMethod(dp_, "postBundleTiming", Qt::QueuedConnection,

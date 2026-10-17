@@ -1466,3 +1466,44 @@ Quitting the app from its window with the board connected worked all day; stop a
 probe quits.
 
 Not verified: on the owner's board turning; the 8-bit fix on hardware.
+
+## "Clear old data" without the stutter (2026-10-17)
+
+The owner: with "Clear old data" on, the mosaic stutters, and the more epochs (N), the worse. In
+FAKE_COORDS+N with that box every mosaic job was a full restart: the hot cache cleared, the worker's
+`clearMosaic` zeroing every tile, the last N epochs painted again, every tile of the mesh posted. On
+the bench (6 deg a ping, 27 pings/s, N = 80): 233 ms a job, at 37 ms between pings.
+
+1. **The arc, cheaper** (`mosaic_arc.h`): the heading turns by a constant rotation and origin and
+   range by constant increments, at most a pixel a step, instead of a cos and a sin every half pixel:
+   103 -> 39 us a 6 deg wedge of 300 px (the chord 11 us). `tools/arc_check` 20/20, its pose test now
+   by the distance to the curve (1.25 px worst); 11 of 11 mutants caught, the control passing.
+2. **The rebuild's list** of the last N is made by index, not by walking `epIndxsFromBottomTrack_`,
+   which grew with the session. 89 ms a job after 1 and 2 -- still the whole window every job.
+3. **Incremental** (`DataProcessor::runCoalescedWork`, `MosaicProcessor::eraseOwnersBelow`). The
+   rebuild runs once: when the mode comes on, N changes, the mosaic restarts or the bottom track is
+   recalculated in full (`clearOldTracking_`, `clearOldN_`). From it on, the worker notes for every
+   pixel the pair that painted it last, by the pair's older epoch (`owners_`: 4 bytes a pixel, apart
+   from the tiles so a tile sent to the renderer carries none of it, only tiles painted in the mode).
+   The jobs after paint new epochs as without the mode and then erase the pixels whose pair is below
+   the window: last N plus the three pairs `updateDataWrapper` walks for context before them, which
+   is what the rebuild shows. A tile is scanned only when its `oldest` (a lower bound of its owners)
+   is below that, so the cost follows what left the window, not N; a tile the mesh let go of (LRU)
+   comes back from the hot cache first. By the owners, not by walking the old pairs again: a walk
+   depends on the bottom track, which can change after the paint. Painted first, erased after, so a
+   sector the sonar has come round to is never shown empty in between. An epoch queued ahead of the
+   horizon now survives the rebuild (before, the next rebuild painted it anyway).
+
+After, on the bench: **3 ms a job at N = 80, 160 and 320 alike** (max 4), ping -> first painted 13 ms
+median. The bench now measures the grab: the angle the mosaic covers around the sonar. N = 15 gives
+205 deg (two sides of 17 pairs of 6 deg: 204), N >= 80 the full 360; a build without the erase gives
+360 at N = 15, so the measure catches it. Inside a full disc no pixel of the empty background.
+
+`KOGGER_PROFILE=<name>` runs the app as KoggerApp-<name>: settings in
+`HKCU\Software\KOGGER\KoggerApp-<name>` and a log of its own, so `ring_bench.ps1 -Profile bench` runs
+beside the user's open app without touching their settings (the bench profile is a copy of the
+owner's with "Clear old data" on; N is `main\dataset\fakeCoordsLastNSlider` there).
+
+Not verified: switching the box or moving the N slider in a running app (the rebuild path, read
+and not driven by the bench); a mosaic of more than 512 tiles (the hot-cache return in the erase); on
+the owner's board turning.

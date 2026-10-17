@@ -694,6 +694,7 @@ void DataProcessor::onBottomTrack3DAdded(const QVector<int>& epIndxs, const QVec
         epIndxsFromBottomTrack_.clear();
         epochToBottomTrackVertIndx_.clear();
         bottomTrackFullRecalcPending_ = false;
+        clearOldTracking_ = false;   // "Clear old data" rebuilt every job before: a new bottom track showed at once
     }
 
     QSet<int> changedEpochs;
@@ -1061,6 +1062,7 @@ void DataProcessor::setMosaicFakeCoordsClearOldData(bool state)
 void DataProcessor::restartMosaic()
 {
     hotCache_.clear();
+    clearOldTracking_ = false;
 
     QMetaObject::invokeMethod(worker_, "clearMosaic", Qt::QueuedConnection);
 
@@ -1230,28 +1232,50 @@ void DataProcessor::runCoalescedWork()
         }
     }
 
-    if (wantMosaic && updateMosaic_ && activeZeroing_ && mosaicFakeCoordsLastN_ > 0 && mosaicFakeCoordsClearOldData_) {
-        // Radical FAKE_COORDS+N path: every mosaic recalc is a full restart. Wipe caches,
-        // queue worker clearMosaic, then schedule a fresh paint of the last N epochs from
-        // epIndxsFromBottomTrack_. By design every tick re-renders the tail from scratch.
+    const bool clearOld = updateMosaic_ && activeZeroing_ && mosaicFakeCoordsLastN_ > 0 && mosaicFakeCoordsClearOldData_;
+    if (!clearOld && workerTracksOwners_) {   // the mode is off: the worker lets the owners go
+        QMetaObject::invokeMethod(worker_, "setMosaicTrackOwners", Qt::QueuedConnection, Q_ARG(bool, false));
+        workerTracksOwners_ = false;
+        clearOldTracking_ = false;
+    }
+
+    if (wantMosaic && clearOld && (!clearOldTracking_ || clearOldN_ != mosaicFakeCoordsLastN_)) {
+        // FAKE_COORDS+N with "Clear old data", once: wipe caches, queue worker clearMosaic, paint
+        // the last N epochs from epIndxsFromBottomTrack_ afresh, the worker noting each pixel's
+        // pair from here on. The next jobs paint new epochs as usual and erase what left the
+        // window (wb.mosaicEraseBelow below).
         hotCache_.clear();
+        if (!workerTracksOwners_) {
+            QMetaObject::invokeMethod(worker_, "setMosaicTrackOwners", Qt::QueuedConnection, Q_ARG(bool, true));
+            workerTracksOwners_ = true;
+        }
         QMetaObject::invokeMethod(worker_, "clearMosaic", Qt::QueuedConnection);
         mosaicTaskEpochIndxsByZoom_.clear();
-        pendingMosaicIndxs_.clear();
+        // An epoch queued ahead of the horizon (onSendTilesByZoom) stays queued: the rebuild
+        // paints up to the horizon, and the jobs after it paint only what is queued.
+        QSet<int> ahead;
+        for (int idx : std::as_const(pendingMosaicIndxs_)) {
+            if (idx > mosaicCounter_) {
+                ahead.insert(idx);
+            }
+        }
+        pendingMosaicIndxs_.swap(ahead);
         mosaicInFlightIndxs_.clear();
 
         const int mosaicLowAllowed = std::max(0, mosaicCounter_ - mosaicFakeCoordsLastN_ + 1);
         wb.mosaicVec.reserve(mosaicFakeCoordsLastN_);
-        for (int idx : std::as_const(epIndxsFromBottomTrack_)) {
-            if (idx >= mosaicLowAllowed && idx <= mosaicCounter_) {
+        // The last N by index, in order: walking the whole set grew with the session, every ping.
+        for (int idx = mosaicLowAllowed; idx <= mosaicCounter_; ++idx) {
+            if (epIndxsFromBottomTrack_.contains(idx)) {
                 wb.mosaicVec.append(idx);
             }
         }
-        std::sort(wb.mosaicVec.begin(), wb.mosaicVec.end());
         for (int idx : std::as_const(wb.mosaicVec)) {
             mosaicInFlightIndxs_.insert(idx);
         }
         wb.batchMosaicEmit = true;
+        clearOldTracking_ = true;
+        clearOldN_ = mosaicFakeCoordsLastN_;
     }
     else if (wantMosaic && !pendingMosaicIndxs_.isEmpty() && updateMosaic_) {
         int mosaicZoom = lastDataZoomIndx_;
@@ -1293,6 +1317,12 @@ void DataProcessor::runCoalescedWork()
         if (!wb.mosaicVec.isEmpty()) {
             std::sort(wb.mosaicVec.begin(), wb.mosaicVec.end());
         }
+    }
+    if (clearOld && clearOldTracking_) {
+        // What the rebuild shows: the last N and the three pairs before them that
+        // MosaicProcessor::updateDataWrapper walks for context.
+        const int mosaicLowAllowed = std::max(0, mosaicCounter_ - mosaicFakeCoordsLastN_ + 1);
+        wb.mosaicEraseBelow = std::max(0, mosaicLowAllowed - 3);
     }
 
     if (wantIsobaths && updateIsobaths_ && !updateMosaic_) {
@@ -1978,6 +2008,7 @@ void DataProcessor::clearIsobathsProcessing()
 
 void DataProcessor::clearMosaicProcessing()
 {
+    clearOldTracking_ = false;
     pendingMosaicIndxs_.clear();
     mosaicTaskEpochIndxsByZoom_.clear();
     mosaicInFlightIndxs_.clear();
@@ -2014,6 +2045,7 @@ void DataProcessor::clearAllProcessings()
     epIndxsFromBottomTrack_.clear();
     vertIndxsFromBottomTrack_.clear();
     epochToBottomTrackVertIndx_.clear();
+    clearOldTracking_ = false;
     bottomTrackWindowCounter_ = 0;
     btBusy_ = false;
     forceVisibleRefreshAfterBottomTrack_ = false;

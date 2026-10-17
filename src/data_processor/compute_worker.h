@@ -16,6 +16,7 @@ struct WorkBundle
     QVector<int>             mosaicVec;
     bool                     doIsobaths{false};
     bool                     batchMosaicEmit{false};
+    int                      mosaicEraseBelow{-1}; // "Clear old data": the pixels of older pairs go (MosaicProcessor::eraseOwnersBelow)
 
     void clear() {
         surfaceVec.clear();
@@ -24,6 +25,7 @@ struct WorkBundle
         mosaicVec.shrink_to_fit();
         doIsobaths = false;
         batchMosaicEmit = false;
+        mosaicEraseBelow = -1;
     }
 };
 Q_DECLARE_METATYPE(WorkBundle) // NOLINT(performance-enum-size)
@@ -66,6 +68,7 @@ public slots:
     void setMosaicRAngleOffset(float val);
     void setMosaicTileResolution(float res);
     void setMosaicSource(int source);
+    void setMosaicTrackOwners(bool on);
     void applySurfaceZoomChange(const TileMap& cached, bool fullCoverage);
     void setMinZ(float v);
     void setMaxZ(float v);

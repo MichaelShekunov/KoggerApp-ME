@@ -85,6 +85,92 @@ void MosaicProcessor::clear()
     lastCalcEpoch_ = 0;
     lastAcceptedEpoch_ = 0;
     lastTraceLineEpoch_ = -1;
+    owners_.clear();
+}
+
+void MosaicProcessor::setTrackOwners(bool on)
+{
+    trackOwners_ = on;
+    if (!on) {
+        owners_.clear();
+        owners_.squeeze();
+    }
+}
+
+void MosaicProcessor::eraseOwnersBelow(int keepFrom)
+{
+    if (!trackOwners_ || owners_.isEmpty() || !surfaceMeshPtr_ || !surfaceMeshPtr_->getIsInited()) {
+        return;
+    }
+
+    // By the owners, not by walking the pairs again: a walk depends on the bottom track, and that
+    // can change after the paint.
+    QVector<TileKey> due;
+    QSet<TileKey> evicted;
+    for (auto it = owners_.cbegin(); it != owners_.cend(); ++it) {
+        if (it.value().oldest >= keepFrom) {
+            continue;
+        }
+        due.append(it.key());
+        if (const auto* t = surfaceMeshPtr_->getTilePtrByKey(it.key()); t && !t->getIsInited()) {
+            evicted.insert(it.key());
+        }
+    }
+    if (due.isEmpty()) {
+        return;
+    }
+    if (!evicted.isEmpty()) {   // let go by the mesh (LRU): back from the hot cache, as prefetchTiles does
+        TileMap got;
+        QSet<TileKey> missing;
+        if (QMetaObject::invokeMethod(dataProcessor_, "fetchFromHotCache", Qt::BlockingQueuedConnection,
+                                      Q_RETURN_ARG(TileMap, got), Q_ARG(QSet<TileKey>, evicted), Q_ARG(QSet<TileKey>*, &missing))) {
+            putTilesIntoMesh(got);
+        }
+    }
+
+    TileMap res;
+    for (const TileKey& key : std::as_const(due)) {
+        auto it = owners_.find(key);
+        if (it == owners_.end()) {
+            continue;
+        }
+        auto& owner = it.value().owner;
+        SurfaceTile* t = surfaceMeshPtr_->getTilePtrByKey(key);
+        if (!t || !t->getIsInited() || t->getMosaicImageDataRef().size() != owner.size()) {
+            owners_.erase(it);   // gone from the mesh and the cache: nothing left to clear
+            continue;
+        }
+        uint8_t* img = t->getMosaicImageDataRef().data();
+        int32_t oldest = std::numeric_limits<int32_t>::max();
+        bool changed = false;
+        for (size_t p = 0; p < owner.size(); ++p) {
+            const int32_t o = owner[p];
+            if (o < 0) {
+                continue;
+            }
+            if (o < keepFrom) {
+                owner[p] = -1;
+                img[p] = 0;
+                changed = true;
+            }
+            else if (o < oldest) {
+                oldest = o;
+            }
+        }
+        if (oldest == std::numeric_limits<int32_t>::max()) {
+            owners_.erase(it);
+        }
+        else {
+            it.value().oldest = oldest;
+        }
+        if (changed) {
+            res.insert(key, *t);
+        }
+    }
+
+    if (!res.isEmpty()) {
+        QMetaObject::invokeMethod(dataProcessor_, "postSurfaceTiles", Qt::QueuedConnection, Q_ARG(TileMap, res), Q_ARG(bool, true));
+    }
 }
 
 void MosaicProcessor::setDatasetPtr(Dataset *datasetPtr)
@@ -303,6 +389,7 @@ void MosaicProcessor::setRAngleOffset(float val)
 
 void MosaicProcessor::setTileResolution(float tileResolution)
 {
+    owners_.clear();   // keyed by the tiles of the old zoom
     tileResolution_ = tileResolution;
     pixOnMeters_ = std::pow(tileResolution_, -1);
     aliasWindow_ = 100 / pixOnMeters_;
@@ -870,6 +957,12 @@ void MosaicProcessor::updateData(const QVector<int>& indxs, QSet<int>& usedEpoch
     const int meshPixW = surfaceMeshPtr_->getPixelWidth();
     const int meshPixH = surfaceMeshPtr_->getPixelHeight();
     bool* pairOutOfFovPtr = nullptr;
+    int pairOwner = -1;   // the older epoch of the pair being walked, for owners_
+    // The owners of the tile painted last: a walk stays in a tile for many pixels, so the hash is
+    // looked up once per tile change. A lookup that inserts may move the other entries, and none
+    // but this one is held.
+    const SurfaceTile* ownTile = nullptr;
+    OwnedPixels* ownPix = nullptr;
 
     // helpers
     auto putPixel = [&](int x, int y, uint8_t color, int headIndx) -> SurfaceTile* {
@@ -886,11 +979,23 @@ void MosaicProcessor::updateData(const QVector<int>& indxs, QSet<int>& usedEpoch
         if (headIndx > t->getHeadIndx()) {
             const int tileX = x % tileSidePixelSize_;
             const int tileY = y % tileSidePixelSize_;
+            const int pix = tileY * tileSidePixelSize_ + tileX;
 
             auto& img = t->getMosaicImageDataRef();
-            img.data()[tileY * tileSidePixelSize_ + tileX] = color;
+            img.data()[pix] = color;
             t->setIsUpdated(true);
             traceCnt++;
+            if (trackOwners_) {
+                if (t != ownTile) {
+                    ownPix = &owners_[t->getKey()];
+                    ownTile = t;
+                    if (ownPix->owner.size() != img.size()) {
+                        ownPix->owner.assign(img.size(), -1);
+                    }
+                }
+                ownPix->owner[size_t(pix)] = pairOwner;
+                ownPix->oldest = std::min(ownPix->oldest, int32_t(pairOwner));
+            }
 
             return t;
         }
@@ -941,6 +1046,7 @@ void MosaicProcessor::updateData(const QVector<int>& indxs, QSet<int>& usedEpoch
 
         const int pairEpochF = epochIndxs[segFIndx];
         const int pairEpochS = epochIndxs[segSIndx];
+        pairOwner = pairEpochF;
         const char pairSide = isOdds[segFIndx];
         bool stopAfterThis = false;
         if (cancelPending) {

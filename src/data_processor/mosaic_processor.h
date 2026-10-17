@@ -1,6 +1,9 @@
 #pragma once
 
 #include <cstdint>
+#include <limits>
+#include <vector>
+#include <QHash>
 #include <QVariantMap>
 
 #include "dataset_defs.h"
@@ -40,6 +43,12 @@ public:
     void setTileResolution(float tileResolution);
     void setGenerageGridContour(bool state);
     void setSource(Source source);
+    /// "Clear old data": remember, per pixel, the pair (by its older epoch) that painted it last.
+    void setTrackOwners(bool on);
+    /// Clears every pixel last painted by a pair whose older epoch is below keepFrom and sends the
+    /// tiles that changed on, as a paint does. Only tiles that may hold such a pixel are scanned, so
+    /// the cost follows what left the window, not its length.
+    void eraseOwnersBelow(int keepFrom);
 
     QPair<ChannelId, uint8_t> getFirstChannelId()  const { return qMakePair(segFChannelId_, segFSubChannelId_); };
     QPair<ChannelId, uint8_t> getSecondChannelId() const { return qMakePair(segSChannelId_, segSSubChannelId_); };
@@ -89,6 +98,15 @@ private:
     // full-restart repaints of last-N epochs).
     bool inBatch_ = false;
     TileMap batchedTiles_;
+    // Pixel owners for "Clear old data" (setTrackOwners), apart from the tiles so a tile copied to
+    // the renderer carries none of it. oldest is a bound, not exact: a pixel painted over is not
+    // taken off it until eraseOwnersBelow scans the tile.
+    struct OwnedPixels {
+        std::vector<int32_t> owner;   // per pixel, -1 for none
+        int32_t oldest = std::numeric_limits<int32_t>::max();
+    };
+    bool trackOwners_ = false;
+    QHash<TileKey, OwnedPixels> owners_;
     int lastTraceLineEpoch_;
     QVector3D lastLeftBeg_;
     QVector3D lastLeftEnd_;

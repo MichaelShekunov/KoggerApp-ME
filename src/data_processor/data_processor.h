@@ -301,10 +301,16 @@ private:
     bool activeZeroing_ = false;
     // 0 disables the cap; otherwise only epochs in [mosaicCounter_-N+1, mosaicCounter_] are scheduled when activeZeroing_ is on
     int mosaicFakeCoordsLastN_ = 0;
-    // When true (default), entering FAKE_COORDS+N enables full-restart radical repaints in
-    // runCoalescedWork. When false, the gate only filters which epochs reach work — old paint
-    // stays on tiles, new last-N adds incrementally.
+    // When true (default), FAKE_COORDS+N shows only the last N: the mosaic is rebuilt from them
+    // once, then new pings are painted as without it and the pixels of pings that left the window
+    // are erased (runCoalescedWork, MosaicProcessor::eraseOwnersBelow). When false, the gate only
+    // filters which epochs reach work — old paint stays on tiles, new last-N adds incrementally.
     bool mosaicFakeCoordsClearOldData_ = true;
+    // The rebuild done for this N, the mosaic since painted with pixel owners; any restart redoes
+    // it. Until 2026-10-17 the rebuild was every job, and its cost grew with N (the owner's report).
+    bool clearOldTracking_ = false;
+    int clearOldN_ = 0;
+    bool workerTracksOwners_ = false;   // as last set in the worker (setMosaicTrackOwners)
     mosaic::PlotColorTable mosaicColorTable_;
     // Surface
     float tileResolution_;
