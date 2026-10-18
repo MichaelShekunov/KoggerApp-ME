@@ -23,8 +23,10 @@
     (2026-10-17), differed by 0.044 to 0.067 % painted in one only and 0.02 to 1.7 % another value.
 
     The 3D camera is the profile's saved one: it has to look at the recording's area (it does after a
-    file run of open_bench.ps1 or precompute_check.ps1 in the same profile). Keep the mouse off the
-    window.
+    file run of open_bench.ps1 or precompute_check.ps1 in the same profile). Live, only the tiles in
+    view are painted: once the boat leaves the view -- the wheel acting otherwise in another run, or the
+    position jumping as the boat's navigation becomes ready -- pings stop being painted, in any build
+    (2026-10-18). Keep the mouse off the window.
 
 .EXAMPLE
     powershell -ExecutionPolicy Bypass -File tools\perf\live_zoom_check.ps1 -Exe <build>\KoggerApp.exe -File D:\Temp\perf\00014_03.05.2025.KLF -PathPrefix 'D:\Qt\6.8.3\llvm-mingw_64\bin;D:\Qt\Tools\llvm-mingw1706_64\bin'
@@ -40,6 +42,10 @@ param(
     [int]    $BytesPerPing = 6102,
     [double] $StartDelay = 8,       # the app's start before the stream (a slow PC needs ~3 s)
     [double] $StreamSeconds = 120,
+    # Where in the file the stream starts, bytes (the player finds the next frame). The test recordings
+    # of 2025 open with some 2 700 to 2 900 pings of the boat out of the water (no bottom, a bogus
+    # altitude, the navigation not ready): 00014 is in the water from about 18 MB (2026-10-18).
+    [long]   $FromOffset = 0,
     [double] $ZoomOutAt = 5,        # seconds into the stream: -Wheel notches out, a wide view while it streams
     [int]    $Wheel = 6,
     [double] $Settle = 20,
@@ -171,7 +177,7 @@ try {
         # Out by -Wheel notches early in the stream, in by as many as it stops: the camera ends where it
         # began, so runs one after the other start alike.
         $rate = $PingsPerSecond * $BytesPerPing
-        $first = [KlfLivePlayer]::Play($File, 0, $Port, $rate, $ZoomOutAt).Split(' ')
+        $first = [KlfLivePlayer]::Play($File, $FromOffset, $Port, $rate, $ZoomOutAt).Split(' ')
         Send-Wheel $app.MainWindowHandle (-$Wheel)
         $rest = [KlfLivePlayer]::Play($File, [long]$first[4], $Port, $rate, $StreamSeconds - $ZoomOutAt).Split(' ')
         Send-Wheel $app.MainWindowHandle $Wheel

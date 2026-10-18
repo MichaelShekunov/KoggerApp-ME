@@ -85,6 +85,7 @@ void SurfaceProcessor::ensureTileInited(SurfaceTile* tile, int tileSidePix)
                 memcpy(di.data(), si.data(), size_t(di.size()));
             }
         }
+        tile->getMosaicQualityRef() = src.getMosaicQualityCRef();
 
         const auto& srcHeights = src.getHeightVerticesCRef();
         auto& dstHeights = tile->getHeightVerticesRef();
@@ -195,6 +196,7 @@ void SurfaceProcessor::ensureTilesInitedBatch(const QHash<TileKey, SurfaceTile*>
                 memcpy(di.data(), si.data(), size_t(di.size()));
             }
         }
+        tile->getMosaicQualityRef() = src.getMosaicQualityCRef();
 
         const auto& srcHeights = src.getHeightVerticesCRef();
         auto& dstHeights = tile->getHeightVerticesRef();
@@ -1178,6 +1180,7 @@ void SurfaceProcessor::restoreTilesFromCache(const TileMap& tiles)
                 memcpy(di.data(), si.data(), size_t(di.size()));
             }
         }
+        dst->getMosaicQualityRef() = src.getMosaicQualityCRef();
 
         const auto& srcHeights = src.getHeightVerticesCRef();
         auto& dstHeights = dst->getHeightVerticesRef();
@@ -1574,6 +1577,7 @@ void SurfaceProcessor::propagateBorderHeights(QSet<SurfaceTile*>& changedTiles)
                 memcpy(di.data(), si.data(), size_t(di.size()));
             }
         }
+        tile->getMosaicQualityRef() = src.getMosaicQualityCRef();
 
         const auto& srcHeights = src.getHeightVerticesCRef();
         auto& dstHeights = tile->getHeightVerticesRef();

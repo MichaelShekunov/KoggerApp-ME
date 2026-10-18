@@ -1897,3 +1897,58 @@ restart only).
 - The view's visible tiles come from `tilesInQuadNed`, which gives nothing past 2 000 tiles: zoomed
   out far at level 6 (a camera saved from the 1.1 GB file), a live run painted nothing for a minute
   (latency 26 s median) [verified]. Pre-existing.
+
+## Mosaic quality: brightness from the beam, crop, overlaps (2026-10-18, branch `mosaic-quality`)
+
+The owner: "the mosaic's quality: crop, stitching; the sonar's directivity taken into account, analysed
+from the bright areas of the echogram". All of it is in [mosaic-quality.md](mosaic-quality.md) (the
+owner's summary: [mosaic-quality.ru.md](mosaic-quality.ru.md)); here what a next session needs.
+
+**State.** Branch `mosaic-quality` from `me` c4e1d3f4, **not merged into `me`** (the owner's word
+decides). The same work on top of map-export is aff9949c (branch `install-mosaic-kmap`, with the map
+export painting by the same model and rules); the build installed on 2026-10-18 is the merge of the
+two, 7908339e (branch `install-maps-mosaic`). Built with `scripts\win_build_release.ps1`. Not on the
+water, not on another device; no word from the owner on the picture yet.
+
+**What it is.** Per side, `log(mean level) = A(angle) + B(range)` fitted from the echograms at run time
+(`src/data_processor/mosaic_beam.h`), every sample multiplied by `exp(C - A - B)`; a crop by the angle
+from straight down; three rules for overlapping pings, the default "Newest, edges under" (a ping's strip
+under the sonar and its beam's edge go under other pings' middles). A file's mosaic waits for the model
+(a file only: `beamHolding`); live it is measured at 300 epochs and again until mature, a repaint only
+for a change over 1 dB. Settings, Mosaic: `qml/app/MosaicQualitySettings.qml`.
+
+**Files.** New: `src/data_processor/mosaic_beam.h`, `qml/app/MosaicQualitySettings.qml`, `tools/beam_check/`,
+`tools/qml_check/mosaicquality_check.ps1`, `docs/mosaic-quality.md`, `docs/mosaic-quality.ru.md`.
+Changed: `mosaic_processor.{h,cpp}` (sampleColor, the sinks, the merge, no blending with a missing
+sample), `data_processor.{h,cpp}` (the estimate, its schedule and the hold, `setMosaicQuality`,
+`mosaicBeamState`, the quality plane from the DB, none to the renderer), `surface_tile.{h,cpp}` (the
+quality plane), `surface_processor.cpp` (the plane copied where a tile's image is), `mosaic_db.{h,cpp}`
+(`quality_blob`), `compute_worker.{h,cpp}`, `mosaic_precomputer.{h,cpp}`,
+`scene3d/controllers/mosaic_view_control_menu_controller.{h,cpp}`, `qml/app/AppSettingsPage.qml`,
+`qml/app/CMakeLists.txt`, `translations/translation_{ru,zh}.ts`, `tools/perf/live_zoom_check.ps1`
+(`-FromOffset`).
+
+**Checks** [verified]: `beam_check` 18/18 and five mutants of the header caught; `mosaicquality_check`
+5/5; `precompute_check` PASS on 00014 (0.004 % / 0.01 %); two runs of 00014 one hash; live from where
+the boat is in the water, the old build against the new one with one camera, the same pings painted
+per 10 s and the median latency 197-210 ms against 197-199; opening 00017 to the first whole mosaic,
+medians of three, 10.46 s old against 11.00 s new. On the last build (the per-sample tables, the quality
+in the stamps), run with the owner's leave: `precompute_check` PASS (8 of 3.86 million pixels another
+value) and two runs of 00014 one hash, `67cff3d944892266`. "Nearest the track" has had no precompute
+check. Announce runs that open app windows on the owner's PC (how many, how long) -- he asked why
+the app kept opening and closing.
+
+**Traps met on the way:**
+- The 2025 test recordings open with 2 700 to 2 900 pings of the boat out of the water (altitude stuck at
+  0.41 m, the navigation not ready). The model leaves pings under 1 m out [verified on the dumps]; live
+  runs from a file's start spend a minute on it -- `live_zoom_check.ps1 -FromOffset 20000000` for 00014.
+- Live, only tiles in view are painted, and the boat's position jumps as its navigation becomes ready:
+  two runs whose cameras differ (the wheel acting otherwise, a camera saved from the 1.1 GB file -- see
+  `tilesInQuadNed` above) paint different pings, in either build. Compare live runs from one saved
+  profile (`reg export` / `reg import` of `KoggerApp-perf`) with `-Wheel 0` [verified: an old-build run
+  from such a profile painted no ping at all].
+- A Canvas property named `top` overrides a FINAL one and the component does not load: the QML check
+  caught it, the application would have shown the Mosaic group without the block (QML warnings do not
+  reach `kogger.log`).
+- `sed -i` in Git Bash and Python's text mode write LF; the working copies here are CRLF.
+- PowerShell variables are case-blind: `$l` in a loop overwrote `$L`, the log's path.
