@@ -34,6 +34,8 @@ public slots:
     void setLAngleOffset(float val);
     void setRAngleOffset(float val);
     void setSource(int source);
+    /// As ComputeWorker::setMosaicBeam: the same model and rules as the view's.
+    void setBeam(std::shared_ptr<const mosaic_beam::Model> model, const mosaic_beam::PaintRules& rules);
     void setPaintThreads(int n);   // from the next run on (a run is one slot)
     /// Paints `epochs` into `tiles` (all of zoom level `zoom`), then calls the data processor's
     /// onPrecomputeFinished(generation) whether or not it ran to the end.

@@ -516,6 +516,8 @@ void MapExporter::start(const QString& folder)
             mp.setSource(static_cast<MosaicProcessor::Source>(cfg.mosaicSource));
             mp.setLAngleOffset(cfg.lAngleOffset);
             mp.setRAngleOffset(cfg.rAngleOffset);
+            mp.setBeamModel(cfg.beamModel);
+            mp.setPaintRules(cfg.paintRules);
             mp.setSink(&sink);
             mp.clear();
             mesh.reinit(defaultTileSidePixelSize, defaultTileHeightMatrixRatio, res);

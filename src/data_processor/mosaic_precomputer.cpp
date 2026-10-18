@@ -50,6 +50,12 @@ void MosaicPrecomputer::setSource(int source)
     mosaic_.setSource(static_cast<MosaicProcessor::Source>(source));
 }
 
+void MosaicPrecomputer::setBeam(std::shared_ptr<const mosaic_beam::Model> model, const mosaic_beam::PaintRules& rules)
+{
+    mosaic_.setBeamModel(std::move(model));
+    mosaic_.setPaintRules(rules);
+}
+
 void MosaicPrecomputer::setPaintThreads(int n)
 {
     mosaic_.setPaintThreads(n > 0 ? n : kPrecomputePaintThreads);

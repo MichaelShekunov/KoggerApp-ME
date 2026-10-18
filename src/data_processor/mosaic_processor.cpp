@@ -150,6 +150,8 @@ void MosaicProcessor::eraseOwnersBelow(int keepFrom)
             continue;
         }
         uint8_t* img = t->getMosaicImageDataRef().data();
+        auto& quality = t->getMosaicQualityRef();
+        uint8_t* q = quality.size() == owner.size() ? quality.data() : nullptr;
         int32_t oldest = std::numeric_limits<int32_t>::max();
         bool changed = false;
         for (size_t p = 0; p < owner.size(); ++p) {
@@ -160,6 +162,9 @@ void MosaicProcessor::eraseOwnersBelow(int keepFrom)
             if (o < keepFrom) {
                 owner[p] = -1;
                 img[p] = 0;
+                if (q) {
+                    q[p] = 0;
+                }
                 changed = true;
             }
             else if (o < oldest) {
@@ -469,6 +474,17 @@ void MosaicProcessor::setTileResolution(float tileResolution)
 void MosaicProcessor::setSource(Source source)
 {
     source_ = source;
+}
+
+void MosaicProcessor::setBeamModel(std::shared_ptr<const mosaic_beam::Model> model)
+{
+    beam_ = std::move(model);
+}
+
+void MosaicProcessor::setPaintRules(const mosaic_beam::PaintRules& rules)
+{
+    rules_ = rules;
+    rules_.prepare();
 }
 
 void MosaicProcessor::fillDiagnostics(QVariantMap& stats, int probeWindow) const
@@ -1242,8 +1258,12 @@ void MosaicProcessor::updateData(const QVector<int>& indxs, QSet<int>& usedEpoch
             QVector3D segFCurrPhPos(segFPhBegPnt.x() + t * segFPhDistX, segFPhBegPnt.y() + t * segFPhDistY, segFDistProc);
             QVector3D segSCurrPhPos(segSPhBegPnt.x() + t * segSPhDistX, segSPhBegPnt.y() + t * segSPhDistY, segSDistProc);
 
-            int segFColorIndx = getColorIndx(segFCharts, sampleIndex(segFCharts, segFCurrPhPos.distanceToPoint(segFBoatPos)));
-            int segSColorIndx = getColorIndx(segSCharts, sampleIndex(segSCharts, segSCurrPhPos.distanceToPoint(segSBoatPos)));
+            uint8_t segFQuality = 0;
+            uint8_t segSQuality = 0;
+            const int segFColorIndx = sampleColor(segFCharts, segFIsOdd ? 1 : 0, -segFDistProc,
+                                                  segFCurrPhPos.distanceToPoint(segFBoatPos), &segFQuality);
+            const int segSColorIndx = sampleColor(segSCharts, segSIsOdd ? 1 : 0, -segSDistProc,
+                                                  segSCurrPhPos.distanceToPoint(segSBoatPos), &segSQuality);
             if (!segFColorIndx && !segSColorIndx) {
                 if (bresStep(bigX1, bigY1, bigX2, bigY2, bigErr, bigDx, bigDy, bigSx, bigSy)) {
                     break;
@@ -1258,10 +1278,26 @@ void MosaicProcessor::updateData(const QVector<int>& indxs, QSet<int>& usedEpoch
                              segSBegPixPos.x(), segSBegPixPos.y(), segSCurrPixPos.x(), segSCurrPixPos.y(),
                              pairPath, meshPixW, meshPixH,
                              [&](int x0, int y0, float iP, int stepsDone) {
-                const auto iClrIndx = static_cast<uint8_t>((1 - iP) * segFColorIndx + iP * segSColorIndx);
+                // Where one ping has no sample (out of its range, or cropped) the other's is taken as it
+                // is: blended with that 0 it darkened the swath's edge, and painted a 0 -- nothing --
+                // over what was there at the far end (until 2026-10-18).
+                uint8_t iClrIndx = 0;
+                uint8_t iQuality = 0;
+                if (!segFColorIndx) {
+                    iClrIndx = uint8_t(segSColorIndx);
+                    iQuality = segSQuality;
+                }
+                else if (!segSColorIndx) {
+                    iClrIndx = uint8_t(segFColorIndx);
+                    iQuality = segFQuality;
+                }
+                else {
+                    iClrIndx = static_cast<uint8_t>((1 - iP) * segFColorIndx + iP * segSColorIndx);
+                    iQuality = static_cast<uint8_t>(std::lround((1 - iP) * segFQuality + iP * segSQuality));
+                }
 
                 // рисуем текущий пиксель
-                SurfaceTile* t = sink.pixel(x0, y0, iClrIndx, freshEpIndx, job.epochF, seq, res);
+                SurfaceTile* t = sink.pixel(x0, y0, iClrIndx, iQuality, freshEpIndx, job.epochF, seq, res);
 
                 if (t) {
                     res.used = true;
@@ -1294,7 +1330,7 @@ void MosaicProcessor::updateData(const QVector<int>& indxs, QSet<int>& usedEpoch
         const SurfaceTile* ownTile = nullptr;
         OwnedPixels* ownPix = nullptr;
 
-        SurfaceTile* pixel(int x, int y, uint8_t color, int headIndx, int owner, int, PairResult& res)
+        SurfaceTile* pixel(int x, int y, uint8_t color, uint8_t quality, int headIndx, int owner, int, PairResult& res)
         {
             const int side = self->tileSidePixelSize_;
             const int meshX = x / side;
@@ -1309,6 +1345,16 @@ void MosaicProcessor::updateData(const QVector<int>& indxs, QSet<int>& usedEpoch
             }
             const int pix = (y % side) * side + (x % side);
             auto& img = t->getMosaicImageDataRef();
+            if (self->rules_.usesQuality()) {
+                auto& q = t->getMosaicQualityRef();
+                if (q.size() != img.size()) {
+                    q.assign(img.size(), 0);
+                }
+                if (quality < q[size_t(pix)]) {
+                    return t;   // a better sample is there: kept (the height is still this pair's)
+                }
+                q[size_t(pix)] = quality;
+            }
             img.data()[pix] = color;
             t->setIsUpdated(true);
             traceCnt++;
@@ -1339,9 +1385,12 @@ void MosaicProcessor::updateData(const QVector<int>& indxs, QSet<int>& usedEpoch
     };
 
     // A thread's writes, each pixel and height point with the number of the pair that wrote it last.
+    // A pixel's stamp holds the sample's quality above the pair number (0 without an overlap rule that
+    // weighs it), so the largest stamp is the best sample, the last of equals -- one comparison, no
+    // buffer of qualities (2026-10-18, a profile of 00017).
     struct TileBuf {
         std::vector<uint8_t> color;
-        std::vector<uint32_t> stamp;    // pair number + 1, 0: not written
+        std::vector<uint32_t> stamp;    // quality << 24 | (pair number + 1), 0: not written
         std::vector<float> hz;
         std::vector<uint32_t> hstamp;
         int x0 = std::numeric_limits<int>::max();
@@ -1377,7 +1426,7 @@ void MosaicProcessor::updateData(const QVector<int>& indxs, QSet<int>& usedEpoch
             return *lastBuf;
         }
 
-        SurfaceTile* pixel(int x, int y, uint8_t color, int headIndx, int, int seq, PairResult& res)
+        SurfaceTile* pixel(int x, int y, uint8_t color, uint8_t quality, int headIndx, int, int seq, PairResult& res)
         {
             const int side = self->tileSidePixelSize_;
             const int meshX = x / side;
@@ -1394,8 +1443,14 @@ void MosaicProcessor::updateData(const QVector<int>& indxs, QSet<int>& usedEpoch
             const int ty = y % side;
             const int pix = ty * side + tx;
             TileBuf& b = buf(t);
+            // As DirectSink in pair order: the last of the best stays (the pairs of a thread come in
+            // order). The tile's own pixel is weighed in the merge.
+            const uint32_t key = (uint32_t(quality) << 24) | (uint32_t(seq) + 1u);
+            if (key < b.stamp[size_t(pix)]) {
+                return t;
+            }
             b.color[size_t(pix)] = color;
-            b.stamp[size_t(pix)] = uint32_t(seq) + 1u;
+            b.stamp[size_t(pix)] = key;
             b.x0 = std::min(b.x0, tx);
             b.x1 = std::max(b.x1, tx);
             b.y0 = std::min(b.y0, ty);
@@ -1418,7 +1473,8 @@ void MosaicProcessor::updateData(const QVector<int>& indxs, QSet<int>& usedEpoch
     int lastHead = -1;
 
     const int threads = paintThreads_;
-    const bool parallel = threads > 1 && jobs.size() >= 2 * threads;
+    // (the stamps keep a pair number in 24 bits: a chunk is some hundred pairs)
+    const bool parallel = threads > 1 && jobs.size() >= 2 * threads && jobs.size() < (1 << 24);
     if (!parallel) {
         DirectSink sink{ this, numHeightTiles, traceCnt, usedTiles, lastHead };
         bool cancelPending = false;
@@ -1508,6 +1564,16 @@ void MosaicProcessor::updateData(const QVector<int>& indxs, QSet<int>& usedEpoch
                     own->owner.assign(img.size(), -1);
                 }
             }
+            // An overlap rule with qualities: the pair of the best quality, the last of them on a tie -- what DirectSink
+            // leaves -- and only if not worse than what the tile holds.
+            uint8_t* tileQ = nullptr;
+            if (rules_.usesQuality() && x1 >= x0) {
+                auto& q = t->getMosaicQualityRef();
+                if (q.size() != img.size()) {
+                    q.assign(img.size(), 0);
+                }
+                tileQ = q.data();
+            }
             bool written = false;
             for (int y = y0; y <= y1; ++y) {
                 for (int x = x0; x <= x1; ++x) {
@@ -1523,10 +1589,17 @@ void MosaicProcessor::updateData(const QVector<int>& indxs, QSet<int>& usedEpoch
                     if (!from) {
                         continue;
                     }
+                    if (tileQ) {
+                        const uint8_t q = uint8_t(best >> 24);
+                        if (q < tileQ[pix]) {
+                            continue;
+                        }
+                        tileQ[pix] = q;
+                    }
                     img.data()[pix] = from->color[pix];
                     written = true;
                     if (own) {
-                        const int32_t ow = jobs[int(best - 1u)].epochF;
+                        const int32_t ow = jobs[int((best & 0xFFFFFFu) - 1u)].epochF;
                         own->owner[pix] = ow;
                         own->oldest = std::min(own->oldest, ow);
                     }
@@ -1713,6 +1786,30 @@ int MosaicProcessor::getColorIndx(Epoch::Echogram* charts, int ampIndx) const
 
     return retVal;
 }
+
+int MosaicProcessor::sampleColor(Epoch::Echogram* charts, int side, float altitude, float slantRange, uint8_t* quality) const
+{
+    int color = getColorIndx(charts, sampleIndex(charts, slantRange));
+    if (!color || (!beam_ && !rules_.crops() && !rules_.usesQuality())) {
+        return color;   // as before 2026-10-18
+    }
+    // The cosine of the angle from straight down, compared and looked up as it is: an acos and a pow a
+    // sample were half the painting (2026-10-18, a profile of 00017).
+    const float cosA = (altitude > 0.0f && slantRange > altitude) ? altitude / slantRange : (altitude > 0.0f ? 1.0f : 0.0f);
+    if (rules_.cropped(cosA)) {
+        return 0;
+    }
+    if (beam_) {
+        const mosaic_beam::SideModel& m = beam_->side[size_t(side)];
+        if (m.valid) {
+            color = std::clamp(int(float(color) * m.gainFast(cosA, slantRange) + 0.5f), 1, colorTableSize_);
+        }
+    }
+    if (rules_.usesQuality()) {
+        *quality = rules_.quality(side, cosA);   // else 0: the parallel painter keys pixels on it
+    }
+    return color;
+}
 bool MosaicProcessor::canceled() const noexcept
 {
     if (sink_) {
@@ -1883,6 +1980,7 @@ void MosaicProcessor::putTilesIntoMesh(const TileMap &tiles) // может вы�
                 memcpy(di.data(), si.data(), size_t(di.size()));
             }
         }
+        dst->getMosaicQualityRef() = src.getMosaicQualityCRef();
         // heights & marks
         const auto& srcHeights = src.getHeightVerticesCRef();
         const auto& srcMarks = src.getHeightMarkVerticesCRef();

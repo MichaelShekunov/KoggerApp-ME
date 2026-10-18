@@ -4,9 +4,11 @@
 // export to paint and colour the same way (DataProcessor::mapExportConfig, docs/map-export.md).
 
 #include <cstdint>
+#include <memory>
 #include <vector>
 #include <QMetaType>
 #include "dataset_defs.h"
+#include "mosaic_beam.h"
 
 struct MapExportConfig {
     ChannelId ch1;
@@ -21,5 +23,9 @@ struct MapExportConfig {
     float mosaicHigh = 0.0f;
     std::vector<uint8_t> mosaicColorTable;   // 256 x RGBA, the table the view's shader looks up
     int surfaceTheme = 0;                    // the depth colours (SurfaceProcessor's default until set)
+    // The mosaic quality the view paints with (docs/mosaic-quality.md): the brightness model (null for
+    // none) and the crop / overlap rules, so an export is the picture on screen.
+    std::shared_ptr<const mosaic_beam::Model> beamModel;
+    mosaic_beam::PaintRules paintRules;
 };
 Q_DECLARE_METATYPE(MapExportConfig)
