@@ -75,8 +75,7 @@ MosaicProcessor::MosaicProcessor(DataProcessor* parent, ComputeWorker* computeWo
 
     // The cores less two (the GUI and the data processor threads), at most 8; the worker's own thread
     // paints one run, the pool the others.
-    const int forced = qEnvironmentVariableIntValue("KOGGER_MOSAIC_THREADS");
-    paintThreads_ = forced > 0 ? forced : std::clamp(QThread::idealThreadCount() - 2, 1, 8);
+    paintThreads_ = defaultPaintThreads();
     paintPool_.setMaxThreadCount(std::max(1, paintThreads_ - 1));
     paintPool_.setExpiryTimeout(-1);
 }
@@ -246,7 +245,10 @@ void MosaicProcessor::updateDataWrapper(const QVector<int>& indxs, bool batchEmi
         if (!force && progressBatch.size() < kProgressStep) {
             return;
         }
-        if (canceled()) {
+        // A precompute reports what it posted even when cancelled: the data processor keeps or drops
+        // the two together (DataProcessor::cancelPrecompute's keepProduced), and painted tiles
+        // without their epochs could not be finished later (the head index rejects them again).
+        if (canceled() && !background_) {
             return;
         }
 
@@ -357,7 +359,7 @@ void MosaicProcessor::updateDataWrapper(const QVector<int>& indxs, bool batchEmi
         usedEpochs.subtract(reportedEpochs);
     }
 
-    if (!usedEpochs.isEmpty() && !canceled()) {
+    if (!usedEpochs.isEmpty() && (!canceled() || background_)) {
         QVector<int> usedVec;
         usedVec.reserve(usedEpochs.size());
         for (int idx : std::as_const(usedEpochs)) {
@@ -386,6 +388,17 @@ void MosaicProcessor::setBackground(const QSet<TileKey>* tiles, const std::atomi
     allowedTiles_ = tiles;
     latestGeneration_ = latest;
     generation_ = generation;
+}
+
+int MosaicProcessor::defaultPaintThreads()
+{
+    const int forced = qEnvironmentVariableIntValue("KOGGER_MOSAIC_THREADS");
+    return forced > 0 ? forced : std::clamp(QThread::idealThreadCount() - 2, 1, 8);
+}
+
+bool MosaicProcessor::paintThreadsForced()
+{
+    return qEnvironmentVariableIntValue("KOGGER_MOSAIC_THREADS") > 0;
 }
 
 void MosaicProcessor::setPaintThreads(int n)
@@ -968,7 +981,17 @@ void MosaicProcessor::updateData(const QVector<int>& indxs, QSet<int>& usedEpoch
             }
 
             if (!need.isEmpty()) {
-                prefetchTiles(need);
+                bool cut = false;
+                prefetchTiles(need, &cut);
+                if (cut && background_) {
+                    // Tiles still on their way from the DB would be seeded blank below, painted, and
+                    // kept over their saved rows (a precompute cancelled by a zoom keeps what it
+                    // sends); the chunk is not painted, its epochs are sent again (2026-10-18). Only
+                    // here: the run ends now and its state with it. The view's processor keeps this
+                    // call's state (the epochs and the box it has taken in above) for its next job,
+                    // which then skipped the chunk's pings -- two runs alike came out 36 672 pixels apart.
+                    return;
+                }
             }
 
             for (auto it = need.cbegin(); it != need.cend(); ++it) {
@@ -1867,7 +1890,7 @@ void MosaicProcessor::putTilesIntoMesh(const TileMap &tiles) // может вы�
 
 }
 
-bool MosaicProcessor::prefetchTiles(const QSet<TileKey> &keys) // подгрузка тайлов с hotCache, db (dataprocessor)
+bool MosaicProcessor::prefetchTiles(const QSet<TileKey> &keys, bool* cut) // подгрузка тайлов с hotCache, db (dataprocessor)
 {
     if (!dataProcessor_ || keys.isEmpty()) {
         return false;
@@ -1917,6 +1940,9 @@ bool MosaicProcessor::prefetchTiles(const QSet<TileKey> &keys) // подгруз
         dataProcessor_->prefetchWait(t0);
 
         if (canceled()) {
+            if (cut) {
+                *cut = true;   // what is still in `waiting` was not fetched
+            }
             break;
         }
 

@@ -3181,6 +3181,13 @@ Column {
         }
     }
 
+    // ── Performance ──────────────────────────────────────────────────────────
+
+    PerformanceSettingsGroup {
+        width: root.groupWidth
+        store: root.store
+    }
+
     // ── Test (developer-only — compiled with MANUAL_TESTING) ─────────────────
 
     SettingsGroup {

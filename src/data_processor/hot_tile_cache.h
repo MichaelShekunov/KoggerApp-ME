@@ -24,7 +24,8 @@ public:
     QVector<TileKey> removeZoom(int zoom);
     size_t size() const;
 
-    void onSendSavedTiles(const QVector<TileKey>& savedKeys);
+    // The ACK of save saveId: releases a key still blocked by that save, not one blocked again since.
+    void onSendSavedTiles(const QVector<TileKey>& savedKeys, quint64 saveId);
 
 private:
     struct Node {
@@ -32,8 +33,10 @@ private:
         SurfaceTile tile;
         DataSource  source      = DataSource::kUndefined;
         bool        blocked     = false;
+        quint64     saveId      = 0;   // the save that blocked it (evictIfNeeded)
     };
     using ListIt = std::list<Node>::iterator;
+    quint64 lastSaveId_ = 0;
 
     void touch(ListIt it);
     void upsertMove(TileKey key, SurfaceTile&& val, DataSource source);

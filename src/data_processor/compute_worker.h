@@ -69,6 +69,9 @@ public slots:
     void setMosaicTileResolution(float res);
     void setMosaicSource(int source);
     void setMosaicTrackOwners(bool on);
+    // Threads painting the view's mosaic: 0 the default (MosaicProcessor::defaultPaintThreads), 1 in
+    // place; applied between jobs (the slots come through the queue). KOGGER_MOSAIC_THREADS wins.
+    void setMosaicPaintThreads(int n);
     void applySurfaceZoomChange(const TileMap& cached, bool fullCoverage);
     void setMinZ(float v);
     void setMaxZ(float v);

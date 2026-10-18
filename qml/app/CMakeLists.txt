@@ -24,6 +24,7 @@ qt_add_qml_module(kogger_app
         EchogramSettingsPanel.qml
         EchogramSettingsTab.qml
         FactorySettingsGroup.qml
+        PerformanceSettingsGroup.qml
         FavoriteLayoutCard.qml
         FileOpeningOverlay.qml
         FilesSettingsPage.qml

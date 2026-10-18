@@ -56,6 +56,9 @@ public:
     /// with `generation`, and stops once `latest` has moved past it.
     void setBackground(const QSet<TileKey>* tiles, const std::atomic<quint64>* latest, quint64 generation);
     void setPaintThreads(int n);
+    /// KOGGER_MOSAIC_THREADS when set (> 0), else the cores less two, at most 8.
+    static int defaultPaintThreads();
+    static bool paintThreadsForced();   // KOGGER_MOSAIC_THREADS is set: the settings do not change it
 
     QPair<ChannelId, uint8_t> getFirstChannelId()  const { return qMakePair(segFChannelId_, segFSubChannelId_); };
     QPair<ChannelId, uint8_t> getSecondChannelId() const { return qMakePair(segSChannelId_, segSSubChannelId_); };
@@ -73,7 +76,8 @@ private:
     // prepairing tiles
     QSet<TileKey> forecastTilesToTouch(const QVector<QVector3D>& meas, const QVector<char>& isOdds, const QVector<int>& epochIndxs, int marginTiles = 0) const;
     void putTilesIntoMesh(const TileMap& tiles);
-    bool prefetchTiles(const QSet<TileKey>& keys);
+    // *cut: cancelled while tiles were still on their way from the DB (they would be seeded blank).
+    bool prefetchTiles(const QSet<TileKey>& keys, bool* cut = nullptr);
     QVector<QVector<int>> splitContinuousSegments(const QVector<int>& indxs, int minSegmentLen, int maxSegmentLen);
 
 private:

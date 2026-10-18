@@ -64,6 +64,7 @@ void MosaicDB::reportFailureOnce()
     }
 
     failureReported_ = true;
+    emit writerFailed();
     notifications.warning(tr("Mosaic cache is unavailable — distant areas may stay incomplete"),
                           QStringLiteral("mosaic-cache"));
 }
@@ -384,9 +385,13 @@ bool MosaicDB::removeDbFiles(const QString& dbPath)
     return ok;
 }
 
-void MosaicDB::saveTiles(int engineVer, const QHash<TileKey, SurfaceTile>& tiles, bool useTextures, int tilePx, int hmRatio)
+void MosaicDB::saveTiles(int engineVer, const QHash<TileKey, SurfaceTile>& tiles, bool useTextures, int tilePx, int hmRatio, quint64 saveId)
 {
-    if (stopRequested() || tiles.isEmpty() || !db_.isOpen()) {
+    if (!db_.isOpen()) {
+        reportFailureOnce();   // the data processor stops sending more (DataProcessor::onDbWriterFailed)
+        return;
+    }
+    if (stopRequested() || tiles.isEmpty()) {
         return;
     }
 
@@ -493,7 +498,7 @@ void MosaicDB::saveTiles(int engineVer, const QHash<TileKey, SurfaceTile>& tiles
 
     checkpointIfWalTooBig(128ll * 1024 * 1024); // порог 128
 
-    emit sendSavedKeys(savedKeys);
+    emit sendSavedKeys(savedKeys, saveId);
 }
 
 void MosaicDB::loadTilesForKeys(const QSet<TileKey> &keys)
@@ -535,7 +540,7 @@ void MosaicDB::loadTilesForKeys(const QSet<TileKey> &keys)
                 QStringLiteral(
                     "SELECT x,y,zoom,origin_x,origin_y,tile_px,hm_ratio,head_indx,"
                     "       mosaic_blob, height_blob, marks_blob,"
-                    "       has_height, has_marks "
+                    "       has_height, has_marks, engine_ver "
                     "FROM tiles "
                     "WHERE zoom=? AND ( %1 );")
                     .arg(makeXYOrClause(count));
@@ -581,6 +586,7 @@ void MosaicDB::loadTilesForKeys(const QSet<TileKey> &keys)
 
                 t.hasHeight  = q.value(11).toInt() != 0;
                 t.hasMarks   = q.value(12).toInt() != 0;
+                t.gen        = q.value(13).toInt();
 
                 out.push_back(std::move(t));
             }

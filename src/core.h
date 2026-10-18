@@ -114,6 +114,10 @@ public:
     // Side-scan relief point cloud (backlog item 9). Building walks every ping,
     // so it happens when the layer is switched on, not as data arrives.
     Q_INVOKABLE void setReliefCloudVisible(bool state);
+    // Settings, Performance (WorkspaceStore's performancePrefs, applied at start and on change).
+    Q_INVOKABLE void setMosaicPrecomputeEnabled(bool on);
+    Q_INVOKABLE void setMosaicMultiThreaded(bool on);
+    Q_INVOKABLE void setZoomFallbackEnabled(bool on);
     void removeLinkManagerConnections();
 #ifdef SEPARATE_READING
     void removeDeviceManagerConnections();
@@ -404,6 +408,7 @@ private:
     // the relief-cloud layer as the store last asked for it: the store restores
     // before UILoad finds the 3D view, so UILoad applies it again
     bool reliefCloudVisible_ = false;
+    bool zoomFallbackEnabled_ = true;   // as reliefCloudVisible_: UILoad applies it to the 3D view found then
     ConverterXTF converterXtf_;
     Logger logger_;
     UsbTap usbTap_;   // IQ / RAW stream from the sonar's second core, see usb_tap.h

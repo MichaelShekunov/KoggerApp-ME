@@ -746,18 +746,6 @@ void GraphicsScene3dView::mouseMoveTrigger(Qt::MouseButtons mouseButton, qreal x
     m_ray.setOrigin(toOrig);
     m_ray.setDirection(toDir);
 
-    // (0, 0, 0): the ray missed the ground (calculateIntersectionPoint)
-    if (mouseButton == Qt::MouseButton::NoButton && to != QVector3D() && std::isfinite(to.x()) && std::isfinite(to.y())) {
-        zoomFocus_ = QPointF(to.x(), to.y());
-        if (!zoomFocusTimer_) {
-            zoomFocusTimer_ = new QTimer(this);
-            zoomFocusTimer_->setSingleShot(true);
-            zoomFocusTimer_->setInterval(300);
-            connect(zoomFocusTimer_, &QTimer::timeout, this, [this]() { emit sendZoomFocus(zoomFocus_.x(), zoomFocus_.y()); });
-        }
-        zoomFocusTimer_->start();
-    }
-
     if (geoJsonEnabled_) {
         if (geoJsonDragging_ && mouseButton.testFlag(Qt::LeftButton)) {
             const auto movedWorld = calculateIntersectionPoint(toOrig, toDir, geoJsonDragPlaneZ_);
@@ -1016,13 +1004,6 @@ void GraphicsScene3dView::mouseWheelTrigger(Qt::MouseButtons mouseButton, qreal 
         const qreal wheelStepsRaw = angleDelta.y() / kWheelDeltaUnit;
         const qreal wheelSteps = qBound(-kWheelMaxSteps, wheelStepsRaw, kWheelMaxSteps);
         if (std::fabs(wheelSteps) > 1e-6) {
-            // The wheel zooms at the cursor: the precompute's deep levels about it, before the level changes.
-            const auto rayOrig = QVector3D(x, height() - y, -1.0f).unproject(m_camera->m_view * m_model, m_projection, boundingRect().toRect());
-            const auto rayEnd = QVector3D(x, height() - y, 1.0f).unproject(m_camera->m_view * m_model, m_projection, boundingRect().toRect());
-            const auto at = calculateIntersectionPoint(rayOrig, (rayEnd - rayOrig).normalized(), 0);
-            if (at != QVector3D() && std::isfinite(at.x()) && std::isfinite(at.y())) {
-                emit sendZoomFocus(at.x(), at.y());
-            }
             queueWheelZoom(wheelSteps, QPointF(x, y));
         }
     }

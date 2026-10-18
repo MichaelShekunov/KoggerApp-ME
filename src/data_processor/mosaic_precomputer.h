@@ -34,6 +34,7 @@ public slots:
     void setLAngleOffset(float val);
     void setRAngleOffset(float val);
     void setSource(int source);
+    void setPaintThreads(int n);   // from the next run on (a run is one slot)
     /// Paints `epochs` into `tiles` (all of zoom level `zoom`), then calls the data processor's
     /// onPrecomputeFinished(generation) whether or not it ran to the end.
     void run(int zoom, const QSet<TileKey>& tiles, const QVector<int>& epochs, quint64 generation);

@@ -160,6 +160,14 @@ void ComputeWorker::setMosaicTrackOwners(bool on)
     mosaic_.setTrackOwners(on);
 }
 
+void ComputeWorker::setMosaicPaintThreads(int n)
+{
+    if (MosaicProcessor::paintThreadsForced()) {
+        return;
+    }
+    mosaic_.setPaintThreads(n > 0 ? n : MosaicProcessor::defaultPaintThreads());
+}
+
 void ComputeWorker::setMosaicTileResolution(float res)
 {
     //qDebug() << "ComputeWorker::setMosaicTileResolution" << res;

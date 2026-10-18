@@ -150,6 +150,11 @@ private:
     void scheduleFallbackPrune(const QSet<TileKey>& fullVisibleNow, int newZoom);
     void pruneFallback(const QSet<TileKey>& fullVisibleNow, int newZoom);
     void dropFallback(const char* why);
+public:
+    // Settings, Performance: the old level kept under the new one after a zoom (on by default).
+    void setZoomFallbackEnabled(bool on);
+private:
+    bool zoomFallbackEnabled_ = true;
     class QTimer* fallbackTimer_ = nullptr;
     class QTimer* fallbackQuietTimer_ = nullptr;   // the new level unchanged this long: pruneFallback
     QSet<TileKey> fallbackVisible_;                // the new level's visible tiles at its latest change

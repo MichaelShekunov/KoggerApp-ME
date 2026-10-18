@@ -1463,6 +1463,30 @@ void Core::setReliefCloudVisible(bool state)
     }
 }
 
+void Core::setMosaicPrecomputeEnabled(bool on)
+{
+    if (dataProcessor_) {
+        QMetaObject::invokeMethod(dataProcessor_, "setMosaicPrecomputeEnabled", Qt::QueuedConnection, Q_ARG(bool, on));
+    }
+}
+
+void Core::setMosaicMultiThreaded(bool on)
+{
+    if (dataProcessor_) {
+        QMetaObject::invokeMethod(dataProcessor_, "setMosaicMultiThreaded", Qt::QueuedConnection, Q_ARG(bool, on));
+    }
+}
+
+void Core::setZoomFallbackEnabled(bool on)
+{
+    zoomFallbackEnabled_ = on;
+    if (scene3dViewPtr_) {
+        if (auto surface = scene3dViewPtr_->getSurfaceViewPtr()) {
+            surface->setZoomFallbackEnabled(on);
+        }
+    }
+}
+
 void Core::setBottomTrackRealtimeFromSettings(bool state)
 {
     if (dataProcessor_) {
@@ -2157,6 +2181,7 @@ void Core::UILoad(QObject* object, const QUrl& url)
 
     scene3dViewPtr_ = object->findChild<GraphicsScene3dView*> ();
     setReliefCloudVisible(reliefCloudVisible_);
+    setZoomFallbackEnabled(zoomFallbackEnabled_);
     syncLoupePlot3dPtr_.clear();
     const auto allPlots = object->findChildren<qPlot2D*>();
     for (auto* plot : allPlots) {
@@ -3643,7 +3668,6 @@ void Core::createScene3dConnections()
     // data tiles request
     QObject::connect(scene3dViewPtr_,    &GraphicsScene3dView::sendDataZoom,          dataProcessor_, &DataProcessor::onUpdateDataZoom,      connType); // отправляет зум и чекает в кеше/бд наличие (совместить?)
     QObject::connect(scene3dViewPtr_,    &GraphicsScene3dView::sendDataRectRequest,   dataProcessor_, &DataProcessor::onSendDataRectRequest, connType); // отправляет запрос на рендер данных
-    QObject::connect(scene3dViewPtr_,    &GraphicsScene3dView::sendZoomFocus,         dataProcessor_, &DataProcessor::onZoomFocus,           connType);
 
     QMetaObject::invokeMethod(dataProcessor_, "askColorTableForMosaic", Qt::QueuedConnection);
 }

@@ -27,6 +27,7 @@ struct DbTile {
     int         marksFmt    = 0;  // 0=u8
     QByteArray  marksBlob;
     int         headIndx    = -1;
+    int         gen         = 0;   // engine_ver: DataProcessor's DB generation when it was saved
 };
 
 class MosaicDB : public QObject
@@ -46,7 +47,9 @@ public slots:
     void finalizeAndClose();
 
     void checkAnyTileForZoom(int zoom);
-    void saveTiles(int engineVer, const QHash<TileKey, SurfaceTile>& tiles, bool useTextures, int tilePx, int hmRatio);
+    // engineVer: the caller's generation, kept in engine_ver and given back as DbTile::gen; saveId comes
+    // back with the saved keys (sendSavedKeys), so the cache releases only what this save wrote.
+    void saveTiles(int engineVer, const QHash<TileKey, SurfaceTile>& tiles, bool useTextures, int tilePx, int hmRatio, quint64 saveId);
     void loadTilesForKeys(const QSet<TileKey>& keys);
 
     void walCheckpointPassive();
@@ -58,7 +61,8 @@ signals:
     void anyTileForZoom(int zoom, bool exists);
     void tilesLoadedForZoom(int zoom, const QList<DbTile>& tiles);
     void tilesLoadedForKeys(const QList<DbTile>& tiles);
-    void sendSavedKeys(QVector<TileKey> savedKeys);
+    void sendSavedKeys(QVector<TileKey> savedKeys, quint64 saveId);
+    void writerFailed();   // the writer could not open, create the schema or write: nothing more is saved
     void schemaReady();
 
 private:

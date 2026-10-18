@@ -101,7 +101,7 @@ size_t HotTileCache::size() const
     return size_t(index_.size());
 }
 
-void HotTileCache::onSendSavedTiles(const QVector<TileKey> &savedKeys)
+void HotTileCache::onSendSavedTiles(const QVector<TileKey> &savedKeys, quint64 saveId)
 {
     for (const TileKey& k : savedKeys) {
         auto it = index_.find(k);
@@ -111,6 +111,11 @@ void HotTileCache::onSendSavedTiles(const QVector<TileKey> &savedKeys)
 
         ListIt nodeIt = it.value();
         if (!nodeIt->blocked) { // узел уже обновили более свежими данными — игнорируем старый ACK
+            continue;
+        }
+        // Blocked again by a later save, not committed yet: a read now would get this save's older
+        // row, and what was painted between the two would be lost (2026-10-18).
+        if (nodeIt->saveId != saveId) {
             continue;
         }
 
@@ -185,6 +190,7 @@ void HotTileCache::evictIfNeeded()
     //qDebug() << " --- evict start total:" << total << "unblocked:" << unblocked << "blocked:" << blocked << "max:" << maxCapacity_ << "min:" << minCapacity_;
 
     QHash<TileKey, SurfaceTile> toSave;
+    const quint64 saveId = lastSaveId_ + 1;
 
     // Ужимаем только незаблокированную часть до minCapacity_
     // total может стать > maxCapacity_, если почти все стали blocked — это ок. удатся после onSendSavedTiles().
@@ -207,6 +213,7 @@ void HotTileCache::evictIfNeeded()
 
         if (it->source == DataSource::kCalculation) { // после процессинга блокируем в кеше и отправим в БД
             it->blocked = true;
+            it->saveId = saveId;
             toSave.insert(it->key, it->tile);
 
             --unblocked;
@@ -222,7 +229,8 @@ void HotTileCache::evictIfNeeded()
     }
 
     if (!toSave.isEmpty() && dataProcPtr_) {
-        dataProcPtr_->onDbSaveTiles(toSave);
+        lastSaveId_ = saveId;
+        dataProcPtr_->onDbSaveTiles(toSave, saveId);
     //    qDebug() << " --- evict save batch:" << toSave.size() << "unblocked(now):" << unblocked;
     }
 }

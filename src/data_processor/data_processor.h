@@ -2,6 +2,7 @@
 
 #include <atomic>
 #include <list>
+#include <vector>
 #include <QElapsedTimer>
 #include <QHash>
 #include <QMutex>
@@ -47,7 +48,7 @@ public:
         return shuttingDown_.load() || suppressResults_.load()
             || QThread::currentThread()->isInterruptionRequested();
     }
-    void onDbSaveTiles(const QHash<TileKey, SurfaceTile>& tiles);
+    void onDbSaveTiles(const QHash<TileKey, SurfaceTile>& tiles, quint64 saveId);
     bool isDbReady() const noexcept;
 
 public slots:
@@ -114,9 +115,12 @@ public slots:
     void setFilePath(QString filePath);
 
     void onSendDataRectRequest(float minX, float minY, float maxX, float maxY); // на движение камеры
-    // The point under the cursor on the 3D view, in the view rect's coordinates: the wheel zooms there,
-    // so the precompute paints the deeper levels about it (maybeStartPrecompute).
-    void onZoomFocus(float x, float y);
+    // Settings, Performance (the owner, 2026-10-18). The zoom levels painted ahead in the background;
+    // KOGGER_MOSAIC_PRECOMPUTE "0" or "1" overrides it (the perf tools set it per run).
+    void setMosaicPrecomputeEnabled(bool on);
+    // The mosaic painted on several threads (the view's and the precompute's) or on one; the picture
+    // is the same either way. KOGGER_MOSAIC_THREADS overrides it for the view.
+    void setMosaicMultiThreaded(bool on);
     void tryCalcTiles();
 
     TileMap fetchFromHotCache(const QSet<TileKey>& keys, QSet<TileKey>* missing);
@@ -143,7 +147,7 @@ signals:
     void sendTraceLines(const QVector3D& leftBeg, const QVector3D& leftEnd, const QVector3D& rightBeg, const QVector3D& rightEnd, int epochIndex);
     // db
     void dbCheckAnyTileForZoom(int zoom);
-    void dbSaveTiles(int engineVer, const QHash<TileKey, SurfaceTile>& tiles, bool useTextures, int tilePx, int hmRatio);
+    void dbSaveTiles(int engineVer, const QHash<TileKey, SurfaceTile>& tiles, bool useTextures, int tilePx, int hmRatio, quint64 saveId);
     void dbLoadTilesForKeys(const QSet<TileKey>& keys);
 
     // this
@@ -221,13 +225,20 @@ private slots:
     void onBottomTrackFinished();
 
     // db
-    void onSendSavedKeys(QVector<TileKey> savedKeys);
+    void onSendSavedKeys(QVector<TileKey> savedKeys, quint64 saveId);
+    void onDbWriterFailed();
 
 private:
     void flushPendingDbKeys();
     void tryFinalizeResetProcessing();
     void requeueViewRect();
-    void cancelPrecompute();
+    // Stops the running precompute. keepProduced (a zoom): what it painted before it stops is kept,
+    // its tiles and its epochs together; otherwise (new settings, a reset, a drop) both are dropped.
+    void cancelPrecompute(bool keepProduced = false);
+    // The processed sets are gone (new settings, a full bottom-track rework, a reset): what the
+    // precompute sent counts no more, and the DB's rows are not read back (dbValidFrom).
+    void resetMosaicProcessed();
+    void forgetPrecomputeSent(int zoom);   // zoom < 0: every level
 
     // this
     void changeState(const DataProcessorType& state);
@@ -289,29 +300,44 @@ private:
     QThread computeThread_;
     ComputeWorker* worker_;
 
-    // The other zoom levels, painted ahead in the background so a zoom finds its tiles in the hot
-    // cache (maybeStartPrecompute; the owner's request, 2026-10-17). A new generation
-    // (cancelPrecompute) stops the running one and drops what it still sends.
+    // The other zoom levels, each over the whole survey, painted ahead in the background so a zoom
+    // finds its tiles in the hot cache or the DB (maybeStartPrecompute; the owner's request,
+    // 2026-10-17/18). A new generation (cancelPrecompute) stops the running one and drops what it
+    // still sends.
     QThread precomputeThread_;
     MosaicPrecomputer* precomputer_ = nullptr;
     QTimer precomputeTimer_;
     quint64 precomputeGeneration_ = 1;
     bool precomputeRunning_ = false;
     QElapsedTimer precomputeClock_;
-    QHash<int, QSet<int>> precomputeTried_;   // per zoom, sent for the present view (edge pairs stay unfinished)
+    QHash<int, QSet<int>> precomputeTried_;   // per zoom, sent once (one never reported, e.g. without a bottom, is not sent again)
     QSet<int> precomputedZooms_;              // levels other than the view's with precomputed tiles in the cache
     int precomputeMaxEpoch_ = -1;             // the newest epoch sent to it since the last drop
     QString precomputeRunInfo_;               // the running one, for its line in the log
     QElapsedTimer bottomTrackChanged_;        // the precompute waits for the bottom track to settle
     int btAutoFrom_ = 0;                      // where the latest streaming bottom-track run starts
-    QPointF zoomFocus_;                       // onZoomFocus
-    bool haveZoomFocus_ = false;
-    QSet<int> precomputeAboutFocus_;          // levels whose tiles were chosen about zoomFocus_
     int precomputeLastTarget_ = -1;           // the level of the latest run; the next looks from the one after
-    // The tiles with data at `zoom` (the tile-epoch index, not the area's grid: an overview's next level
-    // has more than tilesInQuadNed's 2000) that meet `area`, the nearest to `focus`, at most `budget`;
-    // *cut tells whether some were left out.
-    QSet<TileKey> dataTilesNear(int zoom, const QRectF& area, const QPointF& focus, int budget, bool* cut = nullptr) const;
+    bool precomputeSetting_ = true;           // setMosaicPrecomputeEnabled
+    bool precomputeAllowed() const;
+    // The running run's level and epochs: a cancelled one's go back to be sent again.
+    int precomputeRunTarget_ = -1;
+    QVector<int> precomputeRunEpochs_;
+    // Per level: every epoch before it is painted, sent or not to be painted yet past its end.
+    QHash<int, int> precomputeScanFrom_;
+    quint64 precomputeKeepGen_ = 0;           // a run cancelled by a zoom: its results are still taken
+    quint64 precomputeRunGen_ = 0;            // the generation the running run was started with
+    bool dropRunningMosaicJob_ = false;       // the worker's mesh cleared under the running view job: its output is from before
+    bool dbWriterFailed_ = false;             // nothing more is saved: the precompute stops (onDbWriterFailed)
+    // The session DB's rows carry the generation they were saved in (engine_ver); one older than its
+    // level's last invalidation is not read back -- a painted tile's head index would block the repaint.
+    int mosaicDbGen_ = 1;
+    int dbValidFromAll_ = 0;
+    QHash<int, int> dbValidFrom_;
+    int dbValidFrom(int zoom) const { return std::max(dbValidFromAll_, dbValidFrom_.value(zoom)); }
+    void invalidateDbZoom(int zoom) { dbValidFrom_[zoom] = ++mosaicDbGen_; }
+    void invalidateDbAll() { dbValidFromAll_ = ++mosaicDbGen_; dbValidFrom_.clear(); }
+    QHash<int, QSet<TileKey>> precomputeAllTiles_;   // per level, every tile with data (the tile-epoch index's keys)
+    std::vector<char> indexedEpochs_;         // epoch -> it has tiles in tileEpochIndxsByZoom_
     // Epochs before this one keep their bottom track: all of them once it has been quiet a while,
     // while data streams those before the streaming run's window (bottomTrackSettledBefore()).
     int bottomTrackSettledBefore() const;

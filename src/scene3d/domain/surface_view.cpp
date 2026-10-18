@@ -697,7 +697,7 @@ void SurfaceView::setTilesIncremental(const QHash<TileKey, SurfaceTile> &tiles, 
     const int newZoom = !fullVisibleNow.isEmpty() ? fullVisibleNow.cbegin()->zoom
                       : (!tiles.isEmpty() ? tiles.cbegin().key().zoom : -1);
     QSet<TileKey> movedToFallback;
-    if (newZoom >= 0 && !toRemove.isEmpty()) {
+    if (zoomFallbackEnabled_ && newZoom >= 0 && !toRemove.isEmpty()) {
         keepAsFallback(toRemove, newZoom, movedToFallback);
     }
 
@@ -939,6 +939,17 @@ void SurfaceView::pruneFallback(const QSet<TileKey>& fullVisibleNow, int newZoom
         }
     }
     Q_EMIT changed();
+}
+
+void SurfaceView::setZoomFallbackEnabled(bool on)
+{
+    if (zoomFallbackEnabled_ == on) {
+        return;
+    }
+    zoomFallbackEnabled_ = on;
+    if (!on) {
+        dropFallback("switched off");
+    }
 }
 
 void SurfaceView::dropFallback(const char* why)

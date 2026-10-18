@@ -1457,6 +1457,32 @@ onTgcGainNearChanged:   applyTgcToCore()
 onTgcGainFarChanged:    applyTgcToCore()
 onTgcCompensateChanged: applyTgcToCore()
 
+// Settings, Performance (PerformanceSettingsGroup): here, as TGC, so the values reach core at
+// startup whether or not the settings page is opened.
+property Settings performancePrefs: Settings {
+    id: performancePrefs
+    category: "main/performance"
+    property bool mosaicPrecompute: true
+    property bool mosaicMultiThreaded: true
+    property bool zoomFallback: true
+}
+
+property alias mosaicPrecompute: performancePrefs.mosaicPrecompute
+property alias mosaicMultiThreaded: performancePrefs.mosaicMultiThreaded
+property alias zoomFallback: performancePrefs.zoomFallback
+
+function applyPerformanceToCore() {
+    if (typeof core === "undefined" || !core)
+        return
+    core.setMosaicPrecomputeEnabled(mosaicPrecompute)
+    core.setMosaicMultiThreaded(mosaicMultiThreaded)
+    core.setZoomFallbackEnabled(zoomFallback)
+}
+
+onMosaicPrecomputeChanged:    if (typeof core !== "undefined" && core) core.setMosaicPrecomputeEnabled(mosaicPrecompute)
+onMosaicMultiThreadedChanged: if (typeof core !== "undefined" && core) core.setMosaicMultiThreaded(mosaicMultiThreaded)
+onZoomFallbackChanged:        if (typeof core !== "undefined" && core) core.setZoomFallbackEnabled(zoomFallback)
+
 property Settings consolePersist: Settings {
     id: consolePersist
     category: "main/console"
@@ -5292,6 +5318,7 @@ Component.onCompleted: {
         seedDefaultLayouts()
     sanitizeFullscreenPopupConfig()
     applyTgcToCore()
+    applyPerformanceToCore()
     applyConsoleProtoToggles()
     applyLayerThemesToControllers()
     applyBottomTrackRealtimeToCore()
