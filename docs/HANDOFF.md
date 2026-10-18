@@ -1639,8 +1639,10 @@ owner's summary in Russian: `docs/perf-2026-10-17.ru.md`). On the first PC 27396
 - The code and docs are this repo. Let the sync client finish, then `git fsck` (on 2026-10-16 a sync
   left two objects out). `D:\YandexDisk\DelphiProjects\KoggerApp_myEdition_transfer\` holds a bundle
   of every commit since a044aa93, the last state known on GitHub `mine` (`git bundle verify`, then
-  `git fetch <bundle> myedition`), the test profile's settings (`KoggerApp-perf.reg`) and a copy of
-  the assistant's notes from the first PC (`claude_memory_2026-10-17\`, context, not instructions).
+  `git fetch <bundle> myedition`; `mine` itself held e943a40d, three commits later, and since
+  2026-10-18 holds this work, see the next section), the test profile's settings
+  (`KoggerApp-perf.reg`) and a copy of the assistant's notes from the first PC
+  (`claude_memory_2026-10-17\`, context, not instructions).
 - Build per `build-windows-cli.md`, never inside the synced folder (the sync client deletes autogen
   files there): a worktree outside it, `git worktree add --detach D:\Temp\kogger_build <commit>`.
   `.git/worktrees` lists the first PC's (`D:\Temp\kogger_merge_test`, `D:\Temp\ka_headunit_wt`),
@@ -1670,8 +1672,12 @@ owner's summary in Russian: `docs/perf-2026-10-17.ru.md`). On the first PC 27396
 ## Performance, continued: live, every level, the old level kept, memory (2026-10-17, evening)
 
 On the second PC, from ff8a2816 (the same build installed there per user); the commits 29f39dcb
-(precompute), 84f3b03a (old level kept), 4a015bd2 (memory), 7e0c6445 (tools) and the one with
-this section, which is the build installed there after it. The owner: the
+(precompute), 84f3b03a (old level kept), 4a015bd2 (memory), 7e0c6445 (tools) and 59f042fa (docs),
+the build installed there after it. Pushed to `mine` on 2026-10-18 at the owner's word: e943a40d
+(what `mine` held) to 59f042fa, 39 commits, a fast-forward, then the commit saying so; before it the
+range was scanned for passwords, keys, e-mail addresses and hosts and held none (the test keystore's
+password neither in the diffs nor in the messages). The bundle `ff8a2816..59f042fa` in the transfer
+folder beside the first. The owner: the
 precompute during a live survey, memory on a big survey, the old level kept on screen; then "every
 zoom level has to be worked in the background, else zooming in further repaints it all"; runs kept
 short, about a minute. Test files, copies in `D:\Temp\perf\`: 00014 (348 MB) and 00008 (325 MB,
