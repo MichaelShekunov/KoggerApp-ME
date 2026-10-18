@@ -150,8 +150,6 @@ MapExporter::MapExporter(QObject* parent) :
     licenseId_ = mapexport::licenseById(s.value(QStringLiteral("licenseId")).toString()).id;
     detailZoom_ = std::clamp(s.value(QStringLiteral("detailZoom"), 5).toInt(), kMinZoom, kMaxZoom);
     draftM_ = s.value(QStringLiteral("draftM"), 0.0).toDouble();
-    fillGapsM_ = std::clamp(s.value(QStringLiteral("fillGapsM"), 50.0).toDouble(), 5.0, 500.0);
-    isobathStepM_ = std::max(0.0, s.value(QStringLiteral("isobathStepM"), 0.0).toDouble());
     writeKmap_ = s.value(QStringLiteral("writeKmap"), true).toBool();
     writeKmz_ = s.value(QStringLiteral("writeKmz"), false).toBool();
     writeGeoTiff_ = s.value(QStringLiteral("writeGeoTiff"), false).toBool();
@@ -211,8 +209,6 @@ void MapExporter::save() const
     s.setValue(QStringLiteral("licenseId"), licenseId_);
     s.setValue(QStringLiteral("detailZoom"), detailZoom_);
     s.setValue(QStringLiteral("draftM"), draftM_);
-    s.setValue(QStringLiteral("fillGapsM"), fillGapsM_);
-    s.setValue(QStringLiteral("isobathStepM"), isobathStepM_);
     s.setValue(QStringLiteral("writeKmap"), writeKmap_);
     s.setValue(QStringLiteral("writeKmz"), writeKmz_);
     s.setValue(QStringLiteral("writeGeoTiff"), writeGeoTiff_);
@@ -237,7 +233,6 @@ MAPEXPORT_SETTER(setTitle, title_, const QString&)
 MAPEXPORT_SETTER(setAuthorName, authorName_, const QString&)
 MAPEXPORT_SETTER(setAuthorContact, authorContact_, const QString&)
 MAPEXPORT_SETTER(setDraftM, draftM_, double)
-MAPEXPORT_SETTER(setIsobathStepM, isobathStepM_, double)
 MAPEXPORT_SETTER(setWriteKmap, writeKmap_, bool)
 MAPEXPORT_SETTER(setWriteKmz, writeKmz_, bool)
 MAPEXPORT_SETTER(setWriteGeoTiff, writeGeoTiff_, bool)
@@ -255,27 +250,6 @@ void MapExporter::setLicenseId(const QString& v)
     licenseId_ = id;
     save();
     emit settingsChanged();
-}
-
-void MapExporter::setFillGapsM(double v)
-{
-    v = std::clamp(v, 5.0, 500.0);
-    if (v == fillGapsM_) {
-        return;
-    }
-    fillGapsM_ = v;
-    save();
-    emit settingsChanged();
-}
-
-QVariantList MapExporter::isobathStepOptions() const
-{
-    QVariantList out;
-    out << QVariantMap{ { QStringLiteral("step"), 0.0 }, { QStringLiteral("name"), tr("Auto") } };
-    for (double s : { 0.5, 1.0, 2.0, 5.0, 10.0 }) {
-        out << QVariantMap{ { QStringLiteral("step"), s }, { QStringLiteral("name"), tr("%1 m").arg(s) } };
-    }
-    return out;
 }
 
 void MapExporter::setDetailZoom(int v)
@@ -437,8 +411,6 @@ void MapExporter::start(const QString& folder)
     const bool kmap = writeKmap_;
     const bool kmz = writeKmz_;
     const bool tiff = writeGeoTiff_;
-    const double fillGaps = fillGapsM_;
-    const double isoStep = isobathStepM_;
     if (!kmap && !kmz && !tiff) {
         finish(false, tr("Not saved: choose at least one file to save."), {});
         return;
@@ -567,8 +539,10 @@ void MapExporter::start(const QString& folder)
         bool haveDepth = false;
         if (wantDepth) {
             QString err;
-            haveDepth = mapexport::buildDepthGrid(snap.bottomTrack, snap.ref, kDepthCellM, fillGaps, meta.draftM,
-                                                  kDepthPixels, depth, [&](double f) { return report(f, sDepth); }, &err);
+            // As the view draws them: the isobath tool's edge limit and extrapolation (owner, 2026-10-18).
+            haveDepth = mapexport::buildDepthGrid(snap.bottomTrack, snap.ref, kDepthCellM, cfg.surfaceEdgeLimit,
+                                                  cfg.surfaceExtraWidth, meta.draftM, kDepthPixels, depth,
+                                                  [&](double f) { return report(f, sDepth); }, &err);
             if (cancel_.load()) {
                 done(false, cancelledText, {});
                 return;
@@ -576,9 +550,12 @@ void MapExporter::start(const QString& folder)
             if (!haveDepth) {
                 notes << (snap.bottomTrack.isEmpty() ? noBottom : err);
             }
-            qInfo().noquote() << QStringLiteral("map export: depths %1 (%2 soundings, %3 triangles, grid %4 x %5) at %6 s")
+            qInfo().noquote() << QStringLiteral("map export: depths %1 (%2 soundings, %3 triangles, %4 extrapolated, grid %5 x %6; "
+                                                "the isobath tool's edge limit %7 m, extrapolation %8 m, step %9 m) at %10 s")
                                  .arg(haveDepth ? QStringLiteral("built") : err).arg(depth.soundings).arg(depth.triangles)
-                                 .arg(depth.grid.width).arg(depth.grid.height).arg(clock.elapsed() / 1000.0, 0, 'f', 1);
+                                 .arg(depth.extrapolated).arg(depth.grid.width).arg(depth.grid.height)
+                                 .arg(cfg.surfaceEdgeLimit).arg(cfg.surfaceExtraWidth).arg(cfg.surfaceStep)
+                                 .arg(clock.elapsed() / 1000.0, 0, 'f', 1);
         }
 
         if (refs.isEmpty() && !haveDepth) {
@@ -594,7 +571,9 @@ void MapExporter::start(const QString& folder)
             in.mosaicPalette << qRgba(cfg.mosaicColorTable[i], cfg.mosaicColorTable[i + 1], cfg.mosaicColorTable[i + 2], cfg.mosaicColorTable[i + 3]);
         }
         in.depth = haveDepth ? &depth : nullptr;
-        in.isobathStepM = isoStep > 0.0 ? isoStep : haveDepth ? mapexport::autoIsobathStep(depth.minDepth, depth.maxDepth) : 1.0;
+        // the step the view draws (the preview and the KMZ; a .kmap's isobaths follow the opener's tool)
+        in.isobathStepM = cfg.surfaceStep > 0.0f ? double(cfg.surfaceStep)
+                                                 : haveDepth ? mapexport::autoIsobathStep(depth.minDepth, depth.maxDepth) : 1.0;
         in.depthTheme = cfg.surfaceTheme;
         in.trackNe = snap.track;
         in.meta = meta;
@@ -602,7 +581,8 @@ void MapExporter::start(const QString& folder)
         in.meta.mosaicTheme = cfg.mosaicTheme;
         in.meta.mosaicLow = cfg.mosaicLow;
         in.meta.mosaicHigh = cfg.mosaicHigh;
-        in.meta.edgeLimitM = fillGaps;
+        in.meta.edgeLimitM = cfg.surfaceEdgeLimit;
+        in.meta.extrapolationM = cfg.surfaceExtraWidth;
         in.meta.depthTheme = cfg.surfaceTheme;
         in.writeKmap = kmap;
         in.writeKmz = kmz;

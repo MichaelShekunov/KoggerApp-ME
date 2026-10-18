@@ -29,16 +29,19 @@ The folder is the Export group's (as for CSV). The page has:
 | Title | the map's name; also the files' name, with the export's date and time | yes |
 | Author, Contact | written into every file; empty = anonymous | yes |
 | Licence | All rights reserved (default) / CC BY 4.0 / CC0 1.0 | yes |
-| Side-scan mosaic, Mosaic detail | the mosaic at 2, 4, 8, 16 (default) or 32 cm a pixel -- the view's zoom levels 2..6 | yes |
-| Depths and isobaths | the depth surface, its colours and isobaths | yes |
-| Join soundings up to, m | the longest triangle edge of the depth surface (default 50) | yes |
-| Isobaths every | Auto (10..25 isobaths over the survey's depths) or 0.5..10 m; also the colour step | yes |
+| **In the file:** Isobaths | the depth surface as the view draws it -- the isobath tool's edge limit, extra width and step (on by default) | yes |
 | Transducer depth, m | added to every depth; > 0 makes the depths count from the waterline | yes |
+| **In the file:** Side-scan mosaic, Mosaic detail | the mosaic (on by default) at 2, 4, 8, 16 (default) or 32 cm a pixel -- the view's zoom levels 2..6 | yes |
 | KOGGER map (.kmap) | the file to share, for KoggerApp; on by default | yes |
 | For other programs: Google Earth (KMZ), GIS (GeoTIFF) | off by default | yes |
 | Without the track and times | for KMZ and GeoTIFF only, on by default: no track, the survey's date as a month. The .kmap never has the track and always gives the month (owner, 2026-10-18) | yes |
 
 Settings live in QSettings group `mapExport` (`src/map_export/map_exporter.cpp`).
+
+"In the file" (owner, 2026-10-18: the export marks what goes into the file, the isobaths and the mosaic):
+two blocks under that heading, the isobaths first; with neither on, "Save the map" is greyed and the page
+says there is nothing to save (`mapexport_page_check` test 6b) -- the exporter refused that case already
+with a message.
 
 On Android, once a save has written a .kmap, **Share the map** opens the system share sheet with it (a
 messenger, mail): see "Android: from a messenger and back".
@@ -176,7 +179,7 @@ OpenGL ES 3 names the GLES2 header lacks. It now includes `<GLES3/gl3.h>` on And
 | --- | --- |
 | `map.json` | the passport: the fields of `metadata.json` below with `"format": "KOGGER map"`, `formatVersion` 1 (a newer one is refused with a message), `products.bathymetry.paletteTheme` the maker's depth colours (their preview's; My maps draws in the isobath tool's) |
 | `depth.tif` | the GIS export's depth GeoTIFF (float32, -9999 none); with the times shown in the GIS files, the .kmap gets its own copy with the month only |
-| `mosaic.tif` | the GIS export's mosaic GeoTIFF (8-bit index, the maker's palette, 0 none) |
+| `mosaic.tif` | the GIS export's mosaic GeoTIFF (8-bit index = the raw echo intensity, 0 none; the maker's palette for GIS -- My maps colours it with the opener's mosaic tool) |
 | `preview.png` | up to 512 px: the depth colours, or the mosaic when there are no depths |
 | `README.txt` | the notice and the licence in plain words |
 
@@ -235,8 +238,16 @@ on and **outside** the `!isOut` block, so the maps stay in every camera state.
   and without overlaps. For a map they are made once per style in the map's own metre frame (~200 ms at
   0.1 m on the 00014 map, 111 000 labels; 10 ms at 1 m) and only moved into the view's frame per frame.
   Not drawn while the maps' mosaic is shown, as the live surface does.
-- Mosaic: the `mosaic` program, R8 index textures with mipmaps as SurfaceView's tiles, the maker's
-  256-colour table, at z = 0 (the water surface): with both on, the mosaic covers the depths.
+- Mosaic: the `mosaic` program, R8 index textures with mipmaps as SurfaceView's tiles, at z = 0 (the
+  water surface): with both on, the mosaic covers the depths. **The mosaic tool sets its colours**
+  (owner, 2026-10-18: the saved mosaic must be adjustable as the isobaths are, not a flat picture): a
+  .kmap keeps the raw echo intensity per pixel, 0 = none, exactly the index the view's tiles hold, so
+  the layer looks it up in the live mosaic's own table -- `mosaic::PlotColorTable` from the mosaic
+  tool's theme and levels (`MosaicViewControlMenuController::styleChanged` ->
+  `MapLayer::setMosaicStyle`, wired in `Core::UILoad`), one table for every loaded mosaic. The maker's
+  palette in `mosaic.tif` stays for the preview and for GIS. **[Verified, 00014 .kmap alone, 2026-10-18]**:
+  theme 1 with levels 10..90, then theme 4 with 40..60 -- `my maps mosaic: theme 4, levels 40..60` and
+  the screen changes accordingly (the narrow window leaves most of the mosaic black, as it does live).
 - Where the view's frame is the dataset's (near the survey, perspective), the map and the boat use the same
   formula, so they agree **[Verified: the depth map of 00014 under its own bottom track and start loop]**.
 
@@ -255,9 +266,18 @@ out of SurfaceView was checked line by line (221 lines the same after the rename
 statements as functions instead of lambdas); the live surface's labels were not seen on screen after
 it: the test profiles built no live surface from 00014.
 
-The edge limit and the isobath step are the export's own, not the view's: the owner's view had 20 m and
-0.1 m, which on the test survey (lines ~30 m apart) left the depth map in patches and drew isobaths 10 cm
-apart -- right for a screen look, wrong for a map to share **[Verified, 00014, 2026-10-18]**.
+**The isobaths go as the app draws them** (owner, 2026-10-18: "as we drew the isobaths in the app, so we
+send them"; the export's own "Join soundings up to" and "Isobaths every" are gone). The export takes the
+isobath tool's edge limit, extra width and step as `DataProcessor` last passed them on
+(`MapExportConfig::surfaceEdgeLimit`, `surfaceExtraWidth`, `surfaceStep`); the step colours the preview
+and the KMZ, a .kmap's isobaths follow the opener's tool. Until 2026-10-18 the export had its own (50 m,
+Auto) because the owner's view, 20 m and 0.1 m, leaves a survey with lines ~30 m apart in strips: that is
+now what the file holds too, as on the screen -- to share a filled map, widen the isobath tool's edge
+limit past the line spacing. **[Verified, 00014, mapexport profile with the owner's 20 m / 0.1 m / 5 m]**:
+`map export: depths built (4273 soundings, 2138 triangles, 360187 extrapolated, grid 424 x 345; the
+isobath tool's edge limit 20 m, extrapolation 5 m, step 0.1 m)`, the preview strips along the passes
+with patches at the crossings, map.json `edgeLimit_m` 20, `extrapolation_m` 5. Not compared with the
+screen pixel for pixel: the test profiles built no live surface from 00014 (see above).
 
 ## What is written (the KMZ and GeoTIFFs, "for other programs")
 
@@ -325,9 +345,15 @@ asks for a coarser detail.
 **The depth surface** is built from the 3D bottom track as `SurfaceProcessor` gets it
 (`BottomTrack::data()`: sonar north, east, -distance): one point per 1 m cell with the first point's place
 and the last one's depth (as `processOneCenter`), the same `delaunay::Delaunay` (centred, the super
-rectangle 8x the extent), triangles longer than "Join soundings up to" left out, linear interpolation at
-each pixel centre of a 1 m lat/lon grid (coarser past 4096 x 4096). The view's extrapolated strips
-(`extraWidth`) are not exported: they are not measured.
+rectangle 8x the extent), triangles longer than the isobath tool's edge limit left out, linear
+interpolation at each pixel centre of a 1 m lat/lon grid (coarser past 4096 x 4096). Then the view's
+extrapolation (`SurfaceProcessor::paintDiskExtrapolated`): each sounding in the track's order gives its
+depth to the cells within extra width / 2 that no triangle covers -- ahead of it (along the track, the
+direction from its neighbours as `dirForIndexPix`) over an earlier extrapolation, behind it only where
+there is none. `mapexport_check` holds it (between the lines the triangles stay; within reach the depth
+of the sounding just passed; in a gap wider than the edge limit and the reach, nothing; without extra
+width, nothing outside), and two mutants -- no direction rule, extrapolation over the triangles -- are
+caught **[Verified]**. The view paints its extrapolation on its own grid; the export on its 1 m grid.
 
 **The grid and the projection.** The scene is the app's spherical azimuthal-equidistant projection about
 the dataset's reference (`NED(const LLA*, const LLARef*)`, R = 6 371 000). The files are on a lat/lon
@@ -406,8 +432,8 @@ back"); the 1.1 GB survey (memory at 8 cm and finer); a survey across the antime
   power-on), so its map has no date -- the first build wrote "1970-01" **[Verified, fixed]**.
 - Without the track and times, the map still shows where the boat was **[Inference]**: the page says so.
 - My maps: no depth under the cursor (only under the boat); the mosaic lies flat at the water surface
-  and covers the depths when both are on; a map is drawn in the isobath tool's theme and step, not as
-  its maker saw it, and the scale of colours spans all the visible maps, not the live survey's range,
+  and covers the depths when both are on; a map is drawn in the isobath tool's theme and step and the
+  mosaic tool's theme and levels, not as its maker saw it, and the scale of colours spans all the visible maps, not the live survey's range,
   so a map and the live surface over the same water can differ in colour at the same depth; the
   isobath tool's edge limit and extra width are for the live triangulation and do not touch a map;
   overlapping maps: the newest on top; a mosaic is held whole as textures (a 1 km survey at 16 cm is

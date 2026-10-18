@@ -9,6 +9,7 @@
 #include <QElapsedTimer>
 #include <QSettings>
 #include "app_profile.h"
+#include "draw_utils.h"
 #include "isobaths_defs.h"
 #include "map_export_writer.h"
 #include "map_library.h"
@@ -52,15 +53,6 @@ QImage toolPaletteImage(int theme, int levels)
     return img;
 }
 
-QImage mosaicPaletteImage(const QVector<QRgb>& palette)
-{
-    QImage img(256, 1, QImage::Format_RGBA8888);
-    for (int i = 0; i < 256; ++i) {
-        const QRgb c = i < palette.size() ? palette[i] : qRgb(i, i, i);
-        img.setPixel(i, 0, qRgba(qRed(c), qGreen(c), qBlue(c), 255));
-    }
-    return img;
-}
 
 } // namespace
 
@@ -142,6 +134,42 @@ void MapLayer::setIsobathStyle(int themeId, float stepM)
     emit changed();
 }
 
+void MapLayer::setMosaicStyle(int themeId, float lowLevel, float highLevel)
+{
+    if (themeId == mosaicTheme_ && lowLevel == mosaicLow_ && highLevel == mosaicHigh_) {
+        return;
+    }
+    mosaicTheme_ = themeId;
+    mosaicLow_ = lowLevel;
+    mosaicHigh_ = highLevel;
+    rebuildMosaicStyle();
+    emit changed();
+}
+
+void MapLayer::rebuildMosaicStyle()
+{
+    frame_.reset();
+    if (!mosaicPaletteKey_.isEmpty()) {
+        textures_.remove(mosaicPaletteKey_);
+    }
+    // The table the live mosaic is drawn with (DataProcessor::setMosaicTheme / setMosaicLevels ->
+    // emitMosaicColorTable), made the same way from the same theme and levels.
+    mosaic::PlotColorTable table;
+    table.setTheme(mosaicTheme_);
+    table.setLevels(mosaicLow_, mosaicHigh_);
+    const std::vector<uint8_t> rgba = table.getRgbaColors();
+    QImage img(256, 1, QImage::Format_RGBA8888);
+    img.fill(Qt::transparent);
+    std::memcpy(img.bits(), rgba.data(), std::min(rgba.size(), size_t(256 * 4)));
+    mosaicPaletteKey_ = QStringLiteral("mospal:%1:%2:%3").arg(mosaicTheme_).arg(mosaicLow_).arg(mosaicHigh_);
+    textures_.insert(mosaicPaletteKey_, img);
+    for (GeoPiece& pc : geoPieces_) {
+        pc.paletteKey = mosaicPaletteKey_;
+    }
+    qInfo().noquote() << QStringLiteral("my maps mosaic: theme %1, levels %2..%3, %4 pieces")
+                         .arg(mosaicTheme_).arg(mosaicLow_).arg(mosaicHigh_).arg(geoPieces_.size());
+}
+
 void MapLayer::rebuildGeo()
 {
     geoDirty_ = false;
@@ -150,8 +178,10 @@ void MapLayer::rebuildGeo()
     geoPieces_.clear();
     textures_.clear();
     stylePaletteKey_.clear();
+    mosaicPaletteKey_.clear();
     if (!library_) {
         rebuildStyle();
+        rebuildMosaicStyle();
         return;
     }
     const auto entries = library_->visibleEntries();
@@ -226,8 +256,6 @@ void MapLayer::rebuildGeo()
 
         if (p.hasMosaic) {
             const auto& g = p.mosaicGrid;
-            const QString palKey = tag + QStringLiteral("mospal");
-            textures_.insert(palKey, mosaicPaletteImage(p.mosaicPalette));
             for (int y0 = 0; y0 < g.height; y0 += kPiecePx) {
                 for (int x0 = 0; x0 < g.width; x0 += kPiecePx) {
                     const int w = std::min(kPiecePx, g.width - x0), h = std::min(kPiecePx, g.height - y0);
@@ -243,7 +271,6 @@ void MapLayer::rebuildGeo()
                     }
                     GeoPiece pc;
                     pc.textureKey = tag + QStringLiteral("mos:%1:%2").arg(y0).arg(x0);
-                    pc.paletteKey = palKey;
                     textures_.insert(pc.textureKey, img);
                     for (int i = 0; i <= kPieceSub; ++i) {
                         for (int j = 0; j <= kPieceSub; ++j) {
@@ -265,6 +292,7 @@ void MapLayer::rebuildGeo()
         }
     }
     rebuildStyle();
+    rebuildMosaicStyle();   // the pieces' palette key
 }
 
 void MapLayer::rebuildStyle()

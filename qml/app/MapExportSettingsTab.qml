@@ -116,7 +116,8 @@ Column {
     KButton {
         width: parent.width
         height: Tokens.controlHLg
-        enabled: page.exporter !== null
+        // Cancel stays possible; a save needs the isobaths, the mosaic or both.
+        enabled: page.exporter !== null && (page.exporter.busy || page.exporter.includeDepth || page.exporter.includeMosaic)
         text: page.exporter && page.exporter.busy ? qsTr("Cancel") : qsTr("Save the map")
         onClicked: {
             if (!page.exporter) return
@@ -227,12 +228,50 @@ Column {
         }
     }
 
-    // ── What to save ──────────────────────────────────────────────────────
+    // ── What goes into the file: the isobaths (depths) and / or the mosaic ────
     Spacer {}
+
+    Text {
+        width: page.width
+        text: qsTr("In the file")
+        color: AppPalette.textMuted
+        font.pixelSize: Tokens.fontSm
+    }
+
+    KIsland {
+        KIslandRow {
+            label: qsTr("Isobaths")
+            toolTipText: qsTr("The depths as KoggerApp draws them here, with the isobath tool's settings. Whoever opens the map chooses the isobath step and colours with their own isobath tool.")
+            labelColor: page._bright
+            interactive: true
+            onClicked: depthSwitch.click()
+            KSwitch {
+                id: depthSwitch
+                flat: true
+                checked: page.exporter ? page.exporter.includeDepth : true
+                onToggled: if (page.exporter) page.exporter.includeDepth = checked
+            }
+        }
+        KIslandRow {
+            label: qsTr("Transducer depth, m")
+            labelColor: page._bright
+            open: depthSwitch.checked
+            toolTipText: qsTr("How deep the transducer sits below the waterline. Added to every depth, so the map counts from the water surface; 0: depths from the transducer.")
+            KSpinBox {
+                width: Math.round(140 * AppPalette.scale)
+                height: Tokens.controlHMd
+                from: 0; to: 500; stepSize: 5
+                divisor: 100; decimals: 2
+                value: page.exporter ? Math.round(page.exporter.draftM * 100) : 0
+                onValueModified: function(v) { if (page.exporter) page.exporter.draftM = v / 100 }
+            }
+        }
+    }
 
     KIsland {
         KIslandRow {
             label: qsTr("Side-scan mosaic")
+            toolTipText: qsTr("The echo strength of the survey. Whoever opens the map chooses its colours and contrast with their mosaic tool.")
             labelColor: page._bright
             interactive: true
             onClicked: mosaicSwitch.click()
@@ -257,65 +296,11 @@ Column {
                 }
             }
         }
-        KIslandRow {
-            label: qsTr("Depths and isobaths")
-            labelColor: page._bright
-            interactive: true
-            onClicked: depthSwitch.click()
-            KSwitch {
-                id: depthSwitch
-                flat: true
-                checked: page.exporter ? page.exporter.includeDepth : true
-                onToggled: if (page.exporter) page.exporter.includeDepth = checked
-            }
-        }
-        KIslandRow {
-            label: qsTr("Join soundings up to, m")
-            labelColor: page._bright
-            open: depthSwitch.checked
-            toolTipText: qsTr("The depth map is drawn between soundings no farther apart than this; wider gaps stay empty. More than the distance between survey lines joins them.")
-            KSpinBox {
-                width: Math.round(140 * AppPalette.scale)
-                height: Tokens.controlHMd
-                from: 5; to: 500; stepSize: 5
-                value: page.exporter ? Math.round(page.exporter.fillGapsM) : 50
-                onValueModified: function(v) { if (page.exporter) page.exporter.fillGapsM = v }
-            }
-        }
-        KIslandRow {
-            label: qsTr("Isobaths every")
-            labelColor: page._bright
-            open: depthSwitch.checked
-            toolTipText: qsTr("Also the step of the depth colours. Auto: 10 to 25 isobaths over the depths of the survey.")
-            KCombo {
-                width: page.fieldW
-                model: page.exporter ? page.exporter.isobathStepOptions.map(function(o) { return o.name }) : []
-                currentIndex: {
-                    if (!page.exporter) return 0
-                    var opts = page.exporter.isobathStepOptions
-                    for (var i = 0; i < opts.length; ++i)
-                        if (Math.abs(opts[i].step - page.exporter.isobathStepM) < 1e-6) return i
-                    return 0
-                }
-                onActivated: function(idx) {
-                    if (page.exporter) page.exporter.isobathStepM = page.exporter.isobathStepOptions[idx].step
-                }
-            }
-        }
-        KIslandRow {
-            label: qsTr("Transducer depth, m")
-            labelColor: page._bright
-            open: depthSwitch.checked
-            toolTipText: qsTr("How deep the transducer sits below the waterline. Added to every depth, so the map counts from the water surface; 0: depths from the transducer.")
-            KSpinBox {
-                width: Math.round(140 * AppPalette.scale)
-                height: Tokens.controlHMd
-                from: 0; to: 500; stepSize: 5
-                divisor: 100; decimals: 2
-                value: page.exporter ? Math.round(page.exporter.draftM * 100) : 0
-                onValueModified: function(v) { if (page.exporter) page.exporter.draftM = v / 100 }
-            }
-        }
+    }
+
+    Note {
+        visible: page.exporter !== null && !page.exporter.includeDepth && !page.exporter.includeMosaic
+        text: qsTr("Choose the isobaths, the mosaic or both: there is nothing to save.")
     }
 
     // ── Formats ───────────────────────────────────────────────────────────

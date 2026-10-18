@@ -44,6 +44,7 @@ struct MapMetadata {
     bool hasDepth = false;
     double depthCellM = 0.0;
     double edgeLimitM = 0.0;
+    double extrapolationM = 0.0;   // the width of the disk each sounding's depth is extrapolated over
     double isobathStepM = 0.0;
     int depthTheme = 0;        // IsobathUtils::colorPalette theme the colours were made with
     int soundings = 0;

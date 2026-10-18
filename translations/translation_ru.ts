@@ -2175,23 +2175,23 @@
 <context>
     <name>Core</name>
     <message>
-        <location filename="../src/core.cpp" line="3578"/>
+        <location filename="../src/core.cpp" line="3587"/>
         <source>Internet connection restored</source>
         <translation>Интернет-соединение восстановлено</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3579"/>
+        <location filename="../src/core.cpp" line="3588"/>
         <source>Internet connection lost</source>
         <translation>Интернет-соединение потеряно</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3591"/>
+        <location filename="../src/core.cpp" line="3600"/>
         <source>Metered network detected</source>
         <translation>Обнаружена лимитированная сеть</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2689"/>
-        <location filename="../src/core.cpp" line="2713"/>
+        <location filename="../src/core.cpp" line="2698"/>
+        <location filename="../src/core.cpp" line="2722"/>
         <source>street</source>
         <translation>схема</translation>
     </message>
@@ -2201,29 +2201,29 @@
         <translation>Не удалось поделиться файлом %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2695"/>
-        <location filename="../src/core.cpp" line="2701"/>
-        <location filename="../src/core.cpp" line="2707"/>
+        <location filename="../src/core.cpp" line="2704"/>
+        <location filename="../src/core.cpp" line="2710"/>
+        <location filename="../src/core.cpp" line="2716"/>
         <source>satellite</source>
         <translation>спутник</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3125"/>
+        <location filename="../src/core.cpp" line="3134"/>
         <source>Connected</source>
         <translation>Подключено</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3125"/>
+        <location filename="../src/core.cpp" line="3134"/>
         <source>Connected: %1</source>
         <translation>Подключено: %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3139"/>
+        <location filename="../src/core.cpp" line="3148"/>
         <source>Disconnected</source>
         <translation>Отключено</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3139"/>
+        <location filename="../src/core.cpp" line="3148"/>
         <source>Disconnected: %1</source>
         <translation>Отключено: %1</translation>
     </message>
@@ -2290,12 +2290,12 @@
 %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2873"/>
+        <location filename="../src/core.cpp" line="2882"/>
         <source>File opened</source>
         <translation>Файл открыт</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2874"/>
+        <location filename="../src/core.cpp" line="2883"/>
         <source>File opened: %1</source>
         <translation>Файл открыт: %1</translation>
     </message>
@@ -8553,187 +8553,187 @@
         <translation>Сохраните карту глубин и мозаику открытой записи картой КОГГЕР (.kmap), чтобы поделиться: кто получит файл, откроет его в KoggerApp и увидит карту под своей лодкой. Для Google Earth и ГИС можно сохранить ещё KMZ и GeoTIFF. Папка задаётся в группе «Экспорт».</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="120"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="121"/>
         <source>Cancel</source>
         <translation>Отменить</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="120"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="121"/>
         <source>Save the map</source>
         <translation>Сохранить карту</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="166"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="167"/>
         <source>Show in folder</source>
         <translation>Показать в папке</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="174"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="175"/>
         <source>Share the map</source>
         <translation>Поделиться картой</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="175"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="176"/>
         <source>Send the map</source>
         <translation>Отправить карту</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="183"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="184"/>
         <source>Title</source>
         <translation>Название</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="184"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="185"/>
         <source>Map</source>
         <translation>Карта</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="189"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="190"/>
         <source>Author</source>
         <translation>Автор</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="190"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="191"/>
         <source>Name or nickname</source>
         <translation>Имя или псевдоним</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="191"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="192"/>
         <source>Written into the files as the author. Leave it empty to stay anonymous.</source>
         <translation>Записывается в файлы как автор. Оставьте пустым, чтобы не указывать себя.</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="196"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="197"/>
         <source>Contact</source>
         <translation>Контакт</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="197"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="198"/>
         <source>E-mail or site, optional</source>
         <translation>Почта или сайт, необязательно</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="198"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="199"/>
         <source>Written into the files: everyone who gets the map will see it.</source>
         <translation>Записывается в файлы: его увидит каждый, кто получит карту.</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="203"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="204"/>
         <source>Licence</source>
         <translation>Лицензия</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="205"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="206"/>
         <source>What others may do with the map. The data is yours; the licence is your permission.</source>
         <translation>Что другим можно делать с картой. Данные ваши, лицензия — ваше разрешение.</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="222"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="223"/>
         <source>Anyone may copy, change and use the map, also commercially, if they name you as the author.</source>
         <translation>Любой может копировать, изменять и использовать карту, в том числе в коммерческих целях, если укажет вас как автора.</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="224"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="225"/>
         <source>Anyone may do anything with the map, without naming you. This cannot be taken back for copies already shared.</source>
         <translation>Любой может делать с картой что угодно, не указывая вас. Для уже разосланных копий это нельзя отозвать.</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="225"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="226"/>
         <source>Others may look at the map; copying, passing on or changing it needs your permission.</source>
         <translation>Другие могут смотреть карту; копировать, передавать дальше или изменять её — только с вашего разрешения.</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="226"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="227"/>
         <source>Every file also says: NOT FOR NAVIGATION, depths from an amateur survey, use at your own risk.</source>
         <translation>В каждом файле также сказано: НЕ ДЛЯ НАВИГАЦИИ, глубины любительской съёмки, используйте на свой риск.</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="235"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="236"/>
+        <source>In the file</source>
+        <translation>В файле</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="243"/>
+        <source>Isobaths</source>
+        <translation>Изобаты</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="273"/>
         <source>Side-scan mosaic</source>
         <translation>Мозаика бокового обзора</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="247"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="274"/>
+        <source>The echo strength of the survey. Whoever opens the map chooses its colours and contrast with their mosaic tool.</source>
+        <translation>Сила эха по съёмке. Цвета и контраст выбирает тот, кто открыл карту, своим инструментом мозаики.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="286"/>
         <source>Mosaic detail</source>
         <translation>Детализация мозаики</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="250"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="289"/>
         <source>Finer detail makes larger files and takes longer.</source>
         <translation>Чем подробнее, тем больше файлы и дольше сохранение.</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="261"/>
-        <source>Depths and isobaths</source>
-        <translation>Глубины и изобаты</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="273"/>
-        <source>Join soundings up to, m</source>
-        <translation>Соединять промеры до, м</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="276"/>
-        <source>The depth map is drawn between soundings no farther apart than this; wider gaps stay empty. More than the distance between survey lines joins them.</source>
-        <translation>Карта глубин строится между промерами, отстоящими не дальше этого; более широкие промежутки остаются пустыми. Значение больше расстояния между галсами соединяет их.</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="286"/>
-        <source>Isobaths every</source>
-        <translation>Изобаты через</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="289"/>
-        <source>Also the step of the depth colours. Auto: 10 to 25 isobaths over the depths of the survey.</source>
-        <translation>Это же шаг цветов глубины. Авто: от 10 до 25 изобат на диапазон глубин съёмки.</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="306"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="256"/>
         <source>Transducer depth, m</source>
         <translation>Заглубление датчика, м</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="309"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="259"/>
         <source>How deep the transducer sits below the waterline. Added to every depth, so the map counts from the water surface; 0: depths from the transducer.</source>
         <translation>На сколько датчик опущен под ватерлинию. Прибавляется к каждой глубине, чтобы карта считалась от поверхности воды; 0 — глубины от датчика.</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="326"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="303"/>
+        <source>Choose the isobaths, the mosaic or both: there is nothing to save.</source>
+        <translation>Выберите изобаты, мозаику или и то и другое: сохранять нечего.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="311"/>
         <source>KOGGER map (.kmap)</source>
         <translation>Карта КОГГЕР (.kmap)</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="329"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="314"/>
         <source>The file to share: it opens in KoggerApp as a layer under the boat. It holds the depths for the isobaths and the mosaic, without the boat&apos;s track.</source>
         <translation>Файл, которым делятся: он открывается в KoggerApp слоем под лодкой. В нём глубины для изобат и мозаика, без трека лодки.</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="377"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="362"/>
         <source>In the Google Earth and GIS files the boat&apos;s track is left out and the survey&apos;s date is given as a month only. The KOGGER map never has the track, and its date is always a month only.</source>
         <translation>В файлах для Google Earth и ГИС нет трека лодки, а дата съёмки указана только месяцем. В карте КОГГЕР трека нет никогда, и дата в ней всегда только месяцем.</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="342"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="327"/>
         <source>For other programs</source>
         <translation>Для других программ</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="349"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="244"/>
+        <source>The depths as KoggerApp draws them here, with the isobath tool&apos;s settings. Whoever opens the map chooses the isobath step and colours with their own isobath tool.</source>
+        <translation>Глубины такими, как их рисует KoggerApp здесь, с настройками инструмента изобат. Шаг изобат и цвета выбирает тот, кто открыл карту, своим инструментом изобат.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="334"/>
         <source>Google Earth (KMZ)</source>
         <translation>Google Earth (KMZ)</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="361"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="346"/>
         <source>GIS (GeoTIFF)</source>
         <translation>ГИС (GeoTIFF)</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="374"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="359"/>
         <source>Without the track and times</source>
         <translation>Без трека и времени</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="389"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="374"/>
         <source>Even without the track, a map shows where you have been. Do not share surveys of places that must stay private, and check whether surveying and publishing depths is allowed in those waters.</source>
         <translation>Даже без трека карта показывает, где вы были. Не публикуйте съёмки мест, которые должны оставаться закрытыми, и проверьте, разрешено ли снимать и публиковать глубины в этих водах.</translation>
     </message>
@@ -8741,112 +8741,102 @@
 <context>
     <name>MapExporter</name>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="274"/>
-        <source>Auto</source>
-        <translation>Авто</translation>
-    </message>
-    <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="276"/>
-        <source>%1 m</source>
-        <translation>%1 м</translation>
-    </message>
-    <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="296"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="270"/>
         <source>All rights reserved</source>
         <translation>Все права защищены</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="297"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="271"/>
         <source>CC BY 4.0: free use with credit to the author</source>
         <translation>CC BY 4.0: свободно, с указанием автора</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="298"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="272"/>
         <source>CC0: public domain, no conditions</source>
         <translation>CC0: общественное достояние, без условий</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="315"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="289"/>
         <source>%1 cm per pixel</source>
         <translation>%1 см на пиксель</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="363"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="337"/>
         <source>Not saved: no survey is open.</source>
         <translation>Не сохранено: запись не открыта.</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="371"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="345"/>
         <source>Not saved: the survey has no GNSS position.</source>
         <translation>Не сохранено: в записи нет координат GNSS.</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="407"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="381"/>
         <source>Map</source>
         <translation>Карта</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="424"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="398"/>
         <source>NOT FOR NAVIGATION. Depths and positions are from an amateur survey and may contain errors. Use at your own risk.</source>
         <translation>НЕ ДЛЯ НАВИГАЦИИ. Глубины и координаты получены любительской съёмкой и могут содержать ошибки. Используйте на свой риск.</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="443"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="415"/>
         <source>Not saved: choose at least one file to save.</source>
         <translation>Не сохранено: выберите хотя бы один файл.</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="447"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="419"/>
         <source>Not saved: choose the mosaic, the depths or both.</source>
         <translation>Не сохранено: выберите мозаику, глубины или оба слоя.</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="454"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="426"/>
         <source>Painting the mosaic</source>
         <translation>Рисую мозаику</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="455"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="427"/>
         <source>Building the depths</source>
         <translation>Строю карту глубин</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="456"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="428"/>
         <source>Writing the files</source>
         <translation>Записываю файлы</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="457"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="429"/>
         <source>No depths: the survey has no bottom track.</source>
         <translation>Без глубин: в записи нет трека дна.</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="458"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="430"/>
         <source>No mosaic: no side-scan channels are chosen for it.</source>
         <translation>Без мозаики: для неё не выбраны каналы бокового обзора.</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="459"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="431"/>
         <source>No mosaic: nothing was painted.</source>
         <translation>Без мозаики: ничего не нарисовано.</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="460"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="432"/>
         <source>the mosaic is too large for this detail; choose a coarser one</source>
         <translation>мозаика слишком велика для такой детализации; выберите крупнее</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="461"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="433"/>
         <source>Saved to %1: %2.</source>
         <translation>Сохранено в %1: %2.</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="462"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="434"/>
         <source>Not saved: %1</source>
         <translation>Не сохранено: %1</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="463"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="435"/>
         <source>Cancelled.</source>
         <translation>Отменено.</translation>
     </message>
@@ -10671,7 +10661,7 @@
         <translation>Скорость звука, м/с: </translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3178"/>
+        <location filename="../src/core.cpp" line="3187"/>
         <source>File</source>
         <translation>Файл</translation>
     </message>

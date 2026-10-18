@@ -273,7 +273,11 @@ void MosaicViewControlMenuController::onUpdateStateChanged(bool state)
 
 void MosaicViewControlMenuController::onThemeChanged(int val)
 {
+    const bool changedTheme = themeId_ != val + 1;
     themeId_ = val + 1;
+    if (changedTheme) {
+        emit styleChanged();
+    }
 
     if (graphicsSceneViewPtr_) {
         if (dataProcessorPtr_) {
@@ -309,8 +313,12 @@ QVariantList MosaicViewControlMenuController::themeStops(int index) const
 
 void MosaicViewControlMenuController::onLevelChanged(float lowLevel, float highLevel)
 {
+    const bool changedLevels = lowLevel_ != lowLevel || highLevel_ != highLevel;
     lowLevel_ = lowLevel;
     highLevel_ = highLevel;
+    if (changedLevels) {
+        emit styleChanged();
+    }
 
     if (graphicsSceneViewPtr_) {
         if (dataProcessorPtr_) {

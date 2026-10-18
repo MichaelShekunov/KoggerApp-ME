@@ -27,5 +27,10 @@ struct MapExportConfig {
     // none) and the crop / overlap rules, so an export is the picture on screen.
     std::shared_ptr<const mosaic_beam::Model> beamModel;
     mosaic_beam::PaintRules paintRules;
+    // The isobath tool's surface, as the view draws it (owner, 2026-10-18: "as we drew the isobaths in
+    // the app, so we send them"); SurfaceProcessor's defaults until the tool sets them.
+    float surfaceEdgeLimit = 100.0f;         // m, the longest triangle edge
+    int surfaceExtraWidth = 10;              // m, the extrapolation around each sounding (a disk this wide)
+    float surfaceStep = 1.0f;                // m, the isobath step
 };
 Q_DECLARE_METATYPE(MapExportConfig)

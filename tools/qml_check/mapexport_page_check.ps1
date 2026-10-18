@@ -11,7 +11,9 @@
     4. after it: the result shows; "Show in folder" opens the first file; after a failure it is not offered;
        "Share the map" (Android) hands the .kmap to the share sheet, only when one was saved;
     5. the licence note follows the licence, and the "not for navigation" notice is always there;
-    6. the switches and the lists write the exporter's settings.
+    6. the switches and the lists write the exporter's settings;
+    7. "In the file": the isobaths, then the mosaic; with neither, nothing can be saved and the page says so;
+       the isobaths go as the app draws them, so there is no edge limit or step of the export's own.
   -Picture saves the page. Exit code 0 when all pass, 1 when a check fails, 2 when qmltestrunner is not found.
 
 .EXAMPLE
@@ -87,10 +89,6 @@ Rectangle {
         property var detailOptions: [ { zoom: 2, name: "2 cm" }, { zoom: 3, name: "4 cm" }, { zoom: 4, name: "8 cm" },
                                       { zoom: 5, name: "16 cm" }, { zoom: 6, name: "32 cm" } ]
         property double draftM: 0.0
-        property double fillGapsM: 50
-        property double isobathStepM: 0
-        property var isobathStepOptions: [ { step: 0, name: "Auto" }, { step: 0.5, name: "0.5 m" }, { step: 1, name: "1 m" },
-                                           { step: 2, name: "2 m" }, { step: 5, name: "5 m" }, { step: 10, name: "10 m" } ]
         property bool writeKmap: true
         property bool writeKmz: false
         property bool writeGeoTiff: false
@@ -163,8 +161,8 @@ Rectangle {
         when: windowShown
 
         function test_1_rows() {
-            var labels = ["Title", "Author", "Contact", "Licence", "Side-scan mosaic", "Mosaic detail", "Depths and isobaths",
-                          "Join soundings up to, m", "Isobaths every", "Transducer depth, m",
+            var labels = ["Title", "Author", "Contact", "Licence", "Side-scan mosaic", "Mosaic detail", "Isobaths",
+                          "Transducer depth, m",
                           "KOGGER map (.kmap)", "Google Earth (KMZ)", "GIS (GeoTIFF)", "Without the track and times"]
             for (var i = 0; i < labels.length; ++i)
                 verify(row(labels[i]) !== null, "a row for " + labels[i])
@@ -247,10 +245,10 @@ Rectangle {
             mouseClick(row("Google Earth (KMZ)"))
             compare(ex.writeKmz, true, "KMZ for other programs")
             mouseClick(row("Google Earth (KMZ)"))
-            mouseClick(row("Depths and isobaths"))
+            mouseClick(row("Isobaths"))
             compare(ex.includeDepth, false)
-            verify(!shown(row("Isobaths every")) || row("Isobaths every").open === false, "the depth rows fold away")
-            mouseClick(row("Depths and isobaths"))
+            verify(!shown(row("Transducer depth, m")) || row("Transducer depth, m").open === false, "the depth rows fold away")
+            mouseClick(row("Isobaths"))
             var combo = inRow("Licence", function(c) { return c.hasOwnProperty("swatchFor") })
             verify(combo !== null)
             combo.activated(1)
@@ -259,10 +257,28 @@ Rectangle {
             var detail = inRow("Mosaic detail", function(c) { return c.hasOwnProperty("swatchFor") })
             detail.activated(2)
             compare(ex.detailZoom, 4, "the detail list")
-            var step = inRow("Isobaths every", function(c) { return c.hasOwnProperty("swatchFor") })
-            step.activated(3)
-            compare(ex.isobathStepM, 2, "the isobath step")
+            // The isobaths go as the view draws them (owner, 2026-10-18): no edge limit or step of the export's own.
+            compare(row("Join soundings up to, m"), null, "no edge limit of the export's own")
+            compare(row("Isobaths every"), null, "no isobath step of the export's own")
             ex.licenseId = "all-rights-reserved"
+        }
+
+        function test_6b_in_the_file() {
+            verify(textItem("In the file") !== null || all(page, function(c) { return c.text === "In the file" }).length > 0,
+                   "the heading says what goes into the file")
+            verify(row("Isobaths").mapToItem(page, 0, 0).y < row("Side-scan mosaic").mapToItem(page, 0, 0).y, "the isobaths first, then the mosaic")
+            var b = button("Save the map")
+            ex.includeDepth = true; ex.includeMosaic = true
+            verify(b.enabled, "both: Save")
+            ex.includeDepth = false
+            verify(b.enabled, "the mosaic alone: Save")
+            ex.includeDepth = true; ex.includeMosaic = false
+            verify(b.enabled, "the isobaths alone: Save")
+            compare(textContaining("there is nothing to save").length, 0, "no warning while one is chosen")
+            ex.includeDepth = false
+            verify(!b.enabled, "neither: no Save")
+            compare(textContaining("there is nothing to save").length, 1, "neither: the page says so")
+            ex.includeDepth = true; ex.includeMosaic = true
         }
 
         function test_7_picture() {

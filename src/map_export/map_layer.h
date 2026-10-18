@@ -5,7 +5,10 @@
 // ("isobaths") and labelled as the surface is (isobath_labels.h), and mosaics as textured pieces by
 // the mosaic shader ("mosaic"). The isobath step and colour theme are the isobath tool's
 // (IsobathsViewControlMenuController, through setIsobathStyle), not the maker's: one depth scale for
-// all the visible maps, so maps side by side agree, its lines at whole multiples of the step. Kept in lat/lon and
+// all the visible maps, so maps side by side agree, its lines at whole multiples of the step. The
+// mosaics likewise take the mosaic tool's theme and levels (MosaicViewControlMenuController, through
+// setMosaicStyle): a .kmap keeps the raw echo intensity, 0 = none, as the view's tiles do, and the
+// colours are the live mosaic's table (mosaic::PlotColorTable), not the maker's. Kept in lat/lon and
 // projected into the view's frame (GraphicsScene3dView::Camera::viewLlaRef_, spherical in
 // perspective, Mercator in the far top-down view) whenever that frame changes, as the boat's own
 // positions are: the map and the boat agree where the frame is the dataset's.
@@ -73,6 +76,8 @@ public:
     /// The isobath tool's colour theme (IsobathUtils::colorPalette) and step, m; 0 or less: a step
     /// that gives at most ~25 lines over the maps' depths (mapexport::autoIsobathStep).
     void setIsobathStyle(int themeId, float stepM);
+    /// The mosaic tool's colour theme (mosaic::PlotColorTable's id) and levels.
+    void setMosaicStyle(int themeId, float lowLevel, float highLevel);
     bool visible() const { return visible_; }
     bool depthVisible() const { return depthVisible_; }
     bool mosaicVisible() const { return mosaicVisible_; }
@@ -108,6 +113,7 @@ private:
     };
     void rebuildGeo();
     void rebuildStyle();   // the depth scale, its palette and the labels, from the meshes and the tool's style
+    void rebuildMosaicStyle();   // the mosaics' colour table, from the mosaic tool's style
 
     QPointer<MapLibrary> library_;
     bool visible_ = true;
@@ -123,6 +129,9 @@ private:
     float styleDepthMin_ = 0.0f;
     int styleLevels_ = 1;
     QString stylePaletteKey_;
+    int mosaicTheme_ = 0;             // PlotColorTable's default (Classic) until the tool says
+    float mosaicLow_ = 10.0f, mosaicHigh_ = 90.0f;
+    QString mosaicPaletteKey_;
     QHash<QString, QImage> textures_;
     std::shared_ptr<const MapLayerFrame> frame_;
     double frameLat_ = 0.0, frameLon_ = 0.0;
