@@ -21,8 +21,10 @@ ApplicationWindow {
     minimumHeight: isMobilePlatform ? 0 : 560
     visible: true
     visibility: isMobilePlatform ? Window.FullScreen : Window.Windowed
-    title: (core.fileTitle !== "" ? (core.fileTitle + " — KoggerApp, KOGGER") : qsTr("KoggerApp, KOGGER"))
-           + appUtils.instanceSuffix
+    // "<file> — KoggerApp ME 1.0.3 18.10.2026 10:23": ends with the build's version, Qt's display name
+    // (on Windows Qt appends that to a title that does not end with it).
+    title: (core.fileTitle !== "" ? core.fileTitle + " — " : "") + "KoggerApp" + appUtils.instanceSuffix
+           + " " + appUtils.versionFull
     onActiveChanged: if (active) root.lastActiveWindow = root
 
     WorkspaceStore {
@@ -99,8 +101,8 @@ ApplicationWindow {
         objectName: "secondaryAppWindow"
         width: 1080
         height: 540
-        title: (core.fileTitle !== "" ? core.fileTitle + " — KoggerApp, KOGGER" : qsTr("KoggerApp, KOGGER"))
-               + qsTr(" — Second window") + appUtils.instanceSuffix
+        title: (core.fileTitle !== "" ? core.fileTitle + " — " : "") + qsTr("Second window") + " — KoggerApp"
+               + appUtils.instanceSuffix + " " + appUtils.versionFull
         visible: workspaceStore.secondaryWindowOpen
         onClosing: function(close) { workspaceStore.closeSecondaryWindow() }
         onActiveChanged: if (active) root.lastActiveWindow = secondWindow

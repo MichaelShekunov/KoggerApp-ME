@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QUuid>
 
-#include "kogger_revision.h"
+#include "build_version.h"
 
 class AppUtils : public QObject
 {
@@ -12,6 +12,7 @@ class AppUtils : public QObject
     Q_PROPERTY(int instanceIndex READ instanceIndex CONSTANT)
     Q_PROPERTY(QString instanceSuffix READ instanceSuffix CONSTANT)
     Q_PROPERTY(QString gitRevision READ gitRevision CONSTANT)
+    Q_PROPERTY(QString versionFull READ versionFull CONSTANT)
 
 public:
     explicit AppUtils(QObject *parent = nullptr) : QObject(parent) {}
@@ -20,7 +21,9 @@ public:
         return QUuid::createUuid().toString(QUuid::WithoutBraces);
     }
 
-    QString gitRevision() const { return QStringLiteral(KOGGER_GIT_REVISION); }
+    QString gitRevision() const { return koggerGitRevision(); }
+    // What the window's title ends with, and Qt's application display name.
+    QString versionFull() const { return koggerVersionFull(); }
 
     Q_INVOKABLE QString licenseText(const QString& name) const {
         if (name.contains(QLatin1Char('/')) || name.contains(QLatin1Char('\\'))

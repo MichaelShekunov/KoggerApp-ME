@@ -1,4 +1,4 @@
-; Inno Setup script for KoggerApp myEdition.
+; Inno Setup script for KoggerApp ME (was "KoggerApp myEdition" until 2026-10-18).
 ;
 ; Not meant to be opened and compiled by hand: scripts\win_package_release.ps1
 ; supplies every define and then calls ISCC. Compiling it directly fails on the
@@ -24,7 +24,7 @@
   #error Define IconFile
 #endif
 
-#define MyAppName "KoggerApp myEdition"
+#define MyAppName "KoggerApp ME"
 #define MyAppExe  "KoggerApp.exe"
 
 [Setup]
@@ -35,7 +35,9 @@ AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 VersionInfoVersion={#MyAppVersionInfo}
 VersionInfoProductName={#MyAppName}
-DefaultDirName={autopf}\KoggerApp myEdition
+DefaultDirName={autopf}\KoggerApp ME
+; The old name's folder is not reused: an upgrade goes to the new one and removes the old (InstallDelete).
+UsePreviousAppDir=no
 DefaultGroupName={#MyAppName}
 UninstallDisplayName={#MyAppName}
 UninstallDisplayIcon={app}\{#MyAppExe}
@@ -62,6 +64,12 @@ Name: "ru"; MessagesFile: "compiler:Languages\Russian.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; Flags: unchecked
+
+[InstallDelete]
+; The same product (AppId) under its name until 2026-10-18: its default folder and shortcuts.
+Type: filesandordirs; Name: "{autopf}\KoggerApp myEdition"
+Type: filesandordirs; Name: "{autoprograms}\KoggerApp myEdition"
+Type: files; Name: "{autodesktop}\KoggerApp myEdition.lnk"
 
 [Files]
 Source: "{#PayloadDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs

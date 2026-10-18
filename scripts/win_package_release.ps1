@@ -1,7 +1,7 @@
 #requires -Version 5.1
 <#
 .SYNOPSIS
-    Builds, deploys and packages KoggerApp myEdition for Windows: a portable
+    Builds, deploys and packages KoggerApp ME for Windows: a portable
     .zip and an Inno Setup installer, both written to dist\.
 
 .DESCRIPTION
@@ -69,19 +69,14 @@ if ($LASTEXITCODE -ne 0) { throw 'not a git checkout, or git is not on PATH' }
 $commit = $commit.Trim()
 
 $dirty = & git -C $repo status --porcelain
-$suffix = "myedition-$commit"
 if ($dirty) {
-    $suffix = "$suffix-dirty"
-    Write-Warning 'The working tree has uncommitted changes; the commit in the file name does not describe this build.'
+    Write-Warning 'The working tree has uncommitted changes; build_info.txt says "dirty: yes".'
 }
-
-$fullVersion = "$version-$suffix"
 
 # Windows wants four numeric fields and nothing else.
 $numeric = ($version -split '-')[0]
 while (($numeric -split '\.').Count -lt 4) { $numeric = "$numeric.0" }
 
-Write-Host "version:  $fullVersion"
 Write-Host "file ver: $numeric"
 
 # --------------------------------------------------------------------- build
@@ -99,11 +94,22 @@ if ($SkipBuild) {
 
 Require-Path $binPath 'KoggerApp.exe' 'Build the Release configuration first, or drop -SkipBuild.' | Out-Null
 
-# Every build says 1.0.3; the time the build wrote KoggerApp.exe tells two apart (owner, 2026-10-07).
-# With -SkipBuild that is the earlier build, not this packaging run.
+# The version the build put in the binary, "ME 1.0.3 18.10.2026 10:23" (cmake/kogger_version.cmake),
+# for the installer and build_info.txt: the window's title says the same.
+$header = "$repo\build\Desktop_Qt_6_8_3_llvm_mingw_64_bit-$Config\generated\kogger_revision.h"
+$fullVersion = ''
+if (Test-Path -LiteralPath $header) {
+    $m = Select-String -LiteralPath $header -Pattern '#define KOGGER_VERSION_FULL "([^"]*)"'
+    if ($m) { $fullVersion = $m.Matches[0].Groups[1].Value }
+}
+if (-not $fullVersion) { throw "no KOGGER_VERSION_FULL in ${header} (build first)" }
+Write-Host "version:  $fullVersion"
+
+# Every build says 1.0.3; the time the build wrote KoggerApp.exe tells two apart (owner, 2026-10-07),
+# the file names carry no commit (owner, 2026-10-18). With -SkipBuild that is the earlier build.
 $built     = (Get-Item -LiteralPath $binPath).LastWriteTime
 $builtTag  = $built.ToString('yyyyMMdd-HHmmss')
-$baseName  = "KoggerApp-$fullVersion"
+$baseName  = "KoggerApp-ME-$version"
 $zipName   = "$baseName-portable-$builtTag.zip"
 $setupBase = "$baseName-setup-$builtTag"
 Write-Host "files:    $zipName, $setupBase.exe"
@@ -132,7 +138,7 @@ foreach ($dll in @('libunwind.dll', 'libc++.dll', 'libwinpthread-1.dll')) {
 }
 
 $buildInfo = @(
-    "KoggerApp myEdition",
+    "KoggerApp ME",
     "version:   $fullVersion",
     "commit:    $(& git -C $repo rev-parse HEAD)",
     "dirty:     $(if ($dirty) { 'yes' } else { 'no' })",

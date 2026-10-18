@@ -1,5 +1,6 @@
 #include "link/udp_discovery.h"
 #include "app_profile.h"
+#include "build_version.h"
 #include <QGuiApplication>
 #include <QQmlContext>
 #include <QQmlApplicationEngine>
@@ -168,15 +169,10 @@ void videoLogHandler(QtMsgType type, const QMessageLogContext& context, const QS
 
 void setApplicationDisplayName(QGuiApplication& app)
 {
-    QResource resource(":/version.txt");
-    if (resource.isValid()) {
-        QFile file(":/version.txt");
-        if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            QByteArray data = file.readAll();
-            app.setApplicationDisplayName(QString::fromUtf8(data));
-            file.close();
-        }
-    }
+    // The build's own version, which the window's title ends with (Qt on Windows appends the display
+    // name to a title that does not); until 2026-10-18 resources/version.txt alone, "1.0.3" for every
+    // build.
+    app.setApplicationDisplayName(koggerVersionFull());
 }
 
 void registerQmlMetaTypes()
@@ -348,7 +344,7 @@ int main(int argc, char *argv[])
     // KOGGER_PROFILE=<name>: settings, logs and saved links of its own (HKCU\Software\KOGGER\KoggerApp-<name>,
     // %APPDATA%\KOGGER\KoggerApp-<name>) -- a test instance beside the user's, sharing nothing with it.
     QCoreApplication::setApplicationName(koggerAppName());
-    QCoreApplication::setApplicationVersion("1-1-1");
+    QCoreApplication::setApplicationVersion(koggerVersionFull());   // the log's "log opened" line
 
     migrateSettingsSchema();
 

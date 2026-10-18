@@ -1233,32 +1233,32 @@
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3190"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3197"/>
         <source>Test</source>
         <translation>测试</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3191"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3198"/>
         <source>Developer knobs — visible only in MANUAL_TESTING builds.</source>
         <translation>开发者参数 — 仅在 MANUAL_TESTING 版本中可见。</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3205"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3212"/>
         <source>Double-tap tolerance, px:</source>
         <translation>双击容差，px：</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3235"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3242"/>
         <source>Split grab thickness, px:</source>
         <translation>分隔条抓取宽度，px：</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3264"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3271"/>
         <source>Sidebar slide, ms:</source>
         <translation>侧边栏滑动，ms：</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3293"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3300"/>
         <source>Workspace adjust, ms:</source>
         <translation>工作区调整，ms：</translation>
     </message>
@@ -2161,171 +2161,171 @@
 <context>
     <name>Core</name>
     <message>
-        <location filename="../src/core.cpp" line="614"/>
-        <location filename="../src/core.cpp" line="875"/>
+        <location filename="../src/core.cpp" line="616"/>
+        <location filename="../src/core.cpp" line="877"/>
         <source>File closed</source>
         <translation>文件已关闭</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="615"/>
-        <location filename="../src/core.cpp" line="876"/>
+        <location filename="../src/core.cpp" line="617"/>
+        <location filename="../src/core.cpp" line="878"/>
         <source>File closed: %1</source>
         <translation>文件已关闭：%1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1167"/>
+        <location filename="../src/core.cpp" line="1169"/>
         <source>KLF logging started:
 %1</source>
         <translation>KLF 日志记录已开始：
 %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1170"/>
+        <location filename="../src/core.cpp" line="1172"/>
         <source>KLF logging not started</source>
         <translation>KLF 日志记录未能启动</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1176"/>
+        <location filename="../src/core.cpp" line="1178"/>
         <source>KLF log saved:
 %1</source>
         <translation>KLF 日志已保存：
 %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1178"/>
+        <location filename="../src/core.cpp" line="1180"/>
         <source>KLF logging disabled</source>
         <translation>KLF 日志记录已关闭</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1360"/>
+        <location filename="../src/core.cpp" line="1362"/>
         <source>Invalid log folder:
 %1</source>
         <translation>日志文件夹无效：
 %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1366"/>
+        <location filename="../src/core.cpp" line="1368"/>
         <source>Log folder is not writable:
 %1</source>
         <translation>日志文件夹不可写：
 %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1485"/>
+        <location filename="../src/core.cpp" line="1511"/>
         <source>CSV logging started:
 %1</source>
         <translation>CSV 日志记录已开始：
 %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1488"/>
+        <location filename="../src/core.cpp" line="1514"/>
         <source>CSV logging not started</source>
         <translation>CSV 日志记录未能启动</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1494"/>
+        <location filename="../src/core.cpp" line="1520"/>
         <source>CSV log saved:
 %1</source>
         <translation>CSV 日志已保存：
 %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1496"/>
+        <location filename="../src/core.cpp" line="1522"/>
         <source>CSV logging disabled</source>
         <translation>CSV 日志记录已关闭</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1532"/>
-        <location filename="../src/core.cpp" line="1581"/>
-        <location filename="../src/core.cpp" line="1595"/>
-        <location filename="../src/core.cpp" line="1625"/>
-        <location filename="../src/core.cpp" line="1718"/>
-        <location filename="../src/core.cpp" line="1978"/>
-        <location filename="../src/core.cpp" line="1997"/>
-        <location filename="../src/core.cpp" line="2009"/>
+        <location filename="../src/core.cpp" line="1558"/>
+        <location filename="../src/core.cpp" line="1607"/>
+        <location filename="../src/core.cpp" line="1621"/>
+        <location filename="../src/core.cpp" line="1651"/>
+        <location filename="../src/core.cpp" line="1744"/>
+        <location filename="../src/core.cpp" line="2004"/>
+        <location filename="../src/core.cpp" line="2023"/>
+        <location filename="../src/core.cpp" line="2035"/>
         <source>Export failed: %1</source>
         <translation>导出失败：%1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1584"/>
+        <location filename="../src/core.cpp" line="1610"/>
         <source>Complex signals exported to CSV: %1</source>
         <translation>复数信号已导出为 CSV：%1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1628"/>
+        <location filename="../src/core.cpp" line="1654"/>
         <source>USBL exported to CSV: %1</source>
         <translation>USBL 已导出为 CSV：%1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1981"/>
+        <location filename="../src/core.cpp" line="2007"/>
         <source>Exported to CSV: %1</source>
         <translation>已导出为 CSV：%1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1989"/>
+        <location filename="../src/core.cpp" line="2015"/>
         <source>Export failed</source>
         <translation>导出失败</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2012"/>
+        <location filename="../src/core.cpp" line="2038"/>
         <source>Exported to XTF: %1</source>
         <translation>已导出为 XTF：%1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2580"/>
-        <location filename="../src/core.cpp" line="2604"/>
+        <location filename="../src/core.cpp" line="2607"/>
+        <location filename="../src/core.cpp" line="2631"/>
         <source>street</source>
         <translation>街道</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2586"/>
-        <location filename="../src/core.cpp" line="2592"/>
-        <location filename="../src/core.cpp" line="2598"/>
+        <location filename="../src/core.cpp" line="2613"/>
+        <location filename="../src/core.cpp" line="2619"/>
+        <location filename="../src/core.cpp" line="2625"/>
         <source>satellite</source>
         <translation>卫星</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2764"/>
+        <location filename="../src/core.cpp" line="2791"/>
         <source>File opened</source>
         <translation>文件已打开</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2765"/>
+        <location filename="../src/core.cpp" line="2792"/>
         <source>File opened: %1</source>
         <translation>文件已打开：%1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3013"/>
+        <location filename="../src/core.cpp" line="3040"/>
         <source>Connected</source>
         <translation>已连接</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3013"/>
+        <location filename="../src/core.cpp" line="3040"/>
         <source>Connected: %1</source>
         <translation>已连接：%1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3027"/>
+        <location filename="../src/core.cpp" line="3054"/>
         <source>Disconnected</source>
         <translation>已断开</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3027"/>
+        <location filename="../src/core.cpp" line="3054"/>
         <source>Disconnected: %1</source>
         <translation>已断开：%1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3437"/>
+        <location filename="../src/core.cpp" line="3464"/>
         <source>Internet connection restored</source>
         <translation>网络连接已恢复</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3438"/>
+        <location filename="../src/core.cpp" line="3465"/>
         <source>Internet connection lost</source>
         <translation>网络连接已断开</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3450"/>
+        <location filename="../src/core.cpp" line="3477"/>
         <source>Metered network detected</source>
         <translation>检测到按流量计费的网络</translation>
     </message>
@@ -2824,8 +2824,8 @@
 <context>
     <name>Dataset</name>
     <message>
-        <location filename="../src/dataset.cpp" line="1326"/>
-        <location filename="../src/dataset.cpp" line="1328"/>
+        <location filename="../src/dataset.cpp" line="1354"/>
+        <location filename="../src/dataset.cpp" line="1356"/>
         <source>None</source>
         <translation>无</translation>
     </message>
@@ -2833,99 +2833,99 @@
 <context>
     <name>DevDriver</name>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="132"/>
+        <location filename="../src/device/dev_driver.cpp" line="133"/>
         <source>Port speed %1 set, the module saved it</source>
         <translation>端口速率已设为 %1，模块已保存</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="135"/>
+        <location filename="../src/device/dev_driver.cpp" line="136"/>
         <source>The module refused %1 bit/s: nothing changed, the port stays at %2</source>
         <translation>模块拒绝了 %1 bit/s：未作更改，端口保持 %2</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="138"/>
+        <location filename="../src/device/dev_driver.cpp" line="139"/>
         <source>No answer from the module at %1. It keeps that rate (firmware 0.15 saves it at once), so the link stays at %1. If this device cannot do %1, hold the module&apos;s BOOT button 5 s: both ports go back to 921600, then set this link to 921600.</source>
         <translation>模块在 %1 下无应答。它会保持该速率（固件 0.15 会立即保存），因此连接保持在 %1。如果本设备不支持 %1，请按住模块的 BOOT 按钮 5 秒：两个端口都会恢复为 921600，然后将此连接设为 921600。</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="143"/>
+        <location filename="../src/device/dev_driver.cpp" line="144"/>
         <source>No answer from the module at %1: the link is back at %2. An unsaved speed is gone after the module&apos;s next reboot.</source>
         <translation>模块在 %1 下无应答：连接已恢复到 %2。未保存的速率在模块下次重启后失效。</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="175"/>
+        <location filename="../src/device/dev_driver.cpp" line="176"/>
         <source>Port %1: %2 bit/s set, the module saved it</source>
         <translation>端口 %1：已设为 %2 bit/s，模块已保存</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="176"/>
+        <location filename="../src/device/dev_driver.cpp" line="177"/>
         <source>Port %1: line settings applied</source>
         <translation>端口 %1：线路设置已应用</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="180"/>
+        <location filename="../src/device/dev_driver.cpp" line="181"/>
         <source>Port %1: the module did not send the line&apos;s settings, nothing changed</source>
         <translation>端口 %1：模块未发送线路设置，未作更改</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="184"/>
+        <location filename="../src/device/dev_driver.cpp" line="185"/>
         <source>Port %1: the line&apos;s settings are not known, nothing changed</source>
         <translation>端口 %1：线路设置未知，未作更改</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="188"/>
+        <location filename="../src/device/dev_driver.cpp" line="189"/>
         <source>Port %1: the module refused %2 bit/s (code %3)</source>
         <translation>端口 %1：模块拒绝了 %2 bit/s（代码 %3）</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="189"/>
+        <location filename="../src/device/dev_driver.cpp" line="190"/>
         <source>Port %1: the module refused the line settings (code %2)</source>
         <translation>端口 %1：模块拒绝了线路设置（代码 %2）</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="193"/>
+        <location filename="../src/device/dev_driver.cpp" line="194"/>
         <source>Port %1: no answer from the module; what is shown is what it reports</source>
         <translation>端口 %1：模块无应答；显示的是它报告的值</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="210"/>
-        <location filename="../src/device/dev_driver.cpp" line="212"/>
+        <location filename="../src/device/dev_driver.cpp" line="211"/>
+        <location filename="../src/device/dev_driver.cpp" line="213"/>
         <source>Radio: %1</source>
         <translation>无线：%1</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="1989"/>
+        <location filename="../src/device/dev_driver.cpp" line="1990"/>
         <source>the module is busy (a window, a survey, a scan or joining runs, or the last window was under 1 s ago)</source>
         <translation>模块正忙（正在进行窗口、勘测、扫描或入网，或距上一个窗口不足 1 秒）</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="1990"/>
+        <location filename="../src/device/dev_driver.cpp" line="1991"/>
         <source>the module refused the report (code %1)</source>
         <translation>模块拒绝了报告（代码 %1）</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2021"/>
+        <location filename="../src/device/dev_driver.cpp" line="2022"/>
         <source>the module is busy (a survey, a scan or joining a network runs)</source>
         <translation>模块正忙（正在进行勘测、扫描或入网）</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2022"/>
+        <location filename="../src/device/dev_driver.cpp" line="2023"/>
         <source>the module refused the key</source>
         <translation>模块拒绝了密钥</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2023"/>
+        <location filename="../src/device/dev_driver.cpp" line="2024"/>
         <source>the module refused the survey (code %1)</source>
         <translation>模块拒绝了勘测（代码 %1）</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3109"/>
+        <location filename="../src/device/dev_driver.cpp" line="3176"/>
         <source>Sync config rejected by device</source>
         <translation>设备拒绝了同步配置</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3657"/>
-        <location filename="../src/device/dev_driver.cpp" line="3670"/>
+        <location filename="../src/device/dev_driver.cpp" line="3730"/>
+        <location filename="../src/device/dev_driver.cpp" line="3743"/>
         <source>no answer from the module</source>
         <translation>模块无应答</translation>
     </message>
@@ -3297,27 +3297,27 @@
     <name>DeviceSettingsPage</name>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="64"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3001"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3009"/>
         <source>Boat link</source>
         <translation>船链路</translation>
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="65"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4456"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4464"/>
         <source>Lines</source>
         <translation>线路</translation>
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="66"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4113"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4116"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4121"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4124"/>
         <source>Role</source>
         <translation>角色</translation>
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="67"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2180"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4121"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2188"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4129"/>
         <source>Access point</source>
         <translation>接入点</translation>
     </message>
@@ -3328,7 +3328,7 @@
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="69"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4857"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4865"/>
         <source>Network (USB)</source>
         <translation>网络（USB）</translation>
     </message>
@@ -3344,21 +3344,21 @@
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="79"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3383"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3391"/>
         <source>Port speed</source>
         <translation>端口速率</translation>
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="80"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3256"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3264"/>
         <source>Radio</source>
         <translation>无线</translation>
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="81"/>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="82"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4024"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4295"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4032"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4303"/>
         <source>Module address</source>
         <translation>模块地址</translation>
     </message>
@@ -3369,7 +3369,7 @@
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="105"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3506"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3514"/>
         <source>nothing</source>
         <translation>无</translation>
     </message>
@@ -3401,7 +3401,7 @@
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="212"/>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="216"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="819"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="827"/>
         <source>Settings written to device: %1</source>
         <translation>设置已写入设备：%1</translation>
     </message>
@@ -3427,2803 +3427,2803 @@
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="512"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1692"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4726"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4782"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1700"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4734"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4790"/>
         <source>Echogram</source>
         <translation>回波图</translation>
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="513"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1749"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4739"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1757"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4747"/>
         <source>Rangefinder</source>
         <translation>测距仪</translation>
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="514"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4752"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4760"/>
         <source>Transducer</source>
         <translation>换能器</translation>
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="515"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4765"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4773"/>
         <source>DSP</source>
         <translation>DSP</translation>
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="516"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4777"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4785"/>
         <source>Dataset</source>
         <translation>数据集</translation>
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="517"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4827"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4835"/>
         <source>Actions</source>
         <translation>操作</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="781"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="789"/>
         <source>Hide password</source>
         <translation>隐藏密码</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="781"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="789"/>
         <source>Show password</source>
         <translation>显示密码</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="794"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="802"/>
         <source>Tap again</source>
         <translation>再点一次</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="813"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="821"/>
         <source>Flash settings</source>
         <translation>保存到闪存</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="814"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="822"/>
         <source>Write current settings to device memory</source>
         <translation>将当前设置写入设备存储器</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="848"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="856"/>
         <source>Recorder</source>
         <translation>记录仪</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="903"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="909"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="910"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="911"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="917"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="918"/>
         <source>s</source>
         <translation>秒</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="908"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="916"/>
         <source>h</source>
         <translation>小时</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="908"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="909"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="916"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="917"/>
         <source>m</source>
         <translation>分</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="938"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="996"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1032"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="946"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1004"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1040"/>
         <source>Sonar 1</source>
         <translation>声呐 1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="939"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="996"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1033"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="947"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1004"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1041"/>
         <source>Sonar 2</source>
         <translation>声呐 2</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="940"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="996"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1034"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="948"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1004"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1042"/>
         <source>Nav</source>
         <translation>导航</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="942"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="950"/>
         <source> &amp; </source>
         <translation> 和 </translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="969"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2182"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2340"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="977"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2190"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2348"/>
         <source>Connecting…</source>
         <translation>正在连接…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="969"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="977"/>
         <source>Waiting for the recorder.</source>
         <translation>正在等待记录仪。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="971"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="979"/>
         <source>No response</source>
         <translation>无响应</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="972"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="980"/>
         <source>No update for %1 — showing last known.</source>
         <translation>%1 无更新 — 显示最后已知数据。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="976"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="984"/>
         <source>Storage lost</source>
         <translation>存储丢失</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="976"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="984"/>
         <source>Recording failed</source>
         <translation>记录失败</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="977"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="985"/>
         <source>Recording stopped — check the recorder.</source>
         <translation>记录已停止 — 请检查记录仪。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="979"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="987"/>
         <source>Recording off</source>
         <translation>记录已关闭</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="979"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="987"/>
         <source>Recording is disabled.</source>
         <translation>记录已禁用。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="988"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="996"/>
         <source>Recording stopped</source>
         <translation>记录已停止</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="989"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="997"/>
         <source>No data from %1 · nothing recorded for %2</source>
         <translation>%1 无数据 · 已 %2 未记录任何内容</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="990"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="998"/>
         <source>Nothing recorded for %1 — source silent.</source>
         <translation>已 %1 未记录任何内容 — 数据源无信号。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1000"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1008"/>
         <source>%1 connected</source>
         <translation>%1 已连接</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1000"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1008"/>
         <source>%1 disconnected</source>
         <translation>%1 已断开</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1003"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1020"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1011"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1028"/>
         <source>Recording</source>
         <translation>记录中</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1004"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1012"/>
         <source>Saving to log #%1 — %2</source>
         <translation>正在保存到日志 #%1 — %2</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1005"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1013"/>
         <source>Saving — %1</source>
         <translation>正在保存 — %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1013"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1021"/>
         <source>Saving to log #%1 — %2 are connected.</source>
         <translation>正在保存到日志 #%1 — %2 已连接。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1014"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1022"/>
         <source>Saving to log #%1 — %2 connected.</source>
         <translation>正在保存到日志 #%1 — %2 已连接。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1015"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1023"/>
         <source>Saving to log #%1.</source>
         <translation>正在保存到日志 #%1。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1017"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1025"/>
         <source>Saving — %1 are connected.</source>
         <translation>正在保存 — %1 已连接。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1018"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1026"/>
         <source>Saving — %1 connected.</source>
         <translation>正在保存 — %1 已连接。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1019"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1027"/>
         <source>Saving.</source>
         <translation>正在保存。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1023"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1031"/>
         <source>Idle</source>
         <translation>空闲</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1023"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1031"/>
         <source>Armed — waiting for data.</source>
         <translation>已就绪 — 等待数据。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1024"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1032"/>
         <source>Starting…</source>
         <translation>正在启动…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1024"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1032"/>
         <source>Recorder is coming up.</source>
         <translation>记录仪正在启动。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1032"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1040"/>
         <source>S1</source>
         <translation>S1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1033"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1041"/>
         <source>S2</source>
         <translation>S2</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1202"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1210"/>
         <source>Free space</source>
         <translation>可用空间</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1233"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1241"/>
         <source>⚠ Dropping frames</source>
         <translation>⚠ 正在丢帧</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1243"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1251"/>
         <source>Values may be outdated.</source>
         <translation>数值可能已过时。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1274"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1282"/>
         <source>Logs (%1)</source>
         <translation>日志（%1）</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1282"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1290"/>
         <source>Refresh</source>
         <translation>刷新</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1290"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1298"/>
         <source>No logs listed yet — tap Refresh to enumerate the recorder&apos;s archive.</source>
         <translation>尚未列出日志 — 点击“刷新”以列出记录仪的存档。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1332"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1467"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1340"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1475"/>
         <source>Saved &quot;%1&quot; to &quot;%2&quot;</source>
         <translation>已将“%1”保存到“%2”</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1345"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1481"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2523"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1353"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1489"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2531"/>
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1345"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1481"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1353"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1489"/>
         <source>Re-download</source>
         <translation>重新下载</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1345"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1481"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1353"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1489"/>
         <source>Download</source>
         <translation>下载</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1377"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1514"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1385"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1522"/>
         <source>Downloading… %1%</source>
         <translation>正在下载… %1%</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1378"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1515"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3787"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1386"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1523"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3795"/>
         <source>Saved</source>
         <translation>已保存</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1563"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1571"/>
         <source>Downloads are saved to &quot;%1&quot;</source>
         <translation>下载内容保存到“%1”</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1603"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1611"/>
         <source>Not applied to the device</source>
         <translation>未应用到设备</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1625"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1633"/>
         <source>Period, ms</source>
         <translation>周期，ms</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1672"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1680"/>
         <source>Distance, m</source>
         <translation>距离，m</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1686"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1694"/>
         <source>Frequency, kHz</source>
         <translation>频率，kHz</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1706"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1755"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2929"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1714"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1763"/>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="2937"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3044"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3328"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3888"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4473"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4793"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2945"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3052"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3336"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3896"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4481"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4801"/>
         <source>Off</source>
         <translation>关</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1706"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4793"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1714"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4801"/>
         <source>8-bit</source>
         <translation>8 位</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1706"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4793"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1714"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4801"/>
         <source>Compressed</source>
         <translation>压缩</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1706"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4793"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1714"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4801"/>
         <source>IQ</source>
         <translation>IQ</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1706"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4793"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1714"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4801"/>
         <source>RAW</source>
         <translation>RAW</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1733"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1741"/>
         <source>Resolution, cm</source>
         <translation>分辨率，cm</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1755"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2938"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1763"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2946"/>
         <source>On</source>
         <translation>开</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1755"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1763"/>
         <source>NMEA</source>
         <translation>NMEA</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1770"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1778"/>
         <source>Confidence threshold, %</source>
         <translation>置信度阈值，%</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1813"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1821"/>
         <source>Favourites:</source>
         <translation>收藏：</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1830"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1838"/>
         <source>Tap a star next to a setting to pin it here</source>
         <translation>点击设置旁的星标即可将其固定到此处</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1936"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1944"/>
         <source>Wi‑Fi airtime: others %1 (mean %2)</source>
         <translation>Wi‑Fi 空口占用：他方 %1（平均 %2）</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1938"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1946"/>
         <source>, ours %1</source>
         <translation>，我方 %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1939"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1947"/>
         <source>%1 frames/s</source>
         <translation>%1 帧/秒</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1940"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2690"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1948"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2698"/>
         <source>%1 transmitters</source>
         <translation>%1 个发射源</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1941"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1949"/>
         <source>the strongest %1 dBm</source>
         <translation>最强 %1 dBm</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1941"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2156"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1949"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2164"/>
         <source>nothing heard</source>
         <translation>未收到任何信号</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1946"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1954"/>
         <source>No network heard on it or up to 3 channels away (last scan).</source>
         <translation>本信道及相邻 3 个信道内均未发现网络（上次扫描）。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1951"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1959"/>
         <source>Networks heard (last scan): %1 on it, %2 up to 3 channels away</source>
         <translation>发现的网络（上次扫描）：本信道 %1 个，相邻 3 个信道内 %2 个</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1987"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1995"/>
         <source>no data frames in the window</source>
         <translation>窗口内无数据帧</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1988"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1996"/>
         <source>(and %1 more)</source>
         <translation>（另有 %1 个）</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1996"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2004"/>
         <source>%1 of %2 frames</source>
         <translation>%1 / %2 帧</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1998"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2006"/>
         <source>%1 at %2</source>
         <translation>%1 帧（%2）</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2000"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2336"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2545"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2739"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4233"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2008"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2344"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2553"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2747"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4241"/>
         <source>dBm</source>
         <translation>dBm</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2028"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2036"/>
         <source>%1 s</source>
         <translation>%1 秒</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2030"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2225"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2038"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2233"/>
         <source>%1 min</source>
         <translation>%1 分钟</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2031"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2225"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2039"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2233"/>
         <source>%1 h %2 min</source>
         <translation>%1 小时 %2 分钟</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2036"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2044"/>
         <source>the access point&apos;s beacons stopped: it went off or out of reach</source>
         <translation>接入点的信标帧中断：已关闭或超出范围</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2037"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2045"/>
         <source>the network is not heard</source>
         <translation>收不到该网络</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2038"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2046"/>
         <source>authentication failed</source>
         <translation>认证失败</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2039"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2205"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2047"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2213"/>
         <source>association failed</source>
         <translation>关联失败</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2041"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2049"/>
         <source>the key handshake timed out: a wrong password?</source>
         <translation>密钥握手超时：密码错误？</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2045"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2053"/>
         <source>the access point let this module go</source>
         <translation>接入点断开了此模块</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2053"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3516"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4445"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2061"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3524"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4453"/>
         <source>code %1</source>
         <translation>代码 %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2058"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2066"/>
         <source>The module restarted</source>
         <translation>模块已重启</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2060"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2068"/>
         <source>A client joined</source>
         <translation>有客户端接入</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2061"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2069"/>
         <source>The last client left</source>
         <translation>最后一个客户端已离开</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2061"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2069"/>
         <source>A client left</source>
         <translation>有客户端离开</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2063"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2071"/>
         <source>Connected to %1</source>
         <translation>已连接到 %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2064"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2072"/>
         <source>Access point %1 up</source>
         <translation>接入点 %1 已启动</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2065"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2066"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2073"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2074"/>
         <source>Link lost</source>
         <translation>链路丢失</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2065"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2073"/>
         <source>Connecting to %1</source>
         <translation>正在连接到 %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2066"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2074"/>
         <source>Looking for the network</source>
         <translation>正在寻找网络</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2067"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2075"/>
         <source>Stopped</source>
         <translation>已停止</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2069"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2077"/>
         <source>State %1</source>
         <translation>状态 %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2079"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2087"/>
         <source>%1 now, the weakest %2 dBm</source>
         <translation>当前 %1，最弱 %2 dBm</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2081"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2089"/>
         <source>ch %1 · %2 dBm</source>
         <translation>信道 %1 · %2 dBm</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2083"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2091"/>
         <source>ch %1 · clients: %2</source>
         <translation>信道 %1 · 客户端：%2</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2093"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2101"/>
         <source>%1 ago</source>
         <translation>%1 前</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2095"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2103"/>
         <source>as the app found it</source>
         <translation>应用发现时已是此状态</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2097"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2105"/>
         <source>the link had held %1</source>
         <translation>链路此前已保持 %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2099"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2107"/>
         <source>%1 after the previous</source>
         <translation>距上一事件 %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2123"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2131"/>
         <source>updating…</source>
         <translation>正在更新…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2125"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2133"/>
         <source>From an earlier measurement.</source>
         <translation>来自较早的测量。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2128"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2136"/>
         <source>updated just now</source>
         <translation>刚刚更新</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2130"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2138"/>
         <source>updated %1 s ago</source>
         <translation>%1 秒前更新</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2131"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2139"/>
         <source>updated %1 min ago</source>
         <translation>%1 分钟前更新</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2156"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2164"/>
         <source>%1 dBm</source>
         <translation>%1 dBm</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2181"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3791"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2189"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3799"/>
         <source>Connected</source>
         <translation>已连接</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2183"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2191"/>
         <source>Searching…</source>
         <translation>正在搜索…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2185"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2326"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2193"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2334"/>
         <source>Not connected</source>
         <translation>未连接</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2189"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4181"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2197"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4189"/>
         <source>Open</source>
         <translation>开放</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2196"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2204"/>
         <source>Enterprise</source>
         <translation>企业级</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2199"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2207"/>
         <source>Secured</source>
         <translation>已加密</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2203"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2211"/>
         <source>network not found</source>
         <translation>未找到网络</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2204"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2212"/>
         <source>wrong password</source>
         <translation>密码错误</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2206"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2214"/>
         <source>connection lost</source>
         <translation>连接丢失</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2207"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2215"/>
         <source>disconnected</source>
         <translation>已断开</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2212"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2220"/>
         <source>MB/s</source>
         <translation>MB/s</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2213"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2221"/>
         <source>KB/s</source>
         <translation>KB/s</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2214"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2222"/>
         <source>B/s</source>
         <translation>B/s</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2217"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2225"/>
         <source>GB</source>
         <translation>GB</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2218"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2226"/>
         <source>MB</source>
         <translation>MB</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2219"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2227"/>
         <source>KB</source>
         <translation>KB</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2220"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2228"/>
         <source>B</source>
         <translation>B</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2251"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2259"/>
         <source>Enter the network name</source>
         <translation>输入网络名称</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2257"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2265"/>
         <source>Connecting to %1…</source>
         <translation>正在连接到 %1…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2260"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2268"/>
         <source>Network name or password is too long</source>
         <translation>网络名称或密码过长</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2273"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2281"/>
         <source>Wi‑Fi connected: %1</source>
         <translation>Wi‑Fi 已连接：%1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2276"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2284"/>
         <source>Wi‑Fi: %1 (%2)</source>
         <translation>Wi‑Fi：%1（%2）</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2286"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2294"/>
         <source>the module is busy, try again in a moment</source>
         <translation>模块正忙，请稍后重试</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2287"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2295"/>
         <source>the module rejected the request</source>
         <translation>模块拒绝了请求</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2288"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2296"/>
         <source>response code %1</source>
         <translation>响应代码 %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2289"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2297"/>
         <source>Wi‑Fi command failed: %1</source>
         <translation>Wi‑Fi 命令失败：%1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2316"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2935"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2324"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2943"/>
         <source>No data</source>
         <translation>无数据</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2330"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2338"/>
         <source>Waiting for the module…</source>
         <translation>正在等待模块…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2332"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2340"/>
         <source>Own access point · ch %1 · %2 · clients: %3</source>
         <translation>自建接入点 · 信道 %1 · %2 · 客户端：%3</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2336"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2541"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2739"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2344"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2549"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2747"/>
         <source>ch %1</source>
         <translation>信道 %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2342"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2350"/>
         <source>Looking for a saved network…</source>
         <translation>正在寻找已保存的网络…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2345"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2353"/>
         <source>Last attempt: %1</source>
         <translation>上次尝试：%1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2346"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2354"/>
         <source>Auto-connect is off</source>
         <translation>自动连接已关闭</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2346"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2354"/>
         <source>No saved networks yet</source>
         <translation>尚无已保存的网络</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2371"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3798"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2379"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3806"/>
         <source>Traffic</source>
         <translation>流量</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2373"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2381"/>
         <source>%1 received, %2 sent</source>
         <translation>已接收 %1，已发送 %2</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2375"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2383"/>
         <source>Module up %1</source>
         <translation>模块已运行 %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2376"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2384"/>
         <source> · last restart: %1</source>
         <translation> · 上次重启：%1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2377"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2385"/>
         <source> · requests lost: %1</source>
         <translation> · 丢失请求：%1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2382"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2390"/>
         <source>Both ends</source>
         <translation>两端</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2384"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2392"/>
         <source>%1 dBm here · %2 dBm there · %3 dB apart</source>
         <translation>本端 %1 dBm · 对端 %2 dBm · 相差 %3 dB</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2388"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2396"/>
         <source>Here: how this access point hears its weakest client; there: how the client&apos;s module hears this access point. A big gap points to one end: its antenna, its transmit power or the module.</source>
         <translation>本端：此接入点收到其最弱客户端的信号强度；对端：客户端模块收到此接入点的信号强度。差距较大说明问题在某一端：其天线、发射功率或模块本身。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2389"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2397"/>
         <source>Here: how this module hears its access point; there: how the access point hears it (its weakest client). A big gap points to one end: its antenna, its transmit power or the module.</source>
         <translation>本端：此模块收到其接入点的信号强度；对端：接入点收到此模块的信号强度（其最弱客户端）。差距较大说明问题在某一端：其天线、发射功率或模块本身。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2393"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2401"/>
         <source>Link speed</source>
         <translation>链路速率</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2401"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2409"/>
         <source>not measured: %1</source>
         <translation>未测量：%1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2401"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2409"/>
         <source>measuring…</source>
         <translation>测量中…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2402"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2410"/>
         <source>in: %1</source>
         <translation>入：%1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2403"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2411"/>
         <source>out: %1</source>
         <translation>出：%1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2410"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2418"/>
         <source>In: %1.</source>
         <translation>入：%1。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2411"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2419"/>
         <source>Out, as the other end hears it: %1.</source>
         <translation>出（对端接收）：%1。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2412"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2420"/>
         <source>The PHY rate of the other end&apos;s data frames in a 0.2 s window, every 3 s while this section is open. LR: the module does not decode its rate yet.</source>
         <translation>对端数据帧在 0.2 秒窗口内的 PHY 速率，本部分展开时每 3 秒测量一次。LR：模块尚不能解析其速率。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2418"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2426"/>
         <source>Auto-connect</source>
         <translation>自动连接</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2419"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2427"/>
         <source>Join the strongest saved network at power-up and after a loss</source>
         <translation>上电时及断线后自动加入信号最强的已保存网络</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2432"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2440"/>
         <source>Auto-connect off: the module leaves the network</source>
         <translation>自动连接已关闭：模块将退出网络</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2445"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2453"/>
         <source>Scanning…</source>
         <translation>扫描中…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2445"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2453"/>
         <source>Scan</source>
         <translation>扫描</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2447"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2455"/>
         <source>Look for networks nearby (takes a few seconds)</source>
         <translation>搜索附近的网络（需要几秒钟）</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2452"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2460"/>
         <source>Disconnect</source>
         <translation>断开连接</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2454"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2462"/>
         <source>Leave the network and switch auto-connect off</source>
         <translation>退出网络并关闭自动连接</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2459"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2467"/>
         <source>Wi‑Fi disconnected, auto-connect off</source>
         <translation>Wi‑Fi 已断开，自动连接已关闭</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2464"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2472"/>
         <source>Other…</source>
         <translation>其他…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2465"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2473"/>
         <source>Join a network that hides its name</source>
         <translation>加入隐藏名称的网络</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2474"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2482"/>
         <source>Join a hidden network</source>
         <translation>加入隐藏网络</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2474"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2482"/>
         <source>Join %1</source>
         <translation>加入 %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2478"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4166"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2486"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4174"/>
         <source>Network name (SSID)</source>
         <translation>网络名称（SSID）</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2482"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2490"/>
         <source>SSID</source>
         <translation>SSID</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2488"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2495"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4171"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2496"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2503"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4179"/>
         <source>Password</source>
         <translation>密码</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2489"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2497"/>
         <source>Saved network: the module keeps its password to itself, type it once more</source>
         <translation>已保存的网络：模块不会返回其密码，请再输入一次</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2490"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2498"/>
         <source>Leave empty for an open network</source>
         <translation>开放网络请留空</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2501"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2509"/>
         <source>Remember this network</source>
         <translation>记住此网络</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2502"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2510"/>
         <source>Stored in the module once an address is obtained</source>
         <translation>获得地址后保存到模块中</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2513"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2521"/>
         <source>Connect</source>
         <translation>连接</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2532"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2540"/>
         <source>Networks nearby (searching…)</source>
         <translation>附近的网络（搜索中…）</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2532"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2540"/>
         <source>Networks nearby</source>
         <translation>附近的网络</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2539"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2547"/>
         <source>(hidden network)</source>
         <translation>（隐藏网络）</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2542"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2871"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2550"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2879"/>
         <source>connected</source>
         <translation>已连接</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2542"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2550"/>
         <source>saved</source>
         <translation>已保存</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2557"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2565"/>
         <source>Nothing found yet. Tap Scan.</source>
         <translation>尚未找到任何网络。请点击“扫描”。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2567"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2575"/>
         <source>Channels</source>
         <translation>信道</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2571"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2579"/>
         <source>Live</source>
         <translation>实时</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2573"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2581"/>
         <source>Measuring again and again while this page is open; each measurement takes about 4 s and pauses the boat link.</source>
         <translation>本页面打开期间持续测量；每次测量约 4 秒，期间会暂停与船的链路。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2574"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2582"/>
         <source>Scanning again and again while this page is open; each scan takes 2–4 s and may stall the boat link.</source>
         <translation>本页面打开期间持续扫描；每次扫描需 2–4 秒，可能使与船的链路卡顿。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2575"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2583"/>
         <source>Off: the picture is of one measurement.</source>
         <translation>关闭：显示的是单次测量的结果。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2575"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2583"/>
         <source>Off: the picture is of one scan.</source>
         <translation>关闭：显示的是单次扫描的结果。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2589"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2597"/>
         <source>Wi‑Fi airtime</source>
         <translation>Wi‑Fi 空口占用</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2590"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2598"/>
         <source>Measured by the module: the share of the time the air carried Wi‑Fi frames on each channel, 0.3 s a channel (a lower bound: interference that is not Wi‑Fi is not seen). A bar is the other networks&apos; share in the last measurement, with our own link&apos;s on top in a lighter tone (it moves with us; neighbours of our channel • hear it too); the figure and the tick, the mean of the last measurements, are the others&apos; share, which the pick goes by. A measurement takes about 4 s and pauses the boat link. Tap a channel for its details.</source>
         <translation>由模块测量：各信道上空中传输 Wi‑Fi 帧的时间占比，每个信道 0.3 秒（为下限：非 Wi‑Fi 干扰无法检测）。柱条为上次测量中其他网络的占比，其上以浅色叠加我方链路的占比（它随我方移动；我方信道 • 的相邻信道也能收到）；数字和刻度为最近几次测量的平均值，表示其他网络的占比，推荐信道即依据此值。一次测量约 4 秒，期间会暂停与船的链路。点击信道可查看详情。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2596"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2604"/>
         <source>Measuring…</source>
         <translation>测量中…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2596"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2604"/>
         <source>Measure</source>
         <translation>测量</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2598"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2606"/>
         <source>Measure the Wi‑Fi airtime of every channel now (about 4 s)</source>
         <translation>立即测量每个信道的 Wi‑Fi 空口占用（约 4 秒）</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2685"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2693"/>
         <source>Least busy (mean of %1)</source>
         <translation>最空闲（%1 次平均）</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2686"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2694"/>
         <source>Least busy (Wi‑Fi airtime)</source>
         <translation>最空闲（Wi‑Fi 空口占用）</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2689"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2698"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2819"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2825"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2697"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2706"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2827"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2833"/>
         <source>channel %1</source>
         <translation>信道 %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2695"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2703"/>
         <source>Our channel now (•)</source>
         <translation>我方当前信道（•）</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2698"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2706"/>
         <source>others %1</source>
         <translation>他方 %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2699"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2707"/>
         <source>ours %1</source>
         <translation>我方 %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2706"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2714"/>
         <source>Not measured: %1</source>
         <translation>未测量：%1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2719"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2727"/>
         <source>Channel %1</source>
         <translation>信道 %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2719"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2727"/>
         <source>the pick</source>
         <translation>推荐</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2720"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2728"/>
         <source>ours now</source>
         <translation>我方当前</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2738"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2746"/>
         <source>(hidden)</source>
         <translation>（隐藏）</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2740"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2748"/>
         <source>our link</source>
         <translation>我方链路</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2751"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2759"/>
         <source>Networks heard (scan)</source>
         <translation>发现的网络（扫描）</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2753"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2761"/>
         <source>By the last scan: the power of the other networks on and next to each channel, with how 2.4 GHz channels overlap; our own network is left out. Tap a channel for its details.</source>
         <translation>依据上次扫描：各信道及其相邻信道上其他网络的功率，已计入 2.4 GHz 信道的重叠；不含我方网络。点击信道可查看详情。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2754"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2762"/>
         <source>By the networks heard: their power, counted with how 2.4 GHz channels overlap; our own network is left out. The traffic on a channel is not measured: that needs the module&apos;s firmware 0.16. Tap a channel for its details.</source>
         <translation>依据发现的网络：其功率，已计入 2.4 GHz 信道的重叠；不含我方网络。信道上的流量未测量：这需要模块固件 0.16。点击信道可查看详情。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2818"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2826"/>
         <source>Least busy</source>
         <translation>最空闲</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2824"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2832"/>
         <source>The boat link now (•)</source>
         <translation>当前船链路（•）</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2835"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2843"/>
         <source>To move the link there, set channel %1 in Role and access point → Channel below, then Apply; the head unit&apos;s module follows by itself.</source>
         <translation>如需将链路移到该信道，请在下方“角色和接入点 → 信道”中设置信道 %1，然后点击“应用”；主机的模块会自动跟随。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2836"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2844"/>
         <source>To move the link there, set channel %1 on the boat&apos;s module: Role and access point → Channel, then Apply; this module follows by itself.</source>
         <translation>如需将链路移到该信道，请在船上的模块中设置信道 %1：“角色和接入点 → 信道”，然后点击“应用”；此模块会自动跟随。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2844"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2852"/>
         <source>Link events</source>
         <translation>链路事件</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2864"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2872"/>
         <source>Saved networks</source>
         <translation>已保存的网络</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2885"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2893"/>
         <source>Forget</source>
         <translation>忘记</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2890"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2898"/>
         <source>Forgotten: %1</source>
         <translation>已忘记：%1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2925"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2933"/>
         <source>Ready</source>
         <translation>就绪</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2926"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2934"/>
         <source>Waiting for the boat</source>
         <translation>正在等待船</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2927"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2935"/>
         <source>No Wi‑Fi</source>
         <translation>无 Wi‑Fi</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2933"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2941"/>
         <source>No relay in firmware</source>
         <translation>固件不支持中继</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2957"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2965"/>
         <source>Module address must be 0…255</source>
         <translation>模块地址必须在 0…255 之间</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2961"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2969"/>
         <source>Boat port must be 1…65535</source>
         <translation>船端口必须在 1…65535 之间</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2972"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2980"/>
         <source>Boat IP address must be four numbers 0…255</source>
         <translation>船 IP 地址必须是四个 0…255 之间的数字</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2978"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2986"/>
         <source>Relay switched off; the module answers at address %1</source>
         <translation>中继已关闭；模块在地址 %1 上应答</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2980"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2988"/>
         <source>Relay settings sent; the module now answers at address %1 and shows up as a new device</source>
         <translation>中继设置已发送；模块现在在地址 %1 上应答，并显示为新设备</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3032"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3040"/>
         <source>Module firmware %1 has no relay. Update it to 0.6 or newer with Upgrade below.</source>
         <translation>模块固件 %1 不支持中继。请通过下方“升级”将其更新到 0.6 或更高版本。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3039"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3884"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4469"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3047"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3892"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4477"/>
         <source>Mode</source>
         <translation>模式</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3054"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3062"/>
         <source>Module address on this port</source>
         <translation>此端口上的模块地址</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3055"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3063"/>
         <source>Must differ from the boat device&apos;s address, which is usually 0</source>
         <translation>必须与船上设备的地址不同，后者通常为 0</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3066"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3074"/>
         <source>Boat IP address</source>
         <translation>船 IP 地址</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3067"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3075"/>
         <source>0.0.0.0 with UDP: the module answers whoever sends to it first</source>
         <translation>UDP 下为 0.0.0.0 时：模块应答第一个向其发送数据的一方</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3077"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3085"/>
         <source>Boat port</source>
         <translation>船端口</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3078"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3086"/>
         <source>UDP or TCP port of the boat device</source>
         <translation>船上设备的 UDP 或 TCP 端口</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3089"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3919"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4504"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3097"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3927"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4512"/>
         <source>Own UDP port</source>
         <translation>本地 UDP 端口</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3090"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3098"/>
         <source>The port the boat sends to; 0 = same as the boat port</source>
         <translation>船发送数据的目标端口；0 = 与船端口相同</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3107"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3343"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3944"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4003"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4212"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4342"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4534"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5007"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3115"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3351"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3952"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4011"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4220"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4350"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4542"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5015"/>
         <source>Apply</source>
         <translation>应用</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3114"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3122"/>
         <source>Send the settings to the module; it stores and applies them at once</source>
         <translation>将设置发送到模块；模块会立即保存并应用</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3119"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3349"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3950"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4218"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4348"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4540"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3127"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3357"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3958"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4226"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4356"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4548"/>
         <source>Read back</source>
         <translation>读回</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3120"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3128"/>
         <source>Discard edits and show what the module has</source>
         <translation>放弃修改并显示模块中的当前值</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3133"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3141"/>
         <source>Relay counters</source>
         <translation>中继计数</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3136"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3144"/>
         <source>Peer</source>
         <translation>对端</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3141"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3149"/>
         <source>To the boat</source>
         <translation>发往船</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3143"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3875"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4557"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3151"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3883"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4565"/>
         <source>%1 frames · %2 packets · %3 dropped</source>
         <translation>%1 帧 · %2 包 · 丢弃 %3</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3147"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3155"/>
         <source>From the boat</source>
         <translation>来自船</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3149"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3880"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4562"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3157"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3888"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4570"/>
         <source>%1 packets · %2 frames · %3 dropped</source>
         <translation>%1 包 · %2 帧 · 丢弃 %3</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3153"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3161"/>
         <source>For the module</source>
         <translation>发往模块</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3154"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3840"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3162"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3848"/>
         <source>%1 frames</source>
         <translation>%1 帧</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3190"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3198"/>
         <source>Not sent: no connection to the module</source>
         <translation>未发送：与模块无连接</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3196"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3204"/>
         <source>Radio settings sent to the module</source>
         <translation>无线设置已发送到模块</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3205"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3213"/>
         <source>Firmware 0.11 refuses LR only for an access point; update the module to 0.12.</source>
         <translation>固件 0.11 不允许接入点使用“仅 LR”；请将模块更新到 0.12。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3206"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3214"/>
         <source>The module refused these radio settings (ERR_PAYLOAD).</source>
         <translation>模块拒绝了这些无线设置（ERR_PAYLOAD）。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3208"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3216"/>
         <source>The module refused these radio settings: not possible now (ERR_RUNTIME).</source>
         <translation>模块拒绝了这些无线设置：当前无法执行（ERR_RUNTIME）。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3209"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3217"/>
         <source>The module refused these radio settings (code %1).</source>
         <translation>模块拒绝了这些无线设置（代码 %1）。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3236"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3244"/>
         <source>no link</source>
         <translation>无链路</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3252"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3260"/>
         <source>Radio: %1</source>
         <translation>无线：%1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3259"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3267"/>
         <source>Transmit power limit, dBm</source>
         <translation>发射功率上限，dBm</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3261"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3269"/>
         <source>In use: %1 dBm</source>
         <translation>当前使用：%1 dBm</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3263"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3271"/>
         <source> (saved %1 dBm; the driver works in steps)</source>
         <translation> （已保存 %1 dBm；驱动按档位调节）</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3275"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3283"/>
         <source>Protocols</source>
         <translation>协议</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3277"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3285"/>
         <source>Access point: each client negotiates its own mode.</source>
         <translation>接入点：每个客户端各自协商其模式。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3278"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3286"/>
         <source>Link now: %1</source>
         <translation>当前链路：%1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3279"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3287"/>
         <source>. LR needs an LR-capable access point: another Kogger module (Espressif) with LR or b/g/n+LR.</source>
         <translation>。LR 需要支持 LR 的接入点：另一个启用 LR 或 b/g/n+LR 的 Kogger 模块（Espressif）。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3294"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3302"/>
         <source>LR only: phones and laptops cannot join; only Espressif stations with LR (another Kogger module set to LR or b/g/n+LR) can.</source>
         <translation>仅 LR：手机和笔记本电脑无法接入；只有支持 LR 的 Espressif 站点（另一个设为 LR 或 b/g/n+LR 的 Kogger 模块）才能接入。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3305"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3313"/>
         <source>Channel width</source>
         <translation>信道带宽</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3306"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3314"/>
         <source>20 MHz only: 40 MHz needs 802.11n (b/g/n or b/g/n+LR); LR, b and b/g run at 20 MHz.</source>
         <translation>仅 20 MHz：40 MHz 需要 802.11n（b/g/n 或 b/g/n+LR）；LR、b 和 b/g 以 20 MHz 运行。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3308"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3316"/>
         <source>No link: the saved width is shown</source>
         <translation>无链路：显示的是已保存的带宽</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3309"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3317"/>
         <source>In use: %1 MHz</source>
         <translation>当前使用：%1 MHz</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3311"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3319"/>
         <source> (saved %1 MHz)</source>
         <translation> （已保存 %1 MHz）</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3312"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3320"/>
         <source> (saved %1 MHz; the access point gives no 40 MHz)</source>
         <translation> （已保存 %1 MHz；接入点不提供 40 MHz）</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3316"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3324"/>
         <source>20 MHz</source>
         <translation>20 MHz</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3317"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3325"/>
         <source>40 MHz</source>
         <translation>40 MHz</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3318"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3326"/>
         <source>40 MHz needs 802.11n</source>
         <translation>40 MHz 需要 802.11n</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3324"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3332"/>
         <source>Power save</source>
         <translation>省电</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3328"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3336"/>
         <source>Min</source>
         <translation>最小</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3328"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3336"/>
         <source>Max</source>
         <translation>最大</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3334"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3342"/>
         <source>Checking what the module uses now… </source>
         <translation>正在检查模块当前使用的设置… </translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3335"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3343"/>
         <source>Not applied yet: the menu differs from what the module uses. </source>
         <translation>尚未应用：菜单与模块当前使用的设置不同。 </translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3336"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3344"/>
         <source>Protocol and width changes make the module reconnect: the boat link drops for a few seconds. 40 MHz needs 802.11n and an access point that gives it.</source>
         <translation>更改协议和带宽会使模块重新连接：与船的链路会中断几秒钟。40 MHz 需要 802.11n 以及支持它的接入点。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3375"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3383"/>
         <source>The port speed could not be changed now: nothing changed</source>
         <translation>端口速率暂时无法更改：未作更改</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3386"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3394"/>
         <source>Module port to this device, bit/s</source>
         <translation>模块连接本设备的端口，bit/s</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3388"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3396"/>
         <source>Now %1. The module keeps the speed it is given here; this device&apos;s port follows.</source>
         <translation>当前 %1。模块会保持此处设定的速率；本设备的端口随之调整。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3389"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3974"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3397"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3982"/>
         <source>Changing to %1… (it finishes even if this page is closed)</source>
         <translation>正在切换到 %1…（即使关闭本页也会完成）</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3401"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3409"/>
         <source>The boat stream is about 92 KB/s: 921k is full, 2M leaves half free. Both ends must do the speed (the head unit&apos;s UART6: up to 4M).</source>
         <translation>船的数据流约 92 KB/s：921k 已满载，2M 尚余一半。两端都必须支持该速率（主机的 UART6：最高 4M）。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3404"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3412"/>
         <source>Apply %1</source>
         <translation>应用 %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3450"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3458"/>
         <source>Module address must be 1…254: 0 is where devices sit, 255 is refused</source>
         <translation>模块地址必须在 1…254 之间：0 为设备所用，255 会被拒绝</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3458"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3466"/>
         <source>line off</source>
         <translation>线路关闭</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3463"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3471"/>
         <source>senders</source>
         <translation>发送方</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3463"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3471"/>
         <source>broadcast :%1</source>
         <translation>广播 :%1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3468"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4424"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3476"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4432"/>
         <source>ready</source>
         <translation>就绪</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3469"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4425"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3477"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4433"/>
         <source>no peer</source>
         <translation>无对端</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3470"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4426"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3478"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4434"/>
         <source>no Wi‑Fi</source>
         <translation>无 Wi‑Fi</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3472"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3860"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4428"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3480"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3868"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4436"/>
         <source>off</source>
         <translation>关</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3475"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3483"/>
         <source>Two UDP lines cannot share a local port: to swap the ports of X1 and X2, first move one line to a free port, then give the other line the freed one.</source>
         <translation>两条 UDP 线路不能共用同一个本地端口：要交换 X1 和 X2 的端口，请先将其中一条线路改到空闲端口，再把腾出的端口分配给另一条。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3480"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3488"/>
         <source>The module did not send the line&apos;s settings: nothing changed.</source>
         <translation>模块未发送线路设置：未作更改。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3481"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3489"/>
         <source>The line&apos;s settings are not known yet: nothing changed. Read back and try again.</source>
         <translation>线路设置尚未知：未作更改。请读回后重试。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3484"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3492"/>
         <source>The module refused the rate: invalid value.</source>
         <translation>模块拒绝了该速率：值无效。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3485"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3493"/>
         <source>The module refused these settings: invalid values.</source>
         <translation>模块拒绝了这些设置：值无效。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3486"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3494"/>
         <source>The module refused: wrong key.</source>
         <translation>模块拒绝：密钥错误。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3487"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3495"/>
         <source>The module refused: not possible now or in this role.</source>
         <translation>模块拒绝：当前或在此角色下无法执行。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3488"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3496"/>
         <source>The module refused (code %1).</source>
         <translation>模块拒绝（代码 %1）。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3489"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3497"/>
         <source>No answer from the module: the fields show what it reports now.</source>
         <translation>模块无应答：字段显示的是它当前报告的值。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3507"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3515"/>
         <source>unreadable bytes (wrong rate?)</source>
         <translation>无法识别的字节（速率错误？）</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3508"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3516"/>
         <source>SBP host</source>
         <translation>SBP 主机</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3509"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3517"/>
         <source>SBP device(s)</source>
         <translation>SBP 设备</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3510"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3518"/>
         <source>SBP host and devices</source>
         <translation>SBP 主机和设备</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3513"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3521"/>
         <source>IP bridge (SLIP)</source>
         <translation>IP 网桥（SLIP）</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3514"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3522"/>
         <source>other framed traffic</source>
         <translation>其他分帧流量</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3519"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3527"/>
         <source>never</source>
         <translation>从未</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3520"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3528"/>
         <source>%1 s ago</source>
         <translation>%1 秒前</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3521"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3529"/>
         <source>%1 min ago</source>
         <translation>%1 分钟前</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3522"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3530"/>
         <source>%1 h ago</source>
         <translation>%1 小时前</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3527"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3535"/>
         <source>generic</source>
         <translation>通用</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3528"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3536"/>
         <source>fixed wing</source>
         <translation>固定翼</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3529"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3537"/>
         <source>quadrotor</source>
         <translation>四旋翼</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3530"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3538"/>
         <source>helicopter</source>
         <translation>直升机</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3531"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3539"/>
         <source>ground station</source>
         <translation>地面站</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3532"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3540"/>
         <source>rover</source>
         <translation>无人车</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3533"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3541"/>
         <source>boat</source>
         <translation>船</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3534"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3542"/>
         <source>submarine</source>
         <translation>潜航器</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3535"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3543"/>
         <source>hexarotor</source>
         <translation>六旋翼</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3536"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3544"/>
         <source>octorotor</source>
         <translation>八旋翼</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3537"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3545"/>
         <source>onboard computer</source>
         <translation>机载计算机</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3538"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3546"/>
         <source>gimbal</source>
         <translation>云台</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3540"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3548"/>
         <source>camera</source>
         <translation>相机</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3542"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3550"/>
         <source>type %1</source>
         <translation>类型 %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3546"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3554"/>
         <source>generic autopilot</source>
         <translation>通用自动驾驶仪</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3548"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3556"/>
         <source>no autopilot</source>
         <translation>无自动驾驶仪</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3551"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3559"/>
         <source>autopilot %1</source>
         <translation>自动驾驶仪 %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3571"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3579"/>
         <source>Ports</source>
         <translation>端口</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3576"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3584"/>
         <source>This device is connected through %1</source>
         <translation>本设备通过 %1 连接</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3577"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3585"/>
         <source>This device reaches the module over the network</source>
         <translation>本设备通过网络访问模块</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3578"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3586"/>
         <source>X1 and X2 are equal: the module answers on either, and each port has its own rate.</source>
         <translation>X1 和 X2 地位相同：模块在任一端口上都会应答，且每个端口有各自的速率。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3690"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3698"/>
         <source>%1 already listens on UDP %2.</source>
         <translation>%1 已在监听 UDP %2。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3695"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3703"/>
         <source>Not sent: check the fields (IP a.b.c.d, ports 0–65535, pins −1…127), or wait for the running change.</source>
         <translation>未发送：请检查字段（IP a.b.c.d，端口 0–65535，引脚 −1…127），或等待正在进行的更改完成。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3703"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3711"/>
         <source>The rate of %1 could not be changed now: nothing changed</source>
         <translation>%1 的速率暂时无法更改：未作更改</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3772"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3780"/>
         <source>this device</source>
         <translation>本设备</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3773"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3781"/>
         <source>provisional</source>
         <translation>临时</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3776"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3782"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3784"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3790"/>
         <source>UART off</source>
         <translation>UART 关闭</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3777"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3785"/>
         <source>no data</source>
         <translation>无数据</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3781"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3789"/>
         <source>Rate</source>
         <translation>速率</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3782"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3790"/>
         <source>%1 bit/s</source>
         <translation>%1 bit/s</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3785"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3793"/>
         <source>Provisional: kept once a request for the module comes through this port, otherwise back to %1 in 10 s</source>
         <translation>临时：一旦有发给模块的请求经此端口到达即保留，否则 10 秒后恢复为 %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3786"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3794"/>
         <source>Saved: %1 (in effect after a reboot)</source>
         <translation>已保存：%1（重启后生效）</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3794"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3802"/>
         <source>Gets the module&apos;s reports</source>
         <translation>接收模块的报告</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3794"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3802"/>
         <source>Gets no reports from the module</source>
         <translation>不接收模块的报告</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3799"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3807"/>
         <source>RX %1 · TX %2</source>
         <translation>RX %1 · TX %2</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3801"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3809"/>
         <source>%1 received, %2 sent · last RX %3</source>
         <translation>已接收 %1，已发送 %2 · 最近 RX %3</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3807"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3815"/>
         <source>Frames RX/TX</source>
         <translation>帧 RX/TX</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3814"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3822"/>
         <source>From the port: %1 requests, %2 content · to it: %3 requests, %4 content</source>
         <translation>来自端口：%1 个请求，%2 个内容帧 · 发往端口：%3 个请求，%4 个内容帧</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3817"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3825"/>
         <source>for the module %1, its own frames %2</source>
         <translation>发给模块 %1，其自身帧 %2</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3820"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3828"/>
         <source>Losses</source>
         <translation>丢失</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3822"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3830"/>
         <source>%1 RX overflows · %2 TX drops</source>
         <translation>%1 次 RX 溢出 · %2 次 TX 丢弃</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3827"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3835"/>
         <source>Devices on this port</source>
         <translation>此端口上的设备</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3833"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3841"/>
         <source>MAVLink %1/%2 · %3</source>
         <translation>MAVLink %1/%2 · %3</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3834"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3842"/>
         <source>no heartbeat yet</source>
         <translation>尚无心跳</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3835"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3843"/>
         <source>SBP %1</source>
         <translation>SBP %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3837"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3845"/>
         <source>board %1</source>
         <translation>板卡 %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3841"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3849"/>
         <source>fw %1</source>
         <translation>固件 %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3842"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3850"/>
         <source>SN %1</source>
         <translation>序列号 %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3843"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3851"/>
         <source>heard %1</source>
         <translation>收到 %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3850"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3858"/>
         <source>None heard</source>
         <translation>未收到任何设备</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3856"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3864"/>
         <source>Network side (line %1)</source>
         <translation>网络侧（线路 %1）</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3858"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4548"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3866"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4556"/>
         <source>State</source>
         <translation>状态</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3869"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3877"/>
         <source>last data %1</source>
         <translation>最近数据 %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3873"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4555"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3881"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4563"/>
         <source>To the network</source>
         <translation>发往网络</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3878"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4560"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3886"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4568"/>
         <source>From the network</source>
         <translation>来自网络</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3895"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4480"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3903"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4488"/>
         <source>Send to</source>
         <translation>发送到</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3896"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4481"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3904"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4489"/>
         <source>The peer below</source>
         <translation>下方的对端</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3897"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3905"/>
         <source>Whoever sent to this UDP port (up to 4, forgotten after 60 s of silence)</source>
         <translation>向此 UDP 端口发送过数据的一方（最多 4 个，静默 60 秒后遗忘）</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3898"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4483"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3906"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4491"/>
         <source>Broadcast in the subnet to the peer port</source>
         <translation>在子网内广播到对端端口</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3902"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4487"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3910"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4495"/>
         <source>Fixed</source>
         <translation>固定</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3902"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4487"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3910"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4495"/>
         <source>Senders</source>
         <translation>发送方</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3902"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4487"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3910"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4495"/>
         <source>Broadcast</source>
         <translation>广播</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3909"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4494"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3917"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4502"/>
         <source>Peer IP address</source>
         <translation>对端 IP 地址</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3914"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4499"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3922"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4507"/>
         <source>Peer port</source>
         <translation>对端端口</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3920"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3928"/>
         <source>0 = the peer port. Each UDP line needs a port of its own: to swap the ports of X1 and X2, move one line to a free port first.</source>
         <translation>0 = 对端端口。每条 UDP 线路都需要独立的端口：要交换 X1 和 X2 的端口，请先将其中一条线路改到空闲端口。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3925"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4516"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3933"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4524"/>
         <source>TX / RX pins</source>
         <translation>TX / RX 引脚</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3926"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3934"/>
         <source>Allowed 0, 1, 3, 4, 5, 6, 7, 10; −1 switches the UART off; new pins start after a reboot</source>
         <translation>允许 0、1、3、4、5、6、7、10；−1 关闭 UART；新引脚在重启后生效</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3935"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3943"/>
         <source>Applying… (it finishes even if this page is closed)</source>
         <translation>正在应用…（即使关闭本页也会完成）</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3936"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3944"/>
         <source>This device&apos;s port: switching its line off ends the network (boat) link through it; the module keeps answering here.</source>
         <translation>本设备的端口：关闭其线路会终止经由它的网络（船）链路；模块仍会在此应答。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3937"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3945"/>
         <source>Only the fields changed here are sent; the module keeps the rest as it has them.</source>
         <translation>只发送此处更改的字段；其余字段模块保持原样。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3973"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3981"/>
         <source>Set the rate</source>
         <translation>设置速率</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3976"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3984"/>
         <source>This device&apos;s port: the module keeps the new rate at once (firmware 0.15) and the link here follows. If this device cannot do the rate, the link is lost until the module&apos;s BOOT button is held 5 s (both ports back to 921600).</source>
         <translation>本设备的端口：模块会立即保持新速率（固件 0.15），此处的连接随之调整。如果本设备不支持该速率，连接将中断，直至按住模块的 BOOT 按钮 5 秒（两个端口恢复为 921600）。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3977"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3985"/>
         <source>This device&apos;s port: the link here follows, the module has to answer at the new rate, then it is saved.</source>
         <translation>本设备的端口：此处的连接随之调整，模块须在新速率下应答，然后才会保存。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3978"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3986"/>
         <source>Not this device&apos;s port: saved in the module at once.</source>
         <translation>非本设备的端口：立即保存到模块中。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3981"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3989"/>
         <source> 5M: both ends must do it (the head unit&apos;s UART6 was tried up to 4M only; a USB adapter needs 5M in its data sheet).</source>
         <translation> 5M：两端都必须支持（主机的 UART6 仅测试到 4M；USB 适配器的数据手册须标明支持 5M）。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3982"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3990"/>
         <source> 5M: both ends must do it (the head unit&apos;s UART6 was tried up to 4M; a USB adapter needs 5M in its data sheet). Without an answer at 5M the link goes back by itself.</source>
         <translation> 5M：两端都必须支持（主机的 UART6 测试到 4M；USB 适配器的数据手册须标明支持 5M）。若在 5M 下无应答，连接会自动恢复。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3983"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3991"/>
         <source> 5M: the device on this port must do it too. The module keeps the rate: set it back here if that device stops answering.</source>
         <translation> 5M：此端口上的设备也必须支持。模块会保持该速率：如果该设备停止应答，请在此改回。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4025"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4033"/>
         <source>Must differ from the devices behind the ports (a sonar is usually 0); 1…254. The module then reappears as a new device.</source>
         <translation>必须与端口后面的设备不同（声呐通常为 0）；1…254。之后模块会作为新设备重新出现。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4032"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4580"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4040"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4588"/>
         <source>Set</source>
         <translation>设置</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4074"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4082"/>
         <source>Role saved: %1 after the next reboot</source>
         <translation>角色已保存：下次重启后为 %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4081"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4089"/>
         <source>Check the fields: name 1–32 bytes, password 8–63 characters (none for an open network), channel 1–11, clients 1–10</source>
         <translation>请检查字段：名称 1–32 字节，密码 8–63 个字符（开放网络无需密码），信道 1–11，客户端 1–10</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4090"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4098"/>
         <source>access point</source>
         <translation>接入点</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4090"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4098"/>
         <source>station</source>
         <translation>站点</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4113"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4121"/>
         <source>Role and access point</source>
         <translation>角色和接入点</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4117"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4125"/>
         <source>Running: %1</source>
         <translation>当前运行：%1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4121"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4129"/>
         <source>Station</source>
         <translation>站点</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4130"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4138"/>
         <source>Saved role: %1 — takes effect after a reboot</source>
         <translation>已保存的角色：%1 — 重启后生效</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4137"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4145"/>
         <source>As an access point the module stops joining the boat&apos;s network, so this head unit loses the boat link until the role is switched back. It then answers at address 88 unless an own address is set.</source>
         <translation>作为接入点时，模块不再加入船的网络，因此本主机会失去与船的链路，直到角色切换回来。届时除非设置了自身地址，否则它在地址 88 上应答。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4138"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4146"/>
         <source>As an access point the module stops joining the boat&apos;s network, so this head unit loses the boat link until the role is switched back. With a relaying line it answers at its relay address (88 by default).</source>
         <translation>作为接入点时，模块不再加入船的网络，因此本主机会失去与船的链路，直到角色切换回来。若有中继线路，它会在中继地址（默认 88）上应答。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4139"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4147"/>
         <source>As a station the module joins saved networks, as before.</source>
         <translation>作为站点时，模块会像以前一样加入已保存的网络。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4146"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4154"/>
         <source>Apply and reboot</source>
         <translation>应用并重启</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4151"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4159"/>
         <source>Role sent; the module restarts</source>
         <translation>角色已发送；模块正在重启</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4156"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4164"/>
         <source>Save for next boot</source>
         <translation>保存，下次启动时生效</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4163"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4171"/>
         <source>Access point network</source>
         <translation>接入点网络</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4172"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4180"/>
         <source>8–63 characters. Leave it empty to keep the current password.</source>
         <translation>8–63 个字符。留空则保留当前密码。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4173"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4181"/>
         <source>unchanged</source>
         <translation>不变</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4177"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4185"/>
         <source>Security</source>
         <translation>安全</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4188"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4196"/>
         <source>Channel (1–11)</source>
         <translation>信道（1–11）</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4193"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4201"/>
         <source>Clients at most (1–10)</source>
         <translation>最多客户端数（1–10）</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4198"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4206"/>
         <source>Hidden network</source>
         <translation>隐藏网络</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4204"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4212"/>
         <source>The access point restarts with the new settings; its clients reconnect.</source>
         <translation>接入点将以新设置重启；其客户端会重新连接。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4205"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4213"/>
         <source>Stored now, used once the module runs as an access point.</source>
         <translation>现已保存，模块以接入点方式运行时生效。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4226"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4234"/>
         <source>Clients: %1</source>
         <translation>客户端：%1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4240"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4248"/>
         <source>Refresh clients</source>
         <translation>刷新客户端</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4266"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4274"/>
         <source>Addresses must be four numbers a.b.c.d, the lease 1–2880 minutes</source>
         <translation>地址必须是 a.b.c.d 形式的四个数字，租期 1–2880 分钟</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4293"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4301"/>
         <source>Access point address and DHCP</source>
         <translation>接入点地址和 DHCP</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4299"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4307"/>
         <source>Mask</source>
         <translation>掩码</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4303"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4311"/>
         <source>DHCP server</source>
         <translation>DHCP 服务器</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4308"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4316"/>
         <source>Address pool</source>
         <translation>地址池</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4309"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4317"/>
         <source>Inside the subnet, without the module&apos;s own address, at most 100 addresses</source>
         <translation>须在子网内，不含模块自身地址，最多 100 个地址</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4320"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4328"/>
         <source>Lease, minutes (1–2880)</source>
         <translation>租期，分钟（1–2880）</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4325"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4333"/>
         <source>Offer a gateway</source>
         <translation>提供网关</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4326"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4334"/>
         <source>Off by default: the module has no internet, a phone would route all traffic to it</source>
         <translation>默认关闭：模块没有互联网，手机会把所有流量都路由到它</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4331"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4339"/>
         <source>Offer DNS</source>
         <translation>提供 DNS</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4335"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4343"/>
         <source>Used by the access point. In that role a change applies at once and every client takes a new lease.</source>
         <translation>由接入点使用。在该角色下，更改立即生效，每个客户端都会获取新的租约。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4388"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4396"/>
         <source>Check the fields: IP a.b.c.d, ports 0–65535, line 1 speed 9600–4000000</source>
         <translation>请检查字段：IP a.b.c.d，端口 0–65535，线路 1 速率 9600–4000000</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4403"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4411"/>
         <source>Module address must be 1…255: 0 is where devices sit</source>
         <translation>模块地址必须在 1…255 之间：0 为设备所用</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4439"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4447"/>
         <source>Wi‑Fi module: settings applied</source>
         <translation>Wi‑Fi 模块：设置已应用</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4441"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4449"/>
         <source>Wi‑Fi module refused the settings: %1</source>
         <translation>Wi‑Fi 模块拒绝了设置：%1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4442"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4450"/>
         <source>invalid values</source>
         <translation>值无效</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4443"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4451"/>
         <source>wrong key</source>
         <translation>密钥错误</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4444"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4452"/>
         <source>not possible now or in this role</source>
         <translation>当前或在此角色下无法执行</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4459"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4467"/>
         <source>Line</source>
         <translation>线路</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4463"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4471"/>
         <source>0 · X1, this port</source>
         <translation>0 · X1，本端口</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4463"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4471"/>
         <source>1 · X2</source>
         <translation>1 · X2</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4482"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4490"/>
         <source>Whoever sent to this port (up to 4, forgotten after 60 s of silence)</source>
         <translation>向此端口发送过数据的一方（最多 4 个，静默 60 秒后遗忘）</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4505"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4513"/>
         <source>0 = the peer port</source>
         <translation>0 = 对端端口</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4510"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4518"/>
         <source>Baud rate</source>
         <translation>波特率</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4511"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4519"/>
         <source>9600–4000000; line 0 uses the device baud rate below</source>
         <translation>9600–4000000；线路 0 使用下方的设备波特率</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4517"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4525"/>
         <source>Allowed 0, 1, 3, 4, 5, 6, 7, 10; −1 switches UART1 off; new pins start after a reboot</source>
         <translation>允许 0、1、3、4、5、6、7、10；−1 关闭 UART1；新引脚在重启后生效</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4526"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4534"/>
         <source>Line 0 is this port: switching it off ends the boat link, and the module goes back to address 0.</source>
         <translation>线路 0 即本端口：关闭它会终止与船的链路，模块会恢复到地址 0。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4546"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4554"/>
         <source>Line %1 counters</source>
         <translation>线路 %1 计数</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4551"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4559"/>
         <source>senders: %1</source>
         <translation>发送方：%1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4565"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4573"/>
         <source>UART</source>
         <translation>UART</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4567"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4575"/>
         <source>%1 receive overflows · %2 transmit drops · %3 frames for the module</source>
         <translation>%1 次接收溢出 · %2 次发送丢弃 · %3 帧发给模块</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4572"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4580"/>
         <source>Module address while relaying</source>
         <translation>中继时的模块地址</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4573"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4581"/>
         <source>Must differ from the devices behind the lines (a sonar is usually 0). The module then reappears as a new device.</source>
         <translation>必须与线路后面的设备不同（声呐通常为 0）。之后模块会作为新设备重新出现。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4656"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4664"/>
         <source>Advanced settings</source>
         <translation>高级设置</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4680"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4688"/>
         <source>Finish pinning settings</source>
         <translation>完成固定设置</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4681"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4689"/>
         <source>Pin settings to favourites</source>
         <translation>将设置固定到收藏</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4836"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4844"/>
         <source>Erase settings</source>
         <translation>清除设置</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4837"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4845"/>
         <source>Erase device settings (reset)</source>
         <translation>清除设备设置（重置）</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4838"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4846"/>
         <source>Settings erased on device: %1</source>
         <translation>设备设置已清除：%1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4842"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4850"/>
         <source>Reboot</source>
         <translation>重启</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4843"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4851"/>
         <source>Reboot the device</source>
         <translation>重启设备</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4844"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4852"/>
         <source>Reboot command sent: %1</source>
         <translation>重启命令已发送：%1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4872"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4880"/>
         <source>Address, mask or host address is not four octets</source>
         <translation>地址、掩码或主机地址不是四个八位组</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4875"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4883"/>
         <source>Network settings sent: %1</source>
         <translation>网络设置已发送：%1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4902"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4910"/>
         <source>Device address</source>
         <translation>设备地址</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4933"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4941"/>
         <source>Subnet mask</source>
         <translation>子网掩码</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4964"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4972"/>
         <source>Host address</source>
         <translation>主机地址</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4995"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5003"/>
         <source>Hand the host its address (DHCP)</source>
         <translation>为主机分配地址（DHCP）</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5008"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5016"/>
         <source>Send the addresses to the device. They take effect at once; write them with Flash settings to survive a reboot.</source>
         <translation>将地址发送到设备。地址立即生效；如需在重启后保留，请用“保存到闪存”写入。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5013"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5021"/>
         <source>Default</source>
         <translation>默认</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5014"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5022"/>
         <source>Put the factory addresses in the fields; Apply sends them</source>
         <translation>在字段中填入出厂地址；点击“应用”发送</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5023"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5031"/>
         <source>Reading the device settings...</source>
         <translation>正在读取设备设置...</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5025"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5033"/>
         <source>Adapter MAC %1.</source>
         <translation>适配器 MAC %1。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5026"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5034"/>
         <source>The device answers a discovery request on UDP port 18020, broadcast included, so it can be found and put back even when the addresses do not match. That port is fixed.</source>
         <translation>设备会在 UDP 端口 18020 上应答发现请求（包括广播），因此即使地址不匹配也能找到并恢复它。该端口是固定的。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5027"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5035"/>
         <source>These settings are not in the device memory: a reboot brings back the stored ones.</source>
         <translation>这些设置未写入设备存储器：重启后会恢复为已保存的设置。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5036"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5044"/>
         <source>Settings file</source>
         <translation>设置文件</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5063"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5071"/>
         <source>Open settings file</source>
         <translation>打开设置文件</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5076"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5084"/>
         <source>Save settings file</source>
         <translation>保存设置文件</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5095"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5103"/>
         <source>Upgrade</source>
         <translation>升级</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5103"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5111"/>
         <source>Behind a recorder: the sonar is moved to 115200 first and the recorder follows it. Keep the power on until the update ends.</source>
         <translation>在记录仪后面：先将声呐切换到 115200，记录仪会随之调整。更新结束前请勿断电。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5104"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5112"/>
         <source>This sonar is behind a recorder on a bus address. To update it, connect it to a computer directly.</source>
         <translation>此声呐位于记录仪后面并使用总线地址。要更新它，请将其直接连接到计算机。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5159"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5167"/>
         <source>Please choose a file</source>
         <translation>请选择文件</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5206"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5214"/>
         <source>Enter path</source>
         <translation>输入路径</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5216"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5224"/>
         <source>Choose firmware</source>
         <translation>选择固件</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5226"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5234"/>
         <source>UPGRADE</source>
         <translation>升级</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5237"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5245"/>
         <source>Flashing device %1 with file %2</source>
         <translation>正在用文件 %2 刷写设备 %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5239"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5265"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5247"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5273"/>
         <source>Failed to open firmware file: %1</source>
         <translation>无法打开固件文件：%1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5251"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5259"/>
         <source>UPGRADE ALL ON THIS LINE</source>
         <translation>升级此线路上的全部设备</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5252"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5260"/>
         <source>Every sonar sharing this line, one after another</source>
         <translation>依次升级共用此线路的每台声呐</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5263"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5271"/>
         <source>Flashing every sonar on the line of %1 with file %2</source>
         <translation>正在用文件 %2 刷写 %1 所在线路上的每台声呐</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5278"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5286"/>
         <source>Device %1 successfully flashed with file %2</source>
         <translation>设备 %1 已成功用文件 %2 刷写</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5281"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5289"/>
         <source>Failed to flash device %1 with file %2 (error code %3)</source>
         <translation>用文件 %2 刷写设备 %1 失败（错误代码 %3）</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5294"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5550"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5302"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5558"/>
         <source>Bus address</source>
         <translation>总线地址</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5304"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5312"/>
         <source>The number of this sonar on a line it shares. 0: alone on its line. 1: first in the ring, its RX on the host&apos;s TX (left). 2: last, its TX on the host&apos;s RX (right). Only this board may be on the line while the address is set.</source>
         <translation>此声呐在共享线路上的编号。0：独占线路。1：环中第一台，其 RX 接主机的 TX（左侧）。2：最后一台，其 TX 接主机的 RX（右侧）。设置地址时线路上只能有这一块板。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5319"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5327"/>
         <source>Setting the address...</source>
         <translation>正在设置地址...</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5319"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5327"/>
         <source>Set and save address %1</source>
         <translation>设置并保存地址 %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5320"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5328"/>
         <source>Checks that this board is alone on the line, sets the address, writes it to the board&apos;s memory and reads it back from there</source>
         <translation>检查线路上只有这块板，设置地址，写入板载存储器并从中读回校验</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5341"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5349"/>
         <source>Address %1 is set and saved in the board.</source>
         <translation>地址 %1 已设置并保存到板上。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5342"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5350"/>
         <source>Address not set: %1</source>
         <translation>地址未设置：%1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5344"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5352"/>
         <source>Bus address %1 is set and saved</source>
         <translation>总线地址 %1 已设置并保存</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5346"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5354"/>
         <source>Bus address not set: %1</source>
         <translation>总线地址未设置：%1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5356"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5364"/>
         <source>Line speed</source>
         <translation>线路速率</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5369"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5377"/>
         <source>In a ring every board passes the other&apos;s bytes on, so both sonars and this computer&apos;s port run at one rate: pick it for the longest wire. Estimate, not measured: 921600 up to about 5 m, 460800 about 10 m, 230400 about 20 m, 115200 about 40 m. A lower rate carries less: if a sonar&apos;s echogram drops out, raise Period. The new rate is checked on both sonars, then written to their memory.</source>
         <translation>在环中，每块板都会转发另一块板的字节，因此两台声呐和本计算机的端口以同一速率工作：请按最长的导线选择。估计值，非实测：921600 约 5 m 以内，460800 约 10 m，230400 约 20 m，115200 约 40 m。速率越低，承载的数据越少：如果某台声呐的回波图中断，请增大“周期”。新速率会先在两台声呐上验证，然后写入其存储器。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5376"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5384"/>
         <source>Now: %1</source>
         <translation>当前：%1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5393"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5401"/>
         <source>Changing the line speed...</source>
         <translation>正在更改线路速率...</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5393"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5401"/>
         <source>Set %1 for the whole line and save</source>
         <translation>为整条线路设置 %1 并保存</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5394"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5402"/>
         <source>Moves both sonars and this port to the new rate, checks that both answer on it, writes it to their memory and reads it back from there</source>
         <translation>将两台声呐和本端口切换到新速率，确认两者都在该速率下应答，写入其存储器并从中读回校验</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5415"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5423"/>
         <source>The line runs at %1; both sonars keep it.</source>
         <translation>线路以 %1 运行；两台声呐均保持该速率。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5416"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5423"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5424"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5431"/>
         <source>Line speed: %1</source>
         <translation>线路速率：%1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5421"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5429"/>
         <source>Line speed %1 is set on both sonars and saved</source>
         <translation>线路速率 %1 已在两台声呐上设置并保存</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5478"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5486"/>
         <source>Information</source>
         <translation>信息</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5495"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5503"/>
         <source>Copy</source>
         <translation>复制</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5501"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5509"/>
         <source>Device info copied to clipboard</source>
         <translation>设备信息已复制到剪贴板</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5507"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5515"/>
         <source>Model</source>
         <translation>型号</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5512"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5520"/>
         <source>Board type</source>
         <translation>板卡类型</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5517"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5525"/>
         <source>Serial number</source>
         <translation>序列号</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5524"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5532"/>
         <source>not set</source>
         <translation>未设置</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5529"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5537"/>
         <source>Firmware version</source>
         <translation>固件版本</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5534"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5542"/>
         <source>Bootloader version</source>
         <translation>引导程序版本</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5539"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5547"/>
         <source>Running</source>
         <translation>运行</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5544"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5552"/>
         <source>Bootloader</source>
         <translation>引导程序</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5545"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5553"/>
         <source>Firmware</source>
         <translation>固件</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5555"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5563"/>
         <source>Connection</source>
         <translation>连接</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5560"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5568"/>
         <source>Chip UID</source>
         <translation>芯片 UID</translation>
     </message>
@@ -8208,52 +8208,52 @@
 <context>
     <name>LinkManager</name>
     <message>
-        <location filename="../src/link/link_manager.cpp" line="682"/>
+        <location filename="../src/link/link_manager.cpp" line="699"/>
         <source>Connected: %1</source>
         <translation>已连接：%1</translation>
     </message>
     <message>
-        <location filename="../src/link/link_manager.cpp" line="685"/>
+        <location filename="../src/link/link_manager.cpp" line="702"/>
         <source>Disconnected: %1</source>
         <translation>已断开：%1</translation>
     </message>
     <message>
-        <location filename="../src/link/link_manager.cpp" line="735"/>
+        <location filename="../src/link/link_manager.cpp" line="752"/>
         <source>Receiving data from link</source>
         <translation>正在从连接接收数据</translation>
     </message>
     <message>
-        <location filename="../src/link/link_manager.cpp" line="736"/>
+        <location filename="../src/link/link_manager.cpp" line="753"/>
         <source>Receiving data from link: %1</source>
         <translation>正在从连接接收数据：%1</translation>
     </message>
     <message>
-        <location filename="../src/link/link_manager.cpp" line="739"/>
+        <location filename="../src/link/link_manager.cpp" line="756"/>
         <source>No data from link</source>
         <translation>连接无数据</translation>
     </message>
     <message>
-        <location filename="../src/link/link_manager.cpp" line="740"/>
+        <location filename="../src/link/link_manager.cpp" line="757"/>
         <source>No data from link: %1</source>
         <translation>连接无数据：%1</translation>
     </message>
     <message>
-        <location filename="../src/link/link_manager.cpp" line="754"/>
+        <location filename="../src/link/link_manager.cpp" line="771"/>
         <source>Link not available</source>
         <translation>连接不可用</translation>
     </message>
     <message>
-        <location filename="../src/link/link_manager.cpp" line="755"/>
+        <location filename="../src/link/link_manager.cpp" line="772"/>
         <source>Link not available: %1</source>
         <translation>连接不可用：%1</translation>
     </message>
     <message>
-        <location filename="../src/link/link_manager.cpp" line="760"/>
+        <location filename="../src/link/link_manager.cpp" line="777"/>
         <source>Link available</source>
         <translation>连接已恢复</translation>
     </message>
     <message>
-        <location filename="../src/link/link_manager.cpp" line="761"/>
+        <location filename="../src/link/link_manager.cpp" line="778"/>
         <source>Link available: %1</source>
         <translation>连接已恢复：%1</translation>
     </message>
@@ -8302,194 +8302,188 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="24"/>
-        <location filename="../qml/app/MainWindow.qml" line="102"/>
-        <source>KoggerApp, KOGGER</source>
-        <translation>KoggerApp, KOGGER</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/MainWindow.qml" line="78"/>
+        <location filename="../qml/app/MainWindow.qml" line="80"/>
         <source>Please choose a file</source>
         <translation>请选择文件</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="103"/>
-        <source> — Second window</source>
-        <translation> — 第二窗口</translation>
+        <location filename="../qml/app/MainWindow.qml" line="104"/>
+        <source>Second window</source>
+        <translation>第二窗口</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1122"/>
-        <location filename="../qml/app/MainWindow.qml" line="1139"/>
+        <location filename="../qml/app/MainWindow.qml" line="1124"/>
+        <location filename="../qml/app/MainWindow.qml" line="1141"/>
         <source>Settings</source>
         <translation>设置</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1123"/>
+        <location filename="../qml/app/MainWindow.qml" line="1125"/>
         <source>Quick action menu</source>
         <translation>快捷操作菜单</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1124"/>
+        <location filename="../qml/app/MainWindow.qml" line="1126"/>
         <source>Edit panel</source>
         <translation>编辑面板</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1124"/>
+        <location filename="../qml/app/MainWindow.qml" line="1126"/>
         <source>Create panel</source>
         <translation>创建面板</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1125"/>
+        <location filename="../qml/app/MainWindow.qml" line="1127"/>
         <source>Servo panel</source>
         <translation>舵机面板</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1126"/>
+        <location filename="../qml/app/MainWindow.qml" line="1128"/>
         <source>USBL panel</source>
         <translation>USBL 面板</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1127"/>
+        <location filename="../qml/app/MainWindow.qml" line="1129"/>
         <source>Stand panel</source>
         <translation>测试台面板</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1128"/>
+        <location filename="../qml/app/MainWindow.qml" line="1130"/>
         <source>UI Saving</source>
         <translation>界面保存</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1129"/>
+        <location filename="../qml/app/MainWindow.qml" line="1131"/>
         <source>TGC</source>
         <translation>TGC</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1130"/>
+        <location filename="../qml/app/MainWindow.qml" line="1132"/>
         <source>Export to CSV</source>
         <translation>导出为 CSV</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1131"/>
+        <location filename="../qml/app/MainWindow.qml" line="1133"/>
         <source>Information panel</source>
         <translation>信息面板</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1132"/>
+        <location filename="../qml/app/MainWindow.qml" line="1134"/>
         <source>Console</source>
         <translation>控制台</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1133"/>
+        <location filename="../qml/app/MainWindow.qml" line="1135"/>
         <source>About</source>
         <translation>关于</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1134"/>
+        <location filename="../qml/app/MainWindow.qml" line="1136"/>
         <source>Developer mode</source>
         <translation>开发者模式</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1136"/>
+        <location filename="../qml/app/MainWindow.qml" line="1138"/>
         <source>Create layout</source>
         <translation>创建布局</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1137"/>
+        <location filename="../qml/app/MainWindow.qml" line="1139"/>
         <source>Devices</source>
         <translation>设备</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1518"/>
+        <location filename="../qml/app/MainWindow.qml" line="1520"/>
         <source>Tap again: apply %1 and save</source>
         <translation>再点一次：应用 %1 项更改并保存</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1519"/>
+        <location filename="../qml/app/MainWindow.qml" line="1521"/>
         <source>Apply and save (%1)</source>
         <translation>应用并保存（%1）</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1520"/>
+        <location filename="../qml/app/MainWindow.qml" line="1522"/>
         <source>Save to device</source>
         <translation>保存到设备</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1522"/>
+        <location filename="../qml/app/MainWindow.qml" line="1524"/>
         <source>Apply every change waiting on this page, then write the settings to the device&apos;s memory</source>
         <translation>应用此页面上所有待处理的更改，然后将设置写入设备存储器</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1523"/>
+        <location filename="../qml/app/MainWindow.qml" line="1525"/>
         <source>Write the current settings to the device&apos;s memory</source>
         <translation>将当前设置写入设备存储器</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1540"/>
+        <location filename="../qml/app/MainWindow.qml" line="1542"/>
         <source>Tap again to apply to %1: %2</source>
         <translation>再点一次以应用到 %1：%2</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1550"/>
+        <location filename="../qml/app/MainWindow.qml" line="1552"/>
         <source>Settings written to device: %1</source>
         <translation>设置已写入设备：%1</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1557"/>
+        <location filename="../qml/app/MainWindow.qml" line="1559"/>
         <source>Close</source>
         <translation>关闭</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1633"/>
+        <location filename="../qml/app/MainWindow.qml" line="1635"/>
         <source>Boat: %1 — done</source>
         <translation>船：%1 — 完成</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1635"/>
+        <location filename="../qml/app/MainWindow.qml" line="1637"/>
         <source>Boat: %1 — %2</source>
         <translation>船：%1 — %2</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1639"/>
+        <location filename="../qml/app/MainWindow.qml" line="1641"/>
         <source>Boat: %1</source>
         <translation>船：%1</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1717"/>
+        <location filename="../qml/app/MainWindow.qml" line="1719"/>
         <source>Welcome to KoggerApp!</source>
         <translation>欢迎使用 KoggerApp！</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1726"/>
+        <location filename="../qml/app/MainWindow.qml" line="1728"/>
         <source>Language:</source>
         <translation>语言：</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1744"/>
+        <location filename="../qml/app/MainWindow.qml" line="1746"/>
         <source>Choose which settings to show</source>
         <translation>选择要显示的设置</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1751"/>
+        <location filename="../qml/app/MainWindow.qml" line="1753"/>
         <source>Fish Finders</source>
         <translation>鱼探仪</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1752"/>
+        <location filename="../qml/app/MainWindow.qml" line="1754"/>
         <source>Bottom Track</source>
         <translation>底部跟踪</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1753"/>
+        <location filename="../qml/app/MainWindow.qml" line="1755"/>
         <source>Maximum</source>
         <translation>最大</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1761"/>
+        <location filename="../qml/app/MainWindow.qml" line="1763"/>
         <source>You can change this later in settings.</source>
         <translation>之后可以在设置中更改。</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1771"/>
+        <location filename="../qml/app/MainWindow.qml" line="1773"/>
         <source>Continue</source>
         <translation>继续</translation>
     </message>
@@ -9088,7 +9082,7 @@
 <context>
     <name>MosaicDB</name>
     <message>
-        <location filename="../src/data_processor/mosaic_db.cpp" line="67"/>
+        <location filename="../src/data_processor/mosaic_db.cpp" line="68"/>
         <source>Mosaic cache is unavailable — distant areas may stay incomplete</source>
         <translation>镶嵌图缓存不可用 — 远处区域可能不完整</translation>
     </message>
@@ -9613,6 +9607,49 @@
     </message>
 </context>
 <context>
+    <name>PerformanceSettingsGroup</name>
+    <message>
+        <location filename="../qml/app/PerformanceSettingsGroup.qml" line="15"/>
+        <source>Performance</source>
+        <translation>性能</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/PerformanceSettingsGroup.qml" line="16"/>
+        <source>Speed-ups of the mosaic. Each is on by default; turn one off to see whether it is behind something that looks wrong.</source>
+        <translation>马赛克的加速功能。默认全部开启；如有异常，可关闭其中一项以确认是否由它引起。</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/PerformanceSettingsGroup.qml" line="22"/>
+        <source>Paint all zoom levels ahead</source>
+        <translation>预先绘制所有缩放级别</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/PerformanceSettingsGroup.qml" line="24"/>
+        <source>Every zoom level of the mosaic is painted in the background, so a zoom shows it at once. On a large survey it takes a few hundred MB of memory and of temporary disk space more.</source>
+        <translation>在后台绘制马赛克的所有缩放级别，缩放时可立即显示。对于大型测量，会额外占用数百 MB 内存和临时磁盘空间。</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/PerformanceSettingsGroup.qml" line="36"/>
+        <source>Multi-threaded mosaic</source>
+        <translation>多线程马赛克</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/PerformanceSettingsGroup.qml" line="38"/>
+        <source>The mosaic is painted on several processor cores. The picture is the same either way.</source>
+        <translation>马赛克在多个处理器核心上绘制。两种方式得到的图像相同。</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/PerformanceSettingsGroup.qml" line="50"/>
+        <source>Keep the old zoom level until the new one is drawn</source>
+        <translation>新缩放级别绘制完成前保留旧级别</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/PerformanceSettingsGroup.qml" line="52"/>
+        <source>After a zoom the previous level stays under the new one until the new one is painted, instead of an empty screen.</source>
+        <translation>缩放后，旧级别保留在新级别下方，直到新级别绘制完成，而不是显示空白屏幕。</translation>
+    </message>
+</context>
+<context>
     <name>PipelineStatusGroup</name>
     <message>
         <location filename="../qml/app/PipelineStatusGroup.qml" line="17"/>
@@ -9976,7 +10013,7 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../src/core.cpp" line="3066"/>
+        <location filename="../src/core.cpp" line="3093"/>
         <source>File</source>
         <translation>文件</translation>
     </message>
@@ -11298,139 +11335,139 @@
 <context>
     <name>UIStateSerializer</name>
     <message>
-        <location filename="../src/ui_state_serializer.cpp" line="351"/>
+        <location filename="../src/ui_state_serializer.cpp" line="353"/>
         <source>Export failed: file path is empty</source>
         <translation>导出失败：文件路径为空</translation>
     </message>
     <message>
-        <location filename="../src/ui_state_serializer.cpp" line="393"/>
+        <location filename="../src/ui_state_serializer.cpp" line="395"/>
         <source>Export failed: cannot open file for writing</source>
         <translation>导出失败：无法打开文件进行写入</translation>
     </message>
     <message>
-        <location filename="../src/ui_state_serializer.cpp" line="400"/>
+        <location filename="../src/ui_state_serializer.cpp" line="402"/>
         <source>Export failed: short write</source>
         <translation>导出失败：写入不完整</translation>
     </message>
     <message>
-        <location filename="../src/ui_state_serializer.cpp" line="405"/>
+        <location filename="../src/ui_state_serializer.cpp" line="407"/>
         <source>Exported %1 keys.</source>
         <translation>已导出 %1 个键。</translation>
     </message>
     <message>
-        <location filename="../src/ui_state_serializer.cpp" line="406"/>
+        <location filename="../src/ui_state_serializer.cpp" line="408"/>
         <source>UI state exported: %1</source>
         <translation>界面状态已导出：%1</translation>
     </message>
     <message>
-        <location filename="../src/ui_state_serializer.cpp" line="416"/>
+        <location filename="../src/ui_state_serializer.cpp" line="418"/>
         <source>Import failed: file path is empty</source>
         <translation>导入失败：文件路径为空</translation>
     </message>
     <message>
-        <location filename="../src/ui_state_serializer.cpp" line="423"/>
+        <location filename="../src/ui_state_serializer.cpp" line="425"/>
         <source>Import failed: cannot open file</source>
         <translation>导入失败：无法打开文件</translation>
     </message>
     <message>
-        <location filename="../src/ui_state_serializer.cpp" line="431"/>
+        <location filename="../src/ui_state_serializer.cpp" line="433"/>
         <source>Import failed: invalid JSON: %1</source>
         <translation>导入失败：JSON 无效：%1</translation>
     </message>
     <message>
-        <location filename="../src/ui_state_serializer.cpp" line="437"/>
+        <location filename="../src/ui_state_serializer.cpp" line="439"/>
         <source>Import failed: root must be JSON object</source>
         <translation>导入失败：根节点必须是 JSON 对象</translation>
     </message>
     <message>
-        <location filename="../src/ui_state_serializer.cpp" line="445"/>
+        <location filename="../src/ui_state_serializer.cpp" line="447"/>
         <source>Import failed: unsupported dump type</source>
         <translation>导入失败：不支持的转储类型</translation>
     </message>
     <message>
-        <location filename="../src/ui_state_serializer.cpp" line="452"/>
+        <location filename="../src/ui_state_serializer.cpp" line="454"/>
         <source>Import failed: unsupported schema version</source>
         <translation>导入失败：不支持的架构版本</translation>
     </message>
     <message>
-        <location filename="../src/ui_state_serializer.cpp" line="460"/>
+        <location filename="../src/ui_state_serializer.cpp" line="462"/>
         <source>Import failed: dump app version is missing</source>
         <translation>导入失败：转储中缺少应用版本</translation>
     </message>
     <message>
-        <location filename="../src/ui_state_serializer.cpp" line="468"/>
+        <location filename="../src/ui_state_serializer.cpp" line="470"/>
         <source>Import failed: version mismatch (file %1, app %2)</source>
         <translation>导入失败：版本不匹配（文件 %1，应用 %2）</translation>
     </message>
     <message>
-        <location filename="../src/ui_state_serializer.cpp" line="476"/>
+        <location filename="../src/ui_state_serializer.cpp" line="478"/>
         <source>Import failed: settings must be JSON object</source>
         <translation>导入失败：settings 必须是 JSON 对象</translation>
     </message>
     <message>
-        <location filename="../src/ui_state_serializer.cpp" line="491"/>
+        <location filename="../src/ui_state_serializer.cpp" line="493"/>
         <source>links must be JSON object</source>
         <translation>links 必须是 JSON 对象</translation>
     </message>
     <message>
-        <location filename="../src/ui_state_serializer.cpp" line="497"/>
+        <location filename="../src/ui_state_serializer.cpp" line="499"/>
         <source>unsupported links payload format</source>
         <translation>不支持的 links 数据格式</translation>
     </message>
     <message>
-        <location filename="../src/ui_state_serializer.cpp" line="502"/>
+        <location filename="../src/ui_state_serializer.cpp" line="504"/>
         <source>links payload is empty</source>
         <translation>links 数据为空</translation>
     </message>
     <message>
-        <location filename="../src/ui_state_serializer.cpp" line="507"/>
+        <location filename="../src/ui_state_serializer.cpp" line="509"/>
         <source>links payload is not valid Base64</source>
         <translation>links 数据不是有效的 Base64</translation>
     </message>
     <message>
-        <location filename="../src/ui_state_serializer.cpp" line="542"/>
+        <location filename="../src/ui_state_serializer.cpp" line="544"/>
         <source>Import failed: cannot write settings</source>
         <translation>导入失败：无法写入设置</translation>
     </message>
     <message>
-        <location filename="../src/ui_state_serializer.cpp" line="561"/>
+        <location filename="../src/ui_state_serializer.cpp" line="563"/>
         <source> Pinned links were replaced live.</source>
         <translation> 已即时替换固定的连接。</translation>
     </message>
     <message>
-        <location filename="../src/ui_state_serializer.cpp" line="566"/>
+        <location filename="../src/ui_state_serializer.cpp" line="568"/>
         <source> Pinned links were skipped: %1</source>
         <translation> 已跳过固定的连接：%1</translation>
     </message>
     <message>
-        <location filename="../src/ui_state_serializer.cpp" line="570"/>
+        <location filename="../src/ui_state_serializer.cpp" line="572"/>
         <source>Imported %1 keys. Applied %2 in live UI. Skipped path keys: %3. Skipped serial links: %4.%5</source>
         <translation>已导入 %1 个键。已在当前界面中应用 %2 个。跳过的路径键：%3。跳过的串口连接：%4。%5</translation>
     </message>
     <message>
-        <location filename="../src/ui_state_serializer.cpp" line="577"/>
+        <location filename="../src/ui_state_serializer.cpp" line="579"/>
         <source>UI state imported: %1</source>
         <translation>界面状态已导入：%1</translation>
     </message>
     <message>
-        <location filename="../src/ui_state_serializer.cpp" line="829"/>
-        <location filename="../src/ui_state_serializer.cpp" line="871"/>
+        <location filename="../src/ui_state_serializer.cpp" line="831"/>
+        <location filename="../src/ui_state_serializer.cpp" line="873"/>
         <source>link manager is not available</source>
         <translation>连接管理器不可用</translation>
     </message>
     <message>
-        <location filename="../src/ui_state_serializer.cpp" line="876"/>
+        <location filename="../src/ui_state_serializer.cpp" line="878"/>
         <source>payload is empty</source>
         <translation>数据为空</translation>
     </message>
     <message>
-        <location filename="../src/ui_state_serializer.cpp" line="880"/>
-        <location filename="../src/ui_state_serializer.cpp" line="884"/>
+        <location filename="../src/ui_state_serializer.cpp" line="882"/>
+        <location filename="../src/ui_state_serializer.cpp" line="886"/>
         <source>payload is not XML text</source>
         <translation>数据不是 XML 文本</translation>
     </message>
     <message>
-        <location filename="../src/ui_state_serializer.cpp" line="887"/>
+        <location filename="../src/ui_state_serializer.cpp" line="889"/>
         <source>invalid XML payload</source>
         <translation>XML 数据无效</translation>
     </message>
@@ -12658,7 +12695,7 @@
     <name>WorkspaceStore</name>
     <message>
         <location filename="../qml/app/WorkspaceStore.qml" line="1248"/>
-        <location filename="../qml/app/WorkspaceStore.qml" line="4773"/>
+        <location filename="../qml/app/WorkspaceStore.qml" line="4799"/>
         <source>Video</source>
         <translation>视频</translation>
     </message>
@@ -12673,7 +12710,7 @@
         <translation>第二窗口</translation>
     </message>
     <message>
-        <location filename="../qml/app/WorkspaceStore.qml" line="1887"/>
+        <location filename="../qml/app/WorkspaceStore.qml" line="1913"/>
         <source>Echogram</source>
         <translation>回波图</translation>
     </message>

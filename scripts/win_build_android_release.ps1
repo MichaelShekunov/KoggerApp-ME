@@ -7,7 +7,7 @@ param(
     [string] $NdkVersion  = '27.3.13750724',
     [ValidateSet('Release', 'Debug', 'RelWithDebInfo')]
     [string] $Config    = 'Release',
-    # Side-by-side build: '.myedition' gives the package its own application id and
+    # Side-by-side build: '.me' gives the package its own application id and
     # launcher name, so a test-signed build installs next to a release-signed
     # KoggerApp. Empty produces the normal package.
     [string] $AppIdSuffix = '',

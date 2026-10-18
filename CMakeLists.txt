@@ -19,29 +19,12 @@ math(EXPR KOGGER_VERSION_CODE "${_kvmaj} * 10000 + ${_kvmin} * 100 + ${_kvpat}")
 # would fork it.
 project(KoggerApp VERSION ${KOGGER_VERSION} LANGUAGES CXX C)
 
-# Build revision, best effort: empty outside a git checkout
-set(KOGGER_GIT_REVISION "")
+# Build version and revision: generated/kogger_revision.h, written on every build by
+# cmake/kogger_version.cmake (the kogger_version target below); best effort, no revision outside a
+# git checkout.
 find_package(Git QUIET)
-if(GIT_FOUND AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.git")
-    execute_process(
-        COMMAND "${GIT_EXECUTABLE}" rev-parse --short=10 HEAD
-        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-        OUTPUT_VARIABLE KOGGER_GIT_REVISION
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-        ERROR_QUIET)
-    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
-        "${CMAKE_CURRENT_SOURCE_DIR}/.git/HEAD")
-    execute_process(
-        COMMAND "${GIT_EXECUTABLE}" symbolic-ref -q --short HEAD
-        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-        OUTPUT_VARIABLE _kbranch
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-        ERROR_QUIET)
-    if(_kbranch AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.git/refs/heads/${_kbranch}")
-        set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
-            "${CMAKE_CURRENT_SOURCE_DIR}/.git/refs/heads/${_kbranch}")
-    endif()
-endif()
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/resources/version.txt")
 
 if(ANDROID)
     set(QT_ANDROID_ABIS "armeabi-v7a;arm64-v8a" CACHE STRING "Android target ABIs" FORCE)
@@ -127,6 +110,7 @@ qt_add_executable(KoggerApp
     src/location_reader.h          src/location_reader.cpp
     src/mosaic_index_provider.h    src/mosaic_index_provider.cpp
     src/app_utils.h
+    src/build_version.h            src/build_version.cpp
     src/ui_keepalive.h             src/ui_keepalive.cpp
     src/ui_probe.h                 src/ui_probe.cpp
     src/stall_monitor.h            src/stall_monitor.cpp
@@ -142,8 +126,19 @@ if(UNIX AND NOT APPLE AND NOT ANDROID)
     target_link_options(KoggerApp PRIVATE -rdynamic)
 endif()
 
-configure_file(src/kogger_revision.h.in
-    "${CMAKE_CURRENT_BINARY_DIR}/generated/kogger_revision.h" @ONLY)
+set(_kogger_version_cmd "${CMAKE_COMMAND}"
+    "-DSRC_DIR=${CMAKE_CURRENT_SOURCE_DIR}"
+    "-DOUT=${CMAKE_CURRENT_BINARY_DIR}/generated/kogger_revision.h"
+    "-DGIT=${GIT_EXECUTABLE}"
+    -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/kogger_version.cmake")
+# Once now, so the header is there for the first build's moc; then before every build.
+execute_process(COMMAND ${_kogger_version_cmd})
+add_custom_target(kogger_version
+    COMMAND ${_kogger_version_cmd}
+    BYPRODUCTS "${CMAKE_CURRENT_BINARY_DIR}/generated/kogger_revision.h"
+    COMMENT "Build version from git"
+    VERBATIM)
+add_dependencies(KoggerApp kogger_version)
 
 target_include_directories(KoggerApp PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR}/generated
