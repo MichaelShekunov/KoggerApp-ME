@@ -1259,6 +1259,7 @@ void DataProcessor::setBottomTrackZeroDepth(bool state)
 
 void DataProcessor::setSurfaceColorTableThemeById(int id)
 {
+    exportConfig_.surfaceTheme = id;
     QMetaObject::invokeMethod(worker_, "setSurfaceThemeId", Qt::QueuedConnection, Q_ARG(int, id));
 }
 
@@ -1320,6 +1321,10 @@ void DataProcessor::setSurfaceIsobathsStepSize(float val)
 
 void DataProcessor::setMosaicChannels(const ChannelId &ch1, uint8_t sub1, const ChannelId &ch2, uint8_t sub2)
 {
+    exportConfig_.ch1 = ch1;
+    exportConfig_.sub1 = sub1;
+    exportConfig_.ch2 = ch2;
+    exportConfig_.sub2 = sub2;
     hotCache_.clear();
 
     QMetaObject::invokeMethod(worker_, "clearAll", Qt::QueuedConnection);
@@ -1371,6 +1376,9 @@ void DataProcessor::setMosaicTheme(int indx)
 
 void DataProcessor::setMosaicLAngleOffset(float val)
 {
+    if (val >= -90.0f && val <= 90.0f) {   // what MosaicProcessor::setLAngleOffset takes
+        exportConfig_.lAngleOffset = val;
+    }
     QMetaObject::invokeMethod(worker_, "setMosaicLAngleOffset", Qt::QueuedConnection, Q_ARG(float, val));
     cancelPrecompute();
     QMetaObject::invokeMethod(precomputer_, "setLAngleOffset", Qt::QueuedConnection, Q_ARG(float, val));
@@ -1378,6 +1386,9 @@ void DataProcessor::setMosaicLAngleOffset(float val)
 
 void DataProcessor::setMosaicRAngleOffset(float val)
 {
+    if (val >= -90.0f && val <= 90.0f) {
+        exportConfig_.rAngleOffset = val;
+    }
     QMetaObject::invokeMethod(worker_, "setMosaicRAngleOffset", Qt::QueuedConnection, Q_ARG(float, val));
     cancelPrecompute();
     QMetaObject::invokeMethod(precomputer_, "setRAngleOffset", Qt::QueuedConnection, Q_ARG(float, val));
@@ -1457,6 +1468,7 @@ void DataProcessor::askColorTableForMosaic()
 
 void DataProcessor::setMosaicSource(int source)
 {
+    exportConfig_.mosaicSource = source;
     QMetaObject::invokeMethod(worker_, "setMosaicSource", Qt::QueuedConnection, Q_ARG(int, source));
     QMetaObject::invokeMethod(precomputer_, "setSource", Qt::QueuedConnection, Q_ARG(int, source));
     restartMosaic();
@@ -2228,6 +2240,16 @@ void DataProcessor::requestMosaicStats(int probeWindow)
     }
 
     QMetaObject::invokeMethod(worker_, "reportMosaicStats", Qt::QueuedConnection, Q_ARG(int, probeWindow));
+}
+
+MapExportConfig DataProcessor::mapExportConfig() const
+{
+    MapExportConfig c = exportConfig_;
+    c.mosaicTheme = mosaicColorTable_.getTheme();
+    c.mosaicLow = mosaicColorTable_.getLowLevel();
+    c.mosaicHigh = mosaicColorTable_.getHighLevel();
+    c.mosaicColorTable = mosaicColorTable_.getRgbaColors();
+    return c;
 }
 
 void DataProcessor::postMosaicStats(const QVariantMap& stats)

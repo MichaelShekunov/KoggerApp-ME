@@ -13,6 +13,8 @@ qt_add_qml_module(kogger_app
         ConsolePanelDrawer.qml
         ConsoleSettingsTab.qml
         CsvExportSettingsTab.qml
+        MapExportSettingsTab.qml
+        MyMapsTab.qml
         DataWidgetPopup.qml
         DeviceParamRow.qml
         DeviceSettingsGroup.qml

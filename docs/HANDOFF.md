@@ -223,6 +223,13 @@ genuine upstream bug and a candidate to report back.
 | `src/device/bus_address.{h,cpp}` | setting and saving a sonar's bus address, with the proof that it was saved |
 | `tools/busaddr_check/` | standalone program: the bus address setting against simulated boards, and live on a serial port |
 | `docs/fork-overview.ru.md` | the fork for upstream's GUI developer (Russian): upstream behaviour it changes, new ids and keys, and in its appendix every touched file, listed by git |
+| `src/map_export/` | map for sharing: the survey's depth map and mosaic as a KOGGER map (.kmap) other users open under their boat (My maps), and KMZ / GeoTIFF for other programs |
+| `qml/app/MapExportSettingsTab.qml` | its page (Settings -> Export -> Map for sharing) |
+| `qml/app/MyMapsTab.qml` | My maps (the 3D toolbar's map button, its gear) |
+| `tools/qml_check/mymaps_page_check.ps1` | My maps over mocks |
+| `tools/mapexport_check/` | standalone program: projection, sampling, depths, isobaths, the files read back (`run.ps1`) |
+| `tools/qml_check/mapexport_page_check.ps1` | the page over mocks |
+| `docs/map-export.md` | the feature in detail, what was verified, licences and the law |
 
 This table is not complete (the boat mission's files, among others, are missing); the appendix of
 `docs/fork-overview.ru.md` lists the rest as of `388f0865`, except `src/kec`: the overview goes to upstream's
@@ -1897,3 +1904,36 @@ restart only).
 - The view's visible tiles come from `tilesInQuadNed`, which gives nothing past 2 000 tiles: zoomed
   out far at level 6 (a camera saved from the 1.1 GB file), a live run painted nothing for a minute
   (latency 26 s median) [verified]. Pre-existing.
+
+## Map for sharing and My maps (2026-10-18, branch `map-export`)
+
+**Read this first: the owner's correction the same day.** The maps are for KoggerApp first ("as Garmin
+has it, only so that people can exchange depth maps and mosaics"), not for Google Earth. So the main file
+is the **KOGGER map, `.kmap`** (a stored ZIP: `map.json`, `depth.tif`, `mosaic.tif`, `preview.png`), and
+another KoggerApp opens it into **My maps**, under its boat in the 3D view (`src/map_export/map_library.*`,
+`map_layer.*`, `qml/app/MyMapsTab.qml`, a fifth button in `Scene3DToolbar.qml`, data field `mapDepth`).
+A .kmap reaching `Core::openLogFile` (command line, Files page) goes to My maps instead
+(`openMapFileInstead`); the Open dialog and drag and drop route it the same way. Verified end to end on
+00014 with a fresh profile: export, open as someone else's map, the map under the boat with the
+recording. `mymaps_page_check` 8/8, `mapexport_check` 95/95. KMZ / GeoTIFF stay, off by default.
+Android opening from a messenger (VIEW/SEND intents) is not built. The KMZ-first text below is the
+first build's.
+
+The owner: users should save the bathymetric map and the mosaic to share them, with the legal side in
+mind (who owns the data, how everyone may use it). Chosen: sharing by file, with the author, a licence
+the user picks (all rights reserved / CC BY 4.0 / CC0), the "not for navigation" notice and IHO
+B-12-style metadata in every file, and a "without the track and times" mode on by default. A KOGGER
+community map is not built: it waits for Armenian counsel. Everything -- use, files, how it is made,
+checks, limits, the law -- is in `docs/map-export.md`.
+
+- Settings -> Export -> Map for sharing. KMZ (Google Earth) and GeoTIFF (GIS), EPSG:4326.
+- The mosaic is painted again over the whole survey with the view's settings: `MosaicProcessor::setSink`
+  (no data processor or worker; the view's and the precompute's paths are unchanged -- `precompute_check`
+  PASS, 0 pixels apart). The view's settings reach it through `DataProcessor::mapExportConfig()`.
+- The depth surface: the bottom track, 1 m cells, the app's Delaunay, the export's own edge limit
+  ("Join soundings up to", 50 m) and isobath step (Auto) -- the view's 20 m / 0.1 m left patches.
+- Verified on 00014: 2.6 s; the export's tiles equal the view's (`mosaic_dump_compare -Judge` PASS);
+  on Esri imagery the isobaths sit in the lake's southern bay. `tools\mapexport_check\run.ps1` 84/84,
+  eight mutants caught; `tools\qml_check\mapexport_page_check.ps1` 9/9; ts_check ru, zh clean.
+- Debug run: `KOGGER_MAP_EXPORT=<folder>` (+ `_DELAY_MS`, `_ZOOM`, `_QUIT=1`, `_DUMP=<file>`).
+- Not verified: Google Earth itself, QGIS, Android, the 1.1 GB survey.

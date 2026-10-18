@@ -18,6 +18,18 @@ class ComputeWorker;
 class Dataset;
 class DataProcessor;
 class SurfaceMesh;
+
+/// Where a processor without a data processor (a map export, src/map_export) puts what it paints.
+class MosaicTileSink {
+public:
+    virtual ~MosaicTileSink() = default;
+    /// Tiles a chunk changed, as postTiles sends them to the data processor.
+    virtual void putTiles(const TileMap& tiles) = 0;
+    /// Tiles painted before and let go by the mesh (LRU), as the hot cache gives them back.
+    virtual TileMap takeBack(const QSet<TileKey>& keys) = 0;
+    virtual bool cancelled() const = 0;
+};
+
 class MosaicProcessor
 {
 public:
@@ -55,6 +67,9 @@ public:
     /// visible ones, sends tiles and finished epochs to the data processor's precompute slots tagged
     /// with `generation`, and stops once `latest` has moved past it.
     void setBackground(const QSet<TileKey>* tiles, const std::atomic<quint64>* latest, quint64 generation);
+    /// A map export's instance: paints every tile its epochs touch into `sink` and talks to no data
+    /// processor or worker (constructed with nullptr for both).
+    void setSink(MosaicTileSink* sink);
     void setPaintThreads(int n);
     /// KOGGER_MOSAIC_THREADS when set (> 0), else the cores less two, at most 8.
     static int defaultPaintThreads();
@@ -127,6 +142,7 @@ private:
     const QSet<TileKey>* allowedTiles_ = nullptr;
     const std::atomic<quint64>* latestGeneration_ = nullptr;
     quint64 generation_ = 0;
+    MosaicTileSink* sink_ = nullptr;   // setSink
     void postTiles(const TileMap& tiles);
     void reportEpochs(const QVector<int>& indxs, int zoom);
     int lastTraceLineEpoch_;

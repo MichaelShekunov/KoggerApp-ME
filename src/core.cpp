@@ -27,6 +27,9 @@
 #include "tile_provider_ids.h"
 #include "notifications.h"
 #include "ring_upgrade.h"
+#include "map_exporter.h"
+#include "map_layer.h"
+#include "map_library.h"
 
 extern Notifications notifications;
 #ifdef Q_OS_WINDOWS
@@ -254,6 +257,11 @@ void Core::setEngine(QQmlApplicationEngine *engine)
     qmlAppEnginePtr_->rootContext()->setContextProperty("NpdFilterControlMenuController",       npdFilterControlMenuController_.get());
     qmlAppEnginePtr_->rootContext()->setContextProperty("Scene3DControlMenuController",         scene3dControlMenuController_.get());
     qmlAppEnginePtr_->rootContext()->setContextProperty("Scene3dToolBarController",             scene3dToolBarController_.get());
+    qmlAppEnginePtr_->rootContext()->setContextProperty("mapExport",                            mapExporter_.get());
+    mapLibrary_->reload();   // here, after main() named the application: its data folder depends on it
+    qmlAppEnginePtr_->rootContext()->setContextProperty("mapLibrary",                           mapLibrary_.get());
+    qmlAppEnginePtr_->rootContext()->setContextProperty("mapLayer",                             mapLayer_.get());
+    qmlAppEnginePtr_->addImageProvider(QStringLiteral("kmap"), new MapPreviewProvider(mapLibrary_.get()));   // the engine owns it
 
     bool flasherState = false;
 #ifdef FLASHER
@@ -444,6 +452,7 @@ void Core::consoleProto(FrameParser &parser, bool isIn)
 
 void Core::resetRealtimeSessionState()
 {
+    stopMapExport();   // it reads the dataset, which is about to be cleared
     if (datasetPtr_) {
         datasetPtr_->resetDataset();
         dataHorizon_->clear();
@@ -533,6 +542,10 @@ void Core::flushStartupFileOpen()
 #ifdef SEPARATE_READING
 void Core::openLogFile(const QString &filePath, bool isAppend, bool onCustomEvent)
 {
+    if (openMapFileInstead(filePath)) {
+        return;
+    }
+    stopMapExport();   // it reads the dataset, which is about to be cleared
     QString localfilePath = filePath;
 
     if (onCustomEvent) {
@@ -597,6 +610,7 @@ void Core::openLogFile(const QString &filePath, bool isAppend, bool onCustomEven
 
 bool Core::closeLogFile(bool onOpen)
 {
+    stopMapExport();   // it reads the dataset, which is about to be cleared
     if (isOpenedFile()) {
         const QString closedFileName = QFileInfo(openedfilePath_).fileName();
         QMetaObject::invokeMethod(dataProcessor_, "prepareForFileClose", Qt::BlockingQueuedConnection, Q_ARG(int, 1500));
@@ -677,6 +691,7 @@ void Core::onFileReadEnough()
 
 void Core::onFileOpenBreaked(bool onOpen)
 {
+    stopMapExport();   // it reads the dataset, which is about to be cleared
     fileIsCompleteOpened_ = false;
     if (datasetPtr_) {
         datasetPtr_->resetDataset();
@@ -703,6 +718,10 @@ void Core::onFileOpenBreaked(bool onOpen)
 #else
 void Core::openLogFile(const QString& filePath, bool isAppend, bool onCustomEvent)
 {
+    if (openMapFileInstead(filePath)) {
+        return;
+    }
+    stopMapExport();   // it reads the dataset, which is about to be cleared
     // Reading the open recording again for the track smoothing, or any other open, which ends that.
     const bool reprocess = std::exchange(nextOpenIsReprocess_, false);
     if (!reprocess) {
@@ -827,6 +846,7 @@ void Core::openLogFile(const QString& filePath, bool isAppend, bool onCustomEven
 
 bool Core::closeLogFile()
 {
+    stopMapExport();   // it reads the dataset, which is about to be cleared
     // qDebug() << "Core::closeLogFile()";
     const bool wasOpened = isOpenedFile();
     const QString closedFileName = QFileInfo(openedfilePath_).fileName();
@@ -2256,6 +2276,21 @@ void Core::UILoad(QObject* object, const QUrl& url)
     scene3dControlMenuController_->setQmlEngine(object);
     scene3dControlMenuController_->setGraphicsSceneView(scene3dViewPtr_);
 
+    mapExporter_->setSources(datasetPtr_, dataProcessor_, scene3dViewPtr_);
+
+    // My maps: under the boat in the scene; a map just opened is flown to; the depth from the maps
+    // follows the boat.
+    mapLayer_->setLibrary(mapLibrary_.get());
+    scene3dViewPtr_->setMapLayer(mapLayer_.get());
+    QObject::connect(mapLibrary_.get(), &MapLibrary::flyToRequested, scene3dViewPtr_, &GraphicsScene3dView::fitGeoBox, Qt::UniqueConnection);
+    if (!mapBoatDepthConnected_) {   // a lambda cannot be a unique connection
+        mapBoatDepthConnected_ = true;
+        QObject::connect(datasetPtr_, &Dataset::lastPositionChanged, mapLibrary_.get(), [this]() {
+            const LLA lla = datasetPtr_->getLastRawPosition().lla;
+            mapLibrary_->setBoatPosition(lla.latitude, lla.longitude);
+        });
+    }
+
     scene3dViewPtr_->setActiveZeroing(isActiveZeroing_);
 
     onChannelsUpdated();
@@ -2923,6 +2958,9 @@ void Core::createControllers()
     polygonGroupControlMenuController_    = std::make_shared<PolygonGroupControlMenuController>();
     scene3dControlMenuController_         = std::make_shared<Scene3DControlMenuController>();
     scene3dToolBarController_             = std::make_shared<Scene3dToolBarController>();
+    mapExporter_                          = std::make_unique<MapExporter>();
+    mapLibrary_                           = std::make_unique<MapLibrary>();
+    mapLayer_                             = std::make_unique<MapLayer>();
 }
 
 #ifdef SEPARATE_READING
@@ -3108,7 +3146,26 @@ void Core::shutdownBackgroundWorkers()
     }
 
     destroyInternetManager();
+    stopMapExport();
     destroyDataProcessor();
+}
+
+void Core::stopMapExport()
+{
+    if (mapExporter_) {
+        mapExporter_->stopAndWait();
+    }
+}
+
+bool Core::openMapFileInstead(const QString& path)
+{
+    // A KOGGER map (from the command line, the Files page, or any other way to openLogFile) goes to My
+    // maps: opening it must not close the survey or the device link.
+    if (!path.endsWith(QLatin1Char('.') + mapexport::kMapSuffix, Qt::CaseInsensitive) || !mapLibrary_) {
+        return false;
+    }
+    mapLibrary_->importFile(path);
+    return true;
 }
 
 bool Core::isOpenedFile() const

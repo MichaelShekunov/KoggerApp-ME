@@ -25,6 +25,7 @@
 #include "mosaic_db.h"
 #include "mosaic_index_provider.h"
 #include "hot_tile_cache.h"
+#include "map_export_config.h"
 
 
 class Dataset;
@@ -136,6 +137,9 @@ public slots:
     // diagnostics
     void requestPipelineStats();
     void requestMosaicStats(int probeWindow);
+
+    // Map export (src/map_export): the settings the view paints and colours with, as last set.
+    MapExportConfig mapExportConfig() const;
 
 private slots:
     //db
@@ -377,6 +381,7 @@ private:
     int clearOldN_ = 0;
     bool workerTracksOwners_ = false;   // as last set in the worker (setMosaicTrackOwners)
     mosaic::PlotColorTable mosaicColorTable_;
+    MapExportConfig exportConfig_;   // what the setters below passed on (mapExportConfig)
     // Surface
     float tileResolution_;
 

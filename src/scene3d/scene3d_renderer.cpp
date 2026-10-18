@@ -208,6 +208,8 @@ void GraphicsScene3dRenderer::drawObjects()
     mapViewRenderImpl_.render(this, m_model, view, m_projection, m_shaderProgramMap);
 
     glEnable(GL_DEPTH_TEST);
+    // "My maps" under the boat: projected into the view's frame, so drawn in every camera state.
+    mapLayerGl_.render(this, m_projection * view * m_model, m_shaderProgramMap);
     if (!isOut) {
         imageViewRenderImpl_.render(this, m_projection * view * m_model, m_shaderProgramMap);
         m_pointGroupRenderImpl.render(this, m_projection * view * m_model, m_shaderProgramMap);

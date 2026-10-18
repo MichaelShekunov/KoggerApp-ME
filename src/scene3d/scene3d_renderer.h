@@ -16,6 +16,7 @@
 #include "polygon_group.h"
 #include "scene3d_view.h"
 #include "navigation_arrow.h"
+#include "map_layer.h"
 #include <QMatrix4x4>
 #include "qsystemdetection.h"
 #if !defined(Q_OS_ANDROID) && !defined(LINUX_ES)
@@ -82,6 +83,7 @@ private:
     PointGroup::PointGroupRenderImplementation m_pointGroupRenderImpl;
     BoatTrack::BoatTrackRenderImplementation m_boatTrackRenderImpl;
     NavigationArrow::NavigationArrowRenderImplementation navigationArrowRenderImpl_;
+    MapLayerGl mapLayerGl_;   // "My maps", drawn in every camera state
 
     QMatrix4x4 m_model;
     QMatrix4x4 m_projection;

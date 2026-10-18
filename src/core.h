@@ -44,6 +44,9 @@
 #include "ui_keepalive.h"
 #include "usb_tap.h"
 
+class MapExporter;
+class MapLibrary;
+class MapLayer;
 
 class Core : public QObject
 {
@@ -320,6 +323,10 @@ private slots:
 private:
     /*methods*/
     void bringWindowToFront();
+    // A running map export (src/map_export) reads the dataset: stopped before anything clears it.
+    void stopMapExport();
+    // A .kmap given to openLogFile is opened into My maps instead; true when it was one.
+    bool openMapFileInstead(const QString& path);
     void loadCsvExportFields();
     void saveCsvExportFields();
     QHash<QString, bool> csvExportFields_;   // key -> enabled (lazy-loaded from QSettings)
@@ -395,6 +402,10 @@ private:
     DataProcessor* dataProcessor_;
     QThread* dataProcThread_;
     std::unique_ptr<DataHorizon> dataHorizon_; // this thread
+    std::unique_ptr<MapExporter> mapExporter_; // QML "mapExport"
+    std::unique_ptr<MapLibrary> mapLibrary_;   // QML "mapLibrary": My maps
+    std::unique_ptr<MapLayer> mapLayer_;       // My maps in the 3D scene
+    bool mapBoatDepthConnected_ = false;
 
 #ifdef SEPARATE_READING
     QString tryOpenedfilePath_;

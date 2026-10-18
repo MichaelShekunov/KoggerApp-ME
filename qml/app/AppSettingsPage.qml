@@ -262,6 +262,14 @@ Column {
             }
 
             KIslandRow {
+                label: qsTr("Map for sharing (.kmap)")
+                chevron: true
+                interactive: true
+                toolTipText: qsTr("Save the depth map and the mosaic as a KOGGER map that others open in KoggerApp")
+                onClicked: if (root.store) root.store.openMapExportSettings()
+            }
+
+            KIslandRow {
                 label: qsTr("Export to XTF")
                 interactive: true
                 onClicked: core.exportPlotAsXTF(exportGroup.currentExportPath())
