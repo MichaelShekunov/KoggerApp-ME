@@ -183,19 +183,21 @@ on 2026-10-02: the package without `qtshadertools` fails on exactly
 A tablet that already has KoggerApp from the official release refuses a
 test-signed package with the same application id. Uninstalling it would take its
 settings, so the fork can be built as a separate app instead — the arrangement the
-PC has, where "KoggerApp myEdition" is installed beside the official one:
+PC has, where "KoggerApp ME" is installed beside the official one:
 
 ```
-scripts\win_build_android_release.ps1 -AppIdSuffix .myedition
+scripts\win_build_android_release.ps1 -AppIdSuffix .me
 ```
 
 The suffix reaches `platform/android/build.gradle` as `KOGGER_APP_ID_SUFFIX`,
-which appends it to the application id (`org.kogger.koggerapp.myedition`) and
-names the app "KoggerApp myEdition" on the launcher, through the
+which appends it to the application id (`org.kogger.koggerapp.me`) and
+names the app "KoggerApp ME" on the launcher, through the
 `${koggerAppLabel}` placeholder in `AndroidManifest.xml`. The file provider's
 authority was already `${applicationId}.qtprovider`, so the two apps do not
 collide there either. The Java package stays `org.kogger.koggerapp`; only the
 installed identity changes. Without the switch the package is the normal one.
+Until 2026-10-18 the suffix was `.myedition` ("KoggerApp myEdition"); a phone with that package gets
+`.me` as a second app beside it, with settings of its own -- remove the old one by hand.
 
 ## What the fork had to change
 
@@ -257,7 +259,8 @@ Checked 2026-10-07: `-SkipBuild` with the test key gives a byte-identical copy o
 (SHA-256 `a6083aa7...`); a full build named its APK `...-20261007-115216.apk`; a repeat run and a key given
 without its alias are refused. The password file is read by `apksigner` only (`--ks-pass file:`), never
 printed. The Windows packages follow the same rule: `win_package_release.ps1` names them
-`KoggerApp-<version>-myedition-<commit>[-dirty]-portable|setup-<stamp>` after the time of `KoggerApp.exe`,
+`KoggerApp-ME-<version>-portable|setup-<stamp>` after the time of `KoggerApp.exe` (until 2026-10-18
+`KoggerApp-<version>-myedition-<commit>[-dirty]-...`; the commit and "dirty" are in `build_info.txt`),
 and `win_deploy_windows_release.bat` / `win_deploy_android_release.bat` stamp their archive and APK the same way.
 
 `apksigner` signs with schemes v2 and v3 by default (v1 only when minSdk is

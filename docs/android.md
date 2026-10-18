@@ -5,7 +5,7 @@ build itself is `build-android-cli.md`; this is what happens after install.
 
 Tested on 2026-10-02 on a Xiaomi tablet, model 2410CRP4CG, Android 16, arm64-v8a,
 Adreno GPU, screen 3200 x 2136. The package was the side-by-side build
-(`org.kogger.koggerapp.myedition`) next to the official KoggerApp 1.0.3. The
+(`org.kogger.koggerapp.myedition`; `.me` since the rename of 2026-10-18) next to the official KoggerApp 1.0.3. The
 tablet was on the boat's Wi-Fi (`KoggerBoat`, the access point of the boat's
 Wi-Fi module); the boat was on land, autopilot in HOLD, disarmed. Every
 check below watched the app and the boat only: nothing was armed, started,

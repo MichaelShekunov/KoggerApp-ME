@@ -1,4 +1,11 @@
-# myEdition handoff
+# ME handoff (KoggerApp ME, "myEdition" until 2026-10-18)
+
+**Renamed 2026-10-18** (the owner): "KoggerApp myEdition" is **KoggerApp ME** -- the product, its
+installer and folder (`%LOCALAPPDATA%\Programs\KoggerApp ME`; the setup removes the old one), the
+Android label and package (`-AppIdSuffix .me`), the branch (`me`, was `myedition`) and the GitHub
+repository (to be `KoggerApp-ME`, renamed by the owner). Older entries below keep the old names where
+they record what was so then (tags `v1.0.x-myedition.N`, packages and APKs already built, the
+transfer folder). The source folder on disk stays `KoggerApp_myEdition`.
 
 Everything needed to pick this checkout up on a different machine without
 re-deriving it. Read this first; `build-windows-cli.md`,
@@ -35,7 +42,7 @@ git remote set-url --push origin https://github.com/KoggerTech/KoggerApp.git
 ```
 
 `mine` is a **private** repository under a personal account. It is where branch
-`myedition` lives and where it is backed up. Private is a deliberate choice, not
+`me` (`myedition` until 2026-10-18) lives and where it is backed up. Private is a deliberate choice, not
 an oversight — see "Why a private repository and not a GitHub fork" below.
 
 It is reached over **SSH**, on a key dedicated to it: `~/.ssh/id_ed25519_github`,
@@ -96,7 +103,7 @@ present and useless. Only `out_x64/`, which `windeployqt` fills with its own
 copies of the Qt DLLs, runs anywhere. If you want to hand someone a build without
 handing them a toolchain, that is the directory.
 
-**Sync is not locking.** Branch `myedition` is the record of what this fork
+**Sync is not locking.** Branch `me` is the record of what this fork
 changed, and two machines can still write the same file between commits. Commit
 before switching machines and push to `mine`; a collision then costs a merge
 rather than an afternoon.
@@ -709,11 +716,11 @@ Verified after the merge: Windows build 680/680 clean, app starts with no QML wa
 Not verified: Baikal device path (no board), live sonar device page.
 
 The merge was done in a throwaway worktree (`git worktree add D:\Temp\kogger_merge_test`),
-outside the sync root, and fast-forwarded into `myedition` only after the checks. Recommended
+outside the sync root, and fast-forwarded into `me` only after the checks. Recommended
 for the next one too: the sync client and a 300-file merge do not mix.
 
 After any merge, rebuild and rerun `tools\sonifier_check` — it is the only
-automated check this fork has. Then `git push mine myedition`, so the merge does
+automated check this fork has. Then `git push mine me`, so the merge does
 not sit on one machine only.
 
 ## Wi-Fi module ports up to 5 Mbaud (firmware 0.13, 2026-09-28)
@@ -724,7 +731,7 @@ refused `ID_UART` ends the port change before the link moves; the card says what
 The firmware side (0.13) is in progress in the ESP32_WiFi repo; 5M has not run on hardware yet, and the head unit's
 UART6 was tried up to 4M only. On this PC both installs (`C:\Program Files\Kogger\KoggerApp`, `KoggerApp myEdition`)
 run af439113 (`D:\Temp\kogger_install\update_kogger.ps1 -Tag af439113`, elevated; Verified: hashes match, a clean start).
-Before starting a feature here, read `git log myedition`: another session may be doing the same one.
+Before starting a feature here, read `git log me`: another session may be doing the same one.
 
 Follow-up the same day (ba8e1b9c): on the head unit the X1/X2 cards, and with them 5M, were hidden. The module, powered
 on with the board 15 s before, left the one ID_WIFI_NET v7 request unanswered for 4 s, and the app took that for
@@ -1118,7 +1125,8 @@ its session), Android. `docs/RING_UPDATE.md` "Адрес шины из прил�
 
 Android is an upstream platform (platform/android: Java USB serial, GLES shaders, manifest); the fork now builds
 and runs there too. Building: `docs/build-android-cli.md` (`scripts/win_build_android_release.ps1`, the toolchain
-in D:\Android, `-AppIdSuffix .myedition` for a package beside the official app, `tools/android_check/apk_deps_check.ps1`).
+in D:\Android, `-AppIdSuffix .me` for a package beside the official app -- `.myedition` until 2026-10-18, still the one on
+the owner's phone, `tools/android_check/apk_deps_check.ps1`).
 On a device: `docs/android.md`. Tested on a Xiaomi tablet, Android 16, over the boat's Wi-Fi: the link, the Wi-Fi
 island, the autopilot and its mission work as on the head unit. Found there and fixed, each checked again on the
 device: two keyboards for one field (`ScreenKeyboard` off on Android), the link cut in the background (Android 16
@@ -1651,7 +1659,8 @@ owner's summary in Russian: `docs/perf-2026-10-17.ru.md`). On the first PC 27396
   -SkipBuild` (`dist\...-setup-*.exe`, `dist\stage`; build_info.txt says "dirty: no" only from a
   clean tree). Install for the user, the app closed: `scripts\win_install_user.ps1 -Tag <commit8>
   -Dist <worktree>\dist` (was `D:\Temp\kogger_install\update_kogger_user.ps1`). What is installed:
-  `build_info.txt` in `%LOCALAPPDATA%\Programs\KoggerApp myEdition` -- read it before installing.
+  `build_info.txt` in `%LOCALAPPDATA%\Programs\KoggerApp ME` (`KoggerApp myEdition` until 2026-10-18) -- read it
+  before installing.
 - Test file: `D:\YandexDisk\ООО Коггер\LOGS\03.05.2025_Ереванское_DSSS\00014_03.05.2025.KLF`, copied
   out of the synced folder first (`D:\Temp\perf\`; the app may write beside it).
 - The test profile (`-Profile perf`) keeps its settings in `HKCU\Software\KOGGER\KoggerApp-perf`:
@@ -1759,3 +1768,132 @@ the camera about a level). `precompute_check.ps1` passes both on.
 - From an overview the deepest levels repaint most of their epochs when the view comes (above).
 - Over a finished level the green bottom-track line shows in dashes, the mosaic's heights covering
   it in places; ff8a2816 the same [verified in grabs of both after a 6 -> 5 zoom on 00008].
+
+## Performance, continued: every level whole, the version in the title, a Performance section (2026-10-18)
+
+The owner, of 96d1b3ba installed: "the title has to show the version, else I cannot tell what I
+started"; "at near zooms the picture is still painted anew -- every zoom level has to be painted
+ahead in the background"; then "a Performance section in the settings with switches for the
+speed-ups". [verified] is a measurement or a check that ran; [inference] is not.
+
+**The version in the title, and the name ME.** `cmake/kogger_version.cmake` runs on every build (the
+custom target `kogger_version`, `add_dependencies(KoggerApp ...)`) and writes
+`generated/kogger_revision.h`: `KOGGER_VERSION_FULL` = "ME <resources/version.txt> <the build's local
+date and time>", e.g. "ME 1.0.3 18.10.2026 10:36" -- the owner first had the commit and "-dirty" in it
+and asked for a date and time instead, and for "ME" in place of "myEdition" everywhere (the note at the
+top). The commit's 10 characters stay on the About page ("Revision"), the full commit and "dirty" in
+`build_info.txt`. `configure_file` rewrites the header only when it changes and only
+`src/build_version.cpp` includes it: a build a minute later recompiles that one file. The
+configure-time git block is gone (it went stale under a plain ninja or IDE build and in a worktree).
+`main.cpp` sets the string as the application's display name and version: the window's title ends
+with it (Qt on Windows appends the display name to a title that does not), `AppIdentityCard` shows
+it, the log's "log opened" line carries it instead of "1-1-1". Seen: "00014_03.05.2025.KLF —
+KoggerApp ME 1.0.3 18.10.2026 10:36" [verified, read from the window]. UI-state import compares
+major.minor only, "1.0" either way [verified in code]. `win_package_release.ps1` reads the string
+back from the build's header for the installer and `build_info.txt`, and names the files
+`KoggerApp-ME-<version>-setup|portable-<stamp>`; the setup ("KoggerApp ME", the same AppId) installs
+into `...\KoggerApp ME` and deletes the old default folder, Start-menu folder and desktop shortcut
+(`[InstallDelete]`); `win_install_user.ps1 -Tag <commit>` checks `build_info.txt`'s commit.
+
+**Every level whole.** The build before took at most 320 tiles a level about the cursor; an epoch
+reaching past them was never reported done, so on a zoom the view painted it again -- at level 2
+from an overview 4 413 of 5 252 epochs. Painting a level in pieces of tiles is not painting it whole
+either: a tile's head index rejects a pair older than what it already holds, and pieces do not reach
+a tile in order. So a run now covers a whole level: every tile with data (`precomputeAllTiles_`,
+filled with the index in `onSendTilesByZoom`) and every indexed epoch not done there, ascending (a
+per-level scan cursor and the sent set). Levels nearest the view's first, in turn after the last
+one run. Past the hot cache's 2 048 tiles the results go to the session DB and come back from there
+on a zoom. The cursor plumbing (`sendZoomFocus`, `dataTilesNear`) is gone.
+
+Measured: 00008 (325 MB), the whole of levels 5, 4, 3, 2 in 2.3, 4.7, 12.4 and 35.8 s on this PC
+(8 cores held at 1.2 GHz); zooms 6 -> 5 -> 4 -> 3 -> 2 after it ran no view job and the last tile of
+level 2 came 0.02-0.04 s after the zoom against 0.48-0.82 s without [verified]. 00017 (1.1 GB,
+186 085 pings): 4.4, 9.3, 25 and 84 s, 16 569 tiles over the four levels; private bytes 3.05 GB
+settled, 3.33-3.41 GB at the peak against 2.81 / 3.20 without; the session DB grew to 608 MB (it is
+deleted with the file) [verified]. Live, 60 s of 00014 at 45 pings a second: 86 runs while
+streaming, 19-21 on each of levels 5..2, latency 198 ms median as without [verified].
+
+**The first review of it** (a workflow: three reviewers, a skeptic per finding; ten findings, none
+refuted) and what was done:
+- Rows saved in the session DB were never invalidated: after a new source, new channels, a full
+  bottom-track rework or a drop, the precompute and the view read the old rows back with their head
+  indices and could not repaint them -- now nearly every precomputed tile. Each row now carries the
+  data processor's generation (the unused `engine_ver` column); `onDbTilesLoaded` skips a row older
+  than its level's last invalidation (`invalidateDbAll` in `resetMosaicProcessed`, which replaced
+  every clear of the processed sets; `invalidateDbZoom` in `dropPrecomputed`).
+- A full bottom-track recalculation (`redrawAll`) now also clears the hot cache and the worker's
+  mesh: the mosaic is repainted from blank tiles with the new track. Before, the cached tiles kept the
+  old one under their head indices [inference from the code; not tried by hand].
+- The sent set was reset only when a processed set was seen smaller: `forgetPrecomputeSent` now
+  clears it wherever the processed sets are reset.
+- A run feeds its epochs in slices of 1 024 and starts the mesh afresh past 128 K cells: the mesh
+  had a cell for every tile in the box of all it painted, and a chunk walks them all. A 16 K limit
+  made level 2 of 00017 23 % slower (tiles fetched again); at 128 K there was no restart there and the
+  time was as before (84 s) [verified].
+- A zoom cancelled the running run and dropped what it still sent, while its tiles were already in
+  the cache: the epochs painted but not reported were sent again and rejected by the head index for
+  good. Now a zoom's cancel keeps what the run sends until it stops (`precomputeKeepGen_`), the
+  background reports its epochs even when cancelled, and the view's job on the run's own level waits
+  for it to stop (`runCoalescedWork`). Seen: a zoom in the middle of level 2 kept 15 277 epochs of
+  87 422 [verified].
+- A paused live stream let the precompute paint up to the horizon, and the next ping's bottom-track
+  run dropped every level: `bottomTrackSettledBefore` now stops a quiet live stream where the next
+  run will rework.
+- A failing DB writer left every evicted tile blocked in RAM for an ACK that never came:
+  `MosaicDB::writerFailed` stops the precompute for the session (`onDbWriterFailed`).
+- Two races of the DB: a read whose SELECT ran before a save's commit marked the key "not found"
+  (`onSendSavedKeys` now takes it out of the read in flight); an older save's ACK released a node
+  blocked again by a newer save (save ids through the cache and the DB).
+A second review of these fixes found six more, all applied: the view's running job is fenced
+when `restartMosaic` or a full recalculation clears its mesh under it (`dropRunningMosaicJob_`: its
+reports and tiles come from before); the bulk branch (>= 4096 epochs) keeps the DB rows, as the
+cache and the mesh keep theirs; the writer-failure flag is per DB (reset in `closeDB`, a stale
+writer's signal ignored); a chunk whose DB prefetch was cut by a cancel is not painted (its tiles
+would be seeded blank and, kept, overwrite their rows); a kept run's tiles on the view's own level
+are rendered; a second zoom while a cancelled run winds down does not move the kept generation.
+After all of it: zoom in the middle of level 2, 19 830 epochs of 87 422 kept, no view job after
+the zooms, PASS; live 89 runs, 198 ms; 00014 PASS with the same hashes [verified]. A third review
+found three more, applied: the surface layer's restore on a zoom waits for a kept run on that level
+(`handleSurfaceZoomChangeIfReady`, again from `onPrecomputeFinished`); the surface posts of a fenced
+job carry no paint; `setMosaicChannels` fences the running job as `restartMosaic` does (a log line
+"the running job's results dropped" when it happens).
+
+Then two precompute-off runs alike came out 36 672 pixels apart at level 2, where five runs of the
+build before had given the same tiles: the second review's "a chunk whose prefetch was cut is not
+painted" had gone into the view's processor too, whose state (the epochs and the box taken in before
+that point) lives from job to job, so its next job skipped the chunk's pings. Limited to the
+precompute (`background_`), whose state ends with the run; the view's processor seeds blank as
+before (pre-existing). After it two full off runs gave the same tiles as each other and as the build
+before (level 2 `9a610bb58e2f87d8`, level 5 `f159bd6c17acc561`); on against off PASS on both files;
+live 197 ms, 85 runs [verified]. Lesson: the off runs' digests are the check that the view's own
+painting did not move -- run two of them after a change to `MosaicProcessor`.
+
+**Not deterministic, and not new:** the first digest after a file opens, before any zoom (level 6,
+73 tiles), is one of several: the installed build gave `663678fa...` in 10 of 12 runs and
+`309496df...` in 2; this one varies more often (about 4 in 10, more variants). The levels after the
+zooms are the same every run. A guess: the bottom track arrives in batches while the first jobs paint,
+and a pair painted before its epoch's track changed keeps its pixels under the head index
+[inference].
+
+**Settings, Performance.** A new group between "3D scene" and "Test"
+(`qml/app/PerformanceSettingsGroup.qml`), three switches, all on by default, stored by
+`WorkspaceStore` (`main/performance`: `mosaicPrecompute`, `mosaicMultiThreaded`, `zoomFallback`) and
+applied to core at start and on change: the levels painted ahead (`DataProcessor::
+setMosaicPrecomputeEnabled`; off keeps what was painted), the mosaic on several threads or one
+(`setMosaicMultiThreaded`: the view's worker and the precompute; the picture is the same), the old
+level kept under the new one (`SurfaceView::setZoomFallbackEnabled`). The environment still wins
+for the tools: `KOGGER_MOSAIC_PRECOMPUTE` "0" off, any other value on; `KOGGER_MOSAIC_THREADS` for the
+view. Checked by writing the three keys "false" in the perf profile: the log said "off in the
+settings" and "painted on one thread", no run and no kept level followed a zoom [verified]; the
+group is in the UI tree (the probe's dump) [verified]; how it looks was not seen. Strings in ru and
+zh (zh machine-made, as the rest), `ts_check` clean. More candidates (not done): the 200 ms pause
+before a zoom level is sent, the hot cache's size, MSAA, reading in a thread of its own (after a
+restart only).
+
+**Seen, not changed:**
+- Once, in about ten runs on 00008, the bottom track was never computed after the file opened (no line
+  in the echogram, the mosaic's horizon 0 for a minute); not seen again. A guess: the last trigger
+  of `tryScheduleAutoBottomTrack` came while a reset was in progress [inference].
+- The view's visible tiles come from `tilesInQuadNed`, which gives nothing past 2 000 tiles: zoomed
+  out far at level 6 (a camera saved from the 1.1 GB file), a live run painted nothing for a minute
+  (latency 26 s median) [verified]. Pre-existing.
