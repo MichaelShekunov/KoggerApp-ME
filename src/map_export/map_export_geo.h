@@ -92,6 +92,7 @@ struct DepthGrid {
     float maxDepth = 0.0f;
     int soundings = 0;   // points that went into the triangulation (one per square metre cell)
     int triangles = 0;   // triangles drawn (none longer than the edge limit)
+    int extrapolated = 0;   // cells given a depth by the extrapolation (each time one is, also again)
 };
 
 /// Builds the depth surface from the 3D bottom track as SurfaceProcessor sees it (scene metres,
@@ -99,8 +100,11 @@ struct DepthGrid {
 /// keeps it), a Delaunay triangulation, triangles with an edge over edgeLimitM left out, the rest
 /// interpolated linearly at each pixel centre. draftM is added to every depth. progress(0..1) is
 /// called now and then; it returns false to stop, and then so does this (false, error empty).
+/// extraWidthM > 0: then, as SurfaceProcessor::paintDiskExtrapolated does, every sounding in the
+/// track's order gives its depth to the cells within extraWidthM / 2 that no triangle covers -- ahead
+/// of it (along the track) over an earlier extrapolation, behind it only where there is none.
 bool buildDepthGrid(const QVector<QVector3D>& bottomTrack, const LLARef& ref, double cellM,
-                    double edgeLimitM, double draftM, qint64 pixelLimit, DepthGrid& out,
+                    double edgeLimitM, double extraWidthM, double draftM, qint64 pixelLimit, DepthGrid& out,
                     const std::function<bool(double)>& progress, QString* error);
 
 /// One isobath: a depth and the polyline of (latitude, longitude) points along it.

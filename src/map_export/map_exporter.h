@@ -27,9 +27,6 @@ class MapExporter : public QObject
     Q_PROPERTY(int detailZoom READ detailZoom WRITE setDetailZoom NOTIFY settingsChanged)
     Q_PROPERTY(QVariantList detailOptions READ detailOptions CONSTANT)
     Q_PROPERTY(double draftM READ draftM WRITE setDraftM NOTIFY settingsChanged)
-    Q_PROPERTY(double fillGapsM READ fillGapsM WRITE setFillGapsM NOTIFY settingsChanged)
-    Q_PROPERTY(double isobathStepM READ isobathStepM WRITE setIsobathStepM NOTIFY settingsChanged)
-    Q_PROPERTY(QVariantList isobathStepOptions READ isobathStepOptions CONSTANT)
     Q_PROPERTY(bool writeKmap READ writeKmap WRITE setWriteKmap NOTIFY settingsChanged)
     Q_PROPERTY(bool writeKmz READ writeKmz WRITE setWriteKmz NOTIFY settingsChanged)
     Q_PROPERTY(bool writeGeoTiff READ writeGeoTiff WRITE setWriteGeoTiff NOTIFY settingsChanged)
@@ -69,14 +66,6 @@ public:
     QVariantList detailOptions() const;
     double draftM() const { return draftM_; }
     void setDraftM(double v);
-    /// The longest triangle edge the depth surface spans, m: wider gaps between soundings stay empty.
-    /// The export's own (the view's edge limit is for the screen; a shared map wants the lines joined).
-    double fillGapsM() const { return fillGapsM_; }
-    void setFillGapsM(double v);
-    /// Metres between isobaths and between depth colours; 0 = chosen from the depths (autoIsobathStep).
-    double isobathStepM() const { return isobathStepM_; }
-    void setIsobathStepM(double v);
-    QVariantList isobathStepOptions() const;
     bool writeKmap() const { return writeKmap_; }
     void setWriteKmap(bool v);
     bool writeKmz() const { return writeKmz_; }
@@ -118,8 +107,6 @@ private:
     QString licenseId_;
     int detailZoom_ = 5;
     double draftM_ = 0.0;
-    double fillGapsM_ = 50.0;
-    double isobathStepM_ = 0.0;
     bool writeKmap_ = true;     // the KOGGER map, for KoggerApp: the main file
     bool writeKmz_ = false;    // for other programs, off unless asked
     bool writeGeoTiff_ = false;

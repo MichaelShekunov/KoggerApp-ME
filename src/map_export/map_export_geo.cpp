@@ -177,7 +177,7 @@ bool MosaicSampler::bounds(double& minN, double& maxN, double& minE, double& max
 }
 
 bool buildDepthGrid(const QVector<QVector3D>& bottomTrack, const LLARef& ref, double cellM,
-                    double edgeLimitM, double draftM, qint64 pixelLimit, DepthGrid& out,
+                    double edgeLimitM, double extraWidthM, double draftM, qint64 pixelLimit, DepthGrid& out,
                     const std::function<bool(double)>& progress, QString* error)
 {
     out = DepthGrid();
@@ -193,6 +193,7 @@ bool buildDepthGrid(const QVector<QVector3D>& bottomTrack, const LLARef& ref, do
     // (SurfaceProcessor::onUpdatedBottomTrackData, processOneCenter, cellPx_ = 1).
     struct Pt { double n, e, z; };
     std::vector<Pt> pts;
+    std::vector<Pt> track;   // every sounding in order, for the extrapolation
     QHash<QPair<int, int>, int> cellOf;
     bool haveOrigin = false;
     double on = 0.0, oe = 0.0;
@@ -200,6 +201,7 @@ bool buildDepthGrid(const QVector<QVector3D>& bottomTrack, const LLARef& ref, do
         if (!std::isfinite(p.x()) || !std::isfinite(p.y()) || !std::isfinite(p.z()) || !(p.z() < 0.0f)) {
             continue;   // z = -(distance to the bottom): none, or zero, is no bottom
         }
+        track.push_back({ p.x(), p.y(), p.z() });
         if (!haveOrigin) {
             on = p.x();
             oe = p.y();
@@ -234,11 +236,12 @@ bool buildDepthGrid(const QVector<QVector3D>& bottomTrack, const LLARef& ref, do
         }
     }
 
-    // The grid; coarser cells while it would be over the limit.
+    // The grid; coarser cells while it would be over the limit. The extrapolation reaches past the points.
+    const double reach = extraWidthM > 0.0 ? 0.5 * extraWidthM : 0.0;
     GeoGrid grid;
     double cell = cellM;
     for (int tries = 0; tries < 16 && !grid.isValid(); ++tries) {
-        grid = gridForNedBox(ref, minN, maxN, minE, maxE, cell, pixelLimit);
+        grid = gridForNedBox(ref, minN - reach, maxN + reach, minE - reach, maxE + reach, cell, pixelLimit);
         if (!grid.isValid()) {
             cell *= 1.5;
         }
@@ -302,7 +305,63 @@ bool buildDepthGrid(const QVector<QVector3D>& bottomTrack, const LLARef& ref, do
         }
         out.triangles += drawn ? 1 : 0;
     }
-    if (out.triangles == 0) {
+
+    if (reach > 0.0) {
+        // 0 none, 1 extrapolated, 2 triangulated (HeightType's kUndefined / kExrtapolation / kTriangulation)
+        std::vector<uint8_t> mark(out.depth.size(), 0);
+        for (size_t i = 0; i < out.depth.size(); ++i) {
+            mark[i] = std::isfinite(out.depth[i]) ? 2 : 0;
+        }
+        const double midLat = 0.5 * (grid.north + grid.south());
+        const double cellN = grid.dLat * 110540.0, cellE = grid.dLon * 111320.0 * std::cos(midLat * (3.14159265358979323846 / 180.0));
+        const int reachR = int(std::ceil(reach / cellN)) + 1, reachC = int(std::ceil(reach / cellE)) + 1;
+        const double reach2 = reach * reach;
+        auto unit = [](double n, double e, double& un, double& ue) {
+            const double l = std::hypot(n, e);
+            if (!(l > 1e-6)) { un = ue = 0.0; return false; }
+            un = n / l; ue = e / l;
+            return true;
+        };
+        for (size_t i = 0; i < track.size(); ++i) {
+            if ((i & 1023) == 0 && !keepGoing(1.0)) {
+                return false;
+            }
+            const Pt& p = track[i];
+            // SurfaceProcessor::dirForIndexPix: prev -> here plus here -> next, either alone at the ends
+            double un0 = 0, ue0 = 0, un1 = 0, ue1 = 0, un = 0, ue = 0;
+            const bool h0 = i > 0 && unit(p.n - track[i - 1].n, p.e - track[i - 1].e, un0, ue0);
+            const bool h1 = i + 1 < track.size() && unit(track[i + 1].n - p.n, track[i + 1].e - p.e, un1, ue1);
+            const bool useDir = (h0 && h1) ? unit(un0 + un1, ue0 + ue1, un, ue) : h1 ? (un = un1, ue = ue1, true)
+                                                                            : h0 ? (un = un0, ue = ue0, true) : false;
+            double lat, lon;
+            nedToLla(ref, p.n, p.e, lat, lon);
+            const int rc = int(std::floor((grid.north - lat) / grid.dLat));
+            const int cc = int(std::floor((lon - grid.west) / grid.dLon));
+            const float d = float(-p.z + draftM);
+            for (int r = std::max(0, rc - reachR); r <= std::min(grid.height - 1, rc + reachR); ++r) {
+                proj.setRow(r);
+                for (int c = std::max(0, cc - reachC); c <= std::min(grid.width - 1, cc + reachC); ++c) {
+                    double n, e;
+                    proj.toNed(c, n, e);
+                    const double dn = n - p.n, de = e - p.e;
+                    if (dn * dn + de * de > reach2) {
+                        continue;
+                    }
+                    const size_t k = size_t(r) * size_t(grid.width) + size_t(c);
+                    const bool front = !useDir || dn * un + de * ue >= 0.0;
+                    if (front ? mark[k] == 2 : mark[k] != 0) {
+                        continue;
+                    }
+                    out.depth[k] = d;
+                    mark[k] = 1;
+                    minD = std::min(minD, d);
+                    maxD = std::max(maxD, d);
+                    ++out.extrapolated;
+                }
+            }
+        }
+    }
+    if (out.triangles == 0 && out.extrapolated == 0) {
         return fail(QStringLiteral("no depths: no triangle within the edge limit (%1 m)").arg(edgeLimitM));
     }
     out.minDepth = minD;

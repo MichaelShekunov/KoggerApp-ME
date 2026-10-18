@@ -1265,6 +1265,7 @@ void DataProcessor::setSurfaceColorTableThemeById(int id)
 
 void DataProcessor::setSurfaceEdgeLimit(int val)
 {
+    exportConfig_.surfaceEdgeLimit = float(val);
     QMetaObject::invokeMethod(worker_, "setSurfaceEdgeLimit", Qt::QueuedConnection, Q_ARG(float, float(val)));
 
     surfaceTaskEpochIndxsByZoom_.clear();
@@ -1283,6 +1284,7 @@ void DataProcessor::setSurfaceEdgeLimit(int val)
 
 void DataProcessor::setExtraWidth(int val)
 {
+    exportConfig_.surfaceExtraWidth = val;
     QMetaObject::invokeMethod(worker_, "setSurfaceExtraWidth", Qt::QueuedConnection, Q_ARG(int, val));
 
     // REBUILD?
@@ -1305,6 +1307,7 @@ void DataProcessor::setIsobathsLabelStepSize(float val)
 
 void DataProcessor::setSurfaceIsobathsStepSize(float val)
 {
+    exportConfig_.surfaceStep = val;
     QMetaObject::invokeMethod(worker_, "setSurfaceIsobathsStepSize", Qt::QueuedConnection, Q_ARG(float, val));
 
     surfaceTaskEpochIndxsByZoom_.clear();

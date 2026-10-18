@@ -2287,60 +2287,60 @@
         <translation>已导出为 XTF：%1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2689"/>
-        <location filename="../src/core.cpp" line="2713"/>
+        <location filename="../src/core.cpp" line="2698"/>
+        <location filename="../src/core.cpp" line="2722"/>
         <source>street</source>
         <translation>街道</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2695"/>
-        <location filename="../src/core.cpp" line="2701"/>
-        <location filename="../src/core.cpp" line="2707"/>
+        <location filename="../src/core.cpp" line="2704"/>
+        <location filename="../src/core.cpp" line="2710"/>
+        <location filename="../src/core.cpp" line="2716"/>
         <source>satellite</source>
         <translation>卫星</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2873"/>
+        <location filename="../src/core.cpp" line="2882"/>
         <source>File opened</source>
         <translation>文件已打开</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2874"/>
+        <location filename="../src/core.cpp" line="2883"/>
         <source>File opened: %1</source>
         <translation>文件已打开：%1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3125"/>
+        <location filename="../src/core.cpp" line="3134"/>
         <source>Connected</source>
         <translation>已连接</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3125"/>
+        <location filename="../src/core.cpp" line="3134"/>
         <source>Connected: %1</source>
         <translation>已连接：%1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3139"/>
+        <location filename="../src/core.cpp" line="3148"/>
         <source>Disconnected</source>
         <translation>已断开</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3139"/>
+        <location filename="../src/core.cpp" line="3148"/>
         <source>Disconnected: %1</source>
         <translation>已断开：%1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3578"/>
+        <location filename="../src/core.cpp" line="3587"/>
         <source>Internet connection restored</source>
         <translation>网络连接已恢复</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3579"/>
+        <location filename="../src/core.cpp" line="3588"/>
         <source>Internet connection lost</source>
         <translation>网络连接已断开</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3591"/>
+        <location filename="../src/core.cpp" line="3600"/>
         <source>Metered network detected</source>
         <translation>检测到按流量计费的网络</translation>
     </message>
@@ -8549,187 +8549,187 @@
         <translation>将当前记录的水深图和侧扫镶嵌图保存为 KOGGER 地图（.kmap）以便共享：收到文件的人在 KoggerApp 中打开，即可在自己的船下看到地图。也可另存 KMZ 和 GeoTIFF，用于 Google Earth 和 GIS。文件夹在“导出”组中设置。</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="120"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="121"/>
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="120"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="121"/>
         <source>Save the map</source>
         <translation>保存地图</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="166"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="167"/>
         <source>Show in folder</source>
         <translation>在文件夹中显示</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="174"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="175"/>
         <source>Share the map</source>
         <translation>分享地图</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="175"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="176"/>
         <source>Send the map</source>
         <translation>发送地图</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="183"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="184"/>
         <source>Title</source>
         <translation>标题</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="184"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="185"/>
         <source>Map</source>
         <translation>地图</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="189"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="190"/>
         <source>Author</source>
         <translation>作者</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="190"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="191"/>
         <source>Name or nickname</source>
         <translation>姓名或昵称</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="191"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="192"/>
         <source>Written into the files as the author. Leave it empty to stay anonymous.</source>
         <translation>作为作者写入文件。留空则保持匿名。</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="196"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="197"/>
         <source>Contact</source>
         <translation>联系方式</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="197"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="198"/>
         <source>E-mail or site, optional</source>
         <translation>电子邮件或网站，可选</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="198"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="199"/>
         <source>Written into the files: everyone who gets the map will see it.</source>
         <translation>将写入文件：每个获得地图的人都能看到。</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="203"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="204"/>
         <source>Licence</source>
         <translation>许可</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="205"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="206"/>
         <source>What others may do with the map. The data is yours; the licence is your permission.</source>
         <translation>他人可以如何使用地图。数据归您所有，许可是您的授权。</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="222"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="223"/>
         <source>Anyone may copy, change and use the map, also commercially, if they name you as the author.</source>
         <translation>任何人都可以复制、修改和使用地图（包括商业用途），但须注明您为作者。</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="224"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="225"/>
         <source>Anyone may do anything with the map, without naming you. This cannot be taken back for copies already shared.</source>
         <translation>任何人都可以随意使用地图，无需注明您。已分享的副本无法撤回此授权。</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="225"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="226"/>
         <source>Others may look at the map; copying, passing on or changing it needs your permission.</source>
         <translation>他人可以查看地图；复制、转发或修改需要您的许可。</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="226"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="227"/>
         <source>Every file also says: NOT FOR NAVIGATION, depths from an amateur survey, use at your own risk.</source>
         <translation>每个文件还注明：不可用于导航，水深来自业余测量，使用风险自负。</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="235"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="236"/>
+        <source>In the file</source>
+        <translation>文件中包含</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="243"/>
+        <source>Isobaths</source>
+        <translation>等深线</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="273"/>
         <source>Side-scan mosaic</source>
         <translation>侧扫镶嵌图</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="247"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="274"/>
+        <source>The echo strength of the survey. Whoever opens the map chooses its colours and contrast with their mosaic tool.</source>
+        <translation>测量的回波强度。打开地图的人用自己的镶嵌图工具选择颜色和对比度。</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="286"/>
         <source>Mosaic detail</source>
         <translation>镶嵌图精度</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="250"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="289"/>
         <source>Finer detail makes larger files and takes longer.</source>
         <translation>精度越高，文件越大，耗时越长。</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="261"/>
-        <source>Depths and isobaths</source>
-        <translation>水深和等深线</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="273"/>
-        <source>Join soundings up to, m</source>
-        <translation>连接测深点的最大距离，米</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="276"/>
-        <source>The depth map is drawn between soundings no farther apart than this; wider gaps stay empty. More than the distance between survey lines joins them.</source>
-        <translation>水深图只在相距不超过此距离的测深点之间绘制；更大的空隙保持空白。大于测线间距即可将测线连起来。</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="286"/>
-        <source>Isobaths every</source>
-        <translation>等深线间隔</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="289"/>
-        <source>Also the step of the depth colours. Auto: 10 to 25 isobaths over the depths of the survey.</source>
-        <translation>也是水深颜色的分级步长。自动：在测区水深范围内生成 10 到 25 条等深线。</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="306"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="256"/>
         <source>Transducer depth, m</source>
         <translation>换能器吃水，米</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="309"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="259"/>
         <source>How deep the transducer sits below the waterline. Added to every depth, so the map counts from the water surface; 0: depths from the transducer.</source>
         <translation>换能器在水线以下的深度。加到每个水深上，使地图从水面起算；0 表示水深从换能器起算。</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="326"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="303"/>
+        <source>Choose the isobaths, the mosaic or both: there is nothing to save.</source>
+        <translation>请选择等深线、镶嵌图或两者：没有可保存的内容。</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="311"/>
         <source>KOGGER map (.kmap)</source>
         <translation>KOGGER 地图（.kmap）</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="329"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="314"/>
         <source>The file to share: it opens in KoggerApp as a layer under the boat. It holds the depths for the isobaths and the mosaic, without the boat&apos;s track.</source>
         <translation>用于分享的文件：在 KoggerApp 中作为船下方的图层打开。其中包含用于等深线的水深和镶嵌图，不含船的航迹。</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="377"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="362"/>
         <source>In the Google Earth and GIS files the boat&apos;s track is left out and the survey&apos;s date is given as a month only. The KOGGER map never has the track, and its date is always a month only.</source>
         <translation>在 Google Earth 和 GIS 文件中不含船的航迹，测量日期只精确到月。KOGGER 地图从不包含航迹，其日期始终只精确到月。</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="342"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="327"/>
         <source>For other programs</source>
         <translation>用于其他程序</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="349"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="244"/>
+        <source>The depths as KoggerApp draws them here, with the isobath tool&apos;s settings. Whoever opens the map chooses the isobath step and colours with their own isobath tool.</source>
+        <translation>水深按 KoggerApp 在此处绘制的样子，使用等深线工具的设置。打开地图的人用自己的等深线工具选择等深线间距和颜色。</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="334"/>
         <source>Google Earth (KMZ)</source>
         <translation>Google Earth（KMZ）</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="361"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="346"/>
         <source>GIS (GeoTIFF)</source>
         <translation>GIS（GeoTIFF）</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="374"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="359"/>
         <source>Without the track and times</source>
         <translation>不含航迹和时间</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="389"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="374"/>
         <source>Even without the track, a map shows where you have been. Do not share surveys of places that must stay private, and check whether surveying and publishing depths is allowed in those waters.</source>
         <translation>即使没有航迹，地图也能显示您去过的地方。请勿分享必须保密地点的测量数据，并确认在该水域测量和发布水深是否被允许。</translation>
     </message>
@@ -8737,112 +8737,102 @@
 <context>
     <name>MapExporter</name>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="274"/>
-        <source>Auto</source>
-        <translation>自动</translation>
-    </message>
-    <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="276"/>
-        <source>%1 m</source>
-        <translation>%1 米</translation>
-    </message>
-    <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="296"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="270"/>
         <source>All rights reserved</source>
         <translation>保留所有权利</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="297"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="271"/>
         <source>CC BY 4.0: free use with credit to the author</source>
         <translation>CC BY 4.0：注明作者即可自由使用</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="298"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="272"/>
         <source>CC0: public domain, no conditions</source>
         <translation>CC0：公共领域，无任何条件</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="315"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="289"/>
         <source>%1 cm per pixel</source>
         <translation>每像素 %1 厘米</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="363"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="337"/>
         <source>Not saved: no survey is open.</source>
         <translation>未保存：没有打开的记录。</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="371"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="345"/>
         <source>Not saved: the survey has no GNSS position.</source>
         <translation>未保存：记录中没有 GNSS 位置。</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="407"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="381"/>
         <source>Map</source>
         <translation>地图</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="424"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="398"/>
         <source>NOT FOR NAVIGATION. Depths and positions are from an amateur survey and may contain errors. Use at your own risk.</source>
         <translation>不可用于导航。水深和位置来自业余测量，可能存在误差。使用风险自负。</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="443"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="415"/>
         <source>Not saved: choose at least one file to save.</source>
         <translation>未保存：请至少选择一个文件。</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="447"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="419"/>
         <source>Not saved: choose the mosaic, the depths or both.</source>
         <translation>未保存：请选择镶嵌图、水深或两者。</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="454"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="426"/>
         <source>Painting the mosaic</source>
         <translation>正在绘制镶嵌图</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="455"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="427"/>
         <source>Building the depths</source>
         <translation>正在生成水深图</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="456"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="428"/>
         <source>Writing the files</source>
         <translation>正在写入文件</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="457"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="429"/>
         <source>No depths: the survey has no bottom track.</source>
         <translation>无水深：记录中没有底迹。</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="458"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="430"/>
         <source>No mosaic: no side-scan channels are chosen for it.</source>
         <translation>无镶嵌图：未为其选择侧扫通道。</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="459"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="431"/>
         <source>No mosaic: nothing was painted.</source>
         <translation>无镶嵌图：未绘制任何内容。</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="460"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="432"/>
         <source>the mosaic is too large for this detail; choose a coarser one</source>
         <translation>此精度下镶嵌图过大，请选择较低精度</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="461"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="433"/>
         <source>Saved to %1: %2.</source>
         <translation>已保存到 %1：%2。</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="462"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="434"/>
         <source>Not saved: %1</source>
         <translation>未保存：%1</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="463"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="435"/>
         <source>Cancelled.</source>
         <translation>已取消。</translation>
     </message>
@@ -10509,7 +10499,7 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../src/core.cpp" line="3178"/>
+        <location filename="../src/core.cpp" line="3187"/>
         <source>File</source>
         <translation>文件</translation>
     </message>

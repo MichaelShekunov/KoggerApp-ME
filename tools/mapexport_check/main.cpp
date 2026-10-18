@@ -267,9 +267,76 @@ DepthGrid makeDepth(const LLARef& ref, double draft)
 {
     DepthGrid dg;
     QString err;
-    const bool ok = buildDepthGrid(surveyTrack(), ref, 1.0, 100.0, draft, 16LL * 1000 * 1000, dg, {}, &err);
+    const bool ok = buildDepthGrid(surveyTrack(), ref, 1.0, 100.0, 0.0, draft, 16LL * 1000 * 1000, dg, {}, &err);
     check(ok, QStringLiteral("the depth surface is built: %1").arg(err));
     return dg;
+}
+
+// The extrapolation the view draws around each sounding (SurfaceProcessor::paintDiskExtrapolated):
+// lines at e = 0, 10 and 30, run north, the depth 5 + n / 10, edge limit 15 m. Between the first two the triangles stay; west of the
+// first line, within half the width, a cell takes the depth of the sounding the boat has just passed
+// (ahead of a sounding it overwrites, behind it only fills); in the middle of the 20 m gap, nothing.
+void checkExtrapolation()
+{
+    const LLARef ref = makeRef(40.1792, 44.4991);
+    const double draft = 0.2;
+    auto depthAt = [](double n) { return 5.0 + n / 10.0; };
+    QVector<QVector3D> bt;
+    for (double e : { 0.0, 10.0, 30.0 }) {   // 0-10 triangulated; 10-30 wider than the edge limit
+        for (int n = 0; n <= 100; ++n) {
+            bt.append(QVector3D(float(n), float(e), float(-depthAt(n))));
+        }
+    }
+    for (double width : { 10.0, 0.0 }) {
+        DepthGrid dg;
+        QString err;
+        const bool ok = buildDepthGrid(bt, ref, 1.0, 15.0, width, draft, 16LL * 1000 * 1000, dg, {}, &err);
+        const QString tag = QStringLiteral("[extrapolation %1 m] ").arg(width);
+        check(ok, tag + QStringLiteral("built: %1").arg(err));
+        if (!ok) {
+            continue;
+        }
+        Projector p(ref, dg.grid);
+        int inside = 0, insideOff = 0, near = 0, nearFinite = 0, nearOff = 0, far = 0, farFinite = 0;
+        for (int r = 0; r < dg.grid.height; ++r) {
+            p.setRow(r);
+            for (int c = 0; c < dg.grid.width; ++c) {
+                double n, e;
+                p.toNed(c, n, e);
+                const float d = dg.depth[size_t(r) * size_t(dg.grid.width) + size_t(c)];
+                if (n < 5.0 || n > 95.0) {
+                    continue;
+                }
+                if (e > 0.5 && e < 9.5) {                 // the triangles
+                    ++inside;
+                    insideOff += !(std::isfinite(d) && std::fabs(d - (depthAt(n) + draft)) < 2e-3);
+                }
+                else if (e < -0.5 && e > -4.5) {          // within reach of the first line
+                    ++near;
+                    if (std::isfinite(d)) {
+                        ++nearFinite;
+                        // the sounding at or just behind: n_p in [floor(n) - 1, floor(n)]
+                        const double lo = depthAt(std::floor(n) - 1.0) + draft - 1e-3, hi = depthAt(std::floor(n)) + draft + 1e-3;
+                        nearOff += !(d >= lo && d <= hi);
+                    }
+                }
+                else if (e > 15.8 && e < 24.2) {          // between the last two lines, out of reach
+                    ++far;
+                    farFinite += std::isfinite(d);
+                }
+            }
+        }
+        check(inside > 0 && insideOff == 0, tag + QStringLiteral("between the lines the triangles stay: %1 of %2 off").arg(insideOff).arg(inside));
+        check(far > 0 && farFinite == 0, tag + QStringLiteral("past half the width nothing: %1 of %2 filled").arg(farFinite).arg(far));
+        if (width > 0.0) {
+            check(near > 0 && nearFinite == near && nearOff == 0 && dg.extrapolated > 0,
+                  tag + QStringLiteral("within half the width the depth of the sounding just passed: %1 of %2 filled, %3 off")
+                            .arg(nearFinite).arg(near).arg(nearOff));
+        }
+        else {
+            check(near > 0 && nearFinite == 0 && dg.extrapolated == 0, tag + QStringLiteral("without it, outside the lines nothing: %1 of %2 filled").arg(nearFinite).arg(near));
+        }
+    }
 }
 
 void checkDepth()
@@ -892,6 +959,7 @@ int main(int argc, char** argv)
     checkSampler();
     std::printf("depths and isobaths\n");
     checkDepth();
+    checkExtrapolation();
     std::printf("files\n");
     checkGeoTiff(dir);
     checkZip(dir);

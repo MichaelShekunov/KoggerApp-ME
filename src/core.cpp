@@ -2319,12 +2319,19 @@ void Core::UILoad(QObject* object, const QUrl& url)
     mapExporter_->setSources(datasetPtr_, dataProcessor_, scene3dViewPtr_);
 
     // My maps: under the boat in the scene; a map just opened is flown to; the depth from the maps
-    // follows the boat; their isobaths take the isobath tool's step and colour theme.
+    // follows the boat; their isobaths take the isobath tool's step and colour theme, their mosaics the
+    // mosaic tool's theme and levels.
     auto applyIsobathStyle = [this]() {
         mapLayer_->setIsobathStyle(isobathsViewControlMenuController_->themeId(),
                                    isobathsViewControlMenuController_->surfaceLineStepSize());
     };
+    auto applyMosaicStyle = [this]() {
+        mapLayer_->setMosaicStyle(mosaicViewControlMenuController_->themeId(),
+                                  mosaicViewControlMenuController_->lowLevel(),
+                                  mosaicViewControlMenuController_->highLevel());
+    };
     applyIsobathStyle();   // before the maps, so they are not labelled twice
+    applyMosaicStyle();
     mapLayer_->setLibrary(mapLibrary_.get());
     scene3dViewPtr_->setMapLayer(mapLayer_.get());
     QObject::connect(mapLibrary_.get(), &MapLibrary::flyToRequested, scene3dViewPtr_, &GraphicsScene3dView::fitGeoBox, Qt::UniqueConnection);
@@ -2336,6 +2343,8 @@ void Core::UILoad(QObject* object, const QUrl& url)
         });
         QObject::connect(isobathsViewControlMenuController_.get(), &IsobathsViewControlMenuController::styleChanged,
                          mapLayer_.get(), applyIsobathStyle);
+        QObject::connect(mosaicViewControlMenuController_.get(), &MosaicViewControlMenuController::styleChanged,
+                         mapLayer_.get(), applyMosaicStyle);
     }
 
     scene3dViewPtr_->setActiveZeroing(isActiveZeroing_);

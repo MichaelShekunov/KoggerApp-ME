@@ -95,8 +95,11 @@ QJsonObject toJson(const MapMetadata& m)
     if (m.hasDepth) {
         products[QStringLiteral("bathymetry")] = QJsonObject{
             { QStringLiteral("cell_m"), m.depthCellM },
-            { QStringLiteral("interpolation"), QStringLiteral("Delaunay triangulation of the soundings, linear") },
+            { QStringLiteral("interpolation"), m.extrapolationM > 0.0
+                  ? QStringLiteral("Delaunay triangulation of the soundings, linear; elsewhere within extrapolation_m / 2 of a sounding, its depth")
+                  : QStringLiteral("Delaunay triangulation of the soundings, linear") },
             { QStringLiteral("edgeLimit_m"), m.edgeLimitM },
+            { QStringLiteral("extrapolation_m"), m.extrapolationM },
             { QStringLiteral("soundings"), m.soundings },
             { QStringLiteral("minDepth_m"), m.minDepthM },
             { QStringLiteral("maxDepth_m"), m.maxDepthM },

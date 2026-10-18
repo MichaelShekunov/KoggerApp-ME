@@ -45,10 +45,17 @@ public:
     void setStatusDetailedPolling(bool state);
     Q_INVOKABLE void refreshPipelineStatus();
 
+    /// The colour theme (mosaic::PlotColorTable's id) and the levels as set in the tool; the loaded
+    /// maps' mosaics follow them too.
+    int themeId() const { return themeId_; }
+    float lowLevel() const { return lowLevel_; }
+    float highLevel() const { return highLevel_; }
+
 signals:
     void pipelineStatusChanged();
     void statusMonitorEnabledChanged();
     void statusDetailedPollingChanged();
+    void styleChanged();   // themeId or the levels
 
 protected:
     void findComponent() override;
