@@ -18,6 +18,7 @@ struct DbTile {
     double      originX     = 0.0;   // origin при расчёте, возможно ломается при переоткрытии
     double      originY     = 0.0;
     QByteArray  mosaicBlob;   // qCompress(256*256 RAW8)
+    QByteArray  qualityBlob;  // the same for SurfaceTile::getMosaicQualityRef, empty when it is
     bool        hasHeight   = false;
     int         heightFmt   = 0; // 0=float32, 1=int16+scale
     QByteArray  heightBlob;

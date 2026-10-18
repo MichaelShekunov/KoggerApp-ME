@@ -269,8 +269,23 @@ bool MosaicDB::ensureSchema()
             " marks_blob BLOB,"
             " updated_at INTEGER NOT NULL,"
             " engine_ver INTEGER NOT NULL,"
+            " quality_blob BLOB,"
             " PRIMARY KEY(zoom,x,y))")) {
         qWarning() << "tiles schema:" << q.lastError();
+        return false;
+    }
+    // A file left by a session before 2026-10-18 under the same name (an instance index reused
+    // after a crash) has no quality_blob: added, empty.
+    bool hasQuality = false;
+    if (q.exec("PRAGMA table_info(tiles)")) {
+        while (q.next()) {
+            if (q.value(1).toString() == QLatin1String("quality_blob")) {
+                hasQuality = true;
+            }
+        }
+    }
+    if (!hasQuality && !q.exec("ALTER TABLE tiles ADD COLUMN quality_blob BLOB")) {
+        qWarning() << "tiles schema, quality_blob:" << q.lastError();
         return false;
     }
     return true;
@@ -403,8 +418,8 @@ void MosaicDB::saveTiles(int engineVer, const QHash<TileKey, SurfaceTile>& tiles
         "mosaic_blob,"
         "has_height,height_fmt,height_blob,"
         "has_marks,marks_fmt,marks_blob,"
-        "updated_at,engine_ver)"
-        "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+        "updated_at,engine_ver,quality_blob)"
+        "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
         "ON CONFLICT(zoom,x,y) DO UPDATE SET "
         " tile_px=excluded.tile_px, hm_ratio=excluded.hm_ratio,"
         " origin_x=excluded.origin_x, origin_y=excluded.origin_y,"
@@ -412,7 +427,8 @@ void MosaicDB::saveTiles(int engineVer, const QHash<TileKey, SurfaceTile>& tiles
         " mosaic_blob=excluded.mosaic_blob,"
         " has_height=excluded.has_height, height_fmt=excluded.height_fmt, height_blob=excluded.height_blob,"
         " has_marks=excluded.has_marks, marks_fmt=excluded.marks_fmt, marks_blob=excluded.marks_blob,"
-        " updated_at=excluded.updated_at, engine_ver=excluded.engine_ver"
+        " updated_at=excluded.updated_at, engine_ver=excluded.engine_ver,"
+        " quality_blob=excluded.quality_blob"
         );
 
     const qint64 now = QDateTime::currentSecsSinceEpoch();
@@ -431,8 +447,12 @@ void MosaicDB::saveTiles(int engineVer, const QHash<TileKey, SurfaceTile>& tiles
         // мозайка
         QByteArray mosaicBlob;
         const bool hasMosaic = useTextures && !t.getMosaicImageDataCRef().empty();
+        QByteArray qualityBlob;
         if (hasMosaic) {
             mosaicBlob = packRaw8(t.getMosaicImageDataCRef());
+            if (!t.getMosaicQualityCRef().empty()) {
+                qualityBlob = packRaw8(t.getMosaicQualityCRef());
+            }
         }
 
         // высоты
@@ -472,6 +492,7 @@ void MosaicDB::saveTiles(int engineVer, const QHash<TileKey, SurfaceTile>& tiles
         q.addBindValue(mBlob);
         q.addBindValue(now);
         q.addBindValue(engineVer);
+        q.addBindValue(qualityBlob);
 
         if (!q.exec()) {
             if (!failureReported_) {
@@ -540,7 +561,7 @@ void MosaicDB::loadTilesForKeys(const QSet<TileKey> &keys)
                 QStringLiteral(
                     "SELECT x,y,zoom,origin_x,origin_y,tile_px,hm_ratio,head_indx,"
                     "       mosaic_blob, height_blob, marks_blob,"
-                    "       has_height, has_marks, engine_ver "
+                    "       has_height, has_marks, engine_ver, quality_blob "
                     "FROM tiles "
                     "WHERE zoom=? AND ( %1 );")
                     .arg(makeXYOrClause(count));
@@ -587,6 +608,7 @@ void MosaicDB::loadTilesForKeys(const QSet<TileKey> &keys)
                 t.hasHeight  = q.value(11).toInt() != 0;
                 t.hasMarks   = q.value(12).toInt() != 0;
                 t.gen        = q.value(13).toInt();
+                t.qualityBlob = q.value(14).toByteArray();
 
                 out.push_back(std::move(t));
             }

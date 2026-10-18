@@ -74,6 +74,7 @@ void ComputeWorker::clearMosaic()
         t->setHeadIndx(-1);
         auto& img = t->getMosaicImageDataRef();
         std::fill(img.begin(), img.end(), uint8_t(0));
+        t->dropMosaicQuality();
         t->setIsUpdated(true);
     }
 }
@@ -153,6 +154,12 @@ void ComputeWorker::setMosaicRAngleOffset(float val)
 void ComputeWorker::setMosaicSource(int source)
 {
     mosaic_.setSource(static_cast<MosaicProcessor::Source>(source));
+}
+
+void ComputeWorker::setMosaicBeam(std::shared_ptr<const mosaic_beam::Model> model, const mosaic_beam::PaintRules& rules)
+{
+    mosaic_.setBeamModel(std::move(model));
+    mosaic_.setPaintRules(rules);
 }
 
 void ComputeWorker::setMosaicTrackOwners(bool on)

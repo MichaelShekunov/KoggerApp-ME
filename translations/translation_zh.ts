@@ -928,347 +928,347 @@
         <translation>原始</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2097"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2104"/>
         <source>Dataset: with position zeroing on</source>
         <translation>数据集：已开启位置归零</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2113"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2120"/>
         <source>Calc last N epochs:</source>
         <translation>计算最近 N 个历元：</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2135"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2142"/>
         <source>All</source>
         <translation>全部</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2141"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2148"/>
         <source>Clear old data (*)</source>
         <translation>清除旧数据 (*)</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2178"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2185"/>
         <source>Video</source>
         <translation>视频</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2179"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2186"/>
         <source>Per-window video settings.</source>
         <translation>各窗口的视频设置。</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2198"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2205"/>
         <source>No video windows displayed. You can add one while editing the workspace.</source>
         <translation>未显示视频窗口。可在编辑工作区时添加。</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2229"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2236"/>
         <source>Echograms</source>
         <translation>回波图</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2230"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2237"/>
         <source>Per-echogram display settings.</source>
         <translation>各回波图的显示设置。</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2246"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2253"/>
         <source>No echograms displayed</source>
         <translation>未显示回波图</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2275"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2453"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2282"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2460"/>
         <source>Loupe</source>
         <translation>放大镜</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2289"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2474"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2637"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2749"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2805"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2296"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2481"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2644"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2756"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2812"/>
         <source>Size</source>
         <translation>大小</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2306"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2313"/>
         <source>Zoom</source>
         <translation>缩放</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2349"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2356"/>
         <source>Sync echograms</source>
         <translation>同步回波图</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2351"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2358"/>
         <source>Sync the cursor position across all echograms</source>
         <translation>在所有回波图之间同步光标位置</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2364"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2371"/>
         <source>Sync view</source>
         <translation>同步视图</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2368"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2375"/>
         <source>Sync scroll and zoom across echograms</source>
         <translation>在回波图之间同步滚动和缩放</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2382"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2389"/>
         <source>Information panel</source>
         <translation>信息面板</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2384"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2391"/>
         <source>Configure the information panel</source>
         <translation>配置信息面板</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2395"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2402"/>
         <source>3D scene</source>
         <translation>三维场景</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2396"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2403"/>
         <source>3D scene settings, map provider switching.</source>
         <translation>三维场景设置，地图服务商切换。</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2411"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2418"/>
         <source>Rendering</source>
         <translation>渲染</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2419"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2426"/>
         <source>Show surface quality</source>
         <translation>显示曲面质量</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2421"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2428"/>
         <source>Show the surface quality label in the 3D scene</source>
         <translation>在三维场景中显示曲面质量标签</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2435"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2442"/>
         <source>Force zoom</source>
         <translation>固定缩放</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2494"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2501"/>
         <source>Zoom, %:</source>
         <translation>缩放，%：</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2536"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2543"/>
         <source>North mode</source>
         <translation>北向模式</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2538"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2545"/>
         <source>Orient the 3D view to north (north stays up)</source>
         <translation>三维视图朝北（北向朝上）</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2555"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2562"/>
         <source>Sync echogram</source>
         <translation>同步回波图</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2557"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2564"/>
         <source>Sync the cursor between the 2D echogram and the 3D scene</source>
         <translation>在二维回波图与三维场景之间同步光标</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2574"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2581"/>
         <source>Grid</source>
         <translation>网格</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2595"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2602"/>
         <source>Circle</source>
         <translation>圆形</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2616"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2623"/>
         <source>Labels</source>
         <translation>标签</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2656"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2663"/>
         <source>Step</source>
         <translation>步长</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2675"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2682"/>
         <source>Angle</source>
         <translation>角度</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2691"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2698"/>
         <source>Shadows</source>
         <translation>阴影</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2709"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2716"/>
         <source>Navigation arrow</source>
         <translation>导航箭头</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2730"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2737"/>
         <source>Shape</source>
         <translation>形状</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2736"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2743"/>
         <source>Arrow</source>
         <translation>箭头</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2736"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2743"/>
         <source>Boat</source>
         <translation>船</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2765"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2772"/>
         <source>Compass</source>
         <translation>罗盘</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2786"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2793"/>
         <source>Position</source>
         <translation>位置</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2821"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2828"/>
         <source>Scale bar</source>
         <translation>比例尺</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2823"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2830"/>
         <source>Show the scale bar in the 3D scene</source>
         <translation>在三维场景中显示比例尺</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2840"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2847"/>
         <source>USBL beacons</source>
         <translation>USBL 信标</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2842"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2849"/>
         <source>Show the acoustic nodes and their tracks in the 3D scene</source>
         <translation>在三维场景中显示声学节点及其轨迹</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2887"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2894"/>
         <source>Map</source>
         <translation>地图</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2895"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2902"/>
         <source>Show map tiles</source>
         <translation>显示地图瓦片</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2914"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2921"/>
         <source>Limit downloads on metered networks</source>
         <translation>在按流量计费的网络上限制下载</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2958"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2965"/>
         <source>Metered network (limited)</source>
         <translation>按流量计费的网络（受限）</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2981"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2988"/>
         <source>Internet available</source>
         <translation>网络可用</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2982"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2989"/>
         <source>Internet unavailable</source>
         <translation>网络不可用</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2990"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2997"/>
         <source>Providers</source>
         <translation>服务商</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3015"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3022"/>
         <source>Cache: empty</source>
         <translation>缓存：空</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3022"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3029"/>
         <source>Cache since %1  •  %2 MB</source>
         <translation>缓存自 %1  •  %2 MB</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3051"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3058"/>
         <source>Navigator</source>
         <translation>导航器</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3059"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3066"/>
         <source>Use angle</source>
         <translation>使用方向角</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3077"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3084"/>
         <source>Navigator view</source>
         <translation>导航视图</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3097"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3104"/>
         <source>Data</source>
         <translation>数据</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3113"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3120"/>
         <source>Reset surface</source>
         <translation>重置曲面</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3129"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3136"/>
         <source>Clear?</source>
         <translation>清除？</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3140"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3147"/>
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3205"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3212"/>
         <source>Test</source>
         <translation>测试</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3206"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3213"/>
         <source>Developer knobs — visible only in MANUAL_TESTING builds.</source>
         <translation>开发者参数 — 仅在 MANUAL_TESTING 版本中可见。</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3220"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3227"/>
         <source>Double-tap tolerance, px:</source>
         <translation>双击容差，px：</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3250"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3257"/>
         <source>Split grab thickness, px:</source>
         <translation>分隔条抓取宽度，px：</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3279"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3286"/>
         <source>Sidebar slide, ms:</source>
         <translation>侧边栏滑动，ms：</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3308"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3315"/>
         <source>Workspace adjust, ms:</source>
         <translation>工作区调整，ms：</translation>
     </message>
@@ -9831,6 +9831,106 @@
         <location filename="../qml/app/MosaicPipelineStatus.qml" line="193"/>
         <source>Grid</source>
         <translation>网格</translation>
+    </message>
+</context>
+<context>
+    <name>MosaicQualitySettings</name>
+    <message>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="32"/>
+        <source>Even out brightness</source>
+        <translation>均衡亮度</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="33"/>
+        <source>Measures from the echograms how the brightness depends on the angle below the sonar (its beam) and on the range, and takes both out: the bright band along the track and the dark far edge even out, and neighbouring lines match</source>
+        <translation>根据回波图测量亮度随声呐下方角度（波束）和距离的变化，并将两者消除：航迹旁的亮带和远端的暗边被拉平，相邻测线亮度一致</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="43"/>
+        <source>Crop near the track, °:</source>
+        <translation>航迹附近裁剪，°：</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="52"/>
+        <source>Samples nearer straight down than this angle are not painted: the stretched, glaring strip under the sonar. A neighbouring line fills it where lines overlap. 0: off</source>
+        <translation>比此角度更接近垂直下方的采样不绘制：声呐正下方被拉伸、过亮的条带。测线重叠处由相邻测线填补。0：关闭</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="63"/>
+        <source>Crop the far edge, °:</source>
+        <translation>远端裁剪，°：</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="72"/>
+        <source>Samples further out than this angle below the sonar are not painted: the edge of the beam, where there is mostly noise. The chart below shows where the beam falls off. 90: off</source>
+        <translation>离垂直方向超过此角度的采样不绘制：波束边缘，主要是噪声。波束衰减的位置见下图。90：关闭</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="83"/>
+        <source>Overlaps:</source>
+        <translation>重叠：</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="93"/>
+        <source>Newest on top</source>
+        <translation>最新在上</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="93"/>
+        <source>Newest, edges under</source>
+        <translation>最新在上，边缘置下</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="93"/>
+        <source>Nearest the track</source>
+        <translation>最靠近航迹</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="95"/>
+        <source>Where lines overlap: the newest line; the newest, but its strip under the sonar and its beam&apos;s edge only where no other line has better; or the line that saw the place nearest straight down</source>
+        <translation>测线重叠处像素显示：最新的测线；最新的测线，但其声呐正下方条带和波束边缘仅在其他测线没有更好数据时显示；或从最接近垂直方向看到该处的测线</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="153"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="216"/>
+        <source>Left</source>
+        <translation>左</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="154"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="216"/>
+        <source>Right</source>
+        <translation>右</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="197"/>
+        <source>Measuring the beam from the echograms…</source>
+        <translation>正在根据回波图测量波束…</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="200"/>
+        <source>Not measured yet: needs %1 pings with a bottom track, seen out to %2° from straight down</source>
+        <translation>尚未测量：需要 %1 个带底迹的脉冲，且数据至少覆盖到偏离垂直 %2°</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="205"/>
+        <source>%1: not measured</source>
+        <translation>%1：未测量</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="208"/>
+        <source>%1: brightest at %2°, no 6 dB fall up to %3°</source>
+        <translation>%1：%2° 处最亮，%3° 以内未下降 6 dB</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="211"/>
+        <source>%1: brightest at %2°, down 6 dB at %3°</source>
+        <translation>%1：%2° 处最亮，%3° 处下降 6 dB</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="214"/>
+        <source>Measured on %1 pings. %2; %3. Near to far range: %4 dB evened out</source>
+        <translation>基于 %1 个脉冲测量。%2；%3。近端到远端 %4 dB 的亮度差已均衡</translation>
     </message>
 </context>
 <context>

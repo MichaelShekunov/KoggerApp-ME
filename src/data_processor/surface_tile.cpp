@@ -125,6 +125,7 @@ void SurfaceTile::resetInitData()
     isUpdated_ = false;
 
     std::vector<uint8_t>().swap(imageData_);
+    std::vector<uint8_t>().swap(qualityData_);
     QVector<QVector3D>().swap(heightVertices_);
     QVector<HeightType>().swap(heightMarkVertices_);
     QVector<int>().swap(heightIndices_);
@@ -202,6 +203,21 @@ std::vector<uint8_t>& SurfaceTile::getMosaicImageDataRef()
 const std::vector<uint8_t> &SurfaceTile::getMosaicImageDataCRef() const
 {
     return imageData_;
+}
+
+std::vector<uint8_t>& SurfaceTile::getMosaicQualityRef()
+{
+    return qualityData_;
+}
+
+const std::vector<uint8_t>& SurfaceTile::getMosaicQualityCRef() const
+{
+    return qualityData_;
+}
+
+void SurfaceTile::dropMosaicQuality()
+{
+    std::vector<uint8_t>().swap(qualityData_);
 }
 
 QVector<QVector3D>& SurfaceTile::getHeightVerticesRef()

@@ -42,6 +42,7 @@ qt_add_qml_module(kogger_app
         MainWindow.qml
         ModeSettingsPanel.qml
         MosaicPipelineStatus.qml
+        MosaicQualitySettings.qml
         NavButton.qml
         NotificationsOverlay.qml
         Pane2DSettingsPage.qml

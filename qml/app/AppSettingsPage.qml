@@ -2047,6 +2047,13 @@ Column {
                         Settings { category: "scene3d/mosaic"; property alias mosaicSource: mosaicSource.currentIndex }
                     }
                 }
+
+                // Mosaic quality (docs/mosaic-quality.md): brightness, crop, overlaps.
+                MosaicQualitySettings {
+                    Layout.fillWidth: true
+                    ctrlW: mosaicGroup.ctrlW
+                    controller: MosaicViewControlMenuController
+                }
             }
         }
 
