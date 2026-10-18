@@ -49,7 +49,8 @@ try {
     }
     if ($waiting) { L "KoggerApp exited" }
     Start-Sleep -Seconds 2   # let it release its files
-    $p = Start-Process -FilePath $setup.FullName -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', '/CURRENTUSER' -Wait -PassThru
+    # desktopicon: the setup's desktop shortcut (the owner asked for one; the setup removes it on uninstall).
+    $p = Start-Process -FilePath $setup.FullName -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', '/CURRENTUSER', '/MERGETASKS=desktopicon' -Wait -PassThru
     L "setup $($setup.Name) exit $($p.ExitCode)"
     $h1 = (Get-FileHash -LiteralPath "$stage\KoggerApp.exe").Hash
     $h2 = (Get-FileHash -LiteralPath "$target\KoggerApp.exe").Hash

@@ -36,8 +36,11 @@ AppVersion={#MyAppVersion}
 VersionInfoVersion={#MyAppVersionInfo}
 VersionInfoProductName={#MyAppName}
 DefaultDirName={autopf}\KoggerApp ME
-; The old name's folder is not reused: an upgrade goes to the new one and removes the old (InstallDelete).
+; The old name's folder and Start-menu group are not reused: an upgrade goes to the new ones and
+; removes the old (InstallDelete). Seen 2026-10-18: without UsePreviousGroup=no the new shortcuts
+; went into a re-created "KoggerApp myEdition" group.
 UsePreviousAppDir=no
+UsePreviousGroup=no
 DefaultGroupName={#MyAppName}
 UninstallDisplayName={#MyAppName}
 UninstallDisplayIcon={app}\{#MyAppExe}
