@@ -2175,171 +2175,176 @@
 <context>
     <name>Core</name>
     <message>
-        <location filename="../src/core.cpp" line="3521"/>
+        <location filename="../src/core.cpp" line="3578"/>
         <source>Internet connection restored</source>
         <translation>Интернет-соединение восстановлено</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3522"/>
+        <location filename="../src/core.cpp" line="3579"/>
         <source>Internet connection lost</source>
         <translation>Интернет-соединение потеряно</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3534"/>
+        <location filename="../src/core.cpp" line="3591"/>
         <source>Metered network detected</source>
         <translation>Обнаружена лимитированная сеть</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2642"/>
-        <location filename="../src/core.cpp" line="2666"/>
+        <location filename="../src/core.cpp" line="2689"/>
+        <location filename="../src/core.cpp" line="2713"/>
         <source>street</source>
         <translation>схема</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2648"/>
-        <location filename="../src/core.cpp" line="2654"/>
-        <location filename="../src/core.cpp" line="2660"/>
+        <location filename="../src/core.cpp" line="1284"/>
+        <source>Cannot share %1</source>
+        <translation>Не удалось поделиться файлом %1</translation>
+    </message>
+    <message>
+        <location filename="../src/core.cpp" line="2695"/>
+        <location filename="../src/core.cpp" line="2701"/>
+        <location filename="../src/core.cpp" line="2707"/>
         <source>satellite</source>
         <translation>спутник</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3078"/>
+        <location filename="../src/core.cpp" line="3125"/>
         <source>Connected</source>
         <translation>Подключено</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3078"/>
+        <location filename="../src/core.cpp" line="3125"/>
         <source>Connected: %1</source>
         <translation>Подключено: %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3092"/>
+        <location filename="../src/core.cpp" line="3139"/>
         <source>Disconnected</source>
         <translation>Отключено</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3092"/>
+        <location filename="../src/core.cpp" line="3139"/>
         <source>Disconnected: %1</source>
         <translation>Отключено: %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1200"/>
+        <location filename="../src/core.cpp" line="1201"/>
         <source>KLF logging disabled</source>
         <translation>Логирование KLF выключено</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1192"/>
+        <location filename="../src/core.cpp" line="1193"/>
         <source>KLF logging not started</source>
         <translation>Логирование KLF не запустилось</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1542"/>
+        <location filename="../src/core.cpp" line="1582"/>
         <source>CSV logging disabled</source>
         <translation>Логирование CSV выключено</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1534"/>
+        <location filename="../src/core.cpp" line="1574"/>
         <source>CSV logging not started</source>
         <translation>Логирование CSV не запустилось</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1189"/>
+        <location filename="../src/core.cpp" line="1190"/>
         <source>KLF logging started:
 %1</source>
         <translation>Логирование KLF начато:
 %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1198"/>
+        <location filename="../src/core.cpp" line="1199"/>
         <source>KLF log saved:
 %1</source>
         <translation>Лог KLF сохранён:
 %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1531"/>
+        <location filename="../src/core.cpp" line="1571"/>
         <source>CSV logging started:
 %1</source>
         <translation>Логирование CSV начато:
 %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1540"/>
+        <location filename="../src/core.cpp" line="1580"/>
         <source>CSV log saved:
 %1</source>
         <translation>Лог CSV сохранён:
 %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1382"/>
+        <location filename="../src/core.cpp" line="1422"/>
         <source>Invalid log folder:
 %1</source>
         <translation>Неверный путь папки логов:
 %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1388"/>
+        <location filename="../src/core.cpp" line="1428"/>
         <source>Log folder is not writable:
 %1</source>
         <translation>Нет доступа на запись в папку логов:
 %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2826"/>
+        <location filename="../src/core.cpp" line="2873"/>
         <source>File opened</source>
         <translation>Файл открыт</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2827"/>
+        <location filename="../src/core.cpp" line="2874"/>
         <source>File opened: %1</source>
         <translation>Файл открыт: %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="630"/>
-        <location filename="../src/core.cpp" line="897"/>
+        <location filename="../src/core.cpp" line="631"/>
+        <location filename="../src/core.cpp" line="898"/>
         <source>File closed</source>
         <translation>Файл закрыт</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="631"/>
-        <location filename="../src/core.cpp" line="898"/>
+        <location filename="../src/core.cpp" line="632"/>
+        <location filename="../src/core.cpp" line="899"/>
         <source>File closed: %1</source>
         <translation>Файл закрыт: %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2027"/>
+        <location filename="../src/core.cpp" line="2067"/>
         <source>Exported to CSV: %1</source>
         <translation>Экспорт в CSV выполнен: %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2058"/>
+        <location filename="../src/core.cpp" line="2098"/>
         <source>Exported to XTF: %1</source>
         <translation>Экспорт в XTF выполнен: %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1630"/>
+        <location filename="../src/core.cpp" line="1670"/>
         <source>Complex signals exported to CSV: %1</source>
         <translation>Комплексные сигналы экспортированы в CSV: %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1674"/>
+        <location filename="../src/core.cpp" line="1714"/>
         <source>USBL exported to CSV: %1</source>
         <translation>USBL экспортирован в CSV: %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2035"/>
+        <location filename="../src/core.cpp" line="2075"/>
         <source>Export failed</source>
         <translation>Экспорт не выполнен</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1578"/>
-        <location filename="../src/core.cpp" line="1627"/>
-        <location filename="../src/core.cpp" line="1641"/>
-        <location filename="../src/core.cpp" line="1671"/>
-        <location filename="../src/core.cpp" line="1764"/>
-        <location filename="../src/core.cpp" line="2024"/>
-        <location filename="../src/core.cpp" line="2043"/>
-        <location filename="../src/core.cpp" line="2055"/>
+        <location filename="../src/core.cpp" line="1618"/>
+        <location filename="../src/core.cpp" line="1667"/>
+        <location filename="../src/core.cpp" line="1681"/>
+        <location filename="../src/core.cpp" line="1711"/>
+        <location filename="../src/core.cpp" line="1804"/>
+        <location filename="../src/core.cpp" line="2064"/>
+        <location filename="../src/core.cpp" line="2083"/>
+        <location filename="../src/core.cpp" line="2095"/>
         <source>Export failed: %1</source>
         <translation>Экспорт не выполнен: %1</translation>
     </message>
@@ -7206,7 +7211,7 @@
 <context>
     <name>FilesViewer</name>
     <message>
-        <location filename="../qml/devices/FilesViewer.qml" line="330"/>
+        <location filename="../qml/devices/FilesViewer.qml" line="335"/>
         <source>Open %1</source>
         <translation>Открыть %1</translation>
     </message>
@@ -7227,22 +7232,32 @@
     </message>
     <message>
         <location filename="../qml/devices/FilesViewer.qml" line="247"/>
-        <location filename="../qml/devices/FilesViewer.qml" line="270"/>
+        <location filename="../qml/devices/FilesViewer.qml" line="275"/>
         <source>Please choose a file</source>
         <translation>Выберите файл</translation>
     </message>
     <message>
-        <location filename="../qml/devices/FilesViewer.qml" line="264"/>
+        <location filename="../qml/devices/FilesViewer.qml" line="249"/>
+        <source>Logs and maps</source>
+        <translation>Записи и карты</translation>
+    </message>
+    <message>
+        <location filename="../qml/devices/FilesViewer.qml" line="249"/>
+        <source>KOGGER maps</source>
+        <translation>Карты КОГГЕР</translation>
+    </message>
+    <message>
+        <location filename="../qml/devices/FilesViewer.qml" line="269"/>
         <source>Append file</source>
         <translation>Добавить файл</translation>
     </message>
     <message>
-        <location filename="../qml/devices/FilesViewer.qml" line="285"/>
+        <location filename="../qml/devices/FilesViewer.qml" line="290"/>
         <source>Close file</source>
         <translation>Закрыть файл</translation>
     </message>
     <message>
-        <location filename="../qml/devices/FilesViewer.qml" line="305"/>
+        <location filename="../qml/devices/FilesViewer.qml" line="310"/>
         <source>Recently opened:</source>
         <translation>Недавно открытые:</translation>
     </message>
@@ -8324,17 +8339,17 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1146"/>
+        <location filename="../qml/app/MainWindow.qml" line="1151"/>
         <source>About</source>
         <translation>О программе</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1136"/>
+        <location filename="../qml/app/MainWindow.qml" line="1141"/>
         <source>Servo panel</source>
         <translation>Панель серво</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1150"/>
+        <location filename="../qml/app/MainWindow.qml" line="1155"/>
         <source>Devices</source>
         <translation>Устройства</translation>
     </message>
@@ -8344,22 +8359,22 @@
         <translation>Выберите файл</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1144"/>
+        <location filename="../qml/app/MainWindow.qml" line="1149"/>
         <source>Information panel</source>
         <translation>Информационная плашка</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1757"/>
+        <location filename="../qml/app/MainWindow.qml" line="1762"/>
         <source>Language:</source>
         <translation>Язык:</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1802"/>
+        <location filename="../qml/app/MainWindow.qml" line="1807"/>
         <source>Continue</source>
         <translation>Продолжить</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1748"/>
+        <location filename="../qml/app/MainWindow.qml" line="1753"/>
         <source>Welcome to KoggerApp!</source>
         <translation>Добро пожаловать в KoggerApp!</translation>
     </message>
@@ -8379,153 +8394,153 @@
         <translation>Второе окно</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1142"/>
+        <location filename="../qml/app/MainWindow.qml" line="1147"/>
         <source>Map for sharing</source>
         <translation>Карта для обмена</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1143"/>
+        <location filename="../qml/app/MainWindow.qml" line="1148"/>
         <source>My maps</source>
         <translation>Мои карты</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1147"/>
+        <location filename="../qml/app/MainWindow.qml" line="1152"/>
         <source>Developer mode</source>
         <translation>Режим разработчика</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1149"/>
+        <location filename="../qml/app/MainWindow.qml" line="1154"/>
         <source>Create layout</source>
         <translation>Создать компоновку</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1549"/>
+        <location filename="../qml/app/MainWindow.qml" line="1554"/>
         <source>Tap again: apply %1 and save</source>
         <translation>Нажмите ещё раз: применить изменения (%1) и сохранить</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1550"/>
+        <location filename="../qml/app/MainWindow.qml" line="1555"/>
         <source>Apply and save (%1)</source>
         <translation>Применить и сохранить (%1)</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1551"/>
+        <location filename="../qml/app/MainWindow.qml" line="1556"/>
         <source>Save to device</source>
         <translation>Сохранить в устройство</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1553"/>
+        <location filename="../qml/app/MainWindow.qml" line="1558"/>
         <source>Apply every change waiting on this page, then write the settings to the device&apos;s memory</source>
         <translation>Применить все ожидающие изменения на этой странице, затем записать настройки в память устройства</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1554"/>
+        <location filename="../qml/app/MainWindow.qml" line="1559"/>
         <source>Write the current settings to the device&apos;s memory</source>
         <translation>Записать текущие настройки в память устройства</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1571"/>
+        <location filename="../qml/app/MainWindow.qml" line="1576"/>
         <source>Tap again to apply to %1: %2</source>
         <translation>Нажмите ещё раз, чтобы применить к %1: %2</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1581"/>
+        <location filename="../qml/app/MainWindow.qml" line="1586"/>
         <source>Settings written to device: %1</source>
         <translation>Настройки записаны в устройство: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1588"/>
+        <location filename="../qml/app/MainWindow.qml" line="1593"/>
         <source>Close</source>
         <translation>Закрыть</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1664"/>
+        <location filename="../qml/app/MainWindow.qml" line="1669"/>
         <source>Boat: %1 — done</source>
         <translation>Лодка: %1 — готово</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1666"/>
+        <location filename="../qml/app/MainWindow.qml" line="1671"/>
         <source>Boat: %1 — %2</source>
         <translation>Лодка: %1 — %2</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1670"/>
+        <location filename="../qml/app/MainWindow.qml" line="1675"/>
         <source>Boat: %1</source>
         <translation>Лодка: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1775"/>
+        <location filename="../qml/app/MainWindow.qml" line="1780"/>
         <source>Choose which settings to show</source>
         <translation>Выберите, какие настройки показывать</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1782"/>
+        <location filename="../qml/app/MainWindow.qml" line="1787"/>
         <source>Fish Finders</source>
         <translation>Для Рыболова</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1783"/>
+        <location filename="../qml/app/MainWindow.qml" line="1788"/>
         <source>Bottom Track</source>
         <translation>Трек дна</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1784"/>
+        <location filename="../qml/app/MainWindow.qml" line="1789"/>
         <source>Maximum</source>
         <translation>Максимум</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1792"/>
+        <location filename="../qml/app/MainWindow.qml" line="1797"/>
         <source>You can change this later in settings.</source>
         <translation>Это можно изменить позже в настройках.</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1133"/>
-        <location filename="../qml/app/MainWindow.qml" line="1152"/>
+        <location filename="../qml/app/MainWindow.qml" line="1138"/>
+        <location filename="../qml/app/MainWindow.qml" line="1157"/>
         <source>Settings</source>
         <translation>Настройки</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1134"/>
+        <location filename="../qml/app/MainWindow.qml" line="1139"/>
         <source>Quick action menu</source>
         <translation>Меню быстрых действий</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1139"/>
+        <location filename="../qml/app/MainWindow.qml" line="1144"/>
         <source>UI Saving</source>
         <translation>Сохранение UI</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1140"/>
+        <location filename="../qml/app/MainWindow.qml" line="1145"/>
         <source>TGC</source>
         <translation>TGC</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1145"/>
+        <location filename="../qml/app/MainWindow.qml" line="1150"/>
         <source>Console</source>
         <translation>Консоль</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1141"/>
+        <location filename="../qml/app/MainWindow.qml" line="1146"/>
         <source>Export to CSV</source>
         <translation>Экспорт в CSV</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1135"/>
+        <location filename="../qml/app/MainWindow.qml" line="1140"/>
         <source>Create panel</source>
         <translation>Создать панель</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1135"/>
+        <location filename="../qml/app/MainWindow.qml" line="1140"/>
         <source>Edit panel</source>
         <translation>Редактировать панель</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1137"/>
+        <location filename="../qml/app/MainWindow.qml" line="1142"/>
         <source>USBL panel</source>
         <translation>Панель USBL</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1138"/>
+        <location filename="../qml/app/MainWindow.qml" line="1143"/>
         <source>Stand panel</source>
         <translation>Панель стенда</translation>
     </message>
@@ -8533,182 +8548,192 @@
 <context>
     <name>MapExportSettingsTab</name>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="100"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="110"/>
         <source>Save the depth map and the side-scan mosaic of the open survey as a KOGGER map (.kmap) to share it: whoever gets the file opens it in KoggerApp and sees the map under their boat. For Google Earth and GIS a KMZ and GeoTIFFs can be saved too. The folder is set in the Export group.</source>
         <translation>Сохраните карту глубин и мозаику открытой записи картой КОГГЕР (.kmap), чтобы поделиться: кто получит файл, откроет его в KoggerApp и увидит карту под своей лодкой. Для Google Earth и ГИС можно сохранить ещё KMZ и GeoTIFF. Папка задаётся в группе «Экспорт».</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="110"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="120"/>
         <source>Cancel</source>
         <translation>Отменить</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="110"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="120"/>
         <source>Save the map</source>
         <translation>Сохранить карту</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="156"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="166"/>
         <source>Show in folder</source>
         <translation>Показать в папке</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="165"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="174"/>
+        <source>Share the map</source>
+        <translation>Поделиться картой</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="175"/>
+        <source>Send the map</source>
+        <translation>Отправить карту</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="183"/>
         <source>Title</source>
         <translation>Название</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="166"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="184"/>
         <source>Map</source>
         <translation>Карта</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="171"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="189"/>
         <source>Author</source>
         <translation>Автор</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="172"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="190"/>
         <source>Name or nickname</source>
         <translation>Имя или псевдоним</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="173"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="191"/>
         <source>Written into the files as the author. Leave it empty to stay anonymous.</source>
         <translation>Записывается в файлы как автор. Оставьте пустым, чтобы не указывать себя.</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="178"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="196"/>
         <source>Contact</source>
         <translation>Контакт</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="179"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="197"/>
         <source>E-mail or site, optional</source>
         <translation>Почта или сайт, необязательно</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="180"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="198"/>
         <source>Written into the files: everyone who gets the map will see it.</source>
         <translation>Записывается в файлы: его увидит каждый, кто получит карту.</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="185"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="203"/>
         <source>Licence</source>
         <translation>Лицензия</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="187"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="205"/>
         <source>What others may do with the map. The data is yours; the licence is your permission.</source>
         <translation>Что другим можно делать с картой. Данные ваши, лицензия — ваше разрешение.</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="204"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="222"/>
         <source>Anyone may copy, change and use the map, also commercially, if they name you as the author.</source>
         <translation>Любой может копировать, изменять и использовать карту, в том числе в коммерческих целях, если укажет вас как автора.</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="206"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="224"/>
         <source>Anyone may do anything with the map, without naming you. This cannot be taken back for copies already shared.</source>
         <translation>Любой может делать с картой что угодно, не указывая вас. Для уже разосланных копий это нельзя отозвать.</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="207"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="225"/>
         <source>Others may look at the map; copying, passing on or changing it needs your permission.</source>
         <translation>Другие могут смотреть карту; копировать, передавать дальше или изменять её — только с вашего разрешения.</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="208"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="226"/>
         <source>Every file also says: NOT FOR NAVIGATION, depths from an amateur survey, use at your own risk.</source>
         <translation>В каждом файле также сказано: НЕ ДЛЯ НАВИГАЦИИ, глубины любительской съёмки, используйте на свой риск.</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="217"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="235"/>
         <source>Side-scan mosaic</source>
         <translation>Мозаика бокового обзора</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="229"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="247"/>
         <source>Mosaic detail</source>
         <translation>Детализация мозаики</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="232"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="250"/>
         <source>Finer detail makes larger files and takes longer.</source>
         <translation>Чем подробнее, тем больше файлы и дольше сохранение.</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="243"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="261"/>
         <source>Depths and isobaths</source>
         <translation>Глубины и изобаты</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="255"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="273"/>
         <source>Join soundings up to, m</source>
         <translation>Соединять промеры до, м</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="258"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="276"/>
         <source>The depth map is drawn between soundings no farther apart than this; wider gaps stay empty. More than the distance between survey lines joins them.</source>
         <translation>Карта глубин строится между промерами, отстоящими не дальше этого; более широкие промежутки остаются пустыми. Значение больше расстояния между галсами соединяет их.</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="268"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="286"/>
         <source>Isobaths every</source>
         <translation>Изобаты через</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="271"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="289"/>
         <source>Also the step of the depth colours. Auto: 10 to 25 isobaths over the depths of the survey.</source>
         <translation>Это же шаг цветов глубины. Авто: от 10 до 25 изобат на диапазон глубин съёмки.</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="288"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="306"/>
         <source>Transducer depth, m</source>
         <translation>Заглубление датчика, м</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="291"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="309"/>
         <source>How deep the transducer sits below the waterline. Added to every depth, so the map counts from the water surface; 0: depths from the transducer.</source>
         <translation>На сколько датчик опущен под ватерлинию. Прибавляется к каждой глубине, чтобы карта считалась от поверхности воды; 0 — глубины от датчика.</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="308"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="326"/>
         <source>KOGGER map (.kmap)</source>
         <translation>Карта КОГГЕР (.kmap)</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="311"/>
-        <source>The file to share: it opens in KoggerApp as a layer under the boat.</source>
-        <translation>Файл для обмена: в KoggerApp он открывается слоем под лодкой.</translation>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="329"/>
+        <source>The file to share: it opens in KoggerApp as a layer under the boat. It holds the depths for the isobaths and the mosaic, without the boat&apos;s track.</source>
+        <translation>Файл, которым делятся: он открывается в KoggerApp слоем под лодкой. В нём глубины для изобат и мозаика, без трека лодки.</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="324"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="377"/>
+        <source>In the Google Earth and GIS files the boat&apos;s track is left out and the survey&apos;s date is given as a month only. The KOGGER map never has the track, and its date is always a month only.</source>
+        <translation>В файлах для Google Earth и ГИС нет трека лодки, а дата съёмки указана только месяцем. В карте КОГГЕР трека нет никогда, и дата в ней всегда только месяцем.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="342"/>
         <source>For other programs</source>
         <translation>Для других программ</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="331"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="349"/>
         <source>Google Earth (KMZ)</source>
         <translation>Google Earth (KMZ)</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="343"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="361"/>
         <source>GIS (GeoTIFF)</source>
         <translation>ГИС (GeoTIFF)</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="361"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="374"/>
         <source>Without the track and times</source>
         <translation>Без трека и времени</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="364"/>
-        <source>The boat&apos;s track is left out and the survey&apos;s date is given as a month only.</source>
-        <translation>Трек лодки не сохраняется, дата съёмки указывается только месяцем.</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="376"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="389"/>
         <source>Even without the track, a map shows where you have been. Do not share surveys of places that must stay private, and check whether surveying and publishing depths is allowed in those waters.</source>
         <translation>Даже без трека карта показывает, где вы были. Не публикуйте съёмки мест, которые должны оставаться закрытыми, и проверьте, разрешено ли снимать и публиковать глубины в этих водах.</translation>
     </message>
@@ -8829,28 +8854,33 @@
 <context>
     <name>MapLibrary</name>
     <message>
-        <location filename="../src/map_export/map_library.cpp" line="90"/>
-        <location filename="../src/map_export/map_library.cpp" line="116"/>
+        <location filename="../src/map_export/map_library.cpp" line="96"/>
+        <location filename="../src/map_export/map_library.cpp" line="119"/>
         <source>Not opened: %1</source>
         <translation>Не открыто: %1</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_library.cpp" line="100"/>
+        <location filename="../src/map_export/map_library.cpp" line="111"/>
         <source>Already in My maps: %1</source>
         <translation>Уже в «Моих картах»: %1</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_library.cpp" line="108"/>
+        <location filename="../src/map_export/map_library.cpp" line="102"/>
         <source>Not opened: cannot keep the file (%1)</source>
         <translation>Не открыто: не удалось сохранить файл (%1)</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_library.cpp" line="131"/>
+        <location filename="../src/map_export/map_library.cpp" line="99"/>
+        <source>Not opened: this is not a KOGGER map</source>
+        <translation>Не открыто: это не карта КОГГЕР</translation>
+    </message>
+    <message>
+        <location filename="../src/map_export/map_library.cpp" line="134"/>
         <source>Not opened: cannot keep the file</source>
         <translation>Не открыто: не удалось сохранить файл</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_library.cpp" line="144"/>
+        <location filename="../src/map_export/map_library.cpp" line="147"/>
         <source>Opened: %1</source>
         <translation>Открыто: %1</translation>
     </message>
@@ -9840,97 +9870,102 @@
 <context>
     <name>MyMapsTab</name>
     <message>
-        <location filename="../qml/app/MyMapsTab.qml" line="37"/>
+        <location filename="../qml/app/MyMapsTab.qml" line="39"/>
         <source>km</source>
         <translation>км</translation>
     </message>
     <message>
-        <location filename="../qml/app/MyMapsTab.qml" line="38"/>
+        <location filename="../qml/app/MyMapsTab.qml" line="40"/>
         <source>m</source>
         <translation>м</translation>
     </message>
     <message>
-        <location filename="../qml/app/MyMapsTab.qml" line="40"/>
+        <location filename="../qml/app/MyMapsTab.qml" line="42"/>
         <source>m deep</source>
         <translation>м глубины</translation>
     </message>
     <message>
-        <location filename="../qml/app/MyMapsTab.qml" line="45"/>
+        <location filename="../qml/app/MyMapsTab.qml" line="48"/>
+        <source>Depth maps you saved or others sent you. They lie under the boat in the 3D view. To open a .kmap someone sent you, tap it in the messenger and choose KoggerApp, or use the button below.</source>
+        <translation>Карты глубин, которые вы сохранили или вам прислали. Они лежат под лодкой в 3D-виде. Чтобы открыть присланный файл .kmap, нажмите на него в мессенджере и выберите KoggerApp или воспользуйтесь кнопкой ниже.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/MyMapsTab.qml" line="49"/>
         <source>Depth maps you saved or others sent you. They lie under the boat in the 3D view. Open a .kmap file with the button below, from the Open menu, or by dropping it on the window.</source>
         <translation>Карты глубин, которые вы сохранили или вам прислали. Они лежат под лодкой в 3D-виде. Открыть файл .kmap можно кнопкой ниже, через меню «Открыть» или перетащив его в окно.</translation>
     </message>
     <message>
-        <location filename="../qml/app/MyMapsTab.qml" line="54"/>
+        <location filename="../qml/app/MyMapsTab.qml" line="58"/>
         <source>Open a map…</source>
         <translation>Открыть карту…</translation>
     </message>
     <message>
-        <location filename="../qml/app/MyMapsTab.qml" line="60"/>
+        <location filename="../qml/app/MyMapsTab.qml" line="64"/>
         <source>Open a KOGGER map</source>
         <translation>Открыть карту КОГГЕР</translation>
     </message>
     <message>
-        <location filename="../qml/app/MyMapsTab.qml" line="62"/>
+        <location filename="../qml/app/MyMapsTab.qml" line="66"/>
         <source>KOGGER maps</source>
         <translation>Карты КОГГЕР</translation>
     </message>
     <message>
-        <location filename="../qml/app/MyMapsTab.qml" line="78"/>
+        <location filename="../qml/app/MyMapsTab.qml" line="82"/>
         <source>Under the boat by the map: %1 m (%2)</source>
         <translation>Под лодкой по карте: %1 м (%2)</translation>
     </message>
     <message>
-        <location filename="../qml/app/MyMapsTab.qml" line="89"/>
+        <location filename="../qml/app/MyMapsTab.qml" line="93"/>
         <source>Show the maps</source>
         <translation>Показывать карты</translation>
     </message>
     <message>
-        <location filename="../qml/app/MyMapsTab.qml" line="101"/>
+        <location filename="../qml/app/MyMapsTab.qml" line="105"/>
         <source>Depths and isobaths</source>
         <translation>Глубины и изобаты</translation>
     </message>
     <message>
-        <location filename="../qml/app/MyMapsTab.qml" line="114"/>
+        <location filename="../qml/app/MyMapsTab.qml" line="118"/>
         <source>Side-scan mosaic</source>
         <translation>Мозаика бокового обзора</translation>
     </message>
     <message>
-        <location filename="../qml/app/MyMapsTab.qml" line="136"/>
+        <location filename="../qml/app/MyMapsTab.qml" line="140"/>
         <source>No maps yet. Ask someone to send you a .kmap file, or save your own: Settings → Export → Map for sharing.</source>
         <translation>Карт пока нет. Попросите прислать вам файл .kmap или сохраните свою: Настройки → Экспорт → Карта для обмена.</translation>
     </message>
     <message>
-        <location filename="../qml/app/MyMapsTab.qml" line="139"/>
+        <location filename="../qml/app/MyMapsTab.qml" line="143"/>
         <source>Save my map</source>
         <translation>Сохранить свою карту</translation>
     </message>
     <message>
-        <location filename="../qml/app/MyMapsTab.qml" line="197"/>
+        <location filename="../qml/app/MyMapsTab.qml" line="201"/>
         <source>Show this map</source>
         <translation>Показывать эту карту</translation>
     </message>
     <message>
-        <location filename="../qml/app/MyMapsTab.qml" line="203"/>
+        <location filename="../qml/app/MyMapsTab.qml" line="207"/>
         <source>Author not given</source>
         <translation>Автор не указан</translation>
     </message>
     <message>
-        <location filename="../qml/app/MyMapsTab.qml" line="218"/>
+        <location filename="../qml/app/MyMapsTab.qml" line="222"/>
         <source>Show on the map</source>
         <translation>Показать на карте</translation>
     </message>
     <message>
-        <location filename="../qml/app/MyMapsTab.qml" line="223"/>
+        <location filename="../qml/app/MyMapsTab.qml" line="227"/>
         <source>Remove for good?</source>
         <translation>Удалить совсем?</translation>
     </message>
     <message>
-        <location filename="../qml/app/MyMapsTab.qml" line="223"/>
+        <location filename="../qml/app/MyMapsTab.qml" line="227"/>
         <source>Remove</source>
         <translation>Удалить</translation>
     </message>
     <message>
-        <location filename="../qml/app/MyMapsTab.qml" line="242"/>
+        <location filename="../qml/app/MyMapsTab.qml" line="246"/>
         <source>Maps from others are amateur surveys: NOT FOR NAVIGATION. Each map carries its own licence; what you may do with it is shown on its card.</source>
         <translation>Чужие карты — любительские съёмки: НЕ ДЛЯ НАВИГАЦИИ. У каждой карты своя лицензия; что с ней можно делать, указано на её карточке.</translation>
     </message>
@@ -10536,7 +10571,7 @@
         <translation>Скорость звука, м/с: </translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3131"/>
+        <location filename="../src/core.cpp" line="3178"/>
         <source>File</source>
         <translation>Файл</translation>
     </message>

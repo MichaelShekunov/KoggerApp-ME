@@ -14,6 +14,8 @@ Column {
     // The C++ objects; set from outside by tools/qml_check/mapexport_page_check.ps1.
     property var exporter: typeof mapExport !== "undefined" ? mapExport : null
     property var coreApi: typeof core !== "undefined" ? core : null
+    // "Share" (the system share sheet) is Android's; the check sets it on the desktop.
+    property bool canShare: Qt.platform.os === "android"
     readonly property int fieldW: Math.round(Math.min(260 * AppPalette.scale, page.width * 0.58))
 
     width: parent ? parent.width : implicitWidth
@@ -87,6 +89,14 @@ Column {
         return 0
     }
 
+    // The .kmap the last export wrote, "" when it wrote none.
+    function kmapFile() {
+        var files = page.exporter && page.exporter.resultOk ? page.exporter.resultFiles : []
+        for (var i = 0; i < files.length; ++i)
+            if (files[i].toLowerCase().endsWith(".kmap")) return files[i]
+        return ""
+    }
+
     function detailIndex() {
         if (!page.exporter) return 0
         var opts = page.exporter.detailOptions
@@ -155,6 +165,14 @@ Column {
                  && Qt.platform.os !== "android"
         text: qsTr("Show in folder")
         onClicked: if (page.coreApi) page.coreApi.revealInFolder(page.exporter.resultFiles[0])
+    }
+
+    KButton {
+        width: parent.width
+        height: Tokens.controlHLg
+        visible: page.canShare && page.exporter !== null && !page.exporter.busy && page.kmapFile().length > 0
+        text: qsTr("Share the map")
+        onClicked: if (page.coreApi) page.coreApi.shareFile(page.kmapFile(), qsTr("Send the map"))
     }
 
     // ── About the map ─────────────────────────────────────────────────────
@@ -308,7 +326,7 @@ Column {
             label: qsTr("KOGGER map (.kmap)")
             labelColor: page._bright
             interactive: true
-            toolTipText: qsTr("The file to share: it opens in KoggerApp as a layer under the boat.")
+            toolTipText: qsTr("The file to share: it opens in KoggerApp as a layer under the boat. It holds the depths for the isobaths and the mosaic, without the boat's track.")
             onClicked: kmapSwitch.click()
             KSwitch {
                 id: kmapSwitch
@@ -351,17 +369,12 @@ Column {
                 onToggled: if (page.exporter) page.exporter.writeGeoTiff = checked
             }
         }
-    }
-
-    // ── Privacy ───────────────────────────────────────────────────────────
-    Spacer {}
-
-    KIsland {
+        // Privacy, for these two only: the KOGGER map never has the track and gives the month only.
         KIslandRow {
             label: qsTr("Without the track and times")
             labelColor: page._bright
             interactive: true
-            toolTipText: qsTr("The boat's track is left out and the survey's date is given as a month only.")
+            toolTipText: qsTr("In the Google Earth and GIS files the boat's track is left out and the survey's date is given as a month only. The KOGGER map never has the track, and its date is always a month only.")
             onClicked: privacySwitch.click()
             KSwitch {
                 id: privacySwitch

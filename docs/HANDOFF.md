@@ -1915,9 +1915,28 @@ another KoggerApp opens it into **My maps**, under its boat in the 3D view (`src
 A .kmap reaching `Core::openLogFile` (command line, Files page) goes to My maps instead
 (`openMapFileInstead`); the Open dialog and drag and drop route it the same way. Verified end to end on
 00014 with a fresh profile: export, open as someone else's map, the map under the boat with the
-recording. `mymaps_page_check` 8/8, `mapexport_check` 95/95. KMZ / GeoTIFF stay, off by default.
-Android opening from a messenger (VIEW/SEND intents) is not built. The KMZ-first text below is the
-first build's.
+recording. `mymaps_page_check` 9/9, `mapexport_check` 102/102. KMZ / GeoTIFF stay, off by default.
+Android (same day, later): a .kmap tapped in a messenger opens into My maps (VIEW/SEND intent filters on
+`KoggerOpenActivity`, which hands the file to `KoggerActivity` in its own task -> JNI `koggerOpenFile` ->
+`Core::openReceivedFile`), and "Share the map" sends a saved one (FileProvider); a file is told by its
+content, not its name. Verified on the owner's phone from Telegram (cold start) and WhatsApp (running
+app). With the filters on `KoggerActivity` itself a messenger's open made a second activity in the
+messenger's task and Qt restarted the app, losing the file -- hence `KoggerOpenActivity`. "Share the
+map" is not yet tried on a device -- "Android: from a messenger and back" in `docs/map-export.md`.
+Isobaths of loaded maps (owner, same day): they follow the app's isobath tool -- its step and colour
+theme (`IsobathsViewControlMenuController::styleChanged` -> `MapLayer::setIsobathStyle`), one depth
+scale over all visible maps, lines at whole multiples of the step, depth labels as on the live surface
+(the label code moved out of SurfaceView into `src/scene3d/utils/isobath_labels.*`, shared). Verified
+on 00014 with themes 1 / 8 / 5 and steps 1 / 2 / 0.1 m; the live surface's labels after the move were
+checked line by line, not on screen. `mapexport_check` 103/103.
+The owner, later: a shared .kmap holds the isobaths and / or the mosaic, no boat track and no bottom
+profile. It never had the track (only the KMZ did, when allowed); now its passport has no word of one and
+its dates are a month whatever the privacy switch says, which moved under "For other programs"
+(`kmapMetadata`, `mapexport_check` 109/109 with two mutants caught). The depth grid still carries the
+soundings along the passes (visible as creases in a hillshade): the owner keeps the measured depths, no smoothing.
+Settings -> Files -> Open file now lists .kmap too (the owner: "the app on the computer does not filter
+kmap files"); the installed KoggerApp ME on this PC (11:35, before this branch) has no maps at all.
+The KMZ-first text below is the first build's.
 
 The owner: users should save the bathymetric map and the mosaic to share them, with the legal side in
 mind (who owns the data, how everyone may use it). Chosen: sharing by file, with the author, a licence

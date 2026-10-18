@@ -182,6 +182,18 @@ QImage legendImage(const ExportInputs& in, const QVector<QRgb>& pal, int bands)
     return img;
 }
 
+// The .kmap's passport: as the export's, but with no track and the survey's time to the month
+// ("2026-10-07T08:00:00Z" -> "2026-10").
+MapMetadata kmapMetadata(const MapMetadata& m)
+{
+    MapMetadata k = m;
+    k.hideTrackAndTime = true;
+    k.trackIncluded = false;
+    k.surveyFrom = k.surveyFrom.left(7);
+    k.surveyTo = k.surveyTo.left(7);
+    return k;
+}
+
 } // namespace
 
 double autoIsobathStep(double minDepth, double maxDepth)
@@ -333,71 +345,100 @@ bool writeMapProducts(ExportInputs in, const std::function<bool(double, const QS
     const int bands = in.depth ? depthBands(in.depth->minDepth, in.depth->maxDepth, in.isobathStepM) : 0;
     const QVector<QRgb> dPal = depthPalette(in.depthTheme, bands);
 
-    // GeoTIFFs: for GIS when asked for, and inside the .kmap; written once.
+    // The KOGGER map is the file people pass around: never the boat's track and the survey's time to the
+    // month only, whatever the export's privacy switch says (owner, 2026-10-18: a shared map carries the
+    // isobaths and / or the mosaic and nothing of the track). The switch is for KMZ and GeoTIFF.
+    const MapMetadata kmapMeta = kmapMetadata(in.meta);
+    const bool kmapOwnTiffs = in.writeKmap && in.writeGeoTiff   // the GIS files keep the times then
+                              && (kmapMeta.surveyFrom != in.meta.surveyFrom || kmapMeta.surveyTo != in.meta.surveyTo);
+
+    // GeoTIFFs: for GIS when asked for, and inside the .kmap -- the same files when their metadata agree.
     QTemporaryDir scratch;
     const bool tiffsForKmapOnly = in.writeKmap && !in.writeGeoTiff;
-    if (tiffsForKmapOnly && !scratch.isValid()) {
+    if ((tiffsForKmapOnly || kmapOwnTiffs) && !scratch.isValid()) {
         return failed(QStringLiteral("no temporary folder: %1").arg(scratch.errorString()));
     }
-    const QString mosaicTif = (tiffsForKmapOnly ? scratch.path() + QStringLiteral("/m") : base) + QStringLiteral("_mosaic.tif");
-    const QString depthTif = (tiffsForKmapOnly ? scratch.path() + QStringLiteral("/d") : base) + QStringLiteral("_depth.tif");
-    if ((in.writeGeoTiff || in.writeKmap) && in.mosaic) {
-        GeoTiffSpec spec;
-        spec.kind = GeoTiffSpec::Kind::Palette8;
-        spec.grid = mg;
-        spec.palette = mPal;
-        spec.noData = QStringLiteral("0");
-        spec.description = in.meta.title + QStringLiteral(" -- side-scan mosaic. ") + disclaimerEn(in.meta.draftM);
-        spec.copyright = copyrightLine(in.meta);
-        spec.software = in.meta.software;
-        spec.metadata = toGdalItems(in.meta);
-        spec.bandDescription = QStringLiteral("Side-scan echo intensity index (0 = no data)");
-        QString err;
-        const MosaicSampler& ms = *in.mosaic;
-        const LLARef ref = in.ref;
-        if (!tiffsForKmapOnly) {
-            out.files << mosaicTif;
+    auto writeTiffs = [&](const MapMetadata& meta, const QString& mosaicTif, const QString& depthTif, bool listed) -> bool {
+        if (in.mosaic) {
+            GeoTiffSpec spec;
+            spec.kind = GeoTiffSpec::Kind::Palette8;
+            spec.grid = mg;
+            spec.palette = mPal;
+            spec.noData = QStringLiteral("0");
+            spec.description = meta.title + QStringLiteral(" -- side-scan mosaic. ") + disclaimerEn(meta.draftM);
+            spec.copyright = copyrightLine(meta);
+            spec.software = meta.software;
+            spec.metadata = toGdalItems(meta);
+            spec.bandDescription = QStringLiteral("Side-scan echo intensity index (0 = no data)");
+            QString err;
+            const MosaicSampler& ms = *in.mosaic;
+            const LLARef ref = in.ref;
+            if (listed) {
+                out.files << mosaicTif;
+            }
+            if (!writeGeoTiff(mosaicTif, spec, [&](int x0, int y0, int w, int h, void* dst) {
+                    renderMosaic(mg, ref, ms, x0, y0, w, h, static_cast<uint8_t*>(dst), 256);
+                }, stage(QStringLiteral("mosaic GeoTIFF")), &err)) {
+                return err.isEmpty() ? cancelled() : failed(err);
+            }
         }
-        if (!writeGeoTiff(mosaicTif, spec, [&](int x0, int y0, int w, int h, void* dst) {
-                renderMosaic(mg, ref, ms, x0, y0, w, h, static_cast<uint8_t*>(dst), 256);
-            }, stage(QStringLiteral("mosaic GeoTIFF")), &err)) {
-            return err.isEmpty() ? cancelled() : failed(err);
-        }
-    }
-    if ((in.writeGeoTiff || in.writeKmap) && in.depth) {
-        const DepthGrid& dg = *in.depth;
-        GeoTiffSpec spec;
-        spec.kind = GeoTiffSpec::Kind::Float32;
-        spec.grid = dg.grid;
-        spec.noData = QStringLiteral("-9999");
-        spec.description = in.meta.title + QStringLiteral(" -- depth, m, positive down. ") + disclaimerEn(in.meta.draftM);
-        spec.copyright = copyrightLine(in.meta);
-        spec.software = in.meta.software;
-        spec.metadata = toGdalItems(in.meta);
-        spec.bandDescription = QStringLiteral("Depth below the %1, m").arg(verticalReference(in.meta).toLower());
-        spec.bandUnit = QStringLiteral("m");
-        QString err;
-        if (!tiffsForKmapOnly) {
-            out.files << depthTif;
-        }
-        if (!writeGeoTiff(depthTif, spec, [&](int x0, int y0, int w, int h, void* dst) {
-                auto* d = static_cast<float*>(dst);
-                for (int r = 0; r < h; ++r) {
-                    for (int c = 0; c < w; ++c) {
-                        const float v = dg.depth[size_t(y0 + r) * size_t(dg.grid.width) + size_t(x0 + c)];
-                        d[r * 256 + c] = std::isfinite(v) ? v : kNoDepth;
+        if (in.depth) {
+            const DepthGrid& dg = *in.depth;
+            GeoTiffSpec spec;
+            spec.kind = GeoTiffSpec::Kind::Float32;
+            spec.grid = dg.grid;
+            spec.noData = QStringLiteral("-9999");
+            spec.description = meta.title + QStringLiteral(" -- depth, m, positive down. ") + disclaimerEn(meta.draftM);
+            spec.copyright = copyrightLine(meta);
+            spec.software = meta.software;
+            spec.metadata = toGdalItems(meta);
+            spec.bandDescription = QStringLiteral("Depth below the %1, m").arg(verticalReference(meta).toLower());
+            spec.bandUnit = QStringLiteral("m");
+            QString err;
+            if (listed) {
+                out.files << depthTif;
+            }
+            if (!writeGeoTiff(depthTif, spec, [&](int x0, int y0, int w, int h, void* dst) {
+                    auto* d = static_cast<float*>(dst);
+                    for (int r = 0; r < h; ++r) {
+                        for (int c = 0; c < w; ++c) {
+                            const float v = dg.depth[size_t(y0 + r) * size_t(dg.grid.width) + size_t(x0 + c)];
+                            d[r * 256 + c] = std::isfinite(v) ? v : kNoDepth;
+                        }
                     }
-                }
-            }, stage(QStringLiteral("depth GeoTIFF")), &err)) {
-            return err.isEmpty() ? cancelled() : failed(err);
+                }, stage(QStringLiteral("depth GeoTIFF")), &err)) {
+                return err.isEmpty() ? cancelled() : failed(err);
+            }
+        }
+        return true;
+    };
+    QString kmapMosaicTif = base + QStringLiteral("_mosaic.tif");
+    QString kmapDepthTif = base + QStringLiteral("_depth.tif");
+    if (in.writeGeoTiff && !writeTiffs(in.meta, kmapMosaicTif, kmapDepthTif, true)) {
+        return false;
+    }
+    if (tiffsForKmapOnly || kmapOwnTiffs) {
+        kmapMosaicTif = scratch.path() + QStringLiteral("/m_mosaic.tif");
+        kmapDepthTif = scratch.path() + QStringLiteral("/d_depth.tif");
+        if (!writeTiffs(kmapMeta, kmapMosaicTif, kmapDepthTif, false)) {
+            return false;
         }
     }
 
     // The KOGGER map (.kmap): what another KoggerApp opens under its boat (map_package.h).
     if (in.writeKmap) {
         const QString path = base + QLatin1Char('.') + kMapSuffix;
-        QJsonObject pkg = metaObj;
+        QJsonObject pkg = toJson(kmapMeta);
         pkg[QStringLiteral("format")] = kMapFormat;
+        QJsonObject survey = pkg.value(QStringLiteral("survey")).toObject();
+        survey.remove(QStringLiteral("trackIncluded"));       // always none: not worth a word
+        survey.remove(QStringLiteral("trackAndTimeHidden"));
+        if (survey.isEmpty()) {
+            pkg.remove(QStringLiteral("survey"));
+        }
+        else {
+            pkg[QStringLiteral("survey")] = survey;
+        }
         QByteArray preview;
         {
             QBuffer buf(&preview);
@@ -409,10 +450,10 @@ bool writeMapProducts(ExportInputs in, const std::function<bool(double, const QS
         out.files << path;
         if (!zip.open(path, &err)
             || !zip.add(QStringLiteral("map.json"), QJsonDocument(pkg).toJson(QJsonDocument::Indented), false, &err)
-            || !zip.add(QStringLiteral("README.txt"), toReadme(in.meta).toUtf8(), false, &err)
+            || !zip.add(QStringLiteral("README.txt"), toReadme(kmapMeta).toUtf8(), false, &err)
             || !zip.add(QStringLiteral("preview.png"), preview, false, &err)
-            || (in.depth && !zip.addFile(QStringLiteral("depth.tif"), depthTif, &err))
-            || (in.mosaic && !zip.addFile(QStringLiteral("mosaic.tif"), mosaicTif, &err))
+            || (in.depth && !zip.addFile(QStringLiteral("depth.tif"), kmapDepthTif, &err))
+            || (in.mosaic && !zip.addFile(QStringLiteral("mosaic.tif"), kmapMosaicTif, &err))
             || !zip.close(&err)) {
             return failed(err);
         }

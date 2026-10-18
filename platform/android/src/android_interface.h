@@ -27,8 +27,15 @@ namespace AndroidInterface
     void jniLogDebug(JNIEnv *envA, jobject thizA, jstring messageA);
     void jniLogWarning(JNIEnv *envA, jobject thizA, jstring messageA);
     void jniStoragePermissionResult(JNIEnv *envA, jobject thizA, jboolean grantedA);
+    void jniOpenFile(JNIEnv *envA, jobject thizA, jstring uriA);
     bool checkStoragePermissions();
     void setStoragePermissionHandler(QObject *context, std::function<void(bool)> handler);
+    /// Files other apps open with KoggerApp or share to it (a content:// URL, docs/map-export.md),
+    /// given to `handler` on `context`'s thread. Those that came before it was set (the app was
+    /// started by one) are given to it when it is set.
+    void setOpenFileHandler(QObject *context, std::function<void(const QString&)> handler);
+    /// Opens the system share sheet for a file. False when it cannot be offered.
+    bool shareFile(const QString &path, const QString &mimeType, const QString &chooserTitle);
     QString getSDCardPath();
     void setKeepScreenOn(bool on);
     void moveTaskToBack();

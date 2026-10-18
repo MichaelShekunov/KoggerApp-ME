@@ -2,7 +2,10 @@
 
 #include <cmath>
 #include <limits>
+#include <QCryptographicHash>
+#include <QFile>
 #include <QJsonDocument>
+#include <QtEndian>
 #include "map_export_formats.h"
 
 namespace mapexport {
@@ -128,6 +131,71 @@ bool readMapPackage(const QString& path, MapPackage& out, QString* error)
         out.preview = QImage::fromData(data, "PNG");
     }
     return true;
+}
+
+namespace {
+
+// A .kmap is a ZIP archive whose first entry starts the file: "PK\3\4".
+bool isZipStart(const QByteArray& head)
+{
+    return head.size() >= 4 && qFromLittleEndian<quint32>(head.constData()) == 0x04034b50u;
+}
+
+} // namespace
+
+bool startsLikeMap(const QString& src)
+{
+    QFile in(src);
+    return in.open(QIODevice::ReadOnly) && isZipStart(in.read(4));
+}
+
+MapCopy copyMapFile(const QString& src, const QString& dst, QByteArray* sha1Hex, QString* error)
+{
+    QFile in(src);
+    if (!in.open(QIODevice::ReadOnly)) {
+        if (error) {
+            *error = in.errorString();
+        }
+        return MapCopy::CannotRead;
+    }
+    QByteArray piece = in.read(4);
+    if (!isZipStart(piece)) {
+        return MapCopy::NotAMap;
+    }
+    QFile out(dst);
+    if (!out.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+        if (error) {
+            *error = out.errorString();
+        }
+        return MapCopy::CannotWrite;
+    }
+    auto abandon = [&](MapCopy why, const QString& reason) {
+        out.close();
+        QFile::remove(dst);
+        if (error) {
+            *error = reason;
+        }
+        return why;
+    };
+    QCryptographicHash hash(QCryptographicHash::Sha1);
+    while (!piece.isEmpty()) {
+        hash.addData(piece);
+        if (out.write(piece) != piece.size()) {
+            return abandon(MapCopy::CannotWrite, out.errorString());
+        }
+        piece = in.read(1 << 20);
+    }
+    if (in.error() != QFileDevice::NoError) {   // read() gives nothing both at the end and on an error
+        return abandon(MapCopy::CannotRead, in.errorString());
+    }
+    if (!out.flush()) {
+        return abandon(MapCopy::CannotWrite, out.errorString());
+    }
+    out.close();
+    if (sha1Hex) {
+        *sha1Hex = hash.result().toHex();
+    }
+    return MapCopy::Copied;
 }
 
 double depthAt(const DepthGrid& g, double latDeg, double lonDeg)

@@ -18,6 +18,7 @@
 #include <QtCore/QMutexLocker>
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
+#include <QtCore/QStringList>
 
 KOGGER_LOGGING_CATEGORY(AndroidInterfaceLog, "kogger.android.src.androidinterface")
 
@@ -26,6 +27,16 @@ namespace {
 QMutex storagePermissionMutex;
 QPointer<QObject> storagePermissionContext;
 std::function<void(bool)> storagePermissionHandler;
+
+QMutex openFileMutex;
+QPointer<QObject> openFileContext;
+std::function<void(const QString&)> openFileHandler;
+QStringList openFilePending;   // came before the handler was set
+
+void dispatchOpenFile(QObject *context, const std::function<void(const QString&)> &handler, const QString &uri)
+{
+    QMetaObject::invokeMethod(context, [handler, uri]() -> void { handler(uri); }, Qt::QueuedConnection);
+}
 
 }
 
@@ -74,7 +85,8 @@ void setNativeMethods()
     JNINativeMethod javaMethods[] {
         {"koggerLogDebug",   "(Ljava/lang/String;)V", reinterpret_cast<void *>(jniLogDebug)},
         {"koggerLogWarning", "(Ljava/lang/String;)V", reinterpret_cast<void *>(jniLogWarning)},
-        {"koggerStoragePermissionResult", "(Z)V", reinterpret_cast<void *>(jniStoragePermissionResult)}
+        {"koggerStoragePermissionResult", "(Z)V", reinterpret_cast<void *>(jniStoragePermissionResult)},
+        {"koggerOpenFile",   "(Ljava/lang/String;)V", reinterpret_cast<void *>(jniOpenFile)}
     };
 
     (void) AndroidInterface::cleanJavaException();
@@ -145,6 +157,60 @@ void setStoragePermissionHandler(QObject *context, std::function<void(bool)> han
 
     storagePermissionContext = context;
     storagePermissionHandler = std::move(handler);
+}
+
+void jniOpenFile(JNIEnv *envA, jobject thizA, jstring uriA)
+{
+    Q_UNUSED(thizA);
+
+    const char * const stringL = envA->GetStringUTFChars(uriA, nullptr);
+    const QString uri = QString::fromUtf8(stringL);
+    envA->ReleaseStringUTFChars(uriA, stringL);
+    (void) QJniEnvironment::checkAndClearExceptions(envA);
+
+    QMutexLocker locker(&openFileMutex);
+
+    if (!openFileContext || !openFileHandler) {
+        qCDebug(AndroidInterfaceLog) << "Open file kept until the app is ready:" << uri;
+        openFilePending.append(uri);
+        return;
+    }
+
+    dispatchOpenFile(openFileContext.data(), openFileHandler, uri);
+}
+
+void setOpenFileHandler(QObject *context, std::function<void(const QString&)> handler)
+{
+    QMutexLocker locker(&openFileMutex);
+
+    openFileContext = context;
+    openFileHandler = std::move(handler);
+    if (!openFileContext || !openFileHandler) {
+        return;
+    }
+
+    for (const QString &uri : std::as_const(openFilePending)) {
+        dispatchOpenFile(openFileContext.data(), openFileHandler, uri);
+    }
+    openFilePending.clear();
+}
+
+bool shareFile(const QString &path, const QString &mimeType, const QString &chooserTitle)
+{
+    const jboolean ok = QJniObject::callStaticMethod<jboolean>(
+        kJniKoggerActivityClassName,
+        "shareFile",
+        "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z",
+        QJniObject::fromString(path).object<jstring>(),
+        QJniObject::fromString(mimeType).object<jstring>(),
+        QJniObject::fromString(chooserTitle).object<jstring>());
+
+    if (cleanJavaException()) {
+        qCWarning(AndroidInterfaceLog) << "Java exception in shareFile";
+        return false;
+    }
+
+    return ok == JNI_TRUE;
 }
 
 bool checkStoragePermissions()

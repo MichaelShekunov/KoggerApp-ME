@@ -9,6 +9,7 @@
     2. "Save the map" starts the export into the Export group's folder, or the default one when it is empty;
     3. while it runs: the button cancels, the stage and the percentage show;
     4. after it: the result shows; "Show in folder" opens the first file; after a failure it is not offered;
+       "Share the map" (Android) hands the .kmap to the share sheet, only when one was saved;
     5. the licence note follows the licence, and the "not for navigation" notice is always there;
     6. the switches and the lists write the exporter's settings.
   -Picture saves the page. Exit code 0 when all pass, 1 when a check fails, 2 when qmltestrunner is not found.
@@ -67,8 +68,10 @@ Rectangle {
     QtObject {
         id: coreMock
         property string revealed: ""
+        property var shared: []
         function defaultExportDirectory() { return "C:/Documents/KoggerApp/exports" }
         function revealInFolder(p) { revealed = p }
+        function shareFile(p, title) { shared = [p, title]; return true }
     }
     QtObject {
         id: ex
@@ -200,6 +203,26 @@ Rectangle {
             ex.resultOk = false; ex.resultText = "Not saved: no survey is open."; ex.resultFiles = []
             verify(textContaining("Not saved").length > 0, "a failure shows")
             verify(!shown(button("Show in folder")), "nothing to show after a failure")
+        }
+
+        function test_4b_share() {
+            verify(!page.canShare, "no Share on the desktop")
+            ex.resultOk = true; ex.resultText = "Saved."; ex.resultFiles = ["C:/maps/lake.kmz", "C:/maps/lake.kmap"]
+            verify(!shown(button("Share the map")), "not offered off Android")
+            page.canShare = true
+            var share = button("Share the map")
+            verify(share !== null && shown(share), "offered on Android once a .kmap is saved")
+            mouseClick(share)
+            compare(coreMock.shared[0], "C:/maps/lake.kmap", "the .kmap goes out, not the KMZ")
+            compare(coreMock.shared[1], "Send the map", "the share sheet's title")
+            ex.resultFiles = ["C:/maps/lake.kmz"]
+            verify(!shown(button("Share the map")), "nothing to share without a .kmap")
+            ex.resultFiles = ["C:/maps/lake.kmap"]; ex.busy = true
+            verify(!shown(button("Share the map")), "not while an export runs")
+            ex.busy = false; ex.resultOk = false; ex.resultText = "Not saved: no survey is open."
+            verify(!shown(button("Share the map")), "not after a failure")
+            ex.resultFiles = []
+            page.canShare = false
         }
 
         function test_5_licence_note() {

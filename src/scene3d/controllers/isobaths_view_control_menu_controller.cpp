@@ -250,7 +250,11 @@ void IsobathsViewControlMenuController::onEdgesVisible(bool state)
 
 void IsobathsViewControlMenuController::onSetSurfaceLineStepSize(float val)
 {
+    const bool changedStep = surfaceLineStepSize_ != val;
     surfaceLineStepSize_ = val;
+    if (changedStep) {
+        emit styleChanged();
+    }
 
     if (graphicsSceneViewPtr_) {
         if (dataProcessorPtr_) {
@@ -281,7 +285,11 @@ void IsobathsViewControlMenuController::onSetLabelStepSize(int val)
 
 void IsobathsViewControlMenuController::onThemeChanged(int val)
 {
+    const bool changedTheme = themeId_ != val;
     themeId_ = val;
+    if (changedTheme) {
+        emit styleChanged();
+    }
 
     if (graphicsSceneViewPtr_) {
         if (dataProcessorPtr_) {

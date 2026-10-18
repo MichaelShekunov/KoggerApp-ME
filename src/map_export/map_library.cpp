@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cmath>
 #include <limits>
-#include <QCryptographicHash>
 #include <QDebug>
 #include <QtMath>
 #include <QDateTime>
@@ -83,32 +82,36 @@ bool MapLibrary::importFile(const QString& pathOrUrl)
 {
     const QUrl url(pathOrUrl);
     const QString src = url.isLocalFile() ? url.toLocalFile() : pathOrUrl;
-    // Copied first, then read from the copy: a content:// file from a messenger is read once, front
-    // to back, and the copy stays when the messenger clears its cache.
-    QFile in(src);
-    if (!in.open(QIODevice::ReadOnly)) {
-        setMessage(false, tr("Not opened: %1").arg(in.errorString()));
+    // Copied first, in pieces, then read from the copy: a content:// file from a messenger is read
+    // once, front to back, and the copy stays when the messenger clears its cache. Not by its name:
+    // a file another app hands over is often nameless or application/octet-stream.
+    QDir().mkpath(folder());
+    const QString tmp = QDir(folder()).filePath(QStringLiteral(".incoming.part"));
+    QByteArray sha1;
+    QString why;
+    switch (mapexport::copyMapFile(src, tmp, &sha1, &why)) {
+    case mapexport::MapCopy::Copied:
+        break;
+    case mapexport::MapCopy::CannotRead:
+        setMessage(false, tr("Not opened: %1").arg(why));
+        return false;
+    case mapexport::MapCopy::NotAMap:
+        setMessage(false, tr("Not opened: this is not a KOGGER map"));
+        return false;
+    case mapexport::MapCopy::CannotWrite:
+        setMessage(false, tr("Not opened: cannot keep the file (%1)").arg(why));
         return false;
     }
-    const QByteArray bytes = in.readAll();
-    in.close();
-    const QString hash = QString::fromLatin1(QCryptographicHash::hash(bytes, QCryptographicHash::Sha1).toHex().left(10));
+    const QString hash = QString::fromLatin1(sha1.left(10));
     for (const Entry& e : std::as_const(entries_)) {   // the same file again is not added twice
         if (e.id.endsWith(QLatin1Char('_') + hash + QLatin1Char('.') + mapexport::kMapSuffix)) {
+            QFile::remove(tmp);
             setVisible(e.id, true);
             showOnMap(e.id);
             setMessage(true, tr("Already in My maps: %1").arg(readableTitle(*e.pkg, e.id)));
             return true;
         }
     }
-    QDir().mkpath(folder());
-    const QString tmp = QDir(folder()).filePath(QStringLiteral(".incoming_") + hash);
-    QFile out(tmp);
-    if (!out.open(QIODevice::WriteOnly | QIODevice::Truncate) || out.write(bytes) != bytes.size()) {
-        setMessage(false, tr("Not opened: cannot keep the file (%1)").arg(out.errorString()));
-        return false;
-    }
-    out.close();
     auto pkg = std::make_shared<mapexport::MapPackage>();
     QString err;
     if (!mapexport::readMapPackage(tmp, *pkg, &err)) {

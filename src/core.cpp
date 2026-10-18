@@ -525,6 +525,7 @@ void Core::notifyUiSettingsApplied()
     installAppLogStoragePromotion();
     promoteAppLogStorage();
     flushStartupFileOpen();
+    installOpenFileHandler();   // a map another app started the app with is opened now
 }
 
 void Core::flushStartupFileOpen()
@@ -1271,6 +1272,24 @@ void Core::revealInFolder(const QString& path)
 #endif
 }
 
+bool Core::shareFile(const QString& path, const QString& chooserTitle)
+{
+#ifdef Q_OS_ANDROID
+    const QString localPath = path.startsWith(QStringLiteral("file:")) ? QUrl(path).toLocalFile() : path;
+    const QString mimeType = localPath.endsWith(QLatin1Char('.') + mapexport::kMapSuffix, Qt::CaseInsensitive)
+                                 ? mapexport::kMapMimeType : QStringLiteral("application/octet-stream");
+    if (AndroidInterface::shareFile(localPath, mimeType, chooserTitle)) {
+        return true;
+    }
+    notifications.warning(tr("Cannot share %1").arg(QFileInfo(localPath).fileName()));
+    return false;
+#else
+    Q_UNUSED(path)
+    Q_UNUSED(chooserTitle)
+    return false;
+#endif
+}
+
 QString Core::csvLogFilePath() const
 {
     return logger_.csvLogFilePath();
@@ -1315,6 +1334,27 @@ void Core::installAppLogStoragePromotion()
         promoteAppLogStorage();
     });
 #endif
+}
+
+void Core::installOpenFileHandler()
+{
+#ifdef Q_OS_ANDROID
+    AndroidInterface::setOpenFileHandler(this, [this](const QString& uri) -> void { openReceivedFile(uri); });
+#endif
+}
+
+void Core::openReceivedFile(const QString& uri)
+{
+    // A file another app opened with KoggerApp or shared to it (docs/map-export.md). Only KOGGER maps
+    // are taken, told by their content; a map goes to My maps and the page is shown.
+    if (!mapLibrary_) {
+        return;
+    }
+    if (mapLibrary_->importFile(uri)) {
+        emit receivedMapOpened();
+    } else {
+        notifications.warning(mapLibrary_->lastMessage());
+    }
 }
 
 QString Core::appLogFilePath() const
@@ -2279,16 +2319,23 @@ void Core::UILoad(QObject* object, const QUrl& url)
     mapExporter_->setSources(datasetPtr_, dataProcessor_, scene3dViewPtr_);
 
     // My maps: under the boat in the scene; a map just opened is flown to; the depth from the maps
-    // follows the boat.
+    // follows the boat; their isobaths take the isobath tool's step and colour theme.
+    auto applyIsobathStyle = [this]() {
+        mapLayer_->setIsobathStyle(isobathsViewControlMenuController_->themeId(),
+                                   isobathsViewControlMenuController_->surfaceLineStepSize());
+    };
+    applyIsobathStyle();   // before the maps, so they are not labelled twice
     mapLayer_->setLibrary(mapLibrary_.get());
     scene3dViewPtr_->setMapLayer(mapLayer_.get());
     QObject::connect(mapLibrary_.get(), &MapLibrary::flyToRequested, scene3dViewPtr_, &GraphicsScene3dView::fitGeoBox, Qt::UniqueConnection);
-    if (!mapBoatDepthConnected_) {   // a lambda cannot be a unique connection
-        mapBoatDepthConnected_ = true;
+    if (!mapLayerConnected_) {   // a lambda cannot be a unique connection
+        mapLayerConnected_ = true;
         QObject::connect(datasetPtr_, &Dataset::lastPositionChanged, mapLibrary_.get(), [this]() {
             const LLA lla = datasetPtr_->getLastRawPosition().lla;
             mapLibrary_->setBoatPosition(lla.latitude, lla.longitude);
         });
+        QObject::connect(isobathsViewControlMenuController_.get(), &IsobathsViewControlMenuController::styleChanged,
+                         mapLayer_.get(), applyIsobathStyle);
     }
 
     scene3dViewPtr_->setActiveZeroing(isActiveZeroing_);
@@ -3161,7 +3208,17 @@ bool Core::openMapFileInstead(const QString& path)
 {
     // A KOGGER map (from the command line, the Files page, or any other way to openLogFile) goes to My
     // maps: opening it must not close the survey or the device link.
-    if (!path.endsWith(QLatin1Char('.') + mapexport::kMapSuffix, Qt::CaseInsensitive) || !mapLibrary_) {
+    if (!mapLibrary_) {
+        return false;
+    }
+    bool isMap = path.endsWith(QLatin1Char('.') + mapexport::kMapSuffix, Qt::CaseInsensitive);
+#ifdef Q_OS_ANDROID
+    // The Android file picker gives content:// URLs, often without the name: a map by its content.
+    if (!isMap && path.startsWith(QStringLiteral("content:"))) {
+        isMap = mapexport::startsLikeMap(path);
+    }
+#endif
+    if (!isMap) {
         return false;
     }
     mapLibrary_->importFile(path);

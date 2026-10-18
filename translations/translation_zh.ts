@@ -2171,171 +2171,176 @@
 <context>
     <name>Core</name>
     <message>
-        <location filename="../src/core.cpp" line="630"/>
-        <location filename="../src/core.cpp" line="897"/>
+        <location filename="../src/core.cpp" line="631"/>
+        <location filename="../src/core.cpp" line="898"/>
         <source>File closed</source>
         <translation>文件已关闭</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="631"/>
-        <location filename="../src/core.cpp" line="898"/>
+        <location filename="../src/core.cpp" line="632"/>
+        <location filename="../src/core.cpp" line="899"/>
         <source>File closed: %1</source>
         <translation>文件已关闭：%1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1189"/>
+        <location filename="../src/core.cpp" line="1190"/>
         <source>KLF logging started:
 %1</source>
         <translation>KLF 日志记录已开始：
 %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1192"/>
+        <location filename="../src/core.cpp" line="1193"/>
         <source>KLF logging not started</source>
         <translation>KLF 日志记录未能启动</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1198"/>
+        <location filename="../src/core.cpp" line="1199"/>
         <source>KLF log saved:
 %1</source>
         <translation>KLF 日志已保存：
 %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1200"/>
+        <location filename="../src/core.cpp" line="1201"/>
         <source>KLF logging disabled</source>
         <translation>KLF 日志记录已关闭</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1382"/>
+        <location filename="../src/core.cpp" line="1284"/>
+        <source>Cannot share %1</source>
+        <translation>无法分享 %1</translation>
+    </message>
+    <message>
+        <location filename="../src/core.cpp" line="1422"/>
         <source>Invalid log folder:
 %1</source>
         <translation>日志文件夹无效：
 %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1388"/>
+        <location filename="../src/core.cpp" line="1428"/>
         <source>Log folder is not writable:
 %1</source>
         <translation>日志文件夹不可写：
 %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1531"/>
+        <location filename="../src/core.cpp" line="1571"/>
         <source>CSV logging started:
 %1</source>
         <translation>CSV 日志记录已开始：
 %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1534"/>
+        <location filename="../src/core.cpp" line="1574"/>
         <source>CSV logging not started</source>
         <translation>CSV 日志记录未能启动</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1540"/>
+        <location filename="../src/core.cpp" line="1580"/>
         <source>CSV log saved:
 %1</source>
         <translation>CSV 日志已保存：
 %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1542"/>
+        <location filename="../src/core.cpp" line="1582"/>
         <source>CSV logging disabled</source>
         <translation>CSV 日志记录已关闭</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1578"/>
-        <location filename="../src/core.cpp" line="1627"/>
-        <location filename="../src/core.cpp" line="1641"/>
-        <location filename="../src/core.cpp" line="1671"/>
-        <location filename="../src/core.cpp" line="1764"/>
-        <location filename="../src/core.cpp" line="2024"/>
-        <location filename="../src/core.cpp" line="2043"/>
-        <location filename="../src/core.cpp" line="2055"/>
+        <location filename="../src/core.cpp" line="1618"/>
+        <location filename="../src/core.cpp" line="1667"/>
+        <location filename="../src/core.cpp" line="1681"/>
+        <location filename="../src/core.cpp" line="1711"/>
+        <location filename="../src/core.cpp" line="1804"/>
+        <location filename="../src/core.cpp" line="2064"/>
+        <location filename="../src/core.cpp" line="2083"/>
+        <location filename="../src/core.cpp" line="2095"/>
         <source>Export failed: %1</source>
         <translation>导出失败：%1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1630"/>
+        <location filename="../src/core.cpp" line="1670"/>
         <source>Complex signals exported to CSV: %1</source>
         <translation>复数信号已导出为 CSV：%1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1674"/>
+        <location filename="../src/core.cpp" line="1714"/>
         <source>USBL exported to CSV: %1</source>
         <translation>USBL 已导出为 CSV：%1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2027"/>
+        <location filename="../src/core.cpp" line="2067"/>
         <source>Exported to CSV: %1</source>
         <translation>已导出为 CSV：%1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2035"/>
+        <location filename="../src/core.cpp" line="2075"/>
         <source>Export failed</source>
         <translation>导出失败</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2058"/>
+        <location filename="../src/core.cpp" line="2098"/>
         <source>Exported to XTF: %1</source>
         <translation>已导出为 XTF：%1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2642"/>
-        <location filename="../src/core.cpp" line="2666"/>
+        <location filename="../src/core.cpp" line="2689"/>
+        <location filename="../src/core.cpp" line="2713"/>
         <source>street</source>
         <translation>街道</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2648"/>
-        <location filename="../src/core.cpp" line="2654"/>
-        <location filename="../src/core.cpp" line="2660"/>
+        <location filename="../src/core.cpp" line="2695"/>
+        <location filename="../src/core.cpp" line="2701"/>
+        <location filename="../src/core.cpp" line="2707"/>
         <source>satellite</source>
         <translation>卫星</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2826"/>
+        <location filename="../src/core.cpp" line="2873"/>
         <source>File opened</source>
         <translation>文件已打开</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2827"/>
+        <location filename="../src/core.cpp" line="2874"/>
         <source>File opened: %1</source>
         <translation>文件已打开：%1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3078"/>
+        <location filename="../src/core.cpp" line="3125"/>
         <source>Connected</source>
         <translation>已连接</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3078"/>
+        <location filename="../src/core.cpp" line="3125"/>
         <source>Connected: %1</source>
         <translation>已连接：%1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3092"/>
+        <location filename="../src/core.cpp" line="3139"/>
         <source>Disconnected</source>
         <translation>已断开</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3092"/>
+        <location filename="../src/core.cpp" line="3139"/>
         <source>Disconnected: %1</source>
         <translation>已断开：%1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3521"/>
+        <location filename="../src/core.cpp" line="3578"/>
         <source>Internet connection restored</source>
         <translation>网络连接已恢复</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3522"/>
+        <location filename="../src/core.cpp" line="3579"/>
         <source>Internet connection lost</source>
         <translation>网络连接已断开</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3534"/>
+        <location filename="../src/core.cpp" line="3591"/>
         <source>Metered network detected</source>
         <translation>检测到按流量计费的网络</translation>
     </message>
@@ -7218,27 +7223,37 @@
     </message>
     <message>
         <location filename="../qml/devices/FilesViewer.qml" line="247"/>
-        <location filename="../qml/devices/FilesViewer.qml" line="270"/>
+        <location filename="../qml/devices/FilesViewer.qml" line="275"/>
         <source>Please choose a file</source>
         <translation>请选择文件</translation>
     </message>
     <message>
-        <location filename="../qml/devices/FilesViewer.qml" line="264"/>
+        <location filename="../qml/devices/FilesViewer.qml" line="249"/>
+        <source>Logs and maps</source>
+        <translation>记录和地图</translation>
+    </message>
+    <message>
+        <location filename="../qml/devices/FilesViewer.qml" line="249"/>
+        <source>KOGGER maps</source>
+        <translation>KOGGER 地图</translation>
+    </message>
+    <message>
+        <location filename="../qml/devices/FilesViewer.qml" line="269"/>
         <source>Append file</source>
         <translation>追加文件</translation>
     </message>
     <message>
-        <location filename="../qml/devices/FilesViewer.qml" line="285"/>
+        <location filename="../qml/devices/FilesViewer.qml" line="290"/>
         <source>Close file</source>
         <translation>关闭文件</translation>
     </message>
     <message>
-        <location filename="../qml/devices/FilesViewer.qml" line="305"/>
+        <location filename="../qml/devices/FilesViewer.qml" line="310"/>
         <source>Recently opened:</source>
         <translation>最近打开：</translation>
     </message>
     <message>
-        <location filename="../qml/devices/FilesViewer.qml" line="330"/>
+        <location filename="../qml/devices/FilesViewer.qml" line="335"/>
         <source>Open %1</source>
         <translation>打开 %1</translation>
     </message>
@@ -8340,188 +8355,188 @@
         <translation>第二窗口</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1133"/>
-        <location filename="../qml/app/MainWindow.qml" line="1152"/>
+        <location filename="../qml/app/MainWindow.qml" line="1138"/>
+        <location filename="../qml/app/MainWindow.qml" line="1157"/>
         <source>Settings</source>
         <translation>设置</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1134"/>
+        <location filename="../qml/app/MainWindow.qml" line="1139"/>
         <source>Quick action menu</source>
         <translation>快捷操作菜单</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1135"/>
+        <location filename="../qml/app/MainWindow.qml" line="1140"/>
         <source>Edit panel</source>
         <translation>编辑面板</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1135"/>
+        <location filename="../qml/app/MainWindow.qml" line="1140"/>
         <source>Create panel</source>
         <translation>创建面板</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1136"/>
+        <location filename="../qml/app/MainWindow.qml" line="1141"/>
         <source>Servo panel</source>
         <translation>舵机面板</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1137"/>
+        <location filename="../qml/app/MainWindow.qml" line="1142"/>
         <source>USBL panel</source>
         <translation>USBL 面板</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1138"/>
+        <location filename="../qml/app/MainWindow.qml" line="1143"/>
         <source>Stand panel</source>
         <translation>测试台面板</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1139"/>
+        <location filename="../qml/app/MainWindow.qml" line="1144"/>
         <source>UI Saving</source>
         <translation>界面保存</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1140"/>
+        <location filename="../qml/app/MainWindow.qml" line="1145"/>
         <source>TGC</source>
         <translation>TGC</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1141"/>
+        <location filename="../qml/app/MainWindow.qml" line="1146"/>
         <source>Export to CSV</source>
         <translation>导出为 CSV</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1142"/>
+        <location filename="../qml/app/MainWindow.qml" line="1147"/>
         <source>Map for sharing</source>
         <translation>共享地图</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1143"/>
+        <location filename="../qml/app/MainWindow.qml" line="1148"/>
         <source>My maps</source>
         <translation>我的地图</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1144"/>
+        <location filename="../qml/app/MainWindow.qml" line="1149"/>
         <source>Information panel</source>
         <translation>信息面板</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1145"/>
+        <location filename="../qml/app/MainWindow.qml" line="1150"/>
         <source>Console</source>
         <translation>控制台</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1146"/>
+        <location filename="../qml/app/MainWindow.qml" line="1151"/>
         <source>About</source>
         <translation>关于</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1147"/>
+        <location filename="../qml/app/MainWindow.qml" line="1152"/>
         <source>Developer mode</source>
         <translation>开发者模式</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1149"/>
+        <location filename="../qml/app/MainWindow.qml" line="1154"/>
         <source>Create layout</source>
         <translation>创建布局</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1150"/>
+        <location filename="../qml/app/MainWindow.qml" line="1155"/>
         <source>Devices</source>
         <translation>设备</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1549"/>
+        <location filename="../qml/app/MainWindow.qml" line="1554"/>
         <source>Tap again: apply %1 and save</source>
         <translation>再点一次：应用 %1 项更改并保存</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1550"/>
+        <location filename="../qml/app/MainWindow.qml" line="1555"/>
         <source>Apply and save (%1)</source>
         <translation>应用并保存（%1）</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1551"/>
+        <location filename="../qml/app/MainWindow.qml" line="1556"/>
         <source>Save to device</source>
         <translation>保存到设备</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1553"/>
+        <location filename="../qml/app/MainWindow.qml" line="1558"/>
         <source>Apply every change waiting on this page, then write the settings to the device&apos;s memory</source>
         <translation>应用此页面上所有待处理的更改，然后将设置写入设备存储器</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1554"/>
+        <location filename="../qml/app/MainWindow.qml" line="1559"/>
         <source>Write the current settings to the device&apos;s memory</source>
         <translation>将当前设置写入设备存储器</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1571"/>
+        <location filename="../qml/app/MainWindow.qml" line="1576"/>
         <source>Tap again to apply to %1: %2</source>
         <translation>再点一次以应用到 %1：%2</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1581"/>
+        <location filename="../qml/app/MainWindow.qml" line="1586"/>
         <source>Settings written to device: %1</source>
         <translation>设置已写入设备：%1</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1588"/>
+        <location filename="../qml/app/MainWindow.qml" line="1593"/>
         <source>Close</source>
         <translation>关闭</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1664"/>
+        <location filename="../qml/app/MainWindow.qml" line="1669"/>
         <source>Boat: %1 — done</source>
         <translation>船：%1 — 完成</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1666"/>
+        <location filename="../qml/app/MainWindow.qml" line="1671"/>
         <source>Boat: %1 — %2</source>
         <translation>船：%1 — %2</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1670"/>
+        <location filename="../qml/app/MainWindow.qml" line="1675"/>
         <source>Boat: %1</source>
         <translation>船：%1</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1748"/>
+        <location filename="../qml/app/MainWindow.qml" line="1753"/>
         <source>Welcome to KoggerApp!</source>
         <translation>欢迎使用 KoggerApp！</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1757"/>
+        <location filename="../qml/app/MainWindow.qml" line="1762"/>
         <source>Language:</source>
         <translation>语言：</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1775"/>
+        <location filename="../qml/app/MainWindow.qml" line="1780"/>
         <source>Choose which settings to show</source>
         <translation>选择要显示的设置</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1782"/>
+        <location filename="../qml/app/MainWindow.qml" line="1787"/>
         <source>Fish Finders</source>
         <translation>鱼探仪</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1783"/>
+        <location filename="../qml/app/MainWindow.qml" line="1788"/>
         <source>Bottom Track</source>
         <translation>底部跟踪</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1784"/>
+        <location filename="../qml/app/MainWindow.qml" line="1789"/>
         <source>Maximum</source>
         <translation>最大</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1792"/>
+        <location filename="../qml/app/MainWindow.qml" line="1797"/>
         <source>You can change this later in settings.</source>
         <translation>之后可以在设置中更改。</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1802"/>
+        <location filename="../qml/app/MainWindow.qml" line="1807"/>
         <source>Continue</source>
         <translation>继续</translation>
     </message>
@@ -8529,182 +8544,192 @@
 <context>
     <name>MapExportSettingsTab</name>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="100"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="110"/>
         <source>Save the depth map and the side-scan mosaic of the open survey as a KOGGER map (.kmap) to share it: whoever gets the file opens it in KoggerApp and sees the map under their boat. For Google Earth and GIS a KMZ and GeoTIFFs can be saved too. The folder is set in the Export group.</source>
         <translation>将当前记录的水深图和侧扫镶嵌图保存为 KOGGER 地图（.kmap）以便共享：收到文件的人在 KoggerApp 中打开，即可在自己的船下看到地图。也可另存 KMZ 和 GeoTIFF，用于 Google Earth 和 GIS。文件夹在“导出”组中设置。</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="110"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="120"/>
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="110"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="120"/>
         <source>Save the map</source>
         <translation>保存地图</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="156"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="166"/>
         <source>Show in folder</source>
         <translation>在文件夹中显示</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="165"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="174"/>
+        <source>Share the map</source>
+        <translation>分享地图</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="175"/>
+        <source>Send the map</source>
+        <translation>发送地图</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="183"/>
         <source>Title</source>
         <translation>标题</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="166"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="184"/>
         <source>Map</source>
         <translation>地图</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="171"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="189"/>
         <source>Author</source>
         <translation>作者</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="172"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="190"/>
         <source>Name or nickname</source>
         <translation>姓名或昵称</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="173"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="191"/>
         <source>Written into the files as the author. Leave it empty to stay anonymous.</source>
         <translation>作为作者写入文件。留空则保持匿名。</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="178"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="196"/>
         <source>Contact</source>
         <translation>联系方式</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="179"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="197"/>
         <source>E-mail or site, optional</source>
         <translation>电子邮件或网站，可选</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="180"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="198"/>
         <source>Written into the files: everyone who gets the map will see it.</source>
         <translation>将写入文件：每个获得地图的人都能看到。</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="185"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="203"/>
         <source>Licence</source>
         <translation>许可</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="187"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="205"/>
         <source>What others may do with the map. The data is yours; the licence is your permission.</source>
         <translation>他人可以如何使用地图。数据归您所有，许可是您的授权。</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="204"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="222"/>
         <source>Anyone may copy, change and use the map, also commercially, if they name you as the author.</source>
         <translation>任何人都可以复制、修改和使用地图（包括商业用途），但须注明您为作者。</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="206"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="224"/>
         <source>Anyone may do anything with the map, without naming you. This cannot be taken back for copies already shared.</source>
         <translation>任何人都可以随意使用地图，无需注明您。已分享的副本无法撤回此授权。</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="207"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="225"/>
         <source>Others may look at the map; copying, passing on or changing it needs your permission.</source>
         <translation>他人可以查看地图；复制、转发或修改需要您的许可。</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="208"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="226"/>
         <source>Every file also says: NOT FOR NAVIGATION, depths from an amateur survey, use at your own risk.</source>
         <translation>每个文件还注明：不可用于导航，水深来自业余测量，使用风险自负。</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="217"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="235"/>
         <source>Side-scan mosaic</source>
         <translation>侧扫镶嵌图</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="229"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="247"/>
         <source>Mosaic detail</source>
         <translation>镶嵌图精度</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="232"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="250"/>
         <source>Finer detail makes larger files and takes longer.</source>
         <translation>精度越高，文件越大，耗时越长。</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="243"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="261"/>
         <source>Depths and isobaths</source>
         <translation>水深和等深线</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="255"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="273"/>
         <source>Join soundings up to, m</source>
         <translation>连接测深点的最大距离，米</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="258"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="276"/>
         <source>The depth map is drawn between soundings no farther apart than this; wider gaps stay empty. More than the distance between survey lines joins them.</source>
         <translation>水深图只在相距不超过此距离的测深点之间绘制；更大的空隙保持空白。大于测线间距即可将测线连起来。</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="268"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="286"/>
         <source>Isobaths every</source>
         <translation>等深线间隔</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="271"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="289"/>
         <source>Also the step of the depth colours. Auto: 10 to 25 isobaths over the depths of the survey.</source>
         <translation>也是水深颜色的分级步长。自动：在测区水深范围内生成 10 到 25 条等深线。</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="288"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="306"/>
         <source>Transducer depth, m</source>
         <translation>换能器吃水，米</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="291"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="309"/>
         <source>How deep the transducer sits below the waterline. Added to every depth, so the map counts from the water surface; 0: depths from the transducer.</source>
         <translation>换能器在水线以下的深度。加到每个水深上，使地图从水面起算；0 表示水深从换能器起算。</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="308"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="326"/>
         <source>KOGGER map (.kmap)</source>
         <translation>KOGGER 地图（.kmap）</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="311"/>
-        <source>The file to share: it opens in KoggerApp as a layer under the boat.</source>
-        <translation>用于共享的文件：在 KoggerApp 中作为船下的图层打开。</translation>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="329"/>
+        <source>The file to share: it opens in KoggerApp as a layer under the boat. It holds the depths for the isobaths and the mosaic, without the boat&apos;s track.</source>
+        <translation>用于分享的文件：在 KoggerApp 中作为船下方的图层打开。其中包含用于等深线的水深和镶嵌图，不含船的航迹。</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="324"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="377"/>
+        <source>In the Google Earth and GIS files the boat&apos;s track is left out and the survey&apos;s date is given as a month only. The KOGGER map never has the track, and its date is always a month only.</source>
+        <translation>在 Google Earth 和 GIS 文件中不含船的航迹，测量日期只精确到月。KOGGER 地图从不包含航迹，其日期始终只精确到月。</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="342"/>
         <source>For other programs</source>
         <translation>用于其他程序</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="331"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="349"/>
         <source>Google Earth (KMZ)</source>
         <translation>Google Earth（KMZ）</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="343"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="361"/>
         <source>GIS (GeoTIFF)</source>
         <translation>GIS（GeoTIFF）</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="361"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="374"/>
         <source>Without the track and times</source>
         <translation>不含航迹和时间</translation>
     </message>
     <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="364"/>
-        <source>The boat&apos;s track is left out and the survey&apos;s date is given as a month only.</source>
-        <translation>不保存船的航迹，测量日期只精确到月。</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/MapExportSettingsTab.qml" line="376"/>
+        <location filename="../qml/app/MapExportSettingsTab.qml" line="389"/>
         <source>Even without the track, a map shows where you have been. Do not share surveys of places that must stay private, and check whether surveying and publishing depths is allowed in those waters.</source>
         <translation>即使没有航迹，地图也能显示您去过的地方。请勿分享必须保密地点的测量数据，并确认在该水域测量和发布水深是否被允许。</translation>
     </message>
@@ -8825,28 +8850,33 @@
 <context>
     <name>MapLibrary</name>
     <message>
-        <location filename="../src/map_export/map_library.cpp" line="90"/>
-        <location filename="../src/map_export/map_library.cpp" line="116"/>
+        <location filename="../src/map_export/map_library.cpp" line="96"/>
+        <location filename="../src/map_export/map_library.cpp" line="119"/>
         <source>Not opened: %1</source>
         <translation>未打开：%1</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_library.cpp" line="100"/>
+        <location filename="../src/map_export/map_library.cpp" line="111"/>
         <source>Already in My maps: %1</source>
         <translation>已在“我的地图”中：%1</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_library.cpp" line="108"/>
+        <location filename="../src/map_export/map_library.cpp" line="102"/>
         <source>Not opened: cannot keep the file (%1)</source>
         <translation>未打开：无法保存文件（%1）</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_library.cpp" line="131"/>
+        <location filename="../src/map_export/map_library.cpp" line="99"/>
+        <source>Not opened: this is not a KOGGER map</source>
+        <translation>未打开：这不是 KOGGER 地图</translation>
+    </message>
+    <message>
+        <location filename="../src/map_export/map_library.cpp" line="134"/>
         <source>Not opened: cannot keep the file</source>
         <translation>未打开：无法保存文件</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_library.cpp" line="144"/>
+        <location filename="../src/map_export/map_library.cpp" line="147"/>
         <source>Opened: %1</source>
         <translation>已打开：%1</translation>
     </message>
@@ -9836,97 +9866,102 @@
 <context>
     <name>MyMapsTab</name>
     <message>
-        <location filename="../qml/app/MyMapsTab.qml" line="37"/>
+        <location filename="../qml/app/MyMapsTab.qml" line="39"/>
         <source>km</source>
         <translation>千米</translation>
     </message>
     <message>
-        <location filename="../qml/app/MyMapsTab.qml" line="38"/>
+        <location filename="../qml/app/MyMapsTab.qml" line="40"/>
         <source>m</source>
         <translation>米</translation>
     </message>
     <message>
-        <location filename="../qml/app/MyMapsTab.qml" line="40"/>
+        <location filename="../qml/app/MyMapsTab.qml" line="42"/>
         <source>m deep</source>
         <translation>米深</translation>
     </message>
     <message>
-        <location filename="../qml/app/MyMapsTab.qml" line="45"/>
+        <location filename="../qml/app/MyMapsTab.qml" line="48"/>
+        <source>Depth maps you saved or others sent you. They lie under the boat in the 3D view. To open a .kmap someone sent you, tap it in the messenger and choose KoggerApp, or use the button below.</source>
+        <translation>您保存的或他人发送给您的水深图。它们显示在 3D 视图中的船下。要打开他人发送的 .kmap 文件，请在聊天应用中点按该文件并选择 KoggerApp，或使用下方按钮。</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/MyMapsTab.qml" line="49"/>
         <source>Depth maps you saved or others sent you. They lie under the boat in the 3D view. Open a .kmap file with the button below, from the Open menu, or by dropping it on the window.</source>
         <translation>您保存的或他人发送给您的水深图。它们显示在 3D 视图中的船下。可用下方按钮、“打开”菜单或将 .kmap 文件拖到窗口中来打开。</translation>
     </message>
     <message>
-        <location filename="../qml/app/MyMapsTab.qml" line="54"/>
+        <location filename="../qml/app/MyMapsTab.qml" line="58"/>
         <source>Open a map…</source>
         <translation>打开地图…</translation>
     </message>
     <message>
-        <location filename="../qml/app/MyMapsTab.qml" line="60"/>
+        <location filename="../qml/app/MyMapsTab.qml" line="64"/>
         <source>Open a KOGGER map</source>
         <translation>打开 KOGGER 地图</translation>
     </message>
     <message>
-        <location filename="../qml/app/MyMapsTab.qml" line="62"/>
+        <location filename="../qml/app/MyMapsTab.qml" line="66"/>
         <source>KOGGER maps</source>
         <translation>KOGGER 地图</translation>
     </message>
     <message>
-        <location filename="../qml/app/MyMapsTab.qml" line="78"/>
+        <location filename="../qml/app/MyMapsTab.qml" line="82"/>
         <source>Under the boat by the map: %1 m (%2)</source>
         <translation>地图上船下水深：%1 米（%2）</translation>
     </message>
     <message>
-        <location filename="../qml/app/MyMapsTab.qml" line="89"/>
+        <location filename="../qml/app/MyMapsTab.qml" line="93"/>
         <source>Show the maps</source>
         <translation>显示地图</translation>
     </message>
     <message>
-        <location filename="../qml/app/MyMapsTab.qml" line="101"/>
+        <location filename="../qml/app/MyMapsTab.qml" line="105"/>
         <source>Depths and isobaths</source>
         <translation>水深和等深线</translation>
     </message>
     <message>
-        <location filename="../qml/app/MyMapsTab.qml" line="114"/>
+        <location filename="../qml/app/MyMapsTab.qml" line="118"/>
         <source>Side-scan mosaic</source>
         <translation>侧扫镶嵌图</translation>
     </message>
     <message>
-        <location filename="../qml/app/MyMapsTab.qml" line="136"/>
+        <location filename="../qml/app/MyMapsTab.qml" line="140"/>
         <source>No maps yet. Ask someone to send you a .kmap file, or save your own: Settings → Export → Map for sharing.</source>
         <translation>还没有地图。请他人发送 .kmap 文件给您，或保存您自己的地图：设置 → 导出 → 共享地图。</translation>
     </message>
     <message>
-        <location filename="../qml/app/MyMapsTab.qml" line="139"/>
+        <location filename="../qml/app/MyMapsTab.qml" line="143"/>
         <source>Save my map</source>
         <translation>保存我的地图</translation>
     </message>
     <message>
-        <location filename="../qml/app/MyMapsTab.qml" line="197"/>
+        <location filename="../qml/app/MyMapsTab.qml" line="201"/>
         <source>Show this map</source>
         <translation>显示此地图</translation>
     </message>
     <message>
-        <location filename="../qml/app/MyMapsTab.qml" line="203"/>
+        <location filename="../qml/app/MyMapsTab.qml" line="207"/>
         <source>Author not given</source>
         <translation>未注明作者</translation>
     </message>
     <message>
-        <location filename="../qml/app/MyMapsTab.qml" line="218"/>
+        <location filename="../qml/app/MyMapsTab.qml" line="222"/>
         <source>Show on the map</source>
         <translation>在地图上显示</translation>
     </message>
     <message>
-        <location filename="../qml/app/MyMapsTab.qml" line="223"/>
+        <location filename="../qml/app/MyMapsTab.qml" line="227"/>
         <source>Remove for good?</source>
         <translation>确定删除？</translation>
     </message>
     <message>
-        <location filename="../qml/app/MyMapsTab.qml" line="223"/>
+        <location filename="../qml/app/MyMapsTab.qml" line="227"/>
         <source>Remove</source>
         <translation>删除</translation>
     </message>
     <message>
-        <location filename="../qml/app/MyMapsTab.qml" line="242"/>
+        <location filename="../qml/app/MyMapsTab.qml" line="246"/>
         <source>Maps from others are amateur surveys: NOT FOR NAVIGATION. Each map carries its own licence; what you may do with it is shown on its card.</source>
         <translation>他人的地图来自业余测量：不可用于导航。每张地图都有自己的许可，可做之事见其卡片。</translation>
     </message>
@@ -10474,7 +10509,7 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../src/core.cpp" line="3131"/>
+        <location filename="../src/core.cpp" line="3178"/>
         <source>File</source>
         <translation>文件</translation>
     </message>

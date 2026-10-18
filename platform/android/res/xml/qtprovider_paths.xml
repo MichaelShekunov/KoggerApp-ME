@@ -8,4 +8,7 @@
     <external-files-path name="external_files_path" path="/"/>
     <!-- For getExternalCacheDir() -->
     <external-cache-path name="external_cache_path" path="/"/>
+    <!-- KoggerActivity.shareFile: a file in a folder none of the above covers (a removable card)
+         is copied into getCacheDir()/share first -->
+    <cache-path name="share_cache" path="share/"/>
 </paths>

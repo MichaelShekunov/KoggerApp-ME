@@ -1086,6 +1086,11 @@ ApplicationWindow {
                 if (core && core.filePath && core.filePath.length > 0)
                     workspaceStore.selectedConnectionFilePath = core.filePath
             }
+
+            // A map from a messenger ("open with" on Android): show where it went.
+            function onReceivedMapOpened() {
+                workspaceStore.openMyMaps()
+            }
         }
 
         Connections {

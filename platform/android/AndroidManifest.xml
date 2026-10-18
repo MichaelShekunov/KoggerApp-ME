@@ -53,8 +53,13 @@
             android:name="org.kogger.koggerapp.KoggerActivity"
             android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation|mcc|mnc|density"
             android:label="${koggerAppLabel}"
-            android:launchMode="singleTop"
+            android:launchMode="singleTask"
             android:exported="true">
+            <!-- singleTask: a second KoggerActivity makes Qt restart the app
+                 (QtActivityBase.restartApplication); launches without a result (the launcher, USB,
+                 KoggerOpenActivity) reach the running one in onNewIntent. A launch that asks for a
+                 result still lands in the caller's task, so files from other apps come through
+                 KoggerOpenActivity below. -->
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -91,6 +96,36 @@
             <meta-data 
                 android:name="android.app.auto_screen_scale_factor"
                 android:value="false" />
+        </activity>
+
+        <!-- A KOGGER map (.kmap, docs/map-export.md) opened from a messenger, mail or a file manager,
+             or shared to the app: handed on to KoggerActivity (see KoggerOpenActivity.java for why
+             not straight). Messengers often give it as application/octet-stream or as a ZIP, under a
+             content:// name without .kmap, so these types are taken and the app tells a map by its
+             content (MapLibrary::importFile); anything else is refused with a message. -->
+        <activity
+            android:name="org.kogger.koggerapp.KoggerOpenActivity"
+            android:label="${koggerAppLabel}"
+            android:theme="@android:style/Theme.NoDisplay"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="application/vnd.kogger.map+zip" />
+                <data android:mimeType="application/octet-stream" />
+                <data android:mimeType="application/zip" />
+                <data android:mimeType="application/x-zip-compressed" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="application/vnd.kogger.map+zip" />
+                <data android:mimeType="application/octet-stream" />
+                <data android:mimeType="application/zip" />
+                <data android:mimeType="application/x-zip-compressed" />
+            </intent-filter>
         </activity>
 
         <provider

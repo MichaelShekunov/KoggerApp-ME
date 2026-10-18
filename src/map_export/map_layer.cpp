@@ -3,12 +3,18 @@
 #include <algorithm>
 #include <cmath>
 #include <cstring>
+#include <limits>
 #include <QtMath>
 #include <QDebug>
+#include <QElapsedTimer>
 #include <QSettings>
 #include "app_profile.h"
+#include "isobaths_defs.h"
 #include "map_export_writer.h"
 #include "map_library.h"
+#if defined(Q_OS_ANDROID) || defined(LINUX_ES)
+#include <GLES3/gl3.h>   // GL_R8, GL_RED, GL_RGBA8: OpenGL ES 3, as scene3d_renderer.h takes them
+#endif
 
 namespace {
 
@@ -16,13 +22,32 @@ constexpr int kMaxSideVertices = 400;   // a map's depth mesh: at most ~400 x 40
 constexpr int kPiecePx = 1024;          // mosaic textures
 constexpr int kPieceSub = 8;            // each piece a grid of 8 x 8 quads, so it follows the projection
 constexpr float kSlopeGain = 30.0f;     // the shader draws isobath lines only where the normal leans
+constexpr int kMaxLevels = 2048;        // the palette is a levels x 1 texture: OpenGL ES 3 takes 2048 wide everywhere
+constexpr float kLabelZShift = 0.03f;   // SurfaceView::kLabelZShift
 
-QImage depthPaletteImage(int theme, int levels)
+// The isobath tool's theme over `levels` bands, deepest first, as the surface's own palette is made
+// (SurfaceProcessor::generateExpandedPalette, then updateTexture's rounding down to bytes).
+QImage toolPaletteImage(int theme, int levels)
 {
-    const QVector<QRgb> pal = mapexport::depthPalette(theme, levels);
+    const QVector<QVector3D>& base = IsobathUtils::colorPalette(theme);
     QImage img(levels, 1, QImage::Format_RGBA8888);
+    const int n = base.size();
     for (int i = 0; i < levels; ++i) {
-        img.setPixel(i, 0, pal[1 + i]);
+        QVector3D c(1.0f, 1.0f, 1.0f);
+        if (n > 0 && levels <= 1) {
+            c = base.first();
+        }
+        else if (n > 0) {
+            const float t = static_cast<float>(i) / static_cast<float>(levels - 1);
+            const float ft = t * (n - 1);
+            const int i0 = static_cast<int>(ft);
+            const int i1 = std::min(i0 + 1, n - 1);
+            const float l = ft - static_cast<float>(i0);
+            c = (1.f - l) * base[i0] + l * base[i1];
+        }
+        img.setPixel(i, 0, qRgba(static_cast<uint8_t>(qBound(0.f, c.x() * 255.f, 255.f)),
+                                 static_cast<uint8_t>(qBound(0.f, c.y() * 255.f, 255.f)),
+                                 static_cast<uint8_t>(qBound(0.f, c.z() * 255.f, 255.f)), 255));
     }
     return img;
 }
@@ -106,6 +131,17 @@ void MapLayer::setMosaicVisible(bool on)
     }
 }
 
+void MapLayer::setIsobathStyle(int themeId, float stepM)
+{
+    if (themeId == themeId_ && stepM == toolStep_) {
+        return;
+    }
+    themeId_ = themeId;
+    toolStep_ = stepM;
+    rebuildStyle();
+    emit changed();
+}
+
 void MapLayer::rebuildGeo()
 {
     geoDirty_ = false;
@@ -113,7 +149,9 @@ void MapLayer::rebuildGeo()
     geoMeshes_.clear();
     geoPieces_.clear();
     textures_.clear();
+    stylePaletteKey_.clear();
     if (!library_) {
+        rebuildStyle();
         return;
     }
     const auto entries = library_->visibleEntries();
@@ -175,16 +213,12 @@ void MapLayer::rebuildGeo()
                     if (fa && fc && fd && !fb) { m.idx << a << c << dd; }
                 }
             }
-            m.step = float(mapexport::autoIsobathStep(dg.minDepth, dg.maxDepth));
-            m.levels = mapexport::depthBands(dg.minDepth, dg.maxDepth, m.step);
-            m.depthMin = -dg.maxDepth;
-            // the maker's colours (map.json), so the map looks as it did to them and on its preview
-            const int theme = p.meta.value(QStringLiteral("products")).toObject().value(QStringLiteral("bathymetry")).toObject()
-                                  .value(QStringLiteral("paletteTheme")).toInt(1);
-            m.paletteKey = QStringLiteral("depthpal:%1:%2").arg(theme).arg(m.levels);
-            if (!textures_.contains(m.paletteKey)) {
-                textures_.insert(m.paletteKey, depthPaletteImage(theme, m.levels));
-            }
+            m.minDepth = dg.minDepth;
+            m.maxDepth = dg.maxDepth;
+            m.lat0 = midLat;
+            m.lon0 = 0.5 * (g.west + g.east());
+            m.mLat = 110540.0;
+            m.mLon = 111320.0 * std::cos(qDegreesToRadians(midLat));
             if (!m.idx.isEmpty()) {
                 geoMeshes_.append(m);
             }
@@ -230,6 +264,71 @@ void MapLayer::rebuildGeo()
             }
         }
     }
+    rebuildStyle();
+}
+
+void MapLayer::rebuildStyle()
+{
+    frame_.reset();
+    geoLabels_.clear();
+    if (!stylePaletteKey_.isEmpty()) {
+        textures_.remove(stylePaletteKey_);
+        stylePaletteKey_.clear();
+    }
+    if (geoMeshes_.isEmpty()) {
+        return;
+    }
+    QElapsedTimer clock;
+    clock.start();
+
+    double lo = std::numeric_limits<double>::infinity(), hi = -lo;
+    for (const GeoMesh& g : std::as_const(geoMeshes_)) {
+        lo = std::min(lo, g.minDepth);
+        hi = std::max(hi, g.maxDepth);
+    }
+    double step = toolStep_ > 0.0f ? double(toolStep_) : mapexport::autoIsobathStep(lo, hi);
+    // Lines at whole multiples of the step: band k from z = -bottom + k * step (isobaths_colored.fsh).
+    double top = 0.0, bottom = 0.0;
+    int levels = 1;
+    for (;;) {
+        top = std::floor(lo / step) * step;
+        bottom = std::ceil(hi / step) * step;
+        levels = int(std::lround((bottom - top) / step)) + 1;
+        if (levels <= kMaxLevels) {
+            break;
+        }
+        step *= 2.0;
+    }
+    styleStep_ = float(step);
+    styleDepthMin_ = float(-bottom);
+    styleLevels_ = levels;
+    stylePaletteKey_ = QStringLiteral("depthpal:%1:%2").arg(themeId_).arg(levels);
+    textures_.insert(stylePaletteKey_, toolPaletteImage(themeId_, levels));
+
+    // The labels in each map's own frame in metres, where SurfaceView makes its own; spread over the
+    // levels of detail once here, each map's alone, and only moved into the view's frame per frame.
+    int candidates = 0;
+    for (const GeoMesh& g : std::as_const(geoMeshes_)) {
+        QVector<QVector3D> loc(g.lat.size());
+        for (int v = 0; v < g.lat.size(); ++v) {
+            loc[v] = QVector3D(float((g.lat[v] - g.lat0) * g.mLat), float((g.lon[v] - g.lon0) * g.mLon),
+                               std::isfinite(g.depth[v]) ? -g.depth[v] : 0.0f);
+        }
+        QVector<isolabels::Label> cand;
+        for (int t = 0; t + 2 < g.idx.size(); t += 3) {
+            isolabels::addFromTriangle(loc[g.idx[t]], loc[g.idx[t + 1]], loc[g.idx[t + 2]],
+                                       styleDepthMin_, styleStep_, styleLevels_, kLabelZShift, cand);
+        }
+        candidates += cand.size();
+        QVector<isolabels::Label> kept;
+        isolabels::assignLevels(cand, kept, styleStep_ * 2.0f);   // SurfaceView's base spacing
+        for (const isolabels::Label& l : std::as_const(kept)) {
+            geoLabels_.append(GeoLabel{ g.lat0 + l.pos.x() / g.mLat, g.lon0 + l.pos.y() / g.mLon, l });
+        }
+    }
+    qInfo().noquote() << QStringLiteral("my maps isobaths: theme %1, step %2 m (tool %3), depths %4..%5 m, %6 bands, %7 labels of %8, %9 ms")
+                         .arg(themeId_).arg(styleStep_).arg(toolStep_).arg(top).arg(bottom).arg(levels)
+                         .arg(geoLabels_.size()).arg(candidates).arg(clock.elapsed());
 }
 
 std::shared_ptr<const MapLayerFrame> MapLayer::frameFor(const LLARef& viewRef, bool perspective)
@@ -255,11 +354,21 @@ std::shared_ptr<const MapLayerFrame> MapLayer::frameFor(const LLARef& viewRef, b
             }
             m.nrm = g.nrm;
             m.idx = g.idx;
-            m.depthMin = g.depthMin;
-            m.step = g.step;
-            m.levels = g.levels;
-            m.paletteKey = g.paletteKey;
+            m.depthMin = styleDepthMin_;
+            m.step = styleStep_;
+            m.levels = styleLevels_;
+            m.paletteKey = stylePaletteKey_;
             f->meshes << m;
+        }
+        if (!mosaicVisible_) {
+            f->labels.reserve(geoLabels_.size());
+            for (const GeoLabel& gl : std::as_const(geoLabels_)) {
+                isolabels::Label l = gl.label;
+                l.pos = project(gl.lat, gl.lon, gl.label.pos.z());
+                f->labels << l;
+            }
+            f->labelSpacing = styleStep_ * 2.0f;
+            f->labelStep = styleStep_;
         }
     }
     if (visible_ && mosaicVisible_) {
@@ -277,8 +386,8 @@ std::shared_ptr<const MapLayerFrame> MapLayer::frameFor(const LLARef& viewRef, b
         }
     }
     f->textures = textures_;
-    qInfo().noquote() << QStringLiteral("my maps layer: %1 depth meshes, %2 mosaic pieces, view frame %3, %4 (%5)")
-                         .arg(f->meshes.size()).arg(f->pieces.size()).arg(viewRef.refLla.latitude, 0, 'f', 6)
+    qInfo().noquote() << QStringLiteral("my maps layer: %1 depth meshes, %2 mosaic pieces, %3 labels, view frame %4, %5 (%6)")
+                         .arg(f->meshes.size()).arg(f->pieces.size()).arg(f->labels.size()).arg(viewRef.refLla.latitude, 0, 'f', 6)
                          .arg(viewRef.refLla.longitude, 0, 'f', 6).arg(perspective ? QStringLiteral("perspective") : QStringLiteral("top-down"));
     frame_ = f;
     frameLat_ = viewRef.refLla.latitude;
@@ -408,5 +517,9 @@ void MapLayerGl::render(QOpenGLFunctions* ctx, const QMatrix4x4& mvp,
             prog->disableAttributeArray(posLoc);
         }
         prog->release();
+    }
+
+    if (!frame_->labels.isEmpty()) {
+        isolabels::render(ctx, mvp, programs, frame_->labels, frame_->labelSpacing, NAN, frame_->labelStep);
     }
 }

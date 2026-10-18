@@ -12,6 +12,8 @@ Column {
     property var library: typeof mapLibrary !== "undefined" ? mapLibrary : null
     property var mapsLayer: typeof mapLayer !== "undefined" ? mapLayer : null   // not "layer": Item has one
     property string pendingRemove: ""
+    // Android: a map from a messenger is opened from the messenger ("open with"), not dropped.
+    property bool isAndroid: Qt.platform.os === "android"
 
     readonly property color _bright: AppPalette.isDark ? "#FFFFFF" : AppPalette.text
 
@@ -42,7 +44,9 @@ Column {
     }
 
     Note {
-        text: qsTr("Depth maps you saved or others sent you. They lie under the boat in the 3D view. Open a .kmap file with the button below, from the Open menu, or by dropping it on the window.")
+        text: page.isAndroid
+              ? qsTr("Depth maps you saved or others sent you. They lie under the boat in the 3D view. To open a .kmap someone sent you, tap it in the messenger and choose KoggerApp, or use the button below.")
+              : qsTr("Depth maps you saved or others sent you. They lie under the boat in the 3D view. Open a .kmap file with the button below, from the Open menu, or by dropping it on the window.")
     }
 
     Spacer {}

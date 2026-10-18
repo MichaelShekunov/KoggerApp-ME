@@ -11,7 +11,8 @@
     3. a card's switch hides that map; "Show on the map" asks to fly to it; "Remove" asks first, removes on
        the second press;
     4. the depth under the boat by the map shows when there is one;
-    5. the layer switches (the maps, the depths, the mosaic) write the layer.
+    5. the layer switches (the maps, the depths, the mosaic) write the layer;
+    7. how to open a map: the desktop's ways, or on Android from the messenger.
   -Picture saves the page. -Preview <png> gives the cards a picture (e.g. a .kmap's preview.png).
   Exit code 0 when all pass, 1 when a check fails, 2 when qmltestrunner is not found.
 
@@ -199,6 +200,14 @@ Rectangle {
             mouseClick(row("Show the maps"))
             mouseClick(row("Depths and isobaths"))
             mouseClick(row("Side-scan mosaic"))
+        }
+
+        function test_7_how_to_open() {
+            verify(texts("by dropping it on the window").length > 0, "the desktop's ways to open a map")
+            page.isAndroid = true
+            verify(texts("tap it in the messenger and choose KoggerApp").length > 0, "on Android: from the messenger")
+            verify(texts("by dropping it on the window").length === 0, "no dropping on a phone")
+            page.isAndroid = false
         }
 
         function test_6_picture() {

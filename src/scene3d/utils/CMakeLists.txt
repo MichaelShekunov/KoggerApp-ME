@@ -5,6 +5,7 @@ target_sources(KoggerApp PRIVATE
     geojson_feature_model.h geojson_feature_model.cpp
     geojson_io.h            geojson_io.cpp
     geojson_style.h         geojson_style.cpp
+    isobath_labels.h        isobath_labels.cpp
     max_points_filter.h     max_points_filter.cpp
     nearest_point_filter.h  nearest_point_filter.cpp
     ray.h                   ray.cpp

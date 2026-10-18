@@ -47,10 +47,15 @@ public:
     void setStatusDetailedPolling(bool state);
     Q_INVOKABLE void refreshPipelineStatus();
 
+    /// The colour theme and the isobath step (m) as set in the tool; the loaded maps follow them too.
+    int themeId() const { return themeId_; }
+    float surfaceLineStepSize() const { return surfaceLineStepSize_; }
+
 signals:
     void pipelineStatusChanged();
     void statusMonitorEnabledChanged();
     void statusDetailedPollingChanged();
+    void styleChanged();   // themeId or surfaceLineStepSize
 
 protected:
     void findComponent() override;

@@ -135,6 +135,9 @@ public:
     bool getCsvLogging() const;
     Q_INVOKABLE QString klfLogFilePath() const;
     Q_INVOKABLE void    revealInFolder(const QString& path);
+    /// Android: the system share sheet for a file (a .kmap to a messenger). False elsewhere, or when
+    /// it cannot be offered (a warning then says so).
+    Q_INVOKABLE bool    shareFile(const QString& path, const QString& chooserTitle);
     Q_INVOKABLE void    copyToClipboard(const QString& text);
     Q_INVOKABLE QString csvLogFilePath() const;
     Q_INVOKABLE qint64  activeLogSizeBytes() const;
@@ -290,6 +293,7 @@ signals:
     void isAppendModeChanged();
     void fileTitleChanged();
     void fileOpenFailed(const QString& path);
+    void receivedMapOpened();   // another app handed a KOGGER map over and it is in My maps
     void sendIsFileOpening();
     void trackReprocessingChanged();
     void channelListUpdated();
@@ -369,6 +373,8 @@ private:
     void releasePlotCaches();
     void flushStartupFileOpen();
     void installAppLogStoragePromotion();
+    void installOpenFileHandler();
+    void openReceivedFile(const QString& uri);
     QString resolveExportBasePath(const QString& basePath) const;
     QString buildExportFileStem(const QString& openedFilePath) const;
 #ifdef Q_OS_ANDROID
@@ -405,7 +411,7 @@ private:
     std::unique_ptr<MapExporter> mapExporter_; // QML "mapExport"
     std::unique_ptr<MapLibrary> mapLibrary_;   // QML "mapLibrary": My maps
     std::unique_ptr<MapLayer> mapLayer_;       // My maps in the 3D scene
-    bool mapBoatDepthConnected_ = false;
+    bool mapLayerConnected_ = false;   // UILoad's lambdas for My maps, made once
 
 #ifdef SEPARATE_READING
     QString tryOpenedfilePath_;

@@ -21,6 +21,7 @@
 #include "map_export_writer.h"
 #include "map_package.h"
 
+#include <QCryptographicHash>
 #include <QDir>
 #include <QFile>
 #include <QGuiApplication>
@@ -698,6 +699,41 @@ void checkProducts(const QString& dir)
             }
             check(pkg.hasMosaic && mosaicN > 0 && mosaicBad == 0 && pkg.mosaicPalette.size() == 256 && pkg.mosaicPalette[77] == qRgb(77, 77, 255 - 77),
                   tag + QStringLiteral(".kmap mosaic and palette as written: %1 of %2 differ").arg(mosaicBad).arg(mosaicN));
+
+            // Opening it (MapLibrary::importFile): the copy is the file, byte for byte, with its SHA-1.
+            QFile f(kmap);
+            const QByteArray bytes = f.open(QIODevice::ReadOnly) ? f.readAll() : QByteArray();
+            const QString copy = dir + QLatin1Char('/') + in.baseName + QStringLiteral("_copy.part");
+            QByteArray sha;
+            const MapCopy r = copyMapFile(kmap, copy, &sha, &err);
+            QFile c(copy);
+            const bool same = c.open(QIODevice::ReadOnly) && c.readAll() == bytes;
+            c.close();
+            check(r == MapCopy::Copied && same && !bytes.isEmpty() && sha == QCryptographicHash::hash(bytes, QCryptographicHash::Sha1).toHex(),
+                  tag + QStringLiteral(".kmap copied for My maps byte for byte, with its SHA-1"));
+            QFile::remove(copy);
+
+            // A shared map holds the depths for the isobaths and the mosaic, nothing of the boat's track
+            // (owner, 2026-10-18), whatever the privacy switch says: the same five parts in either mode,
+            // not a word of a track, the survey's date to the month in every part.
+            QZipReader kz(kmap);
+            QStringList parts;
+            for (const auto& fi : kz.fileInfoList()) {
+                parts << fi.filePath;
+            }
+            parts.sort();
+            check(parts == QStringList{ QStringLiteral("README.txt"), QStringLiteral("depth.tif"), QStringLiteral("map.json"),
+                                        QStringLiteral("mosaic.tif"), QStringLiteral("preview.png") },
+                  tag + QStringLiteral(".kmap holds only map.json, README.txt, preview.png, depth.tif, mosaic.tif: %1").arg(parts.join(QLatin1Char(' '))));
+            const QByteArray mj = kz.fileData(QStringLiteral("map.json"));
+            check(!mj.isEmpty() && !mj.toLower().contains("track"), tag + QStringLiteral(".kmap map.json: not a word of a track"));
+            int fullTimes = 0;
+            for (const QString& part : std::as_const(parts)) {
+                fullTimes += kz.fileData(part).contains("2026-10-07");
+            }
+            check(fullTimes == 0 && QJsonDocument::fromJson(mj).object().value(QStringLiteral("survey")).toObject()
+                                        .value(QStringLiteral("timeFrom")).toString() == QStringLiteral("2026-10"),
+                  tag + QStringLiteral(".kmap: the survey's date to the month only, %1 parts with the day").arg(fullTimes));
         }
 
         const QString kmz = dir + QLatin1Char('/') + in.baseName + QStringLiteral(".kmz");
@@ -790,6 +826,47 @@ void checkProducts(const QString& dir)
     }
 }
 
+// A file another app hands over (docs/map-export.md, Android) is told by its content: the copy goes in
+// pieces and stops before writing anything when the file is not a ZIP archive.
+void checkMapCopy(const QString& dir)
+{
+    auto write = [&](const QString& name, const QByteArray& bytes) {
+        QFile f(dir + QLatin1Char('/') + name);
+        return f.open(QIODevice::WriteOnly) && f.write(bytes) == bytes.size() ? f.fileName() : QString();
+    };
+    QByteArray big("PK\x03\x04", 4);   // a ZIP's start, then 2.5 MB: three pieces of 1 MB
+    big.reserve(2621444);
+    quint32 x = 12345;
+    while (big.size() < 2621444) {
+        x = x * 1664525u + 1013904223u;
+        big.append(char(x >> 24));
+    }
+    const QString bigPath = write(QStringLiteral("big.bin"), big);
+    const QString dst = dir + QLatin1Char('/') + QStringLiteral("copy.part");
+    QByteArray sha;
+    QString err;
+    const MapCopy r = copyMapFile(bigPath, dst, &sha, &err);
+    QFile c(dst);
+    const bool same = c.open(QIODevice::ReadOnly) && c.readAll() == big;
+    c.close();
+    check(!bigPath.isEmpty() && r == MapCopy::Copied && same && sha == QCryptographicHash::hash(big, QCryptographicHash::Sha1).toHex(),
+          QStringLiteral("a 2.5 MB file is copied whole in pieces, with its SHA-1"));
+    QFile::remove(dst);
+
+    const QString klf = write(QStringLiteral("survey.kmap"), QByteArray::fromHex("bb550102") + "a log, not a map");
+    check(copyMapFile(klf, dst, &sha, &err) == MapCopy::NotAMap && !QFile::exists(dst),
+          QStringLiteral("a file that is not a ZIP is not a map, whatever its name, and nothing is written"));
+    check(startsLikeMap(bigPath) && !startsLikeMap(klf) && !startsLikeMap(dir + QStringLiteral("/no_such.kmap")),
+          QStringLiteral("startsLikeMap: a ZIP's start yes, a log named .kmap no, a missing file no"));
+    const QString tiny = write(QStringLiteral("tiny.kmap"), QByteArray("PK", 2));
+    check(copyMapFile(tiny, dst, &sha, &err) == MapCopy::NotAMap && !QFile::exists(dst), QStringLiteral("a file shorter than a ZIP's start is not a map"));
+    err.clear();
+    check(copyMapFile(dir + QStringLiteral("/no_such.kmap"), dst, &sha, &err) == MapCopy::CannotRead && !err.isEmpty() && !QFile::exists(dst),
+          QStringLiteral("a file that cannot be read says why"));
+    check(copyMapFile(bigPath, dir + QStringLiteral("/no_such_folder/copy.part"), &sha, &err) == MapCopy::CannotWrite,
+          QStringLiteral("a copy that cannot be written says so"));
+}
+
 } // namespace
 
 int main(int argc, char** argv)
@@ -819,6 +896,7 @@ int main(int argc, char** argv)
     checkGeoTiff(dir);
     checkZip(dir);
     checkProducts(dir);
+    checkMapCopy(dir);
 
     std::printf("%d checks, %d failed%s\n", g_checks, g_fails, keep.isEmpty() ? "" : qPrintable(QStringLiteral(" (files in %1)").arg(dir)));
     return g_fails == 0 ? 0 : 1;

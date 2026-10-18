@@ -21,6 +21,10 @@ namespace mapexport {
 
 inline const QString kMapSuffix = QStringLiteral("kmap");
 inline const QString kMapFormat = QStringLiteral("KOGGER map");
+// The type a .kmap is shared under (Android's share sheet). Not registered: this app's own label.
+// Android takes it, application/octet-stream and application/zip as a map to open
+// (platform/android/AndroidManifest.xml); what the file is, is read from its content.
+inline const QString kMapMimeType = QStringLiteral("application/vnd.kogger.map+zip");
 
 struct MapPackage {
     QJsonObject meta;                // map.json
@@ -44,6 +48,17 @@ struct MapPackage {
 
 /// Reads a .kmap. False with a reason in plain words when it is not one or is damaged.
 bool readMapPackage(const QString& path, MapPackage& out, QString* error);
+
+enum class MapCopy { Copied, CannotRead, NotAMap, CannotWrite };
+/// Copies a map file -- a path, or on Android a content:// URL another app handed over -- to `dst`
+/// in pieces, read once front to back, and gives its SHA-1 as hex. A file that does not start as a
+/// ZIP archive is NotAMap before anything is written: a messenger's file may come without a name or
+/// as application/octet-stream, so the content decides, not the name. On any failure `dst` is not
+/// left behind; `error` gets the system's reason for CannotRead / CannotWrite.
+MapCopy copyMapFile(const QString& src, const QString& dst, QByteArray* sha1Hex, QString* error);
+/// True when the file starts as every .kmap does (a ZIP archive): how a map is told where its name
+/// says nothing, as with an Android content:// URL. A log (KLF, XTF, UBX) does not start so.
+bool startsLikeMap(const QString& src);
 
 /// Depth at a latitude/longitude, bilinear between the four nearest cells with a depth (nearest
 /// when fewer); NaN outside the map or over a gap.
