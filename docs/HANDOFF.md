@@ -1949,8 +1949,8 @@ clean (zh machine-made, as the rest).
 **Open.** Not on the water and not with a device streaming; the 3D surface after a rebuild not looked
 at on screen (the checks read the mosaic dumps, which carry the tiles' heights); Android and the head
 unit not run (the three-column palette on a small screen not seen); `KOGGER_SEPARATE_READING` builds
-not made. Merging with `mosaic-quality` and `map-export` (neither is in `me`): what to change is in
-`docs/echogram-editing.md`, "Merging with the other branches".
+not made. Merged with `mosaic-quality` and `map-export` on 2026-10-19 (30b1138f, 344919cd): what their
+meeting needed is in `docs/echogram-editing.md`, "Merging with the other branches".
 
 **To continue.**
 
@@ -2161,10 +2161,11 @@ on a disabled switch (a mutant of the check fails on exactly that). A device par
 spin, switch, tabs) is read from and written to the first connected device of its type (devName); a second device
 of the same type is not driven from a widget.
 
-**What can be pinned.** 66 blocks of the settings page and 3 of Performance, each marked with a KPinTag and a
+**What can be pinned.** 70 blocks of the settings page (66 in AppSettingsPage.qml, 4 in MosaicQualitySettings.qml
+since the merge of 2026-10-19) and 3 of Performance, each marked with a KPinTag and a
 stable key "app:<group>.<name>": the value rows of Interface (language, on-screen keyboard, toolset, UI scale,
 sidebar side and four switches), Workspace (2), Dataset (FBS, S.offset, Pos zeroing, Bottom track zeroing),
-Bottom Track (the preset and six parameters), Isobaths (4), Mosaic (9), Echograms (5), 3D scene (25), Performance
+Bottom Track (the preset and six parameters), Isobaths (4), Mosaic (13, the quality block's four with them), Echograms (5), 3D scene (25), Performance
 (3); and every spin, switch and tabs row of the device page ("dev:<type>:<param>"). Not pinnable: rows that open a
 page (TGC, Key bindings, ...), the colour theme grid, the mosaic's level capsule, paths and buttons, the "Show in
 3D" header toggles, the per-echogram settings panel and every other sub-page -- a sub-page is destroyed when left,

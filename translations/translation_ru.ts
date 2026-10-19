@@ -9094,102 +9094,102 @@
 <context>
     <name>MapExporter</name>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="270"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="271"/>
         <source>All rights reserved</source>
         <translation>Все права защищены</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="271"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="272"/>
         <source>CC BY 4.0: free use with credit to the author</source>
         <translation>CC BY 4.0: свободно, с указанием автора</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="272"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="273"/>
         <source>CC0: public domain, no conditions</source>
         <translation>CC0: общественное достояние, без условий</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="289"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="290"/>
         <source>%1 cm per pixel</source>
         <translation>%1 см на пиксель</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="337"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="338"/>
         <source>Not saved: no survey is open.</source>
         <translation>Не сохранено: запись не открыта.</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="345"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="346"/>
         <source>Not saved: the survey has no GNSS position.</source>
         <translation>Не сохранено: в записи нет координат GNSS.</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="381"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="386"/>
         <source>Map</source>
         <translation>Карта</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="398"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="403"/>
         <source>NOT FOR NAVIGATION. Depths and positions are from an amateur survey and may contain errors. Use at your own risk.</source>
         <translation>НЕ ДЛЯ НАВИГАЦИИ. Глубины и координаты получены любительской съёмкой и могут содержать ошибки. Используйте на свой риск.</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="415"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="420"/>
         <source>Not saved: choose at least one file to save.</source>
         <translation>Не сохранено: выберите хотя бы один файл.</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="419"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="424"/>
         <source>Not saved: choose the mosaic, the depths or both.</source>
         <translation>Не сохранено: выберите мозаику, глубины или оба слоя.</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="426"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="431"/>
         <source>Painting the mosaic</source>
         <translation>Рисую мозаику</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="427"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="432"/>
         <source>Building the depths</source>
         <translation>Строю карту глубин</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="428"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="433"/>
         <source>Writing the files</source>
         <translation>Записываю файлы</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="429"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="434"/>
         <source>No depths: the survey has no bottom track.</source>
         <translation>Без глубин: в записи нет трека дна.</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="430"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="435"/>
         <source>No mosaic: no side-scan channels are chosen for it.</source>
         <translation>Без мозаики: для неё не выбраны каналы бокового обзора.</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="431"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="436"/>
         <source>No mosaic: nothing was painted.</source>
         <translation>Без мозаики: ничего не нарисовано.</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="432"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="437"/>
         <source>the mosaic is too large for this detail; choose a coarser one</source>
         <translation>мозаика слишком велика для такой детализации; выберите крупнее</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="433"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="438"/>
         <source>Saved to %1: %2.</source>
         <translation>Сохранено в %1: %2.</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="434"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="439"/>
         <source>Not saved: %1</source>
         <translation>Не сохранено: %1</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="435"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="440"/>
         <source>Cancelled.</source>
         <translation>Отменено.</translation>
     </message>
@@ -10213,99 +10213,102 @@
 <context>
     <name>MosaicQualitySettings</name>
     <message>
-        <location filename="../qml/app/MosaicQualitySettings.qml" line="32"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="33"/>
         <source>Even out brightness</source>
         <translation>Выравнивать яркость</translation>
     </message>
     <message>
-        <location filename="../qml/app/MosaicQualitySettings.qml" line="33"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="34"/>
         <source>Measures from the echograms how the brightness depends on the angle below the sonar (its beam) and on the range, and takes both out: the bright band along the track and the dark far edge even out, and neighbouring lines match</source>
         <translation>Измеряет по эхограммам, как яркость зависит от угла под сонаром (его диаграммы направленности) и от дальности, и убирает обе зависимости: яркая полоса вдоль галса и тёмный дальний край выравниваются, соседние галсы совпадают по яркости</translation>
     </message>
     <message>
-        <location filename="../qml/app/MosaicQualitySettings.qml" line="43"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="42"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="45"/>
         <source>Crop near the track, °:</source>
         <translation>Обрезка у галса, °:</translation>
     </message>
     <message>
-        <location filename="../qml/app/MosaicQualitySettings.qml" line="52"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="54"/>
         <source>Samples nearer straight down than this angle are not painted: the stretched, glaring strip under the sonar. A neighbouring line fills it where lines overlap. 0: off</source>
         <translation>Отсчёты ближе к вертикали, чем этот угол, не рисуются: растянутая засвеченная полоса под сонаром. Где галсы перекрываются, её заполняет соседний. 0 — выкл.</translation>
     </message>
     <message>
         <location filename="../qml/app/MosaicQualitySettings.qml" line="63"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="66"/>
         <source>Crop the far edge, °:</source>
         <translation>Обрезка дальнего края, °:</translation>
     </message>
     <message>
-        <location filename="../qml/app/MosaicQualitySettings.qml" line="72"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="75"/>
         <source>Samples further out than this angle below the sonar are not painted: the edge of the beam, where there is mostly noise. The chart below shows where the beam falls off. 90: off</source>
         <translation>Отсчёты дальше этого угла от вертикали не рисуются: край луча, где в основном шум. Где луч спадает, видно на графике ниже. 90 — выкл.</translation>
     </message>
     <message>
-        <location filename="../qml/app/MosaicQualitySettings.qml" line="83"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="84"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="87"/>
         <source>Overlaps:</source>
         <translation>Перекрытия:</translation>
     </message>
     <message>
-        <location filename="../qml/app/MosaicQualitySettings.qml" line="93"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="97"/>
         <source>Newest on top</source>
         <translation>Новые сверху</translation>
     </message>
     <message>
-        <location filename="../qml/app/MosaicQualitySettings.qml" line="93"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="97"/>
         <source>Newest, edges under</source>
         <translation>Новые, края под низом</translation>
     </message>
     <message>
-        <location filename="../qml/app/MosaicQualitySettings.qml" line="93"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="97"/>
         <source>Nearest the track</source>
         <translation>Ближе к галсу</translation>
     </message>
     <message>
-        <location filename="../qml/app/MosaicQualitySettings.qml" line="95"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="99"/>
         <source>Where lines overlap: the newest line; the newest, but its strip under the sonar and its beam&apos;s edge only where no other line has better; or the line that saw the place nearest straight down</source>
         <translation>Что показывает пиксель там, где галсы перекрываются: новый галс; новый, но его полоса под сонаром и край луча — только там, где у другого галса нет лучшего; или галс, который видел это место ближе всего к вертикали</translation>
     </message>
     <message>
-        <location filename="../qml/app/MosaicQualitySettings.qml" line="153"/>
-        <location filename="../qml/app/MosaicQualitySettings.qml" line="216"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="157"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="220"/>
         <source>Left</source>
         <translation>Слева</translation>
     </message>
     <message>
-        <location filename="../qml/app/MosaicQualitySettings.qml" line="154"/>
-        <location filename="../qml/app/MosaicQualitySettings.qml" line="216"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="158"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="220"/>
         <source>Right</source>
         <translation>Справа</translation>
     </message>
     <message>
-        <location filename="../qml/app/MosaicQualitySettings.qml" line="197"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="201"/>
         <source>Measuring the beam from the echograms…</source>
         <translation>Снимаю диаграмму по эхограммам…</translation>
     </message>
     <message>
-        <location filename="../qml/app/MosaicQualitySettings.qml" line="200"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="204"/>
         <source>Not measured yet: needs %1 pings with a bottom track, seen out to %2° from straight down</source>
         <translation>Ещё не снята: нужно %1 пингов с линией дна и данные хотя бы до %2° от вертикали</translation>
     </message>
     <message>
-        <location filename="../qml/app/MosaicQualitySettings.qml" line="205"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="209"/>
         <source>%1: not measured</source>
         <translation>%1: не снята</translation>
     </message>
     <message>
-        <location filename="../qml/app/MosaicQualitySettings.qml" line="208"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="212"/>
         <source>%1: brightest at %2°, no 6 dB fall up to %3°</source>
         <translation>%1: ярче всего при %2°, спада на 6 дБ нет до %3°</translation>
     </message>
     <message>
-        <location filename="../qml/app/MosaicQualitySettings.qml" line="211"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="215"/>
         <source>%1: brightest at %2°, down 6 dB at %3°</source>
         <translation>%1: ярче всего при %2°, спад 6 дБ к %3°</translation>
     </message>
     <message>
-        <location filename="../qml/app/MosaicQualitySettings.qml" line="214"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="218"/>
         <source>Measured on %1 pings. %2; %3. Near to far range: %4 dB evened out</source>
         <translation>Снята по %1 пингам. %2; %3. Спад яркости от ближней зоны к дальней — %4 дБ — выровнен</translation>
     </message>

@@ -451,6 +451,8 @@ back"); the 1.1 GB survey (memory at 8 cm and finer); a survey across the antime
   correction -- the metadata says so. The bottom track's errors go into the map (on 00014 a few points at
   the start read 0.4 m and give a fan of isobaths by the dam) -- cleaning is the bottom-track editor's job.
 - A file being opened, closed or re-read stops a running export first (`Core::stopMapExport`).
+- A ping marked bad or trimmed on the echogram (`docs/echogram-editing.md`) is out of the map: its mosaic and
+  depths (since the two works met, 2026-10-19) and the track and the survey's times (`MapExporter::start`).
 - The survey's dates are written only when the recording carries a calendar date (after 2000): the
   ping's time, else the GNSS fix's. 00014 has no ping time and a GNSS time near 1970 (time since
   power-on), so its map has no date -- the first build wrote "1970-01" **[Verified, fixed]**.

@@ -135,6 +135,7 @@ struct Snapshot {
     QVector<QVector3D> bottomTrack;
     QVector<QPointF> track;
     qint64 timeFrom = 0, timeTo = 0;   // seconds since the epoch, UTC; 0 when unknown
+    int excluded = 0;                  // pings marked bad or trimmed on the echogram: no time, no track
 };
 
 } // namespace
@@ -355,6 +356,10 @@ void MapExporter::start(const QString& folder)
         if (!ep) {
             continue;
         }
+        if (dataset_->isEpochExcluded(i)) {   // as the CSV and XTF exports (docs/echogram-editing.md); its mosaic
+            ++snap.excluded;                  // and depths leave it out through fromIndexMosaicCopy and the bottom track
+            continue;
+        }
         // The ping's time, else its GNSS fix's; only a calendar date counts (after 2000): 00014 carries
         // no ping time and a GNSS time near 1970 (time since power-on, not a date), and a wrong date
         // in a shared map is worse than none.
@@ -467,8 +472,8 @@ void MapExporter::start(const QString& folder)
         QStringList notes;
         QElapsedTimer clock;
         clock.start();
-        qInfo().noquote() << QStringLiteral("map export: %1 epochs, %2 bottom-track points, zoom %3, mosaic %4, depths %5")
-                             .arg(snap.epochs).arg(snap.bottomTrack.size()).arg(zoom).arg(wantMosaic).arg(wantDepth);
+        qInfo().noquote() << QStringLiteral("map export: %1 epochs (%6 left out by echogram edits), %2 bottom-track points, zoom %3, mosaic %4, depths %5")
+                             .arg(snap.epochs).arg(snap.bottomTrack.size()).arg(zoom).arg(wantMosaic).arg(wantDepth).arg(snap.excluded);
 
         // The mosaic: painted again over the whole survey with the view's settings, as the background
         // precompute paints a level (MosaicPrecomputer::run), into a sink of our own.

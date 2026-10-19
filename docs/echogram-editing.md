@@ -76,6 +76,7 @@ left out:
 | 3D bottom track, surface, isobaths | no point: `BottomTrack::updateRenderData` gives it NaN, the surface skips a NaN |
 | mosaic | `Dataset::fromIndexMosaicCopy` hands the mosaic (and the precompute, and mosaic-quality's brightness model, which sample through it) a copy with no bottom: no pair with it is painted |
 | CSV export, XTF export | skipped (`Core::exportPlotAsCVS`, `ConverterXtf::toXTF`) |
+| map export: the KMZ track, the survey's times | skipped (`MapExporter::start`; a .kmap carries no track); its mosaic and depths leave the ping out through the two rows above |
 | echogram relief cloud | skipped (`ReliefCloud`) |
 | bottom track | still run over it (its depth is kept; only the products leave it out) |
 
@@ -333,21 +334,27 @@ What the end-to-end runs found and what was changed for it:
 
 ## Merging with the other branches
 
-Neither `mosaic-quality` nor `map-export` is in `me` yet (2026-10-18), and this branch is from `me`
-(c4e1d3f4). When they are put together:
+`mosaic-quality` and `map-export` were branched from `me` c4e1d3f4 like this work, apart from it. They came
+into `me` on 2026-10-19: merge 30b1138f (`install-maps-mosaic`, the two together as installed on the laptop
+since 2026-10-18) and 344919cd (the map session's results from the phone). What their meeting needed:
 
-- **mosaic-quality.** Its brightness model samples epochs through `Dataset::fromIndexMosaicCopy`, so pings
-  left out are out of the model too **[inference]**. Its model is measured afresh on "a full bottom-track
-  rework"; `rebuildAfterEdit` is not one and keeps the model -- right for the pencil, arguable after a
-  trim of the boat's transit, which its altitude rule (< 1 m left out) already excludes. Its per-pixel
-  quality (`SurfaceTile::getMosaicQualityRef`) must be cleared in `ComputeWorker::clearForEditRebuild` as
-  its `clearMosaic` clears it. `restartMosaic` keeps the model (its settings changes use it). A side out
-  of the mosaic (tool 11, the turns) reaches the model through the same copy, with no bottom on that side
-  **[inference]**.
-- **map-export.** The .kmap depth grid is built from the 3D bottom track's points
-  (`map_export_geo.cpp`, `buildDepthGrid`): a ping left out has a NaN depth there -- that the grid skips
-  NaN is to be checked; a side out of the mosaic keeps its depth, so it stays in the grid. Its mosaic
-  comes from the tiles, which already leave both out. **[inference]**
+- **mosaic-quality.** Its per-pixel quality (`SurfaceTile::getMosaicQualityRef`) is dropped in
+  `ComputeWorker::clearForEditRebuild` as in its `clearMosaic`: `SurfaceTile::init` keeps it, and the old quality
+  would refuse the repaint. Done in the merge **[verified by reading]**. Its brightness model samples epochs through `Dataset::fromIndexMosaicCopy`, so a ping left out,
+  or one side of it, reaches the model with no bottom, and `mosaic_beam::Table::add` refuses a non-finite altitude
+  **[verified by reading]**. But the model is measured once the survey's bottom track is in and again on "a full
+  bottom-track rework"; `rebuildAfterEdit` is not one and keeps it. So edits made after the measurement stay in
+  the model until the next one, while the same recording reopened with its `.kedit` is measured with the edits
+  applied, and the two can paint a different brightness **[inference, from the code; not measured]**. Measuring
+  again in `runEditRebuild` would cost no extra repaint, since it repaints everything anyway. Left to the owner
+  (2026-10-19). `restartMosaic` keeps the model, because its settings changes use it.
+- **map-export.** The export paints its mosaic again from the epochs, with a `MosaicProcessor` of its own and
+  through `fromIndexMosaicCopy`, so pings left out are out of its mosaic. Its depth grid comes from the 3D bottom
+  track, where they are NaN, and `buildDepthGrid` skips non-finite points (`map_export_geo.cpp`) **[verified by
+  reading]**. Since the merge the track and the survey's times skip them too (`MapExporter::start`, the table
+  above). A side out of the mosaic keeps its depth, so it stays in the grid. An edit made while an export runs
+  reaches the slices painted after it: the export reads the live dataset, as it already did with a survey still
+  streaming **[inference]**.
 - **third-party-icons** (2026-10-19, the icons' licences): independent of this work; merged into `me`
   together with it on 2026-10-19 (merge 5b4dfa5f; both branches' sections at the end of
   `docs/HANDOFF.md` kept). Its `tools/qml_check/about_check.ps1` asks every icon to be Tabler or named in

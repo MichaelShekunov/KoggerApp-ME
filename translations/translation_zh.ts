@@ -9090,102 +9090,102 @@
 <context>
     <name>MapExporter</name>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="270"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="271"/>
         <source>All rights reserved</source>
         <translation>保留所有权利</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="271"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="272"/>
         <source>CC BY 4.0: free use with credit to the author</source>
         <translation>CC BY 4.0：注明作者即可自由使用</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="272"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="273"/>
         <source>CC0: public domain, no conditions</source>
         <translation>CC0：公共领域，无任何条件</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="289"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="290"/>
         <source>%1 cm per pixel</source>
         <translation>每像素 %1 厘米</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="337"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="338"/>
         <source>Not saved: no survey is open.</source>
         <translation>未保存：没有打开的记录。</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="345"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="346"/>
         <source>Not saved: the survey has no GNSS position.</source>
         <translation>未保存：记录中没有 GNSS 位置。</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="381"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="386"/>
         <source>Map</source>
         <translation>地图</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="398"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="403"/>
         <source>NOT FOR NAVIGATION. Depths and positions are from an amateur survey and may contain errors. Use at your own risk.</source>
         <translation>不可用于导航。水深和位置来自业余测量，可能存在误差。使用风险自负。</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="415"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="420"/>
         <source>Not saved: choose at least one file to save.</source>
         <translation>未保存：请至少选择一个文件。</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="419"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="424"/>
         <source>Not saved: choose the mosaic, the depths or both.</source>
         <translation>未保存：请选择镶嵌图、水深或两者。</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="426"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="431"/>
         <source>Painting the mosaic</source>
         <translation>正在绘制镶嵌图</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="427"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="432"/>
         <source>Building the depths</source>
         <translation>正在生成水深图</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="428"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="433"/>
         <source>Writing the files</source>
         <translation>正在写入文件</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="429"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="434"/>
         <source>No depths: the survey has no bottom track.</source>
         <translation>无水深：记录中没有底迹。</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="430"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="435"/>
         <source>No mosaic: no side-scan channels are chosen for it.</source>
         <translation>无镶嵌图：未为其选择侧扫通道。</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="431"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="436"/>
         <source>No mosaic: nothing was painted.</source>
         <translation>无镶嵌图：未绘制任何内容。</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="432"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="437"/>
         <source>the mosaic is too large for this detail; choose a coarser one</source>
         <translation>此精度下镶嵌图过大，请选择较低精度</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="433"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="438"/>
         <source>Saved to %1: %2.</source>
         <translation>已保存到 %1：%2。</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="434"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="439"/>
         <source>Not saved: %1</source>
         <translation>未保存：%1</translation>
     </message>
     <message>
-        <location filename="../src/map_export/map_exporter.cpp" line="435"/>
+        <location filename="../src/map_export/map_exporter.cpp" line="440"/>
         <source>Cancelled.</source>
         <translation>已取消。</translation>
     </message>
@@ -10209,99 +10209,102 @@
 <context>
     <name>MosaicQualitySettings</name>
     <message>
-        <location filename="../qml/app/MosaicQualitySettings.qml" line="32"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="33"/>
         <source>Even out brightness</source>
         <translation>均衡亮度</translation>
     </message>
     <message>
-        <location filename="../qml/app/MosaicQualitySettings.qml" line="33"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="34"/>
         <source>Measures from the echograms how the brightness depends on the angle below the sonar (its beam) and on the range, and takes both out: the bright band along the track and the dark far edge even out, and neighbouring lines match</source>
         <translation>根据回波图测量亮度随声呐下方角度（波束）和距离的变化，并将两者消除：航迹旁的亮带和远端的暗边被拉平，相邻测线亮度一致</translation>
     </message>
     <message>
-        <location filename="../qml/app/MosaicQualitySettings.qml" line="43"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="42"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="45"/>
         <source>Crop near the track, °:</source>
         <translation>航迹附近裁剪，°：</translation>
     </message>
     <message>
-        <location filename="../qml/app/MosaicQualitySettings.qml" line="52"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="54"/>
         <source>Samples nearer straight down than this angle are not painted: the stretched, glaring strip under the sonar. A neighbouring line fills it where lines overlap. 0: off</source>
         <translation>比此角度更接近垂直下方的采样不绘制：声呐正下方被拉伸、过亮的条带。测线重叠处由相邻测线填补。0：关闭</translation>
     </message>
     <message>
         <location filename="../qml/app/MosaicQualitySettings.qml" line="63"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="66"/>
         <source>Crop the far edge, °:</source>
         <translation>远端裁剪，°：</translation>
     </message>
     <message>
-        <location filename="../qml/app/MosaicQualitySettings.qml" line="72"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="75"/>
         <source>Samples further out than this angle below the sonar are not painted: the edge of the beam, where there is mostly noise. The chart below shows where the beam falls off. 90: off</source>
         <translation>离垂直方向超过此角度的采样不绘制：波束边缘，主要是噪声。波束衰减的位置见下图。90：关闭</translation>
     </message>
     <message>
-        <location filename="../qml/app/MosaicQualitySettings.qml" line="83"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="84"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="87"/>
         <source>Overlaps:</source>
         <translation>重叠：</translation>
     </message>
     <message>
-        <location filename="../qml/app/MosaicQualitySettings.qml" line="93"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="97"/>
         <source>Newest on top</source>
         <translation>最新在上</translation>
     </message>
     <message>
-        <location filename="../qml/app/MosaicQualitySettings.qml" line="93"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="97"/>
         <source>Newest, edges under</source>
         <translation>最新在上，边缘置下</translation>
     </message>
     <message>
-        <location filename="../qml/app/MosaicQualitySettings.qml" line="93"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="97"/>
         <source>Nearest the track</source>
         <translation>最靠近航迹</translation>
     </message>
     <message>
-        <location filename="../qml/app/MosaicQualitySettings.qml" line="95"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="99"/>
         <source>Where lines overlap: the newest line; the newest, but its strip under the sonar and its beam&apos;s edge only where no other line has better; or the line that saw the place nearest straight down</source>
         <translation>测线重叠处像素显示：最新的测线；最新的测线，但其声呐正下方条带和波束边缘仅在其他测线没有更好数据时显示；或从最接近垂直方向看到该处的测线</translation>
     </message>
     <message>
-        <location filename="../qml/app/MosaicQualitySettings.qml" line="153"/>
-        <location filename="../qml/app/MosaicQualitySettings.qml" line="216"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="157"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="220"/>
         <source>Left</source>
         <translation>左</translation>
     </message>
     <message>
-        <location filename="../qml/app/MosaicQualitySettings.qml" line="154"/>
-        <location filename="../qml/app/MosaicQualitySettings.qml" line="216"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="158"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="220"/>
         <source>Right</source>
         <translation>右</translation>
     </message>
     <message>
-        <location filename="../qml/app/MosaicQualitySettings.qml" line="197"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="201"/>
         <source>Measuring the beam from the echograms…</source>
         <translation>正在根据回波图测量波束…</translation>
     </message>
     <message>
-        <location filename="../qml/app/MosaicQualitySettings.qml" line="200"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="204"/>
         <source>Not measured yet: needs %1 pings with a bottom track, seen out to %2° from straight down</source>
         <translation>尚未测量：需要 %1 个带底迹的脉冲，且数据至少覆盖到偏离垂直 %2°</translation>
     </message>
     <message>
-        <location filename="../qml/app/MosaicQualitySettings.qml" line="205"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="209"/>
         <source>%1: not measured</source>
         <translation>%1：未测量</translation>
     </message>
     <message>
-        <location filename="../qml/app/MosaicQualitySettings.qml" line="208"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="212"/>
         <source>%1: brightest at %2°, no 6 dB fall up to %3°</source>
         <translation>%1：%2° 处最亮，%3° 以内未下降 6 dB</translation>
     </message>
     <message>
-        <location filename="../qml/app/MosaicQualitySettings.qml" line="211"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="215"/>
         <source>%1: brightest at %2°, down 6 dB at %3°</source>
         <translation>%1：%2° 处最亮，%3° 处下降 6 dB</translation>
     </message>
     <message>
-        <location filename="../qml/app/MosaicQualitySettings.qml" line="214"/>
+        <location filename="../qml/app/MosaicQualitySettings.qml" line="218"/>
         <source>Measured on %1 pings. %2; %3. Near to far range: %4 dB evened out</source>
         <translation>基于 %1 个脉冲测量。%2；%3。近端到远端 %4 dB 的亮度差已均衡</translation>
     </message>

@@ -27,6 +27,7 @@ ColumnLayout {
     Component.onCompleted: Qt.callLater(send)
 
     KSwitch {
+        KPinTag { key: "app:mosaic.beamCorrection" }
         id: correction
         objectName: "mosaicBeamCorrection"
         text: qsTr("Even out brightness")
@@ -38,6 +39,7 @@ ColumnLayout {
     }
 
     RowLayout {
+        KPinTag { key: "app:mosaic.nadirCrop"; label: qsTr("Crop near the track, °:") }
         spacing: Tokens.spaceMd
         Text {
             text: qsTr("Crop near the track, °:")
@@ -58,6 +60,7 @@ ColumnLayout {
     }
 
     RowLayout {
+        KPinTag { key: "app:mosaic.farCrop"; label: qsTr("Crop the far edge, °:") }
         spacing: Tokens.spaceMd
         Text {
             text: qsTr("Crop the far edge, °:")
@@ -78,6 +81,7 @@ ColumnLayout {
     }
 
     RowLayout {
+        KPinTag { key: "app:mosaic.overlap"; label: qsTr("Overlaps:") }
         spacing: Tokens.spaceMd
         Text {
             text: qsTr("Overlaps:")
