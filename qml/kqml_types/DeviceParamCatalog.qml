@@ -65,6 +65,10 @@ QtObject {
           label: qsTr("AHRS"), kind: "switch", prop: "datasetEuler", mask: 1 },
         { key: "dataset.temperature", group: "dataset", support: "isDatasetSupport",
           label: qsTr("Temperature"), kind: "switch", prop: "datasetTemp", mask: 1 },
+        // DATASET bit 24 (IDBinDataset::MASK_VOLTAGE_V0): the supply of this fork's nanoSSS firmware, which sends
+        // its diagnostic channels with it (about 7 KB/s). The reading is the "Sonar supply" widget field.
+        { key: "dataset.voltage", group: "dataset", support: "isDatasetSupport",
+          label: qsTr("Supply voltage"), kind: "switch", prop: "datasetVoltage", mask: 1 },
         { key: "dataset.timestamp", group: "dataset", support: "isDatasetSupport",
           label: qsTr("Timestamp"), kind: "switch", prop: "datasetTimestamp", mask: 1 },
 

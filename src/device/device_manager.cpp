@@ -308,15 +308,8 @@ void DeviceManager::frameInput(QUuid uuid, Link* link, Parsers::FrameParser fram
 
             }
 
-            if (frame.id() == ID_VOLTAGE) {
-                int v_id = frame.read<U1>();
-                int32_t v_uv = frame.read<S4>();
-                Q_UNUSED(v_uv);
-                if (v_id == 1) {
-                    // core.dataset()->addEncoder(float(v_uv));
-                    // qInfo("Voltage %f", float(v_uv));
-                }
-            }
+            // No ID_VOLTAGE here: DevDriver parses it (IDBinVoltage), and a read here moved the frame past
+            // its payload first -- the parser then read channel 0, value 0, every frame (2026-10-19).
 #endif
             dev->protoComplete(frame);
             autoRingUpgrade(uuid);
@@ -1425,6 +1418,7 @@ DevQProperty* DeviceManager::createDev(QUuid uuid, Link* link, uint8_t addr)
     connect(dev, &DevQProperty::rawDataRecieved, this, &DeviceManager::rawDataRecieved, connType);
     connect(dev, &DevQProperty::attitudeComplete, this, &DeviceManager::attitudeComplete, connType);
     connect(dev, &DevQProperty::tempComplete, this, &DeviceManager::tempComplete, connType);
+    connect(dev, &DevQProperty::supplyVoltageComplete, this, &DeviceManager::supplyVoltageComplete, connType);
     connect(dev, &DevQProperty::distComplete, this, &DeviceManager::distComplete, connType);
     connect(dev, &DevQProperty::usblSolutionComplete, this, &DeviceManager::usblSolutionComplete, connType);
     connect(dev, &DevQProperty::dopplerBeamComplete, this, &DeviceManager::dopplerBeamComlete, connType);
@@ -1472,6 +1466,7 @@ DevQProperty* DeviceManager::createDev(QUuid uuid, Link* link, uint8_t addr)
     connect(dev, &DevQProperty::rawDataRecieved, this, &DeviceManager::rawDataRecieved);
     connect(dev, &DevQProperty::attitudeComplete, this, &DeviceManager::attitudeComplete);
     connect(dev, &DevQProperty::tempComplete, this, &DeviceManager::tempComplete);
+    connect(dev, &DevQProperty::supplyVoltageComplete, this, &DeviceManager::supplyVoltageComplete);
     connect(dev, &DevQProperty::distComplete, this, &DeviceManager::distComplete);
     connect(dev, &DevQProperty::encoderComplete, this, &DeviceManager::encoderComplete);
     connect(dev, &DevQProperty::usblSolutionComplete, this, &DeviceManager::usblSolutionComplete);

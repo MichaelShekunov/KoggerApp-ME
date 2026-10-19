@@ -19,6 +19,8 @@ QtObject {
         { key: "coord",     label: qsTr("Coordinate"),     unit: "",             group: "general" },
         { key: "selPoint",  label: qsTr("Selected point"), unit: "",             group: "general" },
         { key: "temp",      label: qsTr("Temperature"),    unit: "°C",           group: "general" },
+        // The sonar's supply (ID_VOLTAGE channel 0), once "Supply voltage" is on in the device's Dataset section.
+        { key: "sonarVoltage", label: qsTr("Sonar supply"), unit: "V",          group: "general" },
         { key: "sysBattery",label: qsTr("Device charge"),  unit: "%",            group: "general" },
         { key: "apVoltage", label: qsTr("Battery"),        unit: "V",            group: "autopilot" },
         { key: "apCurrent", label: qsTr("Current"),        unit: "A",            group: "autopilot" },
@@ -255,6 +257,7 @@ QtObject {
         case "coord":     return !!(ds && ds.isBoatCoordinateValid)
         case "selPoint":  return !!(ds && ds.isActiveContactIndxValid)
         case "temp":      return !!(ds && ds.isLastTempValid)
+        case "sonarVoltage": return !!(ds && ds.isLastSupplyVoltageValid)
         case "apSpeed":   return _autopilotValid(dmw) && !isNaN(dmw.vruVelocityH)
         case "apVoltage": return _autopilotValid(dmw) && !isNaN(dmw.vruVoltage)
         case "apCurrent": return _autopilotValid(dmw) && !isNaN(dmw.vruCurrent)
@@ -299,6 +302,8 @@ QtObject {
             return (ds && ds.isActiveContactIndxValid) ? (ds.distToContact.toFixed(1) + " " + qsTr("m") + "\n" + ds.angleToContact.toFixed(1) + "°") : "—"
         case "temp":
             return (ds && ds.isLastTempValid) ? (ds.lastTemp.toFixed(1) + " °C") : "—"
+        case "sonarVoltage":
+            return (ds && ds.isLastSupplyVoltageValid) ? (ds.lastSupplyVoltage.toFixed(2) + " V") : "—"
         case "apSpeed":
             return (dmw && !isNaN(dmw.vruVelocityH)) ? (dmw.vruVelocityH.toFixed(1) + " " + qsTr("m/s")) : "—"
         case "apVoltage":
@@ -389,6 +394,7 @@ QtObject {
         case "coord":     return "N 40.6035°\nE 45.0010°"
         case "selPoint":  return "12.5 " + qsTr("m") + "\n135.0°"
         case "temp":      return "18.4 °C"
+        case "sonarVoltage": return "12.10 V"
         case "sysBattery": return "87 %"
         case "apVoltage": return "12.4 V"
         case "apCurrent": return "3.2 A"

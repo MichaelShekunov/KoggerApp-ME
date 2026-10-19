@@ -86,6 +86,9 @@ public:
     void setDatasetTapRaw(int ch_param);
     int datasetTemp();
     void setDatasetTemp(int ch_param);
+    // Supply voltage (IDBinDataset::MASK_VOLTAGE_V0); the readings come as supplyVoltageComplete.
+    int datasetVoltage();
+    void setDatasetVoltage(int ch_param);
     int datasetEuler();
     void setDatasetEuler(int ch_param);
     int datasetSDDBT();
@@ -524,6 +527,8 @@ signals:
     void attitudeComplete(float yaw, float pitch, float roll);
     void tempComplete(float val);
     void voltageComplete(quint8 channel, qint32 value);
+    void supplyVoltageComplete(float volts);   // ID_VOLTAGE channel 0, the supply
+
     void distComplete(const ChannelId& channelId, int dist);
     void encoderComplete(float e1, float e2, float e3);
 

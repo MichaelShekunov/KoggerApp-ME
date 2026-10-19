@@ -974,6 +974,16 @@ void Dataset::addTemp(float temp_c) {
         markDataAvailable(hasTemperatureData_);
 }
 
+void Dataset::addSupplyVoltage(float volts) {
+    // The last reading only, for the widget; not kept per epoch. The first after a reset is logged,
+    // which is also how tools/voltage_check sees the reading arrive here.
+    if (!isfinite(lastSupplyVoltage_) && isfinite(volts)) {
+        qInfo().noquote() << QStringLiteral("sonar supply: first reading %1 V").arg(double(volts), 0, 'f', 3);
+    }
+    lastSupplyVoltage_ = volts;
+    emit lastSupplyVoltageChanged();
+}
+
 void Dataset::addBoatStatus(uint8_t batteryBoatPercent, uint8_t batteryBridgePercent, uint8_t signalQualityBoatPercent, uint8_t signalQualityBridgePercent)
 {
     boatStatusValid_ = true;
@@ -1207,6 +1217,7 @@ void Dataset::resetRenderBuffers()
     _lastPitch = NAN;
     _lastRoll = NAN;
     lastTemp_ = NAN;
+    lastSupplyVoltage_ = NAN;
     lastRangefinderDepth_ = NAN;
     lastBottomTrackDepth_ = NAN;
     simpleNavV2Valid_ = false;
@@ -1240,6 +1251,7 @@ void Dataset::resetRenderBuffers()
 
     emit simpleNavV2Changed();
     emit boatStatusChanged();
+    emit lastSupplyVoltageChanged();
     emit poolCleared();
 }
 

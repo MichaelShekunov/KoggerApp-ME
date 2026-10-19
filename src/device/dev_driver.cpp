@@ -585,6 +585,8 @@ void DevDriver::importSettingsFromXML(const QString& filePath) {
                             xmlReader.readElementText().trimmed().toUpper() == "TRUE" ? setDatasetTemp(1) : setDatasetTemp(0);
                         else if (xmlReader.name().toString() == "timestamp")
                             xmlReader.readElementText().trimmed().toUpper() == "TRUE" ? setDatasetTimestamp(1) : setDatasetTimestamp(0);
+                        else if (xmlReader.name().toString() == "supply_voltage")
+                            xmlReader.readElementText().trimmed().toUpper() == "TRUE" ? setDatasetVoltage(1) : setDatasetVoltage(0);
                     }
                     else if (elementName == "UART") {
                         if (xmlReader.name().toString() == "dev_def_address")
@@ -648,6 +650,7 @@ void DevDriver::exportSettingsToXML(const QString& filePath) {
     xmlWriter.writeTextElement("AHRS", QVariant(static_cast<bool>(idDataset->getEuler(channelId))).toString());
     xmlWriter.writeTextElement("temperature", QVariant(idDataset->getTemp_v0(channelId)).toString());
     xmlWriter.writeTextElement("timestamp", QVariant(idDataset->getTimestamp_v0(channelId)).toString());
+    xmlWriter.writeTextElement("supply_voltage", QVariant(idDataset->getVoltage_v0(channelId)).toString());
     xmlWriter.writeEndElement();
     xmlWriter.writeStartElement("UART");
     xmlWriter.writeTextElement("dev_def_address", QString::number(getDevDefAddress()));
@@ -2893,6 +2896,25 @@ void DevDriver::setDatasetTemp(int ch_param) {
     if(is_changed) { emit datasetChanged();  }
 }
 
+int DevDriver::datasetVoltage() {
+    int ch_param = 0;
+    if(idDataset->getVoltage_v0(1)) {
+        ch_param |= 1;
+    }
+    if(idDataset->getVoltage_v0(2)) {
+        ch_param |= 2;
+    }
+    return ch_param;
+}
+
+void DevDriver::setDatasetVoltage(int ch_param) {
+    if(!m_state.connect) return;
+    bool is_changed = (ch_param != datasetVoltage());
+    idDataset->setVoltage_v0(ch_param);
+    idDataset->commit();
+    if(is_changed) { emit datasetChanged(); }
+}
+
 int DevDriver::datasetEuler() {
     int ch_param = 0;
     if(idDataset->getEuler(1)) {
@@ -3085,6 +3107,9 @@ void DevDriver::receivedVoltage(Parsers::Type type, Parsers::Version ver, Parser
     const quint8 ch = idVoltage->lastId();
     const qint32 raw = idVoltage->lastRaw();
     emit voltageComplete(ch, raw);
+    if (ch == 0) {
+        emit supplyVoltageComplete(raw / 1000.0f);
+    }
 
 #ifndef SEPARATE_READING
     QString line;

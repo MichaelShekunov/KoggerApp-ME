@@ -60,6 +60,8 @@ public:
     Q_PROPERTY(float speed                    READ getSpeed                 NOTIFY speedChanged)
     Q_PROPERTY(bool  isLastTempValid              READ isValidLastTemp              NOTIFY lastTempChanged)
     Q_PROPERTY(float lastTemp                     READ getLastTemp                  NOTIFY lastTempChanged)
+    Q_PROPERTY(bool  isLastSupplyVoltageValid     READ isValidLastSupplyVoltage     NOTIFY lastSupplyVoltageChanged)
+    Q_PROPERTY(float lastSupplyVoltage            READ getLastSupplyVoltage         NOTIFY lastSupplyVoltageChanged)
     Q_PROPERTY(bool  isLastRangefinderDepthValid  READ isValidLastRangefinderDepth  NOTIFY lastRangefinderDepthChanged)
     Q_PROPERTY(float lastRangefinderDepth         READ getLastRangefinderDepth      NOTIFY lastRangefinderDepthChanged)
     Q_PROPERTY(bool  isLastBottomTrackDepthValid  READ isValidLastBottomTrackDepth  NOTIFY lastBottomTrackDepthChanged)
@@ -357,6 +359,9 @@ public:
     }
 
     bool isValidLastTemp() const { return isfinite(lastTemp_); }
+    /// The sonar's supply in volts, the last reading (ID_VOLTAGE channel 0); NaN until one came.
+    float getLastSupplyVoltage() const { return lastSupplyVoltage_; }
+    bool isValidLastSupplyVoltage() const { return isfinite(lastSupplyVoltage_); }
     bool isValidLastRangefinderDepth() const { return isfinite(lastRangefinderDepth_); }
     bool isValidLastBottomTrackDepth() const { return isfinite(lastBottomTrackDepth_); }
     float getLastRangefinderDepth() const { return lastRangefinderDepth_; }
@@ -506,6 +511,7 @@ public slots:
 
 //    void addDateTime(int year, );
     void addTemp(float temp_c);
+    void addSupplyVoltage(float volts);
     void addBoatStatus(uint8_t batteryBoatPercent, uint8_t batteryBridgePercent, uint8_t signalQualityBoatPercent, uint8_t signalQualityBridgePercent);
 
     void mergeGnssTrack(QList<Position> track);
@@ -559,6 +565,7 @@ signals:
     void lastDepthChanged();
     void speedChanged();
     void lastTempChanged();
+    void lastSupplyVoltageChanged();
     void lastRangefinderDepthChanged();
     void lastBottomTrackDepthChanged();
     void lastUsblSolutionChanged();
@@ -603,6 +610,7 @@ protected:
     float lastAYaw_ = NAN, lastAPitch_ = NAN, lastARoll_ = NAN;
     float _lastYaw = NAN, _lastPitch = NAN, _lastRoll = NAN;
     float lastTemp_ = NAN;
+    float lastSupplyVoltage_ = NAN;
 
     bool hasChartData_       = false;
     bool hasRangefinderData_ = false;

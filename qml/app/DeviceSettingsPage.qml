@@ -4826,6 +4826,7 @@ Column {
         DeviceParamRow { page: root; paramKey: "dataset.dist" }
         DeviceParamRow { page: root; paramKey: "dataset.ahrs" }
         DeviceParamRow { page: root; paramKey: "dataset.temperature" }
+        DeviceParamRow { page: root; paramKey: "dataset.voltage" }
         DeviceParamRow { page: root; paramKey: "dataset.timestamp" }
     }
 

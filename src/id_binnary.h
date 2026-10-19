@@ -606,6 +606,19 @@ public:
     void resetTapRaw_v0(U1 ch_id) { resetFlag(ch_id, MASK_TAP_RAW_V0); }
     bool getTapRaw_v0(U1 ch_id) { return flag(ch_id, MASK_TAP_RAW_V0); }
 
+    /**
+     * Supply voltage, sent as ID_VOLTAGE v0 every ping by the nanoSSS firmware of this fork
+     * (l412_adc 11.8 and later): channel 0 is the supply in millivolts. The same bit sends that
+     * firmware's diagnostic channels with it, 33 frames a ping, about 7 KB/s. Like the compressed
+     * echogram and the taps it lives above the low byte the published protocol owns; what other
+     * firmware does with it is not known.
+     */
+    static constexpr uint32_t MASK_VOLTAGE_V0 = 1u << 24;
+
+    void setVoltage_v0(U1 ch_id) { setFlag(ch_id, MASK_VOLTAGE_V0); }
+    void resetVoltage_v0(U1 ch_id) { resetFlag(ch_id, MASK_VOLTAGE_V0); }
+    bool getVoltage_v0(U1 ch_id) { return flag(ch_id, MASK_VOLTAGE_V0); }
+
     void setAttitude_v0(U1 ch_id) { setFlag(ch_id, MASK_ATTITUDE_V0); }
     void resetAttitude_v0(U1 ch_id) { resetFlag(ch_id, MASK_ATTITUDE_V0); }
     bool getAttitude_v0(U1 ch_id) { return flag(ch_id, MASK_ATTITUDE_V0); }

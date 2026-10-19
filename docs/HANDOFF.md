@@ -1992,3 +1992,44 @@ CC BY-SA credit). All pass; it fails on an unnamed icon and on a broken alias [v
 (`src/processing/CMakeLists.txt` adds them to the include path for the OpenCL deconvolution pass)
 [verified]; its README says so, but neither the notices nor the About page name them -- Apache 2.0 asks
 for its text with the object form too. Left for the owner.
+
+## The sonar's supply voltage: a switch and a widget field (2026-10-19)
+
+The owner: a way to turn the sonar's supply voltage on in the device settings and to see it in a widget.
+
+**The contract** (the nanoSSS firmware of this fork, l412_adc 11.8 and later; 11.9 on the owner's board): DATASET
+mask bit 24 (`IDBinDataset::MASK_VOLTAGE_V0`, above the low byte the published protocol owns, like the compressed
+echogram's 21 and the taps' 22/23) makes the board send `ID_VOLTAGE` (0x31) v0 CONTENT every ping: u8 channel, s32
+value; channel 0 is the supply in millivolts. The same bit sends the firmware's diagnostic channels with it -- 33
+frames a ping, about 7 KB/s (at 921600 with the 8-bit echogram, of the order of a tenth fewer pings; with the
+compressed one unnoticeable). The owner chose to use the bit as it is (2026-10-19) rather than add a supply-only bit
+to the firmware. What other firmware does with bit 24 is not known.
+
+**What was added:**
+- Device page, Dataset: "Supply voltage" (`dataset.voltage`, `DevDriver::datasetVoltage`), a switch like
+  "Temperature"; also in the settings file (`supply_voltage`).
+- `DevDriver::receivedVoltage` emits `supplyVoltageComplete(volts)` for channel 0 -> `DeviceManager` ->
+  `Dataset::addSupplyVoltage` -> `lastSupplyVoltage` / `isLastSupplyVoltageValid` (the last reading only, not per
+  epoch; the first after a reset is logged as "sonar supply: first reading <V> V").
+- Widget palette: "Sonar supply" (`sonarVoltage`, V, two decimals; a dash with no reading).
+- ru/zh: "Напряжение питания" / "供电电压", "Питание сонара" / "声纳供电".
+
+**A bug found by the live check, fixed:** `DeviceManager` read the payload of every `ID_VOLTAGE` frame before
+handing the frame to the device (a block from 2024 whose value went nowhere). That moved the frame past its payload,
+and `IDBinVoltage` then read channel 0, value 0, every frame: since `ID_VOLTAGE` was registered (588cb0f4) every
+reading in the app, the diagnostic channels included, would have been "Supply: 0.000 V". The block is gone.
+
+**Checks** (tools/voltage_check):
+- `voltage_check` (CMake, the app's id_binnary): bit 24 set/cleared per channel without touching the other bits, the
+  `ID_DATASET` SETTING frame commit() sends, `ID_VOLTAGE` parsed from frames built byte by byte to the contract. PASS;
+  `-DVOLTAGE_SRC=<dir>` builds a mutated copy -- setVoltage setting the temperature bit, and the mask on bit 25: both
+  FAIL.
+- `voltage_live.ps1 -Exe <KoggerApp.exe> [-PathPrefix ...]`: two runs of the app over a UDP link; channels 1..4 only
+  must log no supply reading, with channel 0 = 12345 mV the Dataset must get 12.345 V. Before the fix above: FAIL on
+  both (a reading of 0.000 V even with no channel 0); after: PASS, and the diagnostic channels decode (IMU id 0x47,
+  magnetometer 0x30, raw ADC 4025 / 700).
+- `catalog_check.qml` (`qml.exe -platform offscreen`, QT_FORCE_STDERR_LOGGING=1): the widget field and the switch in
+  their catalogs. PASS; on the catalogs before this change: FAILED.
+
+**Not verified:** the switch against the board itself (the owner's app holds COM13); whether the board keeps the bit
+over a power cycle after "Flash settings"; the widget on screen in the running app.

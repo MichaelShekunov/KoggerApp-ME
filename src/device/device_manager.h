@@ -150,6 +150,7 @@ signals:
     void boatStatusComplete(uint8_t batteryBoatPercent, uint8_t batteryBridgePercent, uint8_t signalQualityBoatPercent, uint8_t signalQualityBridgePercent);
     void attitudeComplete(float yaw, float pitch, float roll);
     void tempComplete(float val);
+    void supplyVoltageComplete(float volts);
     void encoderComplete(float e1, float e2, float e3);
     void fileStopsOpening();
     void chartLossesChanged();

@@ -32,6 +32,7 @@ public:
     Q_PROPERTY(int datasetTapIq READ datasetTapIq WRITE setDatasetTapIq NOTIFY datasetChanged)
     Q_PROPERTY(int datasetTapRaw READ datasetTapRaw WRITE setDatasetTapRaw NOTIFY datasetChanged)
     Q_PROPERTY(int datasetTemp READ datasetTemp WRITE setDatasetTemp NOTIFY datasetChanged)
+    Q_PROPERTY(int datasetVoltage READ datasetVoltage WRITE setDatasetVoltage NOTIFY datasetChanged)
     Q_PROPERTY(int datasetEuler READ datasetEuler WRITE setDatasetEuler NOTIFY datasetChanged)
     Q_PROPERTY(int datasetSDDBT READ datasetSDDBT WRITE setDatasetSDDBT NOTIFY datasetChanged)
     Q_PROPERTY(int datasetSDDBT_P2 READ datasetSDDBT_P2 WRITE setDatasetSDDBT_P2 NOTIFY datasetChanged)
