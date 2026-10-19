@@ -432,6 +432,7 @@ WaterFall {
     function handlePointerCancel() {
         markMouseKeyboardInput()
         _touchReset()
+        plot.plotMousePosition(-1, -1)   // ends a stroke of an edit tool as a release does
         pointerLastMouseX = -1
         pointerLastMouseY = -1
 
@@ -540,13 +541,15 @@ WaterFall {
         _applyBtTool()
     }
 
-    // Global bottom-track edit tool (core.bottomTrackEditTool) → per-plot mouse tool.
-    // Unified enum 0=nav,1=pencil,2=up,3=down,4=erase → plotMouseTool 1/3/4/2/5.
+    // Global echogram-edit tool (core.bottomTrackEditTool) → per-plot mouse tool (plot2D_defs.h).
+    // Unified enum 0=nav,1=pencil,2=up,3=down,4=erase,5=mark bad,6=unmark,7=trim start,8=trim end,
+    // 9=smooth,10=fill gaps,11=side out of the mosaic → plotMouseTool 1/3/4/2/5/6/7/8/9/10/11/12.
     function _applyBtTool() {
         if (typeof core === "undefined" || !core)
             return
         var t = core.bottomTrackEditTool
-        plot.plotMouseTool(t === 1 ? 3 : (t === 2 ? 4 : (t === 3 ? 2 : (t === 4 ? 5 : 1))))
+        var map = [1, 3, 4, 2, 5, 6, 7, 8, 9, 10, 11, 12]
+        plot.plotMouseTool(t >= 0 && t < map.length ? map[t] : 1)
     }
 
     Connections {

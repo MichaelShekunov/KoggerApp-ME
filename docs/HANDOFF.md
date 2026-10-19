@@ -1897,3 +1897,64 @@ restart only).
 - The view's visible tiles come from `tilesInQuadNed`, which gives nothing past 2 000 tiles: zoomed
   out far at level 6 (a camera saved from the 1.1 GB file), a live run painted nothing for a minute
   (latency 26 s median) [verified]. Pre-existing.
+
+## Echogram editing (2026-10-18, branch echogram-edit)
+
+Asked: "make echogram editing in KoggerApp ME"; of the candidates offered the owner chose all four --
+the edits kept next to the recording with undo and redo, pings marked bad, the recording trimmed, the
+pencil's own points shown and a magnet. The same night: "look on the internet for more ideas for
+editing the echogram and the mosaic, and implement them". The design, the file format, the checks and
+the results: `docs/echogram-editing.md`; the owner's summary: `docs/echogram-editing.ru.md`.
+[verified] is a run or a check that ran; [inference] is not.
+
+**Where.** Worktree `D:\Temp\ka_echoedit`, branch `echogram-edit` from `me` c4e1d3f4; committed and
+pushed to `mine` at the owner's word (2026-10-19); not merged into `me`, not installed (the owner's
+word is needed for each). New: `src/echogram_edit/` (the model `echo_edit_model`, Qt Core only; the editor
+`EchogramEditor`, QML `echoEdit`; the script runner `EchoEditScript`, `KOGGER_ECHOEDIT_SCRIPT`), the
+palette in three columns (`qml/app/BottomTrackEditPopup.qml`), Ctrl+Z / Ctrl+Y, the edits' shading
+and the hand line in Plot2D, `Dataset` marks / trim / per-side mosaic exclusion, a file
+`<recording>.kedit` (JSON) next to the recording.
+
+**The palette.** The bottom line's tools as before plus a magnet; undo, redo, mark and unmark pings,
+"the recording starts / ends here", the trim off, reset all; and from the night's reading (Hydromagic,
+HYPACK, CARIS, a FIG 2025 paper -- their documentation, not the programs): a smoothing brush (median
+of +-4 pings a pass), a gap filler (a straight line over a gap of up to 1000 pings), one side out of
+the mosaic, "remove the spikes" (median and MAD over +-10 pings, the whole recording) and "the turns
+out of the mosaic" (a turn radius under 1.5 ranges, over a 20 m base, wobble dropped).
+
+**Defects found on the way, fixed** (upstream's, not this work's; read from the code [inference]
+unless marked; after the fixes the end-to-end checks below pass): the mosaic was not repainted where
+already painted after a bottom edit (a tile refuses a pair older than its head index); the surface
+kept an erased point; a raise/lower run was dropped while the automatic one was busy; with an odd
+bottom-track window every ping was searched with its neighbour's limits [verified on 00014]; the 3D
+"max/min" sent the range of before the loop; a run that read an epoch before the hand set it
+overwrote the hand point when its results came. And the mosaic's restart keeps the height points it
+wrote where it paints no more -- a step that takes a side out of the mosaic gets the full rebuild;
+a settings change that shrinks the mosaic still has that (pre-existing, not touched).
+
+**Checks.** `tools\echoedit_check\run.ps1 -Mutants` (the model alone, 70 checks, 23 mutants all
+caught [verified]); `tools\qml_check\echoedit_tools_check.ps1` (tool numbers 0-11 and the 16 kinds
+of step agree across the palette, Plot2D.qml and C++; 7/7); `tools\perf\echoedit_e2e.ps1` (three
+windows of the app on a recording, judged from dumps: 00014 and 00008, 32 of 32 each; 00017, 1.1 GB,
+the filters' window, 11 of 11 -- all on one build [verified]); `tools\ts_check` ru and zh
+clean (zh machine-made, as the rest).
+
+**Open.** Not on the water and not with a device streaming; the 3D surface after a rebuild not looked
+at on screen (the checks read the mosaic dumps, which carry the tiles' heights); Android and the head
+unit not run (the three-column palette on a small screen not seen); `KOGGER_SEPARATE_READING` builds
+not made. Merging with `mosaic-quality` and `map-export` (neither is in `me`): what to change is in
+`docs/echogram-editing.md`, "Merging with the other branches".
+
+**To continue.**
+
+```
+cd D:\Temp\ka_echoedit
+powershell -ExecutionPolicy Bypass -File scripts\win_build_release.ps1
+powershell -ExecutionPolicy Bypass -File tools\echoedit_check\run.ps1 -Mutants
+powershell -ExecutionPolicy Bypass -File tools\qml_check\echoedit_tools_check.ps1
+powershell -ExecutionPolicy Bypass -File tools\perf\echoedit_e2e.ps1 -Exe D:\Temp\ka_echoedit\build\Desktop_Qt_6_8_3_llvm_mingw_64_bit-Release\KoggerApp.exe -File D:\Temp\perf\00014_03.05.2025.KLF -TrimStart 2924 -PathPrefix D:\Qt\6.8.3\llvm-mingw_64\bin
+```
+
+The end-to-end check uses the profile "echoedit" (a copy of "perf": `reg copy
+HKCU\Software\KOGGER\KoggerApp-perf HKCU\Software\KOGGER\KoggerApp-echoedit /s /f`); the first
+~2 700-2 900 pings of the test recordings are the boat out of the water (00014: 2924, 00008: 2647).

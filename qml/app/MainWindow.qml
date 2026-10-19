@@ -462,6 +462,21 @@ ApplicationWindow {
         }
     }
 
+    // Echogram edits: undo and redo (EchogramEditor), not while a text field has the keys.
+    readonly property var _echoEdit: (typeof echoEdit !== "undefined" && echoEdit) ? echoEdit : null
+    Shortcut {
+        sequences: [ StandardKey.Undo ]
+        context: Qt.ApplicationShortcut
+        enabled: !workspaceStore.inputLocked && !root._textInputFocused && !!root._echoEdit && root._echoEdit.canUndo
+        onActivated: root._echoEdit.undo()
+    }
+    Shortcut {
+        sequences: [ StandardKey.Redo ]
+        context: Qt.ApplicationShortcut
+        enabled: !workspaceStore.inputLocked && !root._textInputFocused && !!root._echoEdit && root._echoEdit.canRedo
+        onActivated: root._echoEdit.redo()
+    }
+
     // Desktop keyboard scrolling (PgUp/PgDn page, Home/End to top/bottom) for any
     // open scrollable surface: key-bindings dialog, console, settings panel.
     // Not on Android/iOS; suppressed while a text field is focused.

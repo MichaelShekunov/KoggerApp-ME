@@ -20,6 +20,7 @@
 #include "black_stripes_processor.h"
 #include "dataset_defs.h"
 #include "data_interpolator.h"
+#include "echo_edit_model.h"
 #include "epoch.h"
 #include "id_binnary.h"
 
@@ -220,8 +221,34 @@ public:
             return Epoch{};
         }
 
-        return pool_.at(index).deepCopyForMosaic();
+        Epoch copy = pool_.at(index).deepCopyForMosaic();
+        // A ping left out: the mosaic paints no pair with it; a side out of the mosaic only: none on that side.
+        copy.dropBottoms(!isEpochExcludedLocked(index));
+        return copy;
     }
+
+    // Echogram edits (EchogramEditor). A ping marked bad, or outside the trim, is left out of the
+    // mosaic (fromIndexMosaicCopy gives it no bottom), the bottom surface (BottomTrack gives it no
+    // point) and the exports; the echogram shows it shaded. The trim holds for pings still to come.
+    bool isEpochExcluded(int index) const {
+        QReadLocker rl(&poolMtx_);
+        return isEpochExcludedLocked(index);
+    }
+    bool isEpochTrimmed(int index) const {
+        return index < editTrimStart_.load(std::memory_order_relaxed) || index >= editTrimEnd_.load(std::memory_order_relaxed);
+    }
+    echoedit::Trim editTrim() const;
+    void setEditTrim(const echoedit::Trim& trim);
+    // What an edit can change in a ping (the mark, each channel's bottom and search limits), read and
+    // set back: undo, redo, a file of edits. A channel the ping lacks is left alone.
+    echoedit::PingState pingEditState(int index) const;
+    void setPingEditState(int index, const echoedit::PingState& state);
+    void setEpochsMarkedBad(int from, int to, bool bad);
+    // The edits as a file of edits holds them (the marks, the bottoms set by hand, the search limits),
+    // in one pass under one lock; the rest of the file is the editor's.
+    void collectEditState(echoedit::EditFile& f) const;
+    // Whether a ping carries an edit: a mark, a bottom set by hand, a search limit.
+    bool epochHasEdits(int index) const;
 
     Epoch fromIndexBottomTrackCopy(int index_offset = 0) {
         QReadLocker rl(&poolMtx_);
@@ -546,6 +573,8 @@ signals:
     void dataAvailabilityChanged();
 
     void sendTilesByZoom(int epochIndx, const QMap<int, QSet<TileKey>>& tilesByZoom);
+    // The epochs are gone (a file closed or opened, a reset): EchogramEditor drops what it keeps of them.
+    void poolCleared();
 
 protected:
 
@@ -619,8 +648,13 @@ private:
     void clearTileEpochIndex();
     void scheduleSpatialCatchup();
     void setSpatialPreparing(bool state);
+    bool isEpochExcludedLocked(int index) const {   // poolMtx_ held
+        return isEpochTrimmed(index) || (index >= 0 && index < pool_.size() && pool_.at(index).isMarkedBad());
+    }
 
     /*data*/
+    std::atomic<int> editTrimStart_ { 0 };
+    std::atomic<int> editTrimEnd_ { echoedit::kNoTrimEnd };
     mutable QReadWriteLock lock_;
     mutable QReadWriteLock poolMtx_;
     mutable QReadWriteLock tileEpochIdxMtx_;

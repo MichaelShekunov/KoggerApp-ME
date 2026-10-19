@@ -1,6 +1,8 @@
 #include "plot2D.h"
 #include "epoch_event.h"
+#include "echogram_editor.h"
 #include "qmath.h"
+#include <algorithm>
 #include <cmath>
 
 MiniPreviewPlot2D::MiniPreviewPlot2D()
@@ -246,6 +248,86 @@ void Plot2D::setDataProcessorPtr(DataProcessor *dataProcessorPtr)
     dataProcessorPtr_ = dataProcessorPtr;
 }
 
+void Plot2D::setEchogramEditor(EchogramEditor* editor)
+{
+    editor_ = editor;
+}
+
+float Plot2D::magnetDistance(int epochIndex, float dist, float metersPerPixel) const
+{
+    constexpr float kRadiusPx = 12.0f;   // how far from the cursor the pencil is pulled, on screen
+    return EchogramEditor::magnetDistance(datasetPtr_, epochIndex, cursor_.channel1, cursor_.subChannel1,
+                                          cursor_.channel2, cursor_.subChannel2,
+                                          dist, kRadiusPx * metersPerPixel);
+}
+
+void Plot2D::drawEditShading()
+{
+    QPainter* p = canvas_.painter();
+    if (!p || !datasetPtr_) {
+        return;
+    }
+    // Trimmed off: dark; marked bad: a red tint. The echogram stays readable under both.
+    static const QColor kTrimmed(0, 0, 0, 150);
+    static const QColor kBad(170, 20, 20, 105);
+    const int w = canvas_.width();
+    const int h = canvas_.height();
+    const int n = datasetPtr_->size();
+    int runFrom = 0;
+    int runKind = 0;
+    for (int x = 0; x <= w; ++x) {
+        int kind = 0;
+        if (x < w) {
+            const int e = cursor_.getIndex(x);
+            if (e >= 0 && e < n) {
+                if (datasetPtr_->isEpochTrimmed(e)) {
+                    kind = 2;
+                }
+                else if (const Epoch* ep = datasetPtr_->fromIndex(e); ep && ep->isMarkedBad()) {
+                    kind = 1;
+                }
+            }
+        }
+        if (kind != runKind || x == w) {
+            if (runKind != 0 && x > runFrom) {
+                p->fillRect(QRect(runFrom, 0, x - runFrom, h), runKind == 2 ? kTrimmed : kBad);
+            }
+            runFrom = x;
+            runKind = kind;
+        }
+    }
+
+    // A side left out of the mosaic: a blue tint over its half (the whole height for one channel).
+    static const QColor kMosaicOut(30, 90, 210, 95);
+    const bool doubled = cursor_.isChannelDoubled();
+    const float range = cursor_.distance.to - cursor_.distance.from;
+    const int middle = (doubled && std::fabs(range) > 0.0f)
+        ? std::clamp(int(std::lround((0.0f - cursor_.distance.from) / range * float(h))), 0, h) : h;
+    for (int side = 0; side < (doubled ? 2 : 1); ++side) {
+        const ChannelId& ch = side == 0 ? cursor_.channel1 : cursor_.channel2;
+        const uint8_t sub = side == 0 ? cursor_.subChannel1 : cursor_.subChannel2;
+        const int top = side == 0 ? 0 : middle;
+        const int height = side == 0 ? middle : h - middle;
+        int from = -1;
+        for (int x = 0; x <= w; ++x) {
+            bool out = false;
+            if (x < w) {
+                const int e = cursor_.getIndex(x);
+                const Epoch* ep = (e >= 0 && e < n) ? datasetPtr_->fromIndex(e) : nullptr;
+                const Epoch::Echogram* g = ep ? ep->chartOf(ch, sub) : nullptr;
+                out = g && g->mosaicOut;
+            }
+            if (out && from < 0) {
+                from = x;
+            }
+            else if (!out && from >= 0) {
+                p->fillRect(QRect(from, top, x - from, height), kMosaicOut);
+                from = -1;
+            }
+        }
+    }
+}
+
 float Plot2D::getDepthByMousePos(int mouseX, int mouseY, bool isHorizontal) const
 {
     int currPos = isHorizontal ? mouseY : mouseX;
@@ -411,6 +493,7 @@ void Plot2D::draw(QPainter *painterPtr)
 {
     //    painter->setCompositionMode(QPainter::RasterOp_SourceXorDestination);
     echogram_.draw(this, datasetPtr_);
+    drawEditShading();
     attitude_.draw(this, datasetPtr_);
     encoder_.draw(this, datasetPtr_);
     dvlBeamVelocity_.draw(this, datasetPtr_);
@@ -982,7 +1065,17 @@ void Plot2D::scrollDistance(float ratio)
 
 void Plot2D::setMousePosition(int x, int y, bool isSync) {
     syncDepthValid_ = false;
+    // A release (x == -1) ends a stroke of an edit tool: it becomes one step of the edits' history.
+    auto endStroke = [this]() {
+        if (strokeOpen_) {
+            strokeOpen_ = false;
+            if (editor_) {
+                editor_->endStroke();
+            }
+        }
+    };
     if (!datasetPtr_ || canvas_.width() <= 0 || canvas_.height() <= 0) {
+        endStroke();
         cursor_.selectEpochIndx = -1;
         cursor_.currentEpochIndx = -1;
         cursor_.lastEpochIndx = -1;
@@ -1017,6 +1110,7 @@ void Plot2D::setMousePosition(int x, int y, bool isSync) {
     if(y >= image_height) { x = image_height - 1; }
 
     if(x == -1) {
+        endStroke();
         _mouse.x = -1;
         cursor_.selectEpochIndx = -1;
         cursor_.currentEpochIndx = -1;
@@ -1062,6 +1156,74 @@ void Plot2D::setMousePosition(int x, int y, bool isSync) {
     sendSyncEvent(epoch_index, EpochSelected2d);
 
     if(cursor_.tool() > MouseToolNothing && !isSync) {
+        const MouseTool tool = cursor_.tool();
+
+        if (!strokeOpen_) {
+            strokeOpen_ = true;
+            if (editor_) {
+                using K = echoedit::Command;
+                editor_->beginStroke(tool == MouseToolDistance      ? K::Draw
+                                   : tool == MouseToolDistanceErase ? K::Erase
+                                   : tool == MouseToolDistanceMax   ? K::Raise
+                                   : tool == MouseToolDistanceMin   ? K::Lower
+                                   : tool == MouseToolMarkBad       ? K::Mark
+                                   : tool == MouseToolUnmarkBad     ? K::Unmark
+                                   : tool == MouseToolTrimStart     ? K::TrimStart
+                                   : tool == MouseToolTrimEnd       ? K::TrimEnd
+                                   : tool == MouseToolSmooth        ? K::Smooth
+                                   : tool == MouseToolFillGaps      ? K::FillGaps
+                                                                    : K::MosaicOut);
+            }
+        }
+
+        if (tool == MouseToolSmooth || tool == MouseToolFillGaps || tool == MouseToolMosaicOut) {
+            // The pings swept since the last move, as the mark does.
+            const int a = cursor_.getIndex(x_start);
+            const int b = cursor_.getIndex(x_start + x_length - 1);
+            if (editor_ && a >= 0 && b >= 0) {
+                const int from = std::min(a, b);
+                const int to = std::max(a, b) + 1;
+                if (tool == MouseToolSmooth) {
+                    editor_->smoothRange(from, to);
+                }
+                else if (tool == MouseToolFillGaps) {
+                    editor_->fillGapsRange(from, to);
+                }
+                else {
+                    // The side under the cursor: in a side-scan pair the first channel is drawn above
+                    // the middle (negative distances), the second below it.
+                    const float signedDist = float(y) * image_distance_ratio + distance_from;
+                    const bool second = cursor_.isChannelDoubled() && signedDist > 0.0f;
+                    editor_->setMosaicOut(from, to, second ? cursor_.channel2.address : cursor_.channel1.address,
+                                          second ? cursor_.subChannel2 : cursor_.subChannel1, true);
+                }
+            }
+            plotUpdate();
+            return;
+        }
+
+        if (tool == MouseToolTrimStart || tool == MouseToolTrimEnd) {
+            // The boundary follows the cursor; the release makes it one step.
+            if (editor_ && epoch_index >= 0) {
+                editor_->moveTrim(epoch_index);
+            }
+            plotUpdate();
+            return;
+        }
+
+        if (tool == MouseToolMarkBad || tool == MouseToolUnmarkBad) {
+            if (editor_) {
+                const int a = cursor_.getIndex(x_start);
+                const int b = cursor_.getIndex(x_start + x_length - 1);
+                if (a >= 0 && b >= 0) {
+                    editor_->markRange(std::min(a, b), std::max(a, b) + 1, tool == MouseToolMarkBad);
+                }
+            }
+            plotUpdate();
+            return;
+        }
+
+        const bool magnet = tool == MouseToolDistance && editor_ && editor_->magnet();
 
         for(int x_ind = 0; x_ind < x_length; x_ind++) {
             int epoch_index = cursor_.getIndex(x_start + x_ind);
@@ -1072,6 +1234,9 @@ void Plot2D::setMousePosition(int x, int y, bool isSync) {
             const ChannelId channel2 = cursor_.channel2;
 
             if(epoch != nullptr) {
+                if (editor_) {
+                    editor_->touch(epoch_index);
+                }
                 float image_y_pos = ((float)y_start + (float)x_ind*y_scale);
                 float dist = abs(image_y_pos*image_distance_ratio + distance_from);
 
@@ -1079,6 +1244,9 @@ void Plot2D::setMousePosition(int x, int y, bool isSync) {
                     epoch->setMinDistProc(channel1, dist);
                     epoch->setMinDistProc(channel2, dist);
                 } else if(cursor_.tool() == MouseToolDistance) {
+                    if (magnet) {
+                        dist = magnetDistance(epoch_index, dist, image_distance_ratio);
+                    }
                     epoch->setDistProcessing(channel1, dist);
                     epoch->setDistProcessing(channel2, dist);
                 } else if(cursor_.tool()== MouseToolDistanceMax) {

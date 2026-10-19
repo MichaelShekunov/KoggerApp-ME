@@ -157,6 +157,11 @@ DataProcessor::DataProcessor(QObject *parent, Dataset* datasetPtr)
     precomputeTimer_.setInterval(300);
     connect(&precomputeTimer_, &QTimer::timeout, this, &DataProcessor::maybeStartPrecompute);
 
+    editRebuildTimer_.setParent(this);
+    editRebuildTimer_.setSingleShot(true);
+    editRebuildTimer_.setInterval(250);
+    connect(&editRebuildTimer_, &QTimer::timeout, this, &DataProcessor::runEditRebuild);
+
     btWorker_ = new BtWorker(this, datasetPtr_);
     btWorker_->moveToThread(&btThread_);
 
@@ -1232,24 +1237,128 @@ void DataProcessor::bottomTrackProcessing(const DatasetChannel &ch1, const Datas
         return;
     }
 
+    PendingBtRun run;
+    run.ch1 = ch1;
+    run.ch2 = ch2;
+    run.param = p;
+    run.manual = manual;
+    run.redrawAll = redrawAll;
+
     if (btBusy_) {
-        //qDebug() << "bt skip - busy";
+        auto sameTarget = [&](const PendingBtRun& w) {
+            const BottomTrackParam& a = w.param;
+            return w.manual == manual
+                && w.ch1.channelId_ == ch1.channelId_ && w.ch1.subChannelId_ == ch1.subChannelId_
+                && w.ch2.channelId_ == ch2.channelId_ && w.ch2.subChannelId_ == ch2.subChannelId_
+                && a.preset == p.preset && a.windowSize == p.windowSize && a.gainSlope == p.gainSlope
+                && a.threshold == p.threshold && a.verticalGap == p.verticalGap
+                && a.minDistance == p.minDistance && a.maxDistance == p.maxDistance;
+        };
+        for (PendingBtRun& w : pendingManualBt_) {
+            if (sameTarget(w)) {
+                w.param.indexFrom = std::min(w.param.indexFrom, p.indexFrom);
+                w.param.indexTo = std::max(w.param.indexTo, p.indexTo);
+                w.redrawAll = w.redrawAll || redrawAll;
+                return;
+            }
+        }
+        pendingManualBt_.append(run);
         return;
     }
 
-    if (redrawAll) {
+    dispatchBottomTrack(run);
+}
+
+void DataProcessor::dispatchBottomTrack(const PendingBtRun& run)
+{
+    if (run.redrawAll) {
         bottomTrackFullRecalcPending_ = true;
     }
-    if (manual || redrawAll) {
+    if (run.manual || run.redrawAll) {
         forceVisibleRefreshAfterBottomTrack_ = true;
     }
+    btBusy_ = true;   // as an automatic run sets it: what comes meanwhile waits in pendingManualBt_
 
     QMetaObject::invokeMethod(btWorker_, "bottomTrackProcessing", Qt::QueuedConnection,
-                              Q_ARG(DatasetChannel, ch1),
-                              Q_ARG(DatasetChannel, ch2),
-                              Q_ARG(BottomTrackParam, p),
-                              Q_ARG(bool, manual),
-                              Q_ARG(bool, redrawAll));
+                              Q_ARG(DatasetChannel, run.ch1),
+                              Q_ARG(DatasetChannel, run.ch2),
+                              Q_ARG(BottomTrackParam, run.param),
+                              Q_ARG(bool, run.manual),
+                              Q_ARG(bool, run.redrawAll));
+}
+
+void DataProcessor::rebuildAfterEdit(bool withSurface)
+{
+    editRebuildPending_ = true;
+    editRebuildSurface_ = editRebuildSurface_ || withSurface;
+    editRebuildTimer_.start();   // restarted: strokes one after another make one rebuild
+}
+
+void DataProcessor::runEditRebuild()
+{
+    if (!editRebuildPending_ || shuttingDown_.load()) {
+        return;
+    }
+    // After the bottom track and its echo through the 3D view: a "raise" stroke's run, an undo's.
+    // The 3D bottom track reports a run's depths after the run has finished, so the quiet is counted
+    // from either (onBottomTrackFinished, onBottomTrack3DAdded).
+    constexpr qint64 kQuietMs = 500;
+    if (resetInProgress_.load() || btBusy_ || !pendingManualBt_.isEmpty()
+        || (bottomTrackChanged_.isValid() && bottomTrackChanged_.elapsed() < kQuietMs)) {
+        editRebuildTimer_.start();
+        return;
+    }
+    const bool withSurface = editRebuildSurface_;
+    editRebuildPending_ = false;
+    editRebuildSurface_ = false;
+
+    if (!withSurface) {
+        qInfo().noquote() << QStringLiteral("echogram edit: the mosaic painted again");
+        restartMosaic();
+        return;
+    }
+
+    qInfo().noquote() << QStringLiteral("echogram edit: the bottom surface and the mosaic built again (%1 points, %2 epochs)")
+                         .arg(vertIndxsFromBottomTrack_.size()).arg(epIndxsFromBottomTrack_.size());
+    cancelPrecompute();
+    hotCache_.clear();
+    clearOldTracking_ = false;
+    QMetaObject::invokeMethod(worker_, "clearForEditRebuild", Qt::QueuedConnection);
+    if (jobRunning_.load()) {
+        dropRunningMosaicJob_ = true;   // its reports and tiles would bring the old paint back
+        qInfo().noquote() << QStringLiteral("mosaic: the running job's results dropped (%1)").arg(QLatin1String(Q_FUNC_INFO));
+    }
+
+    resetMosaicProcessed();
+    pendingMosaicIndxs_.clear();
+    mosaicInFlightIndxs_.clear();
+    pendingSurfaceIndxs_.clear();
+    surfaceTaskEpochIndxsByZoom_.clear();
+    surfaceManualEpochIndxsByZoom_.clear();
+    surfaceEdgeLimitUpdatedZooms_.clear();
+    renderedKeys_.clear();
+
+    emit isobathsProcessingCleared();
+    emit surfaceProcessingCleared();
+    emit mosaicProcessingCleared();
+
+    const int mosaicLowAllowed = (activeZeroing_ && mosaicFakeCoordsLastN_ > 0)
+        ? std::max(0, mosaicCounter_ - mosaicFakeCoordsLastN_ + 1)
+        : 0;
+    if (updateMosaic_) {
+        for (auto it = epIndxsFromBottomTrack_.cbegin(); it != epIndxsFromBottomTrack_.cend(); ++it) {
+            if (*it >= mosaicLowAllowed) {
+                pendingMosaicIndxs_.insert(*it);
+            }
+        }
+    }
+    for (auto it = vertIndxsFromBottomTrack_.cbegin(); it != vertIndxsFromBottomTrack_.cend(); ++it) {
+        pendingSurfaceIndxs_.insert(qMakePair('0', *it));
+    }
+    pendingIsobathsWork_ = true;
+    surfaceCameraPassPending_ = updateSurface_;
+
+    scheduleLatest(WorkSet(WF_All), /*replace*/true);
 }
 
 void DataProcessor::setBottomTrackZeroDepth(bool state)
@@ -2255,9 +2364,16 @@ void DataProcessor::onBottomTrackStarted()
 void DataProcessor::onBottomTrackFinished()
 {
     btBusy_ = false;
+    bottomTrackChanged_.start();   // its depths reach the 3D bottom track after this (runEditRebuild)
 
     if (resetInProgress_.load()) {
+        pendingManualBt_.clear();
         tryFinalizeResetProcessing();
+        return;
+    }
+
+    if (!pendingManualBt_.isEmpty()) {
+        dispatchBottomTrack(pendingManualBt_.takeFirst());   // before the automatic one, which follows it
         return;
     }
 
@@ -2470,6 +2586,7 @@ void DataProcessor::clearBottomTrackProcessing()
     bottomTrackWindowCounter_ = 0;
     btAutoFrom_ = 0;
     btBusy_ = false;
+    pendingManualBt_.clear();
     forceVisibleRefreshAfterBottomTrack_ = false;
 
     QMetaObject::invokeMethod(btWorker_, "clearBottomTrack", Qt::QueuedConnection);
@@ -2526,6 +2643,10 @@ void DataProcessor::clearAllProcessings()
     bottomTrackWindowCounter_ = 0;
     btAutoFrom_ = 0;
     btBusy_ = false;
+    pendingManualBt_.clear();
+    editRebuildPending_ = false;
+    editRebuildSurface_ = false;
+    editRebuildTimer_.stop();
     forceVisibleRefreshAfterBottomTrack_ = false;
 
     QMetaObject::invokeMethod(worker_, "clearAll", Qt::QueuedConnection);

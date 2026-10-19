@@ -24,6 +24,7 @@ protected:
     bool drawDepthText_ = true;
 
 private:
+    void drawEdits(Plot2D* parent, Dataset* dataset) const;
     QString formatDepthText(float distance) const;
     void drawValueWithBackdrop(QPainter* painter, int x, int baselineY, const QString& text, const QColor& textColor, bool vertical = false) const;
 };

@@ -82,6 +82,16 @@ Core::Core() :
         bringWindowToFrontEnabled_ = settings.value("main/bringWindowToFrontEnabled", true).toBool();
     }
     logger_.setDatasetPtr(datasetPtr_);
+    echogramEditor_ = std::make_unique<EchogramEditor>();
+    echogramEditor_->setDataset(datasetPtr_);
+    connect(echogramEditor_.get(), &EchogramEditor::message, this, [](const QString& text, bool warning) {
+        if (warning) {
+            notifications.warning(text);
+        }
+        else {
+            notifications.info(text);
+        }
+    });
     rateIdleTimer_.setInterval(1000);
     connect(&rateIdleTimer_, &QTimer::timeout, this, &Core::updateRateIdle);
     createDeviceManagerConnections();
@@ -546,6 +556,8 @@ void Core::openLogFile(const QString &filePath, bool isAppend, bool onCustomEven
 
     QCoreApplication::processEvents(QEventLoop::AllEvents);
 
+    echogramEditor_->fileOpening(QUrl(localfilePath).isLocalFile() ? QUrl(localfilePath).toLocalFile() : localfilePath, isAppend);
+
     if (!isAppend) {
         QMetaObject::invokeMethod(dataProcessor_, "setSuppressResults", Qt::QueuedConnection, Q_ARG(bool, true));
         resetDataProcessorConnections();
@@ -597,6 +609,9 @@ void Core::openLogFile(const QString &filePath, bool isAppend, bool onCustomEven
 
 bool Core::closeLogFile(bool onOpen)
 {
+    if (!onOpen) {
+        echogramEditor_->fileClosed();   // on an open, fileOpening has saved them already
+    }
     if (isOpenedFile()) {
         const QString closedFileName = QFileInfo(openedfilePath_).fileName();
         QMetaObject::invokeMethod(dataProcessor_, "prepareForFileClose", Qt::BlockingQueuedConnection, Q_ARG(int, 1500));
@@ -722,6 +737,10 @@ void Core::openLogFile(const QString& filePath, bool isAppend, bool onCustomEven
             emit filePathChanged();
         }
 
+        // Before the epochs go: the open recording's echogram edits are saved, this one's are read when
+        // it is in (onFileStopsOpening).
+        echogramEditor_->fileOpening(QUrl(localfilePath).isLocalFile() ? QUrl(localfilePath).toLocalFile() : localfilePath, isAppend);
+
         if (!isAppend && !openedfilePath_.isEmpty()) {
             openedfilePath_.clear();
             emit openedFilePathChanged();
@@ -830,6 +849,7 @@ bool Core::closeLogFile()
     // qDebug() << "Core::closeLogFile()";
     const bool wasOpened = isOpenedFile();
     const QString closedFileName = QFileInfo(openedfilePath_).fileName();
+    echogramEditor_->fileClosed();   // the edits to their file while the epochs are there
     QMetaObject::invokeMethod(dataProcessor_, "prepareForFileClose", Qt::BlockingQueuedConnection, Q_ARG(int, 1500));
     if (wasOpened) {
         resetDataProcessorConnections();
@@ -1843,6 +1863,10 @@ bool Core::exportPlotAsCVS(QString filePath, const ChannelId& channelId, float d
     for (int i = 0; i < row_cnt; i++) {
         Epoch* epoch = datasetPtr_->fromIndex(i);
 
+        if (datasetPtr_->isEpochExcluded(i)) {
+            continue;   // marked bad or trimmed on the echogram
+        }
+
         if (!epoch->contact_.isValid()) {
             if (decimation_m > 0) {
                 if (!epoch->isPosAvail())
@@ -2198,6 +2222,7 @@ void Core::UILoad(QObject* object, const QUrl& url)
     }
     scene3dViewPtr_->setDataset(datasetPtr_);
     scene3dViewPtr_->setDataProcessorPtr(dataProcessor_);
+    scene3dViewPtr_->bottomTrack()->setEchogramEditor(echogramEditor_.get());
 
     if (syncLoupePlot3dPtr_) {
         syncLoupePlot3dPtr_->setPlot(datasetPtr_);
@@ -2779,6 +2804,9 @@ void Core::onFileStopsOpening()
     // The last second of a file has no later fixes for its windows; place it before the horizon
     // hands everything on.
     datasetPtr_->flushInterpolation();
+    // Its echogram edits, before the horizon releases the epochs to the bottom track and the
+    // mosaic: they are built with them from the start.
+    echogramEditor_->fileRead(false);
     isFileOpening_ = false;
     emit sendIsFileOpening();
     dataHorizon_->setIsFileOpening(isFileOpening_);
@@ -2960,6 +2988,7 @@ void Core::createDeviceManagerConnections()
     deviceManagerWrapperConnections_.append(QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::encoderComplete,        datasetPtr_, &Dataset::addEncoder,      deviceManagerConnection));
     deviceManagerWrapperConnections_.append(QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::fileStopsOpening,       this, [this]() {
                                                                                                                                                       datasetPtr_->flushInterpolation();   // as in onFileStopsOpening
+                                                                                                                                                      echogramEditor_->fileRead(true);     // read while the processing ran
                                                                                                                                                       isFileOpening_ = false;
                                                                                                                                                       emit sendIsFileOpening();
                                                                                                                                                   }, deviceManagerConnection));
@@ -3560,6 +3589,7 @@ void Core::bindPlot2D(qPlot2D* plot)
     if (dataProcessor_) {
         plot->setDataProcessor(dataProcessor_);
     }
+    plot->setEchogramEditor(echogramEditor_.get());
 
     if (!scene3dViewPtr_) {
         return;
@@ -3593,6 +3623,7 @@ void Core::createDataProcessor()
 
     dataProcThread_ = new QThread(this);
     dataProcessor_  = new DataProcessor(nullptr, datasetPtr_);
+    echogramEditor_->setDataProcessor(dataProcessor_);
 
     dataProcessor_->moveToThread(dataProcThread_);
 

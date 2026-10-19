@@ -21,6 +21,9 @@
     in chunks of 64 and on 1 in chunks of 10: the same pixels, 6.7 % of the height points another.
     Tiles only in A are allowed: the precompute paints past the view.
 
+    With -IgnoreBlankTiles a tile with no painted pixel and no height mark is left out of both dumps
+    first: it shows nothing (an echogram edit's rebuild posts such tiles, docs/echogram-editing.md).
+
 .EXAMPLE
     powershell -ExecutionPolicy Bypass -File tools\perf\mosaic_dump_compare.ps1 -A D:\Temp\on\digest_2.bin -B D:\Temp\off\digest_2.bin
 #>
@@ -31,6 +34,7 @@ param(
     [string] $Picture,          # a .png to draw into
     [switch] $Quiet,            # only the summary line
     [switch] $Judge,            # a PASS or FAIL line; exit 1 on FAIL
+    [switch] $IgnoreBlankTiles, # tiles with nothing in them left out of both
     [double] $MaxCoverage = 0.0001,
     [double] $MaxOther = 0.01,
     [double] $MaxHeights = 0.1
@@ -72,6 +76,12 @@ public static class MosaicDump {
     }
 
     public static string Key(MosaicDumpTile t) { return t.X + "," + t.Y + "," + t.Zoom; }
+
+    public static int DropBlank(Dictionary<string, MosaicDumpTile> tiles) {
+        var blank = tiles.Where(kv => kv.Value.Image.All(v => v == 0) && kv.Value.Marks.All(m => m == 0)).Select(kv => kv.Key).ToList();
+        foreach (var k in blank) tiles.Remove(k);
+        return blank.Count;
+    }
 
     public class Result {
         public int OnlyA, OnlyB, Common, TilesDiffering;
@@ -153,6 +163,11 @@ public static class MosaicDump {
 
 $da = [MosaicDump]::Load((Resolve-Path $A).Path)
 $db = [MosaicDump]::Load((Resolve-Path $B).Path)
+if ($IgnoreBlankTiles) {
+    $blankA = [MosaicDump]::DropBlank($da)
+    $blankB = [MosaicDump]::DropBlank($db)
+    if (-not $Quiet) { "blank tiles left out: {0} of A, {1} of B" -f $blankA, $blankB }
+}
 $r = [MosaicDump]::Compare($da, $db)
 "tiles: {0} in both, {1} only in A, {2} only in B; of {3} pixels ({11} painted in B): painted only in A {4}, only in B {5}, another value {6} (at most {7} apart); of {12} height points: heights {8}, marks {9}; tiles that differ {10}" -f `
     $r.Common, $r.OnlyA, $r.OnlyB, $r.Pixels, $r.PaintedOnlyA, $r.PaintedOnlyB, $r.BothDiffer, $r.MaxAbs, $r.Heights, $r.Marks, $r.TilesDiffering, $r.PaintedB, $r.HeightPoints

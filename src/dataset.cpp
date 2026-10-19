@@ -1235,9 +1235,167 @@ void Dataset::resetRenderBuffers()
     pendingSonarPosIndx_ = 0;
     pendingDimRectIndx_ = 0;
     setSpatialPreparing(false);
+    editTrimStart_.store(0);
+    editTrimEnd_.store(echoedit::kNoTrimEnd);
 
     emit simpleNavV2Changed();
     emit boatStatusChanged();
+    emit poolCleared();
+}
+
+echoedit::Trim Dataset::editTrim() const
+{
+    echoedit::Trim t;
+    t.start = editTrimStart_.load();
+    t.end = editTrimEnd_.load();
+    return t;
+}
+
+void Dataset::setEditTrim(const echoedit::Trim& trim)
+{
+    QWriteLocker wl(&poolMtx_);   // a mosaic copy sees the old trim or the new one, not half of each
+    editTrimStart_.store(std::max(0, trim.start));
+    editTrimEnd_.store(trim.end);
+}
+
+echoedit::PingState Dataset::pingEditState(int index) const
+{
+    echoedit::PingState s;
+    QReadLocker rl(&poolMtx_);
+    if (index < 0 || index >= pool_.size()) {
+        return s;
+    }
+    const Epoch& ep = pool_.at(index);
+    s.bad = ep.isMarkedBad();
+    QList<ChannelId> channels = ep.chartChannels();
+    std::sort(channels.begin(), channels.end(), [](const ChannelId& a, const ChannelId& b) { return a.address < b.address; });
+    for (const ChannelId& ch : std::as_const(channels)) {
+        const Epoch::Echogram* e = ep.chartOf(ch, 0);
+        if (!e) {
+            continue;
+        }
+        echoedit::ChannelBottom b;
+        b.address = ch.address;
+        b.distance = e->bottomProcessing.distance;
+        b.min = e->bottomProcessing.min;
+        b.max = e->bottomProcessing.max;
+        b.source = uint8_t(e->bottomProcessing.source);
+        b.subs = ep.getChartsSizeByChannelId(ch);
+        for (uint8_t sub = 0; sub < b.subs && sub < 8; ++sub) {
+            if (const Epoch::Echogram* g = ep.chartOf(ch, sub); g && g->mosaicOut) {
+                b.mosaicOut |= uint8_t(1u << sub);
+            }
+        }
+        s.channels.append(b);
+    }
+    return s;
+}
+
+void Dataset::setPingEditState(int index, const echoedit::PingState& state)
+{
+    QWriteLocker wl(&poolMtx_);
+    if (index < 0 || index >= pool_.size()) {
+        return;
+    }
+    Epoch& ep = pool_[index];
+    ep.setMarkedBad(state.bad);
+    const QList<ChannelId> channels = ep.chartChannels();
+    for (const echoedit::ChannelBottom& b : state.channels) {
+        for (const ChannelId& ch : channels) {
+            if (ch.address != b.address) {
+                continue;
+            }
+            const int subs = ep.getChartsSizeByChannelId(ch);
+            for (int sub = 0; sub < subs; ++sub) {
+                if (Epoch::Echogram* e = ep.chart(ch, uint8_t(sub)); e) {
+                    e->bottomProcessing.distance = b.distance;
+                    e->bottomProcessing.min = b.min;
+                    e->bottomProcessing.max = b.max;
+                    e->bottomProcessing.source = Epoch::DistProcessing::DistanceSource(b.source);
+                    e->mosaicOut = sub < 8 && ((b.mosaicOut >> sub) & 1u) != 0;
+                }
+            }
+        }
+    }
+}
+
+void Dataset::setEpochsMarkedBad(int from, int to, bool bad)
+{
+    QWriteLocker wl(&poolMtx_);
+    const int n = pool_.size();
+    for (int i = std::max(0, from); i < std::min(to, n); ++i) {
+        pool_[i].setMarkedBad(bad);
+    }
+}
+
+static_assert(uint8_t(Epoch::DistProcessing::DistanceSource::DistanceSourceDirectHand) == echoedit::kSourceHand
+              && uint8_t(Epoch::DistProcessing::DistanceSource::DistanceSourceNone) == echoedit::kSourceNone,
+              "echo_edit_model.h names these values");
+
+void Dataset::collectEditState(echoedit::EditFile& f) const
+{
+    QReadLocker rl(&poolMtx_);
+    QVector<int> bad;
+    const int n = pool_.size();
+    for (int i = 0; i < n; ++i) {
+        const Epoch& ep = pool_.at(i);
+        if (ep.isMarkedBad()) {
+            bad.append(i);
+        }
+        QList<ChannelId> channels = ep.chartChannels();
+        if (channels.size() > 1) {
+            std::sort(channels.begin(), channels.end(), [](const ChannelId& a, const ChannelId& b) { return a.address < b.address; });
+        }
+        for (const ChannelId& ch : std::as_const(channels)) {
+            const Epoch::Echogram* e = ep.chartOf(ch, 0);
+            if (!e) {
+                continue;
+            }
+            const Epoch::DistProcessing* bp = &e->bottomProcessing;
+            if (bp->source == Epoch::DistProcessing::DistanceSource::DistanceSourceDirectHand) {
+                echoedit::appendToRuns(f.bottom, ch.address, i, bp->distance);
+            }
+            if (std::isfinite(bp->min)) {
+                echoedit::appendToRuns(f.limitMin, ch.address, i, bp->min);
+            }
+            if (std::isfinite(bp->max)) {
+                echoedit::appendToRuns(f.limitMax, ch.address, i, bp->max);
+            }
+            const uint8_t subs = ep.getChartsSizeByChannelId(ch);
+            for (uint8_t sub = 0; sub < subs && sub < 8; ++sub) {
+                if (const Epoch::Echogram* g = ep.chartOf(ch, sub); g && g->mosaicOut) {
+                    echoedit::appendToSides(f.mosaicOut, ch.address, sub, i);
+                }
+            }
+        }
+    }
+    f.bad = echoedit::rangesOf(bad);
+}
+
+bool Dataset::epochHasEdits(int index) const
+{
+    QReadLocker rl(&poolMtx_);
+    if (index < 0 || index >= pool_.size()) {
+        return false;
+    }
+    const Epoch& ep = pool_.at(index);
+    if (ep.isMarkedBad()) {
+        return true;
+    }
+    for (const ChannelId& ch : ep.chartChannels()) {
+        if (const Epoch::Echogram* e = ep.chartOf(ch, 0); e
+            && (e->bottomProcessing.source == Epoch::DistProcessing::DistanceSource::DistanceSourceDirectHand
+                || std::isfinite(e->bottomProcessing.min) || std::isfinite(e->bottomProcessing.max))) {
+            return true;
+        }
+        const uint8_t subs = ep.getChartsSizeByChannelId(ch);
+        for (uint8_t sub = 0; sub < subs; ++sub) {
+            if (const Epoch::Echogram* g = ep.chartOf(ch, sub); g && g->mosaicOut) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 void Dataset::resetDistProcessing() {
@@ -1394,7 +1552,8 @@ void Dataset::onDistCompleted(int epIndx, const ChannelId& channelId, float dist
         for (int subChId = 0; subChId < numSubChs; ++subChId) {
             if (ep.chartAvail(channelId, subChId)) {
                 Epoch::Echogram* chart = ep.chart(channelId, subChId);
-                if (chart) {
+                // A point set by hand after the run read the epoch stays (the run skips the ones it saw).
+                if (chart && chart->bottomProcessing.source != Epoch::DistProcessing::DistanceSource::DistanceSourceDirectHand) {
                     chart->bottomProcessing.setDistance(dist, Epoch::DistProcessing::DistanceSource::DistanceSourceProcessing);
                     settedChart = true;
                 }
@@ -1442,7 +1601,8 @@ void Dataset::onDistCompletedBatch(const QVector<BottomTrackUpdate>& updates)
             for (int subChId = 0; subChId < numSubChs; ++subChId) {
                 if (ep.chartAvail(update.channelId, subChId)) {
                     Epoch::Echogram* chart = ep.chart(update.channelId, subChId);
-                    if (chart) {
+                    // A point set by hand after the run read the epoch stays (the run skips the ones it saw).
+                    if (chart && chart->bottomProcessing.source != Epoch::DistProcessing::DistanceSource::DistanceSourceDirectHand) {
                         chart->bottomProcessing.setDistance(update.distance, Epoch::DistProcessing::DistanceSource::DistanceSourceProcessing);
                         settedChart = true;
                     }

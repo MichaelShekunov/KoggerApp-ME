@@ -150,6 +150,7 @@ target_include_directories(KoggerApp PRIVATE
 add_subdirectory(src/animation)
 add_subdirectory(src/audio)
 add_subdirectory(src/data_processor)
+add_subdirectory(src/echogram_edit)
 add_subdirectory(src/processing)
 add_subdirectory(src/scene2d)
 add_subdirectory(src/scene3d)

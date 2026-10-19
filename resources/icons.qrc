@@ -16,6 +16,18 @@
         <file>icons/ui/direction_horizontal.svg</file>
         <file>icons/ui/double_route.svg</file>
         <file>icons/ui/eraser.svg</file>
+        <file>icons/ui/arrow-back-up.svg</file>
+        <file>icons/ui/arrow-forward-up.svg</file>
+        <file>icons/ui/arrow-bar-left.svg</file>
+        <file>icons/ui/arrow-bar-right.svg</file>
+        <file>icons/ui/arrows-horizontal.svg</file>
+        <file>icons/ui/ban.svg</file>
+        <file>icons/ui/circle-check.svg</file>
+        <file>icons/ui/magnet.svg</file>
+        <file>icons/ui/trash.svg</file>
+        <file>icons/ui/wave-sine.svg</file>
+        <file>icons/ui/activity.svg</file>
+        <file>icons/ui/s-turn-right.svg</file>
         <file>icons/ui/eye_cog.svg</file>
         <file>icons/ui/file.svg</file>
         <file>icons/ui/file_download.svg</file>

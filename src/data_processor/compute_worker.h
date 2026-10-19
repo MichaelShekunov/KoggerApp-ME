@@ -53,6 +53,10 @@ public slots:
     void clearSurface();
     void clearMosaic();
     void clearIsobaths();
+    // An echogram edit took points out (DataProcessor::rebuildAfterEdit): the surface, the mosaic and
+    // the isobaths start again from nothing, the mesh keeps its tiles blank and marked as updated, so
+    // that a tile nothing is painted into now still reaches the view, blank.
+    void clearForEditRebuild();
 
     // settings
     void setDatasetPtr(Dataset* ds);

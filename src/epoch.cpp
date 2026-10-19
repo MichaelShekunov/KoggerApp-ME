@@ -31,6 +31,7 @@ Epoch Epoch::deepCopyForMosaic() const
             echogramCopy.tgc = srcEchogram.tgc;
             echogramCopy.tgc.detach();
             echogramCopy.bottomProcessing = srcEchogram.bottomProcessing;
+            echogramCopy.mosaicOut = srcEchogram.mosaicOut;
             echogramCopy.sensorPosition = srcEchogram.sensorPosition;
             echogramCopy.recordParameters_ = srcEchogram.recordParameters_;
             echogramCopy.chartParameters_ = srcEchogram.chartParameters_;
@@ -338,7 +339,7 @@ float Epoch::chartBottomDistance(const ChannelId &channelId, uint8_t subChannelI
     return static_cast<float>(echograms.at(subChannelId).bottomProcessing.getDistance());
 }
 
-QList<ChannelId> Epoch::chartChannels()
+QList<ChannelId> Epoch::chartChannels() const
 {
     return charts_.keys();
 }

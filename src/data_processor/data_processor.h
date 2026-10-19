@@ -80,6 +80,10 @@ public slots:
     // BottomTrackProcessor
     void bottomTrackProcessing(const DatasetChannel& channel1, const DatasetChannel& channel2, const BottomTrackParam& bottomTrackParam, bool manual, bool redrawAll); // CALC BOTTOM TRACK BY BUTTON, qPlot2D
     void setBottomTrackZeroDepth(bool state);
+    // Echogram edits (EchogramEditor): the mosaic painted again once the bottom track is quiet -- a
+    // tile refuses a ping older than what it holds, so an edited ping is not repainted in place --
+    // and with withSurface the bottom surface built again, which cannot drop a point that left.
+    void rebuildAfterEdit(bool withSurface);
     // SurfaceProcessor
     void setSurfaceColorTableThemeById(int id);
     void setSurfaceEdgeLimit(int val);
@@ -345,6 +349,23 @@ private:
 
     QThread btThread_;
     BtWorker* btWorker_;
+    // A manual bottom-track run asked for while one runs waits for it (it was dropped before): the
+    // "raise" and "lower" strokes and the undo of an edit need theirs. Ranges of the same channels and
+    // settings are joined.
+    struct PendingBtRun {
+        DatasetChannel ch1;
+        DatasetChannel ch2;
+        BottomTrackParam param;
+        bool manual = true;
+        bool redrawAll = false;
+    };
+    QVector<PendingBtRun> pendingManualBt_;
+    void dispatchBottomTrack(const PendingBtRun& run);
+    // rebuildAfterEdit: what is waiting, run once the bottom track and its 3D echo are quiet.
+    bool editRebuildPending_ = false;
+    bool editRebuildSurface_ = false;
+    QTimer editRebuildTimer_;
+    void runEditRebuild();
 
     DataProcessorType state_;
     uint64_t chartsCounter_;

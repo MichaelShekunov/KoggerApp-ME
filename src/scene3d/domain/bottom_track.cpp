@@ -2,6 +2,7 @@
 #include "scene3d_view.h"
 #include "epoch_event.h"
 #include "boat_track.h"
+#include "echogram_editor.h"
 #include <QOpenGLFunctions>
 #include <QOpenGLExtraFunctions>
 #include <QHash>
@@ -62,17 +63,32 @@ void BottomTrack::setDataProcessorPtr(DataProcessor* dataProcessorPtr)
     dataProcessorPtr_ = dataProcessorPtr;
 }
 
+void BottomTrack::setEchogramEditor(EchogramEditor* editor)
+{
+    editor_ = editor;
+}
+
 void BottomTrack::actionEvent(ActionEvent actionEvent)
 {
+    // One step of the edits' history per action: each epoch is touched before it changes.
+    struct Stroke {
+        QPointer<EchogramEditor> editor;
+        Stroke(EchogramEditor* e, echoedit::Command::Kind kind) : editor(e) { if (editor) editor->beginStroke(kind); }
+        ~Stroke() { if (editor) editor->endStroke(); }
+        void touch(int epoch) { if (editor) editor->touch(epoch); }
+    };
+
     auto minMaxFunc = [this](bool isMin) -> void {
         const auto indices{ RENDER_IMPL(BottomTrack)->selectedVertexIndices_ };
         if (!indices.isEmpty()) {
+            Stroke stroke(editor_, isMin ? echoedit::Command::Lower : echoedit::Command::Raise);
             QVector<int> sequenceVector;
             sequenceVector.reserve(indices.size());
 
             for (const auto& verticeIndex : indices) {
                 const auto epochIndex{ vertex2Epoch_.value(verticeIndex) };
                 if (auto epoch{ datasetPtr_->fromIndex(epochIndex) }; epoch) {
+                    stroke.touch(epochIndex);
                     sequenceVector.push_back(epochIndex);
 
                     const float coeff = isMin ? 1.1f : 0.9f;
@@ -91,12 +107,12 @@ void BottomTrack::actionEvent(ActionEvent actionEvent)
             sequenceVector.shrink_to_fit();
             const auto subArraysVec{ getSubarrays(sequenceVector) };
             const auto channels = datasetPtr_->channelsList();
-            const auto btP = datasetPtr_->getBottomTrackParam();
 
             for (auto& itm : subArraysVec) {
                 if (auto* btp = datasetPtr_->getBottomTrackParamPtr(); btp) {
                     btp->indexFrom = itm.first;
-                    btp->indexTo = itm.second;
+                    btp->indexTo = itm.second + 1;   // getSubarrays gives the last epoch, a run stops before indexTo
+                    const BottomTrackParam btP = *btp;   // the range just set (a copy taken before the loop was sent)
 
                     if (channels.size() >= 2) { // TODO
                         QMetaObject::invokeMethod(dataProcessorPtr_, "bottomTrackProcessing", Qt::QueuedConnection,
@@ -133,10 +149,12 @@ void BottomTrack::actionEvent(ActionEvent actionEvent)
         const auto indices{ RENDER_IMPL(BottomTrack)->selectedVertexIndices_ };
 
         if (!indices.isEmpty()) {
+            Stroke stroke(editor_, echoedit::Command::Delete3d);
             bool isSomethingDeleted{ false };
             for (const auto& verticeIndex : indices) {
                 const auto epochIndex{ vertex2Epoch_.value(verticeIndex) };
                 if (auto epoch{ datasetPtr_->fromIndex(epochIndex) }) {
+                    stroke.touch(epochIndex);
                     const auto channels = datasetPtr_->channelsList(); // TODO
                     for (const auto& itm : channels) {
                         epoch->clearDistProcessing(itm.channelId_);
@@ -372,12 +390,18 @@ bool BottomTrack::keyPressEvent(Qt::Key key)
 
     bool handled{ false };
 
+    auto beginDelete = [this]() { if (editor_) editor_->beginStroke(echoedit::Command::Delete3d); };
+    auto touch = [this](int epoch) { if (editor_) editor_->touch(epoch); };
+    auto endDelete = [this]() { if (editor_) editor_->endStroke(); };
+
     if (m_view->m_mode == GraphicsScene3dView::BottomTrackVertexSelectionMode && key == Qt::Key_Delete) {
         const auto indices{ RENDER_IMPL(BottomTrack)->selectedVertexIndices_ };
         bool isSomethingDeleted{ false };
+        beginDelete();
         for (const auto& verticeIndex : indices) {
             const auto epochIndx{ vertex2Epoch_.value(verticeIndex) };
             if (auto epoch{ datasetPtr_->fromIndex(epochIndx) }) {
+                touch(epochIndx);
                 const auto channels = datasetPtr_->channelsList(); // TODO
                 for (const auto& itm : channels) {
                     epoch->clearDistProcessing(itm.channelId_);
@@ -394,15 +418,18 @@ bool BottomTrack::keyPressEvent(Qt::Key key)
             emit datasetPtr_->dataUpdate();
             handled = true;
         }
+        endDelete();
     }
 
     if (key == Qt::Key_Delete) {
         const auto indices{ RENDER_IMPL(BottomTrack)->selectedVertexIndices_ };
         if (!indices.isEmpty()) {
             bool isSomethingDeleted{ false };
+            beginDelete();
             for (const auto& verticeIndex : indices) {
                 const auto epochIndx{ vertex2Epoch_.value(verticeIndex) };
                 if (auto epoch{ datasetPtr_->fromIndex(epochIndx) }) {
+                    touch(epochIndx);
                     const auto channels = datasetPtr_->channelsList(); // TODO
                     for (const auto& itm : channels) {
                         epoch->clearDistProcessing(itm.channelId_);
@@ -417,6 +444,7 @@ bool BottomTrack::keyPressEvent(Qt::Key key)
                 emit datasetPtr_->dataUpdate();
                 handled = true;
             }
+            endDelete();
         }
     }
 
@@ -491,11 +519,15 @@ void BottomTrack::updateRenderData(int lEpIndx, int rEpIndx, bool redraw, bool m
             continue;
         }
 
+        // A ping marked bad or trimmed on the echogram has no point: the line breaks there, and the
+        // surface (which skips a NaN) and an exported depth grid leave it out.
+        const bool excluded = datasetPtr_->isEpochExcluded(epIndx);
+
         auto vIt = epoch2Vertex_.find(epIndx);
         if (vIt != epoch2Vertex_.end()) {
             const int vIndx = *vIt;
             if (vIndx >= 0 && vIndx < r->m_data.size()) {
-                const float dist = -1.f * static_cast<float>(ep->distProccesing(visibleChannel_.channelId_));
+                const float dist = excluded ? NAN : -1.f * static_cast<float>(ep->distProccesing(visibleChannel_.channelId_));
                 if (depthFixed && r->m_data[vIndx].z() == dist) {
                     continue;
                 }
@@ -510,7 +542,7 @@ void BottomTrack::updateRenderData(int lEpIndx, int rEpIndx, bool redraw, bool m
             epoch2Vertex_.erase(vIt);
         }
 
-        const float dist = -1.f * static_cast<float>(ep->distProccesing(visibleChannel_.channelId_));
+        const float dist = excluded ? NAN : -1.f * static_cast<float>(ep->distProccesing(visibleChannel_.channelId_));
         prepData.push_back(QVector3D(pos.n, pos.e, dist));
 
         epIndxUpdated.push_back(epIndx);

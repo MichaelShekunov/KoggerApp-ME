@@ -40,6 +40,7 @@
 #include "tile_manager.h"
 #include "internet_manager.h"
 #include "data_horizon.h"
+#include "echogram_editor.h"
 #include "mosaic_index_provider.h"
 #include "ui_keepalive.h"
 #include "usb_tap.h"
@@ -90,6 +91,8 @@ public:
     void setEngine(QQmlApplicationEngine *engine);
     Console* getConsolePtr();
     Dataset* getDatasetPtr();
+    // Echogram edits (QML "echoEdit"): undo, redo, the trim, the magnet, the file of edits.
+    EchogramEditor* getEchogramEditorPtr() { return echogramEditor_.get(); }
     UsbTap* getUsbTapPtr() { return &usbTap_; }
     DataProcessor* getDataProcessorPtr() const;
     DeviceManagerWrapper* getDeviceManagerWrapperPtr() const;
@@ -395,6 +398,7 @@ private:
     DataProcessor* dataProcessor_;
     QThread* dataProcThread_;
     std::unique_ptr<DataHorizon> dataHorizon_; // this thread
+    std::unique_ptr<EchogramEditor> echogramEditor_;   // this thread; the epochs it edits are datasetPtr_'s
 
 #ifdef SEPARATE_READING
     QString tryOpenedfilePath_;

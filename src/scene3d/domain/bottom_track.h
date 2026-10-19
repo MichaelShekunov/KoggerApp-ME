@@ -2,12 +2,14 @@
 
 #include <cstdint>
 #include <memory>
+#include <QPointer>
 #include "scene_object.h"
 #include "dataset.h"
 #include "data_processor.h"
 
 
 class GraphicsScene3dView;
+class EchogramEditor;
 class BottomTrack : public SceneObject
 {
     Q_OBJECT
@@ -47,6 +49,8 @@ public:
     bool eventFilter(QObject *watched, QEvent *event) final;
     void setDatasetPtr(Dataset* datasetPtr);
     void setDataProcessorPtr(DataProcessor* dataProcessorPtr);
+    // Points deleted or limited here are a step of the echogram edits' history (undo, the file of edits).
+    void setEchogramEditor(EchogramEditor* editor);
     void actionEvent(ActionEvent actionEvent);
 
 public Q_SLOTS:
@@ -87,4 +91,5 @@ private:
     DatasetChannel visibleChannel_; // ?!
     Dataset* datasetPtr_;
     DataProcessor* dataProcessorPtr_;
+    QPointer<EchogramEditor> editor_;
 };

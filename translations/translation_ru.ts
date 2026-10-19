@@ -1648,29 +1648,194 @@
 <context>
     <name>BottomTrackEditPopup</name>
     <message>
-        <location filename="../qml/app/BottomTrackEditPopup.qml" line="19"/>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="21"/>
         <source>Navigate</source>
         <translation>Навигация</translation>
     </message>
     <message>
-        <location filename="../qml/app/BottomTrackEditPopup.qml" line="20"/>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="22"/>
         <source>Draw bottom track</source>
         <translation>Рисовать трек дна</translation>
     </message>
     <message>
-        <location filename="../qml/app/BottomTrackEditPopup.qml" line="21"/>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="23"/>
         <source>Raise bottom track</source>
         <translation>Поднять трек дна</translation>
     </message>
     <message>
-        <location filename="../qml/app/BottomTrackEditPopup.qml" line="22"/>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="24"/>
         <source>Lower bottom track</source>
         <translation>Опустить трек дна</translation>
     </message>
     <message>
-        <location filename="../qml/app/BottomTrackEditPopup.qml" line="23"/>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="25"/>
         <source>Erase bottom track</source>
         <translation>Стереть трек дна</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="28"/>
+        <source>Mark bad pings: they are left out of the mosaic, the bottom surface and the export</source>
+        <translation>Пометить плохие пинги: они не попадут в мозаику, поверхность дна и экспорт</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="29"/>
+        <source>Unmark pings</source>
+        <translation>Снять пометку с пингов</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="30"/>
+        <source>The recording starts here: what is before is left out</source>
+        <translation>Запись начинается здесь: всё, что раньше, исключается</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="31"/>
+        <source>The recording ends here: what is after is left out</source>
+        <translation>Запись кончается здесь: всё, что позже, исключается</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="34"/>
+        <source>Smooth the bottom: each pass gives a ping the median depth of its neighbours</source>
+        <translation>Сгладить дно: каждый проход даёт пингу медиану глубин его соседей</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="35"/>
+        <source>Fill the gaps of the bottom: a straight line between the depths around them</source>
+        <translation>Заполнить пропуски дна: прямая между глубинами по их краям</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="36"/>
+        <source>Leave the side under the cursor out of the mosaic; its depths stay (&quot;Unmark pings&quot; puts it back)</source>
+        <translation>Убрать сторону под курсором из мозаики; глубины остаются («Снять пометку с пингов» вернёт её)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="52"/>
+        <source>pencil</source>
+        <translation>карандаш</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="53"/>
+        <source>eraser</source>
+        <translation>ластик</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="54"/>
+        <source>raise</source>
+        <translation>подъём трека дна</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="55"/>
+        <source>lower</source>
+        <translation>опускание трека дна</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="56"/>
+        <source>pings marked bad</source>
+        <translation>пометка плохих пингов</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="57"/>
+        <source>pings unmarked</source>
+        <translation>снятие пометки</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="58"/>
+        <source>points deleted in 3D</source>
+        <translation>удаление точек в 3D</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="59"/>
+        <source>recording start</source>
+        <translation>начало записи</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="60"/>
+        <source>recording end</source>
+        <translation>конец записи</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="61"/>
+        <source>trim removed</source>
+        <translation>снятие обрезки</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="62"/>
+        <source>all edits reset</source>
+        <translation>сброс всех правок</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="63"/>
+        <source>smoothing</source>
+        <translation>сглаживание</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="64"/>
+        <source>gaps filled</source>
+        <translation>заполнение пропусков</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="65"/>
+        <source>sides left out of the mosaic</source>
+        <translation>стороны убраны из мозаики</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="66"/>
+        <source>spikes removed</source>
+        <translation>удаление выбросов</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="67"/>
+        <source>turns left out of the mosaic</source>
+        <translation>развороты убраны из мозаики</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="198"/>
+        <source>Magnet: the pencil snaps to the bottom the bottom track finds near it</source>
+        <translation>Магнит: карандаш прилипает к дну, которое трек дна находит рядом</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="211"/>
+        <source>Undo: %1 (Ctrl+Z)</source>
+        <translation>Отменить: %1 (Ctrl+Z)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="212"/>
+        <source>Undo (Ctrl+Z)</source>
+        <translation>Отменить (Ctrl+Z)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="221"/>
+        <source>Redo: %1 (Ctrl+Y)</source>
+        <translation>Вернуть: %1 (Ctrl+Y)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="222"/>
+        <source>Redo (Ctrl+Y)</source>
+        <translation>Вернуть (Ctrl+Y)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="244"/>
+        <source>The whole recording again: the trim removed</source>
+        <translation>Снова вся запись: обрезка снята</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="254"/>
+        <source>Press again to reset every edit of this recording (Undo brings them back)</source>
+        <translation>Нажмите ещё раз, чтобы сбросить все правки этой записи («Отменить» их вернёт)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="255"/>
+        <source>Reset every edit of this recording</source>
+        <translation>Сбросить все правки этой записи</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="292"/>
+        <source>Remove the spikes of the bottom over the whole recording (one step to undo)</source>
+        <translation>Удалить выбросы дна по всей записи (отменяется одним шагом)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="300"/>
+        <source>Leave the turns out of the mosaic over the whole recording (one step to undo)</source>
+        <translation>Убрать развороты из мозаики по всей записи (отменяется одним шагом)</translation>
     </message>
 </context>
 <context>
@@ -2165,171 +2330,171 @@
 <context>
     <name>Core</name>
     <message>
-        <location filename="../src/core.cpp" line="3464"/>
+        <location filename="../src/core.cpp" line="3493"/>
         <source>Internet connection restored</source>
         <translation>Интернет-соединение восстановлено</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3465"/>
+        <location filename="../src/core.cpp" line="3494"/>
         <source>Internet connection lost</source>
         <translation>Интернет-соединение потеряно</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3477"/>
+        <location filename="../src/core.cpp" line="3506"/>
         <source>Metered network detected</source>
         <translation>Обнаружена лимитированная сеть</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2607"/>
-        <location filename="../src/core.cpp" line="2631"/>
+        <location filename="../src/core.cpp" line="2632"/>
+        <location filename="../src/core.cpp" line="2656"/>
         <source>street</source>
         <translation>схема</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2613"/>
-        <location filename="../src/core.cpp" line="2619"/>
-        <location filename="../src/core.cpp" line="2625"/>
+        <location filename="../src/core.cpp" line="2638"/>
+        <location filename="../src/core.cpp" line="2644"/>
+        <location filename="../src/core.cpp" line="2650"/>
         <source>satellite</source>
         <translation>спутник</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3040"/>
+        <location filename="../src/core.cpp" line="3069"/>
         <source>Connected</source>
         <translation>Подключено</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3040"/>
+        <location filename="../src/core.cpp" line="3069"/>
         <source>Connected: %1</source>
         <translation>Подключено: %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3054"/>
+        <location filename="../src/core.cpp" line="3083"/>
         <source>Disconnected</source>
         <translation>Отключено</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3054"/>
+        <location filename="../src/core.cpp" line="3083"/>
         <source>Disconnected: %1</source>
         <translation>Отключено: %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1180"/>
+        <location filename="../src/core.cpp" line="1200"/>
         <source>KLF logging disabled</source>
         <translation>Логирование KLF выключено</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1172"/>
+        <location filename="../src/core.cpp" line="1192"/>
         <source>KLF logging not started</source>
         <translation>Логирование KLF не запустилось</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1522"/>
+        <location filename="../src/core.cpp" line="1542"/>
         <source>CSV logging disabled</source>
         <translation>Логирование CSV выключено</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1514"/>
+        <location filename="../src/core.cpp" line="1534"/>
         <source>CSV logging not started</source>
         <translation>Логирование CSV не запустилось</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1169"/>
+        <location filename="../src/core.cpp" line="1189"/>
         <source>KLF logging started:
 %1</source>
         <translation>Логирование KLF начато:
 %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1178"/>
+        <location filename="../src/core.cpp" line="1198"/>
         <source>KLF log saved:
 %1</source>
         <translation>Лог KLF сохранён:
 %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1511"/>
+        <location filename="../src/core.cpp" line="1531"/>
         <source>CSV logging started:
 %1</source>
         <translation>Логирование CSV начато:
 %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1520"/>
+        <location filename="../src/core.cpp" line="1540"/>
         <source>CSV log saved:
 %1</source>
         <translation>Лог CSV сохранён:
 %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1362"/>
+        <location filename="../src/core.cpp" line="1382"/>
         <source>Invalid log folder:
 %1</source>
         <translation>Неверный путь папки логов:
 %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1368"/>
+        <location filename="../src/core.cpp" line="1388"/>
         <source>Log folder is not writable:
 %1</source>
         <translation>Нет доступа на запись в папку логов:
 %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2791"/>
+        <location filename="../src/core.cpp" line="2819"/>
         <source>File opened</source>
         <translation>Файл открыт</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2792"/>
+        <location filename="../src/core.cpp" line="2820"/>
         <source>File opened: %1</source>
         <translation>Файл открыт: %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="616"/>
-        <location filename="../src/core.cpp" line="877"/>
+        <location filename="../src/core.cpp" line="631"/>
+        <location filename="../src/core.cpp" line="897"/>
         <source>File closed</source>
         <translation>Файл закрыт</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="617"/>
-        <location filename="../src/core.cpp" line="878"/>
+        <location filename="../src/core.cpp" line="632"/>
+        <location filename="../src/core.cpp" line="898"/>
         <source>File closed: %1</source>
         <translation>Файл закрыт: %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2007"/>
+        <location filename="../src/core.cpp" line="2031"/>
         <source>Exported to CSV: %1</source>
         <translation>Экспорт в CSV выполнен: %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2038"/>
+        <location filename="../src/core.cpp" line="2062"/>
         <source>Exported to XTF: %1</source>
         <translation>Экспорт в XTF выполнен: %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1610"/>
+        <location filename="../src/core.cpp" line="1630"/>
         <source>Complex signals exported to CSV: %1</source>
         <translation>Комплексные сигналы экспортированы в CSV: %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1654"/>
+        <location filename="../src/core.cpp" line="1674"/>
         <source>USBL exported to CSV: %1</source>
         <translation>USBL экспортирован в CSV: %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2015"/>
+        <location filename="../src/core.cpp" line="2039"/>
         <source>Export failed</source>
         <translation>Экспорт не выполнен</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1558"/>
-        <location filename="../src/core.cpp" line="1607"/>
-        <location filename="../src/core.cpp" line="1621"/>
-        <location filename="../src/core.cpp" line="1651"/>
-        <location filename="../src/core.cpp" line="1744"/>
-        <location filename="../src/core.cpp" line="2004"/>
-        <location filename="../src/core.cpp" line="2023"/>
-        <location filename="../src/core.cpp" line="2035"/>
+        <location filename="../src/core.cpp" line="1578"/>
+        <location filename="../src/core.cpp" line="1627"/>
+        <location filename="../src/core.cpp" line="1641"/>
+        <location filename="../src/core.cpp" line="1671"/>
+        <location filename="../src/core.cpp" line="1764"/>
+        <location filename="../src/core.cpp" line="2028"/>
+        <location filename="../src/core.cpp" line="2047"/>
+        <location filename="../src/core.cpp" line="2059"/>
         <source>Export failed: %1</source>
         <translation>Экспорт не выполнен: %1</translation>
     </message>
@@ -2828,8 +2993,8 @@
 <context>
     <name>Dataset</name>
     <message>
-        <location filename="../src/dataset.cpp" line="1354"/>
-        <location filename="../src/dataset.cpp" line="1356"/>
+        <location filename="../src/dataset.cpp" line="1498"/>
+        <location filename="../src/dataset.cpp" line="1500"/>
         <source>None</source>
         <translation>Отсутствует</translation>
     </message>
@@ -6655,6 +6820,74 @@
     </message>
 </context>
 <context>
+    <name>EchogramEditor</name>
+    <message>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="270"/>
+        <source>No spikes of the bottom found</source>
+        <translation>Выбросов дна не найдено</translation>
+    </message>
+    <message>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="278"/>
+        <source>Spikes of the bottom replaced with the bottom around them: %1 pings</source>
+        <translation>Выбросы дна заменены дном вокруг них: пингов %1</translation>
+    </message>
+    <message>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="325"/>
+        <source>No turns found</source>
+        <translation>Разворотов не найдено</translation>
+    </message>
+    <message>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="326"/>
+        <source>Turns left out of the mosaic: %1, %2 pings</source>
+        <translation>Развороты убраны из мозаики: %1, пингов %2</translation>
+    </message>
+    <message>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="467"/>
+        <source>Could not move the file of edits aside: %1</source>
+        <translation>Не удалось отложить файл правок: %1</translation>
+    </message>
+    <message>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="613"/>
+        <source>Could not remove the file of edits: %1</source>
+        <translation>Не удалось удалить файл правок: %1</translation>
+    </message>
+    <message>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="626"/>
+        <source>Echogram edits not saved: %1</source>
+        <translation>Правки эхограммы не сохранены: %1</translation>
+    </message>
+    <message>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="743"/>
+        <source>Echogram edits are not saved while several files are open together</source>
+        <translation>Правки эхограммы не сохраняются, пока открыто несколько файлов сразу</translation>
+    </message>
+    <message>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="761"/>
+        <source>The file of edits could not be read, edits are not saved: %1</source>
+        <translation>Файл правок не читается, правки не сохраняются: %1</translation>
+    </message>
+    <message>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="770"/>
+        <source>The file of edits is not understood (%1); it is left as it is, edits are not saved</source>
+        <translation>Файл правок не распознан (%1); он оставлен как есть, правки не сохраняются</translation>
+    </message>
+    <message>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="779"/>
+        <source>The file of edits does not fit this recording (%1 pings, the recording has %2); not applied, left as it is</source>
+        <translation>Файл правок не подходит к этой записи (в нём %1 пингов, в записи %2); не применён, оставлен как есть</translation>
+    </message>
+    <message>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="792"/>
+        <source>Some echogram edits are for channels this recording lacks; %1 left out</source>
+        <translation>Часть правок относится к каналам, которых в записи нет; пропущено: %1</translation>
+    </message>
+    <message>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="818"/>
+        <source>Echogram edits restored: %1</source>
+        <translation>Правки эхограммы восстановлены: %1</translation>
+    </message>
+</context>
+<context>
     <name>EchogramSettingsPanel</name>
     <message>
         <location filename="../qml/app/EchogramSettingsPanel.qml" line="287"/>
@@ -8306,17 +8539,17 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1135"/>
+        <location filename="../qml/app/MainWindow.qml" line="1150"/>
         <source>About</source>
         <translation>О программе</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1127"/>
+        <location filename="../qml/app/MainWindow.qml" line="1142"/>
         <source>Servo panel</source>
         <translation>Панель серво</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1139"/>
+        <location filename="../qml/app/MainWindow.qml" line="1154"/>
         <source>Devices</source>
         <translation>Устройства</translation>
     </message>
@@ -8326,22 +8559,22 @@
         <translation>Выберите файл</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1133"/>
+        <location filename="../qml/app/MainWindow.qml" line="1148"/>
         <source>Information panel</source>
         <translation>Информационная плашка</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1728"/>
+        <location filename="../qml/app/MainWindow.qml" line="1743"/>
         <source>Language:</source>
         <translation>Язык:</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1773"/>
+        <location filename="../qml/app/MainWindow.qml" line="1788"/>
         <source>Continue</source>
         <translation>Продолжить</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1719"/>
+        <location filename="../qml/app/MainWindow.qml" line="1734"/>
         <source>Welcome to KoggerApp!</source>
         <translation>Добро пожаловать в KoggerApp!</translation>
     </message>
@@ -8351,143 +8584,143 @@
         <translation>Второе окно</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1136"/>
+        <location filename="../qml/app/MainWindow.qml" line="1151"/>
         <source>Developer mode</source>
         <translation>Режим разработчика</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1138"/>
+        <location filename="../qml/app/MainWindow.qml" line="1153"/>
         <source>Create layout</source>
         <translation>Создать компоновку</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1520"/>
+        <location filename="../qml/app/MainWindow.qml" line="1535"/>
         <source>Tap again: apply %1 and save</source>
         <translation>Нажмите ещё раз: применить изменения (%1) и сохранить</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1521"/>
+        <location filename="../qml/app/MainWindow.qml" line="1536"/>
         <source>Apply and save (%1)</source>
         <translation>Применить и сохранить (%1)</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1522"/>
+        <location filename="../qml/app/MainWindow.qml" line="1537"/>
         <source>Save to device</source>
         <translation>Сохранить в устройство</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1524"/>
+        <location filename="../qml/app/MainWindow.qml" line="1539"/>
         <source>Apply every change waiting on this page, then write the settings to the device&apos;s memory</source>
         <translation>Применить все ожидающие изменения на этой странице, затем записать настройки в память устройства</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1525"/>
+        <location filename="../qml/app/MainWindow.qml" line="1540"/>
         <source>Write the current settings to the device&apos;s memory</source>
         <translation>Записать текущие настройки в память устройства</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1542"/>
+        <location filename="../qml/app/MainWindow.qml" line="1557"/>
         <source>Tap again to apply to %1: %2</source>
         <translation>Нажмите ещё раз, чтобы применить к %1: %2</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1552"/>
+        <location filename="../qml/app/MainWindow.qml" line="1567"/>
         <source>Settings written to device: %1</source>
         <translation>Настройки записаны в устройство: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1559"/>
+        <location filename="../qml/app/MainWindow.qml" line="1574"/>
         <source>Close</source>
         <translation>Закрыть</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1635"/>
+        <location filename="../qml/app/MainWindow.qml" line="1650"/>
         <source>Boat: %1 — done</source>
         <translation>Лодка: %1 — готово</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1637"/>
+        <location filename="../qml/app/MainWindow.qml" line="1652"/>
         <source>Boat: %1 — %2</source>
         <translation>Лодка: %1 — %2</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1641"/>
+        <location filename="../qml/app/MainWindow.qml" line="1656"/>
         <source>Boat: %1</source>
         <translation>Лодка: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1746"/>
+        <location filename="../qml/app/MainWindow.qml" line="1761"/>
         <source>Choose which settings to show</source>
         <translation>Выберите, какие настройки показывать</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1753"/>
+        <location filename="../qml/app/MainWindow.qml" line="1768"/>
         <source>Fish Finders</source>
         <translation>Для Рыболова</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1754"/>
+        <location filename="../qml/app/MainWindow.qml" line="1769"/>
         <source>Bottom Track</source>
         <translation>Трек дна</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1755"/>
+        <location filename="../qml/app/MainWindow.qml" line="1770"/>
         <source>Maximum</source>
         <translation>Максимум</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1763"/>
+        <location filename="../qml/app/MainWindow.qml" line="1778"/>
         <source>You can change this later in settings.</source>
         <translation>Это можно изменить позже в настройках.</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1124"/>
-        <location filename="../qml/app/MainWindow.qml" line="1141"/>
+        <location filename="../qml/app/MainWindow.qml" line="1139"/>
+        <location filename="../qml/app/MainWindow.qml" line="1156"/>
         <source>Settings</source>
         <translation>Настройки</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1125"/>
+        <location filename="../qml/app/MainWindow.qml" line="1140"/>
         <source>Quick action menu</source>
         <translation>Меню быстрых действий</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1130"/>
+        <location filename="../qml/app/MainWindow.qml" line="1145"/>
         <source>UI Saving</source>
         <translation>Сохранение UI</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1131"/>
+        <location filename="../qml/app/MainWindow.qml" line="1146"/>
         <source>TGC</source>
         <translation>TGC</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1134"/>
+        <location filename="../qml/app/MainWindow.qml" line="1149"/>
         <source>Console</source>
         <translation>Консоль</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1132"/>
+        <location filename="../qml/app/MainWindow.qml" line="1147"/>
         <source>Export to CSV</source>
         <translation>Экспорт в CSV</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1126"/>
+        <location filename="../qml/app/MainWindow.qml" line="1141"/>
         <source>Create panel</source>
         <translation>Создать панель</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1126"/>
+        <location filename="../qml/app/MainWindow.qml" line="1141"/>
         <source>Edit panel</source>
         <translation>Редактировать панель</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1128"/>
+        <location filename="../qml/app/MainWindow.qml" line="1143"/>
         <source>USBL panel</source>
         <translation>Панель USBL</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1129"/>
+        <location filename="../qml/app/MainWindow.qml" line="1144"/>
         <source>Stand panel</source>
         <translation>Панель стенда</translation>
     </message>
@@ -9672,317 +9905,317 @@
 <context>
     <name>Plot2D</name>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="876"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="879"/>
         <source>Echogram settings</source>
         <translation>Настройки эхограммы</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="758"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="761"/>
         <source>Echogram levels</source>
         <translation>Уровни эхограммы</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1055"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1058"/>
         <source>Channels:</source>
         <translation>Каналы:</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1170"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1173"/>
         <source>Echogram</source>
         <translation>Эхограмма</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1179"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1182"/>
         <source>Blue</source>
         <translation>Синий</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1179"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1182"/>
         <source>Sepia</source>
         <translation>Сепия</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1179"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1182"/>
         <source>WRGBD</source>
         <translation>WRGBD</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1179"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1182"/>
         <source>WhiteBlack</source>
         <translation>Бело-черный</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1179"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1182"/>
         <source>BlackWhite</source>
         <translation>Черно-белый</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1179"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1182"/>
         <source>Sepia New</source>
         <translation>Сепия новая</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1179"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1182"/>
         <source>DeepBlue</source>
         <translation>Глубокий синий</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1179"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1182"/>
         <source>Ice</source>
         <translation>Лёд</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1179"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1182"/>
         <source>Green</source>
         <translation>Зелёный</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1179"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1182"/>
         <source>Midnight</source>
         <translation>Полночь</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1202"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1205"/>
         <source>Raw</source>
         <translation>Исходный</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1202"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1205"/>
         <source>Side-Scan</source>
         <translation>Сайд скан</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1329"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1332"/>
         <source>Bottom-Track</source>
         <translation>Трек дна</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1334"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1374"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1337"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1377"/>
         <source>Value</source>
         <translation>Значение</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1369"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1372"/>
         <source>Rangefinder</source>
         <translation>Глубиномер</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1343"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1352"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1383"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1392"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1346"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1355"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1386"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1395"/>
         <source>Line</source>
         <translation>Линия</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="859"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="862"/>
         <source>Echogram sound: on</source>
         <translation>Звук эхограммы: вкл</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="859"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="862"/>
         <source>Echogram sound: off</source>
         <translation>Звук эхограммы: выкл</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1202"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1205"/>
         <source>TGC</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1218"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1221"/>
         <source>Sound: log</source>
         <translation>Звук: логарифм.</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1218"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1221"/>
         <source>Sound: linear</source>
         <translation>Звук: линейный</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1235"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1238"/>
         <source>Deconvolution</source>
         <translation>Деконволюция</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1240"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1243"/>
         <source>On</source>
         <translation>Вкл</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1254"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1257"/>
         <source>Beam°</source>
         <translation>Луч°</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1288"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1291"/>
         <source>Motion</source>
         <translation>Движение</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1302"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1305"/>
         <source>Iter</source>
         <translation>Итер.</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1352"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1392"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1355"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1395"/>
         <source>Points</source>
         <translation>Точки</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1410"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1413"/>
         <source>Attitude</source>
         <translation>Ориентация</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1418"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1421"/>
         <source>Temperature</source>
         <translation>Температура</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1442"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1445"/>
         <source>Doppler Beams</source>
         <translation>Допплеровские лучи</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1452"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1461"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1470"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1479"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1517"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1455"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1464"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1473"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1482"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1520"/>
         <source>Depth</source>
         <translation>Глубина</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1453"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1462"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1471"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1480"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1456"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1465"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1474"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1483"/>
         <source>Velocity</source>
         <translation>Скорость</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1454"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1463"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1472"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1481"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1457"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1466"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1475"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1484"/>
         <source>Mode</source>
         <translation>Режим</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1503"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1506"/>
         <source>Doppler Instrument</source>
         <translation>Допплеровский инструмент</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1516"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1519"/>
         <source>Abs. Velocity</source>
         <translation>Абс. скорость</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1528"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1531"/>
         <source>DVL Legend</source>
         <translation>DVL Легенда</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1538"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1541"/>
         <source>Top</source>
         <translation>Верх</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1538"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1541"/>
         <source>Center</source>
         <translation>Центр</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1538"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1541"/>
         <source>Bottom</source>
         <translation>Низ</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1558"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1561"/>
         <source>Acoustic angle</source>
         <translation>Акустический угол</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1570"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1573"/>
         <source>Doppler Profiler</source>
         <translation>Доплеровский профилировщик</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1580"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1583"/>
         <source>GNSS data</source>
         <translation>GNSS данные</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1599"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1602"/>
         <source>Grid</source>
         <translation>Сетка</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1605"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1608"/>
         <source>fill</source>
         <translation>заполнить</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1621"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1624"/>
         <source>invert</source>
         <translation>инвертировать</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1659"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1662"/>
         <source>Angle range, °</source>
         <translation>Диапазон углов, °</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1711"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1714"/>
         <source>Velocity range, m/s</source>
         <translation>Диапазон скоростей, м/с</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1768"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1771"/>
         <source>Distance auto range</source>
         <translation>Автоматическая дистанция</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1784"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1787"/>
         <source>Last data       </source>
         <translation>Последние данные       </translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1784"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1787"/>
         <source>Last on screen</source>
         <translation>Последний на экране</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1784"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1787"/>
         <source>Max on screen</source>
         <translation>Максимальный на экране</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1800"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1803"/>
         <source>Horizontal</source>
         <translation>Горизонтальный режим</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1808"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1811"/>
         <source>Loupe</source>
         <translation>Лупа</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1817"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1820"/>
         <source>size</source>
         <translation>размер</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1834"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1837"/>
         <source>zoom</source>
         <translation>зум</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="2334"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="2337"/>
         <source>Set point of interest</source>
         <translation>Поставить точку интереса</translation>
     </message>
@@ -10017,7 +10250,7 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../src/scene2d/plot2D_bottom_processing.cpp" line="115"/>
+        <location filename="../src/scene2d/plot2D_bottom_processing.cpp" line="201"/>
         <location filename="../src/scene2d/plot2D_grid.cpp" line="105"/>
         <location filename="../src/scene2d/plot2D_grid.cpp" line="158"/>
         <location filename="../src/scene2d/plot2D_rangefinder.cpp" line="93"/>
@@ -10075,7 +10308,7 @@
         <translation>Скорость звука, м/с: </translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3093"/>
+        <location filename="../src/core.cpp" line="3122"/>
         <source>File</source>
         <translation>Файл</translation>
     </message>

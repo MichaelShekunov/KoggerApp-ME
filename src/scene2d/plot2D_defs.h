@@ -23,6 +23,13 @@ typedef enum : uint8_t {
     MouseToolDistance,
     MouseToolDistanceMax,
     MouseToolDistanceErase,
+    MouseToolMarkBad,       // echogram edits (EchogramEditor): pings marked bad
+    MouseToolUnmarkBad,     // the mark taken off
+    MouseToolTrimStart,     // the recording starts at the ping under the cursor
+    MouseToolTrimEnd,       // and ends there
+    MouseToolSmooth,        // the bottom smoothed where the brush goes
+    MouseToolFillGaps,      // gaps of the bottom closed where the brush goes
+    MouseToolMosaicOut,     // the side under the cursor left out of the mosaic
 } MouseTool;
 
 typedef struct DatasetCursor {

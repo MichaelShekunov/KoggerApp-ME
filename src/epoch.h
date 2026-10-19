@@ -176,6 +176,9 @@ public:
         }
 
         DistProcessing bottomProcessing;
+        // This side of the ping left out of the mosaic (EchogramEditor: a turn, a bad side); its depth
+        // stays in the surface and the exports.
+        bool mosaicOut = false;
         Position sensorPosition;
         RecordParameters recordParameters_;
         ChartParameters chartParameters_;
@@ -353,7 +356,20 @@ public:
     Epoch deepCopyForMosaic() const;
     Epoch deepCopyForBottomTrack() const;
 
-    QList<ChannelId> chartChannels();
+    QList<ChannelId> chartChannels() const;
+    // A channel's chart and bottom, read without detaching the charts (Dataset::pingEditState, under a
+    // read lock).
+    const Echogram* chartOf(const ChannelId& channelId, uint8_t subChannelId = 0) const {
+        const auto it = charts_.constFind(channelId);
+        if (it == charts_.cend() || subChannelId >= it.value().size()) {
+            return nullptr;
+        }
+        return &it.value().at(subChannelId);
+    }
+    const DistProcessing* bottomProcessingOf(const ChannelId& channelId, uint8_t subChannelId = 0) const {
+        const Echogram* e = chartOf(channelId, subChannelId);
+        return e ? &e->bottomProcessing : nullptr;
+    }
 
     // float chartsFullRange(const ChannelId& channelId = ChannelId()) {
     //     Q_UNUSED(channelId);
@@ -677,6 +693,22 @@ public:
     QMap<int, QSet<TileKey>>& getTraceTileIndxsPtr();
     QMap<int, QSet<TileKey>> traceTileIndxs() const;
 
+    // Marked bad on the echogram (EchogramEditor): left out of the mosaic, the bottom surface and the
+    // exports, as a trimmed ping is (Dataset::isEpochExcluded).
+    bool isMarkedBad() const { return markedBad_; }
+    void setMarkedBad(bool state) { markedBad_ = state; }
+    // On a copy for the mosaic of a ping left out (Dataset::fromIndexMosaicCopy): no bottom, no pair.
+    // With onlyMosaicOut, only the sides left out of the mosaic lose theirs.
+    void dropBottoms(bool onlyMosaicOut = false) {
+        for (auto& echograms : charts_) {
+            for (auto& echogram : echograms) {
+                if (!onlyMosaicOut || echogram.mosaicOut) {
+                    echogram.bottomProcessing.distance = NAN;
+                }
+            }
+        }
+    }
+
 protected:
     QMap<ChannelId, QVector<Echogram>> charts_; // key - channelId, value - echograms for all addresses
     QMap<ChannelId, float> rangefinders_; // ???
@@ -755,6 +787,7 @@ protected:
     } flags;
 
     float depth_ = NAN;
+    bool markedBad_ = false;
 
 private:
     QMap<int, QSet<TileKey>> tileKeysToNextEpochByZoom_;

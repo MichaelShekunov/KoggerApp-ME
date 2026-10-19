@@ -201,7 +201,7 @@ void ReliefCloud::rebuild()
     for (int i = 0; i < epochCount; i += pingStride_) {
         ++considered;
         Epoch* epoch = datasetPtr_->fromIndex(i);
-        if (!epoch) {
+        if (!epoch || datasetPtr_->isEpochExcluded(i)) {   // a ping marked bad or trimmed: none
             ++noEpoch;
             continue;
         }

@@ -32,6 +32,7 @@
 #include "stall_monitor.h"
 #include "ui_state_serializer.h"
 #include "echogram_state_serializer.h"
+#include "echo_edit_script.h"
 #include "notifications.h"
 #include "scene_object.h"
 #include "bottom_track.h"
@@ -432,6 +433,22 @@ int main(int argc, char *argv[])
 
     engine.rootContext()->setContextProperty("dataset", core.getDatasetPtr());
     engine.rootContext()->setContextProperty("core", &core);
+    // Echogram edits: the palette's undo, redo, trim and magnet (docs/echogram-editing.md).
+    engine.rootContext()->setContextProperty("echoEdit", core.getEchogramEditorPtr());
+    {
+        QSettings s(QStringLiteral("KOGGER"), koggerAppName());
+        core.getEchogramEditorPtr()->setMagnet(s.value(QStringLiteral("echogram/editMagnet"), false).toBool());
+    }
+    QObject::connect(core.getEchogramEditorPtr(), &EchogramEditor::magnetChanged, &app, []() {
+        QSettings s(QStringLiteral("KOGGER"), koggerAppName());
+        s.setValue(QStringLiteral("echogram/editMagnet"), core.getEchogramEditorPtr()->magnet());
+    });
+    // A phone suspends an app without asking: what is unsaved goes to the file of edits first.
+    QObject::connect(&app, &QGuiApplication::applicationStateChanged, &app, [](Qt::ApplicationState state) {
+        if (state != Qt::ApplicationActive) {
+            core.getEchogramEditorPtr()->flush();
+        }
+    });
     engine.rootContext()->setContextProperty("theme", &theme);
     engine.rootContext()->setContextProperty("linkManagerWrapper", core.getLinkManagerWrapperPtr());
     engine.rootContext()->setContextProperty("deviceManagerWrapper", core.getDeviceManagerWrapperPtr());
@@ -464,6 +481,12 @@ int main(int argc, char *argv[])
     // moment instead of on a timer.
     UiProbe uiProbe;
     engine.rootContext()->setContextProperty("uiProbe", &uiProbe);
+
+    // KOGGER_ECHOEDIT_SCRIPT: echogram edits made by a script on an opened recording
+    // (tools/perf/echoedit_e2e.ps1). Nothing happens unless it is set.
+    EchoEditScript echoEditScript(&core);
+    echoEditScript.setUiProbe(&uiProbe);
+    echoEditScript.armFromEnvironment();
 
     // Expose compile-time MANUAL_TESTING flag to QML — the Settings panel
     // shows a "Test" group (with developer-only knobs) only when this is true.
@@ -565,6 +588,7 @@ int main(int argc, char *argv[])
     qInfo() << "App is created";
     const int retCode = app.exec();
 
+    core.getEchogramEditorPtr()->flush();   // before anything is torn down
     core.shutdownBackgroundWorkers();
     core.saveLLARefToSettings();
     core.removeLinkManagerConnections();

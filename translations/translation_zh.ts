@@ -1648,29 +1648,194 @@
 <context>
     <name>BottomTrackEditPopup</name>
     <message>
-        <location filename="../qml/app/BottomTrackEditPopup.qml" line="19"/>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="21"/>
         <source>Navigate</source>
         <translation>浏览</translation>
     </message>
     <message>
-        <location filename="../qml/app/BottomTrackEditPopup.qml" line="20"/>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="22"/>
         <source>Draw bottom track</source>
         <translation>绘制底部跟踪线</translation>
     </message>
     <message>
-        <location filename="../qml/app/BottomTrackEditPopup.qml" line="21"/>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="23"/>
         <source>Raise bottom track</source>
         <translation>抬高底部跟踪线</translation>
     </message>
     <message>
-        <location filename="../qml/app/BottomTrackEditPopup.qml" line="22"/>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="24"/>
         <source>Lower bottom track</source>
         <translation>降低底部跟踪线</translation>
     </message>
     <message>
-        <location filename="../qml/app/BottomTrackEditPopup.qml" line="23"/>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="25"/>
         <source>Erase bottom track</source>
         <translation>擦除底部跟踪线</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="28"/>
+        <source>Mark bad pings: they are left out of the mosaic, the bottom surface and the export</source>
+        <translation>标记坏探测：它们不进入镶嵌图、海底表面和导出</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="29"/>
+        <source>Unmark pings</source>
+        <translation>取消探测标记</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="30"/>
+        <source>The recording starts here: what is before is left out</source>
+        <translation>记录从这里开始：之前的部分被排除</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="31"/>
+        <source>The recording ends here: what is after is left out</source>
+        <translation>记录到这里结束：之后的部分被排除</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="34"/>
+        <source>Smooth the bottom: each pass gives a ping the median depth of its neighbours</source>
+        <translation>平滑海底：每经过一次，探测取其相邻探测深度的中位数</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="35"/>
+        <source>Fill the gaps of the bottom: a straight line between the depths around them</source>
+        <translation>填补海底空缺：在两侧深度之间连一条直线</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="36"/>
+        <source>Leave the side under the cursor out of the mosaic; its depths stay (&quot;Unmark pings&quot; puts it back)</source>
+        <translation>将光标下的一侧排除出镶嵌图；其深度保留（“取消探测标记”可恢复）</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="52"/>
+        <source>pencil</source>
+        <translation>铅笔</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="53"/>
+        <source>eraser</source>
+        <translation>橡皮擦</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="54"/>
+        <source>raise</source>
+        <translation>抬高底部跟踪线</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="55"/>
+        <source>lower</source>
+        <translation>降低底部跟踪线</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="56"/>
+        <source>pings marked bad</source>
+        <translation>标记坏探测</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="57"/>
+        <source>pings unmarked</source>
+        <translation>取消探测标记</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="58"/>
+        <source>points deleted in 3D</source>
+        <translation>在三维中删除点</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="59"/>
+        <source>recording start</source>
+        <translation>记录起点</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="60"/>
+        <source>recording end</source>
+        <translation>记录终点</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="61"/>
+        <source>trim removed</source>
+        <translation>取消裁剪</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="62"/>
+        <source>all edits reset</source>
+        <translation>重置全部编辑</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="63"/>
+        <source>smoothing</source>
+        <translation>平滑</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="64"/>
+        <source>gaps filled</source>
+        <translation>填补空缺</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="65"/>
+        <source>sides left out of the mosaic</source>
+        <translation>一侧排除出镶嵌图</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="66"/>
+        <source>spikes removed</source>
+        <translation>去除尖峰</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="67"/>
+        <source>turns left out of the mosaic</source>
+        <translation>转弯排除出镶嵌图</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="198"/>
+        <source>Magnet: the pencil snaps to the bottom the bottom track finds near it</source>
+        <translation>磁吸：铅笔吸附到底部跟踪在附近找到的海底</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="211"/>
+        <source>Undo: %1 (Ctrl+Z)</source>
+        <translation>撤销：%1 (Ctrl+Z)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="212"/>
+        <source>Undo (Ctrl+Z)</source>
+        <translation>撤销 (Ctrl+Z)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="221"/>
+        <source>Redo: %1 (Ctrl+Y)</source>
+        <translation>重做：%1 (Ctrl+Y)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="222"/>
+        <source>Redo (Ctrl+Y)</source>
+        <translation>重做 (Ctrl+Y)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="244"/>
+        <source>The whole recording again: the trim removed</source>
+        <translation>恢复完整记录：取消裁剪</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="254"/>
+        <source>Press again to reset every edit of this recording (Undo brings them back)</source>
+        <translation>再按一次以重置此记录的全部编辑（撤销可恢复）</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="255"/>
+        <source>Reset every edit of this recording</source>
+        <translation>重置此记录的全部编辑</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="292"/>
+        <source>Remove the spikes of the bottom over the whole recording (one step to undo)</source>
+        <translation>去除整个记录中的海底尖峰（一步即可撤销）</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/BottomTrackEditPopup.qml" line="300"/>
+        <source>Leave the turns out of the mosaic over the whole recording (one step to undo)</source>
+        <translation>将整个记录中的转弯排除出镶嵌图（一步即可撤销）</translation>
     </message>
 </context>
 <context>
@@ -2161,171 +2326,171 @@
 <context>
     <name>Core</name>
     <message>
-        <location filename="../src/core.cpp" line="616"/>
-        <location filename="../src/core.cpp" line="877"/>
+        <location filename="../src/core.cpp" line="631"/>
+        <location filename="../src/core.cpp" line="897"/>
         <source>File closed</source>
         <translation>文件已关闭</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="617"/>
-        <location filename="../src/core.cpp" line="878"/>
+        <location filename="../src/core.cpp" line="632"/>
+        <location filename="../src/core.cpp" line="898"/>
         <source>File closed: %1</source>
         <translation>文件已关闭：%1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1169"/>
+        <location filename="../src/core.cpp" line="1189"/>
         <source>KLF logging started:
 %1</source>
         <translation>KLF 日志记录已开始：
 %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1172"/>
+        <location filename="../src/core.cpp" line="1192"/>
         <source>KLF logging not started</source>
         <translation>KLF 日志记录未能启动</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1178"/>
+        <location filename="../src/core.cpp" line="1198"/>
         <source>KLF log saved:
 %1</source>
         <translation>KLF 日志已保存：
 %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1180"/>
+        <location filename="../src/core.cpp" line="1200"/>
         <source>KLF logging disabled</source>
         <translation>KLF 日志记录已关闭</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1362"/>
+        <location filename="../src/core.cpp" line="1382"/>
         <source>Invalid log folder:
 %1</source>
         <translation>日志文件夹无效：
 %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1368"/>
+        <location filename="../src/core.cpp" line="1388"/>
         <source>Log folder is not writable:
 %1</source>
         <translation>日志文件夹不可写：
 %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1511"/>
+        <location filename="../src/core.cpp" line="1531"/>
         <source>CSV logging started:
 %1</source>
         <translation>CSV 日志记录已开始：
 %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1514"/>
+        <location filename="../src/core.cpp" line="1534"/>
         <source>CSV logging not started</source>
         <translation>CSV 日志记录未能启动</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1520"/>
+        <location filename="../src/core.cpp" line="1540"/>
         <source>CSV log saved:
 %1</source>
         <translation>CSV 日志已保存：
 %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1522"/>
+        <location filename="../src/core.cpp" line="1542"/>
         <source>CSV logging disabled</source>
         <translation>CSV 日志记录已关闭</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1558"/>
-        <location filename="../src/core.cpp" line="1607"/>
-        <location filename="../src/core.cpp" line="1621"/>
-        <location filename="../src/core.cpp" line="1651"/>
-        <location filename="../src/core.cpp" line="1744"/>
-        <location filename="../src/core.cpp" line="2004"/>
-        <location filename="../src/core.cpp" line="2023"/>
-        <location filename="../src/core.cpp" line="2035"/>
+        <location filename="../src/core.cpp" line="1578"/>
+        <location filename="../src/core.cpp" line="1627"/>
+        <location filename="../src/core.cpp" line="1641"/>
+        <location filename="../src/core.cpp" line="1671"/>
+        <location filename="../src/core.cpp" line="1764"/>
+        <location filename="../src/core.cpp" line="2028"/>
+        <location filename="../src/core.cpp" line="2047"/>
+        <location filename="../src/core.cpp" line="2059"/>
         <source>Export failed: %1</source>
         <translation>导出失败：%1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1610"/>
+        <location filename="../src/core.cpp" line="1630"/>
         <source>Complex signals exported to CSV: %1</source>
         <translation>复数信号已导出为 CSV：%1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1654"/>
+        <location filename="../src/core.cpp" line="1674"/>
         <source>USBL exported to CSV: %1</source>
         <translation>USBL 已导出为 CSV：%1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2007"/>
+        <location filename="../src/core.cpp" line="2031"/>
         <source>Exported to CSV: %1</source>
         <translation>已导出为 CSV：%1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2015"/>
+        <location filename="../src/core.cpp" line="2039"/>
         <source>Export failed</source>
         <translation>导出失败</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2038"/>
+        <location filename="../src/core.cpp" line="2062"/>
         <source>Exported to XTF: %1</source>
         <translation>已导出为 XTF：%1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2607"/>
-        <location filename="../src/core.cpp" line="2631"/>
+        <location filename="../src/core.cpp" line="2632"/>
+        <location filename="../src/core.cpp" line="2656"/>
         <source>street</source>
         <translation>街道</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2613"/>
-        <location filename="../src/core.cpp" line="2619"/>
-        <location filename="../src/core.cpp" line="2625"/>
+        <location filename="../src/core.cpp" line="2638"/>
+        <location filename="../src/core.cpp" line="2644"/>
+        <location filename="../src/core.cpp" line="2650"/>
         <source>satellite</source>
         <translation>卫星</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2791"/>
+        <location filename="../src/core.cpp" line="2819"/>
         <source>File opened</source>
         <translation>文件已打开</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2792"/>
+        <location filename="../src/core.cpp" line="2820"/>
         <source>File opened: %1</source>
         <translation>文件已打开：%1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3040"/>
+        <location filename="../src/core.cpp" line="3069"/>
         <source>Connected</source>
         <translation>已连接</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3040"/>
+        <location filename="../src/core.cpp" line="3069"/>
         <source>Connected: %1</source>
         <translation>已连接：%1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3054"/>
+        <location filename="../src/core.cpp" line="3083"/>
         <source>Disconnected</source>
         <translation>已断开</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3054"/>
+        <location filename="../src/core.cpp" line="3083"/>
         <source>Disconnected: %1</source>
         <translation>已断开：%1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3464"/>
+        <location filename="../src/core.cpp" line="3493"/>
         <source>Internet connection restored</source>
         <translation>网络连接已恢复</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3465"/>
+        <location filename="../src/core.cpp" line="3494"/>
         <source>Internet connection lost</source>
         <translation>网络连接已断开</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3477"/>
+        <location filename="../src/core.cpp" line="3506"/>
         <source>Metered network detected</source>
         <translation>检测到按流量计费的网络</translation>
     </message>
@@ -2824,8 +2989,8 @@
 <context>
     <name>Dataset</name>
     <message>
-        <location filename="../src/dataset.cpp" line="1354"/>
-        <location filename="../src/dataset.cpp" line="1356"/>
+        <location filename="../src/dataset.cpp" line="1498"/>
+        <location filename="../src/dataset.cpp" line="1500"/>
         <source>None</source>
         <translation>无</translation>
     </message>
@@ -6651,6 +6816,74 @@
     </message>
 </context>
 <context>
+    <name>EchogramEditor</name>
+    <message>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="270"/>
+        <source>No spikes of the bottom found</source>
+        <translation>未发现海底尖峰</translation>
+    </message>
+    <message>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="278"/>
+        <source>Spikes of the bottom replaced with the bottom around them: %1 pings</source>
+        <translation>海底尖峰已替换为周围的海底：%1 个探测</translation>
+    </message>
+    <message>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="325"/>
+        <source>No turns found</source>
+        <translation>未发现转弯</translation>
+    </message>
+    <message>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="326"/>
+        <source>Turns left out of the mosaic: %1, %2 pings</source>
+        <translation>转弯已排除出镶嵌图：%1 处，%2 个探测</translation>
+    </message>
+    <message>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="467"/>
+        <source>Could not move the file of edits aside: %1</source>
+        <translation>无法移开编辑文件：%1</translation>
+    </message>
+    <message>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="613"/>
+        <source>Could not remove the file of edits: %1</source>
+        <translation>无法删除编辑文件：%1</translation>
+    </message>
+    <message>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="626"/>
+        <source>Echogram edits not saved: %1</source>
+        <translation>回波图编辑未保存：%1</translation>
+    </message>
+    <message>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="743"/>
+        <source>Echogram edits are not saved while several files are open together</source>
+        <translation>同时打开多个文件时，回波图编辑不会保存</translation>
+    </message>
+    <message>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="761"/>
+        <source>The file of edits could not be read, edits are not saved: %1</source>
+        <translation>无法读取编辑文件，编辑不会保存：%1</translation>
+    </message>
+    <message>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="770"/>
+        <source>The file of edits is not understood (%1); it is left as it is, edits are not saved</source>
+        <translation>无法识别编辑文件（%1）；文件保持原样，编辑不会保存</translation>
+    </message>
+    <message>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="779"/>
+        <source>The file of edits does not fit this recording (%1 pings, the recording has %2); not applied, left as it is</source>
+        <translation>编辑文件与此记录不符（其中 %1 个探测，记录中有 %2 个）；未应用，保持原样</translation>
+    </message>
+    <message>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="792"/>
+        <source>Some echogram edits are for channels this recording lacks; %1 left out</source>
+        <translation>部分编辑属于此记录没有的通道；已略过 %1 个</translation>
+    </message>
+    <message>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="818"/>
+        <source>Echogram edits restored: %1</source>
+        <translation>回波图编辑已恢复：%1</translation>
+    </message>
+</context>
+<context>
     <name>EchogramSettingsPanel</name>
     <message>
         <location filename="../qml/app/EchogramSettingsPanel.qml" line="43"/>
@@ -8312,178 +8545,178 @@
         <translation>第二窗口</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1124"/>
-        <location filename="../qml/app/MainWindow.qml" line="1141"/>
+        <location filename="../qml/app/MainWindow.qml" line="1139"/>
+        <location filename="../qml/app/MainWindow.qml" line="1156"/>
         <source>Settings</source>
         <translation>设置</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1125"/>
+        <location filename="../qml/app/MainWindow.qml" line="1140"/>
         <source>Quick action menu</source>
         <translation>快捷操作菜单</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1126"/>
+        <location filename="../qml/app/MainWindow.qml" line="1141"/>
         <source>Edit panel</source>
         <translation>编辑面板</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1126"/>
+        <location filename="../qml/app/MainWindow.qml" line="1141"/>
         <source>Create panel</source>
         <translation>创建面板</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1127"/>
+        <location filename="../qml/app/MainWindow.qml" line="1142"/>
         <source>Servo panel</source>
         <translation>舵机面板</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1128"/>
+        <location filename="../qml/app/MainWindow.qml" line="1143"/>
         <source>USBL panel</source>
         <translation>USBL 面板</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1129"/>
+        <location filename="../qml/app/MainWindow.qml" line="1144"/>
         <source>Stand panel</source>
         <translation>测试台面板</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1130"/>
+        <location filename="../qml/app/MainWindow.qml" line="1145"/>
         <source>UI Saving</source>
         <translation>界面保存</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1131"/>
+        <location filename="../qml/app/MainWindow.qml" line="1146"/>
         <source>TGC</source>
         <translation>TGC</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1132"/>
+        <location filename="../qml/app/MainWindow.qml" line="1147"/>
         <source>Export to CSV</source>
         <translation>导出为 CSV</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1133"/>
+        <location filename="../qml/app/MainWindow.qml" line="1148"/>
         <source>Information panel</source>
         <translation>信息面板</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1134"/>
+        <location filename="../qml/app/MainWindow.qml" line="1149"/>
         <source>Console</source>
         <translation>控制台</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1135"/>
+        <location filename="../qml/app/MainWindow.qml" line="1150"/>
         <source>About</source>
         <translation>关于</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1136"/>
+        <location filename="../qml/app/MainWindow.qml" line="1151"/>
         <source>Developer mode</source>
         <translation>开发者模式</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1138"/>
+        <location filename="../qml/app/MainWindow.qml" line="1153"/>
         <source>Create layout</source>
         <translation>创建布局</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1139"/>
+        <location filename="../qml/app/MainWindow.qml" line="1154"/>
         <source>Devices</source>
         <translation>设备</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1520"/>
+        <location filename="../qml/app/MainWindow.qml" line="1535"/>
         <source>Tap again: apply %1 and save</source>
         <translation>再点一次：应用 %1 项更改并保存</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1521"/>
+        <location filename="../qml/app/MainWindow.qml" line="1536"/>
         <source>Apply and save (%1)</source>
         <translation>应用并保存（%1）</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1522"/>
+        <location filename="../qml/app/MainWindow.qml" line="1537"/>
         <source>Save to device</source>
         <translation>保存到设备</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1524"/>
+        <location filename="../qml/app/MainWindow.qml" line="1539"/>
         <source>Apply every change waiting on this page, then write the settings to the device&apos;s memory</source>
         <translation>应用此页面上所有待处理的更改，然后将设置写入设备存储器</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1525"/>
+        <location filename="../qml/app/MainWindow.qml" line="1540"/>
         <source>Write the current settings to the device&apos;s memory</source>
         <translation>将当前设置写入设备存储器</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1542"/>
+        <location filename="../qml/app/MainWindow.qml" line="1557"/>
         <source>Tap again to apply to %1: %2</source>
         <translation>再点一次以应用到 %1：%2</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1552"/>
+        <location filename="../qml/app/MainWindow.qml" line="1567"/>
         <source>Settings written to device: %1</source>
         <translation>设置已写入设备：%1</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1559"/>
+        <location filename="../qml/app/MainWindow.qml" line="1574"/>
         <source>Close</source>
         <translation>关闭</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1635"/>
+        <location filename="../qml/app/MainWindow.qml" line="1650"/>
         <source>Boat: %1 — done</source>
         <translation>船：%1 — 完成</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1637"/>
+        <location filename="../qml/app/MainWindow.qml" line="1652"/>
         <source>Boat: %1 — %2</source>
         <translation>船：%1 — %2</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1641"/>
+        <location filename="../qml/app/MainWindow.qml" line="1656"/>
         <source>Boat: %1</source>
         <translation>船：%1</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1719"/>
+        <location filename="../qml/app/MainWindow.qml" line="1734"/>
         <source>Welcome to KoggerApp!</source>
         <translation>欢迎使用 KoggerApp！</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1728"/>
+        <location filename="../qml/app/MainWindow.qml" line="1743"/>
         <source>Language:</source>
         <translation>语言：</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1746"/>
+        <location filename="../qml/app/MainWindow.qml" line="1761"/>
         <source>Choose which settings to show</source>
         <translation>选择要显示的设置</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1753"/>
+        <location filename="../qml/app/MainWindow.qml" line="1768"/>
         <source>Fish Finders</source>
         <translation>鱼探仪</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1754"/>
+        <location filename="../qml/app/MainWindow.qml" line="1769"/>
         <source>Bottom Track</source>
         <translation>底部跟踪</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1755"/>
+        <location filename="../qml/app/MainWindow.qml" line="1770"/>
         <source>Maximum</source>
         <translation>最大</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1763"/>
+        <location filename="../qml/app/MainWindow.qml" line="1778"/>
         <source>You can change this later in settings.</source>
         <translation>之后可以在设置中更改。</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1773"/>
+        <location filename="../qml/app/MainWindow.qml" line="1788"/>
         <source>Continue</source>
         <translation>继续</translation>
     </message>
@@ -9668,317 +9901,317 @@
 <context>
     <name>Plot2D</name>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="758"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="761"/>
         <source>Echogram levels</source>
         <translation>回波图色阶</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="859"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="862"/>
         <source>Echogram sound: on</source>
         <translation>回波图声音：开</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="859"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="862"/>
         <source>Echogram sound: off</source>
         <translation>回波图声音：关</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="876"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="879"/>
         <source>Echogram settings</source>
         <translation>回波图设置</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1055"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1058"/>
         <source>Channels:</source>
         <translation>通道：</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1170"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1173"/>
         <source>Echogram</source>
         <translation>回波图</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1179"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1182"/>
         <source>Blue</source>
         <translation>蓝色</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1179"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1182"/>
         <source>Sepia</source>
         <translation>棕褐色</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1179"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1182"/>
         <source>Sepia New</source>
         <translation>新棕褐色</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1179"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1182"/>
         <source>WRGBD</source>
         <translation>WRGBD</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1179"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1182"/>
         <source>WhiteBlack</source>
         <translation>白黑</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1179"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1182"/>
         <source>BlackWhite</source>
         <translation>黑白</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1179"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1182"/>
         <source>DeepBlue</source>
         <translation>深蓝</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1179"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1182"/>
         <source>Ice</source>
         <translation>冰蓝</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1179"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1182"/>
         <source>Green</source>
         <translation>绿色</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1179"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1182"/>
         <source>Midnight</source>
         <translation>午夜</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1202"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1205"/>
         <source>Raw</source>
         <translation>原始</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1202"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1205"/>
         <source>Side-Scan</source>
         <translation>侧扫</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1202"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1205"/>
         <source>TGC</source>
         <translation>TGC</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1218"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1221"/>
         <source>Sound: log</source>
         <translation>声音：对数</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1218"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1221"/>
         <source>Sound: linear</source>
         <translation>声音：线性</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1235"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1238"/>
         <source>Deconvolution</source>
         <translation>反卷积</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1240"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1243"/>
         <source>On</source>
         <translation>开</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1254"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1257"/>
         <source>Beam°</source>
         <translation>波束°</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1288"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1291"/>
         <source>Motion</source>
         <translation>运动</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1302"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1305"/>
         <source>Iter</source>
         <translation>迭代</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1329"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1332"/>
         <source>Bottom-Track</source>
         <translation>底部跟踪</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1334"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1374"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1337"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1377"/>
         <source>Value</source>
         <translation>数值</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1343"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1352"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1383"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1392"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1346"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1355"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1386"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1395"/>
         <source>Line</source>
         <translation>线条</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1352"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1392"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1355"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1395"/>
         <source>Points</source>
         <translation>点</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1369"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1372"/>
         <source>Rangefinder</source>
         <translation>测距仪</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1410"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1413"/>
         <source>Attitude</source>
         <translation>姿态</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1418"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1421"/>
         <source>Temperature</source>
         <translation>温度</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1442"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1445"/>
         <source>Doppler Beams</source>
         <translation>多普勒波束</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1452"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1461"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1470"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1479"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1517"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1455"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1464"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1473"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1482"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1520"/>
         <source>Depth</source>
         <translation>深度</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1453"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1462"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1471"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1480"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1456"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1465"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1474"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1483"/>
         <source>Velocity</source>
         <translation>速度</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1454"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1463"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1472"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1481"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1457"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1466"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1475"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1484"/>
         <source>Mode</source>
         <translation>模式</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1503"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1506"/>
         <source>Doppler Instrument</source>
         <translation>多普勒仪器</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1516"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1519"/>
         <source>Abs. Velocity</source>
         <translation>绝对速度</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1528"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1531"/>
         <source>DVL Legend</source>
         <translation>DVL 图例</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1538"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1541"/>
         <source>Top</source>
         <translation>顶部</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1538"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1541"/>
         <source>Center</source>
         <translation>居中</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1538"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1541"/>
         <source>Bottom</source>
         <translation>底部</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1558"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1561"/>
         <source>Acoustic angle</source>
         <translation>声学角度</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1570"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1573"/>
         <source>Doppler Profiler</source>
         <translation>多普勒剖面仪</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1580"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1583"/>
         <source>GNSS data</source>
         <translation>GNSS 数据</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1599"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1602"/>
         <source>Grid</source>
         <translation>网格</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1605"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1608"/>
         <source>fill</source>
         <translation>填满</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1621"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1624"/>
         <source>invert</source>
         <translation>反转</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1659"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1662"/>
         <source>Angle range, °</source>
         <translation>角度范围，°</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1711"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1714"/>
         <source>Velocity range, m/s</source>
         <translation>速度范围，m/s</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1768"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1771"/>
         <source>Distance auto range</source>
         <translation>距离自动量程</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1784"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1787"/>
         <source>Last data       </source>
         <translation>最新数据       </translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1784"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1787"/>
         <source>Last on screen</source>
         <translation>屏幕上最新值</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1784"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1787"/>
         <source>Max on screen</source>
         <translation>屏幕上最大值</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1800"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1803"/>
         <source>Horizontal</source>
         <translation>水平</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1808"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1811"/>
         <source>Loupe</source>
         <translation>放大镜</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1817"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1820"/>
         <source>size</source>
         <translation>大小</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1834"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1837"/>
         <source>zoom</source>
         <translation>缩放</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="2334"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="2337"/>
         <source>Set point of interest</source>
         <translation>设置兴趣点</translation>
     </message>
@@ -10013,7 +10246,7 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../src/core.cpp" line="3093"/>
+        <location filename="../src/core.cpp" line="3122"/>
         <source>File</source>
         <translation>文件</translation>
     </message>
@@ -10068,7 +10301,7 @@
         <translation>声速，m/s： </translation>
     </message>
     <message>
-        <location filename="../src/scene2d/plot2D_bottom_processing.cpp" line="115"/>
+        <location filename="../src/scene2d/plot2D_bottom_processing.cpp" line="201"/>
         <location filename="../src/scene2d/plot2D_grid.cpp" line="105"/>
         <location filename="../src/scene2d/plot2D_grid.cpp" line="158"/>
         <location filename="../src/scene2d/plot2D_rangefinder.cpp" line="93"/>

@@ -2,6 +2,7 @@
 #include "data_processor.h"
 #include "dataset.h"
 #include "surface_mesh.h"
+#include <algorithm>
 #include <QElapsedTimer>
 #include <QMetaType>
 #include <QVariantMap>
@@ -71,10 +72,41 @@ void ComputeWorker::clearMosaic()
         if (!t) {
             continue;
         }
-        t->setHeadIndx(-1);
+        // A tile with paint goes to the view again, blank until repainted; one that never had any
+        // stays as it is -- posted, it arrived as a new blank tile (14 of them on 00014 after an
+        // echogram edit, 2026-10-18).
         auto& img = t->getMosaicImageDataRef();
+        const bool hadPaint = t->getHeadIndx() != -1
+            || std::any_of(img.begin(), img.end(), [](uint8_t v) { return v != 0; });
+        t->setHeadIndx(-1);
         std::fill(img.begin(), img.end(), uint8_t(0));
-        t->setIsUpdated(true);
+        if (hadPaint) {
+            t->setIsUpdated(true);
+        }
+    }
+}
+
+void ComputeWorker::clearForEditRebuild()
+{
+    surface_.clear();
+    mosaic_.clear();
+    isobaths_.clear();
+
+    for (SurfaceTile* t : surfaceMesh_.getTilesCRef()) {
+        if (!t || !t->getIsInited()) {
+            continue;
+        }
+        // Only a tile that showed something goes to the view again: one that never had paint or a
+        // height would arrive as a new blank tile (14 of them on 00014, 2026-10-18).
+        auto& img = t->getMosaicImageDataRef();
+        const auto& marks = t->getHeightMarkVerticesCRef();
+        const bool hadContent = t->getHeadIndx() != -1
+            || std::any_of(img.begin(), img.end(), [](uint8_t v) { return v != 0; })
+            || std::any_of(marks.begin(), marks.end(), [](HeightType m) { return m != HeightType::kUndefined; });
+        t->init(t->sidePixelSize(), t->heightMatrixRatio(), t->resolution());   // the heights, unset
+        t->setHeadIndx(-1);
+        std::fill(img.begin(), img.end(), uint8_t(0));
+        t->setIsUpdated(hadContent);
     }
 }
 

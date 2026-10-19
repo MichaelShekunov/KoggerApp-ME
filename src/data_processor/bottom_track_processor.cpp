@@ -373,16 +373,22 @@ void BottomTrackProcessor::bottomTrackProcessing(const DatasetChannel &channel1,
         constr[cash_ind].max = chart->bottomProcessing.getMax();
 
         const int win_center_index = (epoch_counter - 1 + btP.windowSize/2)%btP.windowSize;
+        // The search limits of the epoch the result goes to (btIndex below, windowSize/2 epochs back).
+        // win_center_index is that epoch's only with an even window; with an odd one it is the epoch
+        // before, so every ping of a "raise" or "lower" stroke was searched with its neighbour's limits
+        // and the first kept its old bottom (echoedit_e2e on 00014, window 11, 2026-10-18). Without
+        // limits nothing changes: an unedited ping has none.
+        const int limits_index = (epoch_counter - 1 + (btP.windowSize + 1)/2)%btP.windowSize;
 
         float search_from_distance = btP.minDistance;
         float search_to_distance = btP.maxDistance;
 
-        if(search_from_distance < constr[win_center_index].min) {
-            search_from_distance = constr[win_center_index].min;
+        if(search_from_distance < constr[limits_index].min) {
+            search_from_distance = constr[limits_index].min;
         }
 
-        if(search_to_distance > constr[win_center_index].max) {
-            search_to_distance = constr[win_center_index].max;
+        if(search_to_distance > constr[limits_index].max) {
+            search_to_distance = constr[limits_index].max;
         }
 
         int start_search_index = search_from_distance/t1/chart->resolution;

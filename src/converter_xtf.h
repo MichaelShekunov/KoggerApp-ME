@@ -53,7 +53,7 @@ public:
         for(int i = 0; i < dataset_size; i++) {
             Epoch* epoch = dataset->fromIndex(i);
 
-            if (epoch != nullptr) {
+            if (epoch != nullptr && !dataset->isEpochExcluded(i)) {   // not marked bad, not trimmed
                 XTFPINGHEADER pingheader;
                 pingheader.NumBytesThisRecord = 0;
                 pingheader.NumBytesThisRecord += sizeof (XTFPINGHEADER);

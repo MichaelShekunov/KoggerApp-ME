@@ -8,6 +8,7 @@
 #include <QPixmap>
 #include <QPainter>
 #include <QEvent>
+#include <QPointer>
 
 
 #include "plot2D_aim.h"
@@ -29,6 +30,7 @@
 #include "dataset.h"
 #include "data_processor.h"
 
+class EchogramEditor;
 
 class Plot2D
 {
@@ -37,6 +39,9 @@ public:
 
     void setDataset(Dataset* dataset);
     void setDataProcessorPtr(DataProcessor* dataProcessorPtr);
+    // Echogram edits: a stroke of a tool is one step of the editor's history (undo, the file of edits);
+    // the pencil's magnet is the editor's switch.
+    void setEchogramEditor(EchogramEditor* editor);
 
     float getDepthByMousePos(int mouseX, int mouseY, bool isHorizontal) const;
     float getSyncDepthByMousePos(int mouseX, int mouseY, bool isHorizontal, int* channelOut) const;
@@ -234,6 +239,13 @@ protected:
     float syncDepth_ = 0.0f;          // absolute physical depth (>=0 from surface)
     int syncChannel_ = 1;             // which channel the synced depth belongs to (1/2)
     int aimFieldsMask_ = 0xFF;
+    QPointer<EchogramEditor> editor_;
+    bool strokeOpen_ = false;         // a press of an edit tool is under way (setMousePosition)
+
+    // The pencil's magnet: the bottom track's bottom looked for within a few pixels of dist, else dist.
+    float magnetDistance(int epochIndex, float dist, float metersPerPixel) const;
+    // Pings marked bad, and trimmed off, shaded over the echogram.
+    void drawEditShading();
 
 private:
     bool isEnabled_;
