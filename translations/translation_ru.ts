@@ -4,28 +4,33 @@
 <context>
     <name>AboutPage</name>
     <message>
-        <location filename="../qml/app/AboutPage.qml" line="48"/>
+        <location filename="../qml/app/AboutPage.qml" line="52"/>
         <source>Full notices, component provenance and where to obtain the sources are in THIRD_PARTY_NOTICES.md in the source tree.</source>
         <translation>Полные уведомления, происхождение компонентов и адреса исходников — в файле THIRD_PARTY_NOTICES.md в дереве исходников.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AboutPage.qml" line="47"/>
+        <location filename="../qml/app/AboutPage.qml" line="51"/>
         <source>Third-party components</source>
         <translation>Сторонние компоненты</translation>
     </message>
     <message>
-        <location filename="../qml/app/AboutPage.qml" line="37"/>
-        <location filename="../qml/app/AboutPage.qml" line="42"/>
+        <location filename="../qml/app/AboutPage.qml" line="20"/>
+        <source>&quot;Zoom fit&quot; icon by Timothée Giet</source>
+        <translation>Значок «Вписать в окно», автор Timothée Giet</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AboutPage.qml" line="41"/>
+        <location filename="../qml/app/AboutPage.qml" line="46"/>
         <source>Application license</source>
         <translation>Лицензия приложения</translation>
     </message>
     <message>
-        <location filename="../qml/app/AboutPage.qml" line="34"/>
+        <location filename="../qml/app/AboutPage.qml" line="38"/>
         <source>KoggerApp is distributed under the GNU General Public License v3.</source>
         <translation>KoggerApp распространяется по лицензии GNU General Public License v3.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AboutPage.qml" line="33"/>
+        <location filename="../qml/app/AboutPage.qml" line="37"/>
         <source>License</source>
         <translation>Лицензия</translation>
     </message>
@@ -35,7 +40,7 @@
         <translation>Лицензия FreeType (FTL)</translation>
     </message>
     <message>
-        <location filename="../qml/app/AboutPage.qml" line="27"/>
+        <location filename="../qml/app/AboutPage.qml" line="31"/>
         <source>Revision %1</source>
         <translation>Ревизия %1</translation>
     </message>

@@ -1,0 +1,13 @@
+"Zoom fit" icon, in KoggerApp resources/icons/ui/fit-in-view.svg
+
+Original file name: dark_zoom-fit.svg
+Author:             Timothée Giet, 2016 (as the file's own metadata states)
+Licence:            Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
+                    https://creativecommons.org/licenses/by-sa/4.0/
+Source:             not recorded; the file's name and author suggest the icon set of Krita
+                    (https://krita.org)
+Changes:            added to KoggerApp in 2023 as fit-in-view.svg; whether it was changed is
+                    not recorded
+
+The licence's disclaimer of warranties and limitation of liability apply (its section 5):
+https://creativecommons.org/licenses/by-sa/4.0/legalcode

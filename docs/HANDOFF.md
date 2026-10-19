@@ -1958,3 +1958,36 @@ powershell -ExecutionPolicy Bypass -File tools\perf\echoedit_e2e.ps1 -Exe D:\Tem
 The end-to-end check uses the profile "echoedit" (a copy of "perf": `reg copy
 HKCU\Software\KOGGER\KoggerApp-perf HKCU\Software\KOGGER\KoggerApp-echoedit /s /f`); the first
 ~2 700-2 900 pings of the test recordings are the boat out of the water (00014: 2924, 00008: 2647).
+
+## The icons' licences in the notices and the About page (2026-10-19, branch third-party-icons)
+
+Found during the echogram editing: the interface's icons are mostly Tabler Icons (MIT), and neither
+`THIRD_PARTY_NOTICES.md` nor *Settings -> Interface -> About* credited them; the owner: "do it here".
+Worktree `D:\Temp\ka_notices`, branch `third-party-icons` from `me` c4e1d3f4; committed and pushed to
+`mine` at the owner's word (2026-10-19); not merged into `me`.
+
+**What the icons are** (`resources/icons/ui`, read from the files [verified]): 196 of the 209 SVGs
+carry Tabler's `icon-tabler` class; three are Ionicons 5 (`<title>ionicons-v5-...`, MIT); one,
+`fit-in-view.svg`, is "dark_zoom-fit.svg" by Timothée Giet, 2016, CC BY-SA 4.0 by its own metadata (from
+Krita's icon set [inference]); four say "Uploaded to: SVG Repo", whose licence depends on the collection
+there and was not recorded -- **open**; four are Potrace tracings and one is two strokes, taken for the
+project's own [assumption]. File by file: `third_party/icons/README.md`.
+
+**Done.** The two MIT texts copied from the upstream LICENSE files (Tabler: "Copyright (c) 2020-2026
+Paweł Kuna"; Ionicons: "Copyright (c) 2015-present Ionic"; each copyright line read twice [verified])
+and a CC BY-SA credit for the zoom-fit icon, in `third_party/icons/`; aliases `licenses/TABLER-ICONS-MIT.txt`,
+`IONICONS-MIT.txt`, `ZOOM-FIT-CC-BY-SA-4.0.txt` in `resources/resources.qrc`; three rows on the About
+page (`qml/app/AboutPage.qml`; a row with no version no longer ends in a space); an "Icons" section in
+`THIRD_PARTY_NOTICES.md`. One new string, ru and zh (zh machine-made), `ts_check` clean.
+
+**Check.** `tools\qml_check\about_check.ps1`: every SVG is Tabler or named in the icons' README (an icon
+from elsewhere fails until written down); every licence the About page offers is in the qrc with its
+file; the real `AboutPage.qml` and `LicensePage.qml` run offscreen over the source tree's licence files:
+each row opens the text it should (the GPL, the LGPLs, the FTL, MAVLink's, Tabler's and Ionic's MIT, the
+CC BY-SA credit). All pass; it fails on an unnamed icon and on a broken alias [verified, both tried].
+`-Picture` saves the page; looked at.
+
+**Seen, not changed:** `third_party/opencl` holds the Khronos OpenCL headers (Apache 2.0), compiled in
+(`src/processing/CMakeLists.txt` adds them to the include path for the OpenCL deconvolution pass)
+[verified]; its README says so, but neither the notices nor the About page name them -- Apache 2.0 asks
+for its text with the object form too. Left for the owner.

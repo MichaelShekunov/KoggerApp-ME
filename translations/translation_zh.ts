@@ -9,33 +9,38 @@
         <translation>FreeType 许可证（FTL）</translation>
     </message>
     <message>
-        <location filename="../qml/app/AboutPage.qml" line="27"/>
+        <location filename="../qml/app/AboutPage.qml" line="20"/>
+        <source>&quot;Zoom fit&quot; icon by Timothée Giet</source>
+        <translation>“适应窗口”图标，作者 Timothée Giet</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AboutPage.qml" line="31"/>
         <source>Revision %1</source>
         <translation>修订版 %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/AboutPage.qml" line="33"/>
+        <location filename="../qml/app/AboutPage.qml" line="37"/>
         <source>License</source>
         <translation>许可证</translation>
     </message>
     <message>
-        <location filename="../qml/app/AboutPage.qml" line="34"/>
+        <location filename="../qml/app/AboutPage.qml" line="38"/>
         <source>KoggerApp is distributed under the GNU General Public License v3.</source>
         <translation>KoggerApp 依据 GNU General Public License v3 发布。</translation>
     </message>
     <message>
-        <location filename="../qml/app/AboutPage.qml" line="37"/>
-        <location filename="../qml/app/AboutPage.qml" line="42"/>
+        <location filename="../qml/app/AboutPage.qml" line="41"/>
+        <location filename="../qml/app/AboutPage.qml" line="46"/>
         <source>Application license</source>
         <translation>应用程序许可证</translation>
     </message>
     <message>
-        <location filename="../qml/app/AboutPage.qml" line="47"/>
+        <location filename="../qml/app/AboutPage.qml" line="51"/>
         <source>Third-party components</source>
         <translation>第三方组件</translation>
     </message>
     <message>
-        <location filename="../qml/app/AboutPage.qml" line="48"/>
+        <location filename="../qml/app/AboutPage.qml" line="52"/>
         <source>Full notices, component provenance and where to obtain the sources are in THIRD_PARTY_NOTICES.md in the source tree.</source>
         <translation>完整声明、组件来源及源代码获取方式见源代码树中的 THIRD_PARTY_NOTICES.md。</translation>
     </message>
