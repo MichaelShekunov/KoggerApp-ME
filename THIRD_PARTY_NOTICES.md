@@ -24,3 +24,14 @@ the product documentation:
 
 Provenance and what exactly is vendored: [third_party/ffmpeg/README.md](third_party/ffmpeg/README.md),
 [third_party/freetype/README.md](third_party/freetype/README.md), [third_party/mavlink/README.md](third_party/mavlink/README.md).
+
+## Icons
+
+The interface's icons are SVG files in `resources/icons/ui`, compiled into the application's resources.
+Their provenance, file by file: [third_party/icons/README.md](third_party/icons/README.md).
+
+| Icons | Licence | Text |
+|---|---|---|
+| [Tabler Icons](https://github.com/tabler/tabler-icons) (most of them) | MIT | [tabler-icons-LICENSE.txt](third_party/icons/tabler-icons-LICENSE.txt) |
+| [Ionicons](https://github.com/ionic-team/ionicons) 5 (three) | MIT | [ionicons-LICENSE.txt](third_party/icons/ionicons-LICENSE.txt) |
+| "Zoom fit" by Timothée Giet (one, `fit-in-view.svg`) | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) | [zoom-fit-ATTRIBUTION.txt](third_party/icons/zoom-fit-ATTRIBUTION.txt) |

@@ -13,7 +13,11 @@ Column {
         { name: "Qt",       version: "6.8.3",  license: "GNU LGPL v3",            file: "COPYING.LGPLv3" },
         { name: "FFmpeg",   version: "7.1",    license: "GNU LGPL v2.1 or later", file: "COPYING.LGPLv2.1" },
         { name: "FreeType", version: "2.13.2", license: qsTr("The FreeType License (FTL)"), file: "FTL.TXT" },
-        { name: "MAVLink C library", version: "c1fd65e", license: "MIT", file: "MAVLINK-MIT.txt" }
+        { name: "MAVLink C library", version: "c1fd65e", license: "MIT", file: "MAVLINK-MIT.txt" },
+        // The interface's icons (third_party/icons/README.md, file by file).
+        { name: "Tabler Icons", version: "", license: "MIT", file: "TABLER-ICONS-MIT.txt" },
+        { name: "Ionicons",     version: "5", license: "MIT", file: "IONICONS-MIT.txt" },
+        { name: qsTr("\"Zoom fit\" icon by Timothée Giet"), version: "", license: "CC BY-SA 4.0", file: "ZOOM-FIT-CC-BY-SA-4.0.txt" }
     ]
 
     AppIdentityCard {
@@ -53,7 +57,7 @@ Column {
             delegate: KIslandRow {
                 required property var modelData
 
-                label: modelData.name + " " + modelData.version
+                label: modelData.version ? modelData.name + " " + modelData.version : modelData.name
                 caption: modelData.license
                 labelColor: AppPalette.textStrong
                 interactive: true

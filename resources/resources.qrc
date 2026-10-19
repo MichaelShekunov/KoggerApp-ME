@@ -10,5 +10,8 @@
         <file alias="licenses/COPYING.LGPLv2.1">../third_party/ffmpeg/COPYING.LGPLv2.1</file>
         <file alias="licenses/FTL.TXT">../third_party/freetype/FTL.TXT</file>
         <file alias="licenses/MAVLINK-MIT.txt">../third_party/mavlink/LICENSE-MIT.txt</file>
+        <file alias="licenses/TABLER-ICONS-MIT.txt">../third_party/icons/tabler-icons-LICENSE.txt</file>
+        <file alias="licenses/IONICONS-MIT.txt">../third_party/icons/ionicons-LICENSE.txt</file>
+        <file alias="licenses/ZOOM-FIT-CC-BY-SA-4.0.txt">../third_party/icons/zoom-fit-ATTRIBUTION.txt</file>
     </qresource>
 </RCC>
