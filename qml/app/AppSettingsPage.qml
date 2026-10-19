@@ -294,6 +294,7 @@ Column {
         collapsedByDefault: false
 
         Column {
+            KPinTag { key: "app:interface.language"; label: qsTr("Language:") }
             width: parent.width
             spacing: Tokens.spaceMd
 
@@ -315,6 +316,7 @@ Column {
         }
 
         Column {
+            KPinTag { key: "app:interface.screenKeyboard"; label: qsTr("On-screen keyboard:") }
             width: parent.width
             spacing: Tokens.spaceMd
             // Android has its own keyboard and the panel never opens there (ScreenKeyboard)
@@ -416,6 +418,7 @@ Column {
         }
 
         Column {
+            KPinTag { key: "app:interface.toolset"; label: qsTr("Toolset:") }
             width: parent.width
             spacing: Tokens.spaceMd
 
@@ -443,6 +446,7 @@ Column {
 
         // UI scale — DPI auto-detect + user override. Persisted via theme.manualScale.
         Column {
+            KPinTag { key: "app:interface.uiScale"; label: qsTr("UI scale:") }
             width: parent.width
             spacing: Tokens.spaceMd
 
@@ -469,6 +473,7 @@ Column {
         }
 
         Column {
+            KPinTag { key: "app:interface.sidebarSide"; label: qsTr("Sidebar position:") }
             width: parent.width
             spacing: Tokens.spaceMd
 
@@ -490,6 +495,7 @@ Column {
 
         KIsland {
             KIslandRow {
+                KPinTag { key: "app:interface.hideEmpty" }
                 label: qsTr("Hide UI elements for missing data")
                 toolTipText: qsTr("Hide echogram controls when there is no matching data; off shows everything")
                 interactive: true
@@ -503,6 +509,7 @@ Column {
             }
 
             KIslandRow {
+                KPinTag { key: "app:interface.workspaceShift" }
                 label: qsTr("Workspace shift")
                 toolTipText: qsTr("Shift the workspace aside when the settings panel opens, instead of overlaying on top")
                 interactive: true
@@ -516,6 +523,7 @@ Column {
             }
 
             KIslandRow {
+                KPinTag { key: "app:interface.bringToFront" }
                 visible: Qt.platform.os === "windows" && appUtils.instanceIndex === 1
                 label: qsTr("Bring window to front")
                 toolTipText: qsTr("Raise and focus the app window on key events")
@@ -530,6 +538,7 @@ Column {
             }
 
             KIslandRow {
+                KPinTag { key: "app:interface.rotateLayout" }
                 visible: Qt.platform.os === "android" || Qt.platform.os === "ios"
                 label: qsTr("Rotate layout with device")
                 interactive: true
@@ -610,6 +619,7 @@ Column {
 
         KIsland {
             KIslandRow {
+                KPinTag { key: "app:workspace.edit" }
                 label: qsTr("Edit")
                 toolTipText: qsTr("Edit workspace panes")
                 interactive: true
@@ -623,6 +633,7 @@ Column {
             }
 
             KIslandRow {
+                KPinTag { key: "app:workspace.globalPopup" }
                 label: qsTr("Global pop-up")
                 toolTipText: qsTr("Floating window over the workspace, independent of the layout")
                 interactive: true
@@ -800,7 +811,9 @@ Column {
                     visible: !!(root.store && root.store.widgetListed(widgetRow.def))
                     label: qsTr("Panel %1").arg(widgetRow.widgetIndex + 1)
                     labelColor: shown ? "#FDE68A" : AppPalette.textStrong
-                    caption: widgetRow.def ? (widgetRow.def.cols + "×" + widgetRow.def.rows) : ""
+                    caption: !widgetRow.def ? ""
+                           : widgetRow.def.kind === "settings" ? (widgetRow.def.name || qsTr("Settings"))
+                           : (widgetRow.def.cols + "×" + widgetRow.def.rows)
                     fillColor:    shown ? root._shownFill    : "transparent"
                     hoverColor:   shown ? root._shownHover   : AppPalette.cardHover
                     pressedColor: shown ? root._shownPressed : AppPalette.bgHover
@@ -877,6 +890,7 @@ Column {
 
         KIsland {
             KIslandRow {
+                KPinTag { key: "app:dataset.fbs" }
                 label: qsTr("FBS forward / backward:")
                 labelColor: root._bright
                 toolTipText: qsTr("Fills black stripes in the echogram by interpolating the given number of steps forward / backward.")
@@ -925,6 +939,7 @@ Column {
             }
 
             KIslandRow {
+                KPinTag { key: "app:dataset.sonarOffset" }
                 label: qsTr("S.offset XY, mm:")
                 labelColor: root._bright
                 toolTipText: qsTr("Sonar mount-point offset along the X / Y axes, in millimeters.")
@@ -981,6 +996,7 @@ Column {
             }
 
             KIslandRow {
+                KPinTag { key: "app:dataset.posZeroing" }
                 label: qsTr("Pos zeroing")
                 labelColor: root._bright
                 toolTipText: qsTr("Zeroes position coordinates relative to the start point.")
@@ -995,6 +1011,7 @@ Column {
             }
 
             KIslandRow {
+                KPinTag { key: "app:dataset.bottomTrackZeroing" }
                 label: qsTr("Bottom track zeroing")
                 labelColor: root._bright
                 toolTipText: qsTr("Zeroes the bottom-track depth reference.")
@@ -1097,6 +1114,7 @@ Column {
         Component.onCompleted: refreshParams()
 
         Item {
+            KPinTag { key: "app:bottomtrack.preset"; label: qsTr("Bottom-track preset") }
             id: btPresetHolder
             width: parent.width
             height: presetTabBar.implicitHeight
@@ -1124,6 +1142,7 @@ Column {
 
         KIsland {
             KIslandRow {
+                KPinTag { key: "app:bottomtrack.gainSlope" }
                 label: qsTr("Gain slope")
                 toolTipText: qsTr("Lifts the weak echo at long range so the bottom is found far out too.")
                 labelColor: root._bright
@@ -1161,6 +1180,7 @@ Column {
             }
 
             KIslandRow {
+                KPinTag { key: "app:bottomtrack.threshold" }
                 label: qsTr("Threshold")
                 toolTipText: qsTr("How clear the echo must be to count as bottom. Where it is weaker, the bottom line breaks.")
                 labelColor: root._bright
@@ -1195,6 +1215,7 @@ Column {
             }
 
             KIslandRow {
+                KPinTag { key: "app:bottomtrack.horWindow" }
                 label: qsTr("Horizontal window")
                 toolTipText: qsTr("Smooths the bottom line over neighbouring pings. Wider is smoother but lags more.")
                 labelColor: root._bright
@@ -1229,6 +1250,7 @@ Column {
             }
 
             KIslandRow {
+                KPinTag { key: "app:bottomtrack.verGap" }
                 label: qsTr("Vertical gap, %")
                 toolTipText: qsTr("Refines the depth near the one already found and rejects false bottoms from re-reflections. 0 is off.")
                 labelColor: root._bright
@@ -1263,6 +1285,7 @@ Column {
             }
 
             KIslandRow {
+                KPinTag { key: "app:bottomtrack.minRange" }
                 label: qsTr("Min range, m")
                 toolTipText: qsTr("The bottom is not searched for closer than this.")
                 labelColor: root._bright
@@ -1297,6 +1320,7 @@ Column {
             }
 
             KIslandRow {
+                KPinTag { key: "app:bottomtrack.maxRange" }
                 label: qsTr("Max range, m")
                 toolTipText: qsTr("The bottom is not searched for further than this.")
                 labelColor: root._bright
@@ -1455,6 +1479,7 @@ Column {
         }
 
         RowLayout {
+            KPinTag { key: "app:isobaths.theme"; label: qsTr("Theme:") }
             width: parent.width
             spacing: Tokens.spaceMd
 
@@ -1483,6 +1508,7 @@ Column {
         }
 
         RowLayout {
+            KPinTag { key: "app:isobaths.edgeLimit"; label: qsTr("Edge limit, m:") }
             width: parent.width
             spacing: Tokens.spaceMd
 
@@ -1505,6 +1531,7 @@ Column {
         }
 
         RowLayout {
+            KPinTag { key: "app:isobaths.step"; label: qsTr("Step, m:") }
             width: parent.width
             spacing: Tokens.spaceMd
 
@@ -1529,6 +1556,7 @@ Column {
         }
 
         RowLayout {
+            KPinTag { key: "app:isobaths.extraWidth"; label: qsTr("Extra width, m:") }
             width: parent.width
             spacing: Tokens.spaceMd
 
@@ -1742,6 +1770,7 @@ Column {
                 spacing: Tokens.spaceMd
 
                 RowLayout {
+                    KPinTag { key: "app:mosaic.theme"; label: qsTr("Theme:") }
                     spacing: Tokens.spaceMd
                     Text {
                         text: qsTr("Theme:")
@@ -1767,6 +1796,7 @@ Column {
                 }
 
                 RowLayout {
+                    KPinTag { key: "app:mosaic.channels"; label: qsTr("Channels:") }
                     spacing: Tokens.spaceMd
                     Text {
                         text: qsTr("Channels:")
@@ -1878,6 +1908,7 @@ Column {
                 }
 
                 RowLayout {
+                    KPinTag { key: "app:mosaic.angle"; label: qsTr("Angle, °:") }
                     spacing: Tokens.spaceMd
                     Text {
                         text: qsTr("Angle, °:")
@@ -1925,6 +1956,7 @@ Column {
                 }
 
                 KSwitch {
+                    KPinTag { key: "app:mosaic.traceLine" }
                     id: mosaicTraceLine
                     text: qsTr("Trace line")
                     toolTipText: qsTr("Show the current mosaic trace line")
@@ -1938,6 +1970,7 @@ Column {
                 // Track smoothing (TrackSmoother, docs/track-interpolation.md): on and "normal" out of
                 // the box. A change reads an open recording again, so that all of it is drawn one way.
                 KSwitch {
+                    KPinTag { key: "app:mosaic.trackSmoothing" }
                     id: trackSmoothing
                     text: qsTr("Track smoothing")
                     toolTipText: qsTr("Pings and the boat track on a line fitted through the GNSS fixes around them. Off: straight between neighbouring fixes and drawn at once, as before. Raw fixes are never changed.")
@@ -1949,6 +1982,7 @@ Column {
                 }
 
                 RowLayout {
+                    KPinTag { key: "app:mosaic.smoothingWindow"; label: qsTr("Smoothing:") }
                     spacing: Tokens.spaceMd
                     enabled: trackSmoothing.checked
                     opacity: enabled ? 1.0 : 0.5
@@ -2007,6 +2041,7 @@ Column {
                 }
 
                 RowLayout {
+                    KPinTag { key: "app:mosaic.dataSource"; label: qsTr("Data source:") }
                     spacing: Tokens.spaceMd
                     Text {
                         text: qsTr("Data source:")
@@ -2095,6 +2130,7 @@ Column {
                 }
 
                 RowLayout {
+                    KPinTag { key: "app:mosaic.lastN"; label: qsTr("Calc last N epochs:") }
                     Layout.fillWidth: true
                     Layout.leftMargin: fakeCoordsClearOldDataCheck.switchHorizontalPadding
                     Layout.rightMargin: fakeCoordsClearOldDataCheck.switchHorizontalPadding
@@ -2129,6 +2165,7 @@ Column {
                 }
 
                 KSwitch {
+                    KPinTag { key: "app:mosaic.clearOldData" }
                     id: fakeCoordsClearOldDataCheck
                     text: qsTr("Clear old data (*)")
                     checked: true
@@ -2264,6 +2301,7 @@ Column {
 
         KIsland {
             KIslandRow {
+                KPinTag { key: "app:echograms.loupe" }
                 label: qsTr("Loupe")
                 labelColor: root._bright
                 interactive: true
@@ -2278,6 +2316,7 @@ Column {
             }
 
             KIslandRow {
+                KPinTag { key: "app:echograms.loupeSize"; label: qsTr("Loupe size") }
                 label: qsTr("Size")
                 labelColor: root._bright
                 verticalPadding: Tokens.spaceSm
@@ -2294,6 +2333,7 @@ Column {
             }
 
             KIslandRow {
+                KPinTag { key: "app:echograms.loupeZoom"; label: qsTr("Loupe zoom") }
                 id: echogramLoupeZoomRow
                 label: qsTr("Zoom")
                 labelColor: root._bright
@@ -2338,6 +2378,7 @@ Column {
             }
 
             KIslandRow {
+                KPinTag { key: "app:echograms.sync" }
                 label: qsTr("Sync echograms")
                 labelColor: root._bright
                 toolTipText: qsTr("Sync the cursor position across all echograms")
@@ -2353,6 +2394,7 @@ Column {
             }
 
             KIslandRow {
+                KPinTag { key: "app:echograms.syncView" }
                 label: qsTr("Sync view")
                 labelColor: root._bright
                 verticalPadding: Tokens.spaceSm
@@ -2408,6 +2450,7 @@ Column {
 
             KIsland {
                 KIslandRow {
+                    KPinTag { key: "app:scene3d.surfaceQuality" }
                     label: qsTr("Show surface quality")
                     labelColor: root._bright
                     toolTipText: qsTr("Show the surface quality label in the 3D scene")
@@ -2423,6 +2466,7 @@ Column {
                 }
 
                 KIslandRow {
+                    KPinTag { key: "app:scene3d.forceZoom" }
                     visible: core.needForceZooming
                     label: qsTr("Force zoom")
                     labelColor: root._bright
@@ -2442,6 +2486,7 @@ Column {
                 }
 
                 KIslandRow {
+                    KPinTag { key: "app:scene3d.loupe" }
                     label: qsTr("Loupe")
                     labelColor: root._bright
                     interactive: true
@@ -2460,6 +2505,7 @@ Column {
                 }
 
                 KIslandRow {
+                    KPinTag { key: "app:scene3d.loupeSize"; label: qsTr("Loupe size") }
                     open: render3dSettings.syncLoupeCheckButton
                     showSeparator: false
                     verticalPadding: Tokens.spaceSm
@@ -2479,6 +2525,7 @@ Column {
                 }
 
                 KIslandRow {
+                    KPinTag { key: "app:scene3d.loupeZoom"; label: qsTr("Loupe zoom") }
                     id: syncLoupeZoomRow
                     open: render3dSettings.syncLoupeCheckButton
                     showSeparator: false
@@ -2525,6 +2572,7 @@ Column {
                 }
 
                 KIslandRow {
+                    KPinTag { key: "app:scene3d.northMode" }
                     label: qsTr("North mode")
                     labelColor: root._bright
                     toolTipText: qsTr("Orient the 3D view to north (north stays up)")
@@ -2544,6 +2592,7 @@ Column {
                 }
 
                 KIslandRow {
+                    KPinTag { key: "app:scene3d.syncEchogram" }
                     label: qsTr("Sync echogram")
                     labelColor: root._bright
                     toolTipText: qsTr("Sync the cursor between the 2D echogram and the 3D scene")
@@ -2563,6 +2612,7 @@ Column {
                 }
 
                 KIslandRow {
+                    KPinTag { key: "app:scene3d.grid" }
                     label: qsTr("Grid")
                     labelColor: root._bright
                     interactive: true
@@ -2581,6 +2631,7 @@ Column {
                 }
 
                 KIslandRow {
+                    KPinTag { key: "app:scene3d.circle" }
                     open: render3dSettings.gridCheckButton
                     showSeparator: false
                     verticalPadding: Tokens.spaceSm
@@ -2602,6 +2653,7 @@ Column {
                 }
 
                 KIslandRow {
+                    KPinTag { key: "app:scene3d.labels" }
                     open: render3dList.circleGridOpen
                     showSeparator: false
                     verticalPadding: Tokens.spaceSm
@@ -2623,6 +2675,7 @@ Column {
                 }
 
                 KIslandRow {
+                    KPinTag { key: "app:scene3d.circleSize"; label: qsTr("Circle grid size") }
                     open: render3dList.circleGridOpen
                     showSeparator: false
                     verticalPadding: Tokens.spaceSm
@@ -2642,6 +2695,7 @@ Column {
                 }
 
                 KIslandRow {
+                    KPinTag { key: "app:scene3d.circleStep"; label: qsTr("Circle grid step") }
                     open: render3dList.circleGridOpen
                     showSeparator: false
                     verticalPadding: Tokens.spaceSm
@@ -2661,6 +2715,7 @@ Column {
                 }
 
                 KIslandRow {
+                    KPinTag { key: "app:scene3d.circleAngle"; label: qsTr("Circle grid angle") }
                     open: render3dList.circleGridOpen
                     showSeparator: false
                     verticalPadding: Tokens.spaceSm
@@ -2680,6 +2735,7 @@ Column {
                 }
 
                 KIslandRow {
+                    KPinTag { key: "app:scene3d.shadows" }
                     label: qsTr("Shadows")
                     labelColor: root._bright
                     interactive: true
@@ -2698,6 +2754,7 @@ Column {
                 }
 
                 KIslandRow {
+                    KPinTag { key: "app:scene3d.navArrow" }
                     label: qsTr("Navigation arrow")
                     labelColor: root._bright
                     interactive: true
@@ -2716,6 +2773,7 @@ Column {
                 }
 
                 KIslandRow {
+                    KPinTag { key: "app:scene3d.navArrowShape"; label: qsTr("Arrow shape") }
                     open: render3dSettings.navigationArrowCheckButton
                     showSeparator: false
                     verticalPadding: Tokens.spaceSm
@@ -2735,6 +2793,7 @@ Column {
                 }
 
                 KIslandRow {
+                    KPinTag { key: "app:scene3d.navArrowSize"; label: qsTr("Arrow size") }
                     open: render3dSettings.navigationArrowCheckButton
                     showSeparator: false
                     verticalPadding: Tokens.spaceSm
@@ -2754,6 +2813,7 @@ Column {
                 }
 
                 KIslandRow {
+                    KPinTag { key: "app:scene3d.compass" }
                     label: qsTr("Compass")
                     labelColor: root._bright
                     interactive: true
@@ -2772,6 +2832,7 @@ Column {
                 }
 
                 KIslandRow {
+                    KPinTag { key: "app:scene3d.compassPosition"; label: qsTr("Compass position") }
                     open: render3dSettings.compassCheckButton
                     showSeparator: false
                     verticalPadding: Tokens.spaceSm
@@ -2791,6 +2852,7 @@ Column {
                 }
 
                 KIslandRow {
+                    KPinTag { key: "app:scene3d.compassSize"; label: qsTr("Compass size") }
                     open: render3dSettings.compassCheckButton
                     showSeparator: false
                     verticalPadding: Tokens.spaceSm
@@ -2810,6 +2872,7 @@ Column {
                 }
 
                 KIslandRow {
+                    KPinTag { key: "app:scene3d.scaleBar" }
                     label: qsTr("Scale bar")
                     labelColor: root._bright
                     toolTipText: qsTr("Show the scale bar in the 3D scene")
@@ -2829,6 +2892,7 @@ Column {
                 }
 
                 KIslandRow {
+                    KPinTag { key: "app:scene3d.usblBeacons" }
                     label: qsTr("USBL beacons")
                     labelColor: root._bright
                     toolTipText: qsTr("Show the acoustic nodes and their tracks in the 3D scene")
@@ -2884,6 +2948,7 @@ Column {
 
             KIsland {
                 KIslandRow {
+                    KPinTag { key: "app:scene3d.mapTiles" }
                     label: qsTr("Show map tiles")
                     labelColor: root._bright
                     interactive: true
@@ -2903,6 +2968,7 @@ Column {
                 }
 
                 KIslandRow {
+                    KPinTag { key: "app:scene3d.mapMetered" }
                     label: qsTr("Limit downloads on metered networks")
                     labelColor: root._bright
                     interactive: true
@@ -3048,6 +3114,7 @@ Column {
 
             KIsland {
                 KIslandRow {
+                    KPinTag { key: "app:scene3d.useAngle" }
                     label: qsTr("Use angle")
                     labelColor: root._bright
                     interactive: true
@@ -3066,6 +3133,7 @@ Column {
                 }
 
                 KIslandRow {
+                    KPinTag { key: "app:scene3d.navigatorView" }
                     label: qsTr("Navigator view")
                     labelColor: root._bright
                     interactive: true

@@ -1126,6 +1126,7 @@ ApplicationWindow {
         SettingsSidebarBase {
             id: settingsSidebar
             z: ZOrder.settingsSidebar
+            pinEnabled: true
 
             anchors.fill: parent
             open: workspaceStore.settingsPanelOpen
@@ -1298,7 +1299,8 @@ ApplicationWindow {
                 Loader {
                     id: slotLoader
                     anchors.fill: parent
-                    sourceComponent: dataWidgetPanelComp
+                    sourceComponent: (widgetSlot._wdef && widgetSlot._wdef.kind === "settings") ? settingsWidgetPanelComp
+                                                                                              : dataWidgetPanelComp
                 }
 
                 // BOTH COMPONENTS LIVE INSIDE THE DELEGATE, and they have to. An object created
@@ -1313,6 +1315,20 @@ ApplicationWindow {
                         store: workspaceStore
                         def: _wdef
                         popupVisible: !!_wdef && !_beingEdited && workspaceStore.widgetShown(_wdef.id)
+                        popupId: _wdef ? "widget:" + _wdef.id : ""
+                        siblingBoundsList: [root.btEditPopupEffectiveBounds, root.profilesPopupEffectiveBounds]
+                        siblingIdList: ["btEdit", "profiles"]
+                    }
+                }
+
+                Component {
+                    id: settingsWidgetPanelComp
+                    SettingsWidgetPopup {
+                        readonly property var _wdef: widgetSlot._wdef
+                        anchors.fill: parent
+                        store: workspaceStore
+                        def: _wdef
+                        popupVisible: !!_wdef && workspaceStore.widgetShown(_wdef.id)
                         popupId: _wdef ? "widget:" + _wdef.id : ""
                         siblingBoundsList: [root.btEditPopupEffectiveBounds, root.profilesPopupEffectiveBounds]
                         siblingIdList: ["btEdit", "profiles"]

@@ -3,6 +3,7 @@ import QtQuick          // unversioned → Qt 6.8 Rectangle (per-corner radius)
 Item {
     id: row
 
+    readonly property bool isKIslandRow: true      // what a KPinTag inside looks for
     property string label: ""
     property string caption: ""
     property color fillColor: "transparent"

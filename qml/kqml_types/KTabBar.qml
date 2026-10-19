@@ -4,6 +4,7 @@ import QtQuick.Controls 2.15
 Item {
     id: root
 
+    readonly property string controlKind: "tabs"     // a pinned row's widget mirrors it (PinRegistry)
     property var options: []
     property var currentValue
     property int buttonHeight: Math.round(30 * AppPalette.scale)

@@ -584,8 +584,8 @@ function generateWidgetId() {
     return id
 }
 
-readonly property var widgetKinds: ["grid"]
-function widgetKindOf(def) { return "grid" }
+readonly property var widgetKinds: ["grid", "settings"]
+function widgetKindOf(def) { return (def && def.kind === "settings") ? "settings" : "grid" }
 
 readonly property string servoPanelId: "servo"
 readonly property var servoPanelDef: ({ id: "servo", kind: "servo", name: "" })
@@ -785,6 +785,8 @@ function _migrateServoPanel() {
 function normalizeWidgetDef(raw) {
     if (!raw || typeof raw !== "object")
         return null
+    if (raw.kind === "settings")
+        return normalizeSettingsWidgetDef(raw)
 
     var cols = Math.round(raw.cols)
     var rows = Math.round(raw.rows)
@@ -823,6 +825,169 @@ function normalizeWidgetDef(raw) {
     var id = (typeof raw.id === "string" && raw.id.length) ? raw.id : ""
     return { id: id, kind: "grid", name: name, cols: cols, rows: rows,
              transparency: transparency, cells: cells }
+}
+
+// A settings widget: settings pinned from the settings pane (PinRegistry), each an item { key, label }. "app:..."
+// keys name a row of the settings page, mirrored live; "dev:<device type>:<param>" a device parameter of the
+// catalog. The label is the one the setting had when pinned, shown while its row is not there (the page loads
+// after the store). A widget with no item left is no widget.
+readonly property int settingsWidgetItemLimit: 12
+
+function normalizeSettingsWidgetDef(raw) {
+    var name = (typeof raw.name === "string") ? raw.name : ""
+    var transparency = (typeof raw.transparency === "number" && isFinite(raw.transparency))
+                       ? Math.max(0, Math.min(100, Math.round(raw.transparency))) : 0
+    var items = []
+    var seen = {}
+    var src = Array.isArray(raw.items) ? raw.items : []
+    for (var i = 0; i < src.length && items.length < settingsWidgetItemLimit; ++i) {
+        var it = src[i]
+        if (!it || typeof it.key !== "string" || seen[it.key])
+            continue
+        var key = it.key
+        if (key.indexOf("app:") === 0) {
+            if (key.length <= 4)
+                continue
+        } else if (key.indexOf("dev:") === 0) {
+            var parts = key.split(":")
+            if (parts.length !== 3 || parts[1].length === 0 || !DeviceParamCatalog.has(parts[2]))
+                continue
+        } else {
+            continue
+        }
+        seen[key] = true
+        items.push({ key: key, label: (typeof it.label === "string") ? it.label : "" })
+    }
+    if (items.length === 0)
+        return null
+    var id = (typeof raw.id === "string" && raw.id.length) ? raw.id : ""
+    return { id: id, kind: "settings", name: name, transparency: transparency, items: items }
+}
+
+// Which widget each pinned setting is in: { key: widget id }, for the pins of the settings pane.
+function _pinnedSettingsMap() {
+    var m = {}
+    for (var i = 0; i < widgets.length; ++i) {
+        var d = widgets[i]
+        if (!d || d.kind !== "settings" || !Array.isArray(d.items))
+            continue
+        for (var j = 0; j < d.items.length; ++j)
+            m[d.items[j].key] = d.id
+    }
+    return m
+}
+
+onWidgetsChanged: PinRegistry.pinnedMap = _pinnedSettingsMap()
+
+// Where pin mode puts the next setting: a settings widget's id, or "" for a widget of its own. Session-only; a
+// new widget made by a pin becomes the target, so that the pins after it go to the same widget.
+property string settingsPinTarget: ""
+
+readonly property var settingsWidgetTargets: {
+    var out = []
+    for (var i = 0; i < widgets.length; ++i)
+        if (widgets[i] && widgets[i].kind === "settings")
+            out.push({ id: widgets[i].id, name: widgets[i].name })
+    return out
+}
+
+function _settingsWidgetIndex(id) {
+    var i = widgetIndexById(id)
+    return (i >= 0 && widgets[i].kind === "settings") ? i : -1
+}
+
+function _nextSettingsWidgetName() {
+    var used = {}
+    for (var i = 0; i < widgets.length; ++i)
+        if (widgets[i] && widgets[i].kind === "settings")
+            used[widgets[i].name] = true
+    for (var n = 1; n < 100; ++n) {
+        var name = qsTr("Settings %1").arg(n)
+        if (!used[name])
+            return name
+    }
+    return qsTr("Settings")
+}
+
+function _notifyPin(text) {
+    if (typeof notifications !== "undefined" && notifications)
+        notifications.info(text)
+}
+
+// Pin mode's pin: a setting pinned anywhere comes out of that widget; else it goes to the target widget, or to
+// a new one.
+function togglePinnedSetting(key, label) {
+    if (!key)
+        return
+    var at = _pinnedSettingsMap()[key]
+    if (at) {
+        removePinnedSetting(at, key)
+        return
+    }
+    var item = { key: key, label: label || "" }
+    var ti = settingsPinTarget ? _settingsWidgetIndex(settingsPinTarget) : -1
+    if (ti >= 0) {
+        var def = widgets[ti]
+        if (def.items.length >= settingsWidgetItemLimit) {
+            _notifyPin(qsTr("A settings widget holds up to %1 settings").arg(settingsWidgetItemLimit))
+            return
+        }
+        _replaceWidgetDef(def.id, { items: def.items.concat([item]) })
+        setWidgetShown(def.id, true)
+        widgetBringToFront(def.id)
+        return
+    }
+    if (widgets.length >= widgetLimit) {
+        _notifyPin(qsTr("There can be up to %1 widget panels").arg(widgetLimit))
+        return
+    }
+    var norm = normalizeWidgetDef({ kind: "settings", name: _nextSettingsWidgetName(), transparency: 0, items: [item] })
+    if (!norm)
+        return
+    norm.id = generateWidgetId()
+    widgets = widgets.concat([norm])
+    saveWidgets()
+    setWidgetShown(norm.id, true)
+    widgetBringToFront(norm.id)
+    settingsPinTarget = norm.id
+}
+
+function removePinnedSetting(widgetId, key) {
+    var i = _settingsWidgetIndex(widgetId)
+    if (i < 0)
+        return
+    var items = []
+    for (var j = 0; j < widgets[i].items.length; ++j)
+        if (widgets[i].items[j].key !== key)
+            items.push(widgets[i].items[j])
+    if (items.length === 0) {
+        deleteWidgetAt(i)
+        if (settingsPinTarget === widgetId)
+            settingsPinTarget = ""
+        return
+    }
+    _replaceWidgetDef(widgetId, { items: items })
+}
+
+// The settings pane in pin mode, pinning to a settings widget: the widget's pencil.
+function openSettingsPinMode(widgetId) {
+    settingsPinTarget = (widgetId && _settingsWidgetIndex(widgetId) >= 0) ? widgetId : ""
+    _settingsNav = []
+    closeModeSettingsPanel()
+    echogramSettingsActive = false
+    settingsSubPageActive = false
+    settingsPanelOpen = true
+    PinRegistry.pinMode = true
+}
+
+// The device a pinned device parameter acts on: the first connected device of its type. As with the stand, a
+// second device of the same type is not driven from a widget.
+function settingsDeviceFor(devName) {
+    var list = activeDeviceList
+    for (var i = 0; i < list.length; ++i)
+        if (list[i] && list[i].devName === devName && list[i].isBoardInited)
+            return list[i]
+    return null
 }
 
 function saveWidgets() {
@@ -1180,6 +1345,11 @@ function _reconcileWidgetMaps() {
         else changedS = true
     }
     if (changedS) { widgetShownMap = ms; saveWidgetShown() }
+}
+
+property Connections _pinRequests: Connections {
+    target: PinRegistry
+    function onToggleRequested(key, label) { togglePinnedSetting(key, label) }
 }
 
 onBottomTrackEditorOpenChanged: layoutStore.bottomTrackEditorOpenStored = bottomTrackEditorOpen
@@ -1767,6 +1937,7 @@ onSettingsPanelOpenChanged: {
         echogramSettingsLeafId = -1
         settingsSubPageActive = false
         _settingsNav = []
+        PinRegistry.pinMode = false
     }
 }
 
@@ -1985,6 +2156,10 @@ function openWidgetCreateSettings() {
     _openSettingsSubPage("widgetEdit")
 }
 function openWidgetEditSettings(index) {
+    if (index >= 0 && index < widgets.length && widgets[index].kind === "settings") {
+        openSettingsPinMode(widgets[index].id)
+        return
+    }
     widgetEditIndex = index
     widgetDraftReset()
     widgetEditStep = 2

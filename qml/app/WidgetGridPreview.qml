@@ -9,6 +9,7 @@ Item {
     readonly property bool _isNodes: !!(def && def.kind === "usblNodes")
     readonly property bool _isServo: !!(def && def.kind === "servo")
     readonly property bool _isStand: !!(def && def.kind === "stand")
+    readonly property bool _isSettings: !!(def && def.kind === "settings")
 
     readonly property real _glyphPadX: Math.max(4, Math.round(Math.min(width, height) * 0.12))
     readonly property real _glyphPadY: Tokens.spaceXs
@@ -18,7 +19,7 @@ Item {
     readonly property real _capLeftRatio: sCapTm.tightBoundingRect.x / _sRef
     readonly property real _sInkRatioW: Math.max(0.01, sRefTm.tightBoundingRect.width / _sRef)
     readonly property real _glyphFill: 0.86
-    readonly property bool _hasGlyph: _isNodes || _isServo || _isStand
+    readonly property bool _hasGlyph: _isNodes || _isServo || _isStand || _isSettings
     readonly property int _cols: (def && typeof def.cols === "number") ? def.cols : 1
     readonly property int _rows: (def && typeof def.rows === "number") ? def.rows : 1
     readonly property real _gap: Math.round(3 * AppPalette.scale)
@@ -67,7 +68,7 @@ Item {
         TextMetrics {
             id: sRefTm
             font: sRefFm.font
-            text: root._isNodes ? "U" : root._isStand ? "St" : "Se"
+            text: root._isNodes ? "U" : root._isStand ? "St" : root._isSettings ? "P" : "Se"
         }
 
         Text {

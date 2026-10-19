@@ -646,17 +646,17 @@ Owner, 2026-10-08, marked as an idea for the future and unrelated to the work of
 day: "выносить контролы в виде виджетов" — take the controls out as widgets. Recorded as
 said; nothing about it has been discussed yet.
 
-### What exists today
+### Done, first version (2026-10-19)
 
-Not surveyed yet.
+The owner, 2026-10-19: any setting taken out as a compact widget for quick access. Built as pin mode in the
+settings pane and settings widgets among the floating widget panels: the page's value rows and the device page's
+parameters, the user choosing which (docs/HANDOFF.md, "Settings pinned as widgets"). Saved with the other widget
+panels: per user, the same on every platform that runs the profile.
 
-### Open questions
+### Open
 
-- What "widget" means here: a control taken out of the settings panel and put on the
-  2D/3D view as a floating, movable panel; a dockable pane; or something outside the
-  app.
-- Which controls first, and whether the user chooses which ones go out.
-- Whether the arrangement is saved per user and per platform (desktop, phone, Head Unit).
+- Settings of sub-pages (TGC; the per-echogram panel): no live row to mirror; they need catalog entries.
+- Several devices of one type: a widget drives the first connected.
 
 ## 12. "LR 500 kbit/s" in Link speed
 

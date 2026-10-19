@@ -21,6 +21,7 @@ Rectangle {
         : def.kind === "usblNodes" ? qsTr("USBL")
         : def.kind === "servo"     ? qsTr("Servo control")
         : def.kind === "stand"     ? qsTr("Stand control")
+        : def.kind === "settings"  ? (def.name || qsTr("Settings"))
                                    : (def.cols + "×" + def.rows)
 
     signal clicked()

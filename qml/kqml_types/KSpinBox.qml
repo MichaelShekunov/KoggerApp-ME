@@ -5,6 +5,7 @@ import kqml_types 1.0
 Item {
     id: root
 
+    readonly property string controlKind: "spin"     // a pinned row's widget mirrors it (PinRegistry)
     property int value: 0
     property int from: 0
     property int to: 100

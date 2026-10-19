@@ -67,6 +67,8 @@ qt_add_qml_module(kogger_app
         SettingsGroupBase.qml
         SettingsGroup.qml
         SettingsSidebarBase.qml
+        SettingsWidgetPopup.qml
+        SettingMirrorRow.qml
         SplashOverlay.qml
         TgcSettingsTab.qml
         UiSavingSettingsTab.qml

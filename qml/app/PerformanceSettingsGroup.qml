@@ -19,6 +19,7 @@ SettingsGroup {
 
     KIsland {
         KIslandRow {
+            KPinTag { key: "app:performance.allLevels" }
             label: qsTr("Paint all zoom levels ahead")
             labelColor: performanceGroup._bright
             toolTipText: qsTr("Every zoom level of the mosaic is painted in the background, so a zoom shows it at once. On a large survey it takes a few hundred MB of memory and of temporary disk space more.")
@@ -33,6 +34,7 @@ SettingsGroup {
         }
 
         KIslandRow {
+            KPinTag { key: "app:performance.multiThread" }
             label: qsTr("Multi-threaded mosaic")
             labelColor: performanceGroup._bright
             toolTipText: qsTr("The mosaic is painted on several processor cores. The picture is the same either way.")
@@ -47,6 +49,7 @@ SettingsGroup {
         }
 
         KIslandRow {
+            KPinTag { key: "app:performance.keepOldLevel" }
             label: qsTr("Keep the old zoom level until the new one is drawn")
             labelColor: performanceGroup._bright
             toolTipText: qsTr("After a zoom the previous level stays under the new one until the new one is painted, instead of an empty screen.")

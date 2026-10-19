@@ -2131,3 +2131,65 @@ run up and down. It fades 1.2 s after the last zoom.
 
 **Not verified:** the hint by hand (Alt + wheel, Ctrl + wheel, a pinch, the hotkeys) and with the echogram
 standing.
+
+## Settings pinned as widgets (2026-10-19)
+
+The owner: any setting taken out as a compact widget, for quick access ("или придумай сам что-то"). This is
+docs/backlog.md section 11, "Controls as widgets" (2026-10-08).
+
+**For the user.** The settings pane's header has a pin button: pin mode. A pin shows by every setting that can be
+taken out, in a strip left of the rows (none by rows that only open a page). A pin puts the setting into a settings
+widget: a new one, or the one chosen in "Pin to:" under the header; a new widget becomes the target, so the next
+pins go to it. A pin again takes the setting out, and a widget with no setting left is deleted. In pin mode every
+widget row has a cross; the widget's pencil opens pin mode on it. The widgets are the floating widget panels
+(position, docking, show and hide from the list and the quick-actions menu, delete), named "Settings 1", "Settings
+2", ...; a row shows the setting's label, its settings group (or its device) under it, and its controls.
+
+**Keeping in step.** An app setting's controls in a widget mirror the settings page row's -- the page is made once
+and lives as long as the app. They show the row's values and act on the row's controls as a hand would: a switch
+toggle() + toggled(), a spin box applyValue(), a combo currentIndex + activated(), a slider valueModified() with
+the value written only if its binding did not move it, tabs valueSelected(). The page's own handlers then apply
+and save the change. toggle() and not click(): a closed settings group disables its rows, and click() does nothing
+on a disabled switch (a mutant of the check fails on exactly that). A device parameter (DeviceParamCatalog, kinds
+spin, switch, tabs) is read from and written to the first connected device of its type (devName); a second device
+of the same type is not driven from a widget.
+
+**What can be pinned.** 66 blocks of the settings page and 3 of Performance, each marked with a KPinTag and a
+stable key "app:<group>.<name>": the value rows of Interface (language, on-screen keyboard, toolset, UI scale,
+sidebar side and four switches), Workspace (2), Dataset (FBS, S.offset, Pos zeroing, Bottom track zeroing),
+Bottom Track (the preset and six parameters), Isobaths (4), Mosaic (9), Echograms (5), 3D scene (25), Performance
+(3); and every spin, switch and tabs row of the device page ("dev:<type>:<param>"). Not pinnable: rows that open a
+page (TGC, Key bindings, ...), the colour theme grid, the mosaic's level capsule, paths and buttons, the "Show in
+3D" header toggles, the per-echogram settings panel and every other sub-page -- a sub-page is destroyed when left,
+so there is no live row to mirror. TGC's values live in the store, so a catalog entry for them is the next step
+rather than a mirror.
+
+**Code.**
+- kqml_types: PinRegistry (singleton: pin mode, the live tags, pinnedMap, toggleRequested, controlsOf);
+  KPinTag (an invisible marker: the row is the KIslandRow it is in, else its parent; the label without its colon;
+  the group's title); KPinOverlay (the pins, laid over a page inside its Flickable, positions taken every 150 ms in
+  pin mode, none in a closed group); controlKind on KSwitch, KSpinBox, KCombo, KSlider, KTabBar; isKIslandRow.
+- app: SettingsSidebarBase (pinEnabled, the header button, the "Pin to:" bar, the strip, an overlay on the page and
+  one on the sub-page); WorkspaceStore (widget kind "settings": normalizeSettingsWidgetDef -- keys "app:" or "dev:"
+  of a catalog parameter, at most 12, an empty widget dropped; togglePinnedSetting, removePinnedSetting,
+  settingsPinTarget, settingsWidgetTargets, openSettingsPinMode, settingsDeviceFor; pin mode ends with the pane);
+  SettingsWidgetPopup; SettingMirrorRow (the mirrors); MainWindow (the Loader's branch); the widget list and card
+  (caption, glyph "P"); DeviceParamRow (its "dev:" tag).
+- SettingsWidgetPopup keeps its title row inside its content: BasePanePopup masks the content to rounded corners,
+  which cuts a title bar placed above it in the header strip. The stand and servo panels place theirs there
+  [inference from the code: not looked at, both are developer-mode panels].
+- The edit script's steps pin (a key; or "mode" with a "group"), pinuse, pinstate.
+
+**Checks.**
+- tools/qml_check/pin_mirror_check.ps1: the real SettingMirrorRow over a fake page -- rows of every kind, a
+  compound row, a group closed (its body disabled), a mock device. 9 tests pass; -Mutants: 4 of 4 caught (a
+  switch through click(), a slider value always written, a combo without activated(), a spin step not passed on).
+- tools/qml_check/pin_live_check.ps1: the app, perf profile (exported, imported back). "Bottom track zeroing"
+  pinned; the widget's switch flips the page's and the profile saves it. FBS (three controls) into the same
+  widget; the widget's step raises the page's, saved. Restart: the widget back with those values. Both pinned
+  again: both out, the widget gone. 12 of 12 PASS [verified].
+- Grabs of pin mode (the pins in the strip, the pinned one blue, "Pin to:") and of the widget looked at.
+- All 13 qml_check scripts pass; ts_check ru zh clean (30 strings each, zh machine-made).
+
+**Not verified:** by hand, with a mouse or on a touchscreen (head unit); a device parameter on a real device (the
+check uses a mock); two devices of one type.

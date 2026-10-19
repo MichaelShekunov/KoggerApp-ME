@@ -20,6 +20,7 @@ Slider {
     property real valueDivisor: 1.0
     property string valueSuffix: ""
 
+    readonly property string controlKind: "slider"   // a pinned row's widget mirrors it (PinRegistry)
     signal valueModified(real val)
 
     implicitWidth: 200

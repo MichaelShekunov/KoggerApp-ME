@@ -9,6 +9,7 @@ import QtQuick.Controls 2.15
 Item {
     id: root
 
+    readonly property string controlKind: "combo"    // a pinned row's widget mirrors it (PinRegistry)
     property var model
     property int currentIndex: 0
     property string displayTextOverride: ""

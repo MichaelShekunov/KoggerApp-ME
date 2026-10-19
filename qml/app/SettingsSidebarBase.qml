@@ -32,6 +32,10 @@ Item {
     signal interacted()          // any press inside the panel (for last-active routing)
 
     property bool showBack: false
+    // Pin mode (PinRegistry) from this pane's header: a pin by every setting that can be taken out as a widget.
+    property bool pinEnabled: false
+    readonly property bool _pinMode: pinEnabled && PinRegistry.pinMode
+    readonly property real _pinGutter: _pinMode ? Math.round(30 * AppPalette.scale) : 0
     signal backRequested()
 
     property Component subPage: null
@@ -423,6 +427,30 @@ Item {
                         }
                     }
 
+                    KCircleIconButton {
+                        id: pinModeButton
+                        visible: panelRoot.pinEnabled
+                        width: Tokens.controlHLg
+                        height: Tokens.controlHLg
+                        rounded: false
+                        cornerRadius: Tokens.radiusMd
+                        borderWidth: 0
+                        iconSource: "qrc:/icons/ui/pin.svg"
+                        iconPixelSize: Math.round(Tokens.controlHLg * 0.5)
+                        iconTintColor: panelRoot._pinMode ? AppPalette.accentText : AppPalette.text
+                        fillColor: panelRoot._pinMode ? AppPalette.accentBgStrong : AppPalette.controlRaised
+                        fillHoverColor: panelRoot._pinMode ? AppPalette.accentBgStrong : Qt.lighter(AppPalette.controlRaised, 1.2)
+                        toolTipText: panelRoot._pinMode ? qsTr("Done pinning") : qsTr("Pin settings as widgets")
+                        Layout.preferredWidth: Tokens.controlHLg
+                        Layout.minimumWidth: Tokens.controlHLg
+                        Layout.maximumWidth: Tokens.controlHLg
+                        Layout.preferredHeight: Tokens.controlHLg
+                        Layout.minimumHeight: Tokens.controlHLg
+                        Layout.maximumHeight: Tokens.controlHLg
+                        Layout.alignment: Qt.AlignVCenter
+                        onClicked: PinRegistry.pinMode = !PinRegistry.pinMode
+                    }
+
                     KButton {
                         text: "\u2715"
                         width: Tokens.controlHLg
@@ -439,6 +467,62 @@ Item {
                         Layout.maximumHeight: height
                         Layout.alignment: Qt.AlignVCenter
                         onClicked: panelRoot.closeRequested()
+                    }
+                }
+
+                // Pin mode: which widget the next pin goes to -- a new one, or a settings widget there is.
+                Column {
+                    width: parent.width
+                    spacing: Tokens.spaceXs
+                    visible: panelRoot._pinMode && !!panelRoot.store
+
+                    RowLayout {
+                        width: parent.width
+                        spacing: Tokens.spaceMd
+
+                        Text {
+                            text: qsTr("Pin to:")
+                            color: AppPalette.text
+                            font.pixelSize: Tokens.fontBase
+                            Layout.alignment: Qt.AlignVCenter
+                        }
+
+                        KCombo {
+                            id: pinTargetCombo
+                            readonly property var targets: panelRoot.store ? panelRoot.store.settingsWidgetTargets : []
+                            Layout.fillWidth: true
+                            height: Tokens.controlHMd
+                            fontPixelSize: Tokens.fontBase
+                            model: {
+                                var m = [qsTr("New widget")]
+                                for (var i = 0; i < targets.length; ++i)
+                                    m.push(targets[i].name)
+                                return m
+                            }
+                            // A pick sets currentIndex itself, which cuts a binding: the store's target is
+                            // followed by hand, as a new widget made by a pin becomes the target.
+                            readonly property int targetIndex: {
+                                var t = panelRoot.store ? panelRoot.store.settingsPinTarget : ""
+                                for (var i = 0; i < targets.length; ++i)
+                                    if (targets[i].id === t)
+                                        return i + 1
+                                return 0
+                            }
+                            onTargetIndexChanged: currentIndex = targetIndex
+                            Component.onCompleted: currentIndex = targetIndex
+                            onActivated: function(index) {
+                                if (panelRoot.store)
+                                    panelRoot.store.settingsPinTarget = index > 0 ? targets[index - 1].id : ""
+                            }
+                        }
+                    }
+
+                    Text {
+                        width: parent.width
+                        text: qsTr("A pin by a setting takes it out as a widget; a pin again takes it back.")
+                        color: AppPalette.textMuted
+                        font.pixelSize: Tokens.fontSm
+                        wrapMode: Text.WordWrap
                     }
                 }
             }
@@ -485,9 +569,18 @@ Item {
             Column {
                 id: contentColumn
 
-                x: panelRoot._hoverPopPad
-                width: Math.max(0, contentFlick.width - panelRoot.scrollBarReservePx - panelRoot._hoverPopPad)
+                x: panelRoot._hoverPopPad + panelRoot._pinGutter
+                width: Math.max(0, contentFlick.width - panelRoot.scrollBarReservePx - panelRoot._hoverPopPad - panelRoot._pinGutter)
                 spacing: Tokens.spaceLg
+            }
+
+            KPinOverlay {
+                width: contentFlick.contentWidth
+                height: contentFlick.contentHeight
+                z: 5
+                visible: panelRoot._pinMode
+                root: contentColumn
+                pinX: panelRoot._hoverPopPad
             }
         }
 
@@ -681,11 +774,20 @@ Item {
 
                 Loader {
                     id: subLoader
-                    x: panelRoot._hoverPopPad
-                    width: Math.max(0, subFlick.contentWidth - panelRoot._hoverPopPad)
+                    x: panelRoot._hoverPopPad + panelRoot._pinGutter
+                    width: Math.max(0, subFlick.contentWidth - panelRoot._hoverPopPad - panelRoot._pinGutter)
                     active: panelRoot.subPage !== null
                     sourceComponent: panelRoot.subPage
                     onItemChanged: if (panelRoot.subPageOpen) Qt.callLater(panelRoot._focusSubPage)
+                }
+
+                KPinOverlay {
+                    width: subFlick.contentWidth
+                    height: subFlick.contentHeight
+                    z: 5
+                    visible: panelRoot._pinMode && panelRoot.subPageOpen
+                    root: subLoader
+                    pinX: panelRoot._hoverPopPad
                 }
             }
 

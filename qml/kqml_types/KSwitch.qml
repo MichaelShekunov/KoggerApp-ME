@@ -5,6 +5,7 @@ Switch {
     id: control
 
     property bool flat: false
+    readonly property string controlKind: "switch"   // a pinned row's widget mirrors it (PinRegistry)
     property int rowHeight: Tokens.rowH
     property string toolTipText: text
     property int switchHorizontalPadding: flat ? 0 : Math.round(10 * AppPalette.scale)

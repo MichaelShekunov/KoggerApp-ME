@@ -30,6 +30,10 @@
 //   {"op": "hzoom", "steps": k}   {"op": "vzoom", "delta": d}   a zoom as the user makes it on the echograms
 //                                    on screen (the settings panel's step; Ctrl + wheel), which shows their hint
 //   {"op": "hint"}                   what each echogram's scale hint says, with the numbers it is made from
+//   {"op": "pin", "key": k, "label": s}   a setting pinned as pin mode's pin does it (a settings widget)
+//   {"op": "pin", "mode": true, "group": g}   pin mode on, the settings pane open at a group; "mode": false closes
+//   {"op": "pinuse", "key": k, "index": i}   a settings widget's mirror control used as a hand would
+//   {"op": "pinstate", "key": k}     the setting's row controls on the settings page and their mirrors
 //   {"op": "grab", "path": file.png}                         the window, through the UI probe
 //   {"op": "quit"}
 // An epoch can be given as a share of the recording instead: "fromFrac", "toFrac", "epochFrac".

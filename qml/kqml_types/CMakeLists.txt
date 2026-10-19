@@ -1,6 +1,6 @@
 add_library(kogger_kqml_types STATIC)
 set_source_files_properties(
-    ZOrder.qml AppPalette.qml Tokens.qml Anim.qml DataFieldCatalog.qml DeviceParamCatalog.qml
+    ZOrder.qml AppPalette.qml Tokens.qml Anim.qml DataFieldCatalog.qml DeviceParamCatalog.qml PinRegistry.qml
     PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
 
 qt_add_qml_module(kogger_kqml_types
@@ -22,6 +22,8 @@ qt_add_qml_module(kogger_kqml_types
         KIslandRow.qml
         KIslandSection.qml
         KParamGrid.qml
+        KPinOverlay.qml
+        KPinTag.qml
         KScreenKeyboard.qml
         KSlider.qml
         KSpinBox.qml
@@ -31,6 +33,7 @@ qt_add_qml_module(kogger_kqml_types
         KTapArea.qml
         KToggleRow.qml
         KToolTip.qml
+        PinRegistry.qml
         Tokens.qml
         WifiSignalIcon.qml
         ZOrder.qml

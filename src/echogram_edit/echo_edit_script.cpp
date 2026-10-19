@@ -7,6 +7,7 @@
 #include <QFileInfo>
 #include <QGuiApplication>
 #include <QJsonDocument>
+#include <QQmlEngine>
 #include <QQuickItem>
 #include <QQuickWindow>
 #include <QSaveFile>
@@ -28,6 +29,22 @@ QString hex64(quint64 v)
     return QStringLiteral("%1").arg(v, 16, 16, QLatin1Char('0'));
 }
 
+// Every item of every window.
+void forEachPlotItemTree(const std::function<void(QQuickItem*)>& f)
+{
+    std::function<void(QQuickItem*)> walk = [&](QQuickItem* item) {
+        f(item);
+        for (QQuickItem* child : item->childItems()) {
+            walk(child);
+        }
+    };
+    for (QWindow* w : QGuiApplication::topLevelWindows()) {
+        if (auto* qw = qobject_cast<QQuickWindow*>(w)) {
+            walk(qw->contentItem());
+        }
+    }
+}
+
 // Every echogram (qPlot2D), or only those on screen. The panes' echograms are made by QML at run time and hang in
 // the item tree, not in the window's object tree, so the walk goes over the items.
 void forEachPlot(bool visibleOnly, const std::function<void(QQuickItem*)>& f)
@@ -45,6 +62,45 @@ void forEachPlot(bool visibleOnly, const std::function<void(QQuickItem*)>& f)
             walk(qw->contentItem());
         }
     }
+}
+
+// The first object of the windows' object trees with a property of that name: the workspace store is a QtObject.
+QObject* findObjectWithProperty(const char* name)
+{
+    for (QWindow* w : QGuiApplication::topLevelWindows()) {
+        for (QObject* o : w->findChildren<QObject*>()) {
+            if (o->property(name).isValid()) {
+                return o;
+            }
+        }
+    }
+    return nullptr;
+}
+
+// The settings widget row (SettingMirrorRow) of a pinned key, on screen.
+QQuickItem* findMirrorRow(const QString& key)
+{
+    QQuickItem* found = nullptr;
+    forEachPlotItemTree([&](QQuickItem* item) {
+        if (!found && item->property("availableWidth").isValid() && item->property("isDevice").isValid()
+                && item->property("key").toString() == key) {
+            found = item;
+        }
+    });
+    return found;
+}
+
+// A control's value as a string: a switch's checked, a spin box's or a slider's value, a combo's index, tabs' value.
+QString controlValue(QObject* c)
+{
+    if (!c) {
+        return QStringLiteral("-");
+    }
+    const QString kind = c->property("controlKind").toString();
+    if (kind == QLatin1String("switch")) return c->property("checked").toBool() ? QStringLiteral("on") : QStringLiteral("off");
+    if (kind == QLatin1String("combo"))  return c->property("currentIndex").toString();
+    if (kind == QLatin1String("tabs"))   return c->property("currentValue").toString();
+    return c->property("value").toString();
 }
 
 QQuickItem* findWithProperty(QQuickItem* item, const char* name)
@@ -444,6 +500,83 @@ void EchoEditScript::runStep(const QJsonObject& s)
                                      .arg(span.value(QStringLiteral("columns")).toInt())
                                      .arg(double(from), 0, 'g', 9).arg(double(to), 0, 'g', 9);
         });
+    }
+    else if (op == QLatin1String("pin") || op == QLatin1String("pinuse") || op == QLatin1String("pinstate")) {
+        // Pinned settings (PinRegistry, SettingsWidgetPopup). pin: a setting pinned as pin mode's pin does it;
+        // pinuse: a settings widget's mirror control used as a hand would (a switch clicked, a spin box stepped
+        // up); pinstate: the setting's row controls on the settings page and their mirrors, logged side by side.
+        const QString key = s.value(QStringLiteral("key")).toString();
+        QObject* store = findObjectWithProperty("settingsPinTarget");
+        QQmlEngine* eng = store ? qmlEngine(store) : nullptr;
+        QObject* reg = eng ? eng->singletonInstance<QObject*>("kqml_types", "PinRegistry") : nullptr;
+        if (!store || !reg) {
+            qWarning().noquote() << QStringLiteral("echoedit script: %1: no store or no PinRegistry").arg(op);
+        }
+        else if (op == QLatin1String("pin") && s.contains(QStringLiteral("mode"))) {
+            // Pin mode itself: the settings pane open at a group ("group"), pins shown; or closed.
+            const bool on = s.value(QStringLiteral("mode")).toBool();
+            if (on) {
+                const QString group = s.value(QStringLiteral("group")).toString();
+                if (!group.isEmpty()) {
+                    QMetaObject::invokeMethod(store, "openAppSettingsAtGroup", Q_ARG(QVariant, group));
+                }
+                reg->setProperty("pinMode", true);
+            }
+            else {
+                store->setProperty("settingsPanelOpen", false);
+            }
+            qInfo().noquote() << QStringLiteral("echoedit script: pin mode %1").arg(on ? QStringLiteral("on") : QStringLiteral("off"));
+        }
+        else if (op == QLatin1String("pin")) {
+            QMetaObject::invokeMethod(store, "togglePinnedSetting", Q_ARG(QVariant, key),
+                                      Q_ARG(QVariant, s.value(QStringLiteral("label")).toString()));
+            QVariant map = reg->property("pinnedMap");
+            qInfo().noquote() << QStringLiteral("echoedit script: pin %1 -> widget %2").arg(key, map.toMap().value(key).toString());
+        }
+        else {
+            auto controls = [&](QObject* block) {
+                QVariant v;
+                QMetaObject::invokeMethod(reg, "controlsOf", Q_RETURN_ARG(QVariant, v), Q_ARG(QVariant, QVariant::fromValue(block)));
+                QList<QObject*> out;
+                const QVariantList list = v.toList();
+                for (const QVariant& e : list) {
+                    out.append(e.value<QObject*>());
+                }
+                return out;
+            };
+            QVariant tagV;
+            QMetaObject::invokeMethod(reg, "tagOf", Q_RETURN_ARG(QVariant, tagV), Q_ARG(QVariant, key));
+            QObject* tag = tagV.value<QObject*>();
+            QObject* block = tag ? tag->property("block").value<QObject*>() : nullptr;
+            const QList<QObject*> rowCtl = block ? controls(block) : QList<QObject*>();
+            QQuickItem* mrow = findMirrorRow(key);
+            const QList<QObject*> mirCtl = mrow ? controls(mrow) : QList<QObject*>();
+            if (op == QLatin1String("pinuse")) {
+                const int index = s.value(QStringLiteral("index")).toInt(0);
+                QObject* c = (index >= 0 && index < mirCtl.size()) ? mirCtl.at(index) : nullptr;
+                const QString kind = c ? c->property("controlKind").toString() : QString();
+                if (kind == QLatin1String("switch")) {
+                    QMetaObject::invokeMethod(c, "click");
+                }
+                else if (kind == QLatin1String("spin")) {
+                    QMetaObject::invokeMethod(c, "increment");
+                }
+                qInfo().noquote() << QStringLiteral("echoedit script: pinuse %1 #%2 %3").arg(key).arg(index)
+                                         .arg(kind.isEmpty() ? QStringLiteral("no mirror control") : kind);
+            }
+            QStringList pairs;
+            const int n = std::max(rowCtl.size(), mirCtl.size());
+            for (int i = 0; i < n; ++i) {
+                QObject* r = i < rowCtl.size() ? rowCtl.at(i) : nullptr;
+                QObject* m = i < mirCtl.size() ? mirCtl.at(i) : nullptr;
+                pairs << QStringLiteral("%1 row %2 mirror %3")
+                             .arg((r ? r : m) ? (r ? r : m)->property("controlKind").toString() : QStringLiteral("?"),
+                                  controlValue(r), controlValue(m));
+            }
+            qInfo().noquote() << QStringLiteral("echoedit script: pinstate %1: row %2, mirror %3; %4")
+                                     .arg(key, block ? QStringLiteral("found") : QStringLiteral("none"),
+                                          mrow ? QStringLiteral("found") : QStringLiteral("none"), pairs.join(QStringLiteral("; ")));
+        }
     }
     else if (op == QLatin1String("grab")) {
         const QString path = s.value(QStringLiteral("path")).toString();

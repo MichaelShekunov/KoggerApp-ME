@@ -54,6 +54,14 @@ KIslandRow {
         onClicked: if (paramRow.page) paramRow.page.toggleFavorite(paramRow.paramKey)
     }
 
+    // Pin mode (PinRegistry): the parameter as a row of a settings widget, for the kinds a widget shows. The key
+    // names the device type: a widget acts on the first connected device of that type.
+    KPinTag {
+        key: (paramRow.dev && paramRow.meta && ["spin", "switch", "tabs"].indexOf(paramRow.meta.kind) >= 0)
+             ? "dev:" + paramRow.dev.devName + ":" + paramRow.paramKey : ""
+        label: paramRow.meta ? paramRow.meta.label : ""
+    }
+
     Loader {
         width: paramRow.stacked ? parent.width : implicitWidth
         sourceComponent: !paramRow.meta ? null
