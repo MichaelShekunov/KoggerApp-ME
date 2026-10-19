@@ -2248,7 +2248,9 @@ Android (same day, later): a .kmap tapped in a messenger opens into My maps (VIE
 content, not its name. Verified on the owner's phone from Telegram (cold start) and WhatsApp (running
 app). With the filters on `KoggerActivity` itself a messenger's open made a second activity in the
 messenger's task and Qt restarted the app, losing the file -- hence `KoggerOpenActivity`. "Share the
-map" is not yet tried on a device -- "Android: from a messenger and back" in `docs/map-export.md`.
+map" on the phone sent the saved map to WhatsApp byte for byte, but WhatsApp stored it as `.bin` (the owner
+set WhatsApp aside). A map in My maps is kept across a force-stop and restart -- "Android: from a messenger and back" in
+`docs/map-export.md`.
 Isobaths of loaded maps (owner, same day): they follow the app's isobath tool -- its step and colour
 theme (`IsobathsViewControlMenuController::styleChanged` -> `MapLayer::setIsobathStyle`), one depth
 scale over all visible maps, lines at whole multiples of the step, depth labels as on the live surface
