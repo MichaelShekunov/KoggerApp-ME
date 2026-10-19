@@ -77,7 +77,9 @@ $faults = @(
     @{ Name = 'a column reaches its own ping only';      From = 'return (n > 1 && shownPing >= 0) ? (shownPing / n) * n : shownPing;'; To = 'return shownPing;' },
     @{ Name = 'a ping found only where it is shown';     From = 'return (e == ping || (n > 1 && e / n == ping / n)) ? column : -1;'; To = 'return (e == ping) ? column : -1;' },
     @{ Name = 'a step keeps the ping a run left';        From = ': anchorPing + (right + k) / k;'; To = ': anchorPing + right / k;' },
-    @{ Name = 'a step keeps the group a group left';     From = 'anchorPing + right * n + 1'; To = 'anchorPing + right * n' }
+    @{ Name = 'a step keeps the group a group left';     From = 'anchorPing + right * n + 1'; To = 'anchorPing + right * n' },
+    @{ Name = 'the oldest shown a group late';           From = 'return int(std::max<long long>(groups - width, 0) * n);'; To = 'return int(std::max<long long>(groups - width + 1, 0) * n);' },
+    @{ Name = 'the oldest stretched shown a ping early';  From = 'return int(std::max<long long>(v0, 0) / k);'; To = 'return int(std::max<long long>(v0 - k, 0) / k);' }
 )
 
 $utf8 = New-Object System.Text.UTF8Encoding $false

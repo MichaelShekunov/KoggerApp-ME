@@ -75,7 +75,18 @@ public:
         if (Plot2D::stepHorizontalScale(steps, -1)) {
             horizontalScaleApplied();
         }
+        Q_EMIT zoomedByUser(true);
     }
+    /// The menu's "1:1": a column a ping.
+    Q_INVOKABLE void resetHorizontalScale() {
+        setHorizontalScaleProp(1.0f);
+        Q_EMIT zoomedByUser(true);
+    }
+    /// What the screen holds across: "pings" (the oldest shown to the newest, a compressed column's whole group
+    /// counted) and the canvas' "columns". From the scale and the position, so it holds right after a zoom, before
+    /// the repaint. (No time span: the fork's sonars' recordings carry no ping time -- 00014 has neither an event
+    /// time nor a GNSS time on its pings.)
+    Q_INVOKABLE QVariantMap visibleSpan() const;
     /// The step the horizontal scale is at: an index in horizontalScaleSteps().
     int horizontalScaleIndex() const;
     /// The values the horizontal scale snaps to, the most compressed first.
@@ -188,6 +199,9 @@ protected:
 signals:
     void timelinePositionChanged();
     void horizontalScaleChanged();
+    /// A zoom by the user -- the wheel, a pinch, a hotkey, the settings panel; not a restore and not an automatic
+    /// range -- for QML to show the scales for a moment. `across`: the horizontal scale, else the range.
+    void zoomedByUser(bool across);
     void contactChanged();
     void plotHorizontalChanged();
     void plotEnabledChanged();

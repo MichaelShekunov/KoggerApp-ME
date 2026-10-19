@@ -339,6 +339,7 @@ void checkEdits()
 {
     Check tile("edits: a column reaches its group, and the groups tile the pings shown");
     Check off("edits: a ping off the screen has no column");
+    Check oldest("the oldest ping shown, as the columns have it (the history the screen holds)");
     for (int si = 0; si < kScaleCount; ++si) {
         const float s = kScales[si];
         for (int w : kWidths) {
@@ -377,6 +378,9 @@ void checkEdits()
                     }
                     tile.expect(ok, fmt("scale %g width %d size %d head %lld: %s", double(s), w, size, head,
                                         why.c_str()));
+                    oldest.expect(oldestShown(int(head - 1), w, s) == firstShown,
+                                  fmt("scale %g width %d size %d head %lld: %d, the columns %d", double(s), w, size,
+                                      head, oldestShown(int(head - 1), w, s), firstShown));
 
                     std::vector<int> outside = { -1, newest + 1, newest + 2, newest + 1000 };
                     if (firstShown >= 1) {
@@ -397,6 +401,7 @@ void checkEdits()
     }
     tile.done();
     off.done();
+    oldest.done();
 }
 
 void checkAnchor()

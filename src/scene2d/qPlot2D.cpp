@@ -409,6 +409,28 @@ void qPlot2D::horZoomEvent(int delta, int x, int y) {
     if (Plot2D::stepHorizontalScale(steps, column)) {
         horizontalScaleApplied();
     }
+    Q_EMIT zoomedByUser(true);   // at the end of the steps too: the hint says so
+}
+
+QVariantMap qPlot2D::visibleSpan() const
+{
+    QVariantMap span;
+    span.insert(QStringLiteral("pings"), 0);
+    const int size = datasetPtr_ ? datasetPtr_->size() : 0;
+    const int width = canvas_.width();
+    span.insert(QStringLiteral("columns"), width);
+    if (size <= 0 || width <= 0) {
+        return span;
+    }
+    // As reindexingCursor: the newest ping shown is head - 2.
+    const int head = int(std::round(cursor_.position * float(size)));
+    const int newest = std::min(head - 2, size - 1);
+    const int oldest = plot2d_columns::oldestShown(head - 1, width, horizontalScale());
+    if (newest < 0 || oldest < 0 || oldest > newest) {
+        return span;
+    }
+    span.insert(QStringLiteral("pings"), newest - oldest + 1);
+    return span;
 }
 
 void qPlot2D::horizontalScaleApplied()
@@ -443,6 +465,7 @@ void qPlot2D::verZoomEvent(int delta) {
 //    }
 
     zoomDistance(delta);
+    Q_EMIT zoomedByUser(false);
 }
 
 void qPlot2D::verScrollEvent(int delta) {

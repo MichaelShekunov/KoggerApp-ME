@@ -80,6 +80,7 @@ Item {
             ++stepCalls
             horizontalScale = steps[Math.max(0, Math.min(steps.length - 1, horizontalScaleIndex + n))]
         }
+        function resetHorizontalScale() { horizontalScale = 1 }
         function echogramThemeStops(i) { return [] }
         property QtObject viewState: QtObject {
             property bool echogramVisible: true

@@ -27,6 +27,9 @@
 //                                    and <file>.track.bin: what the turns are found from (see dump())
 //   {"op": "view", "epoch": e, "tool": t, "palette": true}   the echograms at e, a tool, the palette
 //   {"op": "hscale", "scale": s}     every echogram's horizontal scale (screen columns a ping, 1/16..8)
+//   {"op": "hzoom", "steps": k}   {"op": "vzoom", "delta": d}   a zoom as the user makes it on the echograms
+//                                    on screen (the settings panel's step; Ctrl + wheel), which shows their hint
+//   {"op": "hint"}                   what each echogram's scale hint says, with the numbers it is made from
 //   {"op": "grab", "path": file.png}                         the window, through the UI probe
 //   {"op": "quit"}
 // An epoch can be given as a share of the recording instead: "fromFrac", "toFrac", "epochFrac".

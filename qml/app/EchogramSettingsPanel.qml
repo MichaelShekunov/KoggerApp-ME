@@ -166,7 +166,7 @@ Column {
                     normalBg: AppPalette.controlRaised   // as the box beside it: the island's own card hides it
                     enabled: panel.plot ? panel.plot.horizontalScaleIndex !== panel.hScaleOne : false
                     toolTipText: qsTr("A ping a column")
-                    onClicked: if (panel.plot) panel.plot.horizontalScale = 1
+                    onClicked: if (panel.plot) panel.plot.resetHorizontalScale()
                 }
 
                 KSpinBox {

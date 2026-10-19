@@ -658,6 +658,92 @@ WaterFall {
         }
     }
 
+    // The scales for a moment after a zoom by the user: the scale across the pings with the history the screen
+    // holds, and the range shown. The axis just zoomed is bright, the other dim. Lying, the pings run across
+    // ("Width"); standing, up and down.
+    onZoomedByUser: function(across) { scaleHint.show(across) }
+
+    function scaleHintAcrossText() {
+        var s = plot.horizontalScale
+        var parts = [s >= 1 ? "×" + Math.round(s) : "×1/" + Math.round(1 / s)]
+        var span = plot.visibleSpan()
+        if (span.pings > 0)
+            parts.push(qsTr("pings: %1").arg(span.pings))
+        return (plot.horizontal ? qsTr("Width", "the scale hint: the echogram's axis across")
+                                : qsTr("Height", "the scale hint: the echogram's axis up and down"))
+               + "   " + parts.join("  ·  ")
+    }
+
+    function scaleHintRangeText() {
+        var from = plot.cursorFrom()
+        var to = plot.cursorTo()
+        var lo = Math.min(from, to)
+        var hi = Math.max(from, to)
+        var digits = 2   // as the range's label and the grid's
+        // Two channels zoomed show as much each side: one number.
+        var range = (lo < 0 && Math.abs(lo + hi) < 0.05)
+            ? qsTr("±%1 m").arg(hi.toFixed(digits))
+            : qsTr("%1 … %2 m").arg(lo.toFixed(digits)).arg(hi.toFixed(digits))
+        return (plot.horizontal ? qsTr("Height", "the scale hint: the echogram's axis up and down")
+                                : qsTr("Width", "the scale hint: the echogram's axis across"))
+               + "   " + range
+    }
+
+    Rectangle {
+        id: scaleHint
+
+        property bool across: true
+        property string acrossText: ""
+        property string rangeText: ""
+
+        function show(acrossNow) {
+            across = acrossNow
+            acrossText = plot.scaleHintAcrossText()
+            rangeText = plot.scaleHintRangeText()
+            opacity = 1
+            scaleHintTimer.restart()
+        }
+
+        z: 25
+        anchors.top: parent.top
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.topMargin: Math.round(10 * AppPalette.scale) + plot.edgeSafetyMargin
+        width: scaleHintColumn.implicitWidth + 2 * Tokens.spaceMd
+        height: scaleHintColumn.implicitHeight + 2 * Tokens.spaceSm
+        radius: Tokens.radiusLg
+        color: AppPalette.card
+        border.width: 1
+        border.color: AppPalette.border
+        opacity: 0
+        visible: opacity > 0
+        Behavior on opacity { NumberAnimation { duration: 250; easing.type: Easing.OutCubic } }
+
+        Column {
+            id: scaleHintColumn
+            anchors.centerIn: parent
+            spacing: Tokens.spaceXs
+
+            Text {
+                text: scaleHint.acrossText
+                color: scaleHint.across ? AppPalette.textStrong : AppPalette.textSecond
+                font.pixelSize: Tokens.fontLg
+                font.bold: scaleHint.across
+            }
+            Text {
+                text: scaleHint.rangeText
+                color: scaleHint.across ? AppPalette.textSecond : AppPalette.textStrong
+                font.pixelSize: Tokens.fontLg
+                font.bold: !scaleHint.across
+            }
+        }
+
+        Timer {
+            id: scaleHintTimer
+            interval: 1200
+            onTriggered: scaleHint.opacity = 0
+        }
+    }
+
     onHeightChanged: {
         if(menuBlock.visible) {
             menuBlock.position(menuBlock.x, menuBlock.y)

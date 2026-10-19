@@ -119,6 +119,23 @@ inline int columnOf(const int* cols, int width, int ping, float scale)
     return -1;
 }
 
+/// The oldest ping the `width` columns stand for when fillColumns shows pings 0 .. shown-1 (compressed: the first
+/// of the leftmost column's group); -1 when none is shown.
+inline int oldestShown(int shown, int width, float scale)
+{
+    if (shown <= 0 || width <= 0) {
+        return -1;
+    }
+    const int k = stretchOf(scale);
+    const int n = compressOf(scale);
+    if (n == 1) {
+        const long long v0 = (long long)shown * k - width;
+        return int(std::max<long long>(v0, 0) / k);
+    }
+    const long long groups = ((long long)shown + n - 1) / n;
+    return int(std::max<long long>(groups - width, 0) * n);
+}
+
 /// The ring position of a virtual column in a ring of `width` columns.
 inline int ringColumn(long long virtualColumn, int width)
 {

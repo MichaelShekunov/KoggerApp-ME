@@ -2100,3 +2100,34 @@ maxed: every n-th ping is shown, and a target shorter than n pings can drop out 
 **Not verified:** Alt + wheel by hand and the panel in the running app (the checks set the scale through the
 script and the settings, the panel ran offscreen); the vertical orientation; deconvolution when stretched -- it takes a stretched ping's copies
 as columns of their own (with navigation at one place, without it 1 m apart) [inference from the code].
+
+## The echogram's scale hint (2026-10-19)
+
+The owner, after trying Alt + wheel ("works"): while zooming, show the scale for a moment, across and up and down.
+
+**What it does.** On a zoom by the user a box at the top of the echogram shows two rows, the axis just zoomed
+bold: across -- "Width  ×1/4 · pings: 2878" (the scale and the pings the screen holds, a compressed column's whole
+group counted); up and down -- "Height  ±25.00 m" (two channels zoomed: as much each side) or "0.00 … 25.00 m",
+two decimals as the range's label and the grid's. Standing (the echogram turned), the words swap: the pings then
+run up and down. It fades 1.2 s after the last zoom.
+
+- `qPlot2D::zoomedByUser(bool across)`: from `verZoomEvent` (Ctrl + wheel, a pinch, the hotkeys), `horZoomEvent`
+  (Alt + wheel; at the end of the steps too, so the hint says the end is reached), `stepHorizontalScaleBy` and the
+  new `resetHorizontalScale` (the panel's - / + / 1:1). Not from a restore of the scale nor from an automatic range.
+- `qPlot2D::visibleSpan()`: "pings" from the scale and the position (`plot2d_columns::oldestShown`), so it holds
+  right after a zoom, before the repaint; and the canvas' "columns".
+- No time span: the recordings of the fork's sonars carry no ping time -- on 00014 the pings have no event time
+  (ID_EVENT) and no GNSS time, checked through a temporary log line [verified]; a duration would never show.
+- The edit script's `hzoom`, `vzoom` (zooms as the user makes them) and `hint` (what the hint says and the numbers
+  behind it) steps. ru/zh: 5 strings.
+
+**Checks.**
+- `tools/echoscale_check` now 17 checks (`oldestShown` against the columns), `-Mutants` 16 of 16.
+- `tools/echoscale_check/hint_check.ps1`: the app over 00014 -- hidden after a restore of the scale; after hzoom
+  to 1/4 shown, the scale row bold, "×1/4" and the pings (columns x 4 less a partial group); after vzoom shown,
+  the range row bold, the range the plot shows; hidden 2 s later; a step past the end shows "×8". PASS; the
+  grabs looked at.
+- live_check, hscale_panel_check, ts_check: as before, pass.
+
+**Not verified:** the hint by hand (Alt + wheel, Ctrl + wheel, a pinch, the hotkeys) and with the echogram
+standing.

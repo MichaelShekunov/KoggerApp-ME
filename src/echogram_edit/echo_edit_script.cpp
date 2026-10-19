@@ -28,6 +28,38 @@ QString hex64(quint64 v)
     return QStringLiteral("%1").arg(v, 16, 16, QLatin1Char('0'));
 }
 
+// Every echogram (qPlot2D), or only those on screen. The panes' echograms are made by QML at run time and hang in
+// the item tree, not in the window's object tree, so the walk goes over the items.
+void forEachPlot(bool visibleOnly, const std::function<void(QQuickItem*)>& f)
+{
+    std::function<void(QQuickItem*)> walk = [&](QQuickItem* item) {
+        if (item->inherits("qPlot2D") && (!visibleOnly || (item->isVisible() && item->width() > 0))) {
+            f(item);
+        }
+        for (QQuickItem* child : item->childItems()) {
+            walk(child);
+        }
+    };
+    for (QWindow* w : QGuiApplication::topLevelWindows()) {
+        if (auto* qw = qobject_cast<QQuickWindow*>(w)) {
+            walk(qw->contentItem());
+        }
+    }
+}
+
+QQuickItem* findWithProperty(QQuickItem* item, const char* name)
+{
+    if (item->property(name).isValid()) {
+        return item;
+    }
+    for (QQuickItem* child : item->childItems()) {
+        if (QQuickItem* found = findWithProperty(child, name)) {
+            return found;
+        }
+    }
+    return nullptr;
+}
+
 } // namespace
 
 EchoEditScript::EchoEditScript(Core* core, QObject* parent) :
@@ -359,28 +391,59 @@ void EchoEditScript::runStep(const QJsonObject& s)
         }
     }
     else if (op == QLatin1String("hscale")) {
-        // Every echogram's horizontal scale, as the settings panel sets it (the newest ping shown stays).
-        // The panes' echograms are made by QML at run time and hang in the item tree, not in the window's
-        // object tree, so the walk goes over the items.
+        // Every echogram's horizontal scale, as a restore sets it (no scale hint).
         const double scale = s.value(QStringLiteral("scale")).toDouble(1.0);
         int plots = 0;
         int visible = 0;
-        std::function<void(QQuickItem*)> walk = [&](QQuickItem* item) {
-            if (item->inherits("qPlot2D") && item->setProperty("horizontalScale", scale)) {
+        forEachPlot(false, [&](QQuickItem* plot) {
+            if (plot->setProperty("horizontalScale", scale)) {
                 ++plots;
-                visible += item->isVisible() && item->width() > 0 ? 1 : 0;
+                visible += plot->isVisible() && plot->width() > 0 ? 1 : 0;
             }
-            for (QQuickItem* child : item->childItems()) {
-                walk(child);
-            }
-        };
-        for (QWindow* w : QGuiApplication::topLevelWindows()) {
-            if (auto* qw = qobject_cast<QQuickWindow*>(w)) {
-                walk(qw->contentItem());
-            }
-        }
+        });
         qInfo().noquote() << QStringLiteral("echoedit script: hscale %1 on %2 echogram(s), %3 visible; %4 pings")
                                  .arg(scale).arg(plots).arg(visible).arg(n);
+    }
+    else if (op == QLatin1String("hzoom") || op == QLatin1String("vzoom")) {
+        // A zoom as the user makes it on the echograms on screen, which then show their scale hint: hzoom steps
+        // the horizontal scale as the settings panel does, vzoom turns the range as Ctrl + wheel does.
+        const bool across = op == QLatin1String("hzoom");
+        const int amount = across ? s.value(QStringLiteral("steps")).toInt(1) : s.value(QStringLiteral("delta")).toInt(120);
+        int plots = 0;
+        forEachPlot(true, [&](QQuickItem* plot) {
+            if (across) {
+                QMetaObject::invokeMethod(plot, "stepHorizontalScaleBy", Q_ARG(int, amount));
+            }
+            else {
+                QMetaObject::invokeMethod(plot, "verZoomEvent", Q_ARG(int, amount));
+            }
+            ++plots;
+        });
+        qInfo().noquote() << QStringLiteral("echoedit script: %1 %2 on %3 echogram(s)").arg(op).arg(amount).arg(plots);
+    }
+    else if (op == QLatin1String("hint")) {
+        // What the scale hint of each echogram on screen says, and the numbers it is made from.
+        forEachPlot(true, [&](QQuickItem* plot) {
+            QQuickItem* hint = findWithProperty(plot, "acrossText");
+            if (!hint) {
+                return;
+            }
+            QVariantMap span;
+            float from = 0.0f;
+            float to = 0.0f;
+            QMetaObject::invokeMethod(plot, "visibleSpan", Q_RETURN_ARG(QVariantMap, span));
+            QMetaObject::invokeMethod(plot, "cursorFrom", Q_RETURN_ARG(float, from));
+            QMetaObject::invokeMethod(plot, "cursorTo", Q_RETURN_ARG(float, to));
+            qInfo().noquote() << QStringLiteral("echoedit script: hint across %1 opacity %2 [%3] [%4]; scale %5 pings %6"
+                                                " columns %7 from %8 to %9")
+                                     .arg(hint->property("across").toBool() ? 1 : 0)
+                                     .arg(hint->opacity(), 0, 'f', 2)
+                                     .arg(hint->property("acrossText").toString(), hint->property("rangeText").toString())
+                                     .arg(plot->property("horizontalScale").toDouble())
+                                     .arg(span.value(QStringLiteral("pings")).toInt())
+                                     .arg(span.value(QStringLiteral("columns")).toInt())
+                                     .arg(double(from), 0, 'g', 9).arg(double(to), 0, 'g', 9);
+        });
     }
     else if (op == QLatin1String("grab")) {
         const QString path = s.value(QStringLiteral("path")).toString();
