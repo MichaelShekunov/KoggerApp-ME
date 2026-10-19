@@ -77,6 +77,8 @@ public static class MosaicDump {
 
     public static string Key(MosaicDumpTile t) { return t.X + "," + t.Y + "," + t.Zoom; }
 
+    static int PixelAt(MosaicDumpTile t, int p) { return p < t.Image.Length ? t.Image[p] : 0; }
+
     public static int DropBlank(Dictionary<string, MosaicDumpTile> tiles) {
         var blank = tiles.Where(kv => kv.Value.Image.All(v => v == 0) && kv.Value.Marks.All(m => m == 0)).Select(kv => kv.Key).ToList();
         foreach (var k in blank) tiles.Remove(k);
@@ -97,21 +99,28 @@ public static class MosaicDump {
             res.Common++;
             var ta = a[k]; var tb = b[k];
             long onlyA = 0, onlyB = 0, both = 0, maxAbs = 0, h = 0, m = 0;
-            int n = Math.Min(ta.Image.Length, tb.Image.Length);
+            // A tile never painted can come with no image at all from one side and zeros from the other
+            // (2026-10-19: 17 of 93 with the precompute): the shorter one counts as zeros, or the other
+            // side's pixels in that tile would go unseen.
+            int n = Math.Max(ta.Image.Length, tb.Image.Length);
             res.Pixels += n;
             for (int p = 0; p < n; ++p) {
-                int va = ta.Image[p], vb = tb.Image[p];
+                int va = PixelAt(ta, p), vb = PixelAt(tb, p);
                 if (vb != 0) res.PaintedB++;
                 if (va == vb) continue;
                 if (va == 0) onlyB++;
                 else if (vb == 0) onlyA++;
                 else { both++; maxAbs = Math.Max(maxAbs, Math.Abs(va - vb)); }
             }
-            res.HeightPoints += Math.Min(ta.Heights.Length, tb.Heights.Length);
-            for (int i = 0; i < Math.Min(ta.Heights.Length, tb.Heights.Length); ++i)
-                if (Math.Abs(ta.Heights[i] - tb.Heights[i]) > 1e-4f) h++;
-            for (int i = 0; i < Math.Min(ta.Marks.Length, tb.Marks.Length); ++i)
-                if (ta.Marks[i] != tb.Marks[i]) m++;
+            int nh = Math.Max(ta.Heights.Length, tb.Heights.Length);
+            res.HeightPoints += nh;
+            for (int i = 0; i < nh; ++i) {
+                float za = i < ta.Heights.Length ? ta.Heights[i] : 0f, zb = i < tb.Heights.Length ? tb.Heights[i] : 0f;
+                if (Math.Abs(za - zb) > 1e-4f) h++;
+            }
+            int nm = Math.Max(ta.Marks.Length, tb.Marks.Length);
+            for (int i = 0; i < nm; ++i)
+                if ((i < ta.Marks.Length ? ta.Marks[i] : 0) != (i < tb.Marks.Length ? tb.Marks[i] : 0)) m++;
             res.PaintedOnlyA += onlyA; res.PaintedOnlyB += onlyB; res.BothDiffer += both;
             res.MaxAbs = Math.Max(res.MaxAbs, maxAbs); res.Heights += h; res.Marks += m;
             if (onlyA + onlyB + both + h + m > 0 || ta.Head != tb.Head || ta.Image.Length != tb.Image.Length) {
@@ -128,7 +137,10 @@ public static class MosaicDump {
         if (common.Count == 0) return "no common tiles to draw";
         int zoom = common.GroupBy(t => t.Zoom).OrderByDescending(g => g.Count()).First().Key;
         var tiles = common.Where(t => t.Zoom == zoom).ToList();
-        int side = (int)Math.Round(Math.Sqrt(tiles[0].Image.Length));
+        // The side from the largest image of either: a tile never painted may have none (a 0 x 0 bitmap
+        // threw "Parameter is not valid", 2026-10-19).
+        int side = (int)Math.Round(Math.Sqrt(tiles.Max(t => Math.Max(t.Image.Length, b[Key(t)].Image.Length))));
+        if (side == 0) return "nothing painted to draw";
         int x0 = tiles.Min(t => t.X), x1 = tiles.Max(t => t.X), y0 = tiles.Min(t => t.Y), y1 = tiles.Max(t => t.Y);
         int w = (x1 - x0 + 1) * side, hgt = (y1 - y0 + 1) * side;
         using (var bmp = new System.Drawing.Bitmap(w, hgt, System.Drawing.Imaging.PixelFormat.Format24bppRgb)) {
@@ -137,10 +149,9 @@ public static class MosaicDump {
             var buf = new byte[data.Stride * hgt];
             foreach (var ta in tiles) {
                 var tb = b[Key(ta)];
-                if (tb.Image.Length != ta.Image.Length) continue;
                 int ox = (ta.X - x0) * side, oy = (y1 - ta.Y) * side;
-                for (int p = 0; p < ta.Image.Length; ++p) {
-                    int va = ta.Image[p], vb = tb.Image[p];
+                for (int p = 0; p < side * side; ++p) {
+                    int va = PixelAt(ta, p), vb = PixelAt(tb, p);
                     int px = ox + p % side, py = oy + side - 1 - p / side;
                     byte cr, cg, cb;
                     if (va == vb) { cr = cg = cb = (byte)(va / 3); }
