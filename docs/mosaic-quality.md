@@ -149,6 +149,10 @@ up to"), the near-to-far range part taken out, the pings it was measured on. The
 four values to `MosaicViewControlMenuController::setQuality`, which queues
 `DataProcessor::setMosaicQuality`; the state comes back as `mosaicBeamState` (`beamState` in QML). The
 numbers of the "not measured yet" line come with the state (`kMinPings`, `kMinAngleCover`), not from QML.
+Each of the four rows carries a KPinTag (`app:mosaic.beamCorrection`, `nadirCrop`, `farCrop`, `overlap`; since
+ae023ac9), so it can be pinned as a settings widget (docs/HANDOFF.md, "Settings pinned as widgets").
+`tools/qml_check/pin_coverage_check.ps1` fails when a value row has no tag and is not on its list of rows left
+out (these four are not on it); `beam_edit_check.ps1` turns the correction off and on through such a widget.
 
 ## Checks
 
@@ -211,7 +215,8 @@ from the 1.1 GB file, past `tilesInQuadNed`'s 2 000 tiles). Hence `-FromOffset`,
   evenly, in a pass of their own (denser than the estimate's, for straight runs of a line), little-endian
   -- "KPD2", then per ping and side: epoch (int32), side (uint8), altitude, resolution, offset, north,
   east, yaw, pitch, roll (float32 each; pitch and roll NaN without attitude), count (uint32) and the raw
-  levels. For an analysis outside the application; the estimate's time in the log includes the dump's.
+  levels. For an analysis outside the application. The log's "in T ms" leaves the dump's pass out: since
+  6a2684e1 the clock starts in `DataProcessor::beamMeasure`, after the dump **[verified by reading]**.
 
 ## Open
 
@@ -234,6 +239,18 @@ from the 1.1 GB file, past `tilesInQuadNed`'s 2 000 tiles). Hence `-FromOffset`,
   altitude-dependent part would also take out differences of the bottom that go with depth.
 - Live, the first epochs are painted without a model and repainted once it comes; a model is not kept
   between sessions.
+- After an echogram edit the session measures the model again over the whole bottom track. A reopen measures
+  by the file rule above (700 ms after the last batch, at most 2.5 s after the first), then again only as
+  `beamMaybeSchedule` allows, and takes a new model only past 1 dB. A file whose bottom track is still coming
+  then can keep a model measured on part of it, and the reopen paints otherwise than the session did
+  **[inference, from the code; found in the review of 6a2684e1, not run]**. On 00014 the reopen measures over
+  the whole track and the two models are the same **[verified, `tools/perf/beam_edit_check.ps1`, 2026-10-19]**.
+- With data streaming, the re-measure waits, as the rebuild does, for 500 ms of a quiet bottom track, which
+  comes only between batches **[inference, from the code]**. Live editing was not run.
+- A map export takes the brightness model (none with the correction off) and the crop / overlap rules once, at
+  its start (`DataProcessor::mapExportConfig`, `MapExportConfig::beamModel`, `paintRules`) **[verified by
+  reading]**. An export started between an echogram edit and the rebuild after it, or still running when that
+  rebuild measures again, paints with the model from before the edit **[inference, from the code; not run]**.
 - Not checked on the water, on another device, or with a TGC source of 0 % near gain (the owner's): there
   the near range is 0 before the correction, and no gain brings it back -- "Raw" or "Side-Scan" suit the
   correction better.

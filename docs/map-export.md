@@ -363,7 +363,12 @@ covers only what was in view, the precompute only what it finished. `MosaicProce
 and taken back from the sink as the hot cache does for the view. The run is `MosaicPrecomputer::run`'s:
 slices of 1024 epochs, the mesh restarted past 128 K cells. Channels, source, angle offsets and the colour
 table come from `DataProcessor::mapExportConfig()` (recorded in the setters that pass them to the
-worker). Tiles are kept in memory: at most 8 000 (2 000 on Android, ~66 KB each); past that the export
+worker). The mosaic quality's brightness model (none while the correction is off) and its crop / overlap rules
+come from there too, read when the export starts (`MapExportConfig::beamModel`, `paintRules`;
+docs/mosaic-quality.md). So the export should paint as the view does **[Inference: from the code, aff9949c. The
+export's tiles were compared with the view's at 5ab0d3c4, before the mosaic quality (Checks below), not since; a
+headless export on the merged build logged "mosaic quality: correction on" (docs/HANDOFF.md), its tiles not
+compared]**. Tiles are kept in memory: at most 8 000 (2 000 on Android, ~66 KB each); past that the export
 asks for a coarser detail.
 
 **The depth surface** is built from the 3D bottom track as `SurfaceProcessor` gets it
@@ -401,7 +406,7 @@ triangles, files, times) to kogger.log.
 
 ## Checks
 
-- `powershell -ExecutionPolicy Bypass -File tools\mapexport_check\run.ps1 [-Keep <folder>]`: 102 checks --
+- `powershell -ExecutionPolicy Bypass -File tools\mapexport_check\run.ps1 [-Keep <folder>]`: 117 checks --
   the projection bit for bit, the inverse, the grid, the sampler against `pixel()`'s layout, the depth
   surface on a plane with a gap past the limit and a line run twice, isobaths on their depth and through
   saddles, the GeoTIFFs and the KMZ read back by a TIFF parser of its own and Qt's `QZipReader`, the
@@ -409,14 +414,19 @@ triangles, files, times) to kogger.log.
   mosaic and palette), the own ZIP and GeoTIFF readers, the depth at a point (plane, gap, off the map);
   opening a received file (`copyMapFile`, `startsLikeMap`): each .kmap copied byte for byte with its
   SHA-1, a 2.5 MB file in three pieces, a log named .kmap and a 2-byte file refused with nothing written,
-  a missing file and an unwritable copy saying so. 102/102 **[Verified]**. Eight mutants (degrees by
+  a missing file and an unwritable copy saying so; the .kmap in both privacy modes (only its five parts,
+  no word of the track, the dates to the month); the view's extrapolation (both described above, two
+  mutants each caught **[Verified, 2026-10-18]**). 117/117 **[Verified, 2026-10-19, on the merged
+  build]**. Eight mutants (degrees by
   pi/180, sampler axes swapped, depth offset, first depth kept, tie point at the south, another datum,
   track always, saddles dropped): all caught; two more for the copy (no ZIP test: 3 fail; the first piece
   not hashed: 3 fail) **[Verified, 2026-10-18]**.
 - `powershell -ExecutionPolicy Bypass -File tools\qml_check\mapexport_page_check.ps1 [-Picture page.png]`:
   the real page over mocks -- rows, Save into the folder, Cancel while running, the result, "Show in
   folder", the licence note, the switches and lists; "Share the map" -- not off Android, the .kmap (not
-  the KMZ) with the title "Send the map", not without a .kmap, while running or after a failure. 10/10
+  the KMZ) with the title "Send the map", not without a .kmap, while running or after a failure; "In the
+  file" -- the isobaths first, then the mosaic; with neither, "Save the map" greyed and the page says there is
+  nothing to save (test 6b); no edge limit or isobath step of the export's own. 11/11
   **[Verified]**; a mutant sharing the first file instead of the .kmap is caught.
 - `powershell -ExecutionPolicy Bypass -File tools\qml_check\mymaps_page_check.ps1 [-Picture page.png] [-Preview preview.png]`:
   My maps over a mock library -- the empty state, the cards (author or "Author not given", licence, size
@@ -424,6 +434,19 @@ triangles, files, times) to kogger.log.
   the layer switches, how to open a map (the desktop's ways; on Android from the messenger). 9/9
   **[Verified]**. `boatgui_check` 8/8 and `sysgui_check` 12/12 with the new data field in the catalog
   **[Verified]**.
+
+- `powershell -ExecutionPolicy Bypass -File tools\perf\mapexport_edit_check.ps1 -Exe <KoggerApp.exe> -File <recording> -Epochs <n> [-TrimStart 2924] [-BadFrom 22832] [-BadTo 23973] [-PathPrefix ...]`:
+  pings marked bad or trimmed on the echogram are out of the KMZ track and the survey's times. Two windows
+  of the app (about a minute each, closing themselves; a profile copied from the test profile "perf" with the
+  KMZ and its track on). The recording is exported as it is, then with a file of edits that trims the first
+  `-TrimStart` pings and marks `-BadFrom` up to (not including) `-BadTo` bad; the defaults are for 00014.
+  `-Epochs` is the recording's epoch count as KoggerApp reads it (57 079 for 00014); with a wrong one the app
+  applies no edits. Checked: the log's count of pings left out (0, then 2924 + 1141 = 4065 on 00014), and the
+  edited KMZ track shorter and starting elsewhere. The recording's own `.kedit` is put aside and back; after a
+  run that did not finish, the check stops until `<recording>.kedit.mapexportcheck-kept` is put back by hand.
+  On 00014 with the fix: 1573 track points against 1665; on the build before the fix 1665 both ways, the same
+  first point **[Verified, 2026-10-19, run as a scratch script before it was kept in tools]**. On the merged
+  build 829f797b, the tool itself: 0 and 4065 left out, 1665 and 1573 track points, PASS **[Verified]**.
 
 On the test survey `00014_03.05.2025.KLF` (348 MB, 57 079 epochs, Yerevan lake), profile `mapexport` (a
 copy of `perf`), 2026-10-18 **[Verified]**:
@@ -451,10 +474,18 @@ back"); the 1.1 GB survey (memory at 8 cm and finer); a survey across the antime
   correction -- the metadata says so. The bottom track's errors go into the map (on 00014 a few points at
   the start read 0.4 m and give a fan of isobaths by the dam) -- cleaning is the bottom-track editor's job.
 - A file being opened, closed or re-read stops a running export first (`Core::stopMapExport`).
+- An echogram edit made while an export runs is only partly in the map. The track, the survey's times and
+  the depths are taken when the export starts, so the edit does not reach them. The mosaic reads the live
+  dataset slice by slice, so the edit reaches only the slices painted after it. The mosaic quality's
+  brightness model is also taken at the start. An export started between an edit and the rebuild after it,
+  or still running when an edit is made, paints with the model from before the edit **[verified by reading:
+  `MapExporter::start`, `DataProcessor::mapExportConfig`, `Dataset::fromIndexMosaicCopy`,
+  `DataProcessor::runEditRebuild`; not run. Found by the reviews of the merge and of 6a2684e1, 2026-10-19]**.
 - A ping marked bad or trimmed on the echogram (`docs/echogram-editing.md`) is out of the map: its mosaic and
   depths (since the two works met, 2026-10-19) **[verified by reading]** and the track and the survey's times
   (`MapExporter::start`) **[verified: 00014 with the first 2924 pings trimmed and 1141 marked bad, the KMZ track 1573
-  points against 1665, starting later; HANDOFF "Brought together"]**. Across a stretch marked bad the track is a
+  points against 1665, starting later; 1665 both ways on the build before the fix; a scratch run of 2026-10-19,
+  now `tools/perf/mapexport_edit_check.ps1`]**. Across a stretch marked bad the track is a
   straight line between the pings either side.
 - The survey's dates are written only when the recording carries a calendar date (after 2000): the
   ping's time, else the GNSS fix's. 00014 has no ping time and a GNSS time near 1970 (time since

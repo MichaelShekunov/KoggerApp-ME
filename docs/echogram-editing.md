@@ -76,14 +76,19 @@ left out:
 | 3D bottom track, surface, isobaths | no point: `BottomTrack::updateRenderData` gives it NaN, the surface skips a NaN |
 | mosaic | `Dataset::fromIndexMosaicCopy` hands the mosaic (and the precompute, and mosaic-quality's brightness model, which sample through it) a copy with no bottom: no pair with it is painted |
 | CSV export, XTF export | skipped (`Core::exportPlotAsCVS`, `ConverterXtf::toXTF`) |
-| map export: the KMZ track, the survey's times | skipped (`MapExporter::start`; a .kmap carries no track) **[verified: 00014 with 4065 pings left out, HANDOFF "Brought together"]**; its mosaic and depths leave the ping out through the mosaic row and the bottom track's NaN above **[verified by reading]** |
+| map export: the KMZ track, the survey's times | skipped (`MapExporter::start`; a .kmap carries no track) **[verified: 00014 with 4065 pings left out (the first 2924 trimmed, 22832..23973 marked bad: 1141), the KMZ track 1573 points against 1665 and starting later (`tools/perf/mapexport_edit_check.ps1`, 2026-10-19); the build before the fix gave 1665 both ways and the same first point (HANDOFF "Brought together")]**; its mosaic and depths leave the ping out through the mosaic row and the bottom track's NaN above **[verified by reading]** |
 | echogram relief cloud | skipped (`ReliefCloud`) |
 | bottom track | still run over it (its depth is kept; only the products leave it out) |
 
 ### After an edit: the products built again
 
 `EchogramEditor::afterChange` asks `DataProcessor::rebuildAfterEdit(withSurface)`. The processor waits
-until the bottom track is quiet (no run, none waiting, 500 ms since its last 3D echo or the end of a run)
+until the bottom track is quiet (no run, none waiting, 500 ms since its last 3D echo or the end of a run),
+measures the mosaic quality's brightness model again from the epochs as the edit left them and takes it as it
+comes, with the correction off too (`beamRemeasureAfterEdit`; skipped before the first measurement, while a
+file's mosaic waits for it, and under 300 epochs with a bottom track; docs/mosaic-quality.md, "When it is
+measured") **[verified by reading; on 00014 by `tools/perf/beam_edit_check.ps1`, 7 of 7 on 18cf34c2's build,
+docs/mosaic-quality.md, "Checks"]**
 and then:
 
 - **without the surface** (a step that takes no ping out of the products: pencil, raise, lower, unmark,
@@ -266,7 +271,7 @@ field has the keys. The tools 5-11 do nothing in the 3D view. Icons: Tabler outl
 
 ## Checks
 
-- `tools/echoedit_check` (CMake, Qt Core; `run.ps1 -Mutants`): the model alone. 62 checks: NaN equality,
+- `tools/echoedit_check` (CMake, Qt Core; `run.ps1 -Mutants`): the model alone. 70 checks: NaN equality,
   ranges and runs, what each kind of step takes out and what it tracks again, the history's limits, 40
   random sessions of 150 operations with undo and redo checked against a timeline of states, the file
   written and read back and its errors refused, the magnet's search on synthetic columns (a return from
@@ -276,7 +281,8 @@ field has the keys. The tools 5-11 do nothing in the 3D view. Icons: Tabler outl
   with a 3 m cliff (all found, given the bottom within 5 cm, the cliff not), a hand point not judged, a
   lawnmower survey with compass headings (0-360) whose three half circles are found whole, the lines left
   alone and the margin taken, a 200 m curve no turn, turning on the spot a turn.
-  **20 mutants**, each a fault in a copy of the model, **all caught** **[verified, 2026-10-18]**.
+  **23 mutants**, each a fault in a copy of the model, **all caught** **[verified: 23 of 23 on the merged
+  build 829f797b, 2026-10-19]**.
 - `tools/qml_check/echoedit_tools_check.ps1` (qmltestrunner, offscreen): the tool numbers 0-11 of the
   palette, Plot2D.qml's table and the MouseTool enum agree (read from the three files); the real
   `_applyBtTool` and `kindName` (16 kinds of step), cut out of the QML, run against mocks. 7/7.
@@ -284,6 +290,17 @@ field has the keys. The tools 5-11 do nothing in the 3D view. Icons: Tabler outl
   (`KOGGER_ECHOEDIT_SCRIPT`, `src/echogram_edit/echo_edit_script.h`) on a recording, judged from its dumps
   (the edits, every ping's bottom as float32, the CSV export, the mosaic dumps of `KOGGER_MOSAIC_DUMP`).
   What it checks is in its header; the results are below.
+- `tools/perf/beam_edit_check.ps1` (three windows of the app, closing themselves): the brightness model
+  measured again after an edit, and the session's mosaic against the recording reopened with its edits; a
+  third run does the same edit with the correction off during it. On 00014: 7/7 on 18cf34c2's build;
+  6a2684e1 fails the three "off" checks, ad52a0c0 six **[verified]**. The numbers are under "Merging with the
+  other branches" and in docs/mosaic-quality.md, "Checks".
+- `tools/perf/mapexport_edit_check.ps1` (two windows of the app, each exporting a KMZ and closing itself):
+  the recording exported as it is, then with a file of edits that trims pings and marks pings bad. Checked:
+  the export's log counts the pings the edits left out, and the KMZ track has fewer points and starts
+  elsewhere. On 00014 (2924 trimmed, 1141 marked bad): 4065 left out, 1573 track points against 1665; the
+  build before the fix gives 1665 both ways and the same first point **[verified; the tool itself on the merged
+  build 829f797b, the failure on the build before the fix by the scratch script it was made from]**. Also in docs/map-export.md, "Known limits".
 
 ### Results on the test recordings
 
@@ -377,5 +394,7 @@ map-export) and 344919cd (the map session's results from the phone). What their 
 - Whether a stretch "remove the spikes" changes is a real spike or junk to trim (the start of 00014) is
   the user's judgement; the button makes the line consistent with its neighbours, nothing more.
 - The brushes and the side tool work in the 2D echogram only, as the mark and trim tools.
-- The ten icons added are Tabler outline icons (MIT), as the palette's others; `THIRD_PARTY_NOTICES.md`
-  names no icon set at all (pre-existing, not changed here).
+- The ten icons added are Tabler outline icons (MIT), as the palette's others: each carries Tabler's `icon-tabler`
+  class **[verified by reading]**. Since the third-party-icons merge (5b4dfa5f) `THIRD_PARTY_NOTICES.md` and the
+  About page credit Tabler, and `tools/qml_check/about_check.ps1` fails on an icon that is neither Tabler nor named
+  in `third_party/icons/README.md` (above) **[verified by reading]**.

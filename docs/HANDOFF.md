@@ -1916,7 +1916,7 @@ the results: `docs/echogram-editing.md`; the owner's summary: `docs/echogram-edi
 
 **Where.** Worktree `D:\Temp\ka_echoedit`, branch `echogram-edit` from `me` c4e1d3f4; committed and
 pushed to `mine` at the owner's word (2026-10-19), merged into `me` locally the same day with
-third-party-icons (merge 5b4dfa5f; `me` not pushed yet); not installed. New: `src/echogram_edit/` (the model `echo_edit_model`, Qt Core only; the editor
+third-party-icons (merge 5b4dfa5f; on GitHub since `mine/me` ad52a0c0 was pushed, 2026-10-19 21:01); installed with 690d3b83 on the other PC (as "To continue on another PC" records) and with ad52a0c0 on the laptop (build_info.txt, 2026-10-19 20:59) **[verified: merge-base --is-ancestor, the reflog of `mine/me`, the laptop's build_info.txt]**. New: `src/echogram_edit/` (the model `echo_edit_model`, Qt Core only; the editor
 `EchogramEditor`, QML `echoEdit`; the script runner `EchoEditScript`, `KOGGER_ECHOEDIT_SCRIPT`), the
 palette in three columns (`qml/app/BottomTrackEditPopup.qml`), Ctrl+Z / Ctrl+Y, the edits' shading
 and the hand line in Plot2D, `Dataset` marks / trim / per-side mosaic exclusion, a file
@@ -1972,7 +1972,7 @@ Found during the echogram editing: the interface's icons are mostly Tabler Icons
 `THIRD_PARTY_NOTICES.md` nor *Settings -> Interface -> About* credited them; the owner: "do it here".
 Worktree `D:\Temp\ka_notices`, branch `third-party-icons` from `me` c4e1d3f4; committed and pushed to
 `mine` at the owner's word (2026-10-19); merged into `me` locally the same day, after the echogram
-editing (merge 5b4dfa5f; `me` not pushed yet).
+editing (merge 5b4dfa5f; on GitHub in `mine/me` ad52a0c0 since 2026-10-19 21:01 [verified]).
 
 **What the icons are** (`resources/icons/ui`, read from the files [verified]): 196 of the 209 SVGs
 carry Tabler's `icon-tabler` class; three are Ionicons 5 (`<title>ionicons-v5-...`, MIT); one,
@@ -2236,15 +2236,19 @@ check uses a mock); two devices of one type.
 ## To continue on another PC (2026-10-19, evening)
 
 The owner moves to the other PC again; their summary of the day in Russian: `docs/itog-2026-10-19.ru.md`.
-Installed on this PC: 690d3b83 (exe hash MATCH, build_info "dirty: no"). The head of `me` is the docs commit
-after it. The 2026-10-17 notes ("Performance ...", "To continue on another PC") still hold -- the sync, the
+Installed on this PC (the one left that evening, not the laptop): 690d3b83 (exe hash MATCH, build_info "dirty: no").
+The head of `me` was then the docs commit after it, 1b43d162; the laptop moved `me` on the same evening ("Brought
+together" below). The 2026-10-17 notes ("Performance ...", "To continue on another PC") still hold -- the sync, the
 worktree, packaging, the test file, the test profile -- with these changes:
 
 - First `git --no-optional-locks fsck` (a plain `git status` writes .git/index into the synced folder). Known
-  missing here: blob e7fba2f9 (src/map_export/map_export_meta.cpp in c1684801, branches map-export and
-  install-maps-mosaic); it is not on this PC nor on GitHub, it was made on the other PC: check it is there.
+  missing here that evening: blob e7fba2f9 (src/map_export/map_export_meta.cpp in c1684801, branches map-export and
+  install-maps-mosaic), made on the other PC (the laptop). It is in the synced repository now **[verified on the
+  laptop: `git cat-file -t e7fba2f9` = blob]** and on GitHub since 21:01 in `mine/me`, `mine/map-export` and
+  `mine/install-maps-mosaic` **[verified: push reflog]**. If fsck here still reports it missing, `git fetch mine`
+  brings it **[inference]**.
 - `D:\YandexDisk\DelphiProjects\KoggerApp_myEdition_transfer\` (README.txt there says what is what):
-  `me-c4e1d3f4..2026-10-19.bundle`, every commit of `me` since c4e1d3f4 (= GitHub `mine/me`) up to the docs
+  `me-c4e1d3f4..2026-10-19.bundle`, every commit of `me` since c4e1d3f4 (GitHub `mine/me` until 21:01 that evening) up to the docs
   commit (`git bundle verify <file>`, then `git fetch <file> me:refs/remotes/bundle/me` and compare with `me`);
   `KoggerApp-perf.reg`, the test profile as left this evening; `claude_memory_2026-10-19\`, the assistant's
   notes from this PC (context, not instructions).
@@ -2261,8 +2265,10 @@ worktree, packaging, the test file, the test profile -- with these changes:
   - Pinned settings: sub-pages (TGC, the per-echogram panel) need catalog entries; a device parameter not tried
     on a real device; two devices of one type.
   - The NTC reading +5 C: a leak of ~44 kOhm across the fitted sensor (hardware; the L412 session's).
-  - GitHub `mine` holds c4e1d3f4; today's commits are not pushed (only on the owner's word). (Pushed the same
-    evening from the laptop with the merge: "Brought together" below.)
+  - GitHub `mine` held c4e1d3f4 when this was written. Pushed at 21:01 the same evening, at the owner's word:
+    `me` ad52a0c0, `map-export` 75953cd4, `install-maps-mosaic` 3634d953 **[verified: the remote-tracking refs'
+    reflog]**, from the laptop right after its docs commit ad52a0c0 (20:58) **[inference]**. The merge it carried:
+    "Brought together" below.
 
 ## Map for sharing and My maps (2026-10-18, branch `map-export`)
 
@@ -2296,7 +2302,14 @@ its dates are a month whatever the privacy switch says, which moved under "For o
 (`kmapMetadata`, `mapexport_check` 109/109 with two mutants caught). The depth grid still carries the
 soundings along the passes (visible as creases in a hillshade): the owner keeps the measured depths, no smoothing.
 Settings -> Files -> Open file now lists .kmap too (the owner: "the app on the computer does not filter
-kmap files"); the installed KoggerApp ME on this PC (11:35, before this branch) has no maps at all.
+kmap files"); the KoggerApp ME installed on this PC (the laptop) at 11:35 that day, before this branch, had no maps at all.
+In `me` since 2026-10-19 (merges 30b1138f, 344919cd). Since ae023ac9 the export leaves out the pings marked bad or
+trimmed on the echogram from the KMZ's track and the survey's times, as the CSV and XTF exports do (its mosaic and
+depths already left them out). On 00014 with the first 2924 pings trimmed and 1141 marked bad, the fixed build gave
+1573 track points against 1665 for the recording as it is, and 4065 pings left out; the build before the fix gave
+1665 both ways **[verified]**, by a scratch version of the check (recipe in "Brought together" below). That check is
+now `tools/perf/mapexport_edit_check.ps1`; its own run on the merged build 829f797b: 0 and 4065 left out, 1665 and 1573 track points, the first point moved, PASS **[verified]**.
+`mapexport_check` 117/117 on the merged build **[verified]**.
 The KMZ-first text below is the first build's.
 
 The owner: users should save the bathymetric map and the mosaic to share them, with the legal side in
@@ -2323,8 +2336,12 @@ The owner: "the mosaic's quality: crop, stitching; the sonar's directivity taken
 from the bright areas of the echogram". All of it is in [mosaic-quality.md](mosaic-quality.md) (the
 owner's summary: [mosaic-quality.ru.md](mosaic-quality.ru.md)); here what a next session needs.
 
-**State.** Worktree `D:\Temp\ka_mosaic`, branch `mosaic-quality` from `me` c4e1d3f4, **not committed**
-(the owner's word decides). Built there with `scripts\win_build_release.ps1`. Not on the water, not on
+**State.** Worktree `D:\Temp\ka_mosaic`, branch `mosaic-quality` from `me` c4e1d3f4, committed as
+879503ed (on GitHub `mine/mosaic-quality`). The same work, as aff9949c (on top of map-export, with the map
+export painting by the same model and rules), is in `me` through 7908339e -> 3634d953 -> merge 30b1138f
+("Brought together" below) **[verified: the refs and the merges' parents]**. Since 6a2684e1 + 18cf34c2
+(branch `beam-after-edit`, merged in 829f797b) an echogram edit measures the model again, with the
+correction on or off ("The brightness model measured again" below). Built there with `scripts\win_build_release.ps1`. Not on the water, not on
 another device, not seen by the owner.
 
 **What it is.** Per side, `log(mean level) = A(angle) + B(range)` fitted from the echograms at run time
@@ -2382,7 +2399,7 @@ it) left a conflict copy, `src/id_binnary (2).h`, the same as HEAD. **Before rep
 until Yandex.Disk is quiet** (the YandexDisk2 process's I/O counters stay flat), then `git --no-optional-locks fsck`.
 
 **What came in.**
-- `install-maps-mosaic` 3634d953, the combination installed on the laptop since 2026-10-18: map-export c1684801
+- `install-maps-mosaic` 3634d953, the combination installed on the laptop from 2026-10-18 until ad52a0c0 replaced it on 2026-10-19 at 20:59 [verified: build_info.txt]: map-export c1684801
   and the mosaic quality as aff9949c (the same work as `mosaic-quality` 879503ed, put on top of map-export; every
   line 879503ed adds to the code is in `me`, checked line by line) -> merge 30b1138f.
 - The map session's results from the phone, left uncommitted in `D:\Temp\ka_mapexport` (Share the map, a map kept
@@ -2409,7 +2426,7 @@ mosaic engine, Core and threads, QML and settings, the data an export reads), an
   read the live dataset with a survey streaming. Left as a limit.
 
 **Checks on the merged build** (00014, the test profile from the other PC's evening, `D:\Temp\kogger_build`):
-- Without a window: ts_check ru/zh (0 unfinished), 15 qml_check pages (about, boatgui, boatpanel, devswitch,
+- Without a window: ts_check ru/zh (0 unfinished), 16 qml_check pages (about, boatgui, boatpanel, devswitch,
   echoedit_tools, fold, hscale_panel, mapexport_page, mosaicquality, mymaps_page, pin_mirror -Mutants 4/4,
   recorderpill, scrollstrip, split, synccursor, sysgui), echoscale -Mutants 16/16, echoedit -Mutants 23/23,
   mapexport_check 117/117, beam_check 18/18, voltage_check PASS, catalog_check PASS. **[verified]**
@@ -2419,12 +2436,20 @@ mosaic engine, Core and threads, QML and settings, the data an export reads), an
   `-WheelAt "35,42,49" -Wheel 18 -Seconds 60` (25 tiles in common, 0 pixels apart). **[verified]**
   `-WheelAt` past `-Seconds` (35 s default) gives two runs that end on different levels and a FAIL with no common
   tiles: a mistake in the arguments, not in the build.
-- The fix to the export, `tools`-less (scratch script, the recipe here): 00014 as it is and a copy with a
-  `.kedit` trimming the first 2924 pings and marking 22832..23973 bad, each exported to KMZ with the track
-  (`mapExport/writeKmz` and `hideTrackAndTime` false in a profile copied from perf, `KOGGER_MAP_EXPORT`,
-  `KOGGER_MAP_EXPORT_QUIT=1`). Fixed build: "0 left out" and 1665 track points against "4065 left out" (2924 +
-  1141) and 1573 points, the track starting later. The same pair on the build before the fix: 1665 points
-and the same first point for both, so the check fails there as it should. **[verified]**
+- The fix to the export, first checked by a scratch script that evening, now
+  `tools/perf/mapexport_edit_check.ps1 -Exe -File -Epochs 57079 [-PathPrefix]` (f48cca0d): 00014 exported as it
+  is, then with a `.kedit` next to it (the recording's own put aside and back) trimming the first 2924 pings and
+  marking 22832 up to (not including) 23973 bad, each to a KMZ with the track (`mapExport/writeKmz` true and
+  `hideTrackAndTime` false in a profile copied from perf, `KOGGER_MAP_EXPORT`, `KOGGER_MAP_EXPORT_QUIT=1`).
+  Fixed build: "0 left out" and 1665 track points against "4065 left out" (2924 + 1141) and 1573 points, the
+  track starting later. On the build before the fix (ae023ac9's parent): 1665 points and the same first point
+  for both, so the check fails there as it should **[verified, by the scratch script]**. The tool itself on the
+  merged build: the same numbers, PASS **[verified]**.
+
+**Installed and pushed.** Installed on the laptop at 21:00: ad52a0c0, built 20:59, build_info "dirty: no"
+**[verified: build_info.txt and the install folder's file times]**. Pushed to `mine` at 21:01 at the owner's word:
+`me` ad52a0c0, `map-export` 75953cd4, `install-maps-mosaic` 3634d953 **[verified: the remote-tracking refs'
+reflog]**. The work after ad52a0c0 was not in that push **[verified: same reflog]**.
 
 **Open.**
 - The brightness model was not measured again after an echogram edit. Done the same evening at the owner's word
@@ -2437,7 +2462,7 @@ and the same first point for both, so the check fails there as it should. **[ver
 
 The owner said yes to the open item of the merge: a recording edited in the session painted with the brightness
 model measured before the edit, the same recording reopened with its edits with one measured after them. Branch
-`beam-after-edit` from ad52a0c0, worktree `D:\Temp\kogger_build`.
+`beam-after-edit` from ad52a0c0, worktree `D:\Temp\kogger_build`. Merged with `pin-coverage-check` in 829f797b (parents 18cf34c2 and b9014c80, both on top of ad52a0c0), and `me` took it, with f48cca0d and the docs after it, by a fast-forward that night ("End of 2026-10-19 on the laptop" below) **[verified: the commit's parents]**
 
 - `DataProcessor::beamMeasure` is the measurement alone, split out of `beamEstimate` (which keeps its
   KOGGER_MOSAIC_PING_DUMP pass, the 1 dB rule and the hold). `beamRemeasureAfterEdit`, the first thing
@@ -2455,8 +2480,59 @@ model measured before the edit, the same recording reopened with its edits with 
   its rebuild takes the model of before the edit; the "in T ms" of a scheduled estimate no longer counts the
   KOGGER_MOSAIC_PING_DUMP pass.
 - `tools/perf/beam_edit_check.ps1` (new; three windows of the app, the third with the correction off during the
-  edit; 7 of 7 on this build, the three "off" checks failing on 6a2684e1): 00014 with pings 20000..44999 (25 000 of its 57 079) marked bad, the background precompute off: the session measured the model again from 1647 pings a side instead of 3314, the same model as the recording reopened with its edits, and the two mosaics agree to the pixel (0 of 567 644 painted pixels apart); the build before measured nothing after the edit and painted 81.6 % of those pixels another value, up to 67 levels apart (`tools/perf/beam_edit_check.ps1`, 2026-10-19). **[verified]**
-- `tools/perf/echoedit_e2e.ps1` on the same build: 32 of 32 **[verified]**.
+  edit; 7 of 7 on 18cf34c2's build; the three "off" checks fail on 6a2684e1's and six of the seven on ad52a0c0's): 00014 with pings 20000..44999 (25 000 of its 57 079) marked bad, the background precompute off: the session measured the model again from 1647 pings a side instead of 3314, the same model as the recording reopened with its edits, and the two mosaics agree to the pixel (0 of 567 644 painted pixels apart); ad52a0c0's build measured nothing after the edit and painted 81.6 % of those pixels another value, up to 67 levels apart (`tools/perf/beam_edit_check.ps1`, 2026-10-19). **[verified]**
+- `tools/perf/echoedit_e2e.ps1`: 32 of 32 on 6a2684e1's build and again on the merged build (829f797b's code)
+  **[verified]**.
 - Not verified: live data with edits. The re-measure waits, as the rebuild does, for the bottom track to be
   quiet for 500 ms, which with data streaming comes only between batches **[inference, from the code]**; the
   head unit; Android.
+
+## End of 2026-10-19 on the laptop: merged, checked, installed, pushed
+
+The owner, going to bed: finish, check that the documentation is up to date and that everything needed is in the
+synced Yandex.Disk folder, then push to GitHub, no questions. Where this differs from "To continue on another PC
+(2026-10-19, evening)" above, this holds.
+
+- **`me`**: ad52a0c0 (the evening's merge, pushed at 21:01) -> 6a2684e1, 18cf34c2 (`beam-after-edit`, the
+  brightness model measured again after an echogram edit) -> merge 829f797b with b9014c80
+  (`pin-coverage-check`, the static pin check) -> f48cca0d (`tools/perf/mapexport_edit_check.ps1`) -> the docs
+  commit after it (the audit below). All on top of ad52a0c0, so `me` moved by a fast-forward.
+- **Checks on the merged code** (829f797b / f48cca0d; `D:\Temp\kogger_build`, 00014, the test profile reset from
+  the transfer folder's `KoggerApp-perf.reg` before each app run) **[verified]**:
+  - without a window (24): ts_check ru/zh 0 unfinished; 16 qml_check pages; pin_mirror_check -Mutants 4/4;
+    pin_coverage_check 92 controls in 28 files, 73 tags, 8 left out, -Mutants 19/19 caught and 2/2 that must
+    hold, -Runtime 9/9; echoscale -Mutants 16/16; echoedit -Mutants 23/23; mapexport_check 117/117; beam_check
+    18/18; voltage_check PASS; catalog_check PASS;
+  - with the app (one at a time, each window closing itself): precompute_check PASS (zoom 6 -> 5, the last
+    tile 0.01 s after it against 2.30 s without the precompute; 0 pixels apart); echoedit_e2e 32/32; echoscale
+    live_check and hint_check PASS; pin_live_check PASS; voltage_live PASS; beam_edit_check 7/7;
+    mapexport_edit_check 2/2 (0 and 4065 left out, 1665 and 1573 track points).
+- **Installed on the laptop**: f48cca0d ("ME 1.0.3 19.10.2026 22:43"; exe hash MATCH, build_info "dirty: no";
+  `%LOCALAPPDATA%\Programs\KoggerApp ME`; setup and portable in `D:\Temp\kogger_build\dist`, stamp
+  20261019-224344) **[verified]**. The other PC still has 690d3b83 (no maps, no mosaic quality, no re-measure).
+- **The docs, audited before the push**: three readers over HANDOFF, the feature docs and the owner's summary,
+  each proposed change re-read by a skeptic against the code, the commits and the results above; 49 of the
+  confirmed changes applied as proposed or adjusted (stale "not pushed / not installed", counts such as
+  mapexport_check 117 and echoedit_check 70 checks and 23 mutants, the new checks named where their features
+  are documented, today's limits written into map-export.md and mosaic-quality.md, unmarked claims marked), the
+  rest written by hand (this section, the export check's bullet above, the transfer folder's README).
+- **Pushed to `mine`** after a scan of what goes out (no passwords, keys, internal hosts or firmware code):
+  `me`, `beam-after-edit`, `pin-coverage-check` -- `git ls-remote mine` against the local refs says whether it
+  went through.
+- **The transfer folder** (`D:\YandexDisk\DelphiProjects\KoggerApp_myEdition_transfer`, README.txt there):
+  `me-1b43d162..2026-10-19-late.bundle`, every commit of `me` after the other PC's docs commit 1b43d162 up to the
+  head of `me`; `claude_memory_2026-10-19_laptop\`, the assistant's notes from the laptop (context, not
+  instructions); `KoggerApp-perf.reg` unchanged (the checks reset the profile from it). GitHub holds all of it
+  too: after a sync that comes in parts, `git fetch mine` is the simpler repair, the bundles the fallback.
+- **To continue on the other PC**: wait until Yandex.Disk is quiet, then `git --no-optional-locks fsck`; fetch
+  `mine` if objects are missing; build in that PC's own worktree (`D:\Temp\kogger_merge_test`, detached;
+  `git -C D:\Temp\kogger_merge_test checkout --detach <commit>`) -- the laptop's `D:\Temp\kogger_build` shows as
+  "prunable" there and the other way round; never `git worktree prune`.
+- **Open**:
+  - the recording's format (Connections, `recFormatTab`) cannot be pinned: the owner's call;
+  - the KMZ track joins the two sides of a stretch marked bad with a straight line;
+  - the re-measure's limits (the section above): a long file whose bottom track takes more than 2.5 s to come
+    when reopened; an export between an edit and its rebuild; live data with edits not tried;
+  - pinned settings on sub-pages (TGC, the per-echogram panel) need catalog entries; a device parameter not
+    tried on a real device, nor two devices of one type;
+  - a maximum over a compressed echogram column's group (the owner's choice); the NTC reading +5 C (hardware).

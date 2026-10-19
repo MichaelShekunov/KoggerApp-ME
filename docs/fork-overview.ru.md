@@ -3,6 +3,7 @@
 С 18.10.2026 форк называется **KoggerApp ME** (до этого — «KoggerApp myEdition»), его ветка — `me` (была `myedition`).
 
 **Обзор для разработчика интерфейса KoggerApp. Состояние на 1 октября 2026 года (коммит форка `388f0865`).**
+Позже здесь изменено только имя (18.10). Работа после 1 октября здесь не описана: Android, редактирование эхограммы, качество мозаики, «Мои карты» (`.kmap`), масштаб эхограммы по ширине, настройки в виджетах и другое. Она описана в `docs/HANDOFF.md`, в разделах с датами после 1 октября. Отдельные документы: `docs/android.md`, `docs/build-android-cli.md`, `docs/echogram-editing.md`, `docs/mosaic-quality.md`, `docs/map-export.md`, `docs/track-interpolation.md`, `docs/TRANSLATIONS.md`. Сводки по-русски: `docs/echogram-editing.ru.md`, `docs/mosaic-quality.ru.md`, `docs/perf-2026-10-17.ru.md`, `docs/itog-2026-10-19.ru.md`. В таблице «Документы форка» этих файлов нет.
 
 ## Коротко
 

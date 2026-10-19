@@ -69,6 +69,14 @@ of this entry is kept because it still frames those.
 The confidentiality question resolved itself the way the entry hoped: the beam
 width is typed in by the operator, so no pattern is stored in this repository.
 
+Since 2026-10-18 the mosaic measures each side's angle response — the beam's vertical pattern and the
+bottom's scattering together — at run time from the user's own echograms, to even out the brightness
+(docs/mosaic-quality.md, `src/data_processor/mosaic_beam.h`) [verified: code, aff9949c]. It is the
+response across the track, by angle from straight down; it says nothing about the width along the track,
+which the deconvolution needs [verified: code]. Nothing about a device is stored in this repository, and
+the measured curves stay out of it too (mosaic-quality.md, "Confidentiality"). "What exists today" below
+was written before this and before the deconvolution.
+
 Worth carrying forward: the measured limit. Deconvolution restores almost all of
 a one-column smear and roughly a third of a 2.4-column one, and past about three
 columns the information is gone rather than attenuated. Anything in this list
@@ -657,6 +665,8 @@ panels: per user, the same on every platform that runs the profile.
 
 - Settings of sub-pages (TGC; the per-echogram panel): no live row to mirror; they need catalog entries.
 - Several devices of one type: a widget drives the first connected.
+- The recording's format (Connections, `recFormatTab`): not pinnable today, the owner's call. It is on the
+  left-out list of `tools/qml_check/pin_coverage_check.ps1` (HANDOFF, "Settings pinned as widgets").
 
 ## 12. "LR 500 kbit/s" in Link speed
 
