@@ -34,9 +34,11 @@ QtObject {
         { key: "trans.boost", group: "transducer", support: "isTransducerSupport",
           label: qsTr("Booster"), kind: "switch", prop: "transBoost", onValue: 1 },
 
+        // ID_DSP's one byte. The fork's sonars use it as a DSP mode selector, 0..7 since 2026-10-19 (the owner:
+        // extra modes for new functions); the original range was 0..4.
         { key: "dsp.horSmooth", group: "dsp", support: "isDSPSupport",
           label: qsTr("Horizontal smoothing"), kind: "spin", prop: "dspHorSmooth",
-          from: 0, to: 4, step: 1 },
+          from: 0, to: 7, step: 1 },
         { key: "dsp.soundSpeed", group: "dsp", support: "isDSPSupport",
           label: qsTr("Sound speed, m/s"), kind: "spin", prop: "soundSpeed",
           factor: 1000, from: 300, to: 6000, step: 5 },

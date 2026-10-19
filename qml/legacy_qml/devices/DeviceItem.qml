@@ -242,7 +242,7 @@ ColumnLayout {
 
             SpinBoxCustom {
                 from: 0
-                to: 4
+                to: 7
                 stepSize: 1
                 value: 0
                 devValue: safeNum(dev && dev.dspHorSmooth, 0)

@@ -2033,3 +2033,12 @@ reading in the app, the diagnostic channels included, would have been "Supply: 0
 
 **Not verified:** the switch against the board itself (the owner's app holds COM13); whether the board keeps the bit
 over a power cycle after "Flash settings"; the widget on screen in the running app.
+
+## DSP mode 0..7 (2026-10-19)
+
+The owner: the DSP mode was limited to 0..4 in the app; make it 0..7, the extra modes are for new functions of the
+sonars. The Device page's DSP spin "Horizontal smoothing" (`dsp.horSmooth`, ID_DSP v0, one byte) now goes 0..7, the
+legacy page's too. Nothing else limited it: `DevDriver::setDspSmoothFactor` and `IDBinDSPSetup` pass the byte as it
+is. The fork's sonars (l412_adc, GODIO) read that byte as their DSP mode selector; what an original Kogger device does
+with 5..7 is not known. Checked: the catalog loaded in qml.exe offscreen -- the spin is 0..7, and every value 0..7 is
+written to the property and read back.
