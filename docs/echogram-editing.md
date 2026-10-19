@@ -76,7 +76,7 @@ left out:
 | 3D bottom track, surface, isobaths | no point: `BottomTrack::updateRenderData` gives it NaN, the surface skips a NaN |
 | mosaic | `Dataset::fromIndexMosaicCopy` hands the mosaic (and the precompute, and mosaic-quality's brightness model, which sample through it) a copy with no bottom: no pair with it is painted |
 | CSV export, XTF export | skipped (`Core::exportPlotAsCVS`, `ConverterXtf::toXTF`) |
-| map export: the KMZ track, the survey's times | skipped (`MapExporter::start`; a .kmap carries no track); its mosaic and depths leave the ping out through the two rows above |
+| map export: the KMZ track, the survey's times | skipped (`MapExporter::start`; a .kmap carries no track) **[verified: 00014 with 4065 pings left out, HANDOFF "Brought together"]**; its mosaic and depths leave the ping out through the mosaic row and the bottom track's NaN above **[verified by reading]** |
 | echogram relief cloud | skipped (`ReliefCloud`) |
 | bottom track | still run over it (its depth is kept; only the products leave it out) |
 
@@ -336,7 +336,8 @@ What the end-to-end runs found and what was changed for it:
 
 `mosaic-quality` and `map-export` were branched from `me` c4e1d3f4 like this work, apart from it. They came
 into `me` on 2026-10-19: merge 30b1138f (`install-maps-mosaic`, the two together as installed on the laptop
-since 2026-10-18) and 344919cd (the map session's results from the phone). What their meeting needed:
+since 2026-10-18; the mosaic quality there is aff9949c, the same work as `mosaic-quality` 879503ed put on top of
+map-export) and 344919cd (the map session's results from the phone). What their meeting needed:
 
 - **mosaic-quality.** Its per-pixel quality (`SurfaceTile::getMosaicQualityRef`) is dropped in
   `ComputeWorker::clearForEditRebuild` as in its `clearMosaic`: `SurfaceTile::init` keeps it, and the old quality

@@ -452,7 +452,10 @@ back"); the 1.1 GB survey (memory at 8 cm and finer); a survey across the antime
   the start read 0.4 m and give a fan of isobaths by the dam) -- cleaning is the bottom-track editor's job.
 - A file being opened, closed or re-read stops a running export first (`Core::stopMapExport`).
 - A ping marked bad or trimmed on the echogram (`docs/echogram-editing.md`) is out of the map: its mosaic and
-  depths (since the two works met, 2026-10-19) and the track and the survey's times (`MapExporter::start`).
+  depths (since the two works met, 2026-10-19) **[verified by reading]** and the track and the survey's times
+  (`MapExporter::start`) **[verified: 00014 with the first 2924 pings trimmed and 1141 marked bad, the KMZ track 1573
+  points against 1665, starting later; HANDOFF "Brought together"]**. Across a stretch marked bad the track is a
+  straight line between the pings either side.
 - The survey's dates are written only when the recording carries a calendar date (after 2000): the
   ping's time, else the GNSS fix's. 00014 has no ping time and a GNSS time near 1970 (time since
   power-on), so its map has no date -- the first build wrote "1970-01" **[Verified, fixed]**.

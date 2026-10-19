@@ -2165,7 +2165,7 @@ of the same type is not driven from a widget.
 since the merge of 2026-10-19) and 3 of Performance, each marked with a KPinTag and a
 stable key "app:<group>.<name>": the value rows of Interface (language, on-screen keyboard, toolset, UI scale,
 sidebar side and four switches), Workspace (2), Dataset (FBS, S.offset, Pos zeroing, Bottom track zeroing),
-Bottom Track (the preset and six parameters), Isobaths (4), Mosaic (13, the quality block's four with them), Echograms (5), 3D scene (25), Performance
+Bottom Track (the preset and six parameters), Isobaths (4), Mosaic (13, the quality block's four with them), Echograms (5), 3D scene (26), Performance
 (3); and every spin, switch and tabs row of the device page ("dev:<type>:<param>"). Not pinnable: rows that open a
 page (TGC, Key bindings, ...), the colour theme grid, the mosaic's level capsule, paths and buttons, the "Show in
 3D" header toggles, the per-echogram settings panel and every other sub-page -- a sub-page is destroyed when left,
@@ -2230,7 +2230,8 @@ worktree, packaging, the test file, the test profile -- with these changes:
   - Pinned settings: sub-pages (TGC, the per-echogram panel) need catalog entries; a device parameter not tried
     on a real device; two devices of one type.
   - The NTC reading +5 C: a leak of ~44 kOhm across the fitted sensor (hardware; the L412 session's).
-  - GitHub `mine` holds c4e1d3f4; today's commits are not pushed (only on the owner's word).
+  - GitHub `mine` holds c4e1d3f4; today's commits are not pushed (only on the owner's word). (Pushed the same
+    evening from the laptop with the merge: "Brought together" below.)
 
 ## Map for sharing and My maps (2026-10-18, branch `map-export`)
 
@@ -2337,3 +2338,66 @@ the app kept opening and closing.
   reach `kogger.log`).
 - `sed -i` in Git Bash and Python's text mode write LF; the working copies here are CRLF.
 - PowerShell variables are case-blind: `$l` in a loop overwrote `$L`, the log's path.
+
+## Brought together: My maps, mosaic quality and me (2026-10-19, evening, the laptop)
+
+The owner, on the laptop after the day on the other PC: "everything brought together, then everything to GitHub".
+
+**The sync first.** Yandex.Disk delivered the repository in parts again: at 19:51 three trees were missing and seven
+working files held older commits' versions (one an unfinished draft of qPlot2D.h). The transfer folder's bundle
+fixed the objects, but `git fetch <bundle>` unpacked nothing because the tip was already there; `git bundle unbundle
+<bundle>` did. Restoring the working files while Yandex.Disk was still delivering (19:52-19:56, the same trees among
+it) left a conflict copy, `src/id_binnary (2).h`, the same as HEAD. **Before repairing anything after a move, wait
+until Yandex.Disk is quiet** (the YandexDisk2 process's I/O counters stay flat), then `git --no-optional-locks fsck`.
+
+**What came in.**
+- `install-maps-mosaic` 3634d953, the combination installed on the laptop since 2026-10-18: map-export c1684801
+  and the mosaic quality as aff9949c (the same work as `mosaic-quality` 879503ed, put on top of map-export; every
+  line 879503ed adds to the code is in `me`, checked line by line) -> merge 30b1138f.
+- The map session's results from the phone, left uncommitted in `D:\Temp\ka_mapexport` (Share the map, a map kept
+  across a restart, the Android export folder, `MapLibrary::remove` logged) -> 75953cd4 on `map-export` -> merge
+  344919cd.
+- Nothing else was missing. `headunit`: of its 19 commits without a patch twin in `me`, 18 are in `me` by content
+  (each checked against the `me` commit that carries it); the 19th, 23bcf614, is the kiosk's own (no second window,
+  no splash, power-off on, the aarch64 link order) and stays there. `wifi-5m-dup` f2fcdef7 is in `me` as 92df3e8e +
+  af439113.
+
+**Conflicts** (8 files; the message of 30b1138f lists them). The one that was not textual: git aligned
+mosaic-quality's `dropMosaicQuality()` into `ComputeWorker::clearForEditRebuild` and left `clearMosaic` without it;
+both drop it now (`SurfaceTile::init` keeps the quality plane, and an old quality would refuse the repaint after an
+echogram edit). The translations were merged by message (base, ours, theirs: 114 added, none changed by both), then
+lupdate; ts_check clean.
+
+**Found by reviewing the merge, fixed in ae023ac9.** Four readers went over the places where the works meet (the
+mosaic engine, Core and threads, QML and settings, the data an export reads), and a skeptic re-read every finding.
+- The mosaic quality block's four rows had no KPinTag, so "pin any setting" skipped them. 70 blocks of the settings
+  page can now be pinned, plus 3 of Performance.
+- The map export took the track and the survey's times from every ping, including the ones marked bad or trimmed
+  on the echogram, which the CSV and XTF exports leave out. `MapExporter::start` now skips them.
+- Refuted as a merge defect: an edit made during an export reaches the slices painted after it. The export already
+  read the live dataset with a survey streaming. Left as a limit.
+
+**Checks on the merged build** (00014, the test profile from the other PC's evening, `D:\Temp\kogger_build`):
+- Without a window: ts_check ru/zh (0 unfinished), 15 qml_check pages (about, boatgui, boatpanel, devswitch,
+  echoedit_tools, fold, hscale_panel, mapexport_page, mosaicquality, mymaps_page, pin_mirror -Mutants 4/4,
+  recorderpill, scrollstrip, split, synccursor, sysgui), echoscale -Mutants 16/16, echoedit -Mutants 23/23,
+  mapexport_check 117/117, beam_check 18/18, voltage_check PASS, catalog_check PASS. **[verified]**
+- With the app: echoedit_e2e 32/32; echoscale live_check and hint_check PASS; pin_live_check 12/12;
+  voltage_live PASS; a headless export of 00014 (kmap, kmz, two GeoTIFFs; "mosaic quality: correction on",
+  "mosaic beam: measured on 3782 of 56716 epochs"); precompute_check PASS both ways, defaults (zoom 6 -> 5) and
+  `-WheelAt "35,42,49" -Wheel 18 -Seconds 60` (25 tiles in common, 0 pixels apart). **[verified]**
+  `-WheelAt` past `-Seconds` (35 s default) gives two runs that end on different levels and a FAIL with no common
+  tiles: a mistake in the arguments, not in the build.
+- The fix to the export, `tools`-less (scratch script, the recipe here): 00014 as it is and a copy with a
+  `.kedit` trimming the first 2924 pings and marking 22832..23973 bad, each exported to KMZ with the track
+  (`mapExport/writeKmz` and `hideTrackAndTime` false in a profile copied from perf, `KOGGER_MAP_EXPORT`,
+  `KOGGER_MAP_EXPORT_QUIT=1`). Fixed build: "0 left out" and 1665 track points against "4065 left out" (2924 +
+  1141) and 1573 points, the track starting later. The same pair on the build before the fix: 1665 points
+and the same first point for both, so the check fails there as it should. **[verified]**
+
+**Open.**
+- The brightness model is not measured again after an echogram edit. `docs/echogram-editing.md`, "Merging with
+  the other branches", says why this matters; the owner decides.
+- No check asserts that every value row of the settings page has a KPinTag, so a settings row added in another
+  branch can miss it again. A static check over AppSettingsPage.qml and the blocks it includes would close that.
+- The KMZ track joins the pings on either side of a stretch marked bad with a straight line.
