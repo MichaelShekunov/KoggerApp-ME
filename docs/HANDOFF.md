@@ -2198,6 +2198,37 @@ rather than a mirror.
   again: both out, the widget gone. 12 of 12 PASS [verified].
 - Grabs of pin mode (the pins in the strip, the pinned one blue, "Pin to:") and of the widget looked at.
 - All 13 qml_check scripts pass; ts_check ru zh clean (30 strings each, zh machine-made).
+- tools/qml_check/pin_coverage_check.ps1 (2026-10-19, added after the merge's four untagged rows; no Qt needed
+  but for -Runtime): reads AppSettingsPage.qml as text, every QML type of the repository it instantiates and every
+  file a Loader on the page loads by URL, except HotkeysDialog (a dialog); 28 files. It fails on a
+  KSwitch/KSpinBox/KCombo/KSlider/KTabBar in no KPinTag's block that is not on its left-out list (an entry is the
+  id of the control or of a panel around it, each with its reason); a left-out or not-followed entry no longer
+  used; a literal key used twice (a type used twice counts twice) or not of the form app:<group>.<name>; a tag
+  marking no control; a literal key every item of a Repeater makes (in the delegate, in a Component used as one,
+  in a file a delegate instantiates); a value control with no controlKind in an application file (Qt's Switch,
+  ComboBox, ...; the repository's ParamCard, ParamCardGroup, SmallCheck, CsvSpin, KCheckBox); a tag or control
+  inside an inline component (not followed to its instances); and braces that do not balance. The block is worked
+  out as KPinTag.qml does at run time (the first KIslandRow among three parents, KIslandRow's slot and KIsland's
+  row column counted as levels of their own), without the objects given to the block's properties (a
+  SettingsGroup's headerActions). A key is literal when its whole value is one string; "app:x." + index is one
+  per item. Reading blanks strings, comments and regex literals and takes "Type on property {" and
+  "Qualifier.Type {" as objects: the tree it reads is Qt's own on all 203 QML files of the repository
+  (`qmldom --dump-ast`, 0 differences in type, line, column and parent). On ad52a0c0 plus this branch: 92
+  controls, 73 tags, 8 left out, all hold. -Mutants: 19 of 19 caught, 2 of 2 that must hold hold (a computed key
+  in a Repeater, a comment after a key). -Runtime: nine shapes of row through qmltestrunner with the real
+  kqml_types, each tag's block compared with the script's, 9 of 9; a model without the slot level fails two.
+  **[verified]**
+  The first version was reviewed the same evening (two probers on copies of the tree, a skeptic per finding):
+  nine defects reproduced and fixed -- regex literals not lexed (a "//" or "{" in one made a tagged row cover
+  the rows after it), ParamCard/SmallCheck/KCheckBox unseen, a duplicate key through a type used twice, a
+  computed key read as a literal and a single-quoted one as computed, literal keys in a delegate declared apart,
+  controls inside inline components, the headerActions case, Loader sources not followed.
+  Left out on purpose, besides the Test group's four sliders (MANUAL_TESTING) and the Factory group's device
+  combo: in Connections (ConnectionViewer.qml), a serial link's rate (one per connection, in the link list), the
+  recording's format (KTabBar recFormatTab) -- **not pinnable today: the owner's call** -- and the CSV import
+  panel, whose button `importCheck` is never visible (`visible: false`), so the panel never shows; it got
+  `id: csvImportPanel` to be listed. Not checked: a key computed per instance (a property each sets).
+  A new value row either gets a KPinTag or goes on the list with its reason.
 
 **Not verified:** by hand, with a mouse or on a touchscreen (head unit); a device parameter on a real device (the
 check uses a mock); two devices of one type.
@@ -2398,6 +2429,6 @@ and the same first point for both, so the check fails there as it should. **[ver
 **Open.**
 - The brightness model is not measured again after an echogram edit. `docs/echogram-editing.md`, "Merging with
   the other branches", says why this matters; the owner decides.
-- No check asserts that every value row of the settings page has a KPinTag, so a settings row added in another
-  branch can miss it again. A static check over AppSettingsPage.qml and the blocks it includes would close that.
+- No check asserted that every value row of the settings page has a KPinTag. Closed the same evening by
+  tools/qml_check/pin_coverage_check.ps1 (the "Settings pinned as widgets" section, Checks).
 - The KMZ track joins the pings on either side of a stretch marked bad with a straight line.

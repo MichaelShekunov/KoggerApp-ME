@@ -1106,6 +1106,7 @@ Column {
     // ── CSV import panel ──────────────────────────────────────────────────
 
     Column {
+        id: csvImportPanel
         visible: importCheck.checked
         width: parent.width; spacing: 6
 
