@@ -348,9 +348,10 @@ Neither `mosaic-quality` nor `map-export` is in `me` yet (2026-10-18), and this 
   (`map_export_geo.cpp`, `buildDepthGrid`): a ping left out has a NaN depth there -- that the grid skips
   NaN is to be checked; a side out of the mosaic keeps its depth, so it stays in the grid. Its mosaic
   comes from the tiles, which already leave both out. **[inference]**
-- **third-party-icons** (2026-10-19, the icons' licences): independent of this work; both branches add a
-  section at the end of `docs/HANDOFF.md` -- keep both. Its `tools/qml_check/about_check.ps1` asks every
-  icon to be Tabler or named in `third_party/icons/README.md`: the ten this branch adds are Tabler.
+- **third-party-icons** (2026-10-19, the icons' licences): independent of this work; merged into `me`
+  together with it on 2026-10-19 (merge 5b4dfa5f; both branches' sections at the end of
+  `docs/HANDOFF.md` kept). Its `tools/qml_check/about_check.ps1` asks every icon to be Tabler or named in
+  `third_party/icons/README.md`: the ten this branch adds are Tabler.
 
 ## Not done, not verified
 

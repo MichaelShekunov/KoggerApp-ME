@@ -2994,8 +2994,8 @@
 <context>
     <name>Dataset</name>
     <message>
-        <location filename="../src/dataset.cpp" line="1498"/>
-        <location filename="../src/dataset.cpp" line="1500"/>
+        <location filename="../src/dataset.cpp" line="1512"/>
+        <location filename="../src/dataset.cpp" line="1514"/>
         <source>None</source>
         <translation>无</translation>
     </message>
@@ -6823,67 +6823,67 @@
 <context>
     <name>EchogramEditor</name>
     <message>
-        <location filename="../src/echogram_edit/echogram_editor.cpp" line="270"/>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="274"/>
         <source>No spikes of the bottom found</source>
         <translation>未发现海底尖峰</translation>
     </message>
     <message>
-        <location filename="../src/echogram_edit/echogram_editor.cpp" line="278"/>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="282"/>
         <source>Spikes of the bottom replaced with the bottom around them: %1 pings</source>
         <translation>海底尖峰已替换为周围的海底：%1 个探测</translation>
     </message>
     <message>
-        <location filename="../src/echogram_edit/echogram_editor.cpp" line="325"/>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="337"/>
         <source>No turns found</source>
         <translation>未发现转弯</translation>
     </message>
     <message>
-        <location filename="../src/echogram_edit/echogram_editor.cpp" line="326"/>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="338"/>
         <source>Turns left out of the mosaic: %1, %2 pings</source>
         <translation>转弯已排除出镶嵌图：%1 处，%2 个探测</translation>
     </message>
     <message>
-        <location filename="../src/echogram_edit/echogram_editor.cpp" line="467"/>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="479"/>
         <source>Could not move the file of edits aside: %1</source>
         <translation>无法移开编辑文件：%1</translation>
     </message>
     <message>
-        <location filename="../src/echogram_edit/echogram_editor.cpp" line="613"/>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="625"/>
         <source>Could not remove the file of edits: %1</source>
         <translation>无法删除编辑文件：%1</translation>
     </message>
     <message>
-        <location filename="../src/echogram_edit/echogram_editor.cpp" line="626"/>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="638"/>
         <source>Echogram edits not saved: %1</source>
         <translation>回波图编辑未保存：%1</translation>
     </message>
     <message>
-        <location filename="../src/echogram_edit/echogram_editor.cpp" line="743"/>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="755"/>
         <source>Echogram edits are not saved while several files are open together</source>
         <translation>同时打开多个文件时，回波图编辑不会保存</translation>
     </message>
     <message>
-        <location filename="../src/echogram_edit/echogram_editor.cpp" line="761"/>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="773"/>
         <source>The file of edits could not be read, edits are not saved: %1</source>
         <translation>无法读取编辑文件，编辑不会保存：%1</translation>
     </message>
     <message>
-        <location filename="../src/echogram_edit/echogram_editor.cpp" line="770"/>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="782"/>
         <source>The file of edits is not understood (%1); it is left as it is, edits are not saved</source>
         <translation>无法识别编辑文件（%1）；文件保持原样，编辑不会保存</translation>
     </message>
     <message>
-        <location filename="../src/echogram_edit/echogram_editor.cpp" line="779"/>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="791"/>
         <source>The file of edits does not fit this recording (%1 pings, the recording has %2); not applied, left as it is</source>
         <translation>编辑文件与此记录不符（其中 %1 个探测，记录中有 %2 个）；未应用，保持原样</translation>
     </message>
     <message>
-        <location filename="../src/echogram_edit/echogram_editor.cpp" line="792"/>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="804"/>
         <source>Some echogram edits are for channels this recording lacks; %1 left out</source>
         <translation>部分编辑属于此记录没有的通道；已略过 %1 个</translation>
     </message>
     <message>
-        <location filename="../src/echogram_edit/echogram_editor.cpp" line="818"/>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="830"/>
         <source>Echogram edits restored: %1</source>
         <translation>回波图编辑已恢复：%1</translation>
     </message>

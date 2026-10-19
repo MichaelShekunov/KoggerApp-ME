@@ -1908,8 +1908,8 @@ the results: `docs/echogram-editing.md`; the owner's summary: `docs/echogram-edi
 [verified] is a run or a check that ran; [inference] is not.
 
 **Where.** Worktree `D:\Temp\ka_echoedit`, branch `echogram-edit` from `me` c4e1d3f4; committed and
-pushed to `mine` at the owner's word (2026-10-19); not merged into `me`, not installed (the owner's
-word is needed for each). New: `src/echogram_edit/` (the model `echo_edit_model`, Qt Core only; the editor
+pushed to `mine` at the owner's word (2026-10-19), merged into `me` locally the same day with
+third-party-icons (merge 5b4dfa5f; `me` not pushed yet); not installed. New: `src/echogram_edit/` (the model `echo_edit_model`, Qt Core only; the editor
 `EchogramEditor`, QML `echoEdit`; the script runner `EchoEditScript`, `KOGGER_ECHOEDIT_SCRIPT`), the
 palette in three columns (`qml/app/BottomTrackEditPopup.qml`), Ctrl+Z / Ctrl+Y, the edits' shading
 and the hand line in Plot2D, `Dataset` marks / trim / per-side mosaic exclusion, a file
@@ -1964,7 +1964,8 @@ HKCU\Software\KOGGER\KoggerApp-perf HKCU\Software\KOGGER\KoggerApp-echoedit /s /
 Found during the echogram editing: the interface's icons are mostly Tabler Icons (MIT), and neither
 `THIRD_PARTY_NOTICES.md` nor *Settings -> Interface -> About* credited them; the owner: "do it here".
 Worktree `D:\Temp\ka_notices`, branch `third-party-icons` from `me` c4e1d3f4; committed and pushed to
-`mine` at the owner's word (2026-10-19); not merged into `me`.
+`mine` at the owner's word (2026-10-19); merged into `me` locally the same day, after the echogram
+editing (merge 5b4dfa5f; `me` not pushed yet).
 
 **What the icons are** (`resources/icons/ui`, read from the files [verified]): 196 of the 209 SVGs
 carry Tabler's `icon-tabler` class; three are Ionicons 5 (`<title>ionicons-v5-...`, MIT); one,

@@ -2998,8 +2998,8 @@
 <context>
     <name>Dataset</name>
     <message>
-        <location filename="../src/dataset.cpp" line="1498"/>
-        <location filename="../src/dataset.cpp" line="1500"/>
+        <location filename="../src/dataset.cpp" line="1512"/>
+        <location filename="../src/dataset.cpp" line="1514"/>
         <source>None</source>
         <translation>Отсутствует</translation>
     </message>
@@ -6827,67 +6827,67 @@
 <context>
     <name>EchogramEditor</name>
     <message>
-        <location filename="../src/echogram_edit/echogram_editor.cpp" line="270"/>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="274"/>
         <source>No spikes of the bottom found</source>
         <translation>Выбросов дна не найдено</translation>
     </message>
     <message>
-        <location filename="../src/echogram_edit/echogram_editor.cpp" line="278"/>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="282"/>
         <source>Spikes of the bottom replaced with the bottom around them: %1 pings</source>
         <translation>Выбросы дна заменены дном вокруг них: пингов %1</translation>
     </message>
     <message>
-        <location filename="../src/echogram_edit/echogram_editor.cpp" line="325"/>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="337"/>
         <source>No turns found</source>
         <translation>Разворотов не найдено</translation>
     </message>
     <message>
-        <location filename="../src/echogram_edit/echogram_editor.cpp" line="326"/>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="338"/>
         <source>Turns left out of the mosaic: %1, %2 pings</source>
         <translation>Развороты убраны из мозаики: %1, пингов %2</translation>
     </message>
     <message>
-        <location filename="../src/echogram_edit/echogram_editor.cpp" line="467"/>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="479"/>
         <source>Could not move the file of edits aside: %1</source>
         <translation>Не удалось отложить файл правок: %1</translation>
     </message>
     <message>
-        <location filename="../src/echogram_edit/echogram_editor.cpp" line="613"/>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="625"/>
         <source>Could not remove the file of edits: %1</source>
         <translation>Не удалось удалить файл правок: %1</translation>
     </message>
     <message>
-        <location filename="../src/echogram_edit/echogram_editor.cpp" line="626"/>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="638"/>
         <source>Echogram edits not saved: %1</source>
         <translation>Правки эхограммы не сохранены: %1</translation>
     </message>
     <message>
-        <location filename="../src/echogram_edit/echogram_editor.cpp" line="743"/>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="755"/>
         <source>Echogram edits are not saved while several files are open together</source>
         <translation>Правки эхограммы не сохраняются, пока открыто несколько файлов сразу</translation>
     </message>
     <message>
-        <location filename="../src/echogram_edit/echogram_editor.cpp" line="761"/>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="773"/>
         <source>The file of edits could not be read, edits are not saved: %1</source>
         <translation>Файл правок не читается, правки не сохраняются: %1</translation>
     </message>
     <message>
-        <location filename="../src/echogram_edit/echogram_editor.cpp" line="770"/>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="782"/>
         <source>The file of edits is not understood (%1); it is left as it is, edits are not saved</source>
         <translation>Файл правок не распознан (%1); он оставлен как есть, правки не сохраняются</translation>
     </message>
     <message>
-        <location filename="../src/echogram_edit/echogram_editor.cpp" line="779"/>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="791"/>
         <source>The file of edits does not fit this recording (%1 pings, the recording has %2); not applied, left as it is</source>
         <translation>Файл правок не подходит к этой записи (в нём %1 пингов, в записи %2); не применён, оставлен как есть</translation>
     </message>
     <message>
-        <location filename="../src/echogram_edit/echogram_editor.cpp" line="792"/>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="804"/>
         <source>Some echogram edits are for channels this recording lacks; %1 left out</source>
         <translation>Часть правок относится к каналам, которых в записи нет; пропущено: %1</translation>
     </message>
     <message>
-        <location filename="../src/echogram_edit/echogram_editor.cpp" line="818"/>
+        <location filename="../src/echogram_edit/echogram_editor.cpp" line="830"/>
         <source>Echogram edits restored: %1</source>
         <translation>Правки эхограммы восстановлены: %1</translation>
     </message>
