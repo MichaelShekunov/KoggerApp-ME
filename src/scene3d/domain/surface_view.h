@@ -9,6 +9,7 @@
 #include "surface_tile.h"
 #include "scene_object.h"
 #include "dataset_defs.h"
+#include "isobath_labels.h"
 
 
 class SurfaceView : public SceneObject
@@ -17,14 +18,7 @@ class SurfaceView : public SceneObject
     QML_NAMED_ELEMENT(SurfaceView)
 
 public:
-    struct IsoLabel
-    {
-        QVector3D pos;
-        QVector3D dir;
-        float depth;
-        QString text;
-        int level = 0;
-    };
+    using IsoLabel = isolabels::Label;
 
     class SurfaceViewRenderImplementation : public SceneObject::RenderImplementation
     {
@@ -164,9 +158,6 @@ private:
     int fallbackToZoom_ = 0;
     void updateMosaicTileTextureTask(const QHash<TileKey, SurfaceTile>& newTiles);
     void rebuildIsobathLabels();
-    // isobaths
-    void edgeIntersection(const QVector3D& a, const QVector3D& b, float level, QVector<QVector3D>& out);
-    void assignLabelLevels(const QVector<SurfaceView::IsoLabel>& in, QVector<SurfaceView::IsoLabel>& out, float baseSpacing);
 
 private:
     QMutex mosaicTexTasksMutex_;

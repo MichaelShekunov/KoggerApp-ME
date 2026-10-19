@@ -14,6 +14,8 @@ QtObject {
         { key: "depth",     label: qsTr("Depth"),          unit: qsTr("m"),      group: "general" },
         { key: "rfDepth",   label: qsTr("Rangefinder"),    unit: qsTr("m"),      group: "general" },
         { key: "btDepth",   label: qsTr("Bottom track"),   unit: qsTr("m"),      group: "general" },
+        // My maps (src/map_export): the depth under the boat from the opened KOGGER maps.
+        { key: "mapDepth",  label: qsTr("Depth by map"),   unit: qsTr("m"),      group: "general" },
         { key: "speed",     label: qsTr("Speed"),          unit: qsTr("km/h"),   group: "general" },
         { key: "apSpeed",   label: qsTr("Ground speed"),   unit: qsTr("m/s"),    group: "autopilot" },
         { key: "coord",     label: qsTr("Coordinate"),     unit: "",             group: "general" },
@@ -253,6 +255,7 @@ QtObject {
         case "depth":     return !!(ds && ds.isLastDepthValid)
         case "rfDepth":   return !!(ds && ds.isLastRangefinderDepthValid)
         case "btDepth":   return !!(ds && ds.isLastBottomTrackDepthValid)
+        case "mapDepth":  return _mapLib() !== null && _mapLib().boatDepthValid
         case "speed":     return !!(ds && ds.isSpeedValid && ds.isBoatCoordinateValid)
         case "coord":     return !!(ds && ds.isBoatCoordinateValid)
         case "selPoint":  return !!(ds && ds.isActiveContactIndxValid)
@@ -294,6 +297,8 @@ QtObject {
             return (ds && ds.isLastRangefinderDepthValid) ? (ds.lastRangefinderDepth.toFixed(2) + " " + qsTr("m")) : "—"
         case "btDepth":
             return (ds && ds.isLastBottomTrackDepthValid) ? (ds.lastBottomTrackDepth.toFixed(2) + " " + qsTr("m")) : "—"
+        case "mapDepth":
+            return (_mapLib() !== null && _mapLib().boatDepthValid) ? (_mapLib().boatDepth.toFixed(1) + " " + qsTr("m")) : "—"
         case "speed":
             return (ds && ds.isSpeedValid && ds.isBoatCoordinateValid) ? (ds.speed.toFixed(1) + " " + qsTr("km/h")) : "—"
         case "coord":
@@ -383,12 +388,18 @@ QtObject {
         return String(v)
     }
 
+    // The app's `mapLibrary` (Core's context property); null where there is none (the QML checks).
+    function _mapLib() {
+        return typeof mapLibrary !== "undefined" && mapLibrary ? mapLibrary : null
+    }
+
     function sampleValue(key, store) {
         switch (key) {
         case "time":      return (store && store.systemTimeValid) ? store.systemTimeHms : "12:34:56"
         case "depth":     return "3.20 " + qsTr("m")
         case "rfDepth":   return "3.15 " + qsTr("m")
         case "btDepth":   return "3.24 " + qsTr("m")
+        case "mapDepth":  return "3.4 " + qsTr("m")
         case "speed":     return "5.4 " + qsTr("km/h")
         case "apSpeed":   return "1.5 " + qsTr("m/s")
         case "coord":     return "N 40.6035°\nE 45.0010°"

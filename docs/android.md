@@ -214,3 +214,9 @@ without its sonars, not Android.
 The relief cloud in a 2/3D pane as such (it was checked as a layer in the 3D
 pane), USB-OTG serial, recording a KLF on the tablet, and the boat's sonars, which
 were not on the link that night.
+
+"Share the map" (built 2026-10-18). Opening a KOGGER map from Telegram and WhatsApp
+works on the 2026-10-05 phone (2026-10-18): files from other apps come in through
+`KoggerOpenActivity`, because a messenger's open made a second `KoggerActivity` in the
+messenger's task and Qt restarted the app; `KoggerActivity` is now `singleTask`. All in
+`map-export.md`, "Android: from a messenger and back".

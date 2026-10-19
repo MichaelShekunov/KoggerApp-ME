@@ -59,7 +59,34 @@ void MosaicViewControlMenuController::setDataProcessorPtr(DataProcessor *dataPro
         QObject::connect(dataProcessorPtr_, &DataProcessor::mosaicStats,
                          this, &MosaicViewControlMenuController::onMosaicStats,
                          Qt::UniqueConnection);
+        QObject::connect(dataProcessorPtr_, &DataProcessor::mosaicBeamState, this, [this](const QVariantMap& st) {
+            if (st != beamState_) {
+                beamState_ = st;
+                emit beamStateChanged();
+            }
+        }, Qt::QueuedConnection);
+        sendQuality();
     }
+}
+
+void MosaicViewControlMenuController::setQuality(bool correction, double nadirCropDeg, double farCropDeg, int overlap)
+{
+    qualitySet_ = true;
+    qualityCorrection_ = correction;
+    qualityNadirCrop_ = float(nadirCropDeg);
+    qualityFarCrop_ = float(farCropDeg);
+    qualityOverlap_ = overlap;
+    sendQuality();
+}
+
+void MosaicViewControlMenuController::sendQuality()
+{
+    if (!qualitySet_ || !dataProcessorPtr_) {
+        return;
+    }
+    QMetaObject::invokeMethod(dataProcessorPtr_, "setMosaicQuality", Qt::QueuedConnection,
+                              Q_ARG(bool, qualityCorrection_), Q_ARG(float, qualityNadirCrop_),
+                              Q_ARG(float, qualityFarCrop_), Q_ARG(int, qualityOverlap_));
 }
 
 QVariantMap MosaicViewControlMenuController::pipelineStatus() const
@@ -246,7 +273,11 @@ void MosaicViewControlMenuController::onUpdateStateChanged(bool state)
 
 void MosaicViewControlMenuController::onThemeChanged(int val)
 {
+    const bool changedTheme = themeId_ != val + 1;
     themeId_ = val + 1;
+    if (changedTheme) {
+        emit styleChanged();
+    }
 
     if (graphicsSceneViewPtr_) {
         if (dataProcessorPtr_) {
@@ -282,8 +313,12 @@ QVariantList MosaicViewControlMenuController::themeStops(int index) const
 
 void MosaicViewControlMenuController::onLevelChanged(float lowLevel, float highLevel)
 {
+    const bool changedLevels = lowLevel_ != lowLevel || highLevel_ != highLevel;
     lowLevel_ = lowLevel;
     highLevel_ = highLevel;
+    if (changedLevels) {
+        emit styleChanged();
+    }
 
     if (graphicsSceneViewPtr_) {
         if (dataProcessorPtr_) {

@@ -72,6 +72,8 @@ public slots:
     void setMosaicRAngleOffset(float val);
     void setMosaicTileResolution(float res);
     void setMosaicSource(int source);
+    /// The brightness correction and the crop / overlap rules (mosaic_beam.h); called in this thread.
+    void setMosaicBeam(std::shared_ptr<const mosaic_beam::Model> model, const mosaic_beam::PaintRules& rules);
     void setMosaicTrackOwners(bool on);
     // Threads painting the view's mosaic: 0 the default (MosaicProcessor::defaultPaintThreads), 1 in
     // place; applied between jobs (the slots come through the queue). KOGGER_MOSAIC_THREADS wins.

@@ -25,6 +25,7 @@
 #include "mosaic_db.h"
 #include "mosaic_index_provider.h"
 #include "hot_tile_cache.h"
+#include "map_export_config.h"
 
 
 class Dataset;
@@ -102,6 +103,9 @@ public slots:
     void setMosaicLowLevel(float val);
     void setMosaicHighLevel(float val);
     void setMosaicSource(int source);
+    // Mosaic quality (docs/mosaic-quality.md): the brightness correction measured from the echograms,
+    // the crop by angle and the rule for overlaps. A change repaints the mosaic.
+    void setMosaicQuality(bool correction, float nadirCropDeg, float farCropDeg, int overlap);   // mosaic_beam::Overlap
     void setActiveZeroing(bool state);
     void setMosaicFakeCoordsLastN(int n);
     void setMosaicFakeCoordsClearOldData(bool state);
@@ -140,6 +144,9 @@ public slots:
     // diagnostics
     void requestPipelineStats();
     void requestMosaicStats(int probeWindow);
+
+    // Map export (src/map_export): the settings the view paints and colours with, as last set.
+    MapExportConfig mapExportConfig() const;
 
 private slots:
     //db
@@ -186,6 +193,9 @@ signals:
     // diagnostics
     void pipelineStats(const QVariantMap& stats);
     void mosaicStats(const QVariantMap& stats);
+    // The measured response for the settings page: valid, epochs, holding (the mosaic waits for it),
+    // and per side ("left", "right") its curve in dB by degree, peak and edges, residual and spread.
+    void mosaicBeamState(const QVariantMap& state);
 
 private slots:
     void postTraceLines(const QVector3D& leftBeg, const QVector3D& leftEnd, const QVector3D& rightBeg, const QVector3D& rightEnd, int epochIndex);
@@ -398,6 +408,7 @@ private:
     int clearOldN_ = 0;
     bool workerTracksOwners_ = false;   // as last set in the worker (setMosaicTrackOwners)
     mosaic::PlotColorTable mosaicColorTable_;
+    MapExportConfig exportConfig_;   // what the setters below passed on (mapExportConfig)
     // Surface
     float tileResolution_;
 
@@ -484,4 +495,35 @@ private:
 
     int datasetState_ = -1;
     bool defProcType_ = false;
+
+    // The mosaic's channels, as last set (setMosaicChannels).
+    ChannelId mosaicCh1_;
+    uint8_t   mosaicSub1_ = 0;
+    ChannelId mosaicCh2_;
+    uint8_t   mosaicSub2_ = 0;
+    // Mosaic quality (docs/mosaic-quality.md). The model is measured from the epochs with a bottom
+    // track: from a file once it has its bottom track, the mosaic waiting for it (beamHolding); live
+    // at kBeamFirst epochs, again every kBeamFirst more while there is no model or a young one
+    // (kBeamMaturePings), then each time they double up to kBeamLast; a new model is taken -- and
+    // the mosaic repainted -- only when it differs from the one in use by more than a dB.
+    int mosaicSource_ = int(MosaicProcessor::Source::SideScan);
+    bool beamCorrection_ = false;
+    mosaic_beam::PaintRules paintRules_;
+    std::shared_ptr<const mosaic_beam::Model> beamModel_;   // in use, null for none
+    int beamMeasuredAt_ = 0;     // usable epochs at the last estimate (0: none since a reset)
+    bool beamAwaitFirst_ = false;   // no estimate since a reset that wants the mosaic to wait for one
+    // The mosaic waits for the first estimate: a file's only. Decided now, not at the reset -- a reset
+    // passes through the undefined state, and live data waited ~9 s for its first 300 epochs
+    // (2026-10-18, a UDP run: 2 pings painted in the first 17 s against 47).
+    bool beamHolding() const;
+    QTimer beamTimer_;
+    qint64 beamFirstAsk_ = -1;   // when the pending estimate was first asked for (latClock_ ms)
+    void beamResetEstimate(bool hold);           // forget the measurement (new data, source, channels)
+    void beamMaybeSchedule();                    // after new bottom-track epochs
+    // KOGGER_MOSAIC_PING_DUMP=<file>: the pings each estimate is made from (both sides, the raw level,
+    // the altitude, the pose), for an analysis outside the app (docs/mosaic-quality.md).
+    void beamEstimate();
+    void beamPush();                             // the model and rules to the worker and the precompute
+    mosaic_beam::PaintRules beamRulesNow() const;   // the rules as pushed: the far edges from the model
+    void beamEmitState();
 };

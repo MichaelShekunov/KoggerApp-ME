@@ -50,6 +50,11 @@ public:
     int                         getIsUpdated() const;
     std::vector<uint8_t>&       getMosaicImageDataRef();
     const std::vector<uint8_t>& getMosaicImageDataCRef() const;
+    /// Per pixel, the quality of the sample painted there (mosaic_beam::quality, 0: none), for the
+    /// mosaic's "best angle" rule; empty when that rule is off. The renderer is sent none of it.
+    std::vector<uint8_t>&       getMosaicQualityRef();
+    const std::vector<uint8_t>& getMosaicQualityCRef() const;
+    void                        dropMosaicQuality();
     QVector<QVector3D>&         getHeightVerticesRef();
     QVector<HeightType>&        getHeightMarkVerticesRef();
     const QVector<QVector2D>&   getMosaicTextureVerticesCRef() const;
@@ -76,6 +81,7 @@ private:
     TileKey   key_;
     QVector3D origin_;
     std::vector<uint8_t> imageData_;        // текстура
+    std::vector<uint8_t> qualityData_;      // getMosaicQualityRef
     QVector<QVector3D> heightVertices_;     // матрица высот //
     QVector<HeightType> heightMarkVertices_;// что будем процессить в матрице высот //
     QVector<int> heightIndices_;            // что будем рисовать в матрице высот ////

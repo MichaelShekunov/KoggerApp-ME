@@ -1277,6 +1277,53 @@ void GraphicsScene3dView::geojsonDeleteSelectedFeature()
     QQuickFramebufferObject::update();
 }
 
+void GraphicsScene3dView::setMapLayer(MapLayer* layer)
+{
+    if (mapLayer_) {
+        disconnect(mapLayer_, nullptr, this, nullptr);
+    }
+    mapLayer_ = layer;
+    if (mapLayer_) {
+        connect(mapLayer_, &MapLayer::changed, this, &QQuickFramebufferObject::update);
+    }
+    QQuickFramebufferObject::update();
+}
+
+void GraphicsScene3dView::fitGeoBox(double west, double south, double east, double north)
+{
+    if (!(east > west) || !(north > south)) {
+        return;
+    }
+    // Without a survey's reference the view's frame moves to the map, as a GeoJSON file's load does:
+    // otherwise it could be thousands of kilometres away.
+    const bool datasetHasRef = datasetPtr_ && datasetPtr_->getLlaRef().isInit;
+    if (!datasetHasRef) {
+        const LLARef ref(LLA(0.5 * (south + north), 0.5 * (west + east), 0.0));
+        m_camera->datasetLlaRef_ = ref;
+        m_camera->viewLlaRef_ = ref;
+    }
+    else {
+        m_camera->viewLlaRef_ = m_camera->datasetLlaRef_;
+    }
+    auto toScene = [this](double lat, double lon) {
+        const LLA lla(lat, lon, 0.0);
+        const NED ned(&lla, &m_camera->viewLlaRef_, m_camera->getIsPerspective());
+        return QVector3D(float(ned.n), float(ned.e), 0.0f);
+    };
+    const QVector3D a = toScene(south, west), b = toScene(north, east);
+    const QVector3D center = 0.5f * (a + b);
+    const float size = std::max(std::fabs(b.x() - a.x()), std::fabs(b.y() - a.y()));
+    const float tanHalf = std::tan(qDegreesToRadians(static_cast<float>(m_camera->fov()) * 0.5f));
+    if (size > 0.0f && tanHalf > 0.0f && std::isfinite(size)) {
+        m_camera->setDistance(std::max(50.0f, (size * 0.5f) / tanHalf * 1.3f));
+    }
+    m_camera->focusOnPosition(center);
+    updatePlaneGrid();
+    updateProjection();
+    updateMapView();
+    QQuickFramebufferObject::update();
+}
+
 void GraphicsScene3dView::geojsonFitInView()
 {
     if (!geoJsonEnabled_) {
@@ -3725,6 +3772,9 @@ void GraphicsScene3dView::InFboRenderer::synchronize(QQuickFramebufferObject * f
     m_renderer->imageViewRenderImpl_        = *(dynamic_cast<ImageView::ImageViewRenderImplementation*>(view->imageView_->m_renderImpl));
     m_renderer->contactsRenderImpl_         = *(dynamic_cast<Contacts::ContactsRenderImplementation*>(view->contacts_->m_renderImpl));
     m_renderer->geoJsonLayerRenderImpl_     = *(dynamic_cast<GeoJsonLayer::GeoJsonLayerRenderImplementation*>(view->geoJsonLayer_->m_renderImpl));
+    if (view->mapLayer_) {   // projected for this frame's view frame before the copy, as the ruler is
+        m_renderer->mapLayerGl_.setFrame(view->mapLayer_->frameFor(view->m_camera->viewLlaRef_, view->m_camera->getIsPerspective()));
+    }
     view->ruler_->rebuildIfNeeded();
     m_renderer->rulerToolRenderImpl_        = *(dynamic_cast<RulerTool::RulerToolRenderImplementation*>(view->rulerTool_->m_renderImpl));
     // Re-projected BEFORE the copy, for the same reason the ruler is: a frame change this frame

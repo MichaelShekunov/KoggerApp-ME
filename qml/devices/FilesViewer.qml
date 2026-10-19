@@ -246,12 +246,17 @@ Column {
                 id: newFileDialog
                 title: qsTr("Please choose a file")
                 currentFolder: filesViewer.lastLogFolder
-                nameFilters: ["Logs (*.klf *.KLF *.ubx *.UBX *.xtf *.XTF)", "Kogger log files (*.klf *.KLF)", "U-blox (*.ubx *.UBX)"]
+                nameFilters: [qsTr("Logs and maps") + " (*.klf *.KLF *.ubx *.UBX *.xtf *.XTF *.kmap *.KMAP)", "Kogger log files (*.klf *.KLF)", qsTr("KOGGER maps") + " (*.kmap *.KMAP)", "U-blox (*.ubx *.UBX)"]
                 onCurrentFolderChanged: filesViewer.lastLogFolder = currentFolder
                 onAccepted: {
                     const file = newFileDialog.selectedFile
                     if (!file) return
                     filesViewer.lastLogFolder = newFileDialog.currentFolder
+                    // A map goes to My maps (as MainWindow's Open): not a log, so not in the recent logs.
+                    if (file.toString().toLowerCase().endsWith(".kmap") && typeof mapLibrary !== "undefined" && mapLibrary) {
+                        mapLibrary.importFile(file.toString())
+                        return
+                    }
                     const lp = urlSource(file)
                     filesViewer.setLogPath(lp)
                     filesViewer.pushRecentOpenedFile(lp)

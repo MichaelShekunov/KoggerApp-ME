@@ -1,9 +1,15 @@
 package org.kogger.koggerapp;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 import java.lang.reflect.Method;
 
+import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -21,6 +27,7 @@ import android.os.storage.StorageManager;
 import android.os.storage.StorageVolume;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 
 import org.qtproject.qt.android.bindings.QtActivity;
 
@@ -60,6 +67,136 @@ public class KoggerActivity extends QtActivity {
         setupMulticastLock();
 
         KoggerUsbSerialManager.initialize(this);
+
+        // A restored activity carries the intent it was first started with: that one was handled.
+        if (savedInstanceState == null) {
+            handleOpenIntent(getIntent());
+        }
+    }
+
+    /**
+     * singleTask: a file opened from another app while KoggerApp runs arrives here, handed on by
+     * KoggerOpenActivity.
+     */
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleOpenIntent(intent);
+    }
+
+    /**
+     * Passes a file another app opened with KoggerApp (VIEW) or shared to it (SEND) to the native
+     * side, which keeps it if it is a KOGGER map: docs/map-export.md. A task brought back from
+     * Recents is relaunched with the intent it began with; that one was handled already.
+     */
+    private void handleOpenIntent(final Intent intent) {
+        if (intent == null || (intent.getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0) {
+            return;
+        }
+
+        final String action = intent.getAction();
+        Uri uri = null;
+        if (Intent.ACTION_VIEW.equals(action)) {
+            uri = intent.getData();
+        } else if (Intent.ACTION_SEND.equals(action)) {
+            uri = streamOf(intent);
+        }
+        if (uri == null) {
+            return;
+        }
+
+        Log.i(TAG, "Open " + action + " " + intent.getType() + " " + uri);
+        try {
+            koggerOpenFile(uri.toString());
+        } catch (final UnsatisfiedLinkError e) {
+            Log.e(TAG, "Native open-file callback is not registered", e);
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    private static Uri streamOf(final Intent intent) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            return intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri.class);
+        }
+        return intent.getParcelableExtra(Intent.EXTRA_STREAM);
+    }
+
+    /**
+     * Offers a file to other apps through the system share sheet (a KOGGER map to a messenger).
+     * The file goes out through the app's FileProvider; one in a folder the provider does not
+     * cover (a removable card) is copied into the cache first.
+     *
+     * @param path         the file.
+     * @param mimeType     the type the receiving apps see.
+     * @param chooserTitle the share sheet's title.
+     * @return false when the file cannot be offered.
+     */
+    public static boolean shareFile(final String path, final String mimeType, final String chooserTitle) {
+        if (m_instance == null) {
+            Log.w(TAG, "shareFile: activity instance is null");
+            return false;
+        }
+
+        try {
+            final File file = new File(path);
+            if (!file.isFile()) {
+                Log.w(TAG, "shareFile: not a file: " + path);
+                return false;
+            }
+
+            final String authority = m_instance.getPackageName() + ".qtprovider";
+            Uri uri;
+            try {
+                uri = FileProvider.getUriForFile(m_instance, authority, file);
+            } catch (final IllegalArgumentException e) {
+                uri = FileProvider.getUriForFile(m_instance, authority, copyToShareCache(file));
+            }
+
+            final Intent send = new Intent(Intent.ACTION_SEND);
+            send.setType(mimeType);
+            send.putExtra(Intent.EXTRA_STREAM, uri);
+            send.setClipData(ClipData.newRawUri(file.getName(), uri));
+            send.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            final Intent chooser = Intent.createChooser(send, chooserTitle);
+            m_instance.runOnUiThread(() -> {
+                try {
+                    m_instance.startActivity(chooser);
+                } catch (final Exception e) {
+                    Log.e(TAG, "shareFile: the share sheet did not open", e);
+                }
+            });
+            return true;
+        } catch (final Exception e) {
+            Log.e(TAG, "shareFile failed: " + path, e);
+            return false;
+        }
+    }
+
+    /**
+     * Copies a file into getCacheDir()/share (res/xml/qtprovider_paths.xml), replacing what an
+     * earlier share left there.
+     */
+    private static File copyToShareCache(final File file) throws IOException {
+        final File dir = new File(m_instance.getCacheDir(), "share");
+        final File[] old = dir.listFiles();
+        if (old != null) {
+            for (final File f : old) {
+                f.delete();
+            }
+        }
+        if (!dir.isDirectory() && !dir.mkdirs()) {
+            throw new IOException("cannot make " + dir);
+        }
+
+        final File copy = new File(dir, file.getName());
+        try (InputStream in = new FileInputStream(file); OutputStream out = new FileOutputStream(copy)) {
+            final byte[] buffer = new byte[1 << 16];
+            for (int n; (n = in.read(buffer)) > 0; ) {
+                out.write(buffer, 0, n);
+            }
+        }
+        return copy;
     }
 
     /**
@@ -352,4 +489,5 @@ public class KoggerActivity extends QtActivity {
     public native void koggerLogDebug(final String message);
     public native void koggerLogWarning(final String message);
     public native void koggerStoragePermissionResult(final boolean granted);
+    public native void koggerOpenFile(final String uri);
 }

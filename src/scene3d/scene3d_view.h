@@ -10,6 +10,7 @@
 #include <QtMath>
 #include <QElapsedTimer>
 #include <QRectF>
+#include <QPointer>
 #include "coordinate_axes.h"
 #include "plane_grid.h"
 #include "ray_caster.h"
@@ -32,6 +33,7 @@
 #include "data_processor.h"
 #include "animator.h"
 #include "smoother.h"
+#include "map_layer.h"
 
 
 class Dataset;
@@ -297,6 +299,9 @@ public:
     Q_INVOKABLE void geojsonUndoLastVertex();
     Q_INVOKABLE void geojsonDeleteSelectedFeature();
     Q_INVOKABLE void geojsonFitInView();
+    // "My maps" (src/map_export): the layer under the boat, and a view over a lat/lon box (a map just opened).
+    void setMapLayer(MapLayer* layer);
+    Q_INVOKABLE void fitGeoBox(double west, double south, double east, double north);
     Q_INVOKABLE void setSyncLoupeUiAllowed(bool allowed);
     Q_INVOKABLE void returnToBoatNow();
     Q_INVOKABLE void flyToLastPosition();
@@ -457,6 +462,7 @@ private:
     std::shared_ptr<Contacts> contacts_;
     std::shared_ptr<RulerTool> rulerTool_;
     std::shared_ptr<GeoJsonLayer> geoJsonLayer_;
+    QPointer<MapLayer> mapLayer_;
     GeoJsonController* geoJsonController_{nullptr};
     std::shared_ptr<BoatTrack> boatTrack_;
     std::shared_ptr<BottomTrack> m_bottomTrack;

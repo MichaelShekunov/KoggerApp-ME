@@ -79,12 +79,17 @@ ApplicationWindow {
         id: openLogFileDialog
         title: qsTr("Please choose a file")
         fileMode: FileDialog.OpenFile
-        nameFilters: ["Logs (*.klf *.KLF *.ubx *.UBX *.xtf *.XTF)", "Kogger log files (*.klf *.KLF)", "U-blox (*.ubx *.UBX)"]
+        nameFilters: [qsTr("Logs and maps") + " (*.klf *.KLF *.ubx *.UBX *.xtf *.XTF *.kmap *.KMAP)", "Kogger log files (*.klf *.KLF)", qsTr("KOGGER maps") + " (*.kmap *.KMAP)", "U-blox (*.ubx *.UBX)"]
         onAccepted: {
             openFileDialogSettings.lastLogFolder = currentFolder
             if (!selectedFile)
                 return
             var path = selectedFile.toString()
+            // A map goes to My maps, not in place of the survey or the device link.
+            if (path.toLowerCase().endsWith(".kmap") && typeof mapLibrary !== "undefined" && mapLibrary) {
+                mapLibrary.importFile(path)
+                return
+            }
             if (path.startsWith("file:///"))
                 path = Qt.platform.os === "windows" ? path.slice(8) : path.slice(7)
             else if (path.startsWith("file://"))
@@ -865,7 +870,7 @@ ApplicationWindow {
                     else if (path.startsWith("file://"))
                         path = path.slice(7)
                     var lower = path.toLowerCase()
-                    if (lower.endsWith(".klf") || lower.endsWith(".xtf") || lower.endsWith(".ubx"))
+                    if (lower.endsWith(".klf") || lower.endsWith(".xtf") || lower.endsWith(".ubx") || lower.endsWith(".kmap"))
                         return path
                 }
                 return ""
@@ -879,7 +884,11 @@ ApplicationWindow {
             onExited: droppedFilePath = ""
 
             onDropped: function(drop) {
-                if (droppedFilePath !== "" && core && typeof core.openLogFile === "function") {
+                if (droppedFilePath.toLowerCase().endsWith(".kmap") && typeof mapLibrary !== "undefined" && mapLibrary) {
+                    mapLibrary.importFile(droppedFilePath)
+                    drop.accept()
+                }
+                else if (droppedFilePath !== "" && core && typeof core.openLogFile === "function") {
                     workspaceStore.selectedConnectionFilePath = droppedFilePath
                     core.openLogFile(droppedFilePath, false, true)
                     drop.accept()
@@ -1092,6 +1101,11 @@ ApplicationWindow {
                 if (core && core.filePath && core.filePath.length > 0)
                     workspaceStore.selectedConnectionFilePath = core.filePath
             }
+
+            // A map from a messenger ("open with" on Android): show where it went.
+            function onReceivedMapOpened() {
+                workspaceStore.openMyMaps()
+            }
         }
 
         Connections {
@@ -1146,6 +1160,8 @@ ApplicationWindow {
                      : workspaceStore.settingsSubPageKind === "uiSaving"     ? qsTr("UI Saving")
                      : workspaceStore.settingsSubPageKind === "tgc"          ? qsTr("TGC")
                      : workspaceStore.settingsSubPageKind === "csvExport"    ? qsTr("Export to CSV")
+                     : workspaceStore.settingsSubPageKind === "mapExport"    ? qsTr("Map for sharing")
+                     : workspaceStore.settingsSubPageKind === "myMaps"       ? qsTr("My maps")
                      : workspaceStore.settingsSubPageKind === "aimPanel"     ? qsTr("Information panel")
                      : workspaceStore.settingsSubPageKind === "console"      ? qsTr("Console")
                      : workspaceStore.settingsSubPageKind === "about"        ? qsTr("About")
@@ -1179,6 +1195,8 @@ ApplicationWindow {
                      : workspaceStore.settingsSubPageKind === "uiSaving"   ? uiSavingSettingsTabComponent
                      : workspaceStore.settingsSubPageKind === "tgc"        ? tgcSettingsTabComponent
                      : workspaceStore.settingsSubPageKind === "csvExport"  ? csvExportSettingsTabComponent
+                     : workspaceStore.settingsSubPageKind === "mapExport"  ? mapExportSettingsTabComponent
+                     : workspaceStore.settingsSubPageKind === "myMaps"     ? myMapsTabComponent
                      : workspaceStore.settingsSubPageKind === "aimPanel"   ? aimPanelSettingsTabComponent
                      : workspaceStore.settingsSubPageKind === "console"    ? consoleSettingsTabComponent
                      : workspaceStore.settingsSubPageKind === "about"      ? aboutPageComponent
@@ -1463,6 +1481,22 @@ ApplicationWindow {
             CsvExportSettingsTab {
                 store: workspaceStore
                 targetPlot: workspaceView.primaryPlotItem
+            }
+        }
+
+        Component {
+            id: mapExportSettingsTabComponent
+
+            MapExportSettingsTab {
+                store: workspaceStore
+            }
+        }
+
+        Component {
+            id: myMapsTabComponent
+
+            MyMapsTab {
+                store: workspaceStore
             }
         }
 

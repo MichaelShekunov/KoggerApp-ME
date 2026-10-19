@@ -80,6 +80,7 @@ void ComputeWorker::clearMosaic()
             || std::any_of(img.begin(), img.end(), [](uint8_t v) { return v != 0; });
         t->setHeadIndx(-1);
         std::fill(img.begin(), img.end(), uint8_t(0));
+        t->dropMosaicQuality();
         if (hadPaint) {
             t->setIsUpdated(true);
         }
@@ -106,6 +107,7 @@ void ComputeWorker::clearForEditRebuild()
         t->init(t->sidePixelSize(), t->heightMatrixRatio(), t->resolution());   // the heights, unset
         t->setHeadIndx(-1);
         std::fill(img.begin(), img.end(), uint8_t(0));
+        t->dropMosaicQuality();   // init() keeps it, and the old quality would refuse the repaint
         t->setIsUpdated(hadContent);
     }
 }
@@ -185,6 +187,12 @@ void ComputeWorker::setMosaicRAngleOffset(float val)
 void ComputeWorker::setMosaicSource(int source)
 {
     mosaic_.setSource(static_cast<MosaicProcessor::Source>(source));
+}
+
+void ComputeWorker::setMosaicBeam(std::shared_ptr<const mosaic_beam::Model> model, const mosaic_beam::PaintRules& rules)
+{
+    mosaic_.setBeamModel(std::move(model));
+    mosaic_.setPaintRules(rules);
 }
 
 void ComputeWorker::setMosaicTrackOwners(bool on)

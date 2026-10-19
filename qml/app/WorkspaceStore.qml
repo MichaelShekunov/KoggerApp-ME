@@ -2371,6 +2371,8 @@ function openAimPanelSettings()     { _openSettingsSubPage("aimPanel") }
 function openUiSavingSettings()     { _openSettingsSubPage("uiSaving") }
 function openTgcSettings()          { _openSettingsSubPage("tgc") }
 function openCsvExportSettings()    { _openSettingsSubPage("csvExport") }
+function openMapExportSettings()    { _openSettingsSubPage("mapExport") }
+function openMyMaps()               { _openSettingsSubPage("myMaps") }
 function openConsoleSettings()      { _openSettingsSubPage("console") }
 function openAboutSettings()        { _openSettingsSubPage("about") }
 function openDeveloperSettings()    { _openSettingsSubPage("developer") }

@@ -7,6 +7,8 @@
 #include <QMetaObject>
 #include <QEventLoop>
 #include <QDebug>
+#include <QDataStream>
+#include <QFile>
 #include <QtGlobal>
 #include <cmath>
 #include "bt_worker.h"
@@ -50,6 +52,15 @@ inline void markTilesBySource(TileMap& tiles, DataSource src)
 // }
 
 static inline uint32_t toMask(WorkSet s){ return static_cast<uint32_t>(s); }
+
+// Mosaic quality: when the brightness model is measured (beamMaybeSchedule, beamEstimate).
+static constexpr int   kBeamFirst      = 300;    // epochs with a bottom track before the first estimate
+static constexpr uint32_t kBeamMaturePings = 2000;   // a model from fewer pings a side is measured again soon
+static constexpr int   kBeamLast       = 20000;  // and the last re-estimate of live data
+static constexpr int   kBeamMaxEpochs  = 4000;   // read for an estimate, evenly over the survey
+static constexpr int   kBeamQuietMs    = 700;    // a file's bottom track comes in batches: after the last
+static constexpr int   kBeamMaxWaitMs  = 2500;   // but no later than this after the first
+static constexpr float kBeamRepaintDb  = 1.0f;   // a new model nearer than this to the one in use is not taken
 
 DataProcessor::DataProcessor(QObject *parent, Dataset* datasetPtr)
     : QObject(parent),
@@ -156,6 +167,9 @@ DataProcessor::DataProcessor(QObject *parent, Dataset* datasetPtr)
     precomputeTimer_.setSingleShot(true);
     precomputeTimer_.setInterval(300);
     connect(&precomputeTimer_, &QTimer::timeout, this, &DataProcessor::maybeStartPrecompute);
+    beamTimer_.setParent(this);
+    beamTimer_.setSingleShot(true);
+    connect(&beamTimer_, &QTimer::timeout, this, &DataProcessor::beamEstimate);
 
     editRebuildTimer_.setParent(this);
     editRebuildTimer_.setSingleShot(true);
@@ -560,6 +574,10 @@ void DataProcessor::maybeStartPrecompute()
     }
     if (resetInProgress_.load() || suppressResults_.load() || isOpeningFile_) {
         waiting(QStringLiteral("a reset, a file opening or results held back"));   // the next job's end arms it again
+        return;
+    }
+    if (beamHolding()) {
+        waiting(QStringLiteral("the brightness model"));   // the view's first job, after it, arms it again
         return;
     }
     if (!updateMosaic_ || (activeZeroing_ && mosaicFakeCoordsLastN_ > 0)) {
@@ -1101,6 +1119,8 @@ void DataProcessor::onBottomTrack3DAdded(const QVector<int>& epIndxs, const QVec
         epIndxsFromBottomTrack_.clear();
         epochToBottomTrackVertIndx_.clear();
         bottomTrackFullRecalcPending_ = false;
+        beamResetEstimate(true);   // the altitudes it was measured with are gone
+        beamPush();
         clearOldTracking_ = false;   // "Clear old data" rebuilt every job before: a new bottom track showed at once
         cancelPrecompute();
     }
@@ -1154,6 +1174,8 @@ void DataProcessor::onBottomTrack3DAdded(const QVector<int>& epIndxs, const QVec
     for (int itm : vertIndxs) {
         vertIndxsFromBottomTrack_.insert(itm);
     }
+
+    beamMaybeSchedule();
 
     const int pairCount = qMin(epIndxs.size(), vertIndxs.size());
     for (int i = 0; i < pairCount; ++i) {
@@ -1368,11 +1390,13 @@ void DataProcessor::setBottomTrackZeroDepth(bool state)
 
 void DataProcessor::setSurfaceColorTableThemeById(int id)
 {
+    exportConfig_.surfaceTheme = id;
     QMetaObject::invokeMethod(worker_, "setSurfaceThemeId", Qt::QueuedConnection, Q_ARG(int, id));
 }
 
 void DataProcessor::setSurfaceEdgeLimit(int val)
 {
+    exportConfig_.surfaceEdgeLimit = float(val);
     QMetaObject::invokeMethod(worker_, "setSurfaceEdgeLimit", Qt::QueuedConnection, Q_ARG(float, float(val)));
 
     surfaceTaskEpochIndxsByZoom_.clear();
@@ -1391,6 +1415,7 @@ void DataProcessor::setSurfaceEdgeLimit(int val)
 
 void DataProcessor::setExtraWidth(int val)
 {
+    exportConfig_.surfaceExtraWidth = val;
     QMetaObject::invokeMethod(worker_, "setSurfaceExtraWidth", Qt::QueuedConnection, Q_ARG(int, val));
 
     // REBUILD?
@@ -1413,6 +1438,7 @@ void DataProcessor::setIsobathsLabelStepSize(float val)
 
 void DataProcessor::setSurfaceIsobathsStepSize(float val)
 {
+    exportConfig_.surfaceStep = val;
     QMetaObject::invokeMethod(worker_, "setSurfaceIsobathsStepSize", Qt::QueuedConnection, Q_ARG(float, val));
 
     surfaceTaskEpochIndxsByZoom_.clear();
@@ -1429,6 +1455,20 @@ void DataProcessor::setSurfaceIsobathsStepSize(float val)
 
 void DataProcessor::setMosaicChannels(const ChannelId &ch1, uint8_t sub1, const ChannelId &ch2, uint8_t sub2)
 {
+    exportConfig_.ch1 = ch1;
+    exportConfig_.sub1 = sub1;
+    exportConfig_.ch2 = ch2;
+    exportConfig_.sub2 = sub2;
+    const bool channelsChanged = !(mosaicCh1_ == ch1) || mosaicSub1_ != sub1 || !(mosaicCh2_ == ch2) || mosaicSub2_ != sub2;
+    mosaicCh1_ = ch1;
+    mosaicSub1_ = sub1;
+    mosaicCh2_ = ch2;
+    mosaicSub2_ = sub2;
+    if (channelsChanged) {
+        beamResetEstimate(true);   // measured on the other channels
+        beamPush();
+    }
+
     hotCache_.clear();
 
     QMetaObject::invokeMethod(worker_, "clearAll", Qt::QueuedConnection);
@@ -1464,6 +1504,7 @@ void DataProcessor::setMosaicChannels(const ChannelId &ch1, uint8_t sub1, const 
     }
 
     pendingIsobathsWork_ = true;
+    beamMaybeSchedule();
 
     scheduleLatest(WorkSet(WF_All), /*replace*/true);
 }
@@ -1480,6 +1521,9 @@ void DataProcessor::setMosaicTheme(int indx)
 
 void DataProcessor::setMosaicLAngleOffset(float val)
 {
+    if (val >= -90.0f && val <= 90.0f) {   // what MosaicProcessor::setLAngleOffset takes
+        exportConfig_.lAngleOffset = val;
+    }
     QMetaObject::invokeMethod(worker_, "setMosaicLAngleOffset", Qt::QueuedConnection, Q_ARG(float, val));
     cancelPrecompute();
     QMetaObject::invokeMethod(precomputer_, "setLAngleOffset", Qt::QueuedConnection, Q_ARG(float, val));
@@ -1487,6 +1531,9 @@ void DataProcessor::setMosaicLAngleOffset(float val)
 
 void DataProcessor::setMosaicRAngleOffset(float val)
 {
+    if (val >= -90.0f && val <= 90.0f) {
+        exportConfig_.rAngleOffset = val;
+    }
     QMetaObject::invokeMethod(worker_, "setMosaicRAngleOffset", Qt::QueuedConnection, Q_ARG(float, val));
     cancelPrecompute();
     QMetaObject::invokeMethod(precomputer_, "setRAngleOffset", Qt::QueuedConnection, Q_ARG(float, val));
@@ -1566,9 +1613,316 @@ void DataProcessor::askColorTableForMosaic()
 
 void DataProcessor::setMosaicSource(int source)
 {
+    exportConfig_.mosaicSource = source;
     QMetaObject::invokeMethod(worker_, "setMosaicSource", Qt::QueuedConnection, Q_ARG(int, source));
     QMetaObject::invokeMethod(precomputer_, "setSource", Qt::QueuedConnection, Q_ARG(int, source));
+    if (mosaicSource_ != source) {
+        mosaicSource_ = source;
+        // Measured on the other source's levels: measured again, the mosaic of a file waiting for it.
+        beamResetEstimate(true);
+        beamPush();
+        beamMaybeSchedule();
+    }
     restartMosaic();
+}
+
+void DataProcessor::setMosaicQuality(bool correction, float nadirCropDeg, float farCropDeg, int overlap)
+{
+    mosaic_beam::PaintRules rules;
+    rules.nadirCropDeg = std::clamp(nadirCropDeg, 0.0f, 45.0f);
+    rules.farCropDeg = std::clamp(farCropDeg, 45.0f, 90.0f);
+    rules.overlap = mosaic_beam::Overlap(std::clamp(overlap, 0, 2));
+    if (correction == beamCorrection_ && rules == paintRules_) {
+        return;
+    }
+    const bool correctionChanged = correction != beamCorrection_;
+    beamCorrection_ = correction;
+    paintRules_ = rules;
+    static const char* const kOverlap[] = { "newest", "newest, edges under", "nearest the track" };
+    qInfo().noquote() << QStringLiteral("mosaic quality: correction %1, crop %2..%3 deg, overlaps %4")
+                         .arg(correction ? "on" : "off").arg(rules.nadirCropDeg).arg(rules.farCropDeg)
+                         .arg(kOverlap[int(rules.overlap)]);
+    if (correctionChanged && correction && !beamModel_) {
+        beamResetEstimate(true);
+        beamMaybeSchedule();
+    }
+    beamPush();
+    beamEmitState();
+    restartMosaic();
+}
+
+void DataProcessor::beamResetEstimate(bool hold)
+{
+    beamModel_.reset();
+    beamMeasuredAt_ = 0;
+    beamFirstAsk_ = -1;
+    beamTimer_.stop();
+    // A file's mosaic waits for its model; live data does not wait (kBeamFirst epochs would be some
+    // seconds of nothing): it is repainted once the model comes.
+    beamAwaitFirst_ = hold;
+}
+
+bool DataProcessor::beamHolding() const
+{
+    return beamAwaitFirst_ && beamCorrection_ && datasetState_ == int(Dataset::DatasetState::kFile);
+}
+
+void DataProcessor::beamMaybeSchedule()
+{
+    if (!beamCorrection_) {
+        return;
+    }
+    const int n = epIndxsFromBottomTrack_.size();
+    // With no model, or a young one -- the pings so far too shallow or too few, a survey starting at
+    // the shore -- again every kBeamFirst epochs for as long as it takes (2026-10-18: a first model
+    // from 149 shallow pings stayed for the rest of a live run); then as the epochs double, up to
+    // kBeamLast.
+    uint32_t pings = 0;
+    if (beamModel_) {
+        pings = std::numeric_limits<uint32_t>::max();
+        for (const auto& s : beamModel_->side) {
+            if (s.valid) {
+                pings = std::min(pings, s.pings);
+            }
+        }
+    }
+    bool due = false;
+    if (beamMeasuredAt_ == 0) {
+        due = n >= kBeamFirst;
+    }
+    else if (pings < kBeamMaturePings) {
+        due = n >= beamMeasuredAt_ + kBeamFirst;
+    }
+    else {
+        due = beamMeasuredAt_ < kBeamLast && n >= 2 * beamMeasuredAt_;
+    }
+    if (!due) {
+        if (beamHolding() && n > 0 && n < kBeamFirst && !btBusy_ && !beamTimer_.isActive()) {
+            // A file shorter than kBeamFirst epochs: no model, and the mosaic must not wait for one.
+            beamTimer_.start(kBeamQuietMs);
+        }
+        return;
+    }
+    const qint64 now = latClock_.elapsed();
+    if (beamFirstAsk_ < 0) {
+        beamFirstAsk_ = now;
+    }
+    // A file's bottom track for (nearly) every epoch is all there will be: no batch left to wait for.
+    const int epochs = datasetPtr_ ? datasetPtr_->sizeThreadSafe() : 0;
+    if (beamHolding() && epochs > 0 && n >= epochs - std::max(16, epochs / 100)) {
+        beamTimer_.start(0);
+        return;
+    }
+    const qint64 left = std::max<qint64>(0, kBeamMaxWaitMs - (now - beamFirstAsk_));
+    beamTimer_.start(int(std::min<qint64>(kBeamQuietMs, left)));
+}
+
+void DataProcessor::beamEstimate()
+{
+    beamFirstAsk_ = -1;
+    if (!beamCorrection_ || !datasetPtr_) {
+        return;
+    }
+    QVector<int> eps(epIndxsFromBottomTrack_.cbegin(), epIndxsFromBottomTrack_.cend());
+    if (eps.size() < kBeamFirst) {
+        if (beamAwaitFirst_) {   // too little for a model (a short file): the mosaic goes on without one
+            beamAwaitFirst_ = false;
+            qInfo().noquote() << QStringLiteral("mosaic beam: %1 epochs with a bottom track, too few to measure; painted as they are")
+                                 .arg(eps.size());
+            beamEmitState();
+            scheduleLatest(WorkSet(WF_Mosaic));
+        }
+        return;
+    }
+    std::sort(eps.begin(), eps.end());
+    QElapsedTimer clock;
+    clock.start();
+    const int stride = std::max(1, int((eps.size() + kBeamMaxEpochs - 1) / kBeamMaxEpochs));
+    auto tables = std::make_unique<std::array<mosaic_beam::Table, 2>>();
+
+    // KOGGER_MOSAIC_PING_DUMP: up to 16 000 of the epochs, evenly, in a pass of its own (denser than the
+    // estimate's, for straight runs of a line). "KPD2", then per record, little-endian -- epoch (int32),
+    // side (uint8), altitude, resolution, offset, north, east, yaw, pitch, roll (float32 each; NaN when
+    // there is no attitude), count (uint32) and the raw levels.
+    QFile dump(qEnvironmentVariable("KOGGER_MOSAIC_PING_DUMP"));
+    if (!dump.fileName().isEmpty() && dump.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+        QDataStream out(&dump);
+        out.setByteOrder(QDataStream::LittleEndian);
+        out.setFloatingPointPrecision(QDataStream::SinglePrecision);
+        out.writeRawData("KPD2", 4);
+        const int dumpStride = std::max(1, int((eps.size() + 15999) / 16000));
+        for (int k = 0; k < eps.size(); k += dumpStride) {
+            Epoch ep = datasetPtr_->fromIndexMosaicCopy(eps[k]);
+            if (!ep.isValid()) {
+                continue;
+            }
+            const auto ned = ep.getSonarPosition().ned;
+            const bool att = ep.isAttAvail();
+            for (int side = 0; side < 2; ++side) {
+                const ChannelId& dch = side ? mosaicCh2_ : mosaicCh1_;
+                Epoch::Echogram* deg = dch.isValid() ? ep.chart(dch, side ? mosaicSub2_ : mosaicSub1_) : nullptr;
+                if (!deg || deg->amplitude.isEmpty()) {
+                    continue;
+                }
+                out << qint32(eps[k]) << quint8(side) << float(deg->bottomProcessing.getDistance())
+                    << deg->resolution << deg->offset << float(ned.n) << float(ned.e) << ep.tryRetValidYaw()
+                    << (att ? ep.pitch() : NAN) << (att ? ep.roll() : NAN) << quint32(deg->amplitude.size());
+                out.writeRawData(reinterpret_cast<const char*>(deg->amplitude.constData()), int(deg->amplitude.size()));
+            }
+        }
+        qInfo().noquote() << QStringLiteral("mosaic beam: %1 epochs (every %2th) dumped to %3")
+                             .arg((eps.size() + dumpStride - 1) / dumpStride).arg(dumpStride).arg(dump.fileName());
+    }
+
+    int read = 0;
+    for (int k = 0; k < eps.size(); k += stride) {
+        Epoch ep = datasetPtr_->fromIndexMosaicCopy(eps[k]);
+        if (!ep.isValid()) {
+            continue;
+        }
+        ++read;
+        for (int side = 0; side < 2; ++side) {
+            const ChannelId& ch = side ? mosaicCh2_ : mosaicCh1_;
+            if (!ch.isValid()) {
+                continue;
+            }
+            Epoch::Echogram* eg = ep.chart(ch, side ? mosaicSub2_ : mosaicSub1_);
+            if (!eg || eg->amplitude.isEmpty()) {
+                continue;
+            }
+            // The levels the mosaic paints (MosaicProcessor::getColorIndx), not always the raw ones.
+            const QVector<uint8_t>* levels = &eg->amplitude;
+            if (mosaicSource_ == int(MosaicProcessor::Source::SideScan)) {
+                eg->updateCompesated();
+                levels = &eg->compensated;
+            }
+            else if (mosaicSource_ == int(MosaicProcessor::Source::Tgc)) {
+                eg->updateTgc();
+                levels = &eg->tgc;
+            }
+            (*tables)[size_t(side)].add(levels->constData(), int(levels->size()), eg->resolution,
+                                        float(eg->bottomProcessing.getDistance()));
+        }
+    }
+    auto model = std::make_shared<mosaic_beam::Model>();
+    model->epochs = uint32_t(eps.size());
+    for (int side = 0; side < 2; ++side) {
+        model->side[size_t(side)] = mosaic_beam::fit((*tables)[size_t(side)]);
+    }
+    const qint64 ms = clock.elapsed();
+    const int measuredAt = eps.size();
+
+    auto sideLine = [](const mosaic_beam::SideModel& m) {
+        if (!m.valid) {
+            return m.angleTo >= 0 ? QStringLiteral("none (%1 pings, data to %2 deg)").arg(m.pings).arg(m.angleTo + 1)
+                                  : QStringLiteral("none (%1 pings)").arg(m.pings);
+        }
+        auto edge = [&m](float db) {
+            const float a = m.edgeAngle(db);
+            return a < 0.0f ? QStringLiteral("-") : QString::number(double(a), 'f', 1);
+        };
+        return QStringLiteral("%1 pings, data to %2 deg, peak %3 deg, -3 dB to %4, -6 dB to %5, -10 dB to %6; %7 dB of %8 dB left")
+            .arg(m.pings).arg(m.angleTo + 1).arg(double(m.peakAngle()), 0, 'f', 1).arg(edge(-3.0f)).arg(edge(-6.0f))
+            .arg(edge(-10.0f)).arg(double(m.residualDb), 0, 'f', 2).arg(double(m.spreadDb), 0, 'f', 2);
+    };
+    qInfo().noquote() << QStringLiteral("mosaic beam: measured on %1 of %2 epochs in %3 ms; left: %4; right: %5")
+                         .arg(read).arg(measuredAt).arg(ms).arg(sideLine(model->side[0])).arg(sideLine(model->side[1]));
+
+    beamMeasuredAt_ = measuredAt;
+    const bool wasHeld = beamHolding();
+    beamAwaitFirst_ = false;
+    if (!model->valid()) {
+        if (wasHeld) {
+            scheduleLatest(WorkSet(WF_Mosaic));
+        }
+        beamEmitState();
+        return;
+    }
+    if (beamModel_) {
+        const float diff = std::max(mosaic_beam::maxDifferenceDb(beamModel_->side[0], model->side[0]),
+                                    mosaic_beam::maxDifferenceDb(beamModel_->side[1], model->side[1]));
+        if (diff <= kBeamRepaintDb) {
+            qInfo().noquote() << QStringLiteral("mosaic beam: within %1 dB of the model in use, kept").arg(double(diff), 0, 'f', 2);
+            beamEmitState();
+            return;
+        }
+        qInfo().noquote() << QStringLiteral("mosaic beam: %1 dB from the model in use, repainted").arg(double(diff), 0, 'f', 2);
+    }
+    beamModel_ = std::move(model);
+    beamPush();
+    beamEmitState();
+    if (wasHeld) {
+        scheduleLatest(WorkSet(WF_Mosaic));   // nothing painted yet: no restart
+    }
+    else {
+        restartMosaic();
+    }
+}
+
+mosaic_beam::PaintRules DataProcessor::beamRulesNow() const
+{
+    mosaic_beam::PaintRules rules = paintRules_;
+    // EdgesUnder: a side's far edge where its measured beam is 6 dB down, else the default.
+    if (beamModel_) {
+        for (int side = 0; side < 2; ++side) {
+            const mosaic_beam::SideModel& m = beamModel_->side[size_t(side)];
+            const float edge = m.valid ? m.edgeAngle(-6.0f) : -1.0f;
+            if (edge > 0.0f) {   // else not fallen 6 dB within the data: the default stays
+                rules.edgeFarDeg[size_t(side)] = std::max(rules.edgeNadirDeg + 10.0f, edge);
+            }
+        }
+    }
+    return rules;
+}
+
+void DataProcessor::beamPush()
+{
+    std::shared_ptr<const mosaic_beam::Model> model = beamCorrection_ ? beamModel_ : nullptr;
+    const mosaic_beam::PaintRules rules = beamRulesNow();
+    QMetaObject::invokeMethod(worker_, [w = worker_, model, rules]() { w->setMosaicBeam(model, rules); }, Qt::QueuedConnection);
+    cancelPrecompute();
+    QMetaObject::invokeMethod(precomputer_, [p = precomputer_, model, rules]() { p->setBeam(model, rules); }, Qt::QueuedConnection);
+}
+
+void DataProcessor::beamEmitState()
+{
+    QVariantMap st;
+    st["correction"] = beamCorrection_;
+    st["holding"] = beamHolding();
+    st["valid"] = bool(beamModel_ && beamModel_->valid());
+    st["epochs"] = beamModel_ ? int(beamModel_->epochs) : 0;
+    st["nadirCrop"] = double(paintRules_.nadirCropDeg);
+    st["farCrop"] = double(paintRules_.farCropDeg);
+    st["minPings"] = int(mosaic_beam::kMinPings);          // what a model needs, for the "not yet" line
+    st["minCover"] = int(mosaic_beam::kMinAngleCover);
+    for (int side = 0; side < 2; ++side) {
+        QVariantMap s;
+        if (beamModel_ && beamModel_->side[size_t(side)].valid) {
+            const mosaic_beam::SideModel& m = beamModel_->side[size_t(side)];
+            QVariantList curve;
+            for (int k = 0; k < mosaic_beam::kAngleBins; ++k) {
+                curve.append(k >= m.angleFrom && k <= m.angleTo ? QVariant(double(m.angleDb[size_t(k)])) : QVariant());
+            }
+            s["curve"] = curve;
+            s["pings"] = int(m.pings);
+            s["peak"] = double(m.peakAngle());
+            s["edge3"] = double(m.edgeAngle(-3.0f));
+            s["edge6"] = double(m.edgeAngle(-6.0f));
+            s["edge10"] = double(m.edgeAngle(-10.0f));   // -1: not fallen so far within the data
+            s["dataTo"] = m.angleTo + 1;
+            s["residual"] = double(m.residualDb);
+            s["spread"] = double(m.spreadDb);
+            // How much the range part changes over its data: the near-to-far fall a correction undoes.
+            float lo = 1e9f, hi = -1e9f;
+            for (float v : m.rangeDb) {
+                lo = std::min(lo, v);
+                hi = std::max(hi, v);
+            }
+            s["rangeSpan"] = m.rangeDb.empty() ? 0.0 : double(hi - lo);
+        }
+        st[side ? "right" : "left"] = s;
+    }
+    emit mosaicBeamState(st);
 }
 
 void DataProcessor::setActiveZeroing(bool state)
@@ -1783,7 +2137,8 @@ void DataProcessor::runCoalescedWork()
         }
     }
 
-    const bool clearOld = updateMosaic_ && activeZeroing_ && mosaicFakeCoordsLastN_ > 0 && mosaicFakeCoordsClearOldData_;
+    // A file's mosaic waits for its brightness model (beamEstimate asks again when it is there).
+    const bool clearOld = updateMosaic_ && activeZeroing_ && mosaicFakeCoordsLastN_ > 0 && mosaicFakeCoordsClearOldData_ && !beamHolding();
     if (!clearOld && workerTracksOwners_) {   // the mode is off: the worker lets the owners go
         QMetaObject::invokeMethod(worker_, "setMosaicTrackOwners", Qt::QueuedConnection, Q_ARG(bool, false));
         workerTracksOwners_ = false;
@@ -1828,7 +2183,7 @@ void DataProcessor::runCoalescedWork()
         clearOldTracking_ = true;
         clearOldN_ = mosaicFakeCoordsLastN_;
     }
-    else if (wantMosaic && !pendingMosaicIndxs_.isEmpty() && updateMosaic_) {
+    else if (wantMosaic && !pendingMosaicIndxs_.isEmpty() && updateMosaic_ && !beamHolding()) {
         int mosaicZoom = lastDataZoomIndx_;
         if (mosaicZoom <= 0) {
             mosaicZoom = zoomFromMpp(tileResolution_);
@@ -2203,6 +2558,12 @@ void DataProcessor::onDbTilesLoaded(const QList<DbTile> &dbTiles)
             auto& img = tile.getMosaicImageDataRef();
             if (static_cast<int>(bytes.size()) == int(img.size())) {
                 memcpy(img.data(), bytes.data(), size_t(bytes.size()));
+                if (!dt.qualityBlob.isEmpty()) {
+                    auto quality = MosaicDB::unpackRaw8(dt.qualityBlob);
+                    if (quality.size() == img.size()) {
+                        tile.getMosaicQualityRef() = std::move(quality);
+                    }
+                }
             }
         }
         if (dt.hasHeight && !dt.heightBlob.isEmpty()) {
@@ -2337,6 +2698,18 @@ void DataProcessor::requestMosaicStats(int probeWindow)
     }
 
     QMetaObject::invokeMethod(worker_, "reportMosaicStats", Qt::QueuedConnection, Q_ARG(int, probeWindow));
+}
+
+MapExportConfig DataProcessor::mapExportConfig() const
+{
+    MapExportConfig c = exportConfig_;
+    c.mosaicTheme = mosaicColorTable_.getTheme();
+    c.mosaicLow = mosaicColorTable_.getLowLevel();
+    c.mosaicHigh = mosaicColorTable_.getHighLevel();
+    c.mosaicColorTable = mosaicColorTable_.getRgbaColors();
+    c.beamModel = beamCorrection_ ? beamModel_ : nullptr;
+    c.paintRules = beamRulesNow();
+    return c;
 }
 
 void DataProcessor::postMosaicStats(const QVariantMap& stats)
@@ -2505,6 +2878,7 @@ void DataProcessor::postSurfaceTiles(TileMap tiles, bool isMosaic)
             it.value().setHeadIndx(-1);
             auto& img = it.value().getMosaicImageDataRef();
             std::fill(img.begin(), img.end(), uint8_t(0));
+            it.value().dropMosaicQuality();
         }
     }
 
@@ -2639,6 +3013,9 @@ void DataProcessor::clearAllProcessings()
     epIndxsFromBottomTrack_.clear();
     vertIndxsFromBottomTrack_.clear();
     epochToBottomTrackVertIndx_.clear();
+    beamResetEstimate(true);   // another recording or connection: measured afresh
+    beamPush();
+    beamEmitState();
     clearOldTracking_ = false;
     bottomTrackWindowCounter_ = 0;
     btAutoFrom_ = 0;
@@ -2863,6 +3240,9 @@ void DataProcessor::emitDelta(TileMap &&upserts, DataSource src)
     }
 
     markTilesBySource(upserts, src);
+    for (auto it = upserts.begin(); it != upserts.end(); ++it) {
+        it.value().dropMosaicQuality();   // painting's business, not the renderer's (64 KB a tile)
+    }
 
     // в рендер: сам удалит всё, чего нет
     emit sendSurfaceTilesIncremental(upserts, lastVisTileKeys_);
@@ -3547,6 +3927,9 @@ void DataProcessor::onDatasetStateChanged(int state)
 
     updateDatasetSpatialIndexingState();
     updateDataProcType();
+    if (beamAwaitFirst_) {
+        scheduleLatest(WorkSet(WF_Mosaic));   // a mosaic held for a file's model goes on if this is not one
+    }
 }
 
 bool DataProcessor::isDbReady() const noexcept

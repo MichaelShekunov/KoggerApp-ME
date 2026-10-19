@@ -27,6 +27,9 @@
 #include "tile_provider_ids.h"
 #include "notifications.h"
 #include "ring_upgrade.h"
+#include "map_exporter.h"
+#include "map_layer.h"
+#include "map_library.h"
 
 extern Notifications notifications;
 #ifdef Q_OS_WINDOWS
@@ -264,6 +267,11 @@ void Core::setEngine(QQmlApplicationEngine *engine)
     qmlAppEnginePtr_->rootContext()->setContextProperty("NpdFilterControlMenuController",       npdFilterControlMenuController_.get());
     qmlAppEnginePtr_->rootContext()->setContextProperty("Scene3DControlMenuController",         scene3dControlMenuController_.get());
     qmlAppEnginePtr_->rootContext()->setContextProperty("Scene3dToolBarController",             scene3dToolBarController_.get());
+    qmlAppEnginePtr_->rootContext()->setContextProperty("mapExport",                            mapExporter_.get());
+    mapLibrary_->reload();   // here, after main() named the application: its data folder depends on it
+    qmlAppEnginePtr_->rootContext()->setContextProperty("mapLibrary",                           mapLibrary_.get());
+    qmlAppEnginePtr_->rootContext()->setContextProperty("mapLayer",                             mapLayer_.get());
+    qmlAppEnginePtr_->addImageProvider(QStringLiteral("kmap"), new MapPreviewProvider(mapLibrary_.get()));   // the engine owns it
 
     bool flasherState = false;
 #ifdef FLASHER
@@ -454,6 +462,7 @@ void Core::consoleProto(FrameParser &parser, bool isIn)
 
 void Core::resetRealtimeSessionState()
 {
+    stopMapExport();   // it reads the dataset, which is about to be cleared
     if (datasetPtr_) {
         datasetPtr_->resetDataset();
         dataHorizon_->clear();
@@ -526,6 +535,7 @@ void Core::notifyUiSettingsApplied()
     installAppLogStoragePromotion();
     promoteAppLogStorage();
     flushStartupFileOpen();
+    installOpenFileHandler();   // a map another app started the app with is opened now
 }
 
 void Core::flushStartupFileOpen()
@@ -543,6 +553,10 @@ void Core::flushStartupFileOpen()
 #ifdef SEPARATE_READING
 void Core::openLogFile(const QString &filePath, bool isAppend, bool onCustomEvent)
 {
+    if (openMapFileInstead(filePath)) {
+        return;
+    }
+    stopMapExport();   // it reads the dataset, which is about to be cleared
     QString localfilePath = filePath;
 
     if (onCustomEvent) {
@@ -609,6 +623,7 @@ void Core::openLogFile(const QString &filePath, bool isAppend, bool onCustomEven
 
 bool Core::closeLogFile(bool onOpen)
 {
+    stopMapExport();   // it reads the dataset, which is about to be cleared
     if (!onOpen) {
         echogramEditor_->fileClosed();   // on an open, fileOpening has saved them already
     }
@@ -692,6 +707,7 @@ void Core::onFileReadEnough()
 
 void Core::onFileOpenBreaked(bool onOpen)
 {
+    stopMapExport();   // it reads the dataset, which is about to be cleared
     fileIsCompleteOpened_ = false;
     if (datasetPtr_) {
         datasetPtr_->resetDataset();
@@ -718,6 +734,10 @@ void Core::onFileOpenBreaked(bool onOpen)
 #else
 void Core::openLogFile(const QString& filePath, bool isAppend, bool onCustomEvent)
 {
+    if (openMapFileInstead(filePath)) {
+        return;
+    }
+    stopMapExport();   // it reads the dataset, which is about to be cleared
     // Reading the open recording again for the track smoothing, or any other open, which ends that.
     const bool reprocess = std::exchange(nextOpenIsReprocess_, false);
     if (!reprocess) {
@@ -846,6 +866,7 @@ void Core::openLogFile(const QString& filePath, bool isAppend, bool onCustomEven
 
 bool Core::closeLogFile()
 {
+    stopMapExport();   // it reads the dataset, which is about to be cleared
     // qDebug() << "Core::closeLogFile()";
     const bool wasOpened = isOpenedFile();
     const QString closedFileName = QFileInfo(openedfilePath_).fileName();
@@ -1271,6 +1292,24 @@ void Core::revealInFolder(const QString& path)
 #endif
 }
 
+bool Core::shareFile(const QString& path, const QString& chooserTitle)
+{
+#ifdef Q_OS_ANDROID
+    const QString localPath = path.startsWith(QStringLiteral("file:")) ? QUrl(path).toLocalFile() : path;
+    const QString mimeType = localPath.endsWith(QLatin1Char('.') + mapexport::kMapSuffix, Qt::CaseInsensitive)
+                                 ? mapexport::kMapMimeType : QStringLiteral("application/octet-stream");
+    if (AndroidInterface::shareFile(localPath, mimeType, chooserTitle)) {
+        return true;
+    }
+    notifications.warning(tr("Cannot share %1").arg(QFileInfo(localPath).fileName()));
+    return false;
+#else
+    Q_UNUSED(path)
+    Q_UNUSED(chooserTitle)
+    return false;
+#endif
+}
+
 QString Core::csvLogFilePath() const
 {
     return logger_.csvLogFilePath();
@@ -1315,6 +1354,27 @@ void Core::installAppLogStoragePromotion()
         promoteAppLogStorage();
     });
 #endif
+}
+
+void Core::installOpenFileHandler()
+{
+#ifdef Q_OS_ANDROID
+    AndroidInterface::setOpenFileHandler(this, [this](const QString& uri) -> void { openReceivedFile(uri); });
+#endif
+}
+
+void Core::openReceivedFile(const QString& uri)
+{
+    // A file another app opened with KoggerApp or shared to it (docs/map-export.md). Only KOGGER maps
+    // are taken, told by their content; a map goes to My maps and the page is shown.
+    if (!mapLibrary_) {
+        return;
+    }
+    if (mapLibrary_->importFile(uri)) {
+        emit receivedMapOpened();
+    } else {
+        notifications.warning(mapLibrary_->lastMessage());
+    }
 }
 
 QString Core::appLogFilePath() const
@@ -2281,6 +2341,37 @@ void Core::UILoad(QObject* object, const QUrl& url)
     scene3dControlMenuController_->setQmlEngine(object);
     scene3dControlMenuController_->setGraphicsSceneView(scene3dViewPtr_);
 
+    mapExporter_->setSources(datasetPtr_, dataProcessor_, scene3dViewPtr_);
+
+    // My maps: under the boat in the scene; a map just opened is flown to; the depth from the maps
+    // follows the boat; their isobaths take the isobath tool's step and colour theme, their mosaics the
+    // mosaic tool's theme and levels.
+    auto applyIsobathStyle = [this]() {
+        mapLayer_->setIsobathStyle(isobathsViewControlMenuController_->themeId(),
+                                   isobathsViewControlMenuController_->surfaceLineStepSize());
+    };
+    auto applyMosaicStyle = [this]() {
+        mapLayer_->setMosaicStyle(mosaicViewControlMenuController_->themeId(),
+                                  mosaicViewControlMenuController_->lowLevel(),
+                                  mosaicViewControlMenuController_->highLevel());
+    };
+    applyIsobathStyle();   // before the maps, so they are not labelled twice
+    applyMosaicStyle();
+    mapLayer_->setLibrary(mapLibrary_.get());
+    scene3dViewPtr_->setMapLayer(mapLayer_.get());
+    QObject::connect(mapLibrary_.get(), &MapLibrary::flyToRequested, scene3dViewPtr_, &GraphicsScene3dView::fitGeoBox, Qt::UniqueConnection);
+    if (!mapLayerConnected_) {   // a lambda cannot be a unique connection
+        mapLayerConnected_ = true;
+        QObject::connect(datasetPtr_, &Dataset::lastPositionChanged, mapLibrary_.get(), [this]() {
+            const LLA lla = datasetPtr_->getLastRawPosition().lla;
+            mapLibrary_->setBoatPosition(lla.latitude, lla.longitude);
+        });
+        QObject::connect(isobathsViewControlMenuController_.get(), &IsobathsViewControlMenuController::styleChanged,
+                         mapLayer_.get(), applyIsobathStyle);
+        QObject::connect(mosaicViewControlMenuController_.get(), &MosaicViewControlMenuController::styleChanged,
+                         mapLayer_.get(), applyMosaicStyle);
+    }
+
     scene3dViewPtr_->setActiveZeroing(isActiveZeroing_);
 
     onChannelsUpdated();
@@ -2951,6 +3042,9 @@ void Core::createControllers()
     polygonGroupControlMenuController_    = std::make_shared<PolygonGroupControlMenuController>();
     scene3dControlMenuController_         = std::make_shared<Scene3DControlMenuController>();
     scene3dToolBarController_             = std::make_shared<Scene3dToolBarController>();
+    mapExporter_                          = std::make_unique<MapExporter>();
+    mapLibrary_                           = std::make_unique<MapLibrary>();
+    mapLayer_                             = std::make_unique<MapLayer>();
 }
 
 #ifdef SEPARATE_READING
@@ -3139,7 +3233,36 @@ void Core::shutdownBackgroundWorkers()
     }
 
     destroyInternetManager();
+    stopMapExport();
     destroyDataProcessor();
+}
+
+void Core::stopMapExport()
+{
+    if (mapExporter_) {
+        mapExporter_->stopAndWait();
+    }
+}
+
+bool Core::openMapFileInstead(const QString& path)
+{
+    // A KOGGER map (from the command line, the Files page, or any other way to openLogFile) goes to My
+    // maps: opening it must not close the survey or the device link.
+    if (!mapLibrary_) {
+        return false;
+    }
+    bool isMap = path.endsWith(QLatin1Char('.') + mapexport::kMapSuffix, Qt::CaseInsensitive);
+#ifdef Q_OS_ANDROID
+    // The Android file picker gives content:// URLs, often without the name: a map by its content.
+    if (!isMap && path.startsWith(QStringLiteral("content:"))) {
+        isMap = mapexport::startsLikeMap(path);
+    }
+#endif
+    if (!isMap) {
+        return false;
+    }
+    mapLibrary_->importFile(path);
+    return true;
 }
 
 bool Core::isOpenedFile() const

@@ -223,6 +223,13 @@ genuine upstream bug and a candidate to report back.
 | `src/device/bus_address.{h,cpp}` | setting and saving a sonar's bus address, with the proof that it was saved |
 | `tools/busaddr_check/` | standalone program: the bus address setting against simulated boards, and live on a serial port |
 | `docs/fork-overview.ru.md` | the fork for upstream's GUI developer (Russian): upstream behaviour it changes, new ids and keys, and in its appendix every touched file, listed by git |
+| `src/map_export/` | map for sharing: the survey's depth map and mosaic as a KOGGER map (.kmap) other users open under their boat (My maps), and KMZ / GeoTIFF for other programs |
+| `qml/app/MapExportSettingsTab.qml` | its page (Settings -> Export -> Map for sharing) |
+| `qml/app/MyMapsTab.qml` | My maps (the 3D toolbar's map button, its gear) |
+| `tools/qml_check/mymaps_page_check.ps1` | My maps over mocks |
+| `tools/mapexport_check/` | standalone program: projection, sampling, depths, isobaths, the files read back (`run.ps1`) |
+| `tools/qml_check/mapexport_page_check.ps1` | the page over mocks |
+| `docs/map-export.md` | the feature in detail, what was verified, licences and the law |
 
 This table is not complete (the boat mission's files, among others, are missing); the appendix of
 `docs/fork-overview.ru.md` lists the rest as of `388f0865`, except `src/kec`: the overview goes to upstream's
@@ -2223,3 +2230,107 @@ worktree, packaging, the test file, the test profile -- with these changes:
     on a real device; two devices of one type.
   - The NTC reading +5 C: a leak of ~44 kOhm across the fitted sensor (hardware; the L412 session's).
   - GitHub `mine` holds c4e1d3f4; today's commits are not pushed (only on the owner's word).
+
+## Map for sharing and My maps (2026-10-18, branch `map-export`)
+
+**Read this first: the owner's correction the same day.** The maps are for KoggerApp first ("as Garmin
+has it, only so that people can exchange depth maps and mosaics"), not for Google Earth. So the main file
+is the **KOGGER map, `.kmap`** (a stored ZIP: `map.json`, `depth.tif`, `mosaic.tif`, `preview.png`), and
+another KoggerApp opens it into **My maps**, under its boat in the 3D view (`src/map_export/map_library.*`,
+`map_layer.*`, `qml/app/MyMapsTab.qml`, a fifth button in `Scene3DToolbar.qml`, data field `mapDepth`).
+A .kmap reaching `Core::openLogFile` (command line, Files page) goes to My maps instead
+(`openMapFileInstead`); the Open dialog and drag and drop route it the same way. Verified end to end on
+00014 with a fresh profile: export, open as someone else's map, the map under the boat with the
+recording. `mymaps_page_check` 9/9, `mapexport_check` 102/102. KMZ / GeoTIFF stay, off by default.
+Android (same day, later): a .kmap tapped in a messenger opens into My maps (VIEW/SEND intent filters on
+`KoggerOpenActivity`, which hands the file to `KoggerActivity` in its own task -> JNI `koggerOpenFile` ->
+`Core::openReceivedFile`), and "Share the map" sends a saved one (FileProvider); a file is told by its
+content, not its name. Verified on the owner's phone from Telegram (cold start) and WhatsApp (running
+app). With the filters on `KoggerActivity` itself a messenger's open made a second activity in the
+messenger's task and Qt restarted the app, losing the file -- hence `KoggerOpenActivity`. "Share the
+map" is not yet tried on a device -- "Android: from a messenger and back" in `docs/map-export.md`.
+Isobaths of loaded maps (owner, same day): they follow the app's isobath tool -- its step and colour
+theme (`IsobathsViewControlMenuController::styleChanged` -> `MapLayer::setIsobathStyle`), one depth
+scale over all visible maps, lines at whole multiples of the step, depth labels as on the live surface
+(the label code moved out of SurfaceView into `src/scene3d/utils/isobath_labels.*`, shared). Verified
+on 00014 with themes 1 / 8 / 5 and steps 1 / 2 / 0.1 m; the live surface's labels after the move were
+checked line by line, not on screen. `mapexport_check` 103/103.
+The owner, later: a shared .kmap holds the isobaths and / or the mosaic, no boat track and no bottom
+profile. It never had the track (only the KMZ did, when allowed); now its passport has no word of one and
+its dates are a month whatever the privacy switch says, which moved under "For other programs"
+(`kmapMetadata`, `mapexport_check` 109/109 with two mutants caught). The depth grid still carries the
+soundings along the passes (visible as creases in a hillshade): the owner keeps the measured depths, no smoothing.
+Settings -> Files -> Open file now lists .kmap too (the owner: "the app on the computer does not filter
+kmap files"); the installed KoggerApp ME on this PC (11:35, before this branch) has no maps at all.
+The KMZ-first text below is the first build's.
+
+The owner: users should save the bathymetric map and the mosaic to share them, with the legal side in
+mind (who owns the data, how everyone may use it). Chosen: sharing by file, with the author, a licence
+the user picks (all rights reserved / CC BY 4.0 / CC0), the "not for navigation" notice and IHO
+B-12-style metadata in every file, and a "without the track and times" mode on by default. A KOGGER
+community map is not built: it waits for Armenian counsel. Everything -- use, files, how it is made,
+checks, limits, the law -- is in `docs/map-export.md`.
+
+- Settings -> Export -> Map for sharing. KMZ (Google Earth) and GeoTIFF (GIS), EPSG:4326.
+- The mosaic is painted again over the whole survey with the view's settings: `MosaicProcessor::setSink`
+  (no data processor or worker; the view's and the precompute's paths are unchanged -- `precompute_check`
+  PASS, 0 pixels apart). The view's settings reach it through `DataProcessor::mapExportConfig()`.
+- The depth surface: the bottom track, 1 m cells, the app's Delaunay, the export's own edge limit
+  ("Join soundings up to", 50 m) and isobath step (Auto) -- the view's 20 m / 0.1 m left patches.
+- Verified on 00014: 2.6 s; the export's tiles equal the view's (`mosaic_dump_compare -Judge` PASS);
+  on Esri imagery the isobaths sit in the lake's southern bay. `tools\mapexport_check\run.ps1` 84/84,
+  eight mutants caught; `tools\qml_check\mapexport_page_check.ps1` 9/9; ts_check ru, zh clean.
+- Debug run: `KOGGER_MAP_EXPORT=<folder>` (+ `_DELAY_MS`, `_ZOOM`, `_QUIT=1`, `_DUMP=<file>`).
+- Not verified: Google Earth itself, QGIS, Android, the 1.1 GB survey.
+## Mosaic quality: brightness from the beam, crop, overlaps (2026-10-18, branch `mosaic-quality`)
+
+The owner: "the mosaic's quality: crop, stitching; the sonar's directivity taken into account, analysed
+from the bright areas of the echogram". All of it is in [mosaic-quality.md](mosaic-quality.md) (the
+owner's summary: [mosaic-quality.ru.md](mosaic-quality.ru.md)); here what a next session needs.
+
+**State.** Worktree `D:\Temp\ka_mosaic`, branch `mosaic-quality` from `me` c4e1d3f4, **not committed**
+(the owner's word decides). Built there with `scripts\win_build_release.ps1`. Not on the water, not on
+another device, not seen by the owner.
+
+**What it is.** Per side, `log(mean level) = A(angle) + B(range)` fitted from the echograms at run time
+(`src/data_processor/mosaic_beam.h`), every sample multiplied by `exp(C - A - B)`; a crop by the angle
+from straight down; three rules for overlapping pings, the default "Newest, edges under" (a ping's strip
+under the sonar and its beam's edge go under other pings' middles). A file's mosaic waits for the model
+(a file only: `beamHolding`); live it is measured at 300 epochs and again until mature, a repaint only
+for a change over 1 dB. Settings, Mosaic: `qml/app/MosaicQualitySettings.qml`.
+
+**Files.** New: `src/data_processor/mosaic_beam.h`, `qml/app/MosaicQualitySettings.qml`, `tools/beam_check/`,
+`tools/qml_check/mosaicquality_check.ps1`, `docs/mosaic-quality.md`, `docs/mosaic-quality.ru.md`.
+Changed: `mosaic_processor.{h,cpp}` (sampleColor, the sinks, the merge, no blending with a missing
+sample), `data_processor.{h,cpp}` (the estimate, its schedule and the hold, `setMosaicQuality`,
+`mosaicBeamState`, the quality plane from the DB, none to the renderer), `surface_tile.{h,cpp}` (the
+quality plane), `surface_processor.cpp` (the plane copied where a tile's image is), `mosaic_db.{h,cpp}`
+(`quality_blob`), `compute_worker.{h,cpp}`, `mosaic_precomputer.{h,cpp}`,
+`scene3d/controllers/mosaic_view_control_menu_controller.{h,cpp}`, `qml/app/AppSettingsPage.qml`,
+`qml/app/CMakeLists.txt`, `translations/translation_{ru,zh}.ts`, `tools/perf/live_zoom_check.ps1`
+(`-FromOffset`).
+
+**Checks** [verified]: `beam_check` 18/18 and five mutants of the header caught; `mosaicquality_check`
+5/5; `precompute_check` PASS on 00014 (0.004 % / 0.01 %); two runs of 00014 one hash; live from where
+the boat is in the water, the old build against the new one with one camera, the same pings painted
+per 10 s and the median latency 197-210 ms against 197-199; opening 00017 to the first whole mosaic,
+medians of three, 10.46 s old against 11.00 s new. On the last build (the per-sample tables, the quality
+in the stamps), run with the owner's leave: `precompute_check` PASS (8 of 3.86 million pixels another
+value) and two runs of 00014 one hash, `67cff3d944892266`. "Nearest the track" has had no precompute
+check. Announce runs that open app windows on the owner's PC (how many, how long) -- he asked why
+the app kept opening and closing.
+
+**Traps met on the way:**
+- The 2025 test recordings open with 2 700 to 2 900 pings of the boat out of the water (altitude stuck at
+  0.41 m, the navigation not ready). The model leaves pings under 1 m out [verified on the dumps]; live
+  runs from a file's start spend a minute on it -- `live_zoom_check.ps1 -FromOffset 20000000` for 00014.
+- Live, only tiles in view are painted, and the boat's position jumps as its navigation becomes ready:
+  two runs whose cameras differ (the wheel acting otherwise, a camera saved from the 1.1 GB file -- see
+  `tilesInQuadNed` above) paint different pings, in either build. Compare live runs from one saved
+  profile (`reg export` / `reg import` of `KoggerApp-perf`) with `-Wheel 0` [verified: an old-build run
+  from such a profile painted no ping at all].
+- A Canvas property named `top` overrides a FINAL one and the component does not load: the QML check
+  caught it, the application would have shown the Mosaic group without the block (QML warnings do not
+  reach `kogger.log`).
+- `sed -i` in Git Bash and Python's text mode write LF; the working copies here are CRLF.
+- PowerShell variables are case-blind: `$l` in a loop overwrote `$L`, the log's path.

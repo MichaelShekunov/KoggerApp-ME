@@ -3,6 +3,7 @@
 #include <atomic>
 #include <cstdint>
 #include <limits>
+#include <memory>
 #include <vector>
 #include <QHash>
 #include <QThreadPool>
@@ -12,12 +13,25 @@
 #include "epoch.h"
 #include "surface_tile.h"
 #include "math_defs.h"
+#include "mosaic_beam.h"
 
 
 class ComputeWorker;
 class Dataset;
 class DataProcessor;
 class SurfaceMesh;
+
+/// Where a processor without a data processor (a map export, src/map_export) puts what it paints.
+class MosaicTileSink {
+public:
+    virtual ~MosaicTileSink() = default;
+    /// Tiles a chunk changed, as postTiles sends them to the data processor.
+    virtual void putTiles(const TileMap& tiles) = 0;
+    /// Tiles painted before and let go by the mesh (LRU), as the hot cache gives them back.
+    virtual TileMap takeBack(const QSet<TileKey>& keys) = 0;
+    virtual bool cancelled() const = 0;
+};
+
 class MosaicProcessor
 {
 public:
@@ -45,6 +59,12 @@ public:
     void setTileResolution(float tileResolution);
     void setGenerageGridContour(bool state);
     void setSource(Source source);
+    /// The brightness correction measured from the echograms (mosaic_beam.h); nullptr paints the
+    /// levels as they are. Shared, never changed: the view's and the precompute's processors paint
+    /// with the same one.
+    void setBeamModel(std::shared_ptr<const mosaic_beam::Model> model);
+    /// The crop and the rule for overlapping pixels.
+    void setPaintRules(const mosaic_beam::PaintRules& rules);
     /// "Clear old data": remember, per pixel, the pair (by its older epoch) that painted it last.
     void setTrackOwners(bool on);
     /// Clears every pixel last painted by a pair whose older epoch is below keepFrom and sends the
@@ -55,6 +75,9 @@ public:
     /// visible ones, sends tiles and finished epochs to the data processor's precompute slots tagged
     /// with `generation`, and stops once `latest` has moved past it.
     void setBackground(const QSet<TileKey>* tiles, const std::atomic<quint64>* latest, quint64 generation);
+    /// A map export's instance: paints every tile its epochs touch into `sink` and talks to no data
+    /// processor or worker (constructed with nullptr for both).
+    void setSink(MosaicTileSink* sink);
     void setPaintThreads(int n);
     /// KOGGER_MOSAIC_THREADS when set (> 0), else the cores less two, at most 8.
     static int defaultPaintThreads();
@@ -71,6 +94,10 @@ private:
     void updateData(const QVector<int>& indxs, QSet<int>& usedEpochs, QSet<int>& blockedEpochs,
                     QVector<int>* newUsed = nullptr, QVector<int>* newBlocked = nullptr);
     inline int getColorIndx(Epoch::Echogram* charts, int ampIndx) const;
+    // The colour of the sample at `slantRange` of one side (0 the first channel, 1 the second) over
+    // `altitude`: corrected by the beam model, 0 where the crop leaves it out or there is none.
+    // *quality gets its mosaic_beam::quality when the rules want one.
+    inline int sampleColor(Epoch::Echogram* charts, int side, float altitude, float slantRange, uint8_t* quality) const;
     bool canceled() const noexcept;
 
     // prepairing tiles
@@ -103,6 +130,8 @@ private:
     float rAngleOffset_;
     bool generateGridContour_;
     Source source_ = Source::SideScan;
+    std::shared_ptr<const mosaic_beam::Model> beam_;
+    mosaic_beam::PaintRules rules_;
     // When true, updateData buffers per-chunk tile updates into batchedTiles_ instead of
     // pushing each chunk to the renderer immediately. updateDataWrapper flushes once at the
     // end. Eliminates piece-by-piece flicker for multi-chunk batches (e.g. FAKE_COORDS+N
@@ -127,6 +156,7 @@ private:
     const QSet<TileKey>* allowedTiles_ = nullptr;
     const std::atomic<quint64>* latestGeneration_ = nullptr;
     quint64 generation_ = 0;
+    MosaicTileSink* sink_ = nullptr;   // setSink
     void postTiles(const TileMap& tiles);
     void reportEpochs(const QVector<int>& indxs, int zoom);
     int lastTraceLineEpoch_;

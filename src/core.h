@@ -45,6 +45,9 @@
 #include "ui_keepalive.h"
 #include "usb_tap.h"
 
+class MapExporter;
+class MapLibrary;
+class MapLayer;
 
 class Core : public QObject
 {
@@ -135,6 +138,9 @@ public:
     bool getCsvLogging() const;
     Q_INVOKABLE QString klfLogFilePath() const;
     Q_INVOKABLE void    revealInFolder(const QString& path);
+    /// Android: the system share sheet for a file (a .kmap to a messenger). False elsewhere, or when
+    /// it cannot be offered (a warning then says so).
+    Q_INVOKABLE bool    shareFile(const QString& path, const QString& chooserTitle);
     Q_INVOKABLE void    copyToClipboard(const QString& text);
     Q_INVOKABLE QString csvLogFilePath() const;
     Q_INVOKABLE qint64  activeLogSizeBytes() const;
@@ -290,6 +296,7 @@ signals:
     void isAppendModeChanged();
     void fileTitleChanged();
     void fileOpenFailed(const QString& path);
+    void receivedMapOpened();   // another app handed a KOGGER map over and it is in My maps
     void sendIsFileOpening();
     void trackReprocessingChanged();
     void channelListUpdated();
@@ -323,6 +330,10 @@ private slots:
 private:
     /*methods*/
     void bringWindowToFront();
+    // A running map export (src/map_export) reads the dataset: stopped before anything clears it.
+    void stopMapExport();
+    // A .kmap given to openLogFile is opened into My maps instead; true when it was one.
+    bool openMapFileInstead(const QString& path);
     void loadCsvExportFields();
     void saveCsvExportFields();
     QHash<QString, bool> csvExportFields_;   // key -> enabled (lazy-loaded from QSettings)
@@ -365,6 +376,8 @@ private:
     void releasePlotCaches();
     void flushStartupFileOpen();
     void installAppLogStoragePromotion();
+    void installOpenFileHandler();
+    void openReceivedFile(const QString& uri);
     QString resolveExportBasePath(const QString& basePath) const;
     QString buildExportFileStem(const QString& openedFilePath) const;
 #ifdef Q_OS_ANDROID
@@ -399,6 +412,10 @@ private:
     QThread* dataProcThread_;
     std::unique_ptr<DataHorizon> dataHorizon_; // this thread
     std::unique_ptr<EchogramEditor> echogramEditor_;   // this thread; the epochs it edits are datasetPtr_'s
+    std::unique_ptr<MapExporter> mapExporter_; // QML "mapExport"
+    std::unique_ptr<MapLibrary> mapLibrary_;   // QML "mapLibrary": My maps
+    std::unique_ptr<MapLayer> mapLayer_;       // My maps in the 3D scene
+    bool mapLayerConnected_ = false;   // UILoad's lambdas for My maps, made once
 
 #ifdef SEPARATE_READING
     QString tryOpenedfilePath_;
