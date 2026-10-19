@@ -505,7 +505,8 @@ private:
     // track: from a file once it has its bottom track, the mosaic waiting for it (beamHolding); live
     // at kBeamFirst epochs, again every kBeamFirst more while there is no model or a young one
     // (kBeamMaturePings), then each time they double up to kBeamLast; a new model is taken -- and
-    // the mosaic repainted -- only when it differs from the one in use by more than a dB.
+    // the mosaic repainted -- only when it differs from the one in use by more than a dB. An echogram
+    // edit measures it again and takes it as it comes (beamRemeasureAfterEdit).
     int mosaicSource_ = int(MosaicProcessor::Source::SideScan);
     bool beamCorrection_ = false;
     mosaic_beam::PaintRules paintRules_;
@@ -523,6 +524,9 @@ private:
     // KOGGER_MOSAIC_PING_DUMP=<file>: the pings each estimate is made from (both sides, the raw level,
     // the altitude, the pose), for an analysis outside the app (docs/mosaic-quality.md).
     void beamEstimate();
+    // The model from these epochs (sorted) as they are now; logs the measurement, "why" in its line.
+    std::shared_ptr<mosaic_beam::Model> beamMeasure(const QVector<int>& eps, const QString& why);
+    void beamRemeasureAfterEdit();
     void beamPush();                             // the model and rules to the worker and the precompute
     mosaic_beam::PaintRules beamRulesNow() const;   // the rules as pushed: the far edges from the model
     void beamEmitState();

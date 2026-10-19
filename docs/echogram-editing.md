@@ -343,12 +343,11 @@ map-export) and 344919cd (the map session's results from the phone). What their 
   `ComputeWorker::clearForEditRebuild` as in its `clearMosaic`: `SurfaceTile::init` keeps it, and the old quality
   would refuse the repaint. Done in the merge **[verified by reading]**. Its brightness model samples epochs through `Dataset::fromIndexMosaicCopy`, so a ping left out,
   or one side of it, reaches the model with no bottom, and `mosaic_beam::Table::add` refuses a non-finite altitude
-  **[verified by reading]**. But the model is measured once the survey's bottom track is in and again on "a full
-  bottom-track rework"; `rebuildAfterEdit` is not one and keeps it. So edits made after the measurement stay in
-  the model until the next one, while the same recording reopened with its `.kedit` is measured with the edits
-  applied, and the two can paint a different brightness **[inference, from the code; not measured]**. Measuring
-  again in `runEditRebuild` would cost no extra repaint, since it repaints everything anyway. Left to the owner
-  (2026-10-19). `restartMosaic` keeps the model, because its settings changes use it.
+  **[verified by reading]**. The model was measured once the survey's bottom track was in and again on "a full
+  bottom-track rework", and an edit kept it, so a recording edited in the session painted with a model the
+  reopened one did not have. Since the owner's yes the same evening, `runEditRebuild` measures it again first
+  (`beamRemeasureAfterEdit`, docs/mosaic-quality.md, "When it is measured") **[verified: 00014 with pings 20000..45000 (some 25 000 of its 57 079) marked bad: the session measured the model again from 1647 pings a side instead of 3314, the same model as the recording reopened with its edits, and the two mosaics agree to the pixel (0 of 567 644 painted pixels apart); the build before measured nothing after the edit and painted 81.6 % of those pixels another value, up to 67 levels apart (`tools/perf/beam_edit_check.ps1`, 2026-10-19)]**.
+  `restartMosaic` itself keeps the model, because its settings changes use it.
 - **map-export.** The export paints its mosaic again from the epochs, with a `MosaicProcessor` of its own and
   through `fromIndexMosaicCopy`, so pings left out are out of its mosaic. Its depth grid comes from the 3D bottom
   track, where they are NaN, and `buildDepthGrid` skips non-finite points (`map_export_geo.cpp`) **[verified by

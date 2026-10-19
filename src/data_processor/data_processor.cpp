@@ -1334,6 +1334,7 @@ void DataProcessor::runEditRebuild()
     editRebuildPending_ = false;
     editRebuildSurface_ = false;
 
+    beamRemeasureAfterEdit();
     if (!withSurface) {
         qInfo().noquote() << QStringLiteral("echogram edit: the mosaic painted again");
         restartMosaic();
@@ -1735,10 +1736,6 @@ void DataProcessor::beamEstimate()
         return;
     }
     std::sort(eps.begin(), eps.end());
-    QElapsedTimer clock;
-    clock.start();
-    const int stride = std::max(1, int((eps.size() + kBeamMaxEpochs - 1) / kBeamMaxEpochs));
-    auto tables = std::make_unique<std::array<mosaic_beam::Table, 2>>();
 
     // KOGGER_MOSAIC_PING_DUMP: up to 16 000 of the epochs, evenly, in a pass of its own (denser than the
     // estimate's, for straight runs of a line). "KPD2", then per record, little-endian -- epoch (int32),
@@ -1774,6 +1771,46 @@ void DataProcessor::beamEstimate()
                              .arg((eps.size() + dumpStride - 1) / dumpStride).arg(dumpStride).arg(dump.fileName());
     }
 
+    std::shared_ptr<mosaic_beam::Model> model = beamMeasure(eps, QString());
+    const int measuredAt = eps.size();
+
+    beamMeasuredAt_ = measuredAt;
+    const bool wasHeld = beamHolding();
+    beamAwaitFirst_ = false;
+    if (!model->valid()) {
+        if (wasHeld) {
+            scheduleLatest(WorkSet(WF_Mosaic));
+        }
+        beamEmitState();
+        return;
+    }
+    if (beamModel_) {
+        const float diff = std::max(mosaic_beam::maxDifferenceDb(beamModel_->side[0], model->side[0]),
+                                    mosaic_beam::maxDifferenceDb(beamModel_->side[1], model->side[1]));
+        if (diff <= kBeamRepaintDb) {
+            qInfo().noquote() << QStringLiteral("mosaic beam: within %1 dB of the model in use, kept").arg(double(diff), 0, 'f', 2);
+            beamEmitState();
+            return;
+        }
+        qInfo().noquote() << QStringLiteral("mosaic beam: %1 dB from the model in use, repainted").arg(double(diff), 0, 'f', 2);
+    }
+    beamModel_ = std::move(model);
+    beamPush();
+    beamEmitState();
+    if (wasHeld) {
+        scheduleLatest(WorkSet(WF_Mosaic));   // nothing painted yet: no restart
+    }
+    else {
+        restartMosaic();
+    }
+}
+
+std::shared_ptr<mosaic_beam::Model> DataProcessor::beamMeasure(const QVector<int>& eps, const QString& why)
+{
+    QElapsedTimer clock;
+    clock.start();
+    const int stride = std::max(1, int((eps.size() + kBeamMaxEpochs - 1) / kBeamMaxEpochs));
+    auto tables = std::make_unique<std::array<mosaic_beam::Table, 2>>();
     int read = 0;
     for (int k = 0; k < eps.size(); k += stride) {
         Epoch ep = datasetPtr_->fromIndexMosaicCopy(eps[k]);
@@ -1825,38 +1862,36 @@ void DataProcessor::beamEstimate()
             .arg(m.pings).arg(m.angleTo + 1).arg(double(m.peakAngle()), 0, 'f', 1).arg(edge(-3.0f)).arg(edge(-6.0f))
             .arg(edge(-10.0f)).arg(double(m.residualDb), 0, 'f', 2).arg(double(m.spreadDb), 0, 'f', 2);
     };
-    qInfo().noquote() << QStringLiteral("mosaic beam: measured on %1 of %2 epochs in %3 ms; left: %4; right: %5")
-                         .arg(read).arg(measuredAt).arg(ms).arg(sideLine(model->side[0])).arg(sideLine(model->side[1]));
+    qInfo().noquote() << QStringLiteral("mosaic beam: measured%6 on %1 of %2 epochs in %3 ms; left: %4; right: %5")
+                         .arg(read).arg(measuredAt).arg(ms).arg(sideLine(model->side[0])).arg(sideLine(model->side[1]))
+                         .arg(why.isEmpty() ? QString() : QStringLiteral(" ") + why);
+    return model;
+}
 
-    beamMeasuredAt_ = measuredAt;
-    const bool wasHeld = beamHolding();
-    beamAwaitFirst_ = false;
-    if (!model->valid()) {
-        if (wasHeld) {
-            scheduleLatest(WorkSet(WF_Mosaic));
-        }
-        beamEmitState();
+// An edit changes what the model is measured on -- a ping left out has no bottom in fromIndexMosaicCopy --
+// and the recording reopened with its edits is measured with them applied. Measured again here so that both
+// paint alike; taken as it comes (no kBeamRepaintDb), as the rebuild after it repaints everything anyway.
+// Before the first measurement nothing is done: that one will see the edits.
+void DataProcessor::beamRemeasureAfterEdit()
+{
+    if (!beamCorrection_ || !datasetPtr_ || beamMeasuredAt_ == 0 || beamHolding()) {
         return;
     }
-    if (beamModel_) {
-        const float diff = std::max(mosaic_beam::maxDifferenceDb(beamModel_->side[0], model->side[0]),
-                                    mosaic_beam::maxDifferenceDb(beamModel_->side[1], model->side[1]));
-        if (diff <= kBeamRepaintDb) {
-            qInfo().noquote() << QStringLiteral("mosaic beam: within %1 dB of the model in use, kept").arg(double(diff), 0, 'f', 2);
-            beamEmitState();
-            return;
-        }
-        qInfo().noquote() << QStringLiteral("mosaic beam: %1 dB from the model in use, repainted").arg(double(diff), 0, 'f', 2);
+    QVector<int> eps(epIndxsFromBottomTrack_.cbegin(), epIndxsFromBottomTrack_.cend());
+    if (eps.size() < kBeamFirst) {
+        return;
     }
-    beamModel_ = std::move(model);
-    beamPush();
-    beamEmitState();
-    if (wasHeld) {
-        scheduleLatest(WorkSet(WF_Mosaic));   // nothing painted yet: no restart
+    std::sort(eps.begin(), eps.end());
+    std::shared_ptr<mosaic_beam::Model> model = beamMeasure(eps, QStringLiteral("after an echogram edit"));
+    beamMeasuredAt_ = eps.size();
+    if (model->valid()) {
+        beamModel_ = std::move(model);
     }
     else {
-        restartMosaic();
+        beamModel_.reset();   // as a reopen would have none
     }
+    beamPush();   // queued before the rebuild's own work, so the worker and the precompute paint with it
+    beamEmitState();
 }
 
 mosaic_beam::PaintRules DataProcessor::beamRulesNow() const

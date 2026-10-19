@@ -2396,8 +2396,25 @@ mosaic engine, Core and threads, QML and settings, the data an export reads), an
 and the same first point for both, so the check fails there as it should. **[verified]**
 
 **Open.**
-- The brightness model is not measured again after an echogram edit. `docs/echogram-editing.md`, "Merging with
-  the other branches", says why this matters; the owner decides.
+- The brightness model was not measured again after an echogram edit. Done the same evening at the owner's word
+  ("The brightness model measured again after an echogram edit", below).
 - No check asserts that every value row of the settings page has a KPinTag, so a settings row added in another
   branch can miss it again. A static check over AppSettingsPage.qml and the blocks it includes would close that.
 - The KMZ track joins the pings on either side of a stretch marked bad with a straight line.
+
+## The brightness model measured again after an echogram edit (2026-10-19, late, the laptop)
+
+The owner said yes to the open item of the merge: a recording edited in the session painted with the brightness
+model measured before the edit, the same recording reopened with its edits with one measured after them. Branch
+`beam-after-edit` from ad52a0c0, worktree `D:\Temp\kogger_build`.
+
+- `DataProcessor::beamMeasure` is the measurement alone, split out of `beamEstimate` (which keeps its
+  KOGGER_MOSAIC_PING_DUMP pass, the 1 dB rule and the hold). `beamRemeasureAfterEdit`, the first thing
+  `runEditRebuild` does once the bottom track is quiet, measures again and takes the result as it comes
+  (none when it is not valid, as a reopen would have none), then `beamPush` -- queued to the worker and the
+  precompute before the rebuild's own work -- and `beamEmitState`. Nothing before the first measurement,
+  nothing while the mosaic is held for it. About 30 ms on 00014.
+- `tools/perf/beam_edit_check.ps1` (new; two windows of the app): 00014 with pings 20000..45000 (some 25 000 of its 57 079) marked bad: the session measured the model again from 1647 pings a side instead of 3314, the same model as the recording reopened with its edits, and the two mosaics agree to the pixel (0 of 567 644 painted pixels apart); the build before measured nothing after the edit and painted 81.6 % of those pixels another value, up to 67 levels apart (`tools/perf/beam_edit_check.ps1`, 2026-10-19). **[verified]**
+- `tools/perf/echoedit_e2e.ps1` on the same build: 32 of 32 **[verified]**.
+- Not verified: live data with edits (the re-measure runs there too: a live model is measured afresh at an edit
+  and goes on doubling from there); the head unit; Android.
