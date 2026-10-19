@@ -1871,10 +1871,11 @@ std::shared_ptr<mosaic_beam::Model> DataProcessor::beamMeasure(const QVector<int
 // An edit changes what the model is measured on -- a ping left out has no bottom in fromIndexMosaicCopy --
 // and the recording reopened with its edits is measured with them applied. Measured again here so that both
 // paint alike; taken as it comes (no kBeamRepaintDb), as the rebuild after it repaints everything anyway.
-// Before the first measurement nothing is done: that one will see the edits.
+// Before the first measurement nothing is done: that one will see the edits. With the correction off too, as
+// turning it on uses the model kept (setMosaicQuality); beamPush sends none meanwhile.
 void DataProcessor::beamRemeasureAfterEdit()
 {
-    if (!beamCorrection_ || !datasetPtr_ || beamMeasuredAt_ == 0 || beamHolding()) {
+    if (!datasetPtr_ || beamMeasuredAt_ == 0 || beamHolding()) {
         return;
     }
     QVector<int> eps(epIndxsFromBottomTrack_.cbegin(), epIndxsFromBottomTrack_.cend());

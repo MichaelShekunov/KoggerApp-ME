@@ -5,24 +5,31 @@
     same recording reopened with its edits. docs/mosaic-quality.md, docs/echogram-editing.md.
 
 .DESCRIPTION
-    Two windows of the app, each closing itself (about a minute each on a 350 MB recording), the edits made
-    by a script (KOGGER_ECHOEDIT_SCRIPT, src/echogram_edit/echo_edit_script.h):
+    Three windows of the app, each closing itself (20 to 40 s each on a 350 MB recording), the edits made by
+    a script (KOGGER_ECHOEDIT_SCRIPT, src/echogram_edit/echo_edit_script.h); the background precompute off in
+    all three, so one painter paints what is dumped:
 
-    Run 1, "session". The recording as read; once its bottom track is quiet and the mosaic painted, a long
-    stretch is marked bad (-MarkFrom .. -MarkTo); after the rebuild the mosaic is dumped; the edits are
-    saved next to the recording.
+    Run 1, "session". The recording as read; once its bottom track is quiet and the mosaic painted, pings
+    -MarkFrom up to (not including) -MarkTo are marked bad; after the rebuild the mosaic is dumped; the edits
+    are saved next to the recording.
     Run 2, "reopen". The recording again, its file of edits read before the model is measured; the mosaic
     dumped once painted.
+    Run 3, "off". As run 1 from a recording with no edits, but the correction ("Even out brightness") is
+    turned off through a settings widget before the edit and on again after it.
 
     Checked:
-      edited   run 1 measured the model again after the edit (a "mosaic beam: measured after an echogram
-               edit" line), and from fewer pings than before it
-      model    the model run 1 painted with after the edit is the one run 2 measured: its line in the log, the
-               timing left out, the same
-      mosaic   run 1's mosaic after the edit against run 2's: mosaic_dump_compare.ps1 -Judge (shares, as two
-               paintings of the same pings by different jobs differ a little)
-    A build without the re-measure fails "edited" and "model", and "mosaic" by the brightness the left-out
-    pings put into the model. The recording's own file of edits, if any, is put aside and back.
+      edited       run 1 measured the model again after the edit, from fewer pings than before it
+      model        the model run 1 painted with after the edit is run 2's: its log line, the timing and the
+                   reason left out, the same
+      mosaic       run 1's mosaic after the edit against run 2's: no tile in one only, and
+                   mosaic_dump_compare.ps1 -Judge on the rest
+      off-edited   run 3 turned the correction off and on, and measured the model after the edit meanwhile
+      off-model    the model run 3 measured last is run 2's
+      off-mosaic   run 3's mosaic once the correction is back on against run 2's, as "mosaic"
+    A build without the re-measure fails "edited", "model" and "mosaic"; one that skips it while the
+    correction is off fails the three "off" checks. Each run starts from a fresh copy of the test profile
+    "perf" (reg import it first, as for the other checks) into -Profile. The recording's own file of edits, if any, is put aside
+    and back; a file put aside by a run that did not finish stops the check, to be put back by hand.
     Exit code 0 when all pass, 1 when a check fails.
 
 .EXAMPLE
@@ -50,6 +57,7 @@ $compare = Join-Path $PSScriptRoot 'mosaic_dump_compare.ps1'
 $kedit = "$File.kedit"
 $kept = "$File.kedit.beamcheck-kept"
 $log = Join-Path $env:APPDATA "KOGGER\KoggerApp-$Profile\AppLogs\kogger.log"
+$correctionKey = 'app:mosaic.beamCorrection'
 
 $script:fail = 0
 function Check([bool] $ok, [string] $what, [string] $detail = '') {
@@ -58,6 +66,15 @@ function Check([bool] $ok, [string] $what, [string] $detail = '') {
 }
 
 function Run-App([string] $tag, [object[]] $steps) {
+    # Each run from the test profile as it is ("perf"): run 3 pins a setting, and a pin left in the profile
+    # would make the next "pin" step take it off.
+    $key = "HKCU\Software\KOGGER\KoggerApp-$Profile"
+    $eap = $ErrorActionPreference; $ErrorActionPreference = 'Continue'   # reg.exe's messages are not errors here
+    & reg.exe delete $key /f *> $null                                      # absent the first time
+    & reg.exe copy 'HKCU\Software\KOGGER\KoggerApp-perf' $key /s /f *> $null
+    $rc = $LASTEXITCODE
+    $ErrorActionPreference = $eap
+    if ($rc -ne 0) { throw "could not copy the test profile perf to $Profile" }
     $dir = Join-Path $work $tag
     New-Item -ItemType Directory -Force -Path $dir | Out-Null
     $scriptPath = Join-Path $dir 'script.json'
@@ -91,7 +108,8 @@ function Run-App([string] $tag, [object[]] $steps) {
     }
     $beam = @($mine | Where-Object { $_ -match 'mosaic beam: measured' } | ForEach-Object { $_ -replace '^.*?mosaic beam: ', '' })
     $beam | ForEach-Object { Write-Host "    $_" }
-    return [pscustomobject]@{ Map = $map; Beam = $beam; Dir = $dir; Lines = $mine }
+    $quality = @($mine | Where-Object { $_ -match 'mosaic quality: correction (on|off)' } | ForEach-Object { $Matches[1] })
+    return [pscustomobject]@{ Map = $map; Beam = $beam; Quality = $quality; Dir = $dir }
 }
 function Mosaic($run, [string] $dump) {
     $n = $run.Map[$dump]
@@ -103,19 +121,34 @@ function ModelOf([string] $line) {
     return (($line -replace ' after an echogram edit', '') -replace ' in \d+ ms;', ';')
 }
 function PingsOf([string] $line) {
-    $m = [regex]::Matches($line, '(\d+) pings')
-    return @($m | ForEach-Object { [int]$_.Groups[1].Value })
+    return @([regex]::Matches($line, '(\d+) pings') | ForEach-Object { [int]$_.Groups[1].Value })
+}
+# Two mosaics of the same pings: no tile in one only (both runs paint with one painter, so a tile in one only
+# is paint the other lost or never had), and -Judge on the tiles in both.
+function SameMosaic([string] $what, [string] $a, [string] $b) {
+    if (-not ($a -and $b -and (Test-Path $a) -and (Test-Path $b))) { Check $false $what "no digests ($a, $b)"; return }
+    $text = & powershell -NoProfile -ExecutionPolicy Bypass -File $compare -A $a -B $b -Quiet -IgnoreBlankTiles -Judge
+    $counts = @($text | Where-Object { $_ -match '^tiles:' } | Select-Object -First 1)
+    $verdict = @($text | Where-Object { $_ -match '^(PASS|FAIL)' } | Select-Object -Last 1)
+    $ok = $counts.Count -eq 1 -and $counts[0] -match '^tiles: (\d+) in both, (\d+) only in A, (\d+) only in B' `
+        -and [int]$Matches[1] -gt 0 -and [int]$Matches[2] -eq 0 -and [int]$Matches[3] -eq 0 `
+        -and $verdict.Count -eq 1 -and $verdict[0] -like 'PASS*'
+    Check $ok $what ("{0} {1}" -f ($counts -join ''), ($verdict -join ''))
 }
 
-if (Test-Path -LiteralPath $kedit) { Move-Item -LiteralPath $kedit -Destination $kept -Force; Write-Host "kept aside: $kedit" }
+if (Test-Path -LiteralPath $kept) {
+    throw "a run that did not finish left $kept -- the recording's own edits, or this check's; put it back as $kedit by hand (or remove it), then run again"
+}
+if (Test-Path -LiteralPath $kedit) { Move-Item -LiteralPath $kedit -Destination $kept; Write-Host "kept aside: $kedit" }
 $hadBak = Test-Path -LiteralPath "$kedit.bak"
 try {
     $settle = @{ op = 'settle'; quietMs = 3000 }
     $wait = @{ op = 'wait'; ms = $WaitMs }
+    $mark = @{ op = 'mark'; from = $MarkFrom; to = $MarkTo }
     $r1 = Run-App 'session' @(
         $settle, $wait,
         @{ op = 'dump'; path = (Join-Path $work 'session\before.json') },
-        @{ op = 'mark'; from = $MarkFrom; to = $MarkTo }, $settle, $wait,
+        $mark, $settle, $wait,
         @{ op = 'dump'; path = (Join-Path $work 'session\edited.json') },
         @{ op = 'flush' },
         @{ op = 'quit' })
@@ -124,37 +157,44 @@ try {
         $settle, $wait,
         @{ op = 'dump'; path = (Join-Path $work 'reopen\reopened.json') },
         @{ op = 'quit' })
+    if (Test-Path -LiteralPath $kedit) { Remove-Item -LiteralPath $kedit }   # this check's, made by run 1
+    $use = @{ op = 'pinuse'; key = $correctionKey; index = 0 }
+    $r3 = Run-App 'off' @(
+        $settle, $wait,
+        @{ op = 'pin'; key = $correctionKey; label = 'Even out brightness' }, @{ op = 'wait'; ms = 1500 },
+        $use, $settle, $wait,
+        $mark, $settle, $wait,
+        $use, $settle, $wait,
+        @{ op = 'dump'; path = (Join-Path $work 'off\edited.json') },
+        @{ op = 'quit' })
 
     $before = @($r1.Beam | Where-Object { $_ -notmatch 'after an echogram edit' })
     $after = @($r1.Beam | Where-Object { $_ -match 'after an echogram edit' })
     $edited = $after.Count -ge 1 -and $before.Count -ge 1
-    $detail = if ($edited) {
+    $detail = "measured $($before.Count) time(s) before the edit, $($after.Count) after it"
+    if ($edited) {
         $pb = PingsOf $before[-1]; $pa = PingsOf $after[-1]
         $edited = $pa.Count -eq 2 -and $pb.Count -eq 2 -and $pa[0] -lt $pb[0] -and $pa[1] -lt $pb[1]
-        "pings left/right $($pb -join '/') before the edit, $($pa -join '/') after"
-    } else { "measured $($before.Count) time(s) before the edit, $($after.Count) after it" }
+        $detail = "pings left/right $($pb -join '/') before the edit, $($pa -join '/') after"
+    }
     Check $edited 'edited' $detail
 
+    $reopened = if ($r2.Beam.Count) { ModelOf $r2.Beam[-1] } else { '' }
     $inUse = if ($after.Count) { $after[-1] } elseif ($before.Count) { $before[-1] } else { '' }
-    $reopened = if ($r2.Beam.Count) { $r2.Beam[-1] } else { '' }
-    Check ($inUse -and $reopened -and (ModelOf $inUse) -eq (ModelOf $reopened)) 'model' `
-        "session: $(ModelOf $inUse) | reopen: $(ModelOf $reopened)"
+    Check ($inUse -and $reopened -and (ModelOf $inUse) -eq $reopened) 'model' "session: $(ModelOf $inUse) | reopen: $reopened"
+    SameMosaic 'mosaic' (Mosaic $r1 'edited') (Mosaic $r2 'reopened')
 
-    $a = Mosaic $r1 'edited'
-    $b = Mosaic $r2 'reopened'
-    if ($a -and $b -and (Test-Path $a) -and (Test-Path $b)) {
-        $text = & powershell -NoProfile -ExecutionPolicy Bypass -File $compare -A $a -B $b -Quiet -IgnoreBlankTiles -Judge
-        $verdict = @($text | Where-Object { $_ -match '^(PASS|FAIL)' } | Select-Object -Last 1)
-        $counts = @($text | Where-Object { $_ -match '^tiles:' } | Select-Object -First 1)
-        Check ($verdict.Count -eq 1 -and $verdict[0] -like 'PASS*') 'mosaic' ("{0} {1}" -f ($counts -join ''), ($verdict -join ''))
-    } else {
-        Check $false 'mosaic' "no digests ($a, $b)"
-    }
+    $toggled = ($r3.Quality -join ',') -match 'on,off,on$'
+    $offAfter = @($r3.Beam | Where-Object { $_ -match 'after an echogram edit' })
+    Check ($toggled -and $offAfter.Count -ge 1) 'off-edited' "correction $($r3.Quality -join ' -> '); measured after the edit $($offAfter.Count) time(s)"
+    $offLast = if ($r3.Beam.Count) { ModelOf $r3.Beam[-1] } else { '' }
+    Check ($offLast -and $offLast -eq $reopened) 'off-model' "off: $offLast | reopen: $reopened"
+    SameMosaic 'off-mosaic' (Mosaic $r3 'edited') (Mosaic $r2 'reopened')
 }
 finally {
-    if (Test-Path -LiteralPath $kedit) { Remove-Item -LiteralPath $kedit -Force }
+    if (Test-Path -LiteralPath $kedit) { Remove-Item -LiteralPath $kedit -Force }   # this check's
     if (-not $hadBak -and (Test-Path -LiteralPath "$kedit.bak")) { Remove-Item -LiteralPath "$kedit.bak" -Force }
-    if (Test-Path -LiteralPath $kept) { Move-Item -LiteralPath $kept -Destination $kedit -Force; Write-Host "put back: $kedit" }
+    if (Test-Path -LiteralPath $kept) { Move-Item -LiteralPath $kept -Destination $kedit; Write-Host "put back: $kedit" }
 }
 Write-Host ("beam_edit_check: {0}" -f $(if ($script:fail) { "$($script:fail) failed" } else { 'all passed' }))
 exit ([int]($script:fail -gt 0))

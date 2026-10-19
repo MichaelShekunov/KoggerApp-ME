@@ -178,7 +178,12 @@ function Loses([string] $a, [string] $b, [double] $OtherMax = 0.01) {
 }
 
 # The recording's own file of edits, if any, aside for the time of the check.
-if (Test-Path -LiteralPath $kedit) { Move-Item -LiteralPath $kedit -Destination $kept -Force; Write-Host "kept aside: $kedit" }
+# A file kept aside by a run that did not finish is the recording's own edits (or a test's): moved over, it
+# would be lost. Stop and say so.
+if (Test-Path -LiteralPath $kept) {
+    throw "a run that did not finish left $kept -- the recording's own edits, or a test's; put it back as $kedit by hand (or remove it), then run again"
+}
+if (Test-Path -LiteralPath $kedit) { Move-Item -LiteralPath $kedit -Destination $kept; Write-Host "kept aside: $kedit" }
 try {
     $T = $TrimStart
     $wait = @{ op = 'wait'; ms = $WaitMs }

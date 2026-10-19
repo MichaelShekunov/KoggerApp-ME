@@ -2414,7 +2414,18 @@ model measured before the edit, the same recording reopened with its edits with 
   (none when it is not valid, as a reopen would have none), then `beamPush` -- queued to the worker and the
   precompute before the rebuild's own work -- and `beamEmitState`. Nothing before the first measurement,
   nothing while the mosaic is held for it. About 30 ms on 00014.
-- `tools/perf/beam_edit_check.ps1` (new; two windows of the app): 00014 with pings 20000..45000 (some 25 000 of its 57 079) marked bad: the session measured the model again from 1647 pings a side instead of 3314, the same model as the recording reopened with its edits, and the two mosaics agree to the pixel (0 of 567 644 painted pixels apart); the build before measured nothing after the edit and painted 81.6 % of those pixels another value, up to 67 levels apart (`tools/perf/beam_edit_check.ps1`, 2026-10-19). **[verified]**
+- The review of the change (two readers, a skeptic per finding) found three defects, fixed: with the correction
+  off the edit did not measure, so turning it back on painted with the pre-edit model (the guard on the correction
+  is gone; beamPush sends no model while it is off); the check could overwrite the recording's own .kedit after a
+  run killed half-way (it now stops when a kept-aside file is there; echoedit_e2e.ps1 too); its mosaic test let
+  a tile painted in the session only pass (no tile in one only now). Left as limits: a long file whose bottom
+  track takes more than 2.5 s to arrive can keep a model measured on part of it when reopened, so the two agree
+  only when the reopen measures once over the whole track (00014 does); a map export started between an edit and
+  its rebuild takes the model of before the edit; the "in T ms" of a scheduled estimate no longer counts the
+  KOGGER_MOSAIC_PING_DUMP pass.
+- `tools/perf/beam_edit_check.ps1` (new; three windows of the app, the third with the correction off during the
+  edit; 7 of 7 on this build, the three "off" checks failing on 6a2684e1): 00014 with pings 20000..44999 (25 000 of its 57 079) marked bad, the background precompute off: the session measured the model again from 1647 pings a side instead of 3314, the same model as the recording reopened with its edits, and the two mosaics agree to the pixel (0 of 567 644 painted pixels apart); the build before measured nothing after the edit and painted 81.6 % of those pixels another value, up to 67 levels apart (`tools/perf/beam_edit_check.ps1`, 2026-10-19). **[verified]**
 - `tools/perf/echoedit_e2e.ps1` on the same build: 32 of 32 **[verified]**.
-- Not verified: live data with edits (the re-measure runs there too: a live model is measured afresh at an edit
-  and goes on doubling from there); the head unit; Android.
+- Not verified: live data with edits. The re-measure waits, as the rebuild does, for the bottom track to be
+  quiet for 500 ms, which with data streaming comes only between batches **[inference, from the code]**; the
+  head unit; Android.

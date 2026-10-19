@@ -68,12 +68,13 @@ stuck at 0.41 m. A side's model needs 300 pings and data out to 30 degrees from 
   taken -- and the mosaic repainted -- only when it differs from the one in use by more than 1 dB
   (`maxDifferenceDb`, over the angles and ranges where a sample can exist).
 - A new source, other channels, a full bottom-track rework, another recording: measured afresh.
-- **After an echogram edit** (`beamRemeasureAfterEdit`, at the start of `DataProcessor::runEditRebuild`):
+- **After an echogram edit** (`beamRemeasureAfterEdit`, at the start of `DataProcessor::runEditRebuild`, once
+  the bottom track is quiet; with the correction off too, as turning it on uses the model kept):
   measured again from the epochs as the edit left them (a ping left out has no bottom in
   `fromIndexMosaicCopy`) and taken as it comes -- no 1 dB threshold, as the rebuild repaints everything
   anyway -- so a recording edited in the session paints as it does reopened with its edits. Before the first
   measurement nothing is done there: that one sees the edits. The log says
-  `mosaic beam: measured after an echogram edit on ...`. **[verified: 00014 with pings 20000..45000 (some 25 000 of its 57 079) marked bad: the session measured the model again from 1647 pings a side instead of 3314, the same model as the recording reopened with its edits, and the two mosaics agree to the pixel (0 of 567 644 painted pixels apart); the build before measured nothing after the edit and painted 81.6 % of those pixels another value, up to 67 levels apart (`tools/perf/beam_edit_check.ps1`, 2026-10-19)]**
+  `mosaic beam: measured after an echogram edit on ...`. **[verified: 00014 with pings 20000..44999 (25 000 of its 57 079) marked bad, the background precompute off: the session measured the model again from 1647 pings a side instead of 3314, the same model as the recording reopened with its edits, and the two mosaics agree to the pixel (0 of 567 644 painted pixels apart); the build before measured nothing after the edit and painted 81.6 % of those pixels another value, up to 67 levels apart (`tools/perf/beam_edit_check.ps1`, 2026-10-19)]**
 
 A change of the settings repaints the mosaic (`restartMosaic`, as a new source always did).
 
@@ -159,10 +160,13 @@ numbers of the "not measured yet" line come with the state (`kMinPings`, `kMinAn
   table, `gainFast` against `gain`, the crop and the qualities by the cosine). Five mutants of the
   header -- bin edges one off, the sign of `A`, `C` inverted, no stop, no angle cover -- each fail it
   (run before the per-sample paths were added; their own checks have no mutants yet).
-- `tools/perf/beam_edit_check.ps1 -Exe <KoggerApp.exe> -File <recording> [-PathPrefix ...]` (two windows of
-  the app, about a minute each): a long stretch marked bad in the session, the recording reopened with its
-  edits; the model measured after the edit, its line the reopen's, the two mosaics by
-  `mosaic_dump_compare.ps1 -Judge`. PASS on 00014; the build before the re-measure fails all three.
+- `tools/perf/beam_edit_check.ps1 -Exe <KoggerApp.exe> -File <recording> [-PathPrefix ...]` (three windows
+  of the app, 20 to 60 s each, the background precompute off): a long stretch marked bad in the session; the
+  recording reopened with its edits; the same edit with the correction turned off before it and on after it
+  (through a settings widget). The model measured after the edit, its line the reopen's, the mosaics with no
+  tile in one only and `mosaic_dump_compare.ps1 -Judge` on the rest. On 00014: PASS, 7 of 7; the build that
+  skipped the re-measure with the correction off (6a2684e1) fails the three "off" checks, ad52a0c0 all six.
+  **[verified]**
 - `tools/qml_check/mosaicquality_check.ps1` (qmltestrunner, a mock controller): 5/5 -- sent once at
   start as the controls hold it, each control sends its value, the status line in each state, the chart
   shown only with a model and each side's curve in its colour at its dB, the correction off hides both.
