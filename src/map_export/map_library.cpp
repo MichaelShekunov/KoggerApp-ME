@@ -166,6 +166,7 @@ void MapLibrary::remove(const QString& id)
     for (int i = 0; i < entries_.size(); ++i) {
         if (entries_[i].id == id) {
             QFile::remove(entries_[i].path);
+            qInfo().noquote() << QStringLiteral("map library: removed %1").arg(id);   // a map gone by hand, not lost
             entries_.removeAt(i);
             saveHidden();
             emit mapsChanged();

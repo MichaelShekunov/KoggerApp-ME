@@ -77,8 +77,9 @@ messenger, mail): see "Android: from a messenger and back".
 ## Android: from a messenger and back
 
 Added 2026-10-18: the users are mostly on phones and tablets, so a map arrives in a messenger.
-**Status: receiving works on the owner's phone (Telegram and WhatsApp, 2026-10-18); "Share the map" not
-yet tried on a device** -- see the end of this section.
+**Status: on the owner's phone (2026-10-18) receiving works from Telegram and WhatsApp, a map is kept
+across a restart, and "Share the map" sends the file whole -- WhatsApp keeps it as `.bin`, which the
+owner set aside ("not WhatsApp for now")** -- see the end of this section.
 
 **Receiving** (tap the file in Telegram or WhatsApp, choose KoggerApp; or share it to KoggerApp):
 
@@ -134,7 +135,11 @@ yet tried on a device** -- see the end of this section.
   the last save wrote a .kmap; it shares the .kmap, not a KMZ or GeoTIFF beside it.
 - Folders the provider covers (`res/xml/qtprovider_paths.xml`): the app's files, its external files and
   caches, and the whole primary shared storage (`external-path "/"`). The export folder is the Export
-  group's, by default `DocumentsLocation/KoggerApp/exports`, on the shared storage **[Inference]**. A
+  group's, by default `DocumentsLocation/KoggerApp/exports`, which on Android is the app's own external
+  folder, `/storage/emulated/0/Android/data/<package>/files/Documents/KoggerApp/exports` (covered by
+  `external-files-path`) **[Verified on the phone: the export wrote there]** -- not the shared Documents,
+  as first assumed. A file manager on Android 11+ does not show that folder and uninstalling the app
+  deletes it, so on a phone "Share the map" is the way to get a map out. A
   folder none of them covers (a removable card: FileProvider throws `IllegalArgumentException`) is copied
   into `getCacheDir()/share` first (a new `cache-path` entry), replacing what the last share left there.
 - The type: Telegram ignores the one given and sends octet-stream (above) **[Verified, its source]**;
@@ -157,10 +162,29 @@ over adb and logcat, 2026-10-18) **[Verified]**:
 - So both messengers sent this .kmap as `application/zip`, not `application/octet-stream`: Telegram
   Desktop types a file by its content **[Inference]**; a .kmap sent from Telegram for Android goes as
   octet-stream (its source, above) -- both are taken.
+- Saving on the phone: the recording 00014 (pushed with adb, SHA-256 checked) -> Save the map: 11.1 s
+  (mosaic 102 tiles, 79 with data, in 9.6 s; 4 270 soundings, 4 790 triangles, grid 418 x 339), written
+  to the app's own folder (Sending, above), 2 972 551 bytes.
+- **Share the map**: the system chooser got `SEND`, `application/vnd.kogger.map+zip`, the URL in
+  `ClipData`, the read grant; it offered Telegram, WhatsApp, Yandex Mail, Messenger and Nearby Share --
+  none turned the type away. WhatsApp took it, and its copy in `WhatsApp Documents/Sent` is the saved map
+  byte for byte (SHA-256 `12d331e0...`), **but named `DOC-20261018-WA0005.bin`**: the name and `.kmap`
+  were dropped. A file WhatsApp got from its desktop app kept its name (`Map_20261018-155147.kmap` in the
+  same folder). Why: WhatsApp names a shared file it cannot type from the type, and our own type is
+  unknown to Android's `MimeTypeMap` **[Inference]**. What the other side's chat shows was not seen. Such
+  a file still opens in KoggerApp on a phone (by content); on a computer `.bin` does not open with
+  KoggerApp. The owner set WhatsApp aside the same day; whether another type (`application/zip`,
+  `application/octet-stream`) keeps the name was not tried.
+- **Kept across a restart**: the map opened from Telegram (`Opened: Map`), `am force-stop`, the app
+  started from the launcher: `map library: 1 maps` **[Verified on the phone, 19:33]**. So the earlier
+  `0 maps` (18:21, after the same map had been opened at 17:38 and again at 17:52 as "Opened", not
+  "Already in My maps") came from cards removed by hand **[Inference]**: `MapLibrary::remove` logged
+  nothing then; it now logs `map library: removed <id>` (in the phone build of 19:13, not yet seen
+  firing).
 
-Not verified on a device: a non-map refused (the content test is verified on the desktop), "Share the map"
-(needs a survey open on the phone), SEND from another app's share sheet, Android versions and makers other
-than this phone. Also verified: the copy, the content test and both pages (Checks below); on the desktop
+Not verified on a device: a non-map refused (the content test is verified on the desktop), what a
+recipient sees of a shared map, `SEND` into KoggerApp from another app's share sheet, Android versions and
+makers other than this phone. Also verified: the copy, the content test and both pages (Checks below); on the desktop
 with a fresh profile, the .kmap from the command line copied byte for byte (SHA-1), a log named .kmap
 refused with nothing kept, the same map again "Already in My maps"; every APK built passes
 `apk_deps_check` on both ABIs and is signed with the test key; the manifest as installed (`aapt2 dump
