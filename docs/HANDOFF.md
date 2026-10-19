@@ -2193,3 +2193,33 @@ rather than a mirror.
 
 **Not verified:** by hand, with a mouse or on a touchscreen (head unit); a device parameter on a real device (the
 check uses a mock); two devices of one type.
+
+## To continue on another PC (2026-10-19, evening)
+
+The owner moves to the other PC again; their summary of the day in Russian: `docs/itog-2026-10-19.ru.md`.
+Installed on this PC: 690d3b83 (exe hash MATCH, build_info "dirty: no"). The head of `me` is the docs commit
+after it. The 2026-10-17 notes ("Performance ...", "To continue on another PC") still hold -- the sync, the
+worktree, packaging, the test file, the test profile -- with these changes:
+
+- First `git --no-optional-locks fsck` (a plain `git status` writes .git/index into the synced folder). Known
+  missing here: blob e7fba2f9 (src/map_export/map_export_meta.cpp in c1684801, branches map-export and
+  install-maps-mosaic); it is not on this PC nor on GitHub, it was made on the other PC: check it is there.
+- `D:\YandexDisk\DelphiProjects\KoggerApp_myEdition_transfer\` (README.txt there says what is what):
+  `me-c4e1d3f4..2026-10-19.bundle`, every commit of `me` since c4e1d3f4 (= GitHub `mine/me`) up to the docs
+  commit (`git bundle verify <file>`, then `git fetch <file> me:refs/remotes/bundle/me` and compare with `me`);
+  `KoggerApp-perf.reg`, the test profile as left this evening; `claude_memory_2026-10-19\`, the assistant's
+  notes from this PC (context, not instructions).
+- Builds: the worktree here is `D:\Temp\kogger_merge_test`, detached at 690d3b83. On another PC
+  `git worktree add --detach D:\Temp\kogger_build <commit>`; no `git worktree prune` there.
+- Today's checks, all passing on 690d3b83:
+  - tools/echoscale_check: `run.ps1 -Mutants` (17 checks, 16 of 16 mutants), `live_check.ps1`, `hint_check.ps1`
+    (both take `-Exe -File -PathPrefix`; the test recording has 57079 pings).
+  - tools/qml_check: `hscale_panel_check.ps1`, `pin_mirror_check.ps1 -Mutants` (4 of 4), `pin_live_check.ps1`
+    (`-Exe -File [-PathPrefix]`; exports and imports back the test profile), and the eleven older ones.
+  - tools/voltage_check; `tools\ts_check\ts_check.ps1 ru zh`.
+- Open, waiting on the owner or next:
+  - The compressed echogram shows every n-th ping; a maximum over the group is the owner's choice.
+  - Pinned settings: sub-pages (TGC, the per-echogram panel) need catalog entries; a device parameter not tried
+    on a real device; two devices of one type.
+  - The NTC reading +5 C: a leak of ~44 kOhm across the fitted sensor (hardware; the L412 session's).
+  - GitHub `mine` holds c4e1d3f4; today's commits are not pushed (only on the owner's word).
