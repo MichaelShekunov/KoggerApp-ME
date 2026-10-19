@@ -26,6 +26,7 @@
 //                                    and <file>.bottom.bin: the first channel's bottom, float32 an epoch,
 //                                    and <file>.track.bin: what the turns are found from (see dump())
 //   {"op": "view", "epoch": e, "tool": t, "palette": true}   the echograms at e, a tool, the palette
+//   {"op": "hscale", "scale": s}     every echogram's horizontal scale (screen columns a ping, 1/16..8)
 //   {"op": "grab", "path": file.png}                         the window, through the UI probe
 //   {"op": "quit"}
 // An epoch can be given as a share of the recording instead: "fromFrac", "toFrac", "epochFrac".

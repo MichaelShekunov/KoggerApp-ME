@@ -22,6 +22,14 @@ Column {
     function dataGate(present) { return !panel.hideEmpty || present }
 
     readonly property int comboW: Math.round(150 * AppPalette.scale)
+
+    // The echogram's horizontal scale (qPlot2D.horizontalScaleSteps): its steps, the step of 1, the text.
+    readonly property var hScaleSteps: plot ? plot.horizontalScaleSteps() : [1]
+    readonly property int hScaleOne: Math.max(0, hScaleSteps.indexOf(1))
+    function hScaleText(s) {
+        if (!(s > 0)) return "×1"
+        return s >= 1 ? "×" + Math.round(s) : "×1/" + Math.round(1 / s)
+    }
     readonly property color labelInk: AppPalette.isDark ? "#FFFFFF" : AppPalette.text
 
     width: parent ? parent.width : implicitWidth
@@ -135,6 +143,49 @@ Column {
                     model: [qsTr("Raw"), qsTr("Side-Scan"), qsTr("TGC")]
                     currentIndex: panel.vs ? panel.vs.compensationIndex : 0
                     onActivated: function(index) { if (panel.vs) panel.vs.compensationIndex = index }
+                }
+            }
+        }
+
+        // Screen columns a ping, the steps Alt + wheel takes over the echogram: above 1 a ping is stretched,
+        // below 1 a column shows the newest ping of a group and more history fits.
+        KIslandRow {
+            label: qsTr("Horizontal scale")
+            caption: qsTr("Alt + wheel over the echogram")
+            labelColor: AppPalette.isDark ? "#FFFFFF" : AppPalette.text
+            verticalPadding: Tokens.spaceSm
+            showSeparator: false
+            open: panel.vs ? panel.vs.echogramVisible : false
+
+            Row {
+                spacing: Tokens.spaceXs
+
+                KButton {
+                    text: "1:1"
+                    height: Tokens.controlHMd
+                    normalBg: AppPalette.controlRaised   // as the box beside it: the island's own card hides it
+                    enabled: panel.plot ? panel.plot.horizontalScaleIndex !== panel.hScaleOne : false
+                    toolTipText: qsTr("A ping a column")
+                    onClicked: if (panel.plot) panel.plot.horizontalScale = 1
+                }
+
+                KSpinBox {
+                    id: hScaleSpin
+                    width: panel.comboW
+                    from: 0
+                    to: panel.hScaleSteps.length - 1
+                    textFromValue: function(i) { return panel.hScaleText(panel.hScaleSteps[i]) }
+                    toolTipText: qsTr("Above ×1 a ping is wider; below, a column shows one ping of several and more history fits")
+                    onValueModified: function(val) {
+                        if (panel.plot) panel.plot.stepHorizontalScaleBy(val - panel.plot.horizontalScaleIndex)
+                    }
+                }
+                // Alt + wheel changes the scale while the panel is open, and a click on the box sets its value:
+                // this keeps the box on the plot's step either way.
+                Binding {
+                    target: hScaleSpin
+                    property: "value"
+                    value: panel.plot ? panel.plot.horizontalScaleIndex : panel.hScaleOne
                 }
             }
         }

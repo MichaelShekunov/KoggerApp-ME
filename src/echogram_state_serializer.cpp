@@ -79,6 +79,7 @@ QString EchogramStateSerializer::serialize(QObject* echogram) const
 
     o[QStringLiteral("distMode")] = p->getDistanceAutoRange();
     o[QStringLiteral("horiz")]    = p->isHorizontal();
+    o[QStringLiteral("hScale")]   = static_cast<double>(p->horizontalScale());
 
     setLastError(QString());
 
@@ -168,6 +169,7 @@ bool EchogramStateSerializer::deserialize(QObject* echogram, const QString& stat
 
     p->plotDistanceAutoRange(getI("distMode", p->getDistanceAutoRange()));
     p->setHorizontal(getB("horiz", p->isHorizontal()));
+    p->setHorizontalScaleProp(static_cast<float>(getD("hScale", p->horizontalScale())));
 
     p->plotUpdate();
 

@@ -3354,78 +3354,78 @@
         <translation>升压器</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="38"/>
+        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="40"/>
         <source>Horizontal smoothing</source>
         <translation>水平平滑</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="41"/>
+        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="43"/>
         <source>Sound speed, m/s</source>
         <translation>声速，m/s</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="45"/>
+        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="47"/>
         <source>Period, ms</source>
         <translation>周期，ms</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="48"/>
+        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="50"/>
         <source>Echogram</source>
         <translation>回波图</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="49"/>
-        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="54"/>
+        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="51"/>
+        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="56"/>
         <source>Off</source>
         <translation>关</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="49"/>
+        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="51"/>
         <source>8-bit</source>
         <translation>8 位</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="52"/>
+        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="54"/>
         <source>Rangefinder</source>
         <translation>测距仪</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="54"/>
+        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="56"/>
         <source>On</source>
         <translation>开</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="54"/>
+        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="56"/>
         <source>NMEA</source>
         <translation>NMEA</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="65"/>
+        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="67"/>
         <source>AHRS</source>
         <translation>AHRS</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="67"/>
+        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="69"/>
         <source>Temperature</source>
         <translation>温度</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="71"/>
+        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="73"/>
         <source>Supply voltage</source>
         <translation>供电电压</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="73"/>
+        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="75"/>
         <source>Timestamp</source>
         <translation>时间戳</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="80"/>
+        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="82"/>
         <source>Baudrate</source>
         <translation>波特率</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="82"/>
+        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="84"/>
         <source>Settings file</source>
         <translation>设置文件</translation>
     </message>
@@ -6901,293 +6901,313 @@
 <context>
     <name>EchogramSettingsPanel</name>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="43"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="51"/>
         <source>Channels</source>
         <translation>通道</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="72"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="80"/>
         <source>Echogram</source>
         <translation>回波图</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="77"/>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="216"/>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="256"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="85"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="266"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="306"/>
         <source>Visibility</source>
         <translation>可见性</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="91"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="99"/>
         <source>Theme</source>
         <translation>主题</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="99"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="107"/>
         <source>Blue</source>
         <translation>蓝色</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="99"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="107"/>
         <source>Sepia</source>
         <translation>棕褐色</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="99"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="107"/>
         <source>Sepia New</source>
         <translation>新棕褐色</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="99"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="107"/>
         <source>WRGBD</source>
         <translation>WRGBD</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="99"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="107"/>
         <source>WhiteBlack</source>
         <translation>白黑</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="99"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="107"/>
         <source>BlackWhite</source>
         <translation>黑白</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="99"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="107"/>
         <source>DeepBlue</source>
         <translation>深蓝</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="99"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="107"/>
         <source>Ice</source>
         <translation>冰蓝</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="99"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="107"/>
         <source>Green</source>
         <translation>绿色</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="99"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="107"/>
         <source>Midnight</source>
         <translation>午夜</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="107"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="115"/>
         <source>Source data</source>
         <translation>源数据</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="128"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="136"/>
         <source>Open TGC settings</source>
         <translation>打开 TGC 设置</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="135"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="143"/>
         <source>Raw</source>
         <translation>原始</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="135"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="143"/>
         <source>Side-Scan</source>
         <translation>侧扫</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="135"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="143"/>
         <source>TGC</source>
         <translation>TGC</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="146"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="153"/>
+        <source>Horizontal scale</source>
+        <translation>水平缩放</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="154"/>
+        <source>Alt + wheel over the echogram</source>
+        <translation>在回波图上按 Alt + 滚轮</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="167"/>
+        <source>A ping a column</source>
+        <translation>每列一次探测</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="177"/>
+        <source>Above ×1 a ping is wider; below, a column shows one ping of several and more history fits</source>
+        <translation>大于 ×1 时每次探测更宽；小于时每列显示多次探测中的一次，屏幕可容纳更多历史</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="196"/>
         <source>Deconvolution, beam °</source>
         <translation>反卷积，波束 °</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="176"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="226"/>
         <source>Deconvolution iterations</source>
         <translation>反卷积迭代次数</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="200"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="250"/>
         <source>Compensate motion (position + pitch)</source>
         <translation>运动补偿（位置 + 纵摇）</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="212"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="262"/>
         <source>Bottom-Track</source>
         <translation>底部跟踪</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="230"/>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="270"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="280"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="320"/>
         <source>Type</source>
         <translation>类型</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="238"/>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="278"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="288"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="328"/>
         <source>Line</source>
         <translation>线条</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="238"/>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="278"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="288"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="328"/>
         <source>Points</source>
         <translation>点</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="252"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="302"/>
         <source>Rangefinder</source>
         <translation>测距仪</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="287"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="337"/>
         <source>Data</source>
         <translation>数据</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="307"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="357"/>
         <source>Attitude</source>
         <translation>姿态</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="323"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="373"/>
         <source>Doppler Beams</source>
         <translation>多普勒波束</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="338"/>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="341"/>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="344"/>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="347"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="388"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="391"/>
         <location filename="../qml/app/EchogramSettingsPanel.qml" line="394"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="397"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="444"/>
         <source>Depth</source>
         <translation>深度</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="339"/>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="342"/>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="345"/>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="348"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="389"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="392"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="395"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="398"/>
         <source>Velocity</source>
         <translation>速度</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="340"/>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="343"/>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="346"/>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="349"/>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="651"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="390"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="393"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="396"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="399"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="701"/>
         <source>Mode</source>
         <translation>模式</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="375"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="425"/>
         <source>Doppler Instrument</source>
         <translation>多普勒仪器</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="393"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="443"/>
         <source>Abs. Velocity</source>
         <translation>绝对速度</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="420"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="470"/>
         <source>DVL Legend</source>
         <translation>DVL 图例</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="438"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="488"/>
         <source>Position</source>
         <translation>位置</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="443"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="493"/>
         <source>Top</source>
         <translation>顶部</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="443"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="493"/>
         <source>Center</source>
         <translation>居中</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="443"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="493"/>
         <source>Bottom</source>
         <translation>底部</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="451"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="501"/>
         <source>Acoustic angle</source>
         <translation>声学角度</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="467"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="517"/>
         <source>Doppler Profiler</source>
         <translation>多普勒剖面仪</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="475"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="525"/>
         <source>GNSS data</source>
         <translation>GNSS 数据</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="489"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="539"/>
         <source>Display parameters</source>
         <translation>显示参数</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="494"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="544"/>
         <source>Grid</source>
         <translation>网格</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="511"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="561"/>
         <source>Fill width</source>
         <translation>填满宽度</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="528"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="578"/>
         <source>Invert</source>
         <translation>反转</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="545"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="595"/>
         <source>Vertical lines</source>
         <translation>垂直线</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="561"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="611"/>
         <source>Angle range, °</source>
         <translation>角度范围，°</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="600"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="650"/>
         <source>Velocity range, m/s</source>
         <translation>速度范围，m/s</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="634"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="684"/>
         <source>Distance auto range</source>
         <translation>距离自动量程</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="656"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="706"/>
         <source>Last data</source>
         <translation>最新数据</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="656"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="706"/>
         <source>Last on screen</source>
         <translation>屏幕上最新值</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="656"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="706"/>
         <source>Max on screen</source>
         <translation>屏幕上最大值</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="663"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="713"/>
         <source>Horizontal</source>
         <translation>水平</translation>
     </message>
@@ -9916,317 +9936,317 @@
 <context>
     <name>Plot2D</name>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="761"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="770"/>
         <source>Echogram levels</source>
         <translation>回波图色阶</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="862"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="871"/>
         <source>Echogram sound: on</source>
         <translation>回波图声音：开</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="862"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="871"/>
         <source>Echogram sound: off</source>
         <translation>回波图声音：关</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="879"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="888"/>
         <source>Echogram settings</source>
         <translation>回波图设置</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1058"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1073"/>
         <source>Channels:</source>
         <translation>通道：</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1173"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1188"/>
         <source>Echogram</source>
         <translation>回波图</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1182"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1197"/>
         <source>Blue</source>
         <translation>蓝色</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1182"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1197"/>
         <source>Sepia</source>
         <translation>棕褐色</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1182"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1197"/>
         <source>Sepia New</source>
         <translation>新棕褐色</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1182"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1197"/>
         <source>WRGBD</source>
         <translation>WRGBD</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1182"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1197"/>
         <source>WhiteBlack</source>
         <translation>白黑</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1182"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1197"/>
         <source>BlackWhite</source>
         <translation>黑白</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1182"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1197"/>
         <source>DeepBlue</source>
         <translation>深蓝</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1182"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1197"/>
         <source>Ice</source>
         <translation>冰蓝</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1182"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1197"/>
         <source>Green</source>
         <translation>绿色</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1182"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1197"/>
         <source>Midnight</source>
         <translation>午夜</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1205"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1220"/>
         <source>Raw</source>
         <translation>原始</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1205"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1220"/>
         <source>Side-Scan</source>
         <translation>侧扫</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1205"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1220"/>
         <source>TGC</source>
         <translation>TGC</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1221"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1236"/>
         <source>Sound: log</source>
         <translation>声音：对数</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1221"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1236"/>
         <source>Sound: linear</source>
         <translation>声音：线性</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1238"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1253"/>
         <source>Deconvolution</source>
         <translation>反卷积</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1243"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1258"/>
         <source>On</source>
         <translation>开</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1257"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1272"/>
         <source>Beam°</source>
         <translation>波束°</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1291"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1306"/>
         <source>Motion</source>
         <translation>运动</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1305"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1320"/>
         <source>Iter</source>
         <translation>迭代</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1332"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1347"/>
         <source>Bottom-Track</source>
         <translation>底部跟踪</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1337"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1377"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1352"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1392"/>
         <source>Value</source>
         <translation>数值</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1346"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1355"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1386"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1395"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1361"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1370"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1401"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1410"/>
         <source>Line</source>
         <translation>线条</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1355"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1395"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1370"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1410"/>
         <source>Points</source>
         <translation>点</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1372"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1387"/>
         <source>Rangefinder</source>
         <translation>测距仪</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1413"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1428"/>
         <source>Attitude</source>
         <translation>姿态</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1421"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1436"/>
         <source>Temperature</source>
         <translation>温度</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1445"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1460"/>
         <source>Doppler Beams</source>
         <translation>多普勒波束</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1455"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1464"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1473"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1482"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1520"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1470"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1479"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1488"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1497"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1535"/>
         <source>Depth</source>
         <translation>深度</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1456"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1465"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1474"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1483"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1471"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1480"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1489"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1498"/>
         <source>Velocity</source>
         <translation>速度</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1457"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1466"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1475"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1484"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1472"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1481"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1490"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1499"/>
         <source>Mode</source>
         <translation>模式</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1506"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1521"/>
         <source>Doppler Instrument</source>
         <translation>多普勒仪器</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1519"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1534"/>
         <source>Abs. Velocity</source>
         <translation>绝对速度</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1531"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1546"/>
         <source>DVL Legend</source>
         <translation>DVL 图例</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1541"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1556"/>
         <source>Top</source>
         <translation>顶部</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1541"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1556"/>
         <source>Center</source>
         <translation>居中</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1541"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1556"/>
         <source>Bottom</source>
         <translation>底部</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1561"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1576"/>
         <source>Acoustic angle</source>
         <translation>声学角度</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1573"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1588"/>
         <source>Doppler Profiler</source>
         <translation>多普勒剖面仪</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1583"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1598"/>
         <source>GNSS data</source>
         <translation>GNSS 数据</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1602"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1617"/>
         <source>Grid</source>
         <translation>网格</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1608"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1623"/>
         <source>fill</source>
         <translation>填满</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1624"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1639"/>
         <source>invert</source>
         <translation>反转</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1662"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1677"/>
         <source>Angle range, °</source>
         <translation>角度范围，°</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1714"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1729"/>
         <source>Velocity range, m/s</source>
         <translation>速度范围，m/s</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1771"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1786"/>
         <source>Distance auto range</source>
         <translation>距离自动量程</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1787"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1802"/>
         <source>Last data       </source>
         <translation>最新数据       </translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1787"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1802"/>
         <source>Last on screen</source>
         <translation>屏幕上最新值</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1787"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1802"/>
         <source>Max on screen</source>
         <translation>屏幕上最大值</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1803"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1818"/>
         <source>Horizontal</source>
         <translation>水平</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1811"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1826"/>
         <source>Loupe</source>
         <translation>放大镜</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1820"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1835"/>
         <source>size</source>
         <translation>大小</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1837"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1852"/>
         <source>zoom</source>
         <translation>缩放</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="2337"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="2352"/>
         <source>Set point of interest</source>
         <translation>设置兴趣点</translation>
     </message>

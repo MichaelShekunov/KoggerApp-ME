@@ -25,7 +25,18 @@ bool Plot2DContact::draw(Plot2D *parent, Dataset *dataset)
     setVisibleContact(false);
 
     auto activeContactIndx = dataset->getActiveContactIndx();
-    for (auto& indx : cursor.indexes) {
+    const int columns = int(cursor.indexes.size());
+    for (int column = 0; column < columns; ++column) {
+      // A ping stretched over several columns gets its contact once, on the first; a compressed column
+      // stands for its group, and a contact on any ping of it goes on that column.
+      if (column > 0 && cursor.indexes[column] == cursor.indexes[column - 1]) {
+          continue;
+      }
+      int first = -1, last = -1;
+      if (!parent->epochSpanOfColumn(column, &first, &last)) {
+          continue;
+      }
+      for (int indx = first; indx <= last; ++indx) {
         auto* epoch = dataset->fromIndex(indx);
 
         if (!epoch) {
@@ -35,7 +46,7 @@ bool Plot2DContact::draw(Plot2D *parent, Dataset *dataset)
         bool isActiveContact = activeContactIndx == indx;
         if (epoch->contact_.isValid()) {
             const bool vertical = !isHorizontal_;
-            float xPos = cursor.numZeroEpoch + indx - cursor.indexes[0];
+            float xPos = float(column);
             const float canvasHeight = canvas.height();
             float valueRange = cursor.distance.to - cursor.distance.from;
             float valueScale = canvasHeight / valueRange;
@@ -116,6 +127,7 @@ bool Plot2DContact::draw(Plot2D *parent, Dataset *dataset)
                 p->drawLine(topLeft, topLeft + QPointF(0, -30 * s));
             }
         }
+      }
     }
 
     return true;

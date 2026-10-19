@@ -80,7 +80,20 @@ public:
     int getAimFieldsMask() const { return aimFieldsMask_; }
 
     float timelinePosition();
-    void scrollPosition(int columns);
+    /// Scrolls the history by `columns` screen columns (pings at the horizontal scale).
+    void scrollPosition(float columns);
+
+    /// Screen columns a ping takes: 2, 3, 4, 6 or 8 stretch the history, 1/2..1/16 compress it (a column
+    /// shows every n-th ping, the newest of its group), 1 is a column a ping. Snapped to those steps.
+    float horizontalScale() const { return horScale_; }
+    void setHorizontalScale(float scale);
+    /// One step finer (steps > 0) or coarser, keeping the ping under `anchorColumn` (-1: the newest) in
+    /// place. Returns whether the scale changed.
+    bool stepHorizontalScale(int steps, int anchorColumn = -1);
+    /// The screen column showing `epochIndx`, or the column whose group holds it when compressed; -1.
+    int columnOfEpoch(int epochIndx) const;
+    /// The pings a screen column stands for: one, or its group's pings when compressed. false if none.
+    bool epochSpanOfColumn(int column, int* first, int* last) const;
 
     void setDataChannel(bool fromGui, const ChannelId& channel, uint8_t subChannel1, const QString& portName1, const ChannelId& channel2 = channelNone(), uint8_t subChannel2 = 0, const QString& portName2 = QString());
 
@@ -241,6 +254,7 @@ protected:
     int aimFieldsMask_ = 0xFF;
     QPointer<EchogramEditor> editor_;
     bool strokeOpen_ = false;         // a press of an edit tool is under way (setMousePosition)
+    float horScale_ = 1.0f;           // screen columns a ping takes (horizontalScale)
 
     // The pencil's magnet: the bottom track's bottom looked for within a few pixels of dist, else dist.
     float magnetDistance(int epochIndex, float dist, float metersPerPixel) const;

@@ -1,5 +1,6 @@
 #include "plot2D_echogram.h"
 #include "plot2D.h"
+#include "plot2D_columns.h"
 #include "echogram_deconvolution.h"
 
 #include <cmath>
@@ -478,7 +479,12 @@ int Plot2DEchogram::updateCash(Plot2D* parent, Dataset* dataset, int width, int 
     }
 
     int wrap_start_pos = 0;
-    if (wrapEnabled_) {
+    if (wrapEnabled_ && cursor.hasVirtualColumn0) {
+        // A ping keeps its absolute column at any horizontal scale (plot2D_columns.h), so the ring turns by
+        // it and only what came in is drawn. At scale 1 this is the position the loop below gives.
+        wrap_start_pos = plot2d_columns::ringColumn(cursor.virtualColumn0, width);
+    }
+    else if (wrapEnabled_) {
         wrap_start_pos = qAbs(cursor.getIndex(0) % width);
 
         for (unsigned int i = 0; i < cursor.indexes.size(); i++) {

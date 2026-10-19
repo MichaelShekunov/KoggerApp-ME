@@ -60,6 +60,12 @@ typedef struct DatasetCursor {
     float position = 1;
     int last_dataset_size = 0;
 
+    // Set by Plot2D::reindexingCursor: the absolute column (pings times the horizontal scale) of screen
+    // column 0. A ping keeps its absolute column as the view scrolls, so the echogram's ring buffer turns
+    // by it and redraws only what came in; a cursor filled otherwise leaves it unset.
+    long long virtualColumn0 = 0;
+    bool hasVirtualColumn0 = false;
+
     int mouseX = -1, mouseY = -1;
     int contactX = -1, contactY = -1;
 

@@ -448,6 +448,15 @@ WaterFall {
     function handlePointerWheel(buttons, x, y, angleDelta, modifiers, keyboardKey) {
         markMouseKeyboardInput()
 
+        if (modifiers & Qt.AltModifier) {
+            // The horizontal scale: up stretches the pings, down compresses the history. Windows turns the
+            // wheel horizontal while Alt is held, so the turn comes in x.
+            plot.horZoomEvent(angleDelta.y !== 0 ? angleDelta.y : angleDelta.x, x, y)
+            updateOtherPlot(indx)
+            syncTimeToOthers()   // the ping under the pointer stays, so the newest one shown may move
+            return
+        }
+
         if (modifiers & Qt.ControlModifier) {
             let val = -angleDelta.y
             plot.verZoomEvent(val)
@@ -959,9 +968,15 @@ WaterFall {
             gridVisible, gridFill, gridInvert, gridNumber,
             angleVisible, angleRange, velocityVisible, velocityRange,
             distanceAutoRange, distanceAutoRangeIndex, horizontalMode,
-            settingsRow.levelStart, settingsRow.levelStop
+            settingsRow.levelStart, settingsRow.levelStop, plot.horizontalScale
         ]
         on_ChangeProbeChanged: if (!plot.suspendCapture) echogramCaptureDebounce.restart()
+
+        // The horizontal scale (Alt + wheel, the settings panel) is kept per echogram like the rest.
+        Settings {
+            category: "scene2d/plot2d/" + plot.indx
+            property alias echogramHorizontalScale: plot.horizontalScale
+        }
 
         function reloadFromPlot() {
             plot.suspendCapture = true

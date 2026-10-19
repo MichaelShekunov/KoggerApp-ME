@@ -21,6 +21,8 @@ public:
     Q_PROPERTY(bool horizontal READ isHorizontal() WRITE setHorizontal NOTIFY plotHorizontalChanged)
     Q_PROPERTY(float timelinePosition READ timelinePosition WRITE setTimelinePosition NOTIFY timelinePositionChanged)
     Q_PROPERTY(float viewportRatio READ viewportRatio NOTIFY timelinePositionChanged)
+    Q_PROPERTY(float horizontalScale READ horizontalScale WRITE setHorizontalScaleProp NOTIFY horizontalScaleChanged)
+    Q_PROPERTY(int horizontalScaleIndex READ horizontalScaleIndex NOTIFY horizontalScaleChanged)
     Q_PROPERTY(bool hasData READ hasData NOTIFY timelinePositionChanged)
     Q_PROPERTY(bool isEnabled READ getPlotEnabled WRITE setPlotEnabled NOTIFY plotEnabledChanged)
     Q_PROPERTY(QString contactInfo      READ getContactInfo      WRITE setContactInfo     NOTIFY contactChanged)
@@ -54,8 +56,30 @@ public:
     float viewportRatio() const {
         if (!datasetPtr_ || datasetPtr_->size() <= 0) return 1.0f;
         const float dim = (_isHorizontal ? static_cast<float>(width()) : static_cast<float>(height())) * static_cast<float>(deviceScale_);
-        return qBound(0.0f, dim / static_cast<float>(datasetPtr_->size()), 1.0f);
+        return qBound(0.0f, dim / horizontalScale() / static_cast<float>(datasetPtr_->size()), 1.0f);   // pings on screen
     }
+
+    /// Screen columns a ping takes (Plot2D::horizontalScale); a change keeps the newest ping at the right edge.
+    void setHorizontalScaleProp(float scale) {
+        const float before = horizontalScale();
+        Plot2D::setHorizontalScale(scale);
+        if (horizontalScale() != before) {
+            horizontalScaleApplied();
+        }
+    }
+    /// The mouse wheel with Alt over the echogram: a notch is a step of the horizontal scale, up stretching
+    /// the pings, down compressing them, the ping under (x, y) kept in place.
+    Q_INVOKABLE void horZoomEvent(int delta, int x, int y);
+    /// Steps of the horizontal scale from the echogram's menu, the newest ping kept at the right edge.
+    Q_INVOKABLE void stepHorizontalScaleBy(int steps) {
+        if (Plot2D::stepHorizontalScale(steps, -1)) {
+            horizontalScaleApplied();
+        }
+    }
+    /// The step the horizontal scale is at: an index in horizontalScaleSteps().
+    int horizontalScaleIndex() const;
+    /// The values the horizontal scale snaps to, the most compressed first.
+    Q_INVOKABLE QVariantList horizontalScaleSteps() const;
 
     bool hasData() const {
         return datasetPtr_ != nullptr && datasetPtr_->size() > 0;
@@ -99,7 +123,7 @@ public:
             cursor_.selectEpochIndx = -1;
             return;
         }
-        const float halfWidth = static_cast<float>(qRound(width() * deviceScale_ * 0.5));
+        const float halfWidth = static_cast<float>(qRound(width() * deviceScale_ * 0.5)) / horizontalScale();   // pings
         const float timelinePos = static_cast<float>(epochIndx + halfWidth) / static_cast<float>(datasetPtr_->size());
         Plot2D::setTimelinePosition(qBound(0.0f, timelinePos, 1.0f));
         cursor_.selectEpochIndx = epochIndx;
@@ -155,9 +179,15 @@ protected:
     bool m_needUpdate = true;
     bool _isHorizontal = true;
     qreal deviceScale_ = 1.0;
+    int horZoomWheel_ = 0;   // wheel units toward the next step of the horizontal scale (touchpads send less than a notch)
+
+    // After the horizontal scale changed: the view is held from going past the oldest ping, as horScrollEvent
+    // holds it, and QML hears of the scale and of the window it gives.
+    void horizontalScaleApplied();
 
 signals:
     void timelinePositionChanged();
+    void horizontalScaleChanged();
     void contactChanged();
     void plotHorizontalChanged();
     void plotEnabledChanged();

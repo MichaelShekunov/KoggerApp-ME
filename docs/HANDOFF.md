@@ -2042,3 +2042,61 @@ legacy page's too. Nothing else limited it: `DevDriver::setDspSmoothFactor` and 
 is. The fork's sonars (l412_adc, GODIO) read that byte as their DSP mode selector; what an original Kogger device does
 with 5..7 is not known. Checked: the catalog loaded in qml.exe offscreen -- the spin is 0..7, and every value 0..7 is
 written to the property and read back.
+
+## The echogram's horizontal scale (2026-10-19)
+
+The owner: the echogram should scale across -- stretch the pings to see them, compress them to fit more
+history on the screen.
+
+**What it does.** The scale is screen columns a ping: 1/16, 1/8, 1/4, 1/2, 1, 2, 3, 4, 6, 8. Stretched, a ping is
+k columns wide. Compressed, a column shows the newest ping of its group of n (groups counted from ping 0); the
+newest group, still filling, shows its newest ping, so a live view moves on every ping. Nothing is averaged or
+maxed: every n-th ping is shown, and a target shorter than n pings can drop out (the live check below shows it at
+1/16). A maximum over the group would keep such targets but brighten the noise -- the owner's choice, not made.
+
+- Alt + wheel over the echogram: a notch a step, the ping under the pointer kept there (Windows sends the wheel
+  as horizontal while Alt is held; both are taken). The settings panel: a row "Horizontal scale" ("Масштаб по
+  горизонтали") with - / + (the newest ping kept at the right edge) and "1:1".
+- Kept per echogram: the setting `scene2d/plot2d/<n>/echogramHorizontalScale`, and `hScale` in the layout's
+  echogram state (`EchogramStateSerializer`). As with the other echogram settings the layout's state wins at
+  start; a state saved before this version has no `hScale` and keeps the setting's.
+- `src/scene2d/plot2D_columns.h` (no Qt): pings to columns (`fillColumns`), the ring position (`ringColumn`),
+  a column's group and a ping's column (`groupFirst`, `columnOf`), the head that keeps a ping in a column
+  (`headKeeping`). `Plot2D::reindexingCursor` fills the cursor with it and records the absolute column of
+  screen column 0 (`DatasetCursor::virtualColumn0`); `Plot2DEchogram::updateCash` turns its ring by that, so
+  a ping keeps its cache column while the view scrolls at any scale and only what came in is drawn (at scale
+  1 the same turn as before [verified, check]).
+- The wheel and a drag scroll the same screen columns at any scale; the scroll bar (`viewportRatio`) and
+  centring on an epoch count pings at the scale; after a change the view is not left past the oldest ping
+  (as `horScrollEvent` holds it). Linked echograms get the time after Alt + wheel as after a scroll.
+- Edits over a compressed column reach every ping of its group: smooth, fill gaps, mosaic out, mark bad, the
+  pencil and the eraser (each ping of the group gets the column's depth), the search limits, the range of
+  `bottomTrackUpdated`. On the way: a search-limit stroke reaching the right edge did nothing before (its
+  `indexTo` was -1 and the processor returned); now it ends after the newest ping shown.
+- A contact on any ping of a group is drawn at the group's column; a stretched ping's once.
+- `KSpinBox.textFromValue` (optional): the text shown instead of the number; such a box only steps.
+- The edit script's `hscale` step (every echogram; found over the item tree -- the panes' echograms are not in
+  the window's object tree, `findChildren` on it set the scale of 3 hidden ones and none on screen) and the
+  ping count in its log line.
+- ru/zh: 4 strings, zh machine-made; `ts_check` clean, lrelease 0 unfinished.
+
+**Checks.**
+- `tools/echoscale_check/run.ps1` (CMake, the header alone): 16 checks -- at scale 1 the columns and the ring
+  turn of the code before; the newest ping at the right edge at every scale; stretched runs; compressed groups;
+  each column in its ring slot, and a new ping redraws only the columns it brings; the edit spans tile the pings
+  shown and a ping off the screen has no column; a step keeps the ping under the pointer in its column. 16 of
+  16; `-Mutants`: 14 of 14 caught.
+- `tools/echoscale_check/live_check.ps1`: the app (perf profile) over `00014_03.05.2025.KLF`, driven by the edit
+  script: test spikes in the bottom track at pings P..P+3 and P+15 drawn in the columns the mapping gives at x1,
+  x4, 1/4, 1/16, a run without spikes as the control; at 1/16 the spike P..P+3 alone is not drawn. PASS; with the
+  canvas taken 5 px off: 5 FAIL [verified].
+- Grabs in the perf profile: the setting 4 applied at start under a layout state without `hScale`; a layout
+  state of 0.25 applied and written back to the setting.
+- `tools/qml_check/hscale_panel_check.ps1`: the real `EchogramSettingsPanel.qml` offscreen over a mock echogram
+  with the header's steps: the row and its caption, the box steps x1 -> x2 -> x1 -> x1/2 -> x1/4 through the plot
+  and holds at the ends, a change from elsewhere (Alt + wheel) shows after a click on the box too, "1:1". 7 of 7
+  pass; `-Picture` looked at.
+
+**Not verified:** Alt + wheel by hand and the panel in the running app (the checks set the scale through the
+script and the settings, the panel ran offscreen); the vertical orientation; deconvolution when stretched -- it takes a stretched ping's copies
+as columns of their own (with navigation at one place, without it 1 m apart) [inference from the code].

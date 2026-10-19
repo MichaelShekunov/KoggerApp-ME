@@ -3358,78 +3358,78 @@
         <translation>Усилитель</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="38"/>
+        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="40"/>
         <source>Horizontal smoothing</source>
         <translation>Гор. сглаживание</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="41"/>
+        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="43"/>
         <source>Sound speed, m/s</source>
         <translation>Скорость звука, м/с</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="45"/>
+        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="47"/>
         <source>Period, ms</source>
         <translation>Период, мс</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="48"/>
+        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="50"/>
         <source>Echogram</source>
         <translation>Эхограмма</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="49"/>
-        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="54"/>
+        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="51"/>
+        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="56"/>
         <source>Off</source>
         <translation>Выкл</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="49"/>
+        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="51"/>
         <source>8-bit</source>
         <translation>8-бит</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="52"/>
+        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="54"/>
         <source>Rangefinder</source>
         <translation>Глубиномер</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="54"/>
+        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="56"/>
         <source>On</source>
         <translation>Вкл</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="54"/>
+        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="56"/>
         <source>NMEA</source>
         <translation>NMEA</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="65"/>
+        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="67"/>
         <source>AHRS</source>
         <translation>AHRS</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="67"/>
+        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="69"/>
         <source>Temperature</source>
         <translation>Температура</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="71"/>
+        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="73"/>
         <source>Supply voltage</source>
         <translation>Напряжение питания</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="73"/>
+        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="75"/>
         <source>Timestamp</source>
         <translation>Временная метка</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="80"/>
+        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="82"/>
         <source>Baudrate</source>
         <translation>Скорость передачи</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="82"/>
+        <location filename="../qml/kqml_types/DeviceParamCatalog.qml" line="84"/>
         <source>Settings file</source>
         <translation>Файл настроек</translation>
     </message>
@@ -6905,293 +6905,313 @@
 <context>
     <name>EchogramSettingsPanel</name>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="287"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="337"/>
         <source>Data</source>
         <translation>Данные</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="489"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="539"/>
         <source>Display parameters</source>
         <translation>Параметры отображения</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="77"/>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="216"/>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="256"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="85"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="266"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="306"/>
         <source>Visibility</source>
         <translation>Видимость</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="128"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="136"/>
         <source>Open TGC settings</source>
         <translation>Открыть настройки TGC</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="43"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="51"/>
         <source>Channels</source>
         <translation>Каналы</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="72"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="80"/>
         <source>Echogram</source>
         <translation>Эхограмма</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="91"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="99"/>
         <source>Theme</source>
         <translation>Тема</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="99"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="107"/>
         <source>Blue</source>
         <translation>Синий</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="99"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="107"/>
         <source>Sepia</source>
         <translation>Сепия</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="99"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="107"/>
         <source>Sepia New</source>
         <translation>Сепия новая</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="99"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="107"/>
         <source>WRGBD</source>
         <translation>WRGBD</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="99"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="107"/>
         <source>WhiteBlack</source>
         <translation>Бело-чёрный</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="99"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="107"/>
         <source>BlackWhite</source>
         <translation>Чёрно-белый</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="99"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="107"/>
         <source>DeepBlue</source>
         <translation>Глубокий синий</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="99"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="107"/>
         <source>Ice</source>
         <translation>Лёд</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="99"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="107"/>
         <source>Green</source>
         <translation>Зелёный</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="99"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="107"/>
         <source>Midnight</source>
         <translation>Полночь</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="107"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="115"/>
         <source>Source data</source>
         <translation>Исходные данные</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="135"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="143"/>
         <source>Raw</source>
         <translation>Исходный</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="135"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="143"/>
         <source>Side-Scan</source>
         <translation>Сайд-скан</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="135"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="143"/>
         <source>TGC</source>
         <translation>TGC</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="146"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="153"/>
+        <source>Horizontal scale</source>
+        <translation>Масштаб по горизонтали</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="154"/>
+        <source>Alt + wheel over the echogram</source>
+        <translation>Alt + колесо над эхограммой</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="167"/>
+        <source>A ping a column</source>
+        <translation>Один пинг — один столбец</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="177"/>
+        <source>Above ×1 a ping is wider; below, a column shows one ping of several and more history fits</source>
+        <translation>Больше ×1 — пинг шире; меньше — в столбце один пинг из нескольких, и на экран входит больше истории</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="196"/>
         <source>Deconvolution, beam °</source>
         <translation>Деконволюция, луч °</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="176"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="226"/>
         <source>Deconvolution iterations</source>
         <translation>Итерации деконволюции</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="200"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="250"/>
         <source>Compensate motion (position + pitch)</source>
         <translation>Компенсировать движение (позиция + тангаж)</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="212"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="262"/>
         <source>Bottom-Track</source>
         <translation>Трек дна</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="230"/>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="270"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="280"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="320"/>
         <source>Type</source>
         <translation>Тип</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="238"/>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="278"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="288"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="328"/>
         <source>Line</source>
         <translation>Линия</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="238"/>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="278"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="288"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="328"/>
         <source>Points</source>
         <translation>Точки</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="252"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="302"/>
         <source>Rangefinder</source>
         <translation>Глубиномер</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="307"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="357"/>
         <source>Attitude</source>
         <translation>Ориентация</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="323"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="373"/>
         <source>Doppler Beams</source>
         <translation>Доплеровские лучи</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="338"/>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="341"/>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="344"/>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="347"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="388"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="391"/>
         <location filename="../qml/app/EchogramSettingsPanel.qml" line="394"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="397"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="444"/>
         <source>Depth</source>
         <translation>Глубина</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="339"/>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="342"/>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="345"/>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="348"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="389"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="392"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="395"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="398"/>
         <source>Velocity</source>
         <translation>Скорость</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="340"/>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="343"/>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="346"/>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="349"/>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="651"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="390"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="393"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="396"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="399"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="701"/>
         <source>Mode</source>
         <translation>Режим</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="375"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="425"/>
         <source>Doppler Instrument</source>
         <translation>Доплеровский инструмент</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="393"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="443"/>
         <source>Abs. Velocity</source>
         <translation>Абс. скорость</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="420"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="470"/>
         <source>DVL Legend</source>
         <translation>DVL легенда</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="438"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="488"/>
         <source>Position</source>
         <translation>Положение</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="443"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="493"/>
         <source>Top</source>
         <translation>Верх</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="443"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="493"/>
         <source>Center</source>
         <translation>Центр</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="443"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="493"/>
         <source>Bottom</source>
         <translation>Низ</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="451"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="501"/>
         <source>Acoustic angle</source>
         <translation>Акустический угол</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="467"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="517"/>
         <source>Doppler Profiler</source>
         <translation>Доплеровский профилировщик</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="475"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="525"/>
         <source>GNSS data</source>
         <translation>GNSS данные</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="494"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="544"/>
         <source>Grid</source>
         <translation>Сетка</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="511"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="561"/>
         <source>Fill width</source>
         <translation>Заполнить</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="528"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="578"/>
         <source>Invert</source>
         <translation>Инвертировать</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="545"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="595"/>
         <source>Vertical lines</source>
         <translation>Вертикальные линии</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="561"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="611"/>
         <source>Angle range, °</source>
         <translation>Диапазон углов, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="600"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="650"/>
         <source>Velocity range, m/s</source>
         <translation>Диапазон скоростей, м/с</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="634"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="684"/>
         <source>Distance auto range</source>
         <translation>Автоматическая дистанция</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="656"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="706"/>
         <source>Last data</source>
         <translation>Последние данные</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="656"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="706"/>
         <source>Last on screen</source>
         <translation>Последний на экране</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="656"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="706"/>
         <source>Max on screen</source>
         <translation>Максимальный на экране</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="663"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="713"/>
         <source>Horizontal</source>
         <translation>Горизонтальный режим</translation>
     </message>
@@ -9920,317 +9940,317 @@
 <context>
     <name>Plot2D</name>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="879"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="888"/>
         <source>Echogram settings</source>
         <translation>Настройки эхограммы</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="761"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="770"/>
         <source>Echogram levels</source>
         <translation>Уровни эхограммы</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1058"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1073"/>
         <source>Channels:</source>
         <translation>Каналы:</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1173"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1188"/>
         <source>Echogram</source>
         <translation>Эхограмма</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1182"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1197"/>
         <source>Blue</source>
         <translation>Синий</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1182"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1197"/>
         <source>Sepia</source>
         <translation>Сепия</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1182"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1197"/>
         <source>WRGBD</source>
         <translation>WRGBD</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1182"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1197"/>
         <source>WhiteBlack</source>
         <translation>Бело-черный</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1182"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1197"/>
         <source>BlackWhite</source>
         <translation>Черно-белый</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1182"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1197"/>
         <source>Sepia New</source>
         <translation>Сепия новая</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1182"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1197"/>
         <source>DeepBlue</source>
         <translation>Глубокий синий</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1182"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1197"/>
         <source>Ice</source>
         <translation>Лёд</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1182"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1197"/>
         <source>Green</source>
         <translation>Зелёный</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1182"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1197"/>
         <source>Midnight</source>
         <translation>Полночь</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1205"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1220"/>
         <source>Raw</source>
         <translation>Исходный</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1205"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1220"/>
         <source>Side-Scan</source>
         <translation>Сайд скан</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1332"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1347"/>
         <source>Bottom-Track</source>
         <translation>Трек дна</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1337"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1377"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1352"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1392"/>
         <source>Value</source>
         <translation>Значение</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1372"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1387"/>
         <source>Rangefinder</source>
         <translation>Глубиномер</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1346"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1355"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1386"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1395"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1361"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1370"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1401"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1410"/>
         <source>Line</source>
         <translation>Линия</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="862"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="871"/>
         <source>Echogram sound: on</source>
         <translation>Звук эхограммы: вкл</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="862"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="871"/>
         <source>Echogram sound: off</source>
         <translation>Звук эхограммы: выкл</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1205"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1220"/>
         <source>TGC</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1221"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1236"/>
         <source>Sound: log</source>
         <translation>Звук: логарифм.</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1221"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1236"/>
         <source>Sound: linear</source>
         <translation>Звук: линейный</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1238"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1253"/>
         <source>Deconvolution</source>
         <translation>Деконволюция</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1243"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1258"/>
         <source>On</source>
         <translation>Вкл</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1257"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1272"/>
         <source>Beam°</source>
         <translation>Луч°</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1291"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1306"/>
         <source>Motion</source>
         <translation>Движение</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1305"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1320"/>
         <source>Iter</source>
         <translation>Итер.</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1355"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1395"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1370"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1410"/>
         <source>Points</source>
         <translation>Точки</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1413"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1428"/>
         <source>Attitude</source>
         <translation>Ориентация</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1421"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1436"/>
         <source>Temperature</source>
         <translation>Температура</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1445"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1460"/>
         <source>Doppler Beams</source>
         <translation>Допплеровские лучи</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1455"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1464"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1473"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1482"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1520"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1470"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1479"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1488"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1497"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1535"/>
         <source>Depth</source>
         <translation>Глубина</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1456"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1465"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1474"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1483"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1471"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1480"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1489"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1498"/>
         <source>Velocity</source>
         <translation>Скорость</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1457"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1466"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1475"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1484"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1472"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1481"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1490"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1499"/>
         <source>Mode</source>
         <translation>Режим</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1506"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1521"/>
         <source>Doppler Instrument</source>
         <translation>Допплеровский инструмент</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1519"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1534"/>
         <source>Abs. Velocity</source>
         <translation>Абс. скорость</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1531"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1546"/>
         <source>DVL Legend</source>
         <translation>DVL Легенда</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1541"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1556"/>
         <source>Top</source>
         <translation>Верх</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1541"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1556"/>
         <source>Center</source>
         <translation>Центр</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1541"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1556"/>
         <source>Bottom</source>
         <translation>Низ</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1561"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1576"/>
         <source>Acoustic angle</source>
         <translation>Акустический угол</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1573"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1588"/>
         <source>Doppler Profiler</source>
         <translation>Доплеровский профилировщик</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1583"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1598"/>
         <source>GNSS data</source>
         <translation>GNSS данные</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1602"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1617"/>
         <source>Grid</source>
         <translation>Сетка</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1608"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1623"/>
         <source>fill</source>
         <translation>заполнить</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1624"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1639"/>
         <source>invert</source>
         <translation>инвертировать</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1662"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1677"/>
         <source>Angle range, °</source>
         <translation>Диапазон углов, °</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1714"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1729"/>
         <source>Velocity range, m/s</source>
         <translation>Диапазон скоростей, м/с</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1771"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1786"/>
         <source>Distance auto range</source>
         <translation>Автоматическая дистанция</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1787"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1802"/>
         <source>Last data       </source>
         <translation>Последние данные       </translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1787"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1802"/>
         <source>Last on screen</source>
         <translation>Последний на экране</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1787"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1802"/>
         <source>Max on screen</source>
         <translation>Максимальный на экране</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1803"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1818"/>
         <source>Horizontal</source>
         <translation>Горизонтальный режим</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1811"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1826"/>
         <source>Loupe</source>
         <translation>Лупа</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1820"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1835"/>
         <source>size</source>
         <translation>размер</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1837"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1852"/>
         <source>zoom</source>
         <translation>зум</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="2337"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="2352"/>
         <source>Set point of interest</source>
         <translation>Поставить точку интереса</translation>
     </message>

@@ -7,11 +7,14 @@
 #include <QFileInfo>
 #include <QGuiApplication>
 #include <QJsonDocument>
+#include <QQuickItem>
+#include <QQuickWindow>
 #include <QSaveFile>
 #include <QWindow>
 
 #include <algorithm>
 #include <cmath>
+#include <functional>
 #include <limits>
 
 #include "core.h"
@@ -354,6 +357,30 @@ void EchoEditScript::runStep(const QJsonObject& s)
                 qWarning().noquote() << QStringLiteral("echoedit script: no object with bottomTrackEditorOpen to open the palette");
             }
         }
+    }
+    else if (op == QLatin1String("hscale")) {
+        // Every echogram's horizontal scale, as the settings panel sets it (the newest ping shown stays).
+        // The panes' echograms are made by QML at run time and hang in the item tree, not in the window's
+        // object tree, so the walk goes over the items.
+        const double scale = s.value(QStringLiteral("scale")).toDouble(1.0);
+        int plots = 0;
+        int visible = 0;
+        std::function<void(QQuickItem*)> walk = [&](QQuickItem* item) {
+            if (item->inherits("qPlot2D") && item->setProperty("horizontalScale", scale)) {
+                ++plots;
+                visible += item->isVisible() && item->width() > 0 ? 1 : 0;
+            }
+            for (QQuickItem* child : item->childItems()) {
+                walk(child);
+            }
+        };
+        for (QWindow* w : QGuiApplication::topLevelWindows()) {
+            if (auto* qw = qobject_cast<QQuickWindow*>(w)) {
+                walk(qw->contentItem());
+            }
+        }
+        qInfo().noquote() << QStringLiteral("echoedit script: hscale %1 on %2 echogram(s), %3 visible; %4 pings")
+                                 .arg(scale).arg(plots).arg(visible).arg(n);
     }
     else if (op == QLatin1String("grab")) {
         const QString path = s.value(QStringLiteral("path")).toString();

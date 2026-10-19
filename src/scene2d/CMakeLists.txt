@@ -5,6 +5,7 @@ target_sources(KoggerApp PRIVATE
     plot2D_bottom_processing.h   plot2D_bottom_processing.cpp
     plot2D_contact.h             plot2D_contact.cpp
     plot2D_defs.h
+    plot2D_columns.h
     plot2D_dvl_beam_velocity.h   plot2D_dvl_beam_velocity.cpp
     plot2D_dvl_solution.h        plot2D_dvl_solution.cpp
     plot2D_echogram.h            plot2D_echogram.cpp

@@ -17,6 +17,9 @@ Item {
     property int fontPixelSize: Tokens.fontLg
     property color textColor: AppPalette.isDark ? "#FFFFFF" : AppPalette.text
     property string toolTipText: ""
+    // function(value) -> the text shown instead of the number; the box then steps only, typing is off.
+    property var textFromValue: null
+    readonly property bool _customText: typeof textFromValue === "function"
 
     signal valueModified(int val)
 
@@ -56,6 +59,7 @@ Item {
         return stepValues[0]
     }
     function _visibleValue() {
+        if (_customText) return root.value
         var raw = input.text.replace(",", ".").trim()
         var p = parseFloat(raw)
         return isNaN(p) ? root.value : Math.round(p * root.divisor)
@@ -70,6 +74,7 @@ Item {
     }
 
     function displayedText() {
+        if (_customText) return String(root.textFromValue(root.value))
         var s = (root.value / root.divisor).toFixed(root.decimals)
         if (root.trimZeros && s.indexOf(".") >= 0)
             s = s.replace(/0+$/, "").replace(/\.$/, "")
@@ -84,6 +89,7 @@ Item {
 
     // Parse what's currently typed and push it to root.value (no text rewrite).
     function _parseAndApply() {
+        if (_customText) return
         var raw = input.text.replace(",", ".").trim()
         if (raw === "" || raw === "-" || raw === ".") return
         var parsed = parseFloat(raw)
@@ -214,7 +220,7 @@ Item {
             font.pixelSize: root.fontPixelSize
             selectByMouse: true
             selectionColor: AppPalette.accentBg
-            readOnly: !root.editable
+            readOnly: !root.editable || root._customText
             clip: true
             inputMethodHints: Qt.ImhFormattedNumbersOnly
             validator: DoubleValidator {

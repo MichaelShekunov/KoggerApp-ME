@@ -1,4 +1,5 @@
 #include "plot2D.h"
+#include "plot2D_columns.h"
 #include "epoch_event.h"
 #include "echogram_editor.h"
 #include "qmath.h"
@@ -377,15 +378,7 @@ QPoint Plot2D::getMousePosByDepthAndEpochIndx(float depth, int epochIndx, bool i
         return QPoint(-1, -1);
     }
 
-    int column = -1;
-    int sizeIndxs = cursor_.indexes.size();
-    for (int i = 0; i < sizeIndxs; ++i) {
-        if (cursor_.indexes[i] == epochIndx) {
-            column = i;
-            break;
-        }
-    }
-
+    const int column = columnOfEpoch(epochIndx);
     if (column == -1) {
         return QPoint(-1, -1);
     }
@@ -607,10 +600,10 @@ void Plot2D::setTimelinePositionByEpoch(int epochIndx)
         return;
     }
 
-    const int halfWindow = static_cast<int>(cursor_.indexes.size() / 2);
+    const float halfWindow = static_cast<float>(cursor_.indexes.size() / 2) / horScale_;   // pings, at the scale
     float pos = epochIndx == -1
         ? cursor_.position
-        : static_cast<float>(epochIndx + halfWindow) / static_cast<float>(datasetPtr_->size());
+        : (static_cast<float>(epochIndx) + halfWindow) / static_cast<float>(datasetPtr_->size());
     cursor_.selectEpochIndx = epochIndx;
     setTimelinePositionSec(pos);
 }
@@ -633,14 +626,64 @@ void Plot2D::clearSyncCursor()
     plotUpdate();
 }
 
-void Plot2D::scrollPosition(int columns)
+void Plot2D::scrollPosition(float columns)
 {
     if (!datasetPtr_ || datasetPtr_->size() <= 0) {
         return;
     }
 
-    float new_position = timelinePosition() + (1.0f / datasetPtr_->size()) * columns;
+    float new_position = timelinePosition() + (1.0f / datasetPtr_->size()) * (columns / horScale_);
     setTimelinePosition(new_position);
+}
+
+void Plot2D::setHorizontalScale(float scale)
+{
+    const float snapped = plot2d_columns::snapScale(scale);
+    if (snapped != horScale_) {
+        horScale_ = snapped;
+        plotUpdate();
+    }
+}
+
+bool Plot2D::stepHorizontalScale(int steps, int anchorColumn)
+{
+    const float next = plot2d_columns::stepScale(horScale_, steps);
+    if (next == horScale_) {
+        return false;
+    }
+
+    const int width = canvas_.width();
+    if (anchorColumn < 0 || anchorColumn >= width) {
+        anchorColumn = width - 1;
+    }
+    const int anchorEpoch = cursor_.getIndex(anchorColumn);
+    horScale_ = next;
+
+    // The ping under the anchor stays there, unless the newest ping or the oldest one stops it.
+    if (anchorEpoch >= 0 && datasetPtr_ && datasetPtr_->size() > 0 && width > 0) {
+        const long long head = plot2d_columns::headKeeping(anchorEpoch, anchorColumn, width, horScale_);
+        setTimelinePositionSec(std::clamp(float(head) / float(datasetPtr_->size()), 0.0f, 1.0f));
+    }
+    else {
+        plotUpdate();
+    }
+    return true;
+}
+
+int Plot2D::columnOfEpoch(int epochIndx) const
+{
+    return plot2d_columns::columnOf(cursor_.indexes.data(), int(cursor_.indexes.size()), epochIndx, horScale_);
+}
+
+bool Plot2D::epochSpanOfColumn(int column, int* first, int* last) const
+{
+    const int e = cursor_.getIndex(column);
+    if (e < 0) {
+        return false;
+    }
+    *first = plot2d_columns::groupFirst(e, horScale_);
+    *last = e;
+    return true;
 }
 
 void Plot2D::setDataChannel(bool fromGui, const ChannelId& channel, uint8_t subChannel1, const QString& portName1, const ChannelId& channel2, uint8_t subChannel2, const QString& portName2)
@@ -1176,13 +1219,21 @@ void Plot2D::setMousePosition(int x, int y, bool isSync) {
             }
         }
 
+        // The pings the columns swept since the last move stand for: a compressed column stands for its group.
+        int sweptFrom = -1, sweptTo = -1;   // [from, to)
+        {
+            int a0 = -1, a1 = -1, b0 = -1, b1 = -1;
+            if (epochSpanOfColumn(x_start, &a0, &a1) && epochSpanOfColumn(x_start + x_length - 1, &b0, &b1)) {
+                sweptFrom = std::min(a0, b0);
+                sweptTo = std::max(a1, b1) + 1;
+            }
+        }
+
         if (tool == MouseToolSmooth || tool == MouseToolFillGaps || tool == MouseToolMosaicOut) {
             // The pings swept since the last move, as the mark does.
-            const int a = cursor_.getIndex(x_start);
-            const int b = cursor_.getIndex(x_start + x_length - 1);
-            if (editor_ && a >= 0 && b >= 0) {
-                const int from = std::min(a, b);
-                const int to = std::max(a, b) + 1;
+            if (editor_ && sweptFrom >= 0) {
+                const int from = sweptFrom;
+                const int to = sweptTo;
                 if (tool == MouseToolSmooth) {
                     editor_->smoothRange(from, to);
                 }
@@ -1212,12 +1263,8 @@ void Plot2D::setMousePosition(int x, int y, bool isSync) {
         }
 
         if (tool == MouseToolMarkBad || tool == MouseToolUnmarkBad) {
-            if (editor_) {
-                const int a = cursor_.getIndex(x_start);
-                const int b = cursor_.getIndex(x_start + x_length - 1);
-                if (a >= 0 && b >= 0) {
-                    editor_->markRange(std::min(a, b), std::max(a, b) + 1, tool == MouseToolMarkBad);
-                }
+            if (editor_ && sweptFrom >= 0) {
+                editor_->markRange(sweptFrom, sweptTo, tool == MouseToolMarkBad);
             }
             plotUpdate();
             return;
@@ -1226,8 +1273,12 @@ void Plot2D::setMousePosition(int x, int y, bool isSync) {
         const bool magnet = tool == MouseToolDistance && editor_ && editor_->magnet();
 
         for(int x_ind = 0; x_ind < x_length; x_ind++) {
-            int epoch_index = cursor_.getIndex(x_start + x_ind);
-
+          int spanFirst = -1, spanLast = -1;
+          if (!epochSpanOfColumn(x_start + x_ind, &spanFirst, &spanLast)) {
+              continue;
+          }
+          // Every ping of a compressed column's group, not only the one it shows.
+          for (int epoch_index = spanFirst; epoch_index <= spanLast; ++epoch_index) {
             Epoch* epoch = datasetPtr_->fromIndex(epoch_index);
 
             const ChannelId channel1 = cursor_.channel1;
@@ -1257,12 +1308,13 @@ void Plot2D::setMousePosition(int x, int y, bool isSync) {
                     epoch->clearDistProcessing(channel2);
                 }
             }
+          }
         }
 
         if (cursor_.tool() == MouseToolDistanceMin || cursor_.tool() == MouseToolDistanceMax) {
             if (auto btp = datasetPtr_->getBottomTrackParamPtr(); btp) {
-                btp->indexFrom = cursor_.getIndex(x_start);
-                btp->indexTo = cursor_.getIndex(x_start + x_length);
+                btp->indexFrom = sweptFrom >= 0 ? sweptFrom : cursor_.getIndex(x_start);
+                btp->indexTo = sweptFrom >= 0 ? sweptTo : cursor_.getIndex(x_start + x_length);
                 QMetaObject::invokeMethod(dataProcessorPtr_, "bottomTrackProcessing", Qt::QueuedConnection,
                                           Q_ARG(DatasetChannel, DatasetChannel(cursor_.channel1, cursor_.subChannel1)),
                                           Q_ARG(DatasetChannel, DatasetChannel(cursor_.channel2, cursor_.subChannel2)),
@@ -1274,7 +1326,8 @@ void Plot2D::setMousePosition(int x, int y, bool isSync) {
 
         if (cursor_.tool() == MouseToolDistance || cursor_.tool() == MouseToolDistanceErase) {
             emit datasetPtr_->dataUpdate(); // refresh all 2D echograms (other panes)
-            emit datasetPtr_->bottomTrackUpdated(cursor_.channel1, cursor_.getIndex(x_start), cursor_.getIndex(x_start + x_length), true, false);
+            emit datasetPtr_->bottomTrackUpdated(cursor_.channel1, sweptFrom >= 0 ? sweptFrom : cursor_.getIndex(x_start),
+                                                 sweptFrom >= 0 ? sweptTo : cursor_.getIndex(x_start + x_length), true, false);
         }
     }
 
@@ -1557,23 +1610,15 @@ void Plot2D::reindexingCursor() {
     }
     cursor_.last_dataset_size = data_width;
 
-    float hor_ratio = 1.0f;
-
     float position = timelinePosition();
 
     int head_data_index = round(position*float(data_width));
 
-    int cntZeros = 0;
-    for(int i = 0; i < image_width; i++) {
-        int data_index = head_data_index + round((i - image_width)/hor_ratio) - 1;
-        if(data_index >= 0 && data_index < data_width) {
-             cursor_.indexes[i] = data_index;
-        } else {
-            ++cntZeros;
-             cursor_.indexes[i] = -1;
-        }
-    }
-    cursor_.numZeroEpoch = cntZeros;
+    // The newest ping shown at the right edge is head - 2, as before the horizontal scale.
+    cursor_.virtualColumn0 = plot2d_columns::fillColumns(head_data_index - 1, image_width, horScale_, data_width,
+                                                         cursor_.indexes.data());
+    cursor_.hasVirtualColumn0 = true;
+    cursor_.numZeroEpoch = int(std::count(cursor_.indexes.begin(), cursor_.indexes.end(), -1));
 
     if (cursor_.mouseX >= 0 && !cursor_.indexes.empty()) {
         const int clampedX = std::clamp(cursor_.mouseX, 0, image_width - 1);

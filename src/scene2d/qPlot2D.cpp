@@ -11,6 +11,7 @@
 #include <limits>
 #include "core.h"
 #include "epoch_event.h"
+#include "plot2D_columns.h"
 #include "themes.h"
 
 extern Core core;
@@ -388,6 +389,52 @@ void qPlot2D::horScrollEvent(int delta) {
     if (cursor_.position < minPos) {
         Plot2D::setTimelinePosition(minPos);
     }
+}
+
+void qPlot2D::horZoomEvent(int delta, int x, int y) {
+    constexpr int kNotch = 120;
+    horZoomWheel_ += delta;
+    const int steps = horZoomWheel_ / kNotch;
+    if (steps == 0) {
+        return;
+    }
+    horZoomWheel_ -= steps * kNotch;
+
+    // The canvas column under the pointer, as plotMousePosition turns it.
+    const int sx = qRound(x * deviceScale_);
+    const int sy = qRound(y * deviceScale_);
+    const int column = _isHorizontal ? sx : qRound(height() * deviceScale_) - sy;
+
+    cursor_.selectEpochIndx = -1;
+    if (Plot2D::stepHorizontalScale(steps, column)) {
+        horizontalScaleApplied();
+    }
+}
+
+void qPlot2D::horizontalScaleApplied()
+{
+    if (hasData()) {
+        const float minPos = viewportRatio();
+        if (cursor_.position < minPos) {
+            Plot2D::setTimelinePosition(minPos);
+        }
+    }
+    Q_EMIT horizontalScaleChanged();
+    Q_EMIT timelinePositionChanged();   // viewportRatio follows the scale
+}
+
+int qPlot2D::horizontalScaleIndex() const
+{
+    return plot2d_columns::scaleIndex(horizontalScale());
+}
+
+QVariantList qPlot2D::horizontalScaleSteps() const
+{
+    QVariantList steps;
+    for (float s : plot2d_columns::kScales) {
+        steps.append(double(s));
+    }
+    return steps;
 }
 
 void qPlot2D::verZoomEvent(int delta) {
