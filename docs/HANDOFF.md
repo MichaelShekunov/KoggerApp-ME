@@ -2536,3 +2536,31 @@ synced Yandex.Disk folder, then push to GitHub, no questions. Where this differs
   - pinned settings on sub-pages (TGC, the per-echogram panel) need catalog entries; a device parameter not
     tried on a real device, nor two devices of one type;
   - a maximum over a compressed echogram column's group (the owner's choice); the NTC reading +5 C (hardware).
+
+## 2026-10-20 on the first PC: synced, installed, an APK with this PC's own test key
+
+The owner, back on this PC: update from the laptop's work and build an APK, no questions; then "with a test
+key!". Where this differs from the sections above, this holds.
+
+- **Sync**: Yandex.Disk brought `me` = f89cf3af. `git --no-optional-locks fsck` found one object missing, blob
+  d3f09775 (`docs/map-export.md` in f89cf3af); the working file hashed to the same id, so
+  `git hash-object -w docs/map-export.md` restored it, and fsck was clean after that **[verified]**.
+- **Installed on this PC**: f89cf3af ("ME 1.0.3 20.10.2026 13:32"; exe hash MATCH 23DA1F9B2CD996B2, build_info
+  "dirty: no"; setup `KoggerApp-ME-1.0.3-setup-20261020-133322.exe` in `D:\Temp\kogger_merge_test\dist`)
+  **[verified]**. No checks were re-run here: f89cf3af is docs on top of f48cca0d, whose checks the laptop ran
+  (the section above).
+- **APK** of f89cf3af with `-AppIdSuffix .me`: apk_deps_check PASS on arm64-v8a and armeabi-v7a (97 libraries
+  each); unsigned copy `out_android\unsigned\KoggerApp-1.0.3-me-unsigned-20261020-133634.apk`. The password of
+  this PC's `D:\Android\test-debug.keystore` is not known, so "with a test key" got a new throwaway key here:
+  `D:\Android\keys\kogger-test-desktop.keystore`, alias kogger-test, its password in a file beside it,
+  certificate 278d732e... (docs/build-android-cli.md, c6c5d952). The signed APK is in
+  `out_android\test-key-desktop\` of the worktree and of the synced repo (git-ignored) **[verified: apksigner
+  "Verifies" (v3), the synced copy's hash matches]**. It does not install over the phone's KoggerApp ME, which
+  carries the laptop's myedition-test signature (a4a81e47...): remove the app on the phone first (its settings
+  and My maps go with it), or build the APK on the laptop with that key.
+- **Gradle**: the build leaves its Gradle daemon running. A shell that ran the build script with the output
+  redirected (`*>` to a log) had not returned more than an hour after the log's last line (13:36:44), until the
+  shell was stopped. Inference: the daemon inherited the redirect's pipe. Wait for the log's last line, not for
+  the shell, and stop the daemon after the build.
+- **Not pushed**: c6c5d952 and this docs commit are local only (GitHub `mine` has f89cf3af); push on the
+  owner's word.
