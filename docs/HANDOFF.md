@@ -2572,6 +2572,8 @@ key!". Where this differs from the sections above, this holds.
   `D:\Temp\ka_headunit_wt`; the same patch-id as the old kiosk commit 23bcf614) -> cc1b13b8. Built on the board
   (505 steps, 570 s, no errors), the kiosk switched at 11:08:13 UTC on the owner's word **[verified: ExecStart,
   active, NRestarts 0, no QML/JS errors in kogger.log after the switch; ~25 % of one core 90 s after the start]**.
-  The old branch is kept locally as `headunit-20261002` (827fbaf3). GitHub `mine/headunit` is still 827fbaf3:
-  cc1b13b8 is not its descendant, so replacing it rewrites the branch; the permission check refused that
-  ("Git Destructive") and it waits on the owner's word. The head unit's state: HeadUnit `docs/STATE.md`.
+  The old branch is kept as `headunit-20261002` (827fbaf3), locally and on GitHub. On the owner's word
+  ("overwrite headunit") GitHub `headunit` was replaced, 827fbaf3 -> cc1b13b8, with
+  `--force-with-lease=headunit:827fbaf3...` after `headunit-20261002` had been pushed; the first try, made
+  without that word, the permission check refused ("Git Destructive") **[verified: `git ls-remote mine` --
+  headunit cc1b13b8, headunit-20261002 827fbaf3]**. The head unit's state: HeadUnit `docs/STATE.md`.
