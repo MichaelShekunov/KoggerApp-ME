@@ -260,8 +260,8 @@ elseif(UNIX)
     target_link_libraries(KoggerApp PRIVATE Qt6::Widgets Qt6::SerialPort)
     if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm")
         target_compile_definitions(KoggerApp PRIVATE LINUX_ES)
-        target_link_libraries(KoggerApp PRIVATE GLESv2 png brotlidec
-            "${CMAKE_SOURCE_DIR}/third_party/freetype/lib/aarch64/libfreetype.a")
+        target_link_libraries(KoggerApp PRIVATE GLESv2
+            "${CMAKE_SOURCE_DIR}/third_party/freetype/lib/aarch64/libfreetype.a" png brotlidec z)
         target_sources(KoggerApp PRIVATE platform/android/shaders.qrc)
     else()
         target_compile_definitions(KoggerApp PRIVATE LINUX_DESKTOP)
