@@ -2562,12 +2562,16 @@ key!". Where this differs from the sections above, this holds.
   redirected (`*>` to a log) had not returned more than an hour after the log's last line (13:36:44), until the
   shell was stopped. Inference: the daemon inherited the redirect's pipe. Wait for the log's last line, not for
   the shell, and stop the daemon after the build.
-- **Not pushed**: c6c5d952 and this docs commit are local only (GitHub `mine` has f89cf3af); push on the
-  owner's word.
+- **Pushed** to `mine` on the owner's word (2026-10-20): `me` up to bd83354a, then this correction after it
+  **[verified: `git ls-remote mine` = local `me`]**. This PC has no SSH key for GitHub (no `~/.ssh`;
+  `git ls-remote mine` says "Host key verification failed"), so the push went over HTTPS with the Git Credential
+  Manager's stored login: `git -c url.https://github.com/.insteadOf=git@github.com: push mine me`. The remote's
+  URL in .git/config was left as it is (the laptop pushes over SSH).
 - **Head unit**: the branch `headunit` was made again on top of `me` (ff7bdcd2) with the kiosk patch
   (HeadUnit `orangepi5max/deploy_myedition/make_headunit_branch.py`, now based on `me`, run on the worktree
   `D:\Temp\ka_headunit_wt`; the same patch-id as the old kiosk commit 23bcf614) -> cc1b13b8. Built on the board
   (505 steps, 570 s, no errors), the kiosk switched at 11:08:13 UTC on the owner's word **[verified: ExecStart,
   active, NRestarts 0, no QML/JS errors in kogger.log after the switch; ~25 % of one core 90 s after the start]**.
-  The old branch is kept as `headunit-20261002` (827fbaf3); both are local only. The head unit's state:
-  HeadUnit `docs/STATE.md`.
+  The old branch is kept locally as `headunit-20261002` (827fbaf3). GitHub `mine/headunit` is still 827fbaf3:
+  cc1b13b8 is not its descendant, so replacing it rewrites the branch; the permission check refused that
+  ("Git Destructive") and it waits on the owner's word. The head unit's state: HeadUnit `docs/STATE.md`.
