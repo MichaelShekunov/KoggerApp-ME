@@ -2564,3 +2564,10 @@ key!". Where this differs from the sections above, this holds.
   the shell, and stop the daemon after the build.
 - **Not pushed**: c6c5d952 and this docs commit are local only (GitHub `mine` has f89cf3af); push on the
   owner's word.
+- **Head unit**: the branch `headunit` was made again on top of `me` (ff7bdcd2) with the kiosk patch
+  (HeadUnit `orangepi5max/deploy_myedition/make_headunit_branch.py`, now based on `me`, run on the worktree
+  `D:\Temp\ka_headunit_wt`; the same patch-id as the old kiosk commit 23bcf614) -> cc1b13b8. Built on the board
+  (505 steps, 570 s, no errors), the kiosk switched at 11:08:13 UTC on the owner's word **[verified: ExecStart,
+  active, NRestarts 0, no QML/JS errors in kogger.log after the switch; ~25 % of one core 90 s after the start]**.
+  The old branch is kept as `headunit-20261002` (827fbaf3); both are local only. The head unit's state:
+  HeadUnit `docs/STATE.md`.
