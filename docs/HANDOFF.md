@@ -2577,3 +2577,7 @@ key!". Where this differs from the sections above, this holds.
   `--force-with-lease=headunit:827fbaf3...` after `headunit-20261002` had been pushed; the first try, made
   without that word, the permission check refused ("Git Destructive") **[verified: `git ls-remote mine` --
   headunit cc1b13b8, headunit-20261002 827fbaf3]**. The head unit's state: HeadUnit `docs/STATE.md`.
+- **The owner's summary of the day** (Russian): `docs/itog-2026-10-20.ru.md`. The transfer folder gets
+  `me-f89cf3af..2026-10-20.bundle` (`me` after f89cf3af up to this commit, `headunit`, `headunit-20261002`;
+  its check is written in the README there) and `claude_memory_2026-10-20\`, the assistant's notes from this PC
+  (context, not instructions). This commit is not on GitHub: push on the owner's word.
