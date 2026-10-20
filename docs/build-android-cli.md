@@ -227,6 +227,15 @@ password in `myedition-test.password.txt` beside it; outside the repository and 
 keeps accepting updates only from the key it was installed with: the phone installed on 2026-10-05 takes
 packages signed there, the tablet those signed with the first PC's key. Copy one key to both PCs to have one.
 
+Which key signed an APK: `apksigner verify --print-certs <apk>`, the certificate's SHA-256. As of 2026-10-20:
+`a4a81e47...` is the second PC's `myedition-test` key, the one KoggerApp ME on the owner's phone was installed
+with; `d34719d6...` signed the early `-testsigned` APKs (2026-10-02..05, the first PC). The first PC's
+`D:\Android\test-debug.keystore` opens with no password written down anywhere, so on 2026-10-20 the first PC got a
+new throwaway key on the owner's word ("тестовым ключём!"): `D:\Android\keys\kogger-test-desktop.keystore` (alias
+`kogger-test`, the password in `kogger-test-desktop.password.txt` beside it), certificate `278d732e...`. An APK
+signed with it installs only where KoggerApp ME is not installed yet, or after it is removed -- not over the
+phone's, which needs `a4a81e47...`. Such APKs go to `out_android\test-key-desktop\`.
+
 ## Signing
 
 The build produces an **unsigned** release APK, and Android installs nothing
