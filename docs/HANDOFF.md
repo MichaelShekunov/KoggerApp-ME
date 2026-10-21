@@ -2614,6 +2614,10 @@ oddly, the boat's arrow keeps jumping, and gaps show on the last echograms".
   likely (the recorder writes everything, the screen gets what the link carries) -- not checked.
 - **Not done**: a setting to pick the source by hand; the sonar's pitch and roll together with the autopilot's
   yaw.
+- **Why the sonar's own yaw is off** (the firmware session, 2026-10-21; Inference, not measured): its gyro's zero is
+  calibrated at power-on only when the sonar is still -- switched on aboard a rocking boat it stays uncalibrated
+  and the heading drifts; its magnetometer (MMC5983MA, ID_VOLTAGE channel 2) is not calibrated where it is
+  mounted, so the boat's iron and motors pull it. The firmware changes nothing without the owner's word.
 - **Seen on the way**: this PC has two installs of KoggerApp ME, both f89cf3af: `C:\Program Files\KoggerApp ME`
   (the desktop shortcut, the owner's running copies) and `%LOCALAPPDATA%\Programs\KoggerApp ME`
   (`win_install_user.ps1`). One of four replays of the installed f89cf3af ended with 0xC0000374 (heap
