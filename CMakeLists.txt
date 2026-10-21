@@ -116,6 +116,7 @@ qt_add_executable(KoggerApp
     src/stall_monitor.h            src/stall_monitor.cpp
     src/touch_tap_gate.h
     src/device/device_liveness.h
+    src/device/attitude_arbiter.h
 )
 
 target_compile_features(KoggerApp PRIVATE cxx_std_23)

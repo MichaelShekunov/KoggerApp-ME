@@ -10,6 +10,7 @@
 #include <QVariant>
 #include <QXmlStreamWriter>
 #include "notifications.h"
+#include "attitude_arbiter.h"
 
 extern Core core;
 extern Notifications notifications;
@@ -3079,7 +3080,7 @@ void DevDriver::receivedAtt(Parsers::Type type, Parsers::Version ver, Parsers::R
     const float roll = idAtt->roll();
 
     if (!qFuzzyIsNull(yaw) || !qFuzzyIsNull(pitch) || !qFuzzyIsNull(roll)) {
-        emit attitudeComplete(yaw, idAtt->pitch(), idAtt->roll());
+        emit attitudeComplete(yaw, idAtt->pitch(), idAtt->roll(), AttitudeArbiter::KindDeviceImu, attitudeSource());
     }
 
     emit servoCurrentAngleChanged();
@@ -3528,7 +3529,7 @@ void DevDriver::receivedNav(Parsers::Type type, Parsers::Version ver, Parsers::R
                                  yawDeg, pitchDeg, rollDeg);
         emit positionComplete(latitude, longitude, unixTime, static_cast<uint32_t>(unixOffsetNs));
         emit gnssVelocityComplete(velocityMps, courseDeg);
-        emit attitudeComplete(yawDeg, pitchDeg, rollDeg);
+        emit attitudeComplete(yawDeg, pitchDeg, rollDeg, AttitudeArbiter::KindNav, attitudeSource());
 
         //qDebug() << "SimpleNavV2 parsed (driver):"
         //         << "fix=" << idNav->gnssFixTypeV2()
@@ -3563,7 +3564,7 @@ void DevDriver::receivedNav(Parsers::Type type, Parsers::Version ver, Parsers::R
 #endif
 
         emit positionComplete(latitude, longitude, 0, 0);
-        emit attitudeComplete(yawDeg, pitchDeg, rollDeg);
+        emit attitudeComplete(yawDeg, pitchDeg, rollDeg, AttitudeArbiter::KindNav, attitudeSource());
         emit depthComplete(depthM);
     }
 }

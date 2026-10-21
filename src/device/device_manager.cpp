@@ -407,7 +407,7 @@ void DeviceManager::frameInput(QUuid uuid, Link* link, Parsers::FrameParser fram
 
                 if (/*reference == 'T' && TODO: check this*/ headingValid) {
                     //qDebug().noquote() << QString("NMEA HDT parsed: heading=%1 deg true").arg(heading_deg, 0, 'f', 3);
-                    emit attitudeComplete(static_cast<float>(headingDeg), 0.0f, 0.0f);
+                    passAttitude(AttitudeArbiter::KindGnssHeading, 0, static_cast<float>(headingDeg), 0.0f, 0.0f);
                 }
                 else {
                     //qDebug().noquote() << QString("NMEA HDT rejected: heading=%1 ref=%2")
@@ -543,7 +543,9 @@ void DeviceManager::frameInput(QUuid uuid, Link* link, Parsers::FrameParser fram
                     const float roll = attitude.rollDeg();
 
                     if (!qFuzzyIsNull(yaw) || !qFuzzyIsNull(pitch) || !qFuzzyIsNull(roll)) {
-                        emit attitudeComplete(yaw, attitude.pitchDeg(), attitude.rollDeg());
+                        passAttitude(AttitudeArbiter::KindAutopilot,
+                                     (quint64(mavlink_frame.systemID()) << 8) | mavlink_frame.componentID(),
+                                     yaw, attitude.pitchDeg(), attitude.rollDeg());
                     }
                 }
 #ifndef SEPARATE_READING
@@ -1287,7 +1289,8 @@ void DeviceManager::onPositionUpdated(const QGeoPositionInfo &info)
     smplNav.roll = 0;
 
     emit positionComplete(smplNav.latitude, smplNav.longitude, info.timestamp().toSecsSinceEpoch(), info.timestamp().toMSecsSinceEpoch());
-    emit attitudeComplete(smplNav.yaw, 0.0, 0.0);
+    // The course of this computer's own location: the least kind, like a device's IMU.
+    passAttitude(AttitudeArbiter::KindDeviceImu, 0, smplNav.yaw, 0.0f, 0.0f);
 
     // LOGGING
     if (loggingStarted_) {
@@ -1340,6 +1343,39 @@ void DeviceManager::delAllDev()
     for (const auto& key : keysToDelete) {
         deleteDevicesByLink(key);
     }
+    attitudeArb_.reset();   // a new recording or a new set of devices chooses its attitude source again
+}
+
+void DeviceManager::passAttitude(int kind, quint64 source, float yaw, float pitch, float roll)
+{
+    if (!attitudeArb_.accept(AttitudeArbiter::Kind(kind), source)) {
+        return;
+    }
+    if (attitudeArb_.changed()) {
+        QString what;
+        switch (kind) {
+        case AttitudeArbiter::KindAutopilot:
+            what = QStringLiteral("the autopilot (MAVLink ATTITUDE, system %1 component %2)").arg(source >> 8).arg(source & 0xFF);
+            break;
+        case AttitudeArbiter::KindGnssHeading:
+            what = QStringLiteral("a GNSS compass (NMEA HDT)");
+            break;
+        case AttitudeArbiter::KindNav:
+            what = QStringLiteral("a navigation board (ID_NAV, address %1)").arg(source & 0xFF);
+            break;
+        default:
+            what = source ? QStringLiteral("a device's own IMU (ID_ATTITUDE, address %1)").arg(source & 0xFF)
+                          : QStringLiteral("the course of this computer's location");
+            break;
+        }
+        qInfo().noquote() << QStringLiteral("attitude source: %1").arg(what);
+    }
+    emit attitudeComplete(yaw, pitch, roll);
+}
+
+void DeviceManager::onDevAttitude(float yaw, float pitch, float roll, int kind, quint64 source)
+{
+    passAttitude(kind, source, yaw, pitch, roll);
 }
 
 void DeviceManager::deleteDevicesByLink(QUuid uuid)
@@ -1416,7 +1452,7 @@ DevQProperty* DeviceManager::createDev(QUuid uuid, Link* link, uint8_t addr)
 
     connect(dev, &DevQProperty::chartComplete, this, &DeviceManager::chartComplete, connType);
     connect(dev, &DevQProperty::rawDataRecieved, this, &DeviceManager::rawDataRecieved, connType);
-    connect(dev, &DevQProperty::attitudeComplete, this, &DeviceManager::attitudeComplete, connType);
+    connect(dev, &DevQProperty::attitudeComplete, this, &DeviceManager::onDevAttitude, connType);
     connect(dev, &DevQProperty::tempComplete, this, &DeviceManager::tempComplete, connType);
     connect(dev, &DevQProperty::supplyVoltageComplete, this, &DeviceManager::supplyVoltageComplete, connType);
     connect(dev, &DevQProperty::distComplete, this, &DeviceManager::distComplete, connType);
@@ -1464,7 +1500,7 @@ DevQProperty* DeviceManager::createDev(QUuid uuid, Link* link, uint8_t addr)
 
     connect(dev, &DevQProperty::chartComplete, this, &DeviceManager::chartComplete);
     connect(dev, &DevQProperty::rawDataRecieved, this, &DeviceManager::rawDataRecieved);
-    connect(dev, &DevQProperty::attitudeComplete, this, &DeviceManager::attitudeComplete);
+    connect(dev, &DevQProperty::attitudeComplete, this, &DeviceManager::onDevAttitude);
     connect(dev, &DevQProperty::tempComplete, this, &DeviceManager::tempComplete);
     connect(dev, &DevQProperty::supplyVoltageComplete, this, &DeviceManager::supplyVoltageComplete);
     connect(dev, &DevQProperty::distComplete, this, &DeviceManager::distComplete);

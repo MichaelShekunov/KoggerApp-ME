@@ -524,7 +524,10 @@ signals:
     void rawDataRecieved(const ChannelId& channelId, RawData raw_data);
 
     void iqComplete(QByteArray data, uint8_t type);
-    void attitudeComplete(float yaw, float pitch, float roll);
+    /// `kind` is an AttitudeArbiter::Kind: the device's own IMU (ID_ATTITUDE) or a navigation board (ID_NAV).
+    /// `source` tells this device from others of the kind: the object in the high bits, the bus address in
+    /// the low byte (for the log).
+    void attitudeComplete(float yaw, float pitch, float roll, int kind, quint64 source);
     void tempComplete(float val);
     void voltageComplete(quint8 channel, qint32 value);
     void supplyVoltageComplete(float volts);   // ID_VOLTAGE channel 0, the supply
@@ -812,6 +815,8 @@ protected:
     } m_state;
 
     uint8_t lastAddress_ = 0;
+    /// This device as an attitude source (attitudeComplete): the object, then the address in the low byte.
+    quint64 attitudeSource() const { return (quint64(reinterpret_cast<quintptr>(this)) << 8) | lastAddress_; }
 
     QTimer m_processTimer;
 

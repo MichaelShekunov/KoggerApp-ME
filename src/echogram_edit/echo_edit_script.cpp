@@ -705,10 +705,22 @@ void EchoEditScript::dump(const QString& path)
         }
     };
     int finite = 0, hand = 0, excluded = 0, usable = 0;
+    // The heading the epochs carry: how many have one, and how often it turns by more than 20 deg from one
+    // epoch to the next -- a boat does not, two disagreeing sources mixed together do (attitude_arbiter.h).
+    int yawFinite = 0, yawSteps20 = 0;
+    float lastYaw = NAN;
     QByteArray bottom;   // <path>.bottom.bin: the first channel's bottom, float32 an epoch, NaN where none
     bottom.reserve(n * 4);
     for (int e = 0; e < n; ++e) {
         Epoch* ep = ds->fromIndex(e);
+        if (ep && ep->isAttAvail() && std::isfinite(ep->yaw())) {
+            const float y = ep->yaw();
+            if (std::isfinite(lastYaw) && std::fabs(std::remainder(y - lastYaw, 360.0f)) > 20.0f) {
+                ++yawSteps20;
+            }
+            lastYaw = y;
+            ++yawFinite;
+        }
         const Epoch::DistProcessing* bp = (ep && !channels.isEmpty())
             ? ep->bottomProcessingOf(channels.first().channelId_, channels.first().subChannelId_) : nullptr;
         const float d = bp ? bp->distance : NAN;
@@ -735,6 +747,8 @@ void EchoEditScript::dump(const QString& path)
         { QStringLiteral("hand"), hand },
         { QStringLiteral("excluded"), excluded },
         { QStringLiteral("usable"), usable },
+        { QStringLiteral("yawFinite"), yawFinite },
+        { QStringLiteral("yawSteps20"), yawSteps20 },
         { QStringLiteral("canUndo"), ed->canUndo() },
         { QStringLiteral("canRedo"), ed->canRedo() },
         { QStringLiteral("undoCount"), ed->undoCount() },
@@ -782,6 +796,7 @@ void EchoEditScript::dump(const QString& path)
     if (!trk.open(QIODevice::WriteOnly) || trk.write(track) < 0 || !trk.commit()) {
         qWarning().noquote() << QStringLiteral("echoedit script: %1.track.bin not written: %2").arg(path, trk.errorString());
     }
-    qInfo().noquote() << QStringLiteral("echoedit script: dump %1: %2 epochs, bottom %3, %4 finite, %5 by hand, %6 left out")
-                         .arg(path).arg(n).arg(hex64(h)).arg(finite).arg(hand).arg(excluded);
+    qInfo().noquote() << QStringLiteral("echoedit script: dump %1: %2 epochs, bottom %3, %4 finite, %5 by hand, %6 left out; "
+                                        "heading in %7 epochs, %8 turns over 20 deg")
+                         .arg(path).arg(n).arg(hex64(h)).arg(finite).arg(hand).arg(excluded).arg(yawFinite).arg(yawSteps20);
 }

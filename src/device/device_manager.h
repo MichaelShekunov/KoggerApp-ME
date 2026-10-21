@@ -17,6 +17,7 @@
 #include "ring_upgrade.h"
 #include "bus_address.h"
 #include "ring_rate.h"
+#include "attitude_arbiter.h"
 #include <QElapsedTimer>
 #include <QPointer>
 #include <QTimer>
@@ -268,8 +269,13 @@ private:
     bool autoDownloadStarted_ = false;
     LocationReader* locReader_{ nullptr };
     bool useGPS_{ false };
+    // One source of the boat's attitude at a time (attitude_arbiter.h): every reading goes through
+    // passAttitude(), which emits attitudeComplete only for the chosen source.
+    AttitudeArbiter attitudeArb_;
+    void passAttitude(int kind, quint64 source, float yaw, float pitch, float roll);
 
 private slots:
     void readyReadProxy(Link* link);
     void readyReadProxyNav(Link* link);
+    void onDevAttitude(float yaw, float pitch, float roll, int kind, quint64 source);
 };
