@@ -2656,5 +2656,14 @@ and checked on the PC by that session but not yet on a board.
   - The edit script runs `"live": true` without a recording (`waitPresets`, `presets`, `presetRecall`,
     `presetSave`), which is how the live check drives the device.
 - **Not checked**: a real sonar (11.21 is not on a board yet; the firmware session writes when it is); the pill's
-  look with the names on screen and the save question as a dialog; the head unit (its kiosk build 280e378e has the
-  attitude fix, not the presets). Installed on this PC: 9d7186dc (the attitude fix), not the presets.
+  look with the names on screen and the save question as a dialog. Installed on this PC: 9d7186dc (the attitude
+  fix), not the presets.
+- **Head unit** (2026-10-21, on the owner's "update the app on the head unit"): `headunit` d95ee83c = `me` 94691e9e
+  (the attitude fix and the presets) + the kiosk patch, built on the board (319 steps, 360 s), the kiosk on it since
+  08:17 UTC **[verified: ExecStart, active, NRestarts 0, no QML/JS errors]**; the boat was off, so neither the
+  autopilot heading nor the presets were seen there. The head unit's recordings of 2026-10-20 (what came over
+  Wi-Fi): 2..5 % of the pings broken -- cut short or holed (207 of 9457, 474 of 10268, 355 of 6812), stretches of
+  0.3..1.3 s without pings -- against none in the boat recorder's 00004: the losses are on the radio link
+  **[verified: the recordings]**; a compressed ping (ID_CHART_Z) with a piece missing does not decode and is
+  dropped whole. They make no blank columns (4..5 epochs without a ping a recording, same as the recorder's file).
+  The traffic was 18..19 KB/s, ID_VOLTAGE 73 frames/s of it (~2.1 KB/s).
