@@ -143,7 +143,9 @@ int main(int argc, char** argv)
     QByteArray stream;
     stream.append(kp1(Parsers::CONTENT, 0, 0x7C, slotPayload(0, 0x03, 815, 25, 0, 5, 4000, 10, 0, 50, narrow.toUtf8())));
     stream.append(kp1(Parsers::CONTENT, 0, 0x7C, slotPayload(1, 0x03, 450, 30, 1, 0, 3000, 20, 100, 100, wide.toUtf8())));
-    for (int s = 2; s < 8; ++s) {
+    // A user's slot: used, not factory; a period past 16 bits.
+    stream.append(kp1(Parsers::CONTENT, 0, 0x7C, slotPayload(2, 0x01, 600, 20, 0, 1, 2000, 5, 0, 70000, "user")));
+    for (int s = 3; s < 8; ++s) {
         stream.append(kp1(Parsers::CONTENT, 0, 0x7C, slotPayload(uint8_t(s), 0, 0, 0, 0, 0, 0, 0, 0, 0, QByteArray())));
     }
     const QVector<Parsers::Resp> r = feed(pr, stream);
@@ -160,11 +162,15 @@ int main(int argc, char** argv)
     ok("slot 1: 450 kHz, 30 pulses, boost 1, DSP 0", s1.freqKhz == 450 && s1.pulses == 30 && s1.boost == 1 && s1.dsp == 0);
     ok("slot 1: 3000 cells of 20 mm, offset 100, period 100 ms", s1.cells == 3000 && s1.cellMm == 20 && s1.offset == 100 && s1.periodMs == 100);
     ok("slot 1: the name (21 bytes of UTF-8)", s1.name == wide && wide.toUtf8().size() == 21, s1.name);
+    const IDBinPreset::Slot& s2 = pr.slot(2);
+    ok("slot 2: used, not factory", s2.known && s2.used && !s2.factory);
+    ok("slot 2: 600 kHz, a period of 70000 ms (past 16 bits), the name", s2.freqKhz == 600 && s2.periodMs == 70000
+       && s2.name == QStringLiteral("user"), QString("%1 kHz period %2 \"%3\"").arg(s2.freqKhz).arg(s2.periodMs).arg(s2.name));
     bool emptyOk = true;
-    for (int s = 2; s < 8; ++s) {
+    for (int s = 3; s < 8; ++s) {
         emptyOk = emptyOk && pr.slot(s).known && !pr.slot(s).used && !pr.slot(s).factory && pr.slot(s).name.isEmpty();
     }
-    ok("slots 2..7: known, unused, no name", emptyOk);
+    ok("slots 3..7: known, unused, no name", emptyOk);
     ok("the last slot parsed is 7", pr.lastSlot() == 7, QString::number(pr.lastSlot()));
 
     std::printf("\nframes that are not right\n");
