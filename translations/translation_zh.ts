@@ -7772,112 +7772,112 @@
         <translation>宽波束</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1469"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1466"/>
         <source>Save the sonar&apos;s current settings into “%1”?</source>
         <translation>将声呐当前设置保存到“%1”？</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1477"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1474"/>
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1481"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1478"/>
         <source>Save</source>
         <translation>保存</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1542"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1539"/>
         <source>no data</source>
         <translation>无数据</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1544"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1541"/>
         <source>dBm</source>
         <translation>dBm</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1547"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1544"/>
         <source>Port %1</source>
         <translation>端口 %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1716"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1707"/>
         <source>%1: %2 kHz. Hold to save the current settings into it</source>
         <translation>%1：%2 kHz。长按可将当前设置保存到此预设</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1718"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1706"/>
         <source>Set 700 kHz</source>
         <translation>设为 700 kHz</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1718"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1706"/>
         <source>Set 450 kHz</source>
         <translation>设为 450 kHz</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1787"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1729"/>
         <source>Device settings</source>
         <translation>设备设置</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1839"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1781"/>
         <source>Close second window</source>
         <translation>关闭第二窗口</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1840"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1782"/>
         <source>Open second window</source>
         <translation>打开第二窗口</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1863"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1805"/>
         <source>Power off</source>
         <translation>关机</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1945"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1887"/>
         <source>Hide console</source>
         <translation>隐藏控制台</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1945"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1887"/>
         <source>Console</source>
         <translation>控制台</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1969"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1911"/>
         <source>Close profiles</source>
         <translation>关闭配置文件</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1969"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1911"/>
         <source>Settings profiles</source>
         <translation>设置配置文件</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2012"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1954"/>
         <source>Open settings</source>
         <translation>打开设置</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2040"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1982"/>
         <source>Collapse hotkeys</source>
         <translation>收起快捷操作</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2040"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1982"/>
         <source>Open hotkeys</source>
         <translation>打开快捷操作</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2353"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2295"/>
         <source>Close bottom track editing</source>
         <translation>关闭底部跟踪编辑</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2354"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2296"/>
         <source>Bottom track editing</source>
         <translation>底部跟踪编辑</translation>
     </message>

@@ -30,6 +30,7 @@ qt_add_qml_module(kogger_app
         FavoriteLayoutCard.qml
         FileOpeningOverlay.qml
         FilesSettingsPage.qml
+        FreqPresetButton.qml
         FullscreenPanePopup.qml
         GlobalPanePopup.qml
         HeaderActionChip.qml

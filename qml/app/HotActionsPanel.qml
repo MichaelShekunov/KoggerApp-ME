@@ -1433,9 +1433,6 @@ Item {
         return (s && s.used) ? s : null
     }
     function presetDefaultName(slot) { return slot === 0 ? qsTr("Narrow beam") : qsTr("Wide beam") }
-    function presetActive(dev, s) {
-        return !!(dev && s && dev.transFreq === s.freqKhz && dev.transPulse === s.pulses)
-    }
     function askPresetSave(dev, slot) {
         var s = presetOf(dev, slot)
         presetSaveConfirm.dev = dev
@@ -1697,82 +1694,27 @@ Item {
                         // The two frequency buttons: 700 and 450 kHz, or the sonar's presets 0 and 1 (presetOf).
                         Repeater {
                             model: 2
-                            delegate: KCircleIconButton {
+                            delegate: FreqPresetButton {
                                 id: freqBtn
                                 required property int index
-                                readonly property int _khz: index === 0 ? 700 : 450
-                                readonly property var _preset: root.presetOf(devBadge._dev, index)
+                                dev: devBadge._dev
+                                slot: index
+                                khz: index === 0 ? 700 : 450
+                                uiScale: root._s
                                 visible: devBadge._transducer
                                 width: devBadge.width; height: width
-                                glyph: _preset ? String(_preset.freqKhz) : String(_khz)
-                                glyphPixelSize: Math.round(11 * root._s)
-                                readonly property bool _active: _preset ? root.presetActive(devBadge._dev, _preset)
-                                                                        : !!(devBadge._dev && devBadge._dev.transFreq === _khz)
-                                fillColor:      _active ? AppPalette.accentBgStrong : AppPalette.card
-                                fillHoverColor: _active ? AppPalette.accentBgHover : AppPalette.cardHover
-                                fillPressedColor: _active ? AppPalette.accentBgPressed : AppPalette.bgDeep
-                                borderColor:    _active ? AppPalette.accentBorder : AppPalette.border
-                                toolTipText: _preset
-                                             ? qsTr("%1: %2 kHz. Hold to save the current settings into it")
-                                                   .arg(_preset.name).arg(_preset.freqKhz)
-                                             : (index === 0 ? qsTr("Set 700 kHz") : qsTr("Set 450 kHz"))
-
-                                // A long press saves into the slot -- only on a sonar that keeps presets; on any
-                                // other a long press is a click.
-                                property bool _held: false
-                                Timer {
-                                    id: holdTimer
-                                    interval: 600
-                                    onTriggered: {
-                                        freqBtn._held = true
-                                        devPill.close()
-                                        root.askPresetSave(devBadge._dev, freqBtn.index)
-                                    }
+                                tipFixed: index === 0 ? qsTr("Set 700 kHz") : qsTr("Set 450 kHz")
+                                tipPresetFormat: qsTr("%1: %2 kHz. Hold to save the current settings into it")
+                                // The name beside the button on the side of the window with more room.
+                                labelLeft: {
+                                    devPill.opened
+                                    var p = freqBtn.mapToItem(null, 0, 0)
+                                    return p.x > (freqBtn.Window.width || 0) / 2
                                 }
-                                onPressStarted: {
-                                    _held = false
-                                    if (devBadge._dev && devBadge._dev.presetsKnown)
-                                        holdTimer.restart()
-                                }
-                                onPressEnded: holdTimer.stop()
-                                onPressCanceled: holdTimer.stop()
-                                onClicked: {
-                                    if (_held) {
-                                        _held = false
-                                        return
-                                    }
-                                    if (_preset)
-                                        devBadge._dev.presetRecall(index)
-                                    else if (devBadge._dev)
-                                        devBadge._dev.transFreq = _khz
+                                onDone: devPill.close()
+                                onSaveAsked: function(slot) {
                                     devPill.close()
-                                }
-
-                                // The preset's name beside the button (the circle has room for the frequency only),
-                                // on the side of the window with more room.
-                                Rectangle {
-                                    visible: !!freqBtn._preset
-                                    readonly property bool _left: {
-                                        devPill.opened
-                                        var p = freqBtn.mapToItem(null, 0, 0)
-                                        return p.x > (freqBtn.Window.width || 0) / 2
-                                    }
-                                    x: _left ? -width - Math.round(6 * root._s) : freqBtn.width + Math.round(6 * root._s)
-                                    anchors.verticalCenter: parent.verticalCenter
-                                    width: presetNameText.implicitWidth + Math.round(14 * root._s)
-                                    height: presetNameText.implicitHeight + Math.round(8 * root._s)
-                                    radius: height / 2
-                                    color: AppPalette.bg
-                                    border.width: 1
-                                    border.color: freqBtn._active ? AppPalette.accentBorder : AppPalette.border
-                                    Text {
-                                        id: presetNameText
-                                        anchors.centerIn: parent
-                                        text: freqBtn._preset ? freqBtn._preset.name : ""
-                                        color: AppPalette.text
-                                        font.pixelSize: Math.round(12 * root._s)
-                                        font.bold: freqBtn._active
-                                    }
+                                    root.askPresetSave(devBadge._dev, slot)
                                 }
                             }
                         }

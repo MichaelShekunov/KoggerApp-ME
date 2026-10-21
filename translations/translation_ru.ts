@@ -7691,12 +7691,12 @@
 <context>
     <name>HotActionsPanel</name>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1547"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1544"/>
         <source>Port %1</source>
         <translation>Порт %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2012"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1954"/>
         <source>Open settings</source>
         <translation>Открыть настройки</translation>
     </message>
@@ -7706,27 +7706,27 @@
         <translation>Устройство</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1945"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1887"/>
         <source>Console</source>
         <translation>Консоль</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1945"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1887"/>
         <source>Hide console</source>
         <translation>Скрыть консоль</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1718"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1706"/>
         <source>Set 700 kHz</source>
         <translation>Установить 700 кГц</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1718"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1706"/>
         <source>Set 450 kHz</source>
         <translation>Установить 450 кГц</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1787"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1729"/>
         <source>Device settings</source>
         <translation>Настройки устройства</translation>
     </message>
@@ -7776,22 +7776,22 @@
         <translation>Настройки записи</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1863"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1805"/>
         <source>Power off</source>
         <translation>Выключить питание</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1969"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1911"/>
         <source>Settings profiles</source>
         <translation>Профили настроек</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1969"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1911"/>
         <source>Close profiles</source>
         <translation>Закрыть профили</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2354"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2296"/>
         <source>Bottom track editing</source>
         <translation>Редактирование трека дна</translation>
     </message>
@@ -7816,57 +7816,57 @@
         <translation>Широкий луч</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1469"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1466"/>
         <source>Save the sonar&apos;s current settings into “%1”?</source>
         <translation>Записать текущие настройки сонара в «%1»?</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1477"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1474"/>
         <source>Cancel</source>
         <translation>Отмена</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1481"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1478"/>
         <source>Save</source>
         <translation>Записать</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1542"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1539"/>
         <source>no data</source>
         <translation>нет данных</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1544"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1541"/>
         <source>dBm</source>
         <translation>дБм</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1716"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1707"/>
         <source>%1: %2 kHz. Hold to save the current settings into it</source>
         <translation>%1: %2 кГц. Удерживайте, чтобы записать в него текущие настройки</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1839"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1781"/>
         <source>Close second window</source>
         <translation>Закрыть второе окно</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1840"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1782"/>
         <source>Open second window</source>
         <translation>Открыть второе окно</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2040"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1982"/>
         <source>Collapse hotkeys</source>
         <translation>Свернуть быстрые действия</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2040"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1982"/>
         <source>Open hotkeys</source>
         <translation>Открыть быстрые действия</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2353"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2295"/>
         <source>Close bottom track editing</source>
         <translation>Закрыть редактор трека дна</translation>
     </message>
