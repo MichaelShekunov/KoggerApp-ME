@@ -146,8 +146,9 @@ try {
                     } elseif ($ver -eq 2) {
                         $slots[[int]$slot] = @{ Used = $false; Factory = $false; Freq = 0; Pulses = 0; Name = '' }
                     }
-                    Send (Kp1 1 $ver 0x7C ([byte[]]($code, $ck[0], $ck[1])) $true)
-                    if ($ver -eq 1 -and $code -eq 1) { Send (SlotFrame $slot) }
+                    Send (Kp1 1 $ver 0x7C ([byte[]]($code)) $true)   # one byte, the code, as firmware 11.21 sends it
+                    # after a save or a delete that went through, that slot's frame (firmware 11.21; a recall reports TRANSC & co.)
+                    if (($ver -eq 1 -or $ver -eq 2) -and $code -eq 1) { Send (SlotFrame $slot) }
                 }
             }
             $i += $total

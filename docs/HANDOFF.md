@@ -2658,6 +2658,13 @@ and checked on the PC by that session but not yet on a board.
 - **Not checked**: a real sonar (11.21 is not on a board yet; the firmware session writes when it is); the pill's
   look with the names on screen and the save question as a dialog. Installed on this PC: 9d7186dc (the attitude
   fix), not the presets.
+- **Firmware 11.21 as the firmware session read it against this code** (2026-10-21): it answers a SETTING only when
+  the frame asks for it (mode bit 7; ProtoBinOut::create sets it on everything but CONTENT), with CONTENT +
+  the resp bit, the version of the frame answered and one byte, the code; after a save or a delete that went
+  through, that slot's frame; after a recall, ID_TRANSC, ID_CHART_SETUP, ID_DSP, ID_DATASET and no slot frame;
+  after a refusal, the RESP alone. Firmware before 11.21 does not answer GET 0x7C at all (no ERR_ID): the five
+  asks 3 s apart and then silence are right. In DSP mode 5 (the sweep) ID_TRANSC reports the sweep's frequency,
+  so a preset button goes dark during a sweep -- expected. The stand answers the same way (one-byte RESP).
 - **Head unit** (2026-10-21, on the owner's "update the app on the head unit"): `headunit` d95ee83c = `me` 94691e9e
   (the attitude fix and the presets) + the kiosk patch, built on the board (319 steps, 360 s), the kiosk on it since
   08:17 UTC **[verified: ExecStart, active, NRestarts 0, no QML/JS errors]**; the boat was off, so neither the
