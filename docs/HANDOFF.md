@@ -2618,3 +2618,39 @@ oddly, the boat's arrow keeps jumping, and gaps show on the last echograms".
   (the desktop shortcut, the owner's running copies) and `%LOCALAPPDATA%\Programs\KoggerApp ME`
   (`win_install_user.ps1`). One of four replays of the installed f89cf3af ended with 0xC0000374 (heap
   corruption) at quit; not investigated.
+
+## Sonar presets: ID_PRESET 0x7C on the two frequency buttons (2026-10-21)
+
+The task came from the l412_adc session (nanoSSS firmware) on the owner's decisions of 2026-10-21: presets kept in
+the sonar's own flash, a whole measuring mode each (frequency, pulses, boost, DSP mode, cells, cell size, offset,
+period) and a name; eight slots, the factory slots 0..1 behind the key; after power-on the sonar starts from its
+saved settings as before; the app uses the two frequency buttons it has for now. Contract (the frames only, no
+firmware code): the l412_adc project's `docs/PRESETS_CONCEPT_2026-10-21.md`, section 5. Firmware 11.21 was built
+and checked on the PC by that session but not yet on a board.
+
+- **Protocol** (f52de2bf): `ID_PRESET = 0x7C` (proto_binnary.h); `IDBinPreset` (id_binnary.*) parses the slot frame
+  (CONTENT v0, 41 bytes) and sends recall (SETTING v0 [slot]), save (SETTING v1 [slot][key][name 24 B] -- the
+  key for slots 0..1, zeros for the others; the name cut to 24 bytes of UTF-8 on a character boundary) and
+  delete (SETTING v2 [slot][key]).
+- **DevDriver**: a nanoSSS (board 17) is asked once it is connected and again every 3 s, five times at most, until a
+  slot's frame comes; ERR_ID = no presets, not asked again; reset with the connection. `presetSlots`,
+  `presetsKnown`, `presetRecall`, `presetSave`; a refusal (2 the flash write did not verify, 3 a wrong or empty
+  slot, 7 no key) is one message from DevDriver (from QML it came twice: the pill exists per device view) and the
+  `presetResult` signal. Log lines `preset: ...` for every slot, recall, save and refusal.
+- **The buttons** (`qml/app/FreqPresetButton.qml`, used by HotActionsPanel's device pill): a used slot -- its frequency
+  in the circle, its name beside it (on the side of the window with more room), lit when the sonar reports that
+  frequency and those pulses, a tap recalls; a long press (600 ms) on a sonar that keeps presets asks "Save the
+  sonar's current settings into "<name>"?" (the slot's name, or Narrow beam / Wide beam for an empty slot; the
+  name is not edited in this version) and saves; an empty slot or any other sonar: 700 / 450 kHz as before, a
+  long press is a tap. Translations ru, zh.
+- **Checks** **[verified]**:
+  - `tools/preset_check/run.ps1 -Mutants`: the frames to the contract byte by byte, 29 checks, mutants 12 of 12;
+  - `tools/qml_check/freqpreset_check.ps1 -Mutants`: the button with stand-in sonars, 4 tests, mutants 10 of 10;
+  - `tools/preset_check/preset_live.ps1 -Exe <build>\KoggerApp.exe -PathPrefix <Qt bin>`: the app against a stand
+    that plays a nanoSSS 11.21 over UDP (KOGGER_AUTOTEST) -- asked, read, recall, the empty slot refused once,
+    saves with and without the key, the new names: PASS; no QML errors in that run's log.
+  - The edit script runs `"live": true` without a recording (`waitPresets`, `presets`, `presetRecall`,
+    `presetSave`), which is how the live check drives the device.
+- **Not checked**: a real sonar (11.21 is not on a board yet; the firmware session writes when it is); the pill's
+  look with the names on screen and the save question as a dialog; the head unit (its kiosk build 280e378e has the
+  attitude fix, not the presets). Installed on this PC: 9d7186dc (the attitude fix), not the presets.
