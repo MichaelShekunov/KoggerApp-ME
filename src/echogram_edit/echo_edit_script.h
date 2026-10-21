@@ -37,6 +37,13 @@
 //   {"op": "grab", "path": file.png}                         the window, through the UI probe
 //   {"op": "quit"}
 // An epoch can be given as a share of the recording instead: "fromFrac", "toFrac", "epochFrac".
+//
+// With "live": true at the top of the script the steps do not wait for a recording: a device on a link
+// (KOGGER_AUTOTEST=UDP:<port>, a stand) is enough. For the sonar presets (ID_PRESET):
+//   {"op": "waitPresets", "timeoutMs": 20000}   until a device has answered about its presets
+//   {"op": "presets"}                the presets each device reported, one line a device
+//   {"op": "presetRecall", "slot": n}   {"op": "presetSave", "slot": n, "name": s}
+//                                    on the first device that keeps presets, as its frequency buttons do
 
 #include <QJsonArray>
 #include <QJsonObject>
@@ -72,4 +79,5 @@ private:
     QJsonObject probe_;              // the last magnetProbe's numbers, for dump
     QJsonObject export_;             // the last exportCsv's
     QJsonObject results_;            // the last despike's and turns' counts of pings
+    bool live_ = false;              // "live": steps run without a recording open
 };

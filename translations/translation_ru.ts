@@ -3193,13 +3193,48 @@
         <translation>модуль отказал в обзоре (код %1)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3279"/>
+        <location filename="../src/device/dev_driver.cpp" line="3112"/>
+        <source>The preset was not saved</source>
+        <translation>Пресет не записан</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="3113"/>
+        <source>The preset was not deleted</source>
+        <translation>Пресет не удалён</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="3114"/>
+        <source>The preset was not applied</source>
+        <translation>Пресет не применён</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="3115"/>
+        <source>the sonar&apos;s flash did not take it</source>
+        <translation>флеш-память сонара не приняла запись</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="3116"/>
+        <source>there is no such preset in the sonar</source>
+        <translation>в сонаре нет такого пресета</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="3117"/>
+        <source>the sonar asked for the key</source>
+        <translation>сонар требует ключ</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="3118"/>
+        <source>code %1</source>
+        <translation>код %1</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="3288"/>
         <source>Sync config rejected by device</source>
         <translation>Конфигурация синхронизации отклонена устройством</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3841"/>
-        <location filename="../src/device/dev_driver.cpp" line="3854"/>
+        <location filename="../src/device/dev_driver.cpp" line="3850"/>
+        <location filename="../src/device/dev_driver.cpp" line="3863"/>
         <source>no answer from the module</source>
         <translation>модуль не отвечает</translation>
     </message>
@@ -7656,12 +7691,12 @@
 <context>
     <name>HotActionsPanel</name>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1566"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1547"/>
         <source>Port %1</source>
         <translation>Порт %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2031"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2012"/>
         <source>Open settings</source>
         <translation>Открыть настройки</translation>
     </message>
@@ -7671,27 +7706,27 @@
         <translation>Устройство</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1964"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1945"/>
         <source>Console</source>
         <translation>Консоль</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1964"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1945"/>
         <source>Hide console</source>
         <translation>Скрыть консоль</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1737"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1718"/>
         <source>Set 700 kHz</source>
         <translation>Установить 700 кГц</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1737"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1718"/>
         <source>Set 450 kHz</source>
         <translation>Установить 450 кГц</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1806"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1787"/>
         <source>Device settings</source>
         <translation>Настройки устройства</translation>
     </message>
@@ -7741,22 +7776,22 @@
         <translation>Настройки записи</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1882"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1863"/>
         <source>Power off</source>
         <translation>Выключить питание</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1988"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1969"/>
         <source>Settings profiles</source>
         <translation>Профили настроек</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1988"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1969"/>
         <source>Close profiles</source>
         <translation>Закрыть профили</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2373"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2354"/>
         <source>Bottom track editing</source>
         <translation>Редактирование трека дна</translation>
     </message>
@@ -7781,92 +7816,57 @@
         <translation>Широкий луч</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1448"/>
-        <source>The preset was not saved</source>
-        <translation>Пресет не записан</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1449"/>
-        <source>The preset was not deleted</source>
-        <translation>Пресет не удалён</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1450"/>
-        <source>The preset was not applied</source>
-        <translation>Пресет не применён</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1451"/>
-        <source>the sonar&apos;s flash did not take it</source>
-        <translation>флеш-память сонара не приняла запись</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1452"/>
-        <source>there is no such preset in the sonar</source>
-        <translation>в сонаре нет такого пресета</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1453"/>
-        <source>the sonar asked for the key</source>
-        <translation>сонар требует ключ</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1454"/>
-        <source>code %1</source>
-        <translation>код %1</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1481"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1469"/>
         <source>Save the sonar&apos;s current settings into “%1”?</source>
         <translation>Записать текущие настройки сонара в «%1»?</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1489"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1477"/>
         <source>Cancel</source>
         <translation>Отмена</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1493"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1481"/>
         <source>Save</source>
         <translation>Записать</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1561"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1542"/>
         <source>no data</source>
         <translation>нет данных</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1563"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1544"/>
         <source>dBm</source>
         <translation>дБм</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1735"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1716"/>
         <source>%1: %2 kHz. Hold to save the current settings into it</source>
         <translation>%1: %2 кГц. Удерживайте, чтобы записать в него текущие настройки</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1858"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1839"/>
         <source>Close second window</source>
         <translation>Закрыть второе окно</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1859"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1840"/>
         <source>Open second window</source>
         <translation>Открыть второе окно</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2059"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2040"/>
         <source>Collapse hotkeys</source>
         <translation>Свернуть быстрые действия</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2059"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2040"/>
         <source>Open hotkeys</source>
         <translation>Открыть быстрые действия</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2372"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2353"/>
         <source>Close bottom track editing</source>
         <translation>Закрыть редактор трека дна</translation>
     </message>

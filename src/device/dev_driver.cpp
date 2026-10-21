@@ -3108,6 +3108,15 @@ void DevDriver::receivedPreset(Parsers::Type type, Parsers::Version ver, Parsers
     }
     if (resp != respOk) {
         qInfo().noquote() << QStringLiteral("preset: SETTING v%1 refused, code %2").arg(int(ver)).arg(int(resp));
+        // The message from here, once an answer: QML has a frequency pill per device view.
+        const QString what = ver == v1 ? tr("The preset was not saved")
+                           : ver == v2 ? tr("The preset was not deleted")
+                           : tr("The preset was not applied");
+        const QString why = resp == respErrorCheck ? tr("the sonar's flash did not take it")
+                          : resp == respErrorPayload ? tr("there is no such preset in the sonar")
+                          : resp == respErrorKey ? tr("the sonar asked for the key")
+                          : tr("code %1").arg(int(resp));
+        notifyWarning(what + QStringLiteral(": ") + why);
         emit presetResult(int(ver), int(resp));
     }
 }

@@ -19,6 +19,7 @@
 #include <limits>
 
 #include "core.h"
+#include "device_manager_wrapper.h"
 #include "echogram_editor.h"
 #include "ui_probe.h"
 
@@ -144,6 +145,7 @@ void EchoEditScript::armFromEnvironment()
         return;
     }
     steps_ = doc.object().value(QStringLiteral("steps")).toArray();
+    live_ = doc.object().value(QStringLiteral("live")).toBool(false);
 
     Dataset* ds = core_->getDatasetPtr();
     connect(ds, &Dataset::bottomTrackUpdated, this, [this]() { quiet_.restart(); });
@@ -157,14 +159,36 @@ void EchoEditScript::step()
     if (next_ >= steps_.size()) {
         return;
     }
-    // A recording open and read: the steps are about its epochs.
-    if (core_->property("openedFilePath").toString().isEmpty() || core_->getIsFileOpening() || core_->getDatasetPtr()->size() <= 0) {
+    // A recording open and read: the steps are about its epochs (a live script runs on the devices instead).
+    if (!live_ && (core_->property("openedFilePath").toString().isEmpty() || core_->getIsFileOpening()
+                   || core_->getDatasetPtr()->size() <= 0)) {
         timer_.start(500);
         return;
     }
 
     const QJsonObject s = steps_.at(next_).toObject();
     const QString op = s.value(QStringLiteral("op")).toString();
+
+    if (op == QLatin1String("waitPresets")) {
+        if (!settleClock_.isValid()) {
+            settleClock_.start();
+        }
+        bool known = false;
+        for (QObject* d : core_->getDeviceManagerWrapperPtr()->getDevList()) {
+            known = known || d->property("presetsKnown").toBool();
+        }
+        const bool timedOut = settleClock_.elapsed() >= s.value(QStringLiteral("timeoutMs")).toInt(20000);
+        if (known || timedOut) {
+            qInfo().noquote() << QStringLiteral("echoedit script: waitPresets, %1 ms%2")
+                                 .arg(settleClock_.elapsed()).arg(known ? QString() : QStringLiteral(", timed out"));
+            settleClock_.invalidate();
+            ++next_;
+            timer_.start(0);
+            return;
+        }
+        timer_.start(200);
+        return;
+    }
 
     if (op == QLatin1String("settle")) {
         if (!settleClock_.isValid()) {
@@ -577,6 +601,39 @@ void EchoEditScript::runStep(const QJsonObject& s)
                                      .arg(key, block ? QStringLiteral("found") : QStringLiteral("none"),
                                           mrow ? QStringLiteral("found") : QStringLiteral("none"), pairs.join(QStringLiteral("; ")));
         }
+    }
+    else if (op == QLatin1String("presets")) {
+        for (QObject* d : core_->getDeviceManagerWrapperPtr()->getDevList()) {
+            QStringList slotLines;
+            for (const QVariant& v : d->property("presetSlots").toList()) {
+                const QVariantMap m = v.toMap();
+                const int slot = m.value(QStringLiteral("slot")).toInt();
+                slotLines.append(m.value(QStringLiteral("used")).toBool()
+                    ? QStringLiteral("%1: %2 kHz %3 pulses \"").arg(slot).arg(m.value(QStringLiteral("freqKhz")).toInt())
+                          .arg(m.value(QStringLiteral("pulses")).toInt()) + m.value(QStringLiteral("name")).toString() + QStringLiteral("\"")
+                    : QStringLiteral("%1: empty").arg(slot));
+            }
+            qInfo().noquote() << QStringLiteral("echoedit script: presets of %1: known %2; ")
+                                 .arg(d->property("devName").toString()).arg(d->property("presetsKnown").toBool())
+                                 + slotLines.join(QStringLiteral(", "));
+        }
+    }
+    else if (op == QLatin1String("presetRecall") || op == QLatin1String("presetSave")) {
+        QObject* dev = nullptr;
+        for (QObject* d : core_->getDeviceManagerWrapperPtr()->getDevList()) {
+            if (!dev && d->property("presetsKnown").toBool()) {
+                dev = d;
+            }
+        }
+        const int slot = s.value(QStringLiteral("slot")).toInt(0);
+        bool sent = false;
+        if (dev && op == QLatin1String("presetRecall")) {
+            sent = QMetaObject::invokeMethod(dev, "presetRecall", Q_ARG(int, slot));
+        } else if (dev) {
+            sent = QMetaObject::invokeMethod(dev, "presetSave", Q_ARG(int, slot), Q_ARG(QString, s.value(QStringLiteral("name")).toString()));
+        }
+        qInfo().noquote() << QStringLiteral("echoedit script: %1 slot %2: %3").arg(op).arg(slot)
+                             .arg(sent ? QStringLiteral("sent") : QStringLiteral("no device keeps presets"));
     }
     else if (op == QLatin1String("grab")) {
         const QString path = s.value(QStringLiteral("path")).toString();

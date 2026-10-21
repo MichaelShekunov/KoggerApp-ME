@@ -1443,18 +1443,6 @@ Item {
         presetSaveConfirm.name = (s && s.name !== "") ? s.name : presetDefaultName(slot)
         presetSaveConfirm.open()
     }
-    function presetFailed(version, code) {
-        if (typeof notifications === "undefined" || !notifications) return
-        var what = version === 1 ? qsTr("The preset was not saved")
-                 : version === 2 ? qsTr("The preset was not deleted")
-                 : qsTr("The preset was not applied")
-        var why = code === 2 ? qsTr("the sonar's flash did not take it")
-                : code === 3 ? qsTr("there is no such preset in the sonar")
-                : code === 7 ? qsTr("the sonar asked for the key")
-                : qsTr("code %1").arg(code)
-        notifications.warning(what + ": " + why)
-    }
-
     Popup {
         id: presetSaveConfirm
         property var dev: null
@@ -1547,13 +1535,6 @@ Item {
                                                        && !_dev.isUSBL
                                                        && !_dev.isUSBLBeacon)
                 readonly property bool _stale: !!(_dev && _dev.dataStale)
-
-                // A recall or save of a preset the sonar refused (ID_PRESET): a short message.
-                Connections {
-                    target: devBadge._dev
-                    ignoreUnknownSignals: true
-                    function onPresetResult(version, code) { root.presetFailed(version, code) }
-                }
                 readonly property string _tip: {
                     if (!_dev) return ""
                     var t = _dev.devName
