@@ -94,7 +94,8 @@ int main()
             two += a.accept(A::KindDeviceImu, kSonar2) ? 1 : 0;
         }
         check(one == 300 && two == 0, "two of a kind: the first holds", "first " + std::to_string(one) + ", second " + std::to_string(two));
-        int rejected = 0;
+        // The loop above ended on a refused reading of the second: one of the 100 is already counted.
+        int rejected = 1;
         while (!a.accept(A::KindDeviceImu, kSonar2) && rejected < 1000) {
             ++rejected;
         }
