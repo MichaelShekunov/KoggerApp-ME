@@ -2581,3 +2581,40 @@ key!". Where this differs from the sections above, this holds.
   `me-f89cf3af..2026-10-20.bundle` (`me` after f89cf3af up to this commit, `headunit`, `headunit-20261002`;
   its check is written in the README there) and `claude_memory_2026-10-20\`, the assistant's notes from this PC
   (context, not instructions). This commit is not on GitHub: push on the owner's word.
+
+## Attitude: one source at a time (2026-10-21)
+
+The owner, after the water on 2026-10-20 (nanoSSS on the boat with the autopilot; the recordings
+`00004_2x4.KLF` and `00005_2.8x2.8.KLF` in the owner's `LOGS\20.10.2026_...nanoSSS\`): "the mosaic is built
+oddly, the boat's arrow keeps jumping, and gaps show on the last echograms".
+
+- **Cause** **[verified: the recording, tools as below; the code read]**: two attitude sources on one boat. The
+  sonar (address 2) sends its own `ID_ATTITUDE` at 15.7 Hz, the autopilot (through the recorder, proxied MAVLink)
+  `ATTITUDE` at 4 Hz. Their yaw is 20..55 deg apart and the gap drifts; the autopilot's agrees with the GPS course
+  (13..15 min into 00004, a straight run at ~1 m/s: course over ground 349..359 deg, autopilot 350..356, sonar
+  30..55). `DeviceManager` passed both to `Dataset::addAtt`, the last one winning: 5758 steps over 20 deg in the
+  stream, every one between the two sources. The arrow shows the last yaw; the mosaic lays each ping along its
+  epoch's yaw.
+- **Fix** (669b9609): `src/device/attitude_arbiter.h`. Every attitude goes through `DeviceManager::passAttitude`,
+  which passes one source: the best kind heard -- autopilot (MAVLink ATTITUDE) > GNSS compass (NMEA HDT) >
+  navigation board (ID_NAV) > a device's IMU (ID_ATTITUDE) or the course of this computer's location -- and the
+  first source of that kind; another one only after the chosen source stays silent through 100 readings of the
+  others (readings, not time, so a recording replays as it ran live). `DevDriver::attitudeComplete` carries the
+  kind and the device; the choice is logged (`attitude source: ...`) and made again in `delAllDev()` (a new
+  recording, a new set of devices).
+- **Checks** **[verified]**: `tools/attitude_check/run.ps1 -Mutants` 12 of 12, mutants 7 of 7 (the 16 Hz / 4 Hz
+  pattern of 00004 among them: 1 turn passed on against 1999 mixed). In the app (the edit script's `dump` now
+  counts epochs with a heading and turns over 20 deg between neighbours): 00004 -- 1 turn in 15185 epochs; the
+  same build with the arbiter bypassed -- 2756; 00005 -- 1 turn in 32507 epochs. The bottom track is the same
+  (hash aecc3588783541a6 both ways). The mosaic itself was not looked at.
+- **The gaps**: the recordings are whole -- 15188 pings of `ID_CHART_Z` v1 in 00004, none cut short or holed,
+  ~63 ms apart **[verified: scripts over the KLF]**. The dark stretches at the end of 00004 fall on the DSP mode 5
+  sweep (200..900 kHz in 10 kHz steps, ~1.3 s each, from 579 s on): at 200..390 kHz the echo is weak
+  (Inference). Asked the owner whether the gaps were in the file or on the live screen; live, Wi-Fi losses are
+  likely (the recorder writes everything, the screen gets what the link carries) -- not checked.
+- **Not done**: a setting to pick the source by hand; the sonar's pitch and roll together with the autopilot's
+  yaw.
+- **Seen on the way**: this PC has two installs of KoggerApp ME, both f89cf3af: `C:\Program Files\KoggerApp ME`
+  (the desktop shortcut, the owner's running copies) and `%LOCALAPPDATA%\Programs\KoggerApp ME`
+  (`win_install_user.ps1`). One of four replays of the installed f89cf3af ended with 0xC0000374 (heap
+  corruption) at quit; not investigated.
