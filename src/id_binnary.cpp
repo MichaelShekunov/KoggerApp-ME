@@ -2060,6 +2060,88 @@ Resp IDBinVoltage::parsePayload(FrameParser &proto) {
     return respOk;
 }
 
+Resp IDBinPreset::parsePayload(FrameParser &proto) {
+    if (proto.ver() != v0) {
+        return respErrorVersion;
+    }
+    if (proto.readAvailable() < kFrameBytes) {
+        return respErrorPayload;
+    }
+    const uint8_t index = proto.read<U1>();
+    if (index >= kSlots) {
+        return respErrorPayload;
+    }
+    Slot s;
+    const uint8_t flags = proto.read<U1>();
+    s.known = true;
+    s.used = (flags & 0x01) != 0;
+    s.factory = (flags & 0x02) != 0;
+    s.freqKhz = proto.read<U2>();
+    s.pulses = proto.read<U1>();
+    s.boost = proto.read<U1>();
+    s.dsp = proto.read<U1>();
+    s.cells = proto.read<U2>();
+    s.cellMm = proto.read<U2>();
+    s.offset = proto.read<U2>();
+    s.periodMs = proto.read<U4>();
+    char name[kNameBytes] = {};
+    proto.read(reinterpret_cast<uint8_t*>(name), kNameBytes);
+    s.name = QString::fromUtf8(name, int(qstrnlen(name, kNameBytes)));
+    slots_[index] = s;
+    lastSlot_ = index;
+    return respOk;
+}
+
+QByteArray IDBinPreset::nameBytes(const QString& name) {
+    QByteArray b = name.trimmed().toUtf8();
+    if (b.size() > kNameBytes) {
+        int n = kNameBytes;   // b[n] is the first byte left out; a continuation byte there means its character
+        while (n > 0 && (uint8_t(b[n]) & 0xC0) == 0x80) {   // began before the cut: leave it out whole
+            --n;
+        }
+        b.truncate(n);
+    }
+    return b;
+}
+
+void IDBinPreset::recall(int slot) {
+    if (slot < 0 || slot >= kSlots) {
+        return;
+    }
+    ProtoBinOut out;
+    out.create(SETTING, v0, id(), m_address);
+    out.write<U1>(U1(slot));
+    out.end();
+    emit binFrameOut(out);
+}
+
+void IDBinPreset::save(int slot, const QString& name) {
+    if (slot < 0 || slot >= kSlots) {
+        return;
+    }
+    QByteArray n = nameBytes(name);
+    ProtoBinOut out;
+    out.create(SETTING, v1, id(), m_address);
+    out.write<U1>(U1(slot));
+    out.write<U4>(slot <= 1 ? m_key : U4(0));   // the key: the factory slots 0..1 only (the contract)
+    out.write(n.data(), uint16_t(n.size()));
+    out.writeZero(uint16_t(kNameBytes - n.size()));
+    out.end();
+    emit binFrameOut(out);
+}
+
+void IDBinPreset::remove(int slot) {
+    if (slot < 0 || slot >= kSlots) {
+        return;
+    }
+    ProtoBinOut out;
+    out.create(SETTING, v2, id(), m_address);
+    out.write<U1>(U1(slot));
+    appendKey(out);
+    out.end();
+    emit binFrameOut(out);
+}
+
 Resp IDBinDVLMode::parsePayload(FrameParser &proto) {
     if(proto.ver() == v0) {
 

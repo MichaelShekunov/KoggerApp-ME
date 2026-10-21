@@ -61,6 +61,7 @@ DevDriver::DevDriver(QObject *parent)
     regID(idTemp = new IDBinTemp(), &DevDriver::receivedTemp);
     regID(idEncoder = new IDBinEncoder(), &DevDriver::receivedEncoder);
     regID(idVoltage = new IDBinVoltage(), &DevDriver::receivedVoltage);
+    regID(idPreset = new IDBinPreset(), &DevDriver::receivedPreset);
 
     regID(idDataset = new IDBinDataset(), &DevDriver::receivedDataset, true);
     regID(idDistSetup = new IDBinDistSetup(), &DevDriver::receivedDistSetup, true);
@@ -1123,6 +1124,7 @@ void DevDriver::stopConnection() {
     wifiPortsAsks_ = 0;
     wifiFastReport_ = false;
     wifiLastState_ = -1;
+    resetPresets();
     if (standSupported_) {
         standSupported_ = false;
         emit standChanged();
@@ -3070,6 +3072,81 @@ void DevDriver::receivedRaw(RawData raw_data) {
     emit rawDataRecieved(ChannelId(linkUuid_, lastAddress_), raw_data);
 }
 
+void DevDriver::resetPresets() {
+    presetsAnswered_ = false;
+    presetsUnsupported_ = false;
+    presetAsks_ = 0;
+    presetAskedAt_ = 0;
+}
+
+void DevDriver::receivedPreset(Parsers::Type type, Parsers::Version ver, Parsers::Resp resp) {
+    Q_UNUSED(type);
+    if (resp == respNone) {
+        // A slot's frame: the eight after a request, or the one a save sends back.
+        const int slot = idPreset->lastSlot();
+        if (slot < 0) {
+            return;
+        }
+        if (!presetsAnswered_) {
+            presetsAnswered_ = true;
+            qInfo().noquote() << QStringLiteral("preset: the sonar keeps presets (ID_PRESET)");
+        }
+        const IDBinPreset::Slot& s = idPreset->slot(slot);
+        // The name last: it comes from the sonar, and an .arg() after it would fill a "%1" in it.
+        const QString what = s.used
+            ? QStringLiteral("%1 kHz, %2 pulses, DSP %3, %4 cells of %5 mm, offset %6, period %7 ms%8, \"")
+                  .arg(s.freqKhz).arg(s.pulses).arg(s.dsp).arg(s.cells).arg(s.cellMm).arg(s.offset).arg(s.periodMs)
+                  .arg(s.factory ? QStringLiteral(", factory") : QString()) + s.name + QStringLiteral("\"")
+            : QStringLiteral("empty");
+        qInfo().noquote() << QStringLiteral("preset: slot %1: ").arg(slot) + what;
+        emit presetsChanged();
+        return;
+    }
+    if (resp == respErrorID) {
+        presetsUnsupported_ = true;   // a sonar before presets: not asked again on this connection
+        return;
+    }
+    if (resp != respOk) {
+        qInfo().noquote() << QStringLiteral("preset: SETTING v%1 refused, code %2").arg(int(ver)).arg(int(resp));
+        emit presetResult(int(ver), int(resp));
+    }
+}
+
+QVariantList DevDriver::presetSlots() {
+    QVariantList list;
+    if (!presetsAnswered_) {
+        return list;
+    }
+    for (int i = 0; i < IDBinPreset::kSlots; ++i) {
+        const IDBinPreset::Slot& s = idPreset->slot(i);
+        list.append(QVariantMap{
+            { QStringLiteral("slot"), i }, { QStringLiteral("known"), s.known }, { QStringLiteral("used"), s.used },
+            { QStringLiteral("factory"), s.factory }, { QStringLiteral("name"), s.name },
+            { QStringLiteral("freqKhz"), int(s.freqKhz) }, { QStringLiteral("pulses"), int(s.pulses) },
+            { QStringLiteral("boost"), int(s.boost) }, { QStringLiteral("dsp"), int(s.dsp) },
+            { QStringLiteral("cells"), int(s.cells) }, { QStringLiteral("cellMm"), int(s.cellMm) },
+            { QStringLiteral("offset"), int(s.offset) }, { QStringLiteral("periodMs"), qint64(s.periodMs) } });
+    }
+    return list;
+}
+
+void DevDriver::presetRecall(int slot) {
+    if (!m_state.connect || !presetsAnswered_ || slot < 0 || slot >= IDBinPreset::kSlots) {
+        return;
+    }
+    qInfo().noquote() << QStringLiteral("preset: recall slot %1 \"%2\"").arg(slot).arg(idPreset->slot(slot).name);
+    idPreset->recall(slot);
+}
+
+void DevDriver::presetSave(int slot, const QString& name) {
+    if (!m_state.connect || !presetsAnswered_ || slot < 0 || slot >= IDBinPreset::kSlots) {
+        return;
+    }
+    qInfo().noquote() << QStringLiteral("preset: save the sonar's settings into slot %1 as \"%2\"")
+                         .arg(slot).arg(QString::fromUtf8(IDBinPreset::nameBytes(name)));
+    idPreset->save(slot, name);
+}
+
 void DevDriver::receivedAtt(Parsers::Type type, Parsers::Version ver, Parsers::Resp resp) {
     Q_UNUSED(type);
     Q_UNUSED(ver);
@@ -3721,6 +3798,14 @@ void DevDriver::process() {
                     idWifiNet->requestPorts();        // 0.12 port information; 0.11 answers ERR_VERSION
                     wifiNetAskedAt_ = curr_time;
                 }
+
+                // A nanoSSS only (firmware 11.21+ keeps presets; an older one answers ERR_ID or nothing).
+                if(boardVersion() == BoardNanoSSS && !presetsAnswered_ && !presetsUnsupported_ && presetAsks_ < 5
+                   && curr_time - presetAskedAt_ >= 3000) {
+                    ++presetAsks_;
+                    presetAskedAt_ = curr_time;
+                    idPreset->requestAll();
+                }
                 // Firmware before 0.10 does not know ID_WIFI_NET and may not answer at all; before 0.12 the
                 // module may say nothing to v7 either. Both fall back to what the page did before.
                 if(isWifi() && wifiNetAskedAt_ > 0 && curr_time - wifiNetAskedAt_ > 4000) {
@@ -3813,6 +3898,7 @@ void DevDriver::process() {
             wifiPortsAskedAt_ = 0;
             wifiPortsAsks_ = 0;
             wifiFastReport_ = false;
+            resetPresets();
             if(idWifiNet->support() >= 0) {
                 idWifiNet->reset();
                 emit wifiNetChanged();

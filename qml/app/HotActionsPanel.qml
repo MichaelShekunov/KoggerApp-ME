@@ -1424,6 +1424,83 @@ Item {
         }
     }
 
+    // Presets in the sonar's own flash (ID_PRESET, nanoSSS 11.21+). When the sonar keeps them, the two frequency
+    // buttons of a device's pill recall slots 0 and 1, and a long press saves the sonar's current settings into
+    // one; with an empty slot, or a sonar without presets, the button sets 700 / 450 kHz as before.
+    function presetOf(dev, slot) {
+        if (!dev || !dev.presetsKnown || !dev.presetSlots || dev.presetSlots.length <= slot) return null
+        var s = dev.presetSlots[slot]
+        return (s && s.used) ? s : null
+    }
+    function presetDefaultName(slot) { return slot === 0 ? qsTr("Narrow beam") : qsTr("Wide beam") }
+    function presetActive(dev, s) {
+        return !!(dev && s && dev.transFreq === s.freqKhz && dev.transPulse === s.pulses)
+    }
+    function askPresetSave(dev, slot) {
+        var s = presetOf(dev, slot)
+        presetSaveConfirm.dev = dev
+        presetSaveConfirm.slot = slot
+        presetSaveConfirm.name = (s && s.name !== "") ? s.name : presetDefaultName(slot)
+        presetSaveConfirm.open()
+    }
+    function presetFailed(version, code) {
+        if (typeof notifications === "undefined" || !notifications) return
+        var what = version === 1 ? qsTr("The preset was not saved")
+                 : version === 2 ? qsTr("The preset was not deleted")
+                 : qsTr("The preset was not applied")
+        var why = code === 2 ? qsTr("the sonar's flash did not take it")
+                : code === 3 ? qsTr("there is no such preset in the sonar")
+                : code === 7 ? qsTr("the sonar asked for the key")
+                : qsTr("code %1").arg(code)
+        notifications.warning(what + ": " + why)
+    }
+
+    Popup {
+        id: presetSaveConfirm
+        property var dev: null
+        property int slot: 0
+        property string name: ""
+        parent: Overlay.overlay
+        x: parent ? Math.round((parent.width - width) / 2) : 0
+        y: parent ? Math.round((parent.height - height) / 2) : 0
+        modal: true
+        dim: true
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+        padding: Math.round(14 * root._s)
+        background: Rectangle {
+            color: AppPalette.bg
+            radius: Math.round(10 * root._s)
+            border.width: 1
+            border.color: AppPalette.border
+        }
+        contentItem: Column {
+            spacing: Math.round(12 * root._s)
+            Text {
+                width: Math.round(280 * root._s)
+                wrapMode: Text.WordWrap
+                text: qsTr("Save the sonar's current settings into “%1”?").arg(presetSaveConfirm.name)
+                color: AppPalette.textStrong
+                font.pixelSize: Math.round(14 * root._s)
+            }
+            Row {
+                anchors.right: parent.right
+                spacing: Math.round(8 * root._s)
+                KButton {
+                    text: qsTr("Cancel")
+                    onClicked: presetSaveConfirm.close()
+                }
+                KButton {
+                    text: qsTr("Save")
+                    onClicked: {
+                        if (presetSaveConfirm.dev)
+                            presetSaveConfirm.dev.presetSave(presetSaveConfirm.slot, presetSaveConfirm.name)
+                        presetSaveConfirm.close()
+                    }
+                }
+            }
+        }
+    }
+
     Component {
         id: deviceShortcutDelegate
 
@@ -1470,6 +1547,13 @@ Item {
                                                        && !_dev.isUSBL
                                                        && !_dev.isUSBLBeacon)
                 readonly property bool _stale: !!(_dev && _dev.dataStale)
+
+                // A recall or save of a preset the sonar refused (ID_PRESET): a short message.
+                Connections {
+                    target: devBadge._dev
+                    ignoreUnknownSignals: true
+                    function onPresetResult(version, code) { root.presetFailed(version, code) }
+                }
                 readonly property string _tip: {
                     if (!_dev) return ""
                     var t = _dev.devName
@@ -1629,37 +1713,86 @@ Item {
                             }
                         }
 
-                        KCircleIconButton {
-                            visible: devBadge._transducer
-                            width: devBadge.width; height: width
-                            glyph: "700"
-                            glyphPixelSize: Math.round(11 * root._s)
-                            readonly property bool _active: devBadge._dev && devBadge._dev.transFreq === 700
-                            fillColor:      _active ? AppPalette.accentBgStrong : AppPalette.card
-                            fillHoverColor: _active ? AppPalette.accentBgHover : AppPalette.cardHover
-                            fillPressedColor: _active ? AppPalette.accentBgPressed : AppPalette.bgDeep
-                            borderColor:    _active ? AppPalette.accentBorder : AppPalette.border
-                            toolTipText: qsTr("Set 700 kHz")
-                            onClicked: {
-                                if (devBadge._dev) devBadge._dev.transFreq = 700
-                                devPill.close()
-                            }
-                        }
+                        // The two frequency buttons: 700 and 450 kHz, or the sonar's presets 0 and 1 (presetOf).
+                        Repeater {
+                            model: 2
+                            delegate: KCircleIconButton {
+                                id: freqBtn
+                                required property int index
+                                readonly property int _khz: index === 0 ? 700 : 450
+                                readonly property var _preset: root.presetOf(devBadge._dev, index)
+                                visible: devBadge._transducer
+                                width: devBadge.width; height: width
+                                glyph: _preset ? String(_preset.freqKhz) : String(_khz)
+                                glyphPixelSize: Math.round(11 * root._s)
+                                readonly property bool _active: _preset ? root.presetActive(devBadge._dev, _preset)
+                                                                        : !!(devBadge._dev && devBadge._dev.transFreq === _khz)
+                                fillColor:      _active ? AppPalette.accentBgStrong : AppPalette.card
+                                fillHoverColor: _active ? AppPalette.accentBgHover : AppPalette.cardHover
+                                fillPressedColor: _active ? AppPalette.accentBgPressed : AppPalette.bgDeep
+                                borderColor:    _active ? AppPalette.accentBorder : AppPalette.border
+                                toolTipText: _preset
+                                             ? qsTr("%1: %2 kHz. Hold to save the current settings into it")
+                                                   .arg(_preset.name).arg(_preset.freqKhz)
+                                             : (index === 0 ? qsTr("Set 700 kHz") : qsTr("Set 450 kHz"))
 
-                        KCircleIconButton {
-                            visible: devBadge._transducer
-                            width: devBadge.width; height: width
-                            glyph: "450"
-                            glyphPixelSize: Math.round(11 * root._s)
-                            readonly property bool _active: devBadge._dev && devBadge._dev.transFreq === 450
-                            fillColor:      _active ? AppPalette.accentBgStrong : AppPalette.card
-                            fillHoverColor: _active ? AppPalette.accentBgHover : AppPalette.cardHover
-                            fillPressedColor: _active ? AppPalette.accentBgPressed : AppPalette.bgDeep
-                            borderColor:    _active ? AppPalette.accentBorder : AppPalette.border
-                            toolTipText: qsTr("Set 450 kHz")
-                            onClicked: {
-                                if (devBadge._dev) devBadge._dev.transFreq = 450
-                                devPill.close()
+                                // A long press saves into the slot -- only on a sonar that keeps presets; on any
+                                // other a long press is a click.
+                                property bool _held: false
+                                Timer {
+                                    id: holdTimer
+                                    interval: 600
+                                    onTriggered: {
+                                        freqBtn._held = true
+                                        devPill.close()
+                                        root.askPresetSave(devBadge._dev, freqBtn.index)
+                                    }
+                                }
+                                onPressStarted: {
+                                    _held = false
+                                    if (devBadge._dev && devBadge._dev.presetsKnown)
+                                        holdTimer.restart()
+                                }
+                                onPressEnded: holdTimer.stop()
+                                onPressCanceled: holdTimer.stop()
+                                onClicked: {
+                                    if (_held) {
+                                        _held = false
+                                        return
+                                    }
+                                    if (_preset)
+                                        devBadge._dev.presetRecall(index)
+                                    else if (devBadge._dev)
+                                        devBadge._dev.transFreq = _khz
+                                    devPill.close()
+                                }
+
+                                // The preset's name beside the button (the circle has room for the frequency only),
+                                // on the side of the window with more room.
+                                Rectangle {
+                                    visible: !!freqBtn._preset
+                                    readonly property bool _left: {
+                                        devPill.opened
+                                        var p = freqBtn.mapToItem(null, 0, 0)
+                                        return p.x > (freqBtn.Window.width || 0) / 2
+                                    }
+                                    x: _left ? -width - Math.round(6 * root._s) : freqBtn.width + Math.round(6 * root._s)
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    width: presetNameText.implicitWidth + Math.round(14 * root._s)
+                                    height: presetNameText.implicitHeight + Math.round(8 * root._s)
+                                    radius: height / 2
+                                    color: AppPalette.bg
+                                    border.width: 1
+                                    border.color: freqBtn._active ? AppPalette.accentBorder : AppPalette.border
+                                    Text {
+                                        id: presetNameText
+                                        anchors.centerIn: parent
+                                        text: freqBtn._preset ? freqBtn._preset.name : ""
+                                        color: AppPalette.text
+                                        font.pixelSize: Math.round(12 * root._s)
+                                        font.bold: freqBtn._active
+                                    }
+                                }
                             }
                         }
 

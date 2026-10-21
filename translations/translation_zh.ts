@@ -2198,37 +2198,37 @@
         <translation>选择日志文件夹</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="1116"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="1117"/>
         <source>Separator:</source>
         <translation>分隔符：</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="1128"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="1129"/>
         <source>Row:</source>
         <translation>行：</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="1138"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="1139"/>
         <source>Time col:</source>
         <translation>时间列：</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="1159"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="1160"/>
         <source>Lat/Lon/Alt:</source>
         <translation>纬度/经度/高度：</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="1171"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="1172"/>
         <source>NEU:</source>
         <translation>NEU：</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="1191"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="1192"/>
         <source>CSV path...</source>
         <translation>CSV 路径...</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="1208"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="1209"/>
         <source>Please choose a file</source>
         <translation>请选择文件</translation>
     </message>
@@ -3103,99 +3103,99 @@
 <context>
     <name>DevDriver</name>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="133"/>
+        <location filename="../src/device/dev_driver.cpp" line="135"/>
         <source>Port speed %1 set, the module saved it</source>
         <translation>端口速率已设为 %1，模块已保存</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="136"/>
+        <location filename="../src/device/dev_driver.cpp" line="138"/>
         <source>The module refused %1 bit/s: nothing changed, the port stays at %2</source>
         <translation>模块拒绝了 %1 bit/s：未作更改，端口保持 %2</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="139"/>
+        <location filename="../src/device/dev_driver.cpp" line="141"/>
         <source>No answer from the module at %1. It keeps that rate (firmware 0.15 saves it at once), so the link stays at %1. If this device cannot do %1, hold the module&apos;s BOOT button 5 s: both ports go back to 921600, then set this link to 921600.</source>
         <translation>模块在 %1 下无应答。它会保持该速率（固件 0.15 会立即保存），因此连接保持在 %1。如果本设备不支持 %1，请按住模块的 BOOT 按钮 5 秒：两个端口都会恢复为 921600，然后将此连接设为 921600。</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="144"/>
+        <location filename="../src/device/dev_driver.cpp" line="146"/>
         <source>No answer from the module at %1: the link is back at %2. An unsaved speed is gone after the module&apos;s next reboot.</source>
         <translation>模块在 %1 下无应答：连接已恢复到 %2。未保存的速率在模块下次重启后失效。</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="176"/>
+        <location filename="../src/device/dev_driver.cpp" line="178"/>
         <source>Port %1: %2 bit/s set, the module saved it</source>
         <translation>端口 %1：已设为 %2 bit/s，模块已保存</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="177"/>
+        <location filename="../src/device/dev_driver.cpp" line="179"/>
         <source>Port %1: line settings applied</source>
         <translation>端口 %1：线路设置已应用</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="181"/>
+        <location filename="../src/device/dev_driver.cpp" line="183"/>
         <source>Port %1: the module did not send the line&apos;s settings, nothing changed</source>
         <translation>端口 %1：模块未发送线路设置，未作更改</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="185"/>
+        <location filename="../src/device/dev_driver.cpp" line="187"/>
         <source>Port %1: the line&apos;s settings are not known, nothing changed</source>
         <translation>端口 %1：线路设置未知，未作更改</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="189"/>
+        <location filename="../src/device/dev_driver.cpp" line="191"/>
         <source>Port %1: the module refused %2 bit/s (code %3)</source>
         <translation>端口 %1：模块拒绝了 %2 bit/s（代码 %3）</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="190"/>
+        <location filename="../src/device/dev_driver.cpp" line="192"/>
         <source>Port %1: the module refused the line settings (code %2)</source>
         <translation>端口 %1：模块拒绝了线路设置（代码 %2）</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="194"/>
+        <location filename="../src/device/dev_driver.cpp" line="196"/>
         <source>Port %1: no answer from the module; what is shown is what it reports</source>
         <translation>端口 %1：模块无应答；显示的是它报告的值</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="211"/>
         <location filename="../src/device/dev_driver.cpp" line="213"/>
+        <location filename="../src/device/dev_driver.cpp" line="215"/>
         <source>Radio: %1</source>
         <translation>无线：%1</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="1993"/>
+        <location filename="../src/device/dev_driver.cpp" line="1996"/>
         <source>the module is busy (a window, a survey, a scan or joining runs, or the last window was under 1 s ago)</source>
         <translation>模块正忙（正在进行窗口、勘测、扫描或入网，或距上一个窗口不足 1 秒）</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="1994"/>
+        <location filename="../src/device/dev_driver.cpp" line="1997"/>
         <source>the module refused the report (code %1)</source>
         <translation>模块拒绝了报告（代码 %1）</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2025"/>
+        <location filename="../src/device/dev_driver.cpp" line="2028"/>
         <source>the module is busy (a survey, a scan or joining a network runs)</source>
         <translation>模块正忙（正在进行勘测、扫描或入网）</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2026"/>
+        <location filename="../src/device/dev_driver.cpp" line="2029"/>
         <source>the module refused the key</source>
         <translation>模块拒绝了密钥</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2027"/>
+        <location filename="../src/device/dev_driver.cpp" line="2030"/>
         <source>the module refused the survey (code %1)</source>
         <translation>模块拒绝了勘测（代码 %1）</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3201"/>
+        <location filename="../src/device/dev_driver.cpp" line="3279"/>
         <source>Sync config rejected by device</source>
         <translation>设备拒绝了同步配置</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3755"/>
-        <location filename="../src/device/dev_driver.cpp" line="3768"/>
+        <location filename="../src/device/dev_driver.cpp" line="3841"/>
+        <location filename="../src/device/dev_driver.cpp" line="3854"/>
         <source>no answer from the module</source>
         <translation>模块无应答</translation>
     </message>
@@ -7727,92 +7727,157 @@
         <translation>锁定输入</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1477"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1435"/>
+        <source>Narrow beam</source>
+        <translation>窄波束</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1435"/>
+        <source>Wide beam</source>
+        <translation>宽波束</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1448"/>
+        <source>The preset was not saved</source>
+        <translation>预设未保存</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1449"/>
+        <source>The preset was not deleted</source>
+        <translation>预设未删除</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1450"/>
+        <source>The preset was not applied</source>
+        <translation>预设未应用</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1451"/>
+        <source>the sonar&apos;s flash did not take it</source>
+        <translation>声呐闪存未能写入</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1452"/>
+        <source>there is no such preset in the sonar</source>
+        <translation>声呐中没有该预设</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1453"/>
+        <source>the sonar asked for the key</source>
+        <translation>声呐需要密钥</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1454"/>
+        <source>code %1</source>
+        <translation>代码 %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1481"/>
+        <source>Save the sonar&apos;s current settings into “%1”?</source>
+        <translation>将声呐当前设置保存到“%1”？</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1489"/>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1493"/>
+        <source>Save</source>
+        <translation>保存</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1561"/>
         <source>no data</source>
         <translation>无数据</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1479"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1563"/>
         <source>dBm</source>
         <translation>dBm</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1482"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1566"/>
         <source>Port %1</source>
         <translation>端口 %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1642"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1735"/>
+        <source>%1: %2 kHz. Hold to save the current settings into it</source>
+        <translation>%1：%2 kHz。长按可将当前设置保存到此预设</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1737"/>
         <source>Set 700 kHz</source>
         <translation>设为 700 kHz</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1659"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1737"/>
         <source>Set 450 kHz</source>
         <translation>设为 450 kHz</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1673"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1806"/>
         <source>Device settings</source>
         <translation>设备设置</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1725"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1858"/>
         <source>Close second window</source>
         <translation>关闭第二窗口</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1726"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1859"/>
         <source>Open second window</source>
         <translation>打开第二窗口</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1749"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1882"/>
         <source>Power off</source>
         <translation>关机</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1831"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1964"/>
         <source>Hide console</source>
         <translation>隐藏控制台</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1831"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1964"/>
         <source>Console</source>
         <translation>控制台</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1855"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1988"/>
         <source>Close profiles</source>
         <translation>关闭配置文件</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1855"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1988"/>
         <source>Settings profiles</source>
         <translation>设置配置文件</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1898"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2031"/>
         <source>Open settings</source>
         <translation>打开设置</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1926"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2059"/>
         <source>Collapse hotkeys</source>
         <translation>收起快捷操作</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1926"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2059"/>
         <source>Open hotkeys</source>
         <translation>打开快捷操作</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2239"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2372"/>
         <source>Close bottom track editing</source>
         <translation>关闭底部跟踪编辑</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2240"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2373"/>
         <source>Bottom track editing</source>
         <translation>底部跟踪编辑</translation>
     </message>

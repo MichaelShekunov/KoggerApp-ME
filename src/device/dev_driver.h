@@ -168,6 +168,17 @@ public:
     int transBoost();
     void setTransBoost(int boost);
 
+    /// Presets in the sonar's own flash (ID_PRESET, nanoSSS firmware 11.21+): a map a slot -- slot, used,
+    /// factory, name, freqKhz, pulses, boost, dsp, cells, cellMm, offset, periodMs -- empty until the sonar has
+    /// answered on this connection.
+    QVariantList presetSlots();
+    /// The sonar has answered about its presets on this connection: it knows ID_PRESET.
+    bool presetsKnown() const { return presetsAnswered_; }
+    /// Apply a slot; the sonar then reports its settings as after a change by hand.
+    Q_INVOKABLE void presetRecall(int slot);
+    /// Save the sonar's current settings into a slot under `name` (24 bytes of UTF-8 at most).
+    Q_INVOKABLE void presetSave(int slot, const QString& name);
+
     int soundSpeed();
     void setSoundSpeed(int speed);
 
@@ -531,6 +542,11 @@ signals:
     void tempComplete(float val);
     void voltageComplete(quint8 channel, qint32 value);
     void supplyVoltageComplete(float volts);   // ID_VOLTAGE channel 0, the supply
+    /// A slot's frame of the presets in the sonar came (presetSlots, presetsKnown).
+    void presetsChanged();
+    /// The sonar did not do a recall (version 0), a save (1) or a delete (2): code 2 the flash write did not
+    /// verify, 3 a wrong or empty slot, 7 no key (the contract of ID_PRESET). Done is not reported.
+    void presetResult(int version, int code);
 
     void distComplete(const ChannelId& channelId, int dist);
     void encoderComplete(float e1, float e2, float e3);
@@ -714,6 +730,7 @@ protected:
     IDBinAttitude* idAtt = nullptr;
     IDBinTemp* idTemp = nullptr;
     IDBinVoltage* idVoltage = nullptr;
+    IDBinPreset* idPreset = nullptr;
     QSet<quint8> loggedVoltageChannels_;   /* report each channel once, not on every ping */
     qint32 lastSupplyLogged_ = 0;
     IDBinEncoder* idEncoder = nullptr;
@@ -897,6 +914,7 @@ protected slots:
     void receivedTemp       (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
     void receivedEncoder    (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
     void receivedVoltage    (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
+    void receivedPreset     (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
 
     void receivedDataset    (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
     void receivedDistSetup  (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
@@ -960,6 +978,14 @@ private:
     bool standProbeSent_ = false;
     // The Wi-Fi module is asked once per connection, then it pushes; see process().
     bool wifiProbeSent_ = false;
+    // Presets (ID_PRESET) are asked of a nanoSSS once per connection and again every 3 s, five times at most,
+    // until a slot's frame comes: one lost request must not hide them for the session. A sonar that answers
+    // ERR_ID does not know them and is not asked again.
+    bool presetsAnswered_ = false;
+    bool presetsUnsupported_ = false;
+    int presetAsks_ = 0;
+    int64_t presetAskedAt_ = 0;
+    void resetPresets();
     QString lastWifiNetLog_[8];       // last logged line per ID_WIFI_NET version (7 = radio)
     int64_t wifiNetAskedAt_ = 0;      // when ID_WIFI_NET was first asked; silence for 4 s = firmware before 0.10
     int64_t wifiPortsAskedAt_ = 0;    // the last ID_WIFI_NET v7 request while the ports are not known yet

@@ -117,6 +117,12 @@ enum ID : uint16_t {
        address is undone without opening the case. */
     ID_NET = 0x77, // 119
 
+    /* Presets in the sonar's own flash (nanoSSS firmware 11.21+): eight slots, each a whole measuring mode and
+       a name, recalled and saved by the app's two frequency buttons. Outside the published protocol, like
+       ID_CHART_Z; 0x7C was free here and in the firmware. Contract: the l412_adc project's
+       docs/PRESETS_CONCEPT_2026-10-21.md, section 5; IDBinPreset. */
+    ID_PRESET = 0x7C, // 124
+
     ID_CHART_Z = 0x7D, // 125
 
     /* A command for one sonar of a ring behind a recorder: the recorder takes a frame's route as its

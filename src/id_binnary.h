@@ -1676,6 +1676,64 @@ protected:
     int32_t _last_raw = 0;
 };
 
+/* Presets in the sonar's own flash (ID_PRESET, nanoSSS firmware 11.21+). Contract: the l412_adc project's
+   docs/PRESETS_CONCEPT_2026-10-21.md, section 5.
+     GET v0                         -> one CONTENT v0 frame a slot, all eight, an empty one flagged unused
+     CONTENT v0, 41 bytes           [slot u8][flags u8: bit 0 used, bit 1 factory][freq kHz u16][pulses u8]
+                                    [boost u8][dsp u8][cells u16][cell mm u16][offset u16][period ms u32]
+                                    [name 24 B, UTF-8, padded with zeros]
+     SETTING v0 [slot]              recall: the sonar applies the slot and reports ID_TRANSC, ID_CHART_SETUP,
+                                    ID_DSP and ID_DATASET as after a change by hand; an empty slot is refused
+     SETTING v1 [slot][key][name]   save the sonar's current settings into the slot; the key is needed for
+                                    the factory slots 0..1; the slot's frame comes back
+     SETTING v2 [slot][key]         delete the slot; the key always
+   The answer to a SETTING is a RESP code: 1 done, 2 the flash write did not verify, 3 a wrong or empty slot,
+   7 no key. */
+class IDBinPreset : public IDBin
+{
+    Q_OBJECT
+public:
+    static constexpr int kSlots = 8;
+    static constexpr int kNameBytes = 24;
+    static constexpr int kFrameBytes = 41;
+
+    struct Slot {
+        bool known = false;     // its frame has come
+        bool used = false;
+        bool factory = false;
+        uint16_t freqKhz = 0;
+        uint8_t pulses = 0;
+        uint8_t boost = 0;
+        uint8_t dsp = 0;
+        uint16_t cells = 0;
+        uint16_t cellMm = 0;
+        uint16_t offset = 0;
+        uint32_t periodMs = 0;
+        QString name;
+    };
+
+    explicit IDBinPreset() : IDBin() {}
+
+    ID id() override { return ID_PRESET; }
+    Resp parsePayload(FrameParser &proto) override;
+
+    const Slot& slot(int i) const { return slots_[i]; }
+    /// The slot of the last frame parsed, -1 before any.
+    int lastSlot() const { return lastSlot_; }
+
+    void recall(int slot);
+    /// `name` goes as UTF-8, cut to 24 bytes on a character boundary.
+    void save(int slot, const QString& name);
+    void remove(int slot);
+
+    /// The name as the sonar keeps it: UTF-8, at most 24 bytes, a character never cut in two.
+    static QByteArray nameBytes(const QString& name);
+
+private:
+    Slot slots_[kSlots];
+    int lastSlot_ = -1;
+};
+
 
 class IDBinNav : public IDBin
 {

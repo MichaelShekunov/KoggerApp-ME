@@ -44,6 +44,9 @@ public:
     Q_PROPERTY(int transPulse READ transPulse WRITE setTransPulse NOTIFY transChanged)
     Q_PROPERTY(int transBoost READ transBoost WRITE setTransBoost NOTIFY transChanged)
     Q_PROPERTY(bool transcState READ getTranscState NOTIFY transChanged)
+    // Presets in the sonar's flash (ID_PRESET): the slots as maps, and whether the sonar has answered at all.
+    Q_PROPERTY(QVariantList presetSlots READ presetSlots NOTIFY presetsChanged)
+    Q_PROPERTY(bool presetsKnown READ presetsKnown NOTIFY presetsChanged)
 
     Q_PROPERTY(int dspHorSmooth READ dspSmoothFactor WRITE setDspSmoothFactor NOTIFY dspSetupChanged)
     Q_PROPERTY(bool dspState READ getDspSetupState NOTIFY dspSetupChanged)
