@@ -2731,3 +2731,41 @@ The owner, sharply: the windows of the app the checks start kept coming up over 
   paints (ping -> painted median 382 ms) and the grab shows the arrow and the disc; its coverage reading still says
   "the sonar arrow is not in the grab": the profile's camera is at 100 m, the disc about 10 px across, and the reading
   wants 20 red pixels of the arrow and the disc at 100-250 px -- a user's view. The copy was removed after.
+
+## A drag of the 3D view on the head unit (2026-10-22)
+
+The owner, after a day on the water: dragging the map in the 3D window stutters on the head unit, though the CPU
+load is no more than 20 %.
+
+- **What the field session shows** **[verified: its kogger.log and the head unit's health.log]**: the GUI thread's
+  worst event-loop lag 130-230 ms in every minute, up to 1 s; 44-50 frames/s, falling to 18-25 at the end of the hour;
+  the GUI thread 25-37 % of a core before the drag, 50-72 % during it; the big cores mostly at 1.2 GHz and the GPU
+  at 300 MHz all along (the governors see an 8-17 % load overall). A once-a-second block of 150 ms is 15 % of one core:
+  the load in percent says nothing about a jerk.
+- **Ruled out on the head unit** **[verified: the edit script's drag3d over the field recording, the kiosk's
+  settings, HeadUnit linux_setup/probe_drag.sh]**: the core placement and the clocks (as it runs / big cores only /
+  big cores at 2.4 GHz and the GPU at 800 MHz / both: 52-54 frames/s, the longest gap 145-176 ms each way); the map
+  (on or off: 20 gaps over 50 ms in 20 s either way); the 3D scene (no frame over 15 ms in its sync or render); the
+  System monitor's reads (none over 20 ms). 20 gaps in 20 s: once a second.
+- **Cause 1** **[verified: the sampler's timeline on this PC with the kiosk's KoggerApp.conf, KOGGER_SETTINGS_INI;
+  the stacks of the GUI thread's busy stretches]**: the System widget (SystemOverview.qml) had its lines' array as a
+  Repeater's model; the monitor's changed() each second made a new array, and the Repeater made every line anew
+  (object creation, FontMetrics, qsTr) - 10-40 ms a second here with the JavaScript GC it fed, ~150 ms on the head unit.
+  Fix: the model is the count, a line taken by index.
+- **Cause 2** **[verified here]**: the boat's track by link quality (shown unless switched off; a sample every 2 m,
+  up to 3000) was a Repeater of Shapes built in JavaScript at every camera move (60-100 a second in a drag), every
+  250 ms and at the vehicle's signals, and grew all session. With 3000 samples in 550 stretches a move took 46 ms
+  here, 10 frames/s. Fix: LinkTrackItem (src/scene3d, one QSGGeometryNode, its triangles from link_track_geometry.h):
+  the track read when it changes, placed again in C++ as it is drawn - a move 0.12 ms, 197 frames/s, no gap over 50 ms.
+- **On the head unit after the fixes** **[verified: probe_drag.sh 042300bb fix]**: the drag over the same recording in the kiosk's settings, 20 s at 100 moves a second: 60.0 frames/s (the screen's rate), the longest gap 28 ms, 0 gaps over 50 ms, the GUI thread 12 % of a core (22-25 % before); with a 3000-sample track (550 stretches) 59.8 frames/s, the longest gap 32 ms, 0 over 50 ms, a move 0.74 ms. Before, the same: 52-54 frames/s, 20 gaps over 50 ms, 145-176 ms. The kiosk on headunit 042300bb (= me 21587901 and the kiosk's change) since 16:04 UTC, by the owner's word.
+- **Checks**: sysgui_check (test_3c: the lines kept across a reading - fails on the old model), boatgui_check (the
+  layer's LinkTrackItem, a stand-in), tools/linktrack_check (21 checks; -Mutants 10 of 10 caught), echostate_persist_check
+  PASS; `tools/perf/drag_profile.ps1 -Exe <build> -File <recording> -Profile hu -SettingsIni [-LinkTrack 3000]
+  -BurstMs 8` for a drag here, `probe_drag.sh <tag> fix` on the head unit.
+- **Added for this**: the edit script's `drag3d` (moves, frames, the longest gap, gaps over 50 ms, the GUI thread's time
+  per move) and `linkTrack` steps; the log lines "scene3d: slow frame" (a 3D frame over 15 ms with its texture
+  uploads) and "system monitor: slow read"; KOGGER_SETTINGS_INI (settings from %APPDATA%\KOGGER\<app>.ini: a head
+  unit's KoggerApp.conf runs here with its layout); the sampler's timeline (7th argument) and drag_profile's -BurstMs.
+- **Not done**: the map tiles still upload all at once in a frame (16 in 9.4 ms on the head unit: not a jerk now);
+  the bottom track's O(N) work a ping (a copy of the vertices and updateBounds over all of them) stays, small next to
+  these.
