@@ -9,6 +9,7 @@
 #include <QJSValue>
 #include <QMouseEvent>
 #include <QJsonDocument>
+#include <QQmlContext>
 #include <QQmlEngine>
 #include <QQmlProperty>
 #include <QQuickItem>
@@ -815,10 +816,29 @@ void EchoEditScript::runStep(const QJsonObject& s)
         qInfo().noquote() << QStringLiteral("echoedit script: %1 slot %2: %3").arg(op).arg(slot)
                              .arg(sent ? QStringLiteral("sent") : QStringLiteral("no device keeps presets"));
     }
+    else if (op == QLatin1String("probe")) {
+        const QString tag = s.value(QStringLiteral("tag")).toString();
+        const bool ok = uiProbe_ && uiProbe_->dumpAll(tag, s.value(QStringLiteral("root")).toString());
+        qInfo().noquote() << QStringLiteral("echoedit script: probe %1 %2").arg(tag, ok ? QStringLiteral("written") : QStringLiteral("failed"));
+    }
     else if (op == QLatin1String("grab")) {
         const QString path = s.value(QStringLiteral("path")).toString();
         const bool ok = uiProbe_ && uiProbe_->grabWindow(path);
         qInfo().noquote() << QStringLiteral("echoedit script: grab %1 %2").arg(path, ok ? QStringLiteral("written") : QStringLiteral("failed"));
+    }
+    else if (op == QLatin1String("tr")) {
+        const QByteArray context = s.value(QStringLiteral("context")).toString().toUtf8();
+        const QByteArray source = s.value(QStringLiteral("source")).toString().toUtf8();
+        QObject* store = findObjectWithProperty("settingsPinTarget");
+        QQmlEngine* eng = store ? qmlEngine(store) : nullptr;
+        QObject* lang = eng ? eng->rootContext()->contextProperty(QStringLiteral("langController")).value<QObject*>() : nullptr;
+        if (lang && s.contains(QStringLiteral("apply"))) {
+            QMetaObject::invokeMethod(lang, "applyCode", Q_ARG(QString, s.value(QStringLiteral("apply")).toString()));
+        }
+        qInfo().noquote() << QStringLiteral("echoedit script: tr %1 \"%2\" -> \"%3\"")
+                             .arg(lang ? lang->property("currentCode").toString() : QStringLiteral("?"),
+                                  QString::fromUtf8(source),
+                                  QCoreApplication::translate(context.constData(), source.constData()));
     }
     else if (op == QLatin1String("viewCenter")) {
         GraphicsScene3dView* view = nullptr;

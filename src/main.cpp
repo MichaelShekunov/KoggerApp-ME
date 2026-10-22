@@ -62,7 +62,6 @@ EchogramStateSerializer echogramStateSerializer;
 Notifications notifications;
 VideoStreamPool videoStreams;
 QTranslator translator;
-QVector<QString> availableLanguages{"en", "ru", "pl", "zh"};
 // NOLINTEND(bugprone-throwing-static-initialization)
 
 #ifndef Q_OS_ANDROID
@@ -70,35 +69,10 @@ InstanceLock instanceLock;
 #endif
 
 
+// The language chosen, or the system's when the app has it (LanguageController: the languages, the setting).
 void loadLanguage(QGuiApplication &app)
 {
-    QSettings settings;
-    QString currentLanguage;
-
-    int savedLanguageIndex = settings.value("main/appLanguage", -1).toInt();
-
-    if (savedLanguageIndex == -1) {
-        currentLanguage = QLocale::system().name().split('_').first();
-        if (auto indx = availableLanguages.indexOf(currentLanguage); indx == -1) {
-            currentLanguage = availableLanguages.front();
-        }
-        else {
-            settings.setValue("main/appLanguage", indx);
-        }
-    }
-    else {
-        if (savedLanguageIndex >= 0 && savedLanguageIndex < availableLanguages.count()) {
-            currentLanguage = availableLanguages.at(savedLanguageIndex);
-        }
-        else {
-            currentLanguage = availableLanguages.front();
-        }
-    }
-
-
-    QString translationFile = ":/translations/translation_" + currentLanguage + ".qm";
-
-    if (translator.load(translationFile)) {
+    if (translator.load(LanguageController::translationFile(LanguageController::startupCode()))) {
         app.installTranslator(&translator);
     }
 }

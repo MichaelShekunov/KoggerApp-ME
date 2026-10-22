@@ -1,5 +1,5 @@
 @echo off
 REM Update .ts translation sources from tr()/qsTr() found in src/ and qml/
 cd /d "%~dp0\.."
-lupdate src qml -ts translations\translation_en.ts translations\translation_ru.ts translations\translation_pl.ts -no-obsolete
+lupdate src qml -ts translations\translation_en.ts translations\translation_ru.ts translations\translation_pl.ts translations\translation_zh.ts translations\translation_es.ts translations\translation_hi.ts -no-obsolete
 pause

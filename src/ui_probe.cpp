@@ -234,6 +234,13 @@ QJsonObject UiProbe::describe(QQuickItem* item, int depth, int maxDepth) const
             o[QString::fromLatin1(p)] = v;
         }
     }
+    // A Text's words and whether they are cut (elided, or past maximumLineCount): what a check of the translations
+    // reads. Only Text has "truncated"; an input field's text (a password) is never written.
+    const QJsonValue truncated = optionalProperty(item, "truncated");
+    if (truncated.isBool()) {
+        o[QStringLiteral("truncated")] = truncated;
+        o[QStringLiteral("text")] = item->property("text").toString();
+    }
 
     const QList<QQuickItem*> kids = item->childItems();
     if (!kids.isEmpty() && depth < maxDepth) {

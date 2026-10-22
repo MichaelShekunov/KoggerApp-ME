@@ -1184,7 +1184,7 @@
     <message>
         <location filename="../qml/app/AppSettingsPage.qml" line="951"/>
         <source>S.offset XY, mm:</source>
-        <translation>Смещение XY, мм:</translation>
+        <translation>Смещ. XY, мм:</translation>
     </message>
     <message>
         <location filename="../qml/app/AppSettingsPage.qml" line="445"/>

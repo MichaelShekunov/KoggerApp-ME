@@ -45,6 +45,8 @@ ColumnLayout {
             text: qsTr("Crop near the track, °:")
             color: AppPalette.textStrong
             font.pixelSize: Tokens.fontLg
+            wrapMode: Text.WordWrap      // a longer language takes a second line, not "..."
+            maximumLineCount: 2
             elide: Text.ElideRight
             Layout.fillWidth: true
         }
@@ -66,6 +68,8 @@ ColumnLayout {
             text: qsTr("Crop the far edge, °:")
             color: AppPalette.textStrong
             font.pixelSize: Tokens.fontLg
+            wrapMode: Text.WordWrap
+            maximumLineCount: 2
             elide: Text.ElideRight
             Layout.fillWidth: true
         }
@@ -87,6 +91,8 @@ ColumnLayout {
             text: qsTr("Overlaps:")
             color: AppPalette.textStrong
             font.pixelSize: Tokens.fontLg
+            wrapMode: Text.WordWrap
+            maximumLineCount: 2
             elide: Text.ElideRight
             Layout.fillWidth: true
         }

@@ -216,6 +216,8 @@ qt_add_translations(KoggerApp
         translations/translation_ru.ts
         translations/translation_pl.ts
         translations/translation_zh.ts
+        translations/translation_es.ts
+        translations/translation_hi.ts
     RESOURCE_PREFIX "/translations")
 
 # ── Desktop-only sources ─────────────────────────────────────────────────

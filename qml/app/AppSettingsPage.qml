@@ -312,14 +312,10 @@ Column {
                 id: langTabBar
                 width: parent.width
                 fontPixelSize: Tokens.fontLg
-                options: [
-                    { label: "English", value: 0 },
-                    { label: "Русский", value: 1 },
-                    { label: "Polski",  value: 2 },
-                    { label: "中文",    value: 3 }
-                ]
-                currentValue: langController ? langController.currentIndex : 0
-                onValueSelected: function(v) { if (langController) langController.apply(v) }
+                // The languages LanguageController has, each by its own name.
+                options: langController ? langController.languages.map(function(l) { return { label: l.name, value: l.code } }) : []
+                currentValue: langController ? langController.currentCode : "en"
+                onValueSelected: function(v) { if (langController) langController.applyCode(v) }
             }
         }
 

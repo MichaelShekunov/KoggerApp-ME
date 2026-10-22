@@ -71,7 +71,13 @@
 //                                    its top-left; none when others cover it all: the step is skipped); "...Tab": a dock's
 //                                    side; "toEdge": side ("toAlong": share along it); "by": [dx, dy] from the start
 //   {"op": "viewCenter"}             the geographic point in the middle of the 3D view, where it looks (on the water)
+//   {"op": "tr", "context": name, "source": text, "apply": code}   the UI language in use and the text as the app
+//                                    shows it in that language (the translators installed; the context is a QML
+//                                    file's name); with "apply", that language chosen first, as the picker does
 //   {"op": "grab", "path": file.png}                         the window, through the UI probe
+//   {"op": "probe", "tag": name, "root": type}   the UI probe's dump into KOGGER_UI_PROBE's folder: ui-<name>.json
+//                                    (the item tree from the first item of that QML type, else the window's; a
+//                                    Text's words and whether they are cut; ui-<name>.png too with KOGGER_UI_PROBE_PNG=1)
 //   {"op": "quit"}
 // An epoch can be given as a share of the recording instead: "fromFrac", "toFrac", "epochFrac".
 //

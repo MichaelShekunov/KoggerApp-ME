@@ -2898,3 +2898,41 @@ app a stored 4x5 and 1x5 panel load, show, and are five rows tall (507 px agains
 Deployed by the owner's word ("deploy") **[verified]**: the kiosk on headunit 15409291 (= me 306ed823) since 19:13:54
 UTC (ExecStart, active, NRestarts 0, the HDMI1 cursor warning only); this PC's two installs on 306ed823, a clean
 build, the installed exe the same as the packaged one.
+
+## UI languages: Spanish and Hindi, the choice kept by its code; UI scale 50% (2026-10-23)
+
+The owner, leaving for the night: "1. add a UI scale option of 50% 2. add Spanish and Indian (and fix how Chinese
+shows on the head unit: boxes), so that this can later move to the original Kogger branch painlessly". Decided
+alone (the owner asked for no questions):
+- **UI scale 50%** among the steps (4b51c40c).
+- **Languages es and hi**: Spanish (neutral Latin American, "usted") and Hindi ("Indian" read as the most spoken
+  language of India, Devanagari). 2618 messages each, all finished, machine-translated (Claude: eight translators of
+  ~330 messages in parallel, then one pass bringing them to one style). **Not read by a native speaker.** Table,
+  style rules, glossary taken from the .ts files: `docs/TRANSLATIONS.md`.
+- **The choice kept by its code**, `main/appLanguageCode`; the old index `main/appLanguage` (order en, ru, pl, zh,
+  `LanguageController::legacyCode()`) is read when there is no code and still written for those four, so an older
+  build opens in the same language. `LanguageController::languages()` is the one list: the pickers (settings,
+  first launch) are built from it; `startupCode()`, `applyCode()`, `reloadFromSettings()` (upstream's, called there
+  after a settings import — here for a future merge). `main.cpp loadLanguage()` = one load of `startupCode()`.
+  Upstream develop has en, ru, pl by index in the same order, so its users keep their choice; the steps of a port:
+  TRANSLATIONS.md "Перенос в upstream".
+- **Chinese boxes on the head unit**: the board's Ubuntu image had DejaVu and Ubuntu only. `fonts-noto-cjk` (Noto
+  Sans CJK SC, the family `preferSimplifiedChineseFont()` asks for) and `fonts-lohit-deva` installed by HeadUnit
+  `orangepi5max/linux_setup/install_fonts.sh` (2026-10-22, FONTS_DONE 0; DEPLOY_MYEDITION.md step 8).
+- **[verified]** `tools/qml_check/lang_check.ps1 [-Exe <build>] [-Shots <dir>]`: offline the list against
+  `TS_FILES` (one .ts each, none extra), the old index order, ts_check ru zh es hi (0 problems); in the app (test
+  desktop, own profile) it starts in each of en ru zh es hi, the picker is on it, "Interface" shows as its .ts has
+  it; a profile with only the old index 3 starts in Chinese and keeps `zh` as its code; a switch ru -> hi at run time
+  shows Hindi and keeps `hi`, the index left at Russian. PASS. Three mutants of the offline part (a language missing
+  from `TS_FILES`, `legacyCode()` reordered, an unfinished message) caught. Once the picker was not registered yet
+  1.5 s after the settings opened in Chinese (the Han font's first use): it is asked three times now.
+- **[verified]** `tools/qml_check/lang_fit_check.ps1 -Exe <build> [-Codes ...]`: texts a translation cuts and
+  English does not (the same path in the item tree; the settings page in the toolset "Maximum"). Before: es 4, hi 1,
+  ru 2 (the two Russian ones old); after: 0 in ru zh es hi. The fixes: the mosaic crop labels wrap to a second line
+  (`MosaicQualitySettings.qml`), "S.offset XY, mm:" shortened in es, hi, ru ("Смещ. XY, мм:"), the toolset tab
+  "Bottom Track" in es ("Seguim. del fondo"). It saw the fit only at this PC's test-desktop window and 100 % scale.
+- New edit-script steps: `tr` (the language in use and a text in it; `apply` chooses a language as the picker does),
+  `probe` (the UI probe's dump, from the first item of a QML type). `UiProbe::describe` writes a Text's words and its
+  `truncated` (only Text: an input field's text, a password, is never written).
+- Not verified: Android with Chinese or Hindi (are the fonts there); the 3D scene's label atlas is Roboto, so Han or
+  Devanagari typed by a user into a contact's name probably does not draw there (from the code).
