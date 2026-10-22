@@ -22,23 +22,28 @@ Column {
         font.pixelSize: Tokens.fontSm
     }
 
+    readonly property int _maxCols: store ? store.widgetMaxCols : 4
+    readonly property int _maxRows: store ? store.widgetMaxRows : 4
+
     Grid {
         width: parent.width
-        columns: 4
+        columns: step._maxCols
         spacing: Tokens.spaceMd
 
         Repeater {
-            model: [
-                { c: 1, r: 1 }, { c: 2, r: 1 }, { c: 3, r: 1 }, { c: 4, r: 1 },
-                { c: 1, r: 2 }, { c: 2, r: 2 }, { c: 3, r: 2 }, { c: 4, r: 2 },
-                { c: 1, r: 3 }, { c: 2, r: 3 }, { c: 3, r: 3 }, { c: 4, r: 3 },
-                { c: 1, r: 4 }, { c: 2, r: 4 }, { c: 3, r: 4 }, { c: 4, r: 4 }
-            ]
+            // Every size the panels allow, a row of cards per number of rows.
+            model: {
+                var out = []
+                for (var r = 1; r <= step._maxRows; ++r)
+                    for (var c = 1; c <= step._maxCols; ++c)
+                        out.push({ c: c, r: r })
+                return out
+            }
             delegate: Rectangle {
                 id: sizeCard
                 required property var modelData
                 readonly property bool hovered: cardMouse.containsMouse
-                width: Math.floor((step.width - 3 * Tokens.spaceMd) / 4)
+                width: Math.floor((step.width - (step._maxCols - 1) * Tokens.spaceMd) / step._maxCols)
                 height: Math.round(96 * AppPalette.scale)
                 radius: Tokens.radiusLg
                 color: hovered ? AppPalette.cardHover : AppPalette.card

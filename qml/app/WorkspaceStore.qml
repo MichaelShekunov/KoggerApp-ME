@@ -458,6 +458,9 @@ property var  deviceFavoriteParams: ({})
 readonly property int deviceFavoriteParamLimit: 12
 readonly property bool hasWidgets: widgets.length > 0
 readonly property int widgetLimit: 10
+// A grid panel's size, in cells: up to 4 across and 5 down (the owner, 2026-10-22).
+readonly property int widgetMaxCols: 4
+readonly property int widgetMaxRows: 5
 readonly property bool canCreateWidget: widgets.length < widgetLimit
 property var  widgetShownMap: ({})
 property var  widgetInstances: ({})
@@ -798,7 +801,7 @@ function normalizeWidgetDef(raw) {
 
     var cols = Math.round(raw.cols)
     var rows = Math.round(raw.rows)
-    if (!(cols >= 1 && cols <= 4) || !(rows >= 1 && rows <= 4))
+    if (!(cols >= 1 && cols <= widgetMaxCols) || !(rows >= 1 && rows <= widgetMaxRows))
         return null
     var name = (typeof raw.name === "string") ? raw.name : ""
     var transparency = (typeof raw.transparency === "number" && isFinite(raw.transparency))

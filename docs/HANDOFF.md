@@ -2886,3 +2886,12 @@ written in the main tree by another session.
 - An export in a fresh profile writes nothing (00014's bottom track is not made there): the check exports in a copy of
   the test profile `perf`, as mapexport_edit_check does. With COMSOL on all cores: the mosaic at zoom 6, 37 tiles in
   71.5 s (zoom 5 did not end in 3 minutes).
+
+## Grid panels up to five rows (2026-10-22)
+
+The owner: "widget size - let's add five; 5 rows, 4 columns at most". A grid panel is now 1-4 cells across and 1-5
+down. The limits are `WorkspaceStore.widgetMaxCols` (4) and `widgetMaxRows` (5): the store's check of a stored panel
+(`normalizeWidgetDef`, a larger one is not loaded) and the editor's size step (`WidgetSizeStep.qml`, its cards built
+from them, four to a row) both read them. **[verified]** `tools/qml_check/widgetsize_check.ps1 [-Exe <build>]`: the
+size step offline (a card for every size 1x1..4x5 in order, four across, a click sets the size and goes on); in the
+app a stored 4x5 and 1x5 panel load, show, and are five rows tall (507 px against a 1x4's 410), a 4x6 is not loaded.
