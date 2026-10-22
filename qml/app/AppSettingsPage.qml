@@ -2080,6 +2080,8 @@ Column {
                         text: qsTr("Data source:")
                         color: AppPalette.textStrong
                         font.pixelSize: Tokens.fontLg
+                        wrapMode: Text.WordWrap          // a longer language takes a second line, not "..."
+                        maximumLineCount: 2
                         elide: Text.ElideRight
                         Layout.fillWidth: true
                     }

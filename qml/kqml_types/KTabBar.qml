@@ -36,18 +36,40 @@ Item {
      * не помещаются вовсе, доли ужимаются пропорционально, а ярлык обрезается
      * многоточием — он ограничен шириной своей доли.
      */
+    /*
+     * Ярлыки, которым не хватает места, сначала мельчают — до minFontScale от fontPixelSize —
+     * и только потом обрезаются многоточием: испанский и хинди длиннее английского, а на
+     * головном блоке DejaVu шире Segoe UI («Sondas de pe…», 2026-10-23).
+     */
+    property real minFontScale: 0.8
+    readonly property real fontScale: {
+        var n = optionCount
+        if (n <= 0)
+            return 1
+        var px = tabFontMetrics.font.pixelSize      // зависимость: пересчитать при смене шрифта
+        var text = 0
+        for (var i = 0; i < n; ++i)
+            text += Math.ceil(tabFontMetrics.advanceWidth(optionLabelAt(i)))
+        var room = innerWidth - (n - 1) * buttonSpacing - n * labelPadding
+        if (text <= 0 || text <= room)
+            return 1
+        return Math.max(minFontScale, room / text)
+    }
+    readonly property int labelPixelSize: Math.max(1, Math.floor(fontPixelSize * fontScale))
+
     readonly property var segmentWidths: {
         var n = optionCount
         var res = []
         if (n <= 0)
             return res
         var px = tabFontMetrics.font.pixelSize      // зависимость: пересчитать при смене шрифта
+        var k = labelPixelSize / Math.max(1, fontPixelSize)   // ярлык рисуется кеглем labelPixelSize
         var pad = labelPadding
         var avail = Math.max(0, innerWidth - (n - 1) * buttonSpacing)
         var need = []
         var total = 0
         for (var i = 0; i < n; ++i) {
-            var w = Math.ceil(tabFontMetrics.advanceWidth(optionLabelAt(i))) + pad
+            var w = Math.ceil(tabFontMetrics.advanceWidth(optionLabelAt(i)) * k) + pad
             need.push(w)
             total += w
         }
@@ -299,7 +321,7 @@ Item {
                                : (tabButton.optionIndex === tabMouseArea.hoverIndex
                                   ? AppPalette.textStrong
                                   : Qt.rgba(AppPalette.textStrong.r, AppPalette.textStrong.g, AppPalette.textStrong.b, 0.78))
-                        font.pixelSize: root.fontPixelSize
+                        font.pixelSize: root.labelPixelSize
                         font.bold: true
                         elide: Text.ElideRight
                     }
