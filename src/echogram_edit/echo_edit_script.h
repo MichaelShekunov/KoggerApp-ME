@@ -36,6 +36,11 @@
 //   {"op": "pinstate", "key": k}     the setting's row controls on the settings page and their mirrors
 //   {"op": "plotState", "set": {"bottomTrackLine": false}}   each echogram's panel state (Plot2D.qml's echoViewState),
 //                                    changed as its controls change it, and logged with what the plot says
+//   {"op": "relayout", "times": n, "margin": px, "side": "right"|"left"|"bottom"}
+//                                    the workspace's margin on a side set and put back n times, as a widget docked to
+//                                    that edge would; logged: the GUI thread's time in the change, the sync of the frame
+//                                    that takes it (the GUI waits: the 3D view's new FBO, the echograms painted anew)
+//                                    and the time to that frame on screen
 //   {"op": "linkTrack", "points": n, "run": k}   the boat's track by link quality filled as a long session leaves
 //                                    it (MavVehicle::fillLinkTrackForTest), from the plan's first point
 //   {"op": "drag3d", "seconds": s, "hz": n, "radius": px, "turnSeconds": s}
@@ -87,8 +92,12 @@ private:
     bool startDrag3d(const QJsonObject& s);
     void dragMove();
     void finishDrag3d();
+    bool startRelayout(const QJsonObject& s);
+    bool relayoutStep();             // false when done
+    void finishRelayout();
 
     struct DragFrames;               // counted on the render thread (frameSwapped)
+    struct RelayoutFrames;           // the frame that takes a change, timed on the render thread
 
     Core* core_ = nullptr;
     UiProbe* uiProbe_ = nullptr;
@@ -114,4 +123,16 @@ private:
     qint64 dragLateMaxNs_ = 0;
     int dragIntervalMs_ = 10;
     double dragCx_ = 0.0, dragCy_ = 0.0, dragRadius_ = 0.0, dragTurnS_ = 2.0, dragX_ = 0.0, dragY_ = 0.0;
+
+    // "relayout"
+    QPointer<QQuickItem> relayoutItem_;
+    QString relayoutProperty_;       // "anchors.rightMargin", ...
+    double relayoutOrig_ = 0.0, relayoutMargin_ = 0.0;
+    int relayoutLeft_ = 0;
+    bool relayoutPending_ = false;
+    qint64 relayoutT0_ = 0;
+    QElapsedTimer relayoutClock_;
+    std::shared_ptr<RelayoutFrames> relayoutFrames_;
+    QList<QMetaObject::Connection> relayoutConns_;
+    std::vector<qint64> relayoutChangeNs_, relayoutSyncNs_, relayoutShownNs_;
 };

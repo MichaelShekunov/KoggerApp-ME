@@ -8,6 +8,7 @@
 #include <QGuiApplication>
 #include <QJsonDocument>
 #include <QQmlEngine>
+#include <QQmlProperty>
 #include <QQuickItem>
 #include <QQuickWindow>
 #include <QSaveFile>
@@ -136,6 +137,16 @@ GraphicsScene3dView* findScene3dView(QQuickItem* item)
 
 } // namespace
 
+struct EchoEditScript::RelayoutFrames
+{
+    QElapsedTimer clock;
+    // 0 idle, 1 a change made, 2 the frame that takes it synced, 3 that frame on screen
+    std::atomic<int> state{ 0 };
+    std::atomic<qint64> syncStartNs{ 0 };
+    std::atomic<qint64> syncNs{ 0 };
+    std::atomic<qint64> shownNs{ 0 };
+};
+
 struct EchoEditScript::DragFrames
 {
     QElapsedTimer clock;
@@ -247,6 +258,25 @@ void EchoEditScript::step()
         }
         settleClock_.invalidate();
         qInfo().noquote() << QStringLiteral("echoedit script: wait done");
+        ++next_;
+        timer_.start(0);
+        return;
+    }
+    if (op == QLatin1String("relayout")) {
+        if (!settleClock_.isValid()) {
+            if (!startRelayout(s)) {
+                ++next_;
+                timer_.start(0);
+                return;
+            }
+            settleClock_.start();
+        }
+        if (relayoutStep()) {
+            timer_.start(250);
+            return;
+        }
+        settleClock_.invalidate();
+        finishRelayout();
         ++next_;
         timer_.start(0);
         return;
@@ -1046,4 +1076,118 @@ void EchoEditScript::finishDrag3d()
                          .arg(jerks);
     dragView_.clear();
     dragFrames_.reset();
+}
+
+bool EchoEditScript::startRelayout(const QJsonObject& s)
+{
+    QQuickItem* workspace = nullptr;
+    QQuickWindow* window = nullptr;
+    for (QWindow* w : QGuiApplication::topLevelWindows()) {
+        auto* qw = qobject_cast<QQuickWindow*>(w);
+        if (qw && qw->isVisible() && (workspace = findWithProperty(qw->contentItem(), "secondaryPlotItem"))) {
+            window = qw;
+            break;
+        }
+    }
+    const QString side = s.value(QStringLiteral("side")).toString(QStringLiteral("right"));
+    if (!workspace || !window || (side != QLatin1String("right") && side != QLatin1String("left") && side != QLatin1String("bottom"))) {
+        qWarning().noquote() << QStringLiteral("echoedit script: relayout: no workspace on screen, or side \"%1\" not right, left or bottom").arg(side);
+        return false;
+    }
+    relayoutItem_ = workspace;
+    relayoutProperty_ = QStringLiteral("anchors.%1Margin").arg(side);
+    relayoutOrig_ = QQmlProperty::read(workspace, relayoutProperty_).toDouble();
+    relayoutMargin_ = relayoutOrig_ + s.value(QStringLiteral("margin")).toDouble(300.0);
+    relayoutLeft_ = 2 * std::max(1, s.value(QStringLiteral("times")).toInt(10));   // to the margin and back
+    relayoutPending_ = false;
+    relayoutChangeNs_.clear();
+    relayoutSyncNs_.clear();
+    relayoutShownNs_.clear();
+
+    // On the render thread: the first sync after a change is the frame that takes it (the GUI waits through it).
+    auto frames = std::make_shared<RelayoutFrames>();
+    frames->clock.start();
+    relayoutFrames_ = frames;
+    relayoutConns_ << connect(window, &QQuickWindow::beforeSynchronizing, this, [frames]() {
+        if (frames->state.load() == 1) {
+            frames->syncStartNs = frames->clock.nsecsElapsed();
+        }
+    }, Qt::DirectConnection);
+    relayoutConns_ << connect(window, &QQuickWindow::afterSynchronizing, this, [frames]() {
+        int one = 1;
+        const qint64 now = frames->clock.nsecsElapsed();
+        if (frames->state.load() == 1 && frames->syncStartNs.load() > 0) {
+            frames->syncNs = now - frames->syncStartNs.load();
+            frames->state.compare_exchange_strong(one, 2);
+        }
+    }, Qt::DirectConnection);
+    relayoutConns_ << connect(window, &QQuickWindow::frameSwapped, this, [frames]() {
+        int two = 2;
+        if (frames->state.load() == 2) {
+            frames->shownNs = frames->clock.nsecsElapsed();
+            frames->state.compare_exchange_strong(two, 3);
+        }
+    }, Qt::DirectConnection);
+    qInfo().noquote() << QStringLiteral("echoedit script: relayout start: %1 from %2 to %3 px, %4 changes")
+                         .arg(relayoutProperty_).arg(relayoutOrig_).arg(relayoutMargin_).arg(relayoutLeft_);
+    return true;
+}
+
+bool EchoEditScript::relayoutStep()
+{
+    RelayoutFrames* f = relayoutFrames_.get();
+    if (!f) {
+        return false;
+    }
+    if (relayoutPending_) {
+        if (f->state.load() == 3) {
+            relayoutSyncNs_.push_back(f->syncNs.load());
+            relayoutShownNs_.push_back(f->shownNs.load() - relayoutT0_);
+            relayoutPending_ = false;
+        }
+        else if (f->clock.nsecsElapsed() - relayoutT0_ < 3000000000LL) {
+            return true;   // its frame still to come
+        }
+        else {
+            relayoutSyncNs_.push_back(-1);   // no frame in 3 s
+            relayoutShownNs_.push_back(-1);
+            relayoutPending_ = false;
+        }
+    }
+    if (relayoutLeft_ <= 0 || !relayoutItem_) {
+        return false;
+    }
+    const double value = relayoutLeft_ % 2 == 0 ? relayoutMargin_ : relayoutOrig_;
+    f->syncStartNs = 0;
+    f->state = 1;
+    relayoutT0_ = f->clock.nsecsElapsed();
+    QQmlProperty::write(relayoutItem_.data(), relayoutProperty_, value);
+    relayoutChangeNs_.push_back(f->clock.nsecsElapsed() - relayoutT0_);
+    --relayoutLeft_;
+    relayoutPending_ = true;
+    return true;
+}
+
+void EchoEditScript::finishRelayout()
+{
+    for (const auto& c : relayoutConns_) {
+        disconnect(c);
+    }
+    relayoutConns_.clear();
+    const auto stats = [](const std::vector<qint64>& v) {
+        std::vector<qint64> ok;
+        for (qint64 x : v) {
+            if (x >= 0) ok.push_back(x);
+        }
+        std::sort(ok.begin(), ok.end());
+        const auto ms = [](qint64 ns) { return QString::number(double(ns) / 1e6, 'f', 1); };
+        return ok.empty() ? QStringLiteral("-") : QStringLiteral("%1 median / %2 max").arg(ms(ok[ok.size() / 2]), ms(ok.back()));
+    };
+    int missing = 0;
+    for (qint64 x : relayoutShownNs_) missing += x < 0 ? 1 : 0;
+    qInfo().noquote() << QStringLiteral("echoedit script: relayout %1 changes of %2 by %3 px: in the GUI thread %4 ms, the sync of its frame %5 ms, on screen after %6 ms; %7 without a frame in 3 s")
+                         .arg(relayoutChangeNs_.size()).arg(relayoutProperty_).arg(relayoutMargin_ - relayoutOrig_)
+                         .arg(stats(relayoutChangeNs_), stats(relayoutSyncNs_), stats(relayoutShownNs_)).arg(missing);
+    relayoutFrames_.reset();
+    relayoutItem_.clear();
 }

@@ -2769,3 +2769,13 @@ load is no more than 20 %.
 - **Not done**: the map tiles still upload all at once in a frame (16 in 9.4 ms on the head unit: not a jerk now);
   the bottom track's O(N) work a ping (a copy of the vertices and updateBounds over all of them) stays, small next to
   these.
+## Widgets docked to a screen edge: a proposal (2026-10-22)
+
+The owner: widgets attached and stretched along a screen edge, the rest of the picture moving aside rather than covered.
+Not built; the proposal, in Russian for the owner, is docs/widget-docking.ru.md (docks on the four edges as the
+console drawer's and the settings panel's push already do it, one relayout per action, ghosts while dragging,
+questions for the owner at its end). Measured for it **[verified, this PC, the kiosk's settings]**: the edit script's
+new elayout step (the workspace's margin set and put back as a dock would) - a change 1.1 ms in the GUI thread, the
+sync of the frame that takes it 11 ms median (30-50 max: mostly the echograms painted anew), on screen after 21-25 ms
+median (92-128 max); on the head unit 5-7 times that is expected (inference). So no live resize and no animated
+workspace size: the settings panel's 166 ms push animation relays the workspace out every frame.
