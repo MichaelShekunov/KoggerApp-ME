@@ -2947,3 +2947,10 @@ on the right, a path); `KTabBar` labels that lack room shrink down to 80 % of th
 `labelPixelSize`) and only then elide; the mosaic crop labels and "Data source:" wrap. The ru "Смещение XY, мм:"
 is back as it was. PC after it: lang_fit_check 0 in ru zh es hi, English 1 by design (a combo's value);
 lang_check, fold, pin_coverage, pin_mirror, scrollstrip, hscale_panel, widgetsize checks PASS.
+
+**Deployed (2026-10-23, the owner away: "work on your own")** **[verified]**: the kiosk on headunit 511d4fc2 (= me
+a7015ab3 + the kiosk patch) since 21:14:37 UTC (ExecStart, active, NRestarts 0, only the HDMI1 cursor warning in the
+new session; the kiosk's settings have no language chosen, so it keeps the system's); this PC's per-user install on
+a7015ab3 (a clean build, the installed exe the same as the packaged one). **Not done**: the all-users install in
+Program Files is still 306ed823 - UAC asks for consent on this PC (ConsentPromptBehaviorAdmin 5), and a prompt with
+nobody at the screen would wait there until morning.
