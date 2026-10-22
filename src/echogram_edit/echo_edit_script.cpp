@@ -793,6 +793,25 @@ void EchoEditScript::runStep(const QJsonObject& s)
         const bool ok = uiProbe_ && uiProbe_->grabWindow(path);
         qInfo().noquote() << QStringLiteral("echoedit script: grab %1 %2").arg(path, ok ? QStringLiteral("written") : QStringLiteral("failed"));
     }
+    else if (op == QLatin1String("viewCenter")) {
+        GraphicsScene3dView* view = nullptr;
+        for (QWindow* w : QGuiApplication::topLevelWindows()) {
+            auto* qw = qobject_cast<QQuickWindow*>(w);
+            if (qw && qw->isVisible() && (view = findScene3dView(qw->contentItem()))) {
+                break;
+            }
+        }
+        if (!view) {
+            qWarning().noquote() << QStringLiteral("echoedit script: viewCenter: no 3D view on screen");
+        }
+        else {
+            const QVariantMap g = view->screenToGeo(view->width() / 2.0, view->height() / 2.0);
+            qInfo().noquote() << QStringLiteral("echoedit script: viewCenter lat %1 lon %2 valid %3")
+                                 .arg(g.value(QStringLiteral("lat")).toDouble(), 0, 'f', 7)
+                                 .arg(g.value(QStringLiteral("lon")).toDouble(), 0, 'f', 7)
+                                 .arg(g.value(QStringLiteral("valid")).toBool() ? 1 : 0);
+        }
+    }
     else if (op == QLatin1String("linkTrack")) {
         double lat = 0.0, lon = 0.0;
         if (!boat_ || !boat_->firstPlanPoint(&lat, &lon)) {

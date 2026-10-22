@@ -2811,3 +2811,31 @@ dock_e2e]**:
 - Next: stage 2, the gestures (a widget dragged to an edge with a ghost; a docked one dragged out in the layout edit
   mode or after a long press; the tab dragged for the thickness), then stage 3, the head unit's measurement (stopping
   the kiosk needs the owner's word).
+
+## My maps: the view starts over the newest map (2026-10-22, branch `maps-start-view`)
+
+The owner: "if we have kmap maps loaded, the current view point has to move to the centre of the last loaded map". At
+start, with maps kept and the My maps layer on, `Core::UILoad` (after the saved camera is restored) asks
+`MapLibrary::showNewestOnMap`: the newest map shown, by its file's time in the maps folder (the order `reload()` reads
+them in; an import appends) -> `flyToRequested` -> `GraphicsScene3dView::fitGeoBox`, as a card's "Show on the map"
+does. A hidden map is passed over; with the layer off the saved camera stays; a survey opened after the start (the
+command line's file is opened after `UILoad`) still takes the view to its data (`Dataset::updatedLlaRef` ->
+`fitAllInView`). Made in a worktree of its own, `D:\Temp\ka_mapview`, from `me` c0a0e2ad: the docks' stage 2 was being
+written in the main tree by another session.
+- **Check** **[verified]**: `tools/qml_check/mymaps_start_check.ps1 -Exe <build> -File D:\Temp\perf\00014_03.05.2025.KLF`
+  7 of 7. Map A exported from 00014 by the app, map B the synthetic one of `mapexport_check -Keep`, 3459 m apart; the
+  camera saved over Moscow. The newer of the two, either way round; the older when the newer is hidden; Moscow with
+  the layer off and with no maps; the recording's data (inside A's bounds) when it is opened too. The view's middle
+  comes from the edit script's new `viewCenter` step, the expected one from the passport's bounds, read by the check.
+  A start over two maps, grabbed: the lake map's isobaths and labels in the middle of the 3D pane.
+- **Not checked**: the head unit, Android (the same `UILoad`; on the boat a GNSS fix takes the view to the boat soon
+  after anyway **[inference]**).
+- **A limit of KOGGER_SETTINGS_INI, found here** **[verified]**: `QSettings("KOGGER", <app>)` is the registry whatever
+  `setDefaultFormat` says (Qt: that constructor is always NativeFormat), and 23 places use it -- the saved camera, My
+  maps' hidden list and layer switches among them. A profile run with KOGGER_SETTINGS_INI keeps those in
+  `HKCU\Software\KOGGER\KoggerApp-<profile>`, not in its INI file; the check writes them there and removes the key
+  after. So the "hu" profile's runs had the kiosk's file for the rest only. A first reading of this as "MapLayer reads
+  its switches before main() picks the format" was wrong and is not in the commit.
+- An export in a fresh profile writes nothing (00014's bottom track is not made there): the check exports in a copy of
+  the test profile `perf`, as mapexport_edit_check does. With COMSOL on all cores: the mosaic at zoom 6, 37 tiles in
+  71.5 s (zoom 5 did not end in 3 minutes).

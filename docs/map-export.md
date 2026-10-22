@@ -70,6 +70,11 @@ messenger, mail): see "Android: from a messenger and back".
   licence, size, depth range, its own switch, "Show on the map", "Remove" with a second press to confirm);
   "Under the boat by the map: 7.4 m (title)". Layer switches: QSettings `mapLayer/*`; hidden maps:
   `mapLibrary/hidden`.
+- **At start** (owner, 2026-10-22): with maps kept and the My maps layer on, the view starts over the newest map
+  shown -- the last opened, by its file's time in the maps folder -- rather than where the camera was left
+  (`MapLibrary::showNewestOnMap` from `Core::UILoad`, after the saved camera is restored). A hidden map is passed
+  over; with the layer off the saved camera stays. A survey opened after the start still takes the view to its data
+  (`Dataset::updatedLlaRef` -> `fitAllInView`).
 - **Depth by map**: a data field for the widgets (`DataFieldCatalog`, key `mapDepth`), from
   `MapLibrary::boatDepth`: bilinear in the newest visible map with a depth at `Dataset::getLastRawPosition()`
   (double), NaN off the map or over a gap.
@@ -435,6 +440,14 @@ triangles, files, times) to kogger.log.
   **[Verified]**. `boatgui_check` 8/8 and `sysgui_check` 12/12 with the new data field in the catalog
   **[Verified]**.
 
+- `powershell -ExecutionPolicy Bypass -File tools\qml_check\mymaps_start_check.ps1 -Exe <KoggerApp.exe> -File <recording>`:
+  the view at start, in the app on the test desktop (no window). Map A exported from the recording by the app
+  (`KOGGER_MAP_EXPORT`), map B the synthetic one of `tools\mapexport_check -Keep`; the camera saved over Moscow;
+  the view's middle (the edit script's `viewCenter`) against the middle of the map's passport bounds: the newer of
+  A and B either way round, the older when the newer is hidden, the saved camera with the layer off or no maps, the
+  recording's data when a recording is opened too. 7 of 7 **[Verified, 2026-10-22]**. The camera and My maps'
+  switches are written to the profile's registry key: `QSettings("KOGGER", <app>)` does not follow
+  KOGGER_SETTINGS_INI.
 - `powershell -ExecutionPolicy Bypass -File tools\perf\mapexport_edit_check.ps1 -Exe <KoggerApp.exe> -File <recording> -Epochs <n> [-TrimStart 2924] [-BadFrom 22832] [-BadTo 23973] [-PathPrefix ...]`:
   pings marked bad or trimmed on the echogram are out of the KMZ track and the survey's times. Two windows
   of the app (about a minute each, closing themselves; a profile copied from the test profile "perf" with the

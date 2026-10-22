@@ -2385,6 +2385,11 @@ void Core::UILoad(QObject* object, const QUrl& url)
     QMetaObject::invokeMethod(deviceManagerWrapperPtr_->getWorker(), "createLocationReader", Qt::QueuedConnection);
 
     loadCameraViewFromSettings(); // restore last map view (after forceRefresh, which resets viewLlaRef_)
+    // My maps (docs/map-export.md): with maps kept, the view starts over the newest one shown rather than where the
+    // camera was left. A survey opened after this still takes the view to its data (Dataset::updatedLlaRef).
+    if (mapLayer_->visible()) {
+        mapLibrary_->showNewestOnMap();
+    }
 }
 
 void Core::registerPlot2D(QObject* plotObj)

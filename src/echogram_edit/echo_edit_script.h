@@ -56,6 +56,7 @@
 //   {"op": "docks"}                  one line of JSON: the docks, their insets and slots, the scale steps, the widgets'
 //                                    sizes at scale 1, the window and the workspace on screen, each widget's panel
 //                                    (docked, visible, where)
+//   {"op": "viewCenter"}             the geographic point in the middle of the 3D view, where it looks (on the water)
 //   {"op": "grab", "path": file.png}                         the window, through the UI probe
 //   {"op": "quit"}
 // An epoch can be given as a share of the recording instead: "fromFrac", "toFrac", "epochFrac".

@@ -45,6 +45,8 @@ public:
     Q_INVOKABLE void remove(const QString& id);
     /// Asks the view to show the whole map (flyToRequested).
     Q_INVOKABLE void showOnMap(const QString& id);
+    /// Asks the view to show the newest of the maps shown (Core::UILoad: the view starts there). False when none is.
+    bool showNewestOnMap();
     /// The depth from the visible maps at a point: {depth (m, NaN if none), title}; the newest map
     /// that has a depth there wins.
     Q_INVOKABLE QVariantMap depthAt(double latDeg, double lonDeg) const;
