@@ -602,6 +602,33 @@ void EchoEditScript::runStep(const QJsonObject& s)
                                           mrow ? QStringLiteral("found") : QStringLiteral("none"), pairs.join(QStringLiteral("; ")));
         }
     }
+    else if (op == QLatin1String("plotState")) {
+        // Each echogram's panel state (Plot2D.qml's echoViewState): "set" changes it as the panel's controls do;
+        // then a line an echogram with what the controls and the plot itself say.
+        const QJsonObject set = s.value(QStringLiteral("set")).toObject();
+        forEachPlot(false, [&](QQuickItem* plot) {
+            QQuickItem* st = findWithProperty(plot, "bottomTrackLine");
+            if (!st) {
+                return;
+            }
+            for (auto it = set.begin(); it != set.end(); ++it) {
+                st->setProperty(it.key().toUtf8().constData(), it.value().toVariant());
+            }
+            int btTheme = -1;
+            int rfTheme = -1;
+            bool btVisible = false;
+            QMetaObject::invokeMethod(plot, "getBottomTrackThemeId", Q_RETURN_ARG(int, btTheme));
+            QMetaObject::invokeMethod(plot, "getRangefinderThemeId", Q_RETURN_ARG(int, rfTheme));
+            QMetaObject::invokeMethod(plot, "getBottomTrackVisible", Q_RETURN_ARG(bool, btVisible));
+            qInfo().noquote() << QStringLiteral("echoedit script: plotState plot %1%2: bottomTrackLine %3 bottomTrackValue %4 "
+                                                "bottomTrackTheme %5 rangefinderLine %6; plot: bottom track visible %7 theme %8, "
+                                                "rangefinder theme %9")
+                                 .arg(plot->property("indx").toInt()).arg(plot->isVisible() ? QString() : QStringLiteral(" (hidden)"))
+                                 .arg(st->property("bottomTrackLine").toBool()).arg(st->property("bottomTrackValue").toBool())
+                                 .arg(st->property("bottomTrackTheme").toInt()).arg(st->property("rangefinderLine").toBool())
+                                 .arg(btVisible).arg(btTheme).arg(rfTheme);
+        });
+    }
     else if (op == QLatin1String("presets")) {
         for (QObject* d : core_->getDeviceManagerWrapperPtr()->getDevList()) {
             QStringList slotLines;

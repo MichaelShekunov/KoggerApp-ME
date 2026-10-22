@@ -2674,3 +2674,22 @@ and checked on the PC by that session but not yet on a board.
   **[verified: the recordings]**; a compressed ping (ID_CHART_Z) with a piece missing does not decode and is
   dropped whole. They make no blank columns (4..5 epochs without a ping a recording, same as the recorder's file).
   The traffic was 18..19 KB/s, ID_VOLTAGE 73 frames/s of it (~2.1 KB/s).
+
+## The echogram's bottom-track line kept across a restart (2026-10-22)
+
+The owner: the bottom-track line (the echogram panel's Bottom-Track > Visibility) is always back on after a restart,
+its state not kept.
+
+- **Cause** **[verified: the code; the check below fails on the old code]**: the plot draws the bottom track while
+  its depth value or its line is on (`updateBottomTrackPresentation`: visible = value || line, theme 0 = no line).
+  The serializer keeps both right (`btVis`, `btText`, `btTheme`), but `reloadFromPlot()` read the line back from
+  `getBottomTrackVisible()` -- true whenever the value is on, and the value is on by default and not on the new
+  panel -- so the line switch came back on and turned the line on again. The rangefinder had the same read. Also
+  every control set there ran `update...Presentation()` at once, writing the plot back from half-set controls.
+- **Fix** (Plot2D.qml `reloadFromPlot`): everything read from the plot first; the line is on when the plot shows the
+  track and its theme is not 0; the type is taken only from a line shown (hidden, its own Settings keep it).
+- **Check**: `tools/qml_check/echostate_persist_check.ps1 -Exe <build>\KoggerApp.exe -File <recording>` -- six runs
+  of the app in the test profile, each starting where the last left off (the edit script's new `plotState` step
+  changes the panel state as its controls do and logs it): line off -> still off after a restart, the plot's theme
+  0, the rangefinder's line off too; on as points -> on, Points, theme 2; off again -> off and the type still
+  Points. PASS; with the old `reloadFromPlot` 2 of 3 FAIL (the line and the rangefinder's back on).

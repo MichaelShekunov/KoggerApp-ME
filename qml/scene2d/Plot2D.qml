@@ -1085,12 +1085,21 @@ WaterFall {
                 echogramTypesList.currentIndex = plot.getEchogramCompensation()
                 plot.setLevels(plot.getLowEchogramLevel(), plot.getHighEchogramLevel())
 
-                bottomTrackValueVisible.checked    = plot.getBottomTrackDepthTextVisible()
-                bottomTrackGraphicsVisible.checked = plot.getBottomTrackVisible()
-                bottomTrackThemeList.currentIndex  = Math.max(0, plot.getBottomTrackThemeId() - 1)
-                rangefinderValueVisible.checked    = plot.getRangefinderDepthTextVisible()
-                rangefinderGraphicsVisible.checked = plot.getRangefinderVisible()
-                rangefinderThemeList.currentIndex  = Math.max(0, plot.getRangefinderThemeId() - 1)
+                // The plot draws the bottom track (the rangefinder) while its value or its line is on, so
+                // getBottomTrackVisible() says nothing about the line alone: the line is on when its theme is
+                // (0 = no line). It used to be read as the line, and with the value on -- the default -- the line
+                // came back after every restart (owner, 2026-10-22). All is read before any control is set: each
+                // assignment runs update...Presentation(), which writes the plot back from the controls.
+                const btText = plot.getBottomTrackDepthTextVisible()
+                const btTheme = plot.getBottomTrackVisible() ? plot.getBottomTrackThemeId() : 0
+                const rfText = plot.getRangefinderDepthTextVisible()
+                const rfTheme = plot.getRangefinderVisible() ? plot.getRangefinderThemeId() : 0
+                if (btTheme > 0) bottomTrackThemeList.currentIndex = btTheme - 1   // hidden: its own Settings keep the type
+                bottomTrackGraphicsVisible.checked = btTheme > 0
+                bottomTrackValueVisible.checked    = btText
+                if (rfTheme > 0) rangefinderThemeList.currentIndex = rfTheme - 1
+                rangefinderGraphicsVisible.checked = rfTheme > 0
+                rangefinderValueVisible.checked    = rfText
 
                 ahrsVisible.checked        = plot.getAttitudeVisible()
                 temperatureVisible.checked = plot.getTemperatureVisible()

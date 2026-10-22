@@ -34,6 +34,8 @@
 //   {"op": "pin", "mode": true, "group": g}   pin mode on, the settings pane open at a group; "mode": false closes
 //   {"op": "pinuse", "key": k, "index": i}   a settings widget's mirror control used as a hand would
 //   {"op": "pinstate", "key": k}     the setting's row controls on the settings page and their mirrors
+//   {"op": "plotState", "set": {"bottomTrackLine": false}}   each echogram's panel state (Plot2D.qml's echoViewState),
+//                                    changed as its controls change it, and logged with what the plot says
 //   {"op": "grab", "path": file.png}                         the window, through the UI probe
 //   {"op": "quit"}
 // An epoch can be given as a share of the recording instead: "fromFrac", "toFrac", "epochFrac".
