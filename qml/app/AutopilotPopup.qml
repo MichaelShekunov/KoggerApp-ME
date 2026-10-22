@@ -158,7 +158,9 @@ BasePanePopup {
     property real _powerW: 0
     readonly property var _modeNamesForWidth: ["Manual", "Hold", "Loiter", "Auto", "RTL", "SmartRTL", "Guided", "Acro", "Steering"]
     readonly property real _modeSlotW: modeNameProbe.width
-    readonly property real _titleSlotW: _online ? _modeSlotW : titleText.implicitWidth
+    // The mode's slot keeps the card's width when the mode changes; "Tap again to arm" takes its own for the 3 s it
+    // shows, else it is cut in every language (ME, 2026-10-23).
+    readonly property real _titleSlotW: _online && !armConfirmPending ? _modeSlotW : titleText.implicitWidth
 
     readonly property string _statsText: {
         var parts = []

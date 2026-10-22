@@ -1,4 +1,66 @@
-# Boat mission: waypoints on the map, mission to the autopilot (MAVLink)
+# Boat mission: the mission planner (upstream) and the boat's own listener
+
+**Since 2026-10-23 the missions are upstream's.** The owner: "carefully replace the missions with the ones in the
+original Kogger GitHub, branch develop". The planner, the transfer, the run tracker and the autopilot commands of
+KoggerTech's `develop` (route-planning, PR #52, + aa32dff1) are in the fork; the boat's own missions described below
+(MavVehicle) are switched off, not deleted (`MavVehicle::setMissionsByPlanner(true)` in `src/main.cpp`; the way back
+is that one line).
+
+## Now: who does what
+
+- **Planning** — `src/mission` (`MissionPlanController`, QML `missionPlan`): waypoints, surveys (lawnmower lines),
+  corridors, rally points, geofence (inclusion and exclusion zones), the start point, the cruise speed and per-item
+  speeds, what to do at the end (by default: back to the start point and hold there), undo/redo, files `.kmission`
+  (and `.plan`/`.waypoints` export, QGroundControl). Opened from the quick action "Mission planner" or *Settings ->
+  Vehicle mission -> Mission editor*: a full-window editor over the 3D view (`MissionEditorOverlay.qml`).
+- **Transfer** — `src/autopilot` (`MissionTransfer`, its own MAVLink subset, in the thread "AutopilotMissionThread"):
+  route, fence and rally in batches, FENCE_ENABLE/TYPE/ACTION after a fence (FENCE_ENABLE 0 for a plan without
+  zones), download of all three. `DeviceManager` binds the autopilot by the first vehicle HEARTBEAT (compid 1) on a
+  live link; **every byte the app writes to the autopilot (`writeMavlinkBytes`) now goes to that link** (before, to
+  the last link MAVLink came on).
+- **Run and commands** — `MissionRunTracker` (QML `missionRun`) follows the mission on the vehicle (read silently 1 s
+  after it comes online; what is left, the time, the current item), the 3D layer "Vehicle mission" draws it; the
+  autopilot card (`AutopilotPopup.qml`, quick action "Autopilot", opens by itself when an autopilot comes online)
+  has the mode buttons (MANUAL, HOLD, LOITER, AUTO, RTL), arm/disarm and the telemetry; a tap on a point of the
+  vehicle's mission: "Go here" / "Start from here" (`MissionRunPointCard.qml`).
+- **MavVehicle (context property `boat`) only listens** in the app: heartbeat to the boat (FS_GCS), navigation
+  readiness (EKF), GPS heading and the heading source switch (EK3_SRC1_YAW), autopilot health, messages, the track
+  by link quality, the ghost when the link is lost, the RTL progress and the battery at its end. Its plan, upload,
+  read-back, start, HOLD, RTL, arm and disarm are refused (a log line `boat: ... ignored`), it no longer reads the
+  mission when the autopilot appears, and the plan kept in `boatMission/planJson` is not shown (it stays there).
+  The boat panel shows the diagnostics only; the widgets "Mission left" / "Mission time left" take AUTO's from
+  `missionRun`.
+
+## What upstream's way does not have that the boat's had (open, for the owner)
+
+- **Start**: there is no "start mission" sequence (HOLD -> arm -> AUTO with checks); the card has the mode buttons.
+  A mission that has ended in AUTO starts again only through another mode: **HOLD, then AUTO** (ArduPilot starts a
+  mission when AUTO is entered; field test 2026-09-28). After an upload outside AUTO the current item is set back to
+  the first point (`restartMissionAfterUpload`, on by default).
+- **No gate on navigation readiness** before AUTO, and **no disarm after a refused AUTO** (the boat stays armed in
+  the mode it was in).
+- **A lost final MISSION_ACK** is a failed upload ("no response"), not decided by a read-back.
+- **Streams**: on each connection the app asks MISSION_CURRENT 1 Hz, NAV_CONTROLLER_OUTPUT 2 Hz and GPS_RAW_INT 1 Hz
+  (SET_MESSAGE_INTERVAL; not stored by ArduPilot). Before, the fork left the boat's SR rates alone.
+- Not ported: the tutorial, the control server, the contact quick action, the data processing pause while the
+  editor is open.
+
+## Checks of the missions (2026-10-23)
+
+- **[verified]** `tools/qml_check/mission_sitl_check.ps1 -Exe <build>` against ArduRover 4.4.0 SITL (started by the
+  caller, see the script; WSL `~/sitl`): the app on the test desktop (`KOGGER_AUTOTEST=TCP:5760`, the edit script's
+  mission steps) binds the autopilot, makes a plan (start point, three waypoints, a rally point, an inclusion fence,
+  1.5 m/s), uploads it, downloads it back ("matches the plan"), arms, runs AUTO (MISSION_CURRENT moves on), HOLD,
+  disarms, no QML errors; then **pymavlink on SITL's serial 2** (another MAVLink implementation) reads what the
+  autopilot holds: the route (start, the points, the start again), DO_CHANGE_SPEED 1.5, the four fence vertices,
+  the rally point, FENCE_ENABLE 1 / TYPE 4 / ACTION 4 — 13/13 PASS.
+- **[verified]** `tools/mission_check` offline 228/228 (3 new: in planner mode MavVehicle does not ask for the
+  mission when the autopilot appears, keeps the heartbeat, refuses its plan and commands; two mutants caught) and
+  SITL 263/263 (its own mission steps, still built and tested, off in the app).
+- Not verified: the boat on water with upstream's planner; the head unit's touch screen in the editor (on-screen
+  keyboard for coordinates and the plan's name); two ground stations at once (the editor warns).
+
+## Before 2026-10-23: the boat's own missions (MavVehicle; kept, off in the app)
 
 A boat with an ArduPilot Rover autopilot (built and tested against Rover 4.4.0) is driven from the
 3D pane: points are placed on the map, uploaded as a mission, read back and compared, and the
@@ -15,7 +77,7 @@ and uploaded a mission to the boat. The first start on the boat was refused by t
 EKF had no position: its two-antenna GPS never gave a heading, see "ArduPilot facts"); a mission on
 water is not yet verified.
 
-## What the app does
+### What MavVehicle does when it runs the missions
 
 - `src/vehicle/mav_vehicle.{h,cpp}` — `MavVehicle`, context property `boat`. Transport-agnostic:
   `feed()` takes MAVLink bytes, `sendBytes()` gives them. In the app `DeviceManager` emits every
@@ -179,3 +241,13 @@ build/mission_check/mission_check.exe --offline
 Start SITL as a child of a shell that stays alive (as above). Started with `exec` or `setsid nohup`
 from a background `wsl` call it died right after the first connection (2026-09-26, cause not
 investigated).
+
+
+2026-10-23: started from PowerShell (`Start-Process`, hidden or not, stdin from /dev/null or not) or as a
+detached task of the agent, SITL quits with code 1 right after "Loaded defaults"; started from Git Bash as a job
+of the same call that runs the check, it runs (cause not found). The missions' check:
+
+```
+(MSYS_NO_PATHCONV=1 wsl -e bash -c 'cd ~/sitl && ./ardurover --model motorboat --home 40.35,45.0,1900,0 --defaults rover.parm,motorboat.parm -I0 --speedup 5 --wipe < /dev/null > ~/sitl/sitl.out 2>&1 & sleep 600' &)
+powershell -ExecutionPolicy Bypass -File tools/qml_check/mission_sitl_check.ps1 -Exe <build>/KoggerApp.exe
+```

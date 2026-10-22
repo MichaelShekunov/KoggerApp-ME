@@ -35,7 +35,9 @@ struct RunTelemetry {
 
 /** One item of the vehicle's route list (index = MAVLink seq) as the run shows it. */
 struct RunItem {
-    enum class Kind : uint8_t { Command, Other, Start, Waypoint, Survey, Corridor, ReturnToLaunch, Hold };
+    // No ": uint8_t": lupdate 6.8's parser loses the namespace after it and files MissionRunTracker's texts under
+    // "MissionRunTracker", which tr() never asks for (it asks "mission::MissionRunTracker"; ME, 2026-10-23).
+    enum class Kind { Command, Other, Start, Waypoint, Survey, Corridor, ReturnToLaunch, Hold };
 
     int seq = 0;
     int command = 0;

@@ -2954,3 +2954,35 @@ new session; the kiosk's settings have no language chosen, so it keeps the syste
 a7015ab3 (a clean build, the installed exe the same as the packaged one). **Not done**: the all-users install in
 Program Files is still 306ed823 - UAC asks for consent on this PC (ConsentPromptBehaviorAdmin 5), and a prompt with
 nobody at the screen would wait there until morning.
+
+## Missions: upstream develop's planner replaces the boat's own (2026-10-23, branch `missions-upstream`)
+
+The owner, leaving for the night: "carefully replace the missions with the ones in the original Kogger GitHub, branch
+develop" (develop = `origin/develop`). Decided alone (no questions, by his word): port the mission subsystem only,
+not all of develop (39 files would conflict); one stack talks missions and commands to the autopilot; the boat's
+listener stays. Details, gaps and checks: `docs/BOAT_MISSION.md` (top); the reading of upstream that led here:
+the analysis in this session (not kept in the repo).
+- **Ported** from `origin/develop` (route-planning PR #52 + aa32dff1, the same files in develop): `src/mission`,
+  `src/autopilot`, `scene3d` mission layers/controllers and their hooks in the view and the renderer, the map shown in
+  the editor, `DeviceManager`'s autopilot binding/commands/telemetry (`AutopilotState`, `vruChanged(const
+  AutopilotState&)`), the wrapper's transfer thread and properties, `Core`'s controllers and `setMissionEditorActive`,
+  the QML (editor, card, point card, quick actions "mission"/"autopilot", settings group "Vehicle mission" with
+  pin tags, ZOrder autopilotPopup 1517 above the docks), progress toasts (`Notifications::progress`, cfdc92f7's QML
+  part, without the tutorial's suppression). Mission shared-file diffs applied 3-way, conflicts by hand.
+- **Not ported**: the tutorial (KTutorialAnchor kept as the no-op it is without `tutorial`; the editor's "?" hidden),
+  the control server, the contact quick action, `refreshSceneContentVisible`, the data processor's pause.
+- **Fork rules kept**: `QSettings` through `koggerAppName()` (mission_plan_controller.cpp x3, core.cpp); the five
+  mode-*.svg recorded in `third_party/icons/README.md` (about_check); 9 pin tags (pin_coverage_check).
+- **lupdate 6.8 and `enum class Kind : uint8_t`**: its parser loses the namespace after an enum with an underlying
+  type and filed MissionRunTracker's texts under "MissionRunTracker", which `tr()` never asks for
+  ("mission::MissionRunTracker"). `RunItem::Kind` lost its `: uint8_t` (only compared and switched on).
+- **MavVehicle in planner mode** (`setMissionsByPlanner(true)`, main.cpp): see BOAT_MISSION.md; mission_check keeps
+  its own mission steps (default off there).
+- **Translations**: ru from upstream's ru.ts for the 348 mission messages it has (same context and source), 1 by
+  hand; zh, es, hi new (machine). en and pl left as they were.
+- **[verified]** mission_sitl_check 13/13 (SITL + pymavlink), mission_check offline 228/228 (3 planner-mode checks,
+  2 mutants) and SITL 263/263, boatpanel, boatgui, about, pin_coverage, fold, pin_mirror PASS; the editor, the card
+  and the vehicle layer looked at in pictures on the test desktop.
+- **New test hooks**: `KOGGER_AUTOTEST=TCP:<port>` (a hidden TCP link to 127.0.0.1), edit-script steps
+  `waitAutopilot`, `missionPlan`, `missionUpload`, `missionDownload`, `waitMissionTransfer`, `missionState`,
+  `missionEditor`, `autopilotMode`, `autopilotArm` (echo_edit_script.h).
