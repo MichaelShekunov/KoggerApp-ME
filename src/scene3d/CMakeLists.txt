@@ -6,6 +6,8 @@ add_subdirectory(utils)
 
 target_sources(KoggerApp PRIVATE
     scene3d_renderer.h  scene3d_renderer.cpp
-    scene3d_view.h      scene3d_view.cpp)
+    scene3d_view.h      scene3d_view.cpp
+    link_track_geometry.h
+    link_track_item.h   link_track_item.cpp)
 
 target_include_directories(KoggerApp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

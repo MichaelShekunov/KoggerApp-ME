@@ -318,6 +318,28 @@ Item {
 
         // The owner's 1 x 1 (2026-10-01): the CPU and the GPU, each with its temperature and load, memory and the
         // system volume in numbers - at both scales, in every mock, in the font given, whichever layout it takes.
+        function test_3c_rows_kept() {
+            // A new reading keeps the lines, only their texts change: made anew each second (the array as the
+            // Repeater's model) they jerked the head unit's UI ~150 ms a second (2026-10-22).
+            var ov = overview(700, cellPx(2, 1.11), 1.11, mon)
+            var was = mon.memUsedGB
+            try {
+                wait(20)
+                var before = byIndex(findAll(ov, "sysRow", []))
+                compare(before.length, 3)
+                mon.memUsedGB = 4.2
+                wait(20)
+                var after = byIndex(findAll(ov, "sysRow", []))
+                compare(after.length, 3)
+                for (var i = 0; i < 3; ++i)
+                    verify(after[i] === before[i], "row " + i + " is the same item after a new reading")
+                compare(rowParts(after[0]).value.text, "4.2 / 15.6 GB", "and shows the new amount")
+            } finally {
+                mon.memUsedGB = was   // the next tests read mon as it was
+                ov.destroy()
+            }
+        }
+
         function test_3b_compact() {
             var mocks = [{ m: mon, name: "head unit", gpu: true }, { m: hot, name: "hot", gpu: true },
                          { m: peak, name: "peak", gpu: true }, { m: win, name: "Windows", gpu: false }]

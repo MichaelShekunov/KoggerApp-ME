@@ -113,6 +113,8 @@ class MavVehicle : public QObject
     Q_PROPERTY(QList<double> linkTrackLats READ linkTrackLats NOTIFY linkTrackChanged)
     Q_PROPERTY(QList<double> linkTrackLons READ linkTrackLons NOTIFY linkTrackChanged)
     Q_PROPERTY(QList<int> linkTrackQualities READ linkTrackQualities NOTIFY linkTrackChanged)
+    /** The samples in it, without building a list of them (a binding that only asks whether there is a track). */
+    Q_PROPERTY(int linkTrackSize READ linkTrackSize NOTIFY linkTrackChanged)
     Q_PROPERTY(bool linkTrackShown READ linkTrackShown WRITE setLinkTrackShown NOTIFY linkTrackShownChanged)
     // The Wi-Fi signal of the head unit's module, dBm, 0 when not known (DeviceManagerWrapper::airRssi).
     Q_PROPERTY(int linkRssi READ linkRssi NOTIFY linkRssiChanged)
@@ -239,9 +241,16 @@ public:
     QList<double> linkTrackLats() const;
     QList<double> linkTrackLons() const;
     QList<int> linkTrackQualities() const;
+    int linkTrackSize() const { return int(linkTrack_.samples().size()); }
     bool linkTrackShown() const { return linkTrackShown_; }
     void setLinkTrackShown(bool on);
     Q_INVOKABLE void clearLinkTrack();
+    /** Tests (the edit script's "linkTrack" step): the track filled as a long session leaves it, n samples (up to
+     *  LinkTrack::kMaxSamples) on a lawnmower path from (lat, lon) 2.5 m apart, the quality changing every runLen
+     *  samples and every tenth change a loss. False when there is no first point. */
+    bool fillLinkTrackForTest(int n, int runLen, double lat, double lon);
+    /** The first point of the plan, for tests to place things near the mission; false without one. */
+    bool firstPlanPoint(double* lat, double* lon) const;
     int linkRssi() const { return linkRssi_; }
     /** The head unit's module signal, dBm (0 not known); the track's next sample takes it. */
     void setLinkRssi(int dBm);

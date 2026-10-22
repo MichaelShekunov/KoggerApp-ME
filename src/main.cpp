@@ -39,6 +39,7 @@
 #include "input_device_tracker.h"
 #include "screen_keyboard.h"
 #include "vehicle/mav_vehicle.h"
+#include "link_track_item.h"
 #ifndef Q_OS_ANDROID
 #include "instance_lock.h"
 #endif
@@ -179,6 +180,7 @@ void setApplicationDisplayName(QGuiApplication& app)
 void registerQmlMetaTypes()
 {
     qmlRegisterType<GraphicsScene3dView>("SceneGraphRendering", 1, 0,"GraphicsScene3dView");
+    qmlRegisterType<LinkTrackItem>("SceneGraphRendering", 1, 0, "LinkTrackItem");
     qmlRegisterType<qPlot2D>( "WaterFall", 1, 0, "WaterFall");
     qmlRegisterType<BottomTrack>("BottomTrack", 1, 0, "BottomTrack");
     qRegisterMetaType<BottomTrack::ActionEvent>("BottomTrack::ActionEvent");
@@ -346,6 +348,11 @@ int main(int argc, char *argv[])
     // %APPDATA%\KOGGER\KoggerApp-<name>) -- a test instance beside the user's, sharing nothing with it.
     QCoreApplication::setApplicationName(koggerAppName());
     QCoreApplication::setApplicationVersion(koggerVersionFull());   // the log's "log opened" line
+    // KOGGER_SETTINGS_INI=1: the settings in an INI file, %APPDATA%\KOGGER\<app name>.ini on Windows, not the registry:
+    // a head unit's KoggerApp.conf put there runs here with its layout and settings (a test profile, 2026-10-22).
+    if (!qEnvironmentVariableIsEmpty("KOGGER_SETTINGS_INI")) {
+        QSettings::setDefaultFormat(QSettings::IniFormat);
+    }
 
     migrateSettingsSchema();
 
@@ -485,6 +492,7 @@ int main(int argc, char *argv[])
     // KOGGER_ECHOEDIT_SCRIPT: echogram edits made by a script on an opened recording
     // (tools/perf/echoedit_e2e.ps1). Nothing happens unless it is set.
     EchoEditScript echoEditScript(&core);
+    echoEditScript.setBoat(&boat);
     echoEditScript.setUiProbe(&uiProbe);
     echoEditScript.armFromEnvironment();
 

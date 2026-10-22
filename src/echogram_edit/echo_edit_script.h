@@ -36,6 +36,8 @@
 //   {"op": "pinstate", "key": k}     the setting's row controls on the settings page and their mirrors
 //   {"op": "plotState", "set": {"bottomTrackLine": false}}   each echogram's panel state (Plot2D.qml's echoViewState),
 //                                    changed as its controls change it, and logged with what the plot says
+//   {"op": "linkTrack", "points": n, "run": k}   the boat's track by link quality filled as a long session leaves
+//                                    it (MavVehicle::fillLinkTrackForTest), from the plan's first point
 //   {"op": "drag3d", "seconds": s, "hz": n, "radius": px, "turnSeconds": s}
 //                                    a left-button drag of the 3D view through its triggers, as the QML pointer
 //                                    handlers (a finger on the head unit) call them: the pointer circles about the
@@ -63,6 +65,7 @@
 #include <vector>
 
 class Core;
+class MavVehicle;
 class UiProbe;
 class QQuickItem;
 
@@ -72,6 +75,7 @@ class EchoEditScript : public QObject
 public:
     explicit EchoEditScript(Core* core, QObject* parent = nullptr);
     void setUiProbe(UiProbe* probe) { uiProbe_ = probe; }   // for "grab"
+    void setBoat(MavVehicle* boat) { boat_ = boat; }        // for "linkTrack"
     void armFromEnvironment();
 
 private:
@@ -88,6 +92,7 @@ private:
 
     Core* core_ = nullptr;
     UiProbe* uiProbe_ = nullptr;
+    MavVehicle* boat_ = nullptr;
     QJsonArray steps_;
     int next_ = 0;
     QTimer timer_;

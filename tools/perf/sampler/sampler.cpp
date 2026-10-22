@@ -1,5 +1,5 @@
 // A sampling profiler for the threads of a running Windows x64 process.
-//   sampler <pid> <seconds> <interval_ms> <exe_symbols.txt> [<module_name_of_exe>]
+//   sampler <pid> <seconds> <interval_ms> <exe_symbols.txt> [<module_name_of_exe> [<focus>|- [<timeline file>]]]
 // Every interval each thread of the process that has run since its last sample (QueryThreadCycleTime)
 // is suspended, its stack walked (dbghelp StackWalk64 on the target's unwind data), and resumed. At the
 // end, per thread with samples: the leaf functions and the functions on the stack (inclusive), ranked.
@@ -53,7 +53,13 @@ int main(int argc, char** argv)
     const DWORD intervalMs = DWORD(std::strtoul(argv[3], nullptr, 10));
     const std::vector<Sym> exeSyms = loadSyms(argv[4]);
     const std::string exeName = argc > 5 ? argv[5] : "KoggerApp.exe";
-    const std::string focus = argc > 6 ? argv[6] : "";   // print who calls functions named like this
+    std::string focus = argc > 6 ? argv[6] : "";   // print who calls functions named like this ("-": none)
+    if (focus == "-") focus.clear();
+    // every sample, in time order: "<thread> <ms from the start> <function>;<function>;..." (innermost first), to
+    // find what one thread did in a short stretch (a jerk) that the totals hide
+    const std::string timelinePath = argc > 7 ? argv[7] : "";
+    struct TimelineRec { DWORD tid; double ms; std::vector<unsigned long long> fs; };
+    std::vector<TimelineRec> timeline;
 
     HANDLE proc = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pid);
     if (!proc) { std::fprintf(stderr, "OpenProcess failed %lu\n", GetLastError()); return 1; }
@@ -185,6 +191,7 @@ int main(int argc, char** argv)
                     std::vector<unsigned long long> top(fs.begin(), fs.begin() + std::min<size_t>(fs.size(), 6));
                     acc.stacks[top]++;
                     if (!focus.empty()) acc.full.push_back(fs);
+                    if (!timelinePath.empty()) timeline.push_back({ tid, el * 1000.0, fs });
                 }
             } else {
                 ResumeThread(acc.h);
@@ -246,6 +253,21 @@ int main(int argc, char** argv)
             for (auto f : sv[i].first) { std::string nm; funcStart(f, &nm); std::printf("  <- %s", nm.c_str()); }
             std::printf("\n");
         }
+    }
+    if (!timelinePath.empty()) {
+        FILE* out = std::fopen(timelinePath.c_str(), "w");
+        if (!out) { std::fprintf(stderr, "timeline: cannot write %s\n", timelinePath.c_str()); return 1; }
+        std::unordered_map<unsigned long long, std::string> names;
+        for (const TimelineRec& r : timeline) {
+            std::fprintf(out, "%lx %.2f ", r.tid, r.ms);
+            for (size_t i = 0; i < r.fs.size() && i < 40; ++i) {
+                auto it = names.find(r.fs[i]);
+                if (it == names.end()) { std::string nm; funcStart(r.fs[i], &nm); it = names.emplace(r.fs[i], nm).first; }
+                std::fprintf(out, "%s%s", i ? ";" : "", it->second.c_str());
+            }
+            std::fprintf(out, "\n");
+        }
+        std::fclose(out);
     }
     return 0;
 }

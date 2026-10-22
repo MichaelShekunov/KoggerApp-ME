@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Shapes
+import SceneGraphRendering 1.0
 import kqml_types 1.0
 
 // The boat mission drawn over the 3D scene: the planned route, numbered waypoints (draggable while
@@ -7,7 +8,8 @@ import kqml_types 1.0
 // home; under them the boat's track by link quality and, while the link is lost, a faint boat where it should be
 // now. Everything is placed with view.geoToScreen() on the z = 0 plane and re-placed on
 // view.cameraChanged, on plan / telemetry changes and by a slow timer that covers camera
-// animations. Only the markers take input; the rest lets touches through to the scene.
+// animations; the track by its own C++ item (LinkTrackItem). Only the markers take input; the rest lets touches
+// through to the scene.
 Item {
     id: missionLayer
     // Not "layer": every Item has a layer property, and inside the waypoint delegate that property
@@ -42,8 +44,6 @@ Item {
         function onPositionChanged() { missionLayer.refresh() }
         function onHomeChanged() { missionLayer.refresh() }
         function onMissionStateChanged() { missionLayer.refresh() }
-        function onLinkTrackChanged() { missionLayer.refresh() }
-        function onLinkTrackShownChanged() { missionLayer.refresh() }
         function onGhostChanged() { missionLayer.refresh() }
     }
     Timer {
@@ -94,48 +94,17 @@ Item {
     }
 
     // The track by link quality (vehicle.linkTrack*): each stretch in the colour of the link on it
-    // (AppPalette.linkQualityColors), a stretch over a loss dashed; placed in one C++ call per refresh.
-    readonly property var _trackRuns: {
-        _tick
-        var out = []
-        if (!vehicle || !vehicle.linkTrackShown || !view || typeof view.geoToScreenList !== "function")
-            return out
-        var qs = vehicle.linkTrackQualities
-        if (qs.length < 2)
-            return out
-        var pts = view.geoToScreenList(vehicle.linkTrackLats, vehicle.linkTrackLons)
-        var run = null
-        for (var i = 1; i < pts.length && i < qs.length; ++i) {
-            var a = pts[i - 1], b = pts[i]
-            if (!isFinite(a.x) || !isFinite(a.y) || !isFinite(b.x) || !isFinite(b.y)) {
-                run = null
-                continue
-            }
-            if (!run || run.q !== qs[i]) {
-                run = { q: qs[i], pts: [Qt.point(a.x, a.y)] }
-                out.push(run)
-            }
-            run.pts.push(Qt.point(b.x, b.y))
-        }
-        return out
-    }
-    Repeater {
-        model: missionLayer._trackRuns
-        delegate: Shape {
-            required property var modelData
-            anchors.fill: parent
-            preferredRendererType: Shape.CurveRenderer
-            ShapePath {
-                strokeColor: AppPalette.linkQualityColors[modelData.q]
-                strokeWidth: Math.max(3, Math.round(4 * missionLayer._s))
-                strokeStyle: modelData.q === 5 ? ShapePath.DashLine : ShapePath.SolidLine
-                dashPattern: [2, 2]
-                fillColor: "transparent"
-                capStyle: ShapePath.RoundCap
-                joinStyle: ShapePath.RoundJoin
-                PathPolyline { path: modelData.pts }
-            }
-        }
+    // (AppPalette.linkQualityColors), a stretch over a loss dashed. One C++ item that reads the track when it changes
+    // and places it again as it is drawn after a camera move: a Repeater of Shapes made anew in JavaScript at every
+    // move held a drag of the view with a long session's track (2026-10-22).
+    LinkTrackItem {
+        id: linkTrack
+        objectName: "linkTrack"
+        anchors.fill: parent
+        view: missionLayer.view
+        vehicle: missionLayer.vehicle
+        colors: AppPalette.linkQualityColors
+        lineWidth: Math.max(3, Math.round(4 * missionLayer._s))
     }
 
     // planned route

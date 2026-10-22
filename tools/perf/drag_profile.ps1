@@ -33,6 +33,13 @@ param(
     [string] $Focus = '',
     [switch] $NoDrag,
     [switch] $NoSampler,
+    [switch] $SettingsIni,         # KOGGER_SETTINGS_INI: the profile's settings from %APPDATA%\KOGGER\KoggerApp-<Profile>.ini
+                                   # (a head unit's KoggerApp.conf put there: its layout and widgets)
+    [int]    $BurstMs = 0,         # > 0: the GUI thread's busy stretches of at least this long, each with what it ran
+                                   # (the sampler's timeline): a jerk the totals hide
+    [int]    $LinkTrack = 0,       # > 0: the boat's track by link quality filled with this many samples first, as a long
+                                   # session leaves it (the edit script's "linkTrack", by the plan's first point)
+    [int]    $LinkTrackRun = 6,    # its quality changing every this many samples
     [int]    $TimeoutS = 400,
     [string] $Toolchain = 'D:\Qt\Tools\llvm-mingw1706_64\bin',
     [string] $Out = "$env:TEMP\kogger_drag_profile"
@@ -60,7 +67,9 @@ if (-not $NoSampler) {
 $inv = [Globalization.CultureInfo]::InvariantCulture
 $act = if ($NoDrag) { '{"op": "wait", "ms": ' + [int]($DragSeconds * 1000) + '}' }
        else { ('{{"op": "drag3d", "seconds": {0}, "hz": {1}, "radius": {2}, "turnSeconds": {3}}}' -f $DragSeconds.ToString($inv), $MoveHz, $Radius, $TurnSeconds.ToString($inv)) }
-$steps = @('{"op": "settle", "quietMs": 3000, "timeoutMs": 180000}', $act, '{"op": "wait", "ms": 1000}', '{"op": "quit"}')
+$steps = @('{"op": "settle", "quietMs": 3000, "timeoutMs": 180000}')
+if ($LinkTrack -gt 0) { $steps += @(('{{"op": "linkTrack", "points": {0}, "run": {1}}}' -f $LinkTrack, $LinkTrackRun), '{"op": "wait", "ms": 2000}') }
+$steps += @($act, '{"op": "wait", "ms": 1000}', '{"op": "quit"}')
 $scriptPath = Join-Path $Out 'steps.json'
 ('{"steps": [' + ($steps -join ",`n") + ']}') | Set-Content -LiteralPath $scriptPath -Encoding ASCII
 
@@ -72,6 +81,7 @@ $psi.Arguments = '"' + $File + '"'
 if ($PathPrefix) { $psi.EnvironmentVariables['PATH'] = $PathPrefix + ';' + $env:PATH }
 $psi.EnvironmentVariables['KOGGER_PROFILE'] = $Profile
 $psi.EnvironmentVariables['KOGGER_ECHOEDIT_SCRIPT'] = $scriptPath
+if ($SettingsIni) { $psi.EnvironmentVariables['KOGGER_SETTINGS_INI'] = '1' }
 $app = Start-TestDesktopProcess $psi
 
 # The sampler goes as the drag (or the wait in its place) begins: the settle step's line comes just before.
@@ -79,7 +89,7 @@ $mark = if ($NoDrag) { 'echoedit script: settle,' } else { 'echoedit script: dra
 $clock = [System.Diagnostics.Stopwatch]::StartNew()
 $started = $false
 while (-not $app.HasExited -and $clock.Elapsed.TotalSeconds -lt $TimeoutS) {
-    $now = @(Get-Content -LiteralPath $log -Encoding UTF8)
+    $now = if (Test-Path -LiteralPath $log) { @(Get-Content -LiteralPath $log -Encoding UTF8) } else { @() }   # a new profile has none yet
     if ($now.Count -lt $before) { $before = 0 }   # a new file
     if (@($now[$before..($now.Count - 1)] | Select-String -SimpleMatch $mark).Count -gt 0) { $started = $true; break }
     Start-Sleep -Milliseconds 100
@@ -90,7 +100,9 @@ $sp = $null
 if (-not $NoSampler) {
     $spi = New-Object System.Diagnostics.ProcessStartInfo
     $spi.FileName = $sampler; $spi.UseShellExecute = $false
-    $spi.Arguments = "$($app.Id) $DragSeconds $IntervalMs `"$syms`" KoggerApp.exe $Focus"
+    $timeline = Join-Path $Out 'timeline.txt'
+    $spi.Arguments = "$($app.Id) $DragSeconds $IntervalMs `"$syms`" KoggerApp.exe $(if ($Focus) { $Focus } else { '-' })" +
+                     $(if ($BurstMs -gt 0) { " `"$timeline`"" } else { '' })
     $sp = Start-TestDesktopProcess $spi -StdOut $report -StdErr (Join-Path $Out 'sampler.err')
 }
 if (-not $app.WaitForExit([int](($TimeoutS - $clock.Elapsed.TotalSeconds) * 1000))) { $app.Kill(); throw 'the app did not quit' }
@@ -100,9 +112,37 @@ $lines = Get-Content -LiteralPath $log -Encoding UTF8
 $start = ($lines | Select-String -Pattern 'log opened' | Select-Object -Last 1).LineNumber
 $mine = $lines[($start - 1)..($lines.Count - 1)]
 "--- the step"
-$mine | Select-String -Pattern 'echoedit script: (drag3d|settle|wait done)' | ForEach-Object { $_.Line -replace '^.*echoedit script: ', '' }
+$mine | Select-String -Pattern 'echoedit script: (drag3d|settle|wait done|linkTrack)' | ForEach-Object { $_.Line -replace '^.*echoedit script: ', '' }
 "--- health lines of the run"
 $mine | Select-String -Pattern 'health:' | ForEach-Object { $_.Line -replace '^.*health: ', '' }
+if ($sp -and $BurstMs -gt 0 -and (Test-Path -LiteralPath $timeline)) {
+    # The GUI thread (its stacks hold qMain): samples come only while it runs, so a stretch of samples ~IntervalMs
+    # apart is one busy stretch. For each of at least -BurstMs: when, how long, and the functions most on its stacks.
+    $idle = 'NtUserMsgWaitForMultipleObjectsEx'
+    $skip = '^(ntdll!|KERNEL32!|KERNELBASE!|win32u!|USER32!|main$|qMain|__tmainCRTStartup|\.l_startw|Qt6Core!ZN16QCoreApplication4exec|Qt6Core!ZN10QEventLoop4exec|Qt6Core!ZN21QEventDispatcherWin3213processEvents|Qt6Gui!ZN26QWindowsGuiEventDispatcher13processEvents)'
+    $recs = foreach ($l in [System.IO.File]::ReadLines($timeline)) {
+        $p = $l.Split(' ', 3)
+        if ($p.Count -eq 3) { [pscustomobject]@{ Tid = $p[0]; Ms = [double]::Parse($p[1], $inv); Fs = $p[2].Split(';') } }
+    }
+    $gui = ($recs | Where-Object { $_.Fs -match 'qMain' } | Group-Object Tid | Sort-Object Count -Descending | Select-Object -First 1).Name
+    $mine = @($recs | Where-Object { $_.Tid -eq $gui -and $_.Fs[0] -notmatch $idle } | Sort-Object Ms)
+    "--- the GUI thread ($gui): busy stretches of $BurstMs ms or more ($($mine.Count) busy samples)"
+    $bursts = New-Object System.Collections.Generic.List[object]
+    $cur = $null
+    foreach ($r in $mine) {
+        if ($cur -and $r.Ms - $cur.Last -le 3 * $IntervalMs) { $cur.Last = $r.Ms; $cur.Recs.Add($r) }
+        else { $cur = [pscustomobject]@{ First = $r.Ms; Last = $r.Ms; Recs = (New-Object System.Collections.Generic.List[object]) }; $cur.Recs.Add($r); $bursts.Add($cur) }
+    }
+    foreach ($b in $bursts) {
+        $len = $b.Last - $b.First + $IntervalMs
+        if ($len -lt $BurstMs) { continue }
+        $count = @{}
+        foreach ($r in $b.Recs) { foreach ($f in ($r.Fs | Select-Object -Unique)) { if ($f -notmatch $skip) { $count[$f] = 1 + [int]$count[$f] } } }
+        "{0,8:N0} ms: {1,4:N0} ms, {2} samples" -f $b.First, $len, $b.Recs.Count
+        $count.GetEnumerator() | Sort-Object Value -Descending | Select-Object -First 14 |
+            ForEach-Object { "      {0,3}  {1}" -f $_.Value, $(if ($_.Key.Length -gt 150) { $_.Key.Substring(0, 150) } else { $_.Key }) }
+    }
+}
 if ($sp) {
     "--- sampler report: $report"
     Get-Content -LiteralPath $report

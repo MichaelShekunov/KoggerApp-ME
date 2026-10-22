@@ -7,7 +7,8 @@
   Runs the real qml/scene3d/BoatMissionLayer.qml, qml/scene3d/BoatMissionPanel.qml, qml/app/WidgetCellContent.qml
   and the kqml_types sources (DataFieldCatalog, AppPalette, ...) over a mock view (a linear projection, with
   geoToScreenList) and a mock vehicle and wrapper:
-    1. the track: a stretch per quality run in its colour, the stretch over a loss dashed; hidden when switched off;
+    1. the track: the layer's LinkTrackItem (a stand-in here) given the view, the vehicle, the palette's colours and
+       the line's width, no samples when switched off (its triangles: tools/linktrack_check);
     2. the ghost: at its projected place, "no link N s" under it, a dashed line from where the boat was seen;
     3. the panel: the progress line (left, time, battery at the end), the ghost line, the track switch and legend;
     4. the catalog: the new fields valid and formatted from the mocks, "\u2014" without them; the bar parts;
@@ -50,6 +51,21 @@ function New-ModuleDir([string]$work) {
         $lines += ('{0}{1} 1.0 {2}' -f $(if ($single) { 'singleton ' } else { '' }), $f.BaseName, $f.Name)
     }
     Write-Utf8 (Join-Path $mod 'qmldir') (($lines -join "`n") + "`n")
+    # SceneGraphRendering is the app's C++ module (registered in main.cpp): here a stand-in for LinkTrackItem with its
+    # properties; what it draws is tools/linktrack_check's.
+    $sg = Join-Path $work 'imports\SceneGraphRendering'
+    New-Item -ItemType Directory -Force $sg | Out-Null
+    Write-Utf8 (Join-Path $sg 'qmldir') "module SceneGraphRendering`nLinkTrackItem 1.0 LinkTrackItem.qml`n"
+    Write-Utf8 (Join-Path $sg 'LinkTrackItem.qml') @'
+import QtQuick
+Item {
+    property var view: null
+    property var vehicle: null
+    property var colors: []
+    property real lineWidth: 4
+    readonly property int samples: (vehicle && vehicle.linkTrackShown && vehicle.linkTrackLats) ? vehicle.linkTrackLats.length : 0
+}
+'@
 }
 
 $test = @'
@@ -99,6 +115,7 @@ Item {
         property var linkTrackLats: [60.0, 60.0005, 60.001, 60.0015, 60.002]
         property var linkTrackLons: [30.0, 30.0, 30.0, 30.0, 30.0]
         property var linkTrackQualities: [0, 0, 0, 2, 5]
+        readonly property int linkTrackSize: linkTrackLats.length
         // the ghost
         property bool ghostValid: true
         property bool ghostMoving: true
@@ -153,21 +170,24 @@ Item {
         name: "BoatGui"
         when: windowShown
 
-        function test_1_track_runs() {
-            tryVerify(function() { return shapes().length === 3 }, 2000, "three runs: good, weak, lost")
-            var runs = layer._trackRuns
-            compare(runs[0].q, 0)
-            compare(runs[0].pts.length, 3)            // the first two stretches, one polyline
-            compare(runs[1].q, 2)
-            compare(runs[2].q, 5)
-            var s = shapes()
-            verify(Qt.colorEqual(s[0].data[0].strokeColor, AppPalette.linkQualityColors[0]), String(s[0].data[0].strokeColor))
-            compare(s[2].data[0].strokeStyle, ShapePath.DashLine, "the stretch over a loss dashed")
-            compare(s[0].data[0].strokeStyle, ShapePath.SolidLine)
+        function test_1_track() {
+            // The track is one C++ item (LinkTrackItem): the layer gives it the view, the vehicle, the palette's
+            // colours by quality and the line's width. Its triangles: tools/linktrack_check.
+            var t = find(layer, function(c) { return c.objectName === "linkTrack" })
+            verify(t !== null, "the track item")
+            verify(t.view === view, "placed by the view")
+            verify(t.vehicle === veh, "the vehicle's track")
+            compare(t.colors.length, AppPalette.linkQualityColors.length, "a colour for each quality")
+            for (var i = 0; i < t.colors.length; ++i)
+                verify(Qt.colorEqual(t.colors[i], AppPalette.linkQualityColors[i]), "quality " + i + ": " + t.colors[i])
+            compare(t.lineWidth, Math.max(3, Math.round(4 * layer._s)))
+            verify(t.width === layer.width && t.height === layer.height, "over the whole view")
+            compare(t.samples, 5)
+            verify(shapes().length === 0, "no Shapes for the track any more")
             veh.linkTrackShown = false
-            tryVerify(function() { return shapes().length === 0 }, 2000, "switched off: no track")
+            compare(t.samples, 0, "switched off: no track")
             veh.linkTrackShown = true
-            tryVerify(function() { return shapes().length === 3 }, 2000)
+            compare(t.samples, 5)
         }
 
         function test_2_ghost() {

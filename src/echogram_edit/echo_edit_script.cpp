@@ -24,6 +24,7 @@
 #include "device_manager_wrapper.h"
 #include "echogram_editor.h"
 #include "scene3d_view.h"
+#include "vehicle/mav_vehicle.h"
 #include "ui_probe.h"
 
 namespace {
@@ -712,6 +713,22 @@ void EchoEditScript::runStep(const QJsonObject& s)
         const QString path = s.value(QStringLiteral("path")).toString();
         const bool ok = uiProbe_ && uiProbe_->grabWindow(path);
         qInfo().noquote() << QStringLiteral("echoedit script: grab %1 %2").arg(path, ok ? QStringLiteral("written") : QStringLiteral("failed"));
+    }
+    else if (op == QLatin1String("linkTrack")) {
+        double lat = 0.0, lon = 0.0;
+        if (!boat_ || !boat_->firstPlanPoint(&lat, &lon)) {
+            qWarning().noquote() << QStringLiteral("echoedit script: linkTrack: no boat plan to place it by");
+        }
+        else {
+            boat_->fillLinkTrackForTest(s.value(QStringLiteral("points")).toInt(LinkTrack::kMaxSamples),
+                                        s.value(QStringLiteral("run")).toInt(6), lat, lon);
+            const QList<int> q = boat_->linkTrackQualities();
+            int runs = q.isEmpty() ? 0 : 1;
+            for (int i = 1; i < q.size(); ++i)
+                runs += q[i] != q[i - 1] ? 1 : 0;
+            qInfo().noquote() << QStringLiteral("echoedit script: linkTrack %1 samples, %2 runs of one quality, shown %3")
+                                 .arg(q.size()).arg(runs).arg(boat_->linkTrackShown() ? 1 : 0);
+        }
     }
     else if (op == QLatin1String("quit")) {
         ed->flush();

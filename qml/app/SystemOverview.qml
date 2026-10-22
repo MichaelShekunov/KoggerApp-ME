@@ -488,15 +488,17 @@ Item {
             width: ov._colW
             spacing: ov._infoSpacing
 
+            // By count, the line by index: _infoRows is a new array every second (the monitor's changed()), and as a
+            // model it had the Repeater make every line anew each time -- on the head unit a ~150 ms jerk a second
+            // (2026-10-22). The count stays, so the lines stay and only take their new texts.
             Repeater {
-                model: ov._infoRows
+                model: ov._infoRows.length
                 delegate: SysRow {
                     objectName: "sysRow"
-                    required property var modelData
                     required property int index
                     visible: index < ov._rowsShown
                     width: infoCol.width
-                    line: modelData
+                    line: index < ov._infoRows.length ? ov._infoRows[index] : null
                     k: ov.k
                     labelPx: ov._labelPx
                     lineH: ov._lineH

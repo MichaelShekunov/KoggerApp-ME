@@ -768,7 +768,7 @@ Rectangle {
             }
             PanelButton {
                 width: parent.width
-                visible: !!panel.vehicle && panel.vehicle.linkTrackShown && panel.vehicle.linkTrackQualities.length > 1
+                visible: !!panel.vehicle && panel.vehicle.linkTrackShown && panel.vehicle.linkTrackSize > 1
                 text: qsTr("Clear the track")
                 onClicked: if (panel.vehicle) panel.vehicle.clearLinkTrack()
             }

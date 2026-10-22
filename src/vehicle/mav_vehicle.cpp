@@ -936,6 +936,39 @@ void MavVehicle::clearLinkTrack()
     emit linkTrackChanged();
 }
 
+bool MavVehicle::fillLinkTrackForTest(int n, int runLen, double lat, double lon)
+{
+    if (!std::isfinite(lat) || !std::isfinite(lon))
+        return false;
+    linkTrack_.clear();
+    constexpr double kStepM = 2.5;
+    constexpr int kRow = 40;   // 100 m a row, rows 10 m apart
+    const double mLat = 1.0 / 111320.0;
+    const double mLon = 1.0 / (111320.0 * std::cos(lat * 3.14159265358979323846 / 180.0));
+    static const int kRssi[4] = { -55, -65, -75, -85 };   // good, fair, weak, bad
+    runLen = std::max(1, runLen);
+    for (int i = 0; i < std::min(n, LinkTrack::kMaxSamples); ++i) {
+        const int row = i / kRow, col = i % kRow;
+        const double eastM = (row % 2 == 0 ? col : kRow - 1 - col) * kStepM;
+        const double northM = row * 10.0;
+        const int run = i / runLen;
+        const bool loss = i % runLen == 0 && run % 10 == 9;
+        linkTrack_.add(lat + northM * mLat, lon + eastM * mLon, kRssi[run % 4], loss);
+    }
+    linkTrackEmitted_ = linkTrack_.version();
+    emit linkTrackChanged();
+    return true;
+}
+
+bool MavVehicle::firstPlanPoint(double* lat, double* lon) const
+{
+    if (plan_.isEmpty())
+        return false;
+    *lat = plan_.first().lat;
+    *lon = plan_.first().lon;
+    return true;
+}
+
 void MavVehicle::setLinkRssi(int dBm)
 {
     if (dBm == linkRssi_)
