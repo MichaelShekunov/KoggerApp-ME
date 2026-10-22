@@ -1492,6 +1492,11 @@ bool EchoEditScript::startRelayout(const QJsonObject& s)
     relayoutItem_ = workspace;
     relayoutStore_ = byStore ? workspace->property("store").value<QObject*>() : nullptr;
     relayoutDockId_ = dock.value(QStringLiteral("widget")).toString();
+    if (relayoutStore_ && dock.value(QStringLiteral("widget")).isDouble()) {   // its place in the list of widgets
+        const QJsonArray list = toJson(relayoutStore_->property("widgets")).toArray();
+        const int i = dock.value(QStringLiteral("widget")).toInt(-1);
+        relayoutDockId_ = (i >= 0 && i < list.size()) ? list.at(i).toObject().value(QStringLiteral("id")).toString() : QString();
+    }
     relayoutDockSide_ = side;
     relayoutCollapse_ = !collapse.isEmpty();
     if (byStore && (!relayoutStore_ || (!relayoutCollapse_ && relayoutDockId_.isEmpty()))) {
@@ -1548,6 +1553,10 @@ bool EchoEditScript::startRelayout(const QJsonObject& s)
             frames->state.compare_exchange_strong(two, 3);
         }
     }, Qt::DirectConnection);
+    if (!byStore) {
+        qWarning().noquote() << QStringLiteral("echoedit script: relayout: %1 written: its binding (the docks, the settings panel) "
+                                               "is gone for the rest of this run").arg(relayoutProperty_);
+    }
     qInfo().noquote() << QStringLiteral("echoedit script: relayout start: %1%2, %3 changes %4 ms apart")
                          .arg(relayoutProperty_)
                          .arg(relayoutStore_ ? QString() : QStringLiteral(" from %1 to %2 px").arg(relayoutOrig_).arg(relayoutMargin_))

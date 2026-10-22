@@ -37,8 +37,9 @@
 //   {"op": "plotState", "set": {"bottomTrackLine": false}}   each echogram's panel state (Plot2D.qml's echoViewState),
 //                                    changed as its controls change it, and logged with what the plot says
 //   {"op": "relayout", "times": n, "margin": px, "side": "right"|"left"|"bottom", "intervalMs": ms}
-//                                    the workspace's margin on a side set and put back n times, ms apart (400 without);
-//                                    with "dock": {"widget": id, "side": s} instead, that widget docked there and
+//                                    the workspace's margin on a side set and put back n times, ms apart (400 without):
+//                                    written, its binding to the docks is gone for the rest of the run - put it last;
+//                                    with "dock": {"widget": id | i, "side": s} instead, that widget docked there and
 //                                    undocked (WorkspaceStore.dockWidget); with "collapse": side, that dock collapsed and
 //                                    opened, as its tab does. Logged: the GUI thread's time in the change,
 //                                    the sync of the frame that takes it (the GUI waits: the 3D view's new FBO, the

@@ -2830,11 +2830,14 @@ dock_e2e]**:
 - **Measured on this PC** (the kiosk's layout and widgets, the field recording, 1440x720 on the test desktop)
   **[verified]**: a workspace margin changed as the console drawer changes it: 19 frames in the 600 ms after it, their
   syncs together ~100 ms, the last 300 ms after - the panes' animation, a relayout every frame. A widget docked or
-  undocked: 5-10 frames, syncs together 17-37 ms, on screen after 40-63 ms, the GUI thread 3-11 ms; the widget with the
-  System cell 36-74 ms of the GUI thread (on screen after 47-127 ms) - the cell measures its texts anew at the new
+  undocked: 8-10 frames, syncs together 17-34 ms, on screen after 39-63 ms, the GUI thread 3-11 ms; the widget with the
+  System cell 25-74 ms of the GUI thread (on screen after 67-127 ms) - the cell measures its texts anew at the new
   size, and a 90 ms JS garbage collection was in one sampled run. The System cell's lines Repeater keeps one count
   across its forms now (every line was made anew on a compact/full switch; sysgui_check test_3d); the cost measured
-  did not move beyond the spread between runs (36-54 ms before, 45 after).
+  did not move beyond the spread between runs. **Corrected** (the stage 2 commit's message has the old figures): the
+  margin step writes the workspace's margin and so drops its binding to the docks for the rest of the run; in the run
+  where it went first, docking moved nothing and its figures were too low (5 frames, 2 ms of syncs, 36 ms). Only runs
+  without it ahead are counted now; the step warns in the log, and probe_drag.sh dock runs it last.
 - A collapsed dock's widgets keep the places they have open (hidden there): a tap on the tab lays out the workspace,
   not their cells. Measured here **[verified]**: the System widget's dock collapsed and opened, 2.8 ms of the GUI
   thread (docking that widget, 25 ms in the same run); `relayout` takes "collapse": side for it. dock_check: a test
