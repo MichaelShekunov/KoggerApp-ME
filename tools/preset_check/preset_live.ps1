@@ -35,6 +35,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot '..\common\test_desktop.ps1')   # the app on a desktop of its own: no window, no focus taken
 New-Item -ItemType Directory -Force -Path $Out | Out-Null
 if (Test-Path -LiteralPath $PerfReg) {
     # reg.exe reports success on stderr; under 'Stop' PowerShell 5.1 would take that for a failure.
@@ -102,7 +103,7 @@ if ($PathPrefix) { $psi.EnvironmentVariables['PATH'] = $PathPrefix + ';' + $env:
 $psi.EnvironmentVariables['KOGGER_PROFILE'] = $Profile
 $psi.EnvironmentVariables['KOGGER_AUTOTEST'] = "UDP:$Port"
 $psi.EnvironmentVariables['KOGGER_ECHOEDIT_SCRIPT'] = $scriptPath
-$proc = [System.Diagnostics.Process]::Start($psi)
+$proc = Start-TestDesktopProcess $psi
 
 $got = New-Object System.Collections.Generic.List[object]   # what the app sent: type, ver, id, payload
 $deadline = (Get-Date).AddSeconds($TimeoutS)

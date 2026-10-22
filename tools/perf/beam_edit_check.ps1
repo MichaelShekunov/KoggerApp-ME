@@ -49,6 +49,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot '..\common\test_desktop.ps1')   # the app on a desktop of its own: no window, no focus taken
 $File = (Resolve-Path -LiteralPath $File).Path
 $work = Join-Path $Out ([System.IO.Path]::GetFileNameWithoutExtension($File))
 if (Test-Path -LiteralPath $work) { Remove-Item -LiteralPath $work -Recurse -Force }
@@ -89,7 +90,7 @@ function Run-App([string] $tag, [object[]] $steps) {
     $psi.EnvironmentVariables['KOGGER_MOSAIC_DUMP'] = (Join-Path $dir 'mosaic')
     $psi.EnvironmentVariables['KOGGER_MOSAIC_PRECOMPUTE'] = '0'   # one painter: the dumps compare
     $clock = [System.Diagnostics.Stopwatch]::StartNew()
-    $app = [System.Diagnostics.Process]::Start($psi)
+    $app = Start-TestDesktopProcess $psi
     if (-not $app.WaitForExit($TimeoutS * 1000)) {
         $app.Kill()
         throw "run $tag did not end in $TimeoutS s"

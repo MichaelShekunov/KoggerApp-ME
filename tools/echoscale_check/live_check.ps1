@@ -41,6 +41,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot '..\common\test_desktop.ps1')   # the app on a desktop of its own: no window, no focus taken
 if ($Ping % 16 -ne 0) { throw "-Ping must be a multiple of 16 (the groups of 1/16 start there)" }
 Add-Type -AssemblyName System.Drawing
 New-Item -ItemType Directory -Force -Path $Out | Out-Null
@@ -90,7 +91,7 @@ function Run-App([string] $tag, [object[]] $spikes) {
     $psi.EnvironmentVariables['KOGGER_PROFILE'] = $Profile
     $psi.EnvironmentVariables['KOGGER_ECHOEDIT_SCRIPT'] = $scriptPath
     $psi.EnvironmentVariables['KOGGER_UI_PROBE'] = $dir            # gives the probe its window: "grab" needs it
-    $app = [System.Diagnostics.Process]::Start($psi)
+    $app = Start-TestDesktopProcess $psi
     if (-not $app.WaitForExit($TimeoutS * 1000)) { $app.Kill(); throw "run $tag did not end in $TimeoutS s" }
     $lines = Get-Content -LiteralPath $log -Encoding UTF8
     $start = ($lines | Select-String -Pattern 'log opened' | Select-Object -Last 1).LineNumber

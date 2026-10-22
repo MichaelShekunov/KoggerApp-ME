@@ -44,6 +44,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot '..\common\test_desktop.ps1')   # the app on a desktop of its own: no window, no focus taken
 
 function Get-Fletcher([byte[]] $data) {
     $c1 = 0; $c2 = 0
@@ -107,6 +108,8 @@ if ($Klf) {
 
 if (-not $Exe) { throw 'give -Klf <file> or -Exe <KoggerApp.exe>' }
 
+# Both run on the test desktop's thread (Invoke-OnTestDesktop): window messages and AttachThreadInput
+# work only between threads of one desktop.
 Add-Type -Namespace KoggerBench -Name Win -MemberDefinition @'
 [DllImport("user32.dll")] public static extern bool GetWindowRect(System.IntPtr h, out RECT r);
 [DllImport("user32.dll")] public static extern bool SetWindowPos(System.IntPtr h, System.IntPtr after, int x, int y, int cx, int cy, uint flags);
@@ -117,6 +120,39 @@ Add-Type -Namespace KoggerBench -Name Win -MemberDefinition @'
 [DllImport("user32.dll")] public static extern bool GetKeyboardState(byte[] keys);
 [DllImport("user32.dll")] public static extern bool SetKeyboardState(byte[] keys);
 public struct RECT { public int Left, Top, Right, Bottom; }
+
+// The window a pixel wider (no z-order change, no activation).
+public static bool Nudge(System.IntPtr h) {
+    RECT r;
+    if (!GetWindowRect(h, out r)) return false;
+    return SetWindowPos(h, System.IntPtr.Zero, r.Left, r.Top, (r.Right - r.Left) + 1, r.Bottom - r.Top, 0x0014);
+}
+
+static void Post(System.IntPtr h, uint msg, int keys, int y) {
+    PostMessage(h, msg, new System.IntPtr(keys), new System.IntPtr((y << 16) | 360));
+}
+
+// A Ctrl + left-button drag 150 px up at x 360 of the client area. Qt takes Ctrl from the thread's key
+// state, not from MK_CONTROL, so Ctrl is set in the key state this thread shares with the app's GUI
+// thread while attached: nothing reaches the keyboard or another window. False: not attached, no Ctrl.
+public static bool CtrlDrag(System.IntPtr h) {
+    uint appPid;
+    uint gui = GetWindowThreadProcessId(h, out appPid);
+    uint me = GetCurrentThreadId();
+    bool attached = AttachThreadInput(me, gui, true);
+    byte[] ks = new byte[256];
+    GetKeyboardState(ks);
+    ks[0x11] = 0x80; ks[0xA2] = 0x80;                  // VK_CONTROL, VK_LCONTROL down
+    SetKeyboardState(ks);
+    Post(h, 0x0201, 0x0009, 520);
+    for (int s = 1; s <= 30; s++) { System.Threading.Thread.Sleep(10); Post(h, 0x0200, 0x0009, 520 - 5 * s); }
+    Post(h, 0x0202, 0x0008, 370);
+    System.Threading.Thread.Sleep(300);                // let the app take the messages with Ctrl down
+    ks[0x11] = 0; ks[0xA2] = 0;
+    SetKeyboardState(ks);
+    if (attached) AttachThreadInput(me, gui, false);
+    return attached;
+}
 '@
 
 New-Item -ItemType Directory -Force -Path $Out | Out-Null
@@ -129,7 +165,7 @@ $psi.EnvironmentVariables['KOGGER_UI_PROBE'] = $Out
 $psi.EnvironmentVariables['KOGGER_UI_PROBE_DELAY_MS'] = [string][int](($Seconds + 10) * 1000)
 $psi.EnvironmentVariables['KOGGER_UI_PROBE_QUIT'] = '1'
 $psi.EnvironmentVariables['KOGGER_UI_PROBE_PNG'] = '1'
-$app = [System.Diagnostics.Process]::Start($psi)
+$app = Start-TestDesktopProcess $psi
 
 $udp = New-Object System.Net.Sockets.UdpClient
 Start-Sleep -Seconds 4                              # the link opens about a second after start
@@ -143,39 +179,17 @@ for ($k = 0; $k -lt $pings; $k++) {
     [void]$udp.Send($b, $b.Length, '127.0.0.1', $Port)
     if (-not $resized -and $clock.Elapsed.TotalSeconds -ge 5) {
         $resized = $true
-        $app.Refresh()
-        $h = $app.MainWindowHandle
+        $h = Get-TestDesktopWindow $app
         if ($h -ne [System.IntPtr]::Zero) {
-            $r = New-Object KoggerBench.Win+RECT
-            [void][KoggerBench.Win]::GetWindowRect($h, [ref]$r)
-            [void][KoggerBench.Win]::SetWindowPos($h, [System.IntPtr]::Zero, $r.Left, $r.Top, ($r.Right - $r.Left) + 1, ($r.Bottom - $r.Top), 0x0014)
+            $null = Invoke-OnTestDesktop ([KoggerBench.Win].GetMethod('Nudge')) @($h)
         }
     }
     if (-not $dragged -and $clock.Elapsed.TotalSeconds -ge 8) {
         $dragged = $true
-        $app.Refresh()
-        $h = $app.MainWindowHandle
+        $h = Get-TestDesktopWindow $app
         if ($h -ne [System.IntPtr]::Zero) {
-            # Client coordinates in the 3D view (the left half of the window). Qt takes Ctrl from the
-            # thread's key state, not from MK_CONTROL, so Ctrl is set in the key state this thread shares
-            # with the app's GUI thread while attached: nothing reaches the keyboard or another window.
-            $post = { param([uint32] $msg, [int] $keys, [int] $y)
-                      [void][KoggerBench.Win]::PostMessage($h, $msg, [System.IntPtr]$keys, [System.IntPtr](($y -shl 16) -bor 360)) }
-            $appPid = [uint32]0
-            $gui = [KoggerBench.Win]::GetWindowThreadProcessId($h, [ref]$appPid)
-            $me = [KoggerBench.Win]::GetCurrentThreadId()
-            $attached = [KoggerBench.Win]::AttachThreadInput($me, $gui, $true)
-            $ks = New-Object byte[] 256
-            [void][KoggerBench.Win]::GetKeyboardState($ks)
-            $ks[0x11] = 0x80; $ks[0xA2] = 0x80                  # VK_CONTROL, VK_LCONTROL down
-            [void][KoggerBench.Win]::SetKeyboardState($ks)
-            & $post 0x0201 0x0009 520
-            for ($s = 1; $s -le 30; $s++) { Start-Sleep -Milliseconds 10; & $post 0x0200 0x0009 (520 - 5 * $s) }
-            & $post 0x0202 0x0008 370
-            Start-Sleep -Milliseconds 300                         # let the app take the messages with Ctrl down
-            $ks[0x11] = 0; $ks[0xA2] = 0
-            [void][KoggerBench.Win]::SetKeyboardState($ks)
-            if ($attached) { [void][KoggerBench.Win]::AttachThreadInput($me, $gui, $false) }
+            # Client coordinates in the 3D view (the left half of the window).
+            $attached = Invoke-OnTestDesktop ([KoggerBench.Win].GetMethod('CtrlDrag')) @($h)
             "ctrl drag posted ({0})" -f $(if ($attached) { 'key state shared' } else { 'NOT attached: Ctrl not set' })
         }
     }

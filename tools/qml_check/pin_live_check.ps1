@@ -32,6 +32,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot '..\common\test_desktop.ps1')   # the app on a desktop of its own: no window, no focus taken
 New-Item -ItemType Directory -Force -Path $Out | Out-Null
 $log = Join-Path $env:APPDATA "KOGGER\KoggerApp-$Profile\AppLogs\kogger.log"
 $regPath = "HKCU\Software\KOGGER\KoggerApp-$Profile"
@@ -51,7 +52,7 @@ function Run-App([string] $tag, [string[]] $steps) {
     $psi.EnvironmentVariables['KOGGER_PROFILE'] = $Profile
     $psi.EnvironmentVariables['KOGGER_ECHOEDIT_SCRIPT'] = $scriptPath
     $psi.EnvironmentVariables['KOGGER_UI_PROBE'] = $Out            # gives the probe its window: "grab" needs it
-    $app = [System.Diagnostics.Process]::Start($psi)
+    $app = Start-TestDesktopProcess $psi
     if (-not $app.WaitForExit($TimeoutS * 1000)) { $app.Kill(); throw "run $tag did not end in $TimeoutS s" }
     $lines = Get-Content -LiteralPath $log -Encoding UTF8
     $start = ($lines | Select-String -Pattern 'log opened' | Select-Object -Last 1).LineNumber

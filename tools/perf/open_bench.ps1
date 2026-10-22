@@ -31,6 +31,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot '..\common\test_desktop.ps1')   # the app on a desktop of its own: no window, no focus taken
 New-Item -ItemType Directory -Force -Path $Out | Out-Null
 $psi = New-Object System.Diagnostics.ProcessStartInfo
 $psi.FileName = $Exe; $psi.UseShellExecute = $false; $psi.WorkingDirectory = Split-Path $Exe
@@ -42,14 +43,7 @@ $psi.EnvironmentVariables['KOGGER_UI_PROBE_DELAY_MS'] = [string][int]($Seconds *
 $psi.EnvironmentVariables['KOGGER_UI_PROBE_QUIT'] = '1'
 $psi.EnvironmentVariables['KOGGER_UI_PROBE_PNG'] = '1'
 $clock = [System.Diagnostics.Stopwatch]::StartNew()
-$app = [System.Diagnostics.Process]::Start($psi)
-if ($Wheel -ne 0) {
-    Add-Type -Namespace KoggerPerf -Name Win -MemberDefinition @'
-[DllImport("user32.dll")] public static extern bool PostMessage(System.IntPtr h, uint msg, System.IntPtr w, System.IntPtr l);
-[DllImport("user32.dll")] public static extern bool ClientToScreen(System.IntPtr h, ref POINT p);
-public struct POINT { public int X, Y; }
-'@
-}
+$app = Start-TestDesktopProcess $psi
 $wheelTimes = @($WheelAt -split ',' | ForEach-Object { [double]::Parse($_.Trim(), [Globalization.CultureInfo]::InvariantCulture) })
 $wheelNext = 0
 $wheeled = ($Wheel -eq 0)
@@ -76,16 +70,8 @@ if ($Threads -or $Memory -or -not $wheeled) {
         if (-not $wheeled -and $clock.Elapsed.TotalSeconds -ge $wheelTimes[$wheelNext]) {
             $wheelNext++
             $wheeled = ($wheelNext -ge $wheelTimes.Count)
-            $h = $app.MainWindowHandle
-            $pt = New-Object KoggerPerf.Win+POINT
-            $pt.X = 360; $pt.Y = 360                       # the 3D view is the window's left half
-            [void][KoggerPerf.Win]::ClientToScreen($h, [ref]$pt)
-            $l = [System.IntPtr](($pt.Y -shl 16) -bor ($pt.X -band 0xFFFF))
-            $notch = if ($Wheel -gt 0) { 120 } else { -120 }
-            for ($n = 0; $n -lt [Math]::Abs($Wheel); $n++) {
-                [void][KoggerPerf.Win]::PostMessage($h, 0x020A, [System.IntPtr](($notch -band 0xFFFF) -shl 16), $l)
-                Start-Sleep -Milliseconds 150
-            }
+            # the 3D view is the window's left half
+            Send-TestDesktopWheel -Window (Get-TestDesktopWindow $app -TimeoutMs 5000) -X 360 -Y 360 -Notches $Wheel -GapMs 150
             "{0,6:N1} s  wheel {1} notches posted" -f $clock.Elapsed.TotalSeconds, $Wheel
         }
     }

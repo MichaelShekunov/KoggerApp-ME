@@ -57,6 +57,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot '..\common\test_desktop.ps1')   # the app on a desktop of its own: no window, no focus taken
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $compare = Join-Path $here 'mosaic_dump_compare.ps1'
 New-Item -ItemType Directory -Force -Path $Out | Out-Null
@@ -128,22 +129,9 @@ public static class KlfLivePlayer
     }
 }
 '@
-Add-Type -Namespace KoggerLive -Name Win -MemberDefinition @'
-[DllImport("user32.dll")] public static extern bool PostMessage(System.IntPtr h, uint msg, System.IntPtr w, System.IntPtr l);
-[DllImport("user32.dll")] public static extern bool ClientToScreen(System.IntPtr h, ref POINT p);
-public struct POINT { public int X, Y; }
-'@
-
-function Send-Wheel([System.IntPtr] $h, [int] $notches) {
-    $pt = New-Object KoggerLive.Win+POINT
-    $pt.X = 360; $pt.Y = 360                       # the 3D view is the window's left half
-    [void][KoggerLive.Win]::ClientToScreen($h, [ref]$pt)
-    $l = [System.IntPtr](($pt.Y -shl 16) -bor ($pt.X -band 0xFFFF))
-    $notch = if ($notches -gt 0) { 120 } else { -120 }
-    for ($n = 0; $n -lt [Math]::Abs($notches); $n++) {
-        [void][KoggerLive.Win]::PostMessage($h, 0x020A, [System.IntPtr](($notch -band 0xFFFF) -shl 16), $l)
-        Start-Sleep -Milliseconds 150
-    }
+function Send-Wheel([System.Diagnostics.Process] $app, [int] $notches) {
+    # the 3D view is the window's left half
+    Send-TestDesktopWheel -Window (Get-TestDesktopWindow $app -TimeoutMs 5000) -X 360 -Y 360 -Notches $notches -GapMs 150
 }
 
 $log = Join-Path $env:APPDATA "KOGGER\KoggerApp-$Profile\AppLogs\kogger.log"
@@ -171,16 +159,16 @@ try {
         $psi.EnvironmentVariables['KOGGER_MOSAIC_DIGEST'] = '1'
         $psi.EnvironmentVariables['KOGGER_MOSAIC_DUMP'] = (Join-Path $dir 'dump')
         $psi.EnvironmentVariables['KOGGER_MOSAIC_PRECOMPUTE'] = $(if ($mode -like 'on*') { '1' } else { '0' })
-        $app = [System.Diagnostics.Process]::Start($psi)
+        $app = Start-TestDesktopProcess $psi
         Start-Sleep -Milliseconds ([int]($StartDelay * 1000))
 
         # Out by -Wheel notches early in the stream, in by as many as it stops: the camera ends where it
         # began, so runs one after the other start alike.
         $rate = $PingsPerSecond * $BytesPerPing
         $first = [KlfLivePlayer]::Play($File, $FromOffset, $Port, $rate, $ZoomOutAt).Split(' ')
-        Send-Wheel $app.MainWindowHandle (-$Wheel)
+        Send-Wheel $app (-$Wheel)
         $rest = [KlfLivePlayer]::Play($File, [long]$first[4], $Port, $rate, $StreamSeconds - $ZoomOutAt).Split(' ')
-        Send-Wheel $app.MainWindowHandle $Wheel
+        Send-Wheel $app $Wheel
         "   streamed {0:N0} frames, {1:N1} MB in {2:N1} s ({3} bytes skipped); wheel -{4} notches {5} s in, +{4} as the stream stopped" -f `
             ([long]$first[0] + [long]$rest[0]), (([long]$first[1] + [long]$rest[1]) / 1MB), ([double]$first[2] + [double]$rest[2]), `
             ([long]$first[3] + [long]$rest[3]), $Wheel, $ZoomOutAt

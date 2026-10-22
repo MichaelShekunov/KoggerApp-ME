@@ -35,6 +35,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot '..\common\test_desktop.ps1')   # the app on a desktop of its own: no window, no focus taken
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 $File = (Resolve-Path -LiteralPath $File).Path
 $kedit = "$File.kedit"
@@ -70,7 +71,7 @@ function Export([string] $tag) {
     $psi.EnvironmentVariables['KOGGER_PROFILE'] = $Profile
     $psi.EnvironmentVariables['KOGGER_MAP_EXPORT'] = $dir
     $psi.EnvironmentVariables['KOGGER_MAP_EXPORT_QUIT'] = '1'
-    $app = [System.Diagnostics.Process]::Start($psi)
+    $app = Start-TestDesktopProcess $psi
     if (-not $app.WaitForExit($TimeoutS * 1000)) { $app.Kill(); throw "run $tag did not end in $TimeoutS s" }
     $fs = [System.IO.File]::Open($log, 'Open', 'Read', 'ReadWrite'); [void]$fs.Seek($before, 'Begin')
     $text = (New-Object System.IO.StreamReader($fs)).ReadToEnd(); $fs.Close()

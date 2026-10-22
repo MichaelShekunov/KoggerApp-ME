@@ -230,6 +230,8 @@ genuine upstream bug and a candidate to report back.
 | `tools/mapexport_check/` | standalone program: projection, sampling, depths, isobaths, the files read back (`run.ps1`) |
 | `tools/qml_check/mapexport_page_check.ps1` | the page over mocks |
 | `docs/map-export.md` | the feature in detail, what was verified, licences and the law |
+| `tools/common/test_desktop.ps1` | the app under test on a desktop of its own, never on the user's: every check that starts the app goes through it |
+| `tools/common/test_desktop_check.ps1`, `tools/common/visible_runs_lint.ps1` | its check; and the lint that no check under `tools/` starts a program where the user would see it |
 
 This table is not complete (the boat mission's files, among others, are missing); the appendix of
 `docs/fork-overview.ru.md` lists the rest as of `388f0865`, except `src/kec`: the overview goes to upstream's
@@ -2693,3 +2695,39 @@ its state not kept.
   changes the panel state as its controls do and logs it): line off -> still off after a restart, the plot's theme
   0, the rangefinder's line off too; on as points -> on, Points, theme 2; off again -> off and the type still
   Points. PASS; with the old `reloadFromPlot` 2 of 3 FAIL (the line and the rangefinder's back on).
+
+## Checks run on a desktop of their own (2026-10-22)
+
+The owner, sharply: the windows of the app the checks start kept coming up over his work and taking the focus.
+
+- **Cause** **[verified: the code]**: at start the app brings its window to the front (`main.cpp`
+  `bringWindowToFront`: `AttachThreadInput` to the foreground window's thread, the foreground lock timeout set to 0,
+  `SetForegroundWindow`), so every run of a check took the keyboard from whatever the owner was typing in -- six in a
+  row for `echostate_persist_check`. The qmltestrunner checks were not it: they run with `-platform offscreen`.
+- **Fix**: `tools/common/test_desktop.ps1`. `Start-TestDesktopProcess $psi`, in place of
+  `[System.Diagnostics.Process]::Start($psi)`, starts the app on a second desktop of the window station
+  (`CreateDesktop` "KoggerChecks", never switched to): it runs, renders and grabs its window there as usual, nothing of
+  it shows on the user's desktop, and Windows passes no window message and no thread-input attachment between
+  desktops, so it cannot take the focus. What a check sends the window (the wheel, the 1-px nudge, the Ctrl drag)
+  goes from the helper's thread on that desktop (`Invoke-OnTestDesktop`, `Send-TestDesktopWheel`);
+  `Get-TestDesktopWindow` in place of `MainWindowHandle`, which sees the caller's desktop only. All 13 scripts that
+  start the app go through it. The app is unchanged (`bringWindowToFront` is upstream's, for a user who opens a file
+  from Explorer). `tools/common/visible_runs_lint.ps1` fails on a script under `tools/` that starts a program any
+  other way (`Process.Start`, `MainWindowHandle`, `Start-Process` without `-platform offscreen`): run it on a new
+  check.
+- **Checks** **[verified]**:
+  - `tools/common/test_desktop_check.ps1`: one run, 339 samples over 21.6 s from the user's desktop -- the foreground
+    never the app's, no window of it there; its window on the test desktop; exit 0; the grab a 1440x720 picture; the
+    echograms' state logged. PASS. Its detector is checked on explorer's windows, not on the app shown on the user's
+    desktop: that control would have taken the owner's focus again.
+  - With a watcher on the user's desktop all along (every 100 ms, the test build's processes only):
+    `echostate_persist_check` PASS, `preset_live` PASS, `precompute_check` on 00014 PASS (the wheel through the test
+    desktop's thread, zoom 3 -> 6; the tiles' hash `67cff3d944892266`, the one recorded above for two runs on the
+    owner's desktop), `ring_bench -CtrlDrag` ("key state shared"). 10 app processes, 1541 samples: the foreground
+    theirs in 0, a window of theirs on the user's desktop in 0.
+  - `visible_runs_lint.ps1` PASS over 42 scripts; three planted violations flagged, a clean file not.
+- **ring_bench in a test profile** **[verified]**: the perf profile has Pos zeroing off, so no boat and no mosaic. In
+  a copy of it with Pos zeroing on (`zeroingPosButtonCheched` true, at the root and in `main/dataset`) the mosaic
+  paints (ping -> painted median 382 ms) and the grab shows the arrow and the disc; its coverage reading still says
+  "the sonar arrow is not in the grab": the profile's camera is at 100 m, the disc about 10 px across, and the reading
+  wants 20 red pixels of the arrow and the disc at 100-250 px -- a user's view. The copy was removed after.

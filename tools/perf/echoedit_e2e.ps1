@@ -67,6 +67,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot '..\common\test_desktop.ps1')   # the app on a desktop of its own: no window, no focus taken
 $File = (Resolve-Path -LiteralPath $File).Path
 $name = [System.IO.Path]::GetFileNameWithoutExtension($File)
 $work = Join-Path $Out $name
@@ -128,7 +129,7 @@ function Run-App([string] $tag, [object[]] $steps) {
     $psi.EnvironmentVariables['KOGGER_MOSAIC_PRECOMPUTE'] = '0'   # one painter: the dumps compare
     $psi.EnvironmentVariables['KOGGER_UI_PROBE'] = $dir            # gives the probe its window: "grab" needs it
     $clock = [System.Diagnostics.Stopwatch]::StartNew()
-    $app = [System.Diagnostics.Process]::Start($psi)
+    $app = Start-TestDesktopProcess $psi
     if (-not $app.WaitForExit($TimeoutS * 1000)) {
         $app.Kill()
         throw "run $tag did not end in $TimeoutS s"

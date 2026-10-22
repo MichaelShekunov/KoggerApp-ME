@@ -30,6 +30,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot '..\common\test_desktop.ps1')   # the app on a desktop of its own: no window, no focus taken
 New-Item -ItemType Directory -Force -Path $Out | Out-Null
 $log = Join-Path $env:APPDATA "KOGGER\KoggerApp-$Profile\AppLogs\kogger.log"
 if (Test-Path -LiteralPath $PerfReg) {
@@ -47,7 +48,7 @@ function Invoke-Run([string] $name, [string[]] $steps) {
     if ($PathPrefix) { $psi.EnvironmentVariables['PATH'] = $PathPrefix + ';' + $env:PATH }
     $psi.EnvironmentVariables['KOGGER_PROFILE'] = $Profile
     $psi.EnvironmentVariables['KOGGER_ECHOEDIT_SCRIPT'] = $scriptPath
-    $app = [System.Diagnostics.Process]::Start($psi)
+    $app = Start-TestDesktopProcess $psi
     if (-not $app.WaitForExit($TimeoutS * 1000)) { $app.Kill(); throw "run '$name': the app did not end in $TimeoutS s" }
     $lines = Get-Content -LiteralPath $log -Encoding UTF8
     $start = ($lines | Select-String -Pattern 'log opened' | Select-Object -Last 1).LineNumber

@@ -29,6 +29,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot '..\common\test_desktop.ps1')   # the app on a desktop of its own: no window, no focus taken
 
 function Get-Frame([int] $channel, [int] $value) {
     $payload = New-Object byte[] 5
@@ -55,7 +56,7 @@ function Invoke-Run([bool] $withSupply) {
     $psi.EnvironmentVariables['KOGGER_UI_PROBE'] = $Out
     $psi.EnvironmentVariables['KOGGER_UI_PROBE_DELAY_MS'] = [string][int](($Seconds + 8) * 1000)
     $psi.EnvironmentVariables['KOGGER_UI_PROBE_QUIT'] = '1'
-    $app = [System.Diagnostics.Process]::Start($psi)
+    $app = Start-TestDesktopProcess $psi
     $udp = New-Object System.Net.Sockets.UdpClient
     try {
         Start-Sleep -Seconds 4                                    # the link opens about a second after start

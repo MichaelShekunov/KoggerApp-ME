@@ -34,6 +34,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot '..\..\common\test_desktop.ps1')   # the app on a desktop of its own: no window, no focus taken
 New-Item -ItemType Directory -Force -Path $Work | Out-Null
 $sampler = Join-Path $Work 'sampler.exe'
 $source = Join-Path $PSScriptRoot 'sampler.cpp'
@@ -55,7 +56,7 @@ $psi.EnvironmentVariables['KOGGER_PROFILE'] = $Profile
 $psi.EnvironmentVariables['KOGGER_UI_PROBE'] = Join-Path $Work 'probe'
 $psi.EnvironmentVariables['KOGGER_UI_PROBE_DELAY_MS'] = [string][int](($SampleDelay + $SampleSeconds + 3) * 1000)
 $psi.EnvironmentVariables['KOGGER_UI_PROBE_QUIT'] = '1'
-$app = [System.Diagnostics.Process]::Start($psi)
+$app = Start-TestDesktopProcess $psi
 Start-Sleep -Milliseconds ([int]($SampleDelay * 1000))
 & $sampler $app.Id $SampleSeconds $IntervalMs $syms 'KoggerApp.exe' $Focus > $Report
 if (-not $app.WaitForExit(120000)) { throw 'the app did not quit' }
