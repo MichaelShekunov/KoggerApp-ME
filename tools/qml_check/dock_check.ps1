@@ -10,7 +10,8 @@
     3. compute: side docks the window's height, top and bottom between them; widgets share a dock's length in
        proportion to theirs, edge to edge, to the pixel; a dock as thick as its thickest widget at its scale, a
        widget that does not scale at its own size;
-    4. a collapsed dock takes no room, its widgets listed as collapsed; a hidden widget takes none either;
+    4. a collapsed dock takes no room, its widgets listed as collapsed at their open places (a tap on the tab does not
+       lay their cells out anew); a hidden widget takes no room either;
     5. fits and scaleSteps: the workspace keeps half the window each way; the steps the thickness handle offers;
     6. a window too small for its docks squeezes them, and the scale to draw at follows;
     7. nothing breaks on a window of 0, sizes not reported, ids nobody knows;
@@ -67,6 +68,8 @@ TestCase {
         var edge = lines ? lines.edge : 0, gap = lines ? lines.gap : 0
         for (var i = 0; i < D.SIDES.length; ++i) {
             var side = D.SIDES[i], dock = res.docks[side], v = D.isVertical(side)
+            if (dock.collapsed)
+                continue   // its widgets keep their open places (test_4)
             var outer = side === "left" || side === "top"
             var at = dock.from
             for (var k = 0; k < dock.ids.length; ++k) {
@@ -178,6 +181,20 @@ TestCase {
         compare(r.docks.right.edge, 1920, "its tab at the window's edge")
         verify(!!r.widgets.a, "its widgets are listed")
         compare(r.widgets.a.collapsed, true, "as collapsed, so they hide rather than float")
+        var L = { edge: 2, gap: 1 }
+        var lay = [[D.compute(docksWith("right", ["a", "b"]), sizes, all, 1920, 1080), r],
+                   [D.compute(docksWith("right", ["a", "b"]), sizes, all, 1920, 1080, L),
+                    D.compute(docksWith("right", ["a", "b"], 1.0, true), sizes, all, 1920, 1080, L)],
+                   [D.compute(docksWith("top", ["b", "c"], 1.5), sizes, all, 1920, 1080, L),
+                    D.compute(docksWith("top", ["b", "c"], 1.5, true), sizes, all, 1920, 1080, L)]]
+        for (var q = 0; q < lay.length; ++q) {
+            var open = lay[q][0], shut = lay[q][1]
+            for (var id in open.widgets) {
+                var o = open.widgets[id], c = shut.widgets[id]
+                compare([c.x, c.y, c.w, c.h, c.scale].join(","), [o.x, o.y, o.w, o.h, o.scale].join(","),
+                        "case " + q + ": " + id + " collapsed keeps its open place, its cells not laid out anew")
+            }
+        }
 
         var h = docksWith("right", ["a", "b"])
         var rh = D.compute(h, sizes, { b: true }, 1920, 1080)
@@ -286,10 +303,11 @@ $mutantList = @(
     @('MIN_WORKSPACE_SHARE = 0.5', 'MIN_WORKSPACE_SHARE = 0.4', 'the workspace''s share'),
     @('thick = Math.max(thick, across * k)', 'thick = Math.max(thick, across)', 'the scale left out of the thickness'),
     @('var k = s.scalable === false ? 1.0 : dock.scale', 'var k = dock.scale', 'a settings widget scaled'),
-    @('(ids.length > 0 && !dock.collapsed) ? Math.round(thick) : 0', '(ids.length > 0) ? Math.round(thick) : 0', 'a collapsed dock keeps its room'),
+    @('(ms.thickness > 0 && !ms.collapsed) ? ms.thickness + edgeLine : 0', '(ms.thickness > 0) ? ms.thickness + edgeLine : 0', 'a collapsed dock keeps its room'),
+    @('var thOpen = mm.collapsed ? Math.floor((mm.thickness + edgeLine) * f) : th', 'var thOpen = th', 'collapsed widgets laid out anew at nothing'),
     @('var to = vertical ? h : Math.max(from, w - t.right)', 'var to = vertical ? h : w', 'top and bottom under the right dock'),
     @('var a = from + k * gapLine + Math.round(span * acc / total)', 'var a = from + Math.round(span * acc / total)', 'no gap between widgets'),
-    @('edge = w - th; across = edge + th - inner', 'edge = w - th; across = edge', 'the right dock''s line under its widgets'),
+    @('var across = (side === "right" || side === "bottom") ? (vertical ? w : h) - inner : 0', 'var across = (side === "right" || side === "bottom") ? (vertical ? w : h) - inner - edgeLine : 0', 'the right dock''s line under its widgets'),
     @('    list.splice(at, 0, id)
     d[side].collapsed = false', '    list.splice(at, 0, id)', 'a collapsed dock stays shut'),
     @('id === "" || seen[id] === true', 'id === ""', 'an id in two docks'),

@@ -39,7 +39,8 @@
 //   {"op": "relayout", "times": n, "margin": px, "side": "right"|"left"|"bottom", "intervalMs": ms}
 //                                    the workspace's margin on a side set and put back n times, ms apart (400 without);
 //                                    with "dock": {"widget": id, "side": s} instead, that widget docked there and
-//                                    undocked (WorkspaceStore.dockWidget). Logged: the GUI thread's time in the change,
+//                                    undocked (WorkspaceStore.dockWidget); with "collapse": side, that dock collapsed and
+//                                    opened, as its tab does. Logged: the GUI thread's time in the change,
 //                                    the sync of the frame that takes it (the GUI waits: the 3D view's new FBO, the
 //                                    echograms painted anew), the time to that frame on screen; and every frame until the
 //                                    next change (PaneFrame's animation, if the panes animate): how many, their syncs
@@ -170,5 +171,6 @@ private:
     std::vector<qint64> relayoutFrameCount_, relayoutSyncSumNs_, relayoutLastNs_;   // every frame until the next change
     QPointer<QObject> relayoutStore_;  // "dock": the changes are a widget docked and undocked
     QString relayoutDockId_, relayoutDockSide_;
+    bool relayoutCollapse_ = false;
     int relayoutIntervalMs_ = 400;
 };

@@ -114,8 +114,8 @@ function withCollapsed(docks, side, collapsed) {
     return d
 }
 
-// Each dock's shown widgets with their lengths along it, and its thickness, at the dock's scale, before any
-// squeeze; a collapsed dock is 0 thick.
+// Each dock's shown widgets with their lengths along it, and their thickness at the dock's scale, before any squeeze
+// (a collapsed dock's too: it takes no room, but its widgets keep their open places).
 function _measure(d, sizes, shown) {
     var m = {}
     for (var i = 0; i < SIDES.length; ++i) {
@@ -138,20 +138,22 @@ function _measure(d, sizes, shown) {
             scales.push(k)
             thick = Math.max(thick, across * k)
         }
-        m[side] = { ids: ids, lens: lens, scales: scales,
-                    thickness: (ids.length > 0 && !dock.collapsed) ? Math.round(thick) : 0 }
+        m[side] = { ids: ids, lens: lens, scales: scales, collapsed: dock.collapsed && ids.length > 0,
+                    thickness: ids.length > 0 ? Math.round(thick) : 0 }
     }
     return m
 }
 
 function _pairFits(a, b, size) { return a + b <= size * (1 - MIN_WORKSPACE_SHARE) }
 
-// Each dock's thickness with the line along its inner edge (see compute's lines).
+// The room each dock takes: its thickness with the line along its inner edge (see compute's lines); none collapsed.
 function _full(m, lines) {
     var edgeLine = (lines && lines.edge > 0) ? Math.round(lines.edge) : 0
     var t = {}
-    for (var i = 0; i < SIDES.length; ++i)
-        t[SIDES[i]] = m[SIDES[i]].thickness > 0 ? m[SIDES[i]].thickness + edgeLine : 0
+    for (var i = 0; i < SIDES.length; ++i) {
+        var ms = m[SIDES[i]]
+        t[SIDES[i]] = (ms.thickness > 0 && !ms.collapsed) ? ms.thickness + edgeLine : 0
+    }
     return t
 }
 
@@ -190,7 +192,8 @@ function _squeeze(a, b, size) {
 //   docks:   { side: { ids, x, y, w, h, thickness, edge, from, to, collapsed } } -- edge: the dock's inner edge
 //            (x for a side dock, y for the others; at the window's edge when collapsed), from..to: its span along
 //   widgets: { id: { side, x, y, w, h, scale, collapsed } } -- scale: the one to draw at; a collapsed dock's
-//            widgets are listed, so they hide rather than float
+//            widgets are listed, so they hide rather than float, at the places they have open: a tap on the tab is
+//            not a new layout of their cells
 //   squeezed: whether the window was too small for the docks as they are
 function compute(docks, sizes, shown, W, H, lines) {
     var d = normalize(docks)
@@ -211,17 +214,19 @@ function compute(docks, sizes, shown, W, H, lines) {
         var vertical = isVertical(side)
         var f = vertical ? fx : fy
         var th = t[side]
-        var inner = Math.max(0, th - edgeLine)   // the widgets' thickness
+        var mm = m[side]
+        var thOpen = mm.collapsed ? Math.floor((mm.thickness + edgeLine) * f) : th
+        var inner = Math.max(0, thOpen - edgeLine)   // the widgets' thickness
         var from = vertical ? 0 : t.left
         var to = vertical ? h : Math.max(from, w - t.right)
-        var x, y, dw, dh, edge, across
-        if (side === "left")       { x = 0;      y = 0;      dw = th;        dh = h;  edge = th;     across = 0 }
-        else if (side === "right") { x = w - th; y = 0;      dw = th;        dh = h;  edge = w - th; across = edge + th - inner }
-        else if (side === "top")   { x = from;   y = 0;      dw = to - from; dh = th; edge = th;     across = 0 }
-        else                       { x = from;   y = h - th; dw = to - from; dh = th; edge = h - th; across = edge + th - inner }
-        var mm = m[side]
+        var x, y, dw, dh, edge
+        if (side === "left")       { x = 0;      y = 0;      dw = th;        dh = h;  edge = th }
+        else if (side === "right") { x = w - th; y = 0;      dw = th;        dh = h;  edge = w - th }
+        else if (side === "top")   { x = from;   y = 0;      dw = to - from; dh = th; edge = th }
+        else                       { x = from;   y = h - th; dw = to - from; dh = th; edge = h - th }
+        var across = (side === "right" || side === "bottom") ? (vertical ? w : h) - inner : 0
         out.docks[side] = { ids: mm.ids.slice(0), x: x, y: y, w: dw, h: dh, thickness: th, edge: edge,
-                            from: from, to: to, collapsed: d[side].collapsed && mm.ids.length > 0 }
+                            from: from, to: to, collapsed: mm.collapsed }
         var n = mm.ids.length
         var span = Math.max(0, to - from - gapLine * Math.max(0, n - 1))
         var total = 0

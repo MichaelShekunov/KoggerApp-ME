@@ -1479,24 +1479,29 @@ bool EchoEditScript::startRelayout(const QJsonObject& s)
         }
     }
     const QJsonObject dock = s.value(QStringLiteral("dock")).toObject();
-    const QString side = dock.isEmpty() ? s.value(QStringLiteral("side")).toString(QStringLiteral("right"))
+    const QString collapse = s.value(QStringLiteral("collapse")).toString();   // a dock collapsed and opened, as its tab does
+    const bool byStore = !dock.isEmpty() || !collapse.isEmpty();
+    const QString side = !collapse.isEmpty() ? collapse
+                       : dock.isEmpty() ? s.value(QStringLiteral("side")).toString(QStringLiteral("right"))
                                         : dock.value(QStringLiteral("side")).toString(QStringLiteral("right"));
-    if (!workspace || !window || (dock.isEmpty() && side != QLatin1String("right") && side != QLatin1String("left")
+    if (!workspace || !window || (!byStore && side != QLatin1String("right") && side != QLatin1String("left")
                                   && side != QLatin1String("bottom"))) {
         qWarning().noquote() << QStringLiteral("echoedit script: relayout: no workspace on screen, or side \"%1\" not right, left or bottom").arg(side);
         return false;
     }
     relayoutItem_ = workspace;
-    relayoutStore_ = dock.isEmpty() ? nullptr : workspace->property("store").value<QObject*>();
+    relayoutStore_ = byStore ? workspace->property("store").value<QObject*>() : nullptr;
     relayoutDockId_ = dock.value(QStringLiteral("widget")).toString();
     relayoutDockSide_ = side;
-    if (!dock.isEmpty() && (!relayoutStore_ || relayoutDockId_.isEmpty())) {
+    relayoutCollapse_ = !collapse.isEmpty();
+    if (byStore && (!relayoutStore_ || (!relayoutCollapse_ && relayoutDockId_.isEmpty()))) {
         qWarning().noquote() << QStringLiteral("echoedit script: relayout: no store, or no widget to dock");
         return false;
     }
-    relayoutProperty_ = dock.isEmpty() ? QStringLiteral("anchors.%1Margin").arg(side)
+    relayoutProperty_ = relayoutCollapse_ ? QStringLiteral("the %1 dock collapsed and opened").arg(side)
+                      : dock.isEmpty() ? QStringLiteral("anchors.%1Margin").arg(side)
                                        : QStringLiteral("the dock of %1 at the %2").arg(relayoutDockId_, side);
-    relayoutOrig_ = dock.isEmpty() ? QQmlProperty::read(workspace, relayoutProperty_).toDouble() : 0.0;
+    relayoutOrig_ = byStore ? 0.0 : QQmlProperty::read(workspace, relayoutProperty_).toDouble();
     relayoutMargin_ = relayoutOrig_ + s.value(QStringLiteral("margin")).toDouble(300.0);
     relayoutLeft_ = 2 * std::max(1, s.value(QStringLiteral("times")).toInt(10));   // there and back
     relayoutIntervalMs_ = std::max(50, s.value(QStringLiteral("intervalMs")).toInt(400));
@@ -1582,7 +1587,10 @@ bool EchoEditScript::relayoutStep()
     f->lastShownNs = 0;
     f->state = 1;
     relayoutT0_ = f->clock.nsecsElapsed();
-    if (relayoutStore_) {
+    if (relayoutStore_ && relayoutCollapse_) {
+        QMetaObject::invokeMethod(relayoutStore_.data(), "setDockCollapsed", Q_ARG(QVariant, relayoutDockSide_), Q_ARG(QVariant, there));
+    }
+    else if (relayoutStore_) {
         QVariant r;
         if (there) {
             QMetaObject::invokeMethod(relayoutStore_.data(), "dockWidget", Q_RETURN_ARG(QVariant, r), Q_ARG(QVariant, relayoutDockId_),

@@ -2835,8 +2835,12 @@ dock_e2e]**:
   size, and a 90 ms JS garbage collection was in one sampled run. The System cell's lines Repeater keeps one count
   across its forms now (every line was made anew on a compact/full switch; sysgui_check test_3d); the cost measured
   did not move beyond the spread between runs (36-54 ms before, 45 after).
-- Next: stage 3, the head unit (relayout with "dock" and drag3d with docks in probe_drag.sh; stopping the kiosk needs
-  the owner's word). The System cell's cost on a resize is the one to watch there.
+- A collapsed dock's widgets keep the places they have open (hidden there): a tap on the tab lays out the workspace,
+  not their cells. Measured here **[verified]**: the System widget's dock collapsed and opened, 2.8 ms of the GUI
+  thread (docking that widget, 25 ms in the same run); `relayout` takes "collapse": side for it. dock_check: a test
+  of it, 14 of 14 mutants caught.
+- Next: stage 3, the head unit (relayout with "dock" and "collapse", drag3d with docks, in probe_drag.sh; stopping
+  the kiosk needs the owner's word). The System cell's cost on a resize is the one to watch there.
 
 ## My maps: the view starts over the newest map (2026-10-22, branch `maps-start-view`)
 
