@@ -2842,8 +2842,18 @@ dock_e2e]**:
   not their cells. Measured here **[verified]**: the System widget's dock collapsed and opened, 2.8 ms of the GUI
   thread (docking that widget, 25 ms in the same run); `relayout` takes "collapse": side for it. dock_check: a test
   of it, 14 of 14 mutants caught.
-- Next: stage 3, the head unit (relayout with "dock" and "collapse", drag3d with docks, in probe_drag.sh; stopping
-  the kiosk needs the owner's word). The System cell's cost on a resize is the one to watch there.
+- **Stage 3, the head unit** **[verified on the board, 2026-10-22 18:37 UTC, by the owner's word]**: headunit
+  8e455336 (= me c6129765) built on the board, not switched (the kiosk stays on 042300bb);
+  `HeadUnit/orangepi5max/linux_setup/probe_drag.sh 8e455336 dock` in the test profile perf (the kiosk's settings), the
+  field recording, the owner's 1x4 widget with the System cell docked to the right edge:
+  - docked or undocked: the GUI thread 76 ms median (83 max), on screen after 140 ms (182) - the System cell laid out
+    anew at its new size; once a docking, not while anything is dragged;
+  - the dock collapsed or opened by its tab: the GUI thread 2.8 ms, on screen after 58 ms (64);
+  - the 3D view dragged with the widget docked: 60.0 frames/s, the longest gap 33 ms, 0 gaps over 50 ms (as before);
+  - the baseline, the workspace's margin changed as the console drawer does it: 16 frames in 0.8 s, syncs together
+    161 ms, the last 610 ms after - the panes' animation, the console's as it is now (not the docks').
+- Not done: the kiosk on the docks' build (the owner's word), the owner's hand on the gestures on the touch screen,
+  the System cell's 76 ms on a resize (a docking only), the console drawer's animated relayout.
 
 ## My maps: the view starts over the newest map (2026-10-22, branch `maps-start-view`)
 
