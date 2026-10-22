@@ -187,6 +187,18 @@ void MapLibrary::showOnMap(const QString& id)
     }
 }
 
+bool MapLibrary::showNewestOnMap()
+{
+    for (int i = entries_.size() - 1; i >= 0; --i) {   // in the order they were added: the newest last
+        if (entries_[i].visible) {
+            qInfo().noquote() << QStringLiteral("map library: the view to %1, the newest map shown").arg(entries_[i].id);
+            showOnMap(entries_[i].id);
+            return true;
+        }
+    }
+    return false;
+}
+
 void MapLibrary::setBoatPosition(double latDeg, double lonDeg)
 {
     boatLat_ = latDeg;

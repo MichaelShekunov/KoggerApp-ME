@@ -68,6 +68,7 @@
 //                                    panel's middle, or where no other panel covers it, or "...Offset": [dx, dy] from
 //                                    its top-left; none when others cover it all: the step is skipped); "...Tab": a dock's
 //                                    side; "toEdge": side ("toAlong": share along it); "by": [dx, dy] from the start
+//   {"op": "viewCenter"}             the geographic point in the middle of the 3D view, where it looks (on the water)
 //   {"op": "grab", "path": file.png}                         the window, through the UI probe
 //   {"op": "quit"}
 // An epoch can be given as a share of the recording instead: "fromFrac", "toFrac", "epochFrac".
