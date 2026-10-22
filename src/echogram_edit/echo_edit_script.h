@@ -36,6 +36,11 @@
 //   {"op": "pinstate", "key": k}     the setting's row controls on the settings page and their mirrors
 //   {"op": "plotState", "set": {"bottomTrackLine": false}}   each echogram's panel state (Plot2D.qml's echoViewState),
 //                                    changed as its controls change it, and logged with what the plot says
+//   {"op": "drag3d", "seconds": s, "hz": n, "radius": px, "turnSeconds": s}
+//                                    a left-button drag of the 3D view through its triggers, as the QML pointer
+//                                    handlers (a finger on the head unit) call them: the pointer circles about the
+//                                    view's middle. Logged: the moves, the frames and the longest gap between them,
+//                                    the time a move took on the GUI thread, how late the moves' timer fired
 //   {"op": "grab", "path": file.png}                         the window, through the UI probe
 //   {"op": "quit"}
 // An epoch can be given as a share of the recording instead: "fromFrac", "toFrac", "epochFrac".
@@ -51,10 +56,15 @@
 #include <QJsonObject>
 #include <QObject>
 #include <QElapsedTimer>
+#include <QPointer>
 #include <QTimer>
+
+#include <memory>
+#include <vector>
 
 class Core;
 class UiProbe;
+class QQuickItem;
 
 class EchoEditScript : public QObject
 {
@@ -70,6 +80,11 @@ private:
     void stroke(const QString& op, int from, int to, float depth);
     void probe(const QString& name, int from, int to, float offset, float radius);
     void dump(const QString& path);
+    bool startDrag3d(const QJsonObject& s);
+    void dragMove();
+    void finishDrag3d();
+
+    struct DragFrames;               // counted on the render thread (frameSwapped)
 
     Core* core_ = nullptr;
     UiProbe* uiProbe_ = nullptr;
@@ -82,4 +97,16 @@ private:
     QJsonObject export_;             // the last exportCsv's
     QJsonObject results_;            // the last despike's and turns' counts of pings
     bool live_ = false;              // "live": steps run without a recording open
+
+    // "drag3d"
+    QPointer<QQuickItem> dragView_;
+    QTimer dragTimer_;
+    QElapsedTimer dragClock_;
+    QMetaObject::Connection dragFrameConn_;
+    std::shared_ptr<DragFrames> dragFrames_;
+    std::vector<qint64> dragMoveNs_;  // what each move took on the GUI thread
+    qint64 dragLastTickNs_ = 0;
+    qint64 dragLateMaxNs_ = 0;
+    int dragIntervalMs_ = 10;
+    double dragCx_ = 0.0, dragCy_ = 0.0, dragRadius_ = 0.0, dragTurnS_ = 2.0, dragX_ = 0.0, dragY_ = 0.0;
 };

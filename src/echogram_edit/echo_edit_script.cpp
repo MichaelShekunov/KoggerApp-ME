@@ -14,13 +14,16 @@
 #include <QWindow>
 
 #include <algorithm>
+#include <atomic>
 #include <cmath>
 #include <functional>
 #include <limits>
+#include <numeric>
 
 #include "core.h"
 #include "device_manager_wrapper.h"
 #include "echogram_editor.h"
+#include "scene3d_view.h"
 #include "ui_probe.h"
 
 namespace {
@@ -117,7 +120,28 @@ QQuickItem* findWithProperty(QQuickItem* item, const char* name)
     return nullptr;
 }
 
+GraphicsScene3dView* findScene3dView(QQuickItem* item)
+{
+    if (auto* view = qobject_cast<GraphicsScene3dView*>(item); view && view->isVisible() && view->width() > 0.0 && view->height() > 0.0) {
+        return view;
+    }
+    for (QQuickItem* child : item->childItems()) {
+        if (GraphicsScene3dView* found = findScene3dView(child)) {
+            return found;
+        }
+    }
+    return nullptr;
+}
+
 } // namespace
+
+struct EchoEditScript::DragFrames
+{
+    QElapsedTimer clock;
+    std::atomic<int> frames{ 0 };
+    std::atomic<qint64> lastNs{ 0 };
+    std::atomic<qint64> maxGapNs{ 0 };
+};
 
 EchoEditScript::EchoEditScript(Core* core, QObject* parent) :
     QObject(parent),
@@ -125,6 +149,8 @@ EchoEditScript::EchoEditScript(Core* core, QObject* parent) :
 {
     timer_.setSingleShot(true);
     connect(&timer_, &QTimer::timeout, this, &EchoEditScript::step);
+    dragTimer_.setTimerType(Qt::PreciseTimer);
+    connect(&dragTimer_, &QTimer::timeout, this, &EchoEditScript::dragMove);
 }
 
 void EchoEditScript::armFromEnvironment()
@@ -219,6 +245,25 @@ void EchoEditScript::step()
         }
         settleClock_.invalidate();
         qInfo().noquote() << QStringLiteral("echoedit script: wait done");
+        ++next_;
+        timer_.start(0);
+        return;
+    }
+    if (op == QLatin1String("drag3d")) {
+        if (!settleClock_.isValid()) {
+            if (!startDrag3d(s)) {
+                ++next_;
+                timer_.start(0);
+                return;
+            }
+            settleClock_.start();
+        }
+        if (settleClock_.elapsed() < qint64(s.value(QStringLiteral("seconds")).toDouble(20.0) * 1000.0)) {
+            timer_.start(100);
+            return;
+        }
+        settleClock_.invalidate();
+        finishDrag3d();
         ++next_;
         timer_.start(0);
         return;
@@ -883,4 +928,98 @@ void EchoEditScript::dump(const QString& path)
     qInfo().noquote() << QStringLiteral("echoedit script: dump %1: %2 epochs, bottom %3, %4 finite, %5 by hand, %6 left out; "
                                         "heading in %7 epochs, %8 turns over 20 deg")
                          .arg(path).arg(n).arg(hex64(h)).arg(finite).arg(hand).arg(excluded).arg(yawFinite).arg(yawSteps20);
+}
+
+bool EchoEditScript::startDrag3d(const QJsonObject& s)
+{
+    GraphicsScene3dView* view = nullptr;
+    for (QWindow* w : QGuiApplication::topLevelWindows()) {
+        auto* qw = qobject_cast<QQuickWindow*>(w);
+        if (qw && qw->isVisible() && (view = findScene3dView(qw->contentItem()))) {
+            break;
+        }
+    }
+    if (!view || !view->window()) {
+        qWarning().noquote() << QStringLiteral("echoedit script: drag3d: no 3D view on screen");
+        return false;
+    }
+    const int hz = std::clamp(s.value(QStringLiteral("hz")).toInt(100), 1, 1000);
+    dragIntervalMs_ = std::max(1, 1000 / hz);
+    dragTurnS_ = std::max(0.1, s.value(QStringLiteral("turnSeconds")).toDouble(2.0));
+    dragCx_ = view->width() * 0.5;
+    dragCy_ = view->height() * 0.5;
+    dragRadius_ = std::min(s.value(QStringLiteral("radius")).toDouble(120.0), 0.4 * std::min(view->width(), view->height()));
+    dragX_ = dragCx_ + dragRadius_;
+    dragY_ = dragCy_;
+    dragView_ = view;
+    dragMoveNs_.clear();
+    dragMoveNs_.reserve(size_t(hz) * 64);
+    dragLastTickNs_ = 0;
+    dragLateMaxNs_ = 0;
+
+    // frameSwapped comes from the render thread with the threaded render loop: counted there.
+    auto frames = std::make_shared<DragFrames>();
+    frames->clock.start();
+    dragFrames_ = frames;
+    dragFrameConn_ = connect(view->window(), &QQuickWindow::frameSwapped, this, [frames]() {
+        const qint64 now = frames->clock.nsecsElapsed();
+        const qint64 gap = now - frames->lastNs.exchange(now);
+        qint64 worst = frames->maxGapNs.load();
+        while (gap > worst && !frames->maxGapNs.compare_exchange_weak(worst, gap)) {
+        }
+        ++frames->frames;
+    }, Qt::DirectConnection);
+
+    qInfo().noquote() << QStringLiteral("echoedit script: drag3d start: the view %1x%2, about (%3, %4), radius %5 px, %6 moves a second, a turn in %7 s")
+                         .arg(view->width()).arg(view->height()).arg(dragCx_).arg(dragCy_).arg(dragRadius_).arg(hz).arg(dragTurnS_);
+    dragClock_.start();
+    view->mousePressTrigger(Qt::LeftButton, dragX_, dragY_, Qt::Key_unknown);
+    dragTimer_.start(dragIntervalMs_);
+    return true;
+}
+
+void EchoEditScript::dragMove()
+{
+    auto* view = qobject_cast<GraphicsScene3dView*>(dragView_.data());
+    if (!view) {
+        dragTimer_.stop();
+        return;
+    }
+    const qint64 now = dragClock_.nsecsElapsed();
+    if (dragLastTickNs_ > 0) {
+        dragLateMaxNs_ = std::max(dragLateMaxNs_, now - dragLastTickNs_ - qint64(dragIntervalMs_) * 1000000);
+    }
+    dragLastTickNs_ = now;
+    constexpr double kPi = 3.14159265358979323846;
+    const double a = 2.0 * kPi * (double(now) / 1e9) / dragTurnS_;
+    dragX_ = dragCx_ + dragRadius_ * std::cos(a);
+    dragY_ = dragCy_ + dragRadius_ * std::sin(a);
+    QElapsedTimer took;
+    took.start();
+    view->mouseMoveTrigger(Qt::LeftButton, dragX_, dragY_, Qt::Key_unknown);
+    dragMoveNs_.push_back(took.nsecsElapsed());
+}
+
+void EchoEditScript::finishDrag3d()
+{
+    dragTimer_.stop();
+    disconnect(dragFrameConn_);
+    const double seconds = double(dragClock_.nsecsElapsed()) / 1e9;
+    if (auto* view = qobject_cast<GraphicsScene3dView*>(dragView_.data())) {
+        view->mouseReleaseTrigger(Qt::LeftButton, dragX_, dragY_, Qt::Key_unknown);
+    }
+    std::vector<qint64> v = dragMoveNs_;
+    std::sort(v.begin(), v.end());
+    const auto ms = [](qint64 ns) { return QString::number(double(ns) / 1e6, 'f', 2); };
+    const auto at = [&v](double q) { return v.empty() ? qint64(0) : v[std::min(v.size() - 1, size_t(q * double(v.size())))]; };
+    const qint64 all = std::accumulate(v.begin(), v.end(), qint64(0));
+    const int frames = dragFrames_ ? dragFrames_->frames.load() : 0;
+    const qint64 gap = dragFrames_ ? dragFrames_->maxGapNs.load() : 0;
+    qInfo().noquote() << QStringLiteral("echoedit script: drag3d %1 s: %2 moves (%3/s), %4 frames (%5/s), longest gap between frames %6 ms; "
+                                        "a move on the GUI thread %7 ms median, %8 ms p95, %9 ms max, %10 ms in all; the moves' timer late by %11 ms at most")
+                         .arg(seconds, 0, 'f', 1).arg(v.size()).arg(double(v.size()) / seconds, 0, 'f', 1)
+                         .arg(frames).arg(double(frames) / seconds, 0, 'f', 1).arg(ms(gap))
+                         .arg(ms(at(0.5))).arg(ms(at(0.95))).arg(ms(v.empty() ? 0 : v.back())).arg(ms(all)).arg(ms(dragLateMaxNs_));
+    dragView_.clear();
+    dragFrames_.reset();
 }
