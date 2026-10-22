@@ -447,7 +447,9 @@ triangles, files, times) to kogger.log.
   A and B either way round, the older when the newer is hidden, the saved camera with the layer off or no maps, the
   recording's data when a recording is opened too. 7 of 7 **[Verified, 2026-10-22]**. The camera and My maps'
   switches are written to the profile's registry key: `QSettings("KOGGER", <app>)` does not follow
-  KOGGER_SETTINGS_INI.
+  KOGGER_SETTINGS_INI. A map exported once from 00014 (zoom 6) is kept on this PC at
+  `D:\Temp\perf\00014_map_zoom6.kmap`; `-MapA` takes it and skips the export (minutes on a loaded PC):
+  `mymaps_start_check.ps1 -Exe <KoggerApp.exe> -File D:\Temp\perf\00014_03.05.2025.KLF -MapA D:\Temp\perf\00014_map_zoom6.kmap`.
 - `powershell -ExecutionPolicy Bypass -File tools\perf\mapexport_edit_check.ps1 -Exe <KoggerApp.exe> -File <recording> -Epochs <n> [-TrimStart 2924] [-BadFrom 22832] [-BadTo 23973] [-PathPrefix ...]`:
   pings marked bad or trimmed on the echogram are out of the KMZ track and the survey's times. Two windows
   of the app (about a minute each, closing themselves; a profile copied from the test profile "perf" with the
