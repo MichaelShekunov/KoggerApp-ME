@@ -103,13 +103,30 @@ void SystemMonitor::unsubscribe()
 
 void SystemMonitor::refresh()
 {
+    QElapsedTimer took;
+    took.start();
+    qint64 at[6] = {};
     readCpu();
+    at[0] = took.nsecsElapsed();
     readMemory();
+    at[1] = took.nsecsElapsed();
     readThermal();
+    at[2] = took.nsecsElapsed();
     readGpu();
+    at[3] = took.nsecsElapsed();
     if (ticks_ % 10 == 0)
         readVolumes();
+    at[4] = took.nsecsElapsed();
     readUptime();
+    at[5] = took.nsecsElapsed();
+    // The reads run on the GUI thread: one that holds it shows as a jerk (a drag of the 3D view on the head unit
+    // jerked once a second, 2026-10-22). Logged when they took over 20 ms, at most once in 10 s.
+    if (at[5] > 20 * 1000000LL && (!slowLogClock_.isValid() || slowLogClock_.elapsed() >= 10000)) {
+        slowLogClock_.start();
+        const auto ms = [](qint64 ns) { return QString::number(double(ns) / 1e6, 'f', 1); };
+        qInfo().noquote() << QStringLiteral("system monitor: slow read %1 ms: cpu %2, memory %3, thermal %4, gpu %5, volumes %6, uptime %7 ms")
+                             .arg(ms(at[5]), ms(at[0]), ms(at[1] - at[0]), ms(at[2] - at[1]), ms(at[3] - at[2]), ms(at[4] - at[3]), ms(at[5] - at[4]));
+    }
     ++ticks_;
     available_ = !coreLoad_.isEmpty() || memTotal_ > 0.0;
     if (available_ && !logged_ && ticks_ >= 2) {   // the second tick: loads need two samples

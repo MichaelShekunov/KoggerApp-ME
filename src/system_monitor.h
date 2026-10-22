@@ -96,6 +96,7 @@ private:
     static constexpr double kNaN = std::numeric_limits<double>::quiet_NaN();
 
     QTimer timer_;
+    QElapsedTimer slowLogClock_;   // the "slow read" line, at most once in 10 s
     int subscribers_ = 0;
     int ticks_ = 0;
     bool logged_ = false;
