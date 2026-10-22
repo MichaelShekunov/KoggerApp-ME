@@ -6,6 +6,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QGuiApplication>
+#include <QJSValue>
 #include <QJsonDocument>
 #include <QQmlEngine>
 #include <QQmlProperty>
@@ -120,6 +121,51 @@ QQuickItem* findWithProperty(QQuickItem* item, const char* name)
         }
     }
     return nullptr;
+}
+
+// The main window's WorkspaceStore: the store of the WorkspaceView (the item with "secondaryPlotItem").
+QObject* findWorkspaceStore(QQuickItem** workspace = nullptr)
+{
+    for (QWindow* w : QGuiApplication::topLevelWindows()) {
+        auto* qw = qobject_cast<QQuickWindow*>(w);
+        if (!qw || !qw->isVisible()) {
+            continue;
+        }
+        if (QQuickItem* ws = findWithProperty(qw->contentItem(), "secondaryPlotItem")) {
+            if (workspace) {
+                *workspace = ws;
+            }
+            return ws->property("store").value<QObject*>();
+        }
+    }
+    return nullptr;
+}
+
+// A QML var property, or what a QML function returned, as JSON.
+QJsonValue toJson(const QVariant& v)
+{
+    if (v.metaType() == QMetaType::fromType<QJSValue>()) {
+        return QJsonValue::fromVariant(v.value<QJSValue>().toVariant());
+    }
+    return QJsonValue::fromVariant(v);
+}
+
+// Every widget's panel (a BasePanePopup with popupId "widget:<id>") under an item.
+void collectWidgetPanels(QQuickItem* item, QList<QQuickItem*>& out)
+{
+    if (item->property("popupId").toString().startsWith(QLatin1String("widget:"))) {
+        out.append(item);
+    }
+    for (QQuickItem* child : item->childItems()) {
+        collectWidgetPanels(child, out);
+    }
+}
+
+QJsonObject sceneRect(QQuickItem* item)
+{
+    const QRectF r = item->mapRectToScene(QRectF(0.0, 0.0, item->width(), item->height()));
+    return QJsonObject{ { QStringLiteral("x"), r.x() }, { QStringLiteral("y"), r.y() },
+                        { QStringLiteral("w"), r.width() }, { QStringLiteral("h"), r.height() } };
 }
 
 GraphicsScene3dView* findScene3dView(QQuickItem* item)
@@ -342,6 +388,9 @@ void EchoEditScript::runStep(const QJsonObject& s)
         depth = d.isEmpty() ? NAN : d.at(d.size() / 2) * float(s.value(QStringLiteral("depthRel")).toDouble());
     }
 
+    if (dockStep(op, s)) {
+        return;
+    }
     if (op == QLatin1String("draw") || op == QLatin1String("erase") || op == QLatin1String("raise") || op == QLatin1String("lower")) {
         if (op != QLatin1String("erase") && !std::isfinite(depth)) {
             qWarning().noquote() << QStringLiteral("echoedit script: %1 %2..%3 has no depth, skipped").arg(op).arg(from).arg(to);
@@ -771,6 +820,111 @@ void EchoEditScript::runStep(const QJsonObject& s)
     }
     qInfo().noquote() << QStringLiteral("echoedit script: %1 done (%2..%3), undo %4, redo %5")
                          .arg(op).arg(from).arg(to).arg(ed->canUndo()).arg(ed->canRedo());
+}
+
+bool EchoEditScript::dockStep(const QString& op, const QJsonObject& s)
+{
+    static const QStringList ops = { QStringLiteral("dock"), QStringLiteral("undock"), QStringLiteral("dockScale"),
+                                     QStringLiteral("dockCollapse"), QStringLiteral("docks"), QStringLiteral("layout") };
+    if (!ops.contains(op)) {
+        return false;
+    }
+    QQuickItem* workspace = nullptr;
+    QObject* store = findWorkspaceStore(&workspace);
+    if (!store) {
+        qWarning().noquote() << QStringLiteral("echoedit script: %1: no workspace on screen").arg(op);
+        return true;
+    }
+    // A widget by its id, or by its place in the store's list.
+    const auto widgetId = [&]() {
+        const QJsonValue w = s.value(QStringLiteral("widget"));
+        if (w.isString()) {
+            return w.toString();
+        }
+        const QJsonArray list = toJson(store->property("widgets")).toArray();
+        const int i = w.toInt(-1);
+        return (i >= 0 && i < list.size()) ? list.at(i).toObject().value(QStringLiteral("id")).toString() : QString();
+    };
+    const QString side = s.value(QStringLiteral("side")).toString();
+    QVariant r;
+    if (op == QLatin1String("dock")) {
+        const QString id = widgetId();
+        const int at = s.value(QStringLiteral("at")).toInt(-1);
+        QMetaObject::invokeMethod(store, "dockWidget", Q_RETURN_ARG(QVariant, r), Q_ARG(QVariant, id), Q_ARG(QVariant, side),
+                                  Q_ARG(QVariant, at));
+        qInfo().noquote() << QStringLiteral("echoedit script: dock %1 to %2 at %3: %4").arg(id, side).arg(at)
+                             .arg(r.toBool() ? QStringLiteral("docked") : QStringLiteral("refused"));
+    }
+    else if (op == QLatin1String("undock")) {
+        const QString id = widgetId();
+        QMetaObject::invokeMethod(store, "undockWidget", Q_RETURN_ARG(QVariant, r), Q_ARG(QVariant, id));
+        qInfo().noquote() << QStringLiteral("echoedit script: undock %1: %2").arg(id, r.toBool() ? QStringLiteral("undocked")
+                                                                                             : QStringLiteral("was not docked"));
+    }
+    else if (op == QLatin1String("dockScale")) {
+        const double scale = s.value(QStringLiteral("scale")).toDouble(1.0);
+        QMetaObject::invokeMethod(store, "setDockScale", Q_RETURN_ARG(QVariant, r), Q_ARG(QVariant, side), Q_ARG(QVariant, scale));
+        qInfo().noquote() << QStringLiteral("echoedit script: dockScale %1 %2: %3").arg(side).arg(scale)
+                             .arg(r.toBool() ? QStringLiteral("set") : QStringLiteral("refused"));
+    }
+    else if (op == QLatin1String("dockCollapse")) {
+        if (s.contains(QStringLiteral("collapsed"))) {
+            QMetaObject::invokeMethod(store, "setDockCollapsed", Q_ARG(QVariant, side),
+                                      Q_ARG(QVariant, s.value(QStringLiteral("collapsed")).toBool()));
+        } else {
+            QMetaObject::invokeMethod(store, "toggleDockCollapsed", Q_ARG(QVariant, side));
+        }
+        qInfo().noquote() << QStringLiteral("echoedit script: dockCollapse %1 done").arg(side);
+    }
+    else if (op == QLatin1String("layout")) {
+        const int index = s.value(QStringLiteral("index")).toInt(0);
+        QMetaObject::invokeMethod(store, "applyLayout", Q_ARG(QVariant, index));
+        qInfo().noquote() << QStringLiteral("echoedit script: layout %1 applied, active %2").arg(index)
+                             .arg(store->property("activeLayoutIndex").toInt());
+    }
+    else {
+        // What the store says, and what is on screen: the workspace, every widget's panel.
+        QJsonObject out;
+        out.insert(QStringLiteral("docks"), toJson(store->property("docks")));
+        const QJsonObject layout = toJson(store->property("dockLayout")).toObject();
+        out.insert(QStringLiteral("insets"), layout.value(QStringLiteral("insets")));
+        out.insert(QStringLiteral("squeezed"), layout.value(QStringLiteral("squeezed")));
+        out.insert(QStringLiteral("slots"), layout.value(QStringLiteral("widgets")));
+        out.insert(QStringLiteral("activeLayout"), store->property("activeLayoutIndex").toInt());
+        out.insert(QStringLiteral("natural"), toJson(store->property("widgetNaturalSizes")));
+        out.insert(QStringLiteral("lines"), toJson(store->property("dockLines")));
+        out.insert(QStringLiteral("window"), QJsonObject{ { QStringLiteral("w"), store->property("windowWidth").toDouble() },
+                                                          { QStringLiteral("h"), store->property("windowHeight").toDouble() } });
+        out.insert(QStringLiteral("workspace"), sceneRect(workspace));
+        QJsonArray steps;
+        for (const QString& sd : { QStringLiteral("left"), QStringLiteral("right"), QStringLiteral("top"), QStringLiteral("bottom") }) {
+            QVariant st;
+            QMetaObject::invokeMethod(store, "dockScaleSteps", Q_RETURN_ARG(QVariant, st), Q_ARG(QVariant, sd));
+            steps.append(QJsonObject{ { QStringLiteral("side"), sd }, { QStringLiteral("steps"), toJson(st) } });
+        }
+        out.insert(QStringLiteral("steps"), steps);
+        QList<QQuickItem*> panels;
+        collectWidgetPanels(workspace->window()->contentItem(), panels);
+        QJsonArray list;
+        for (QQuickItem* p : panels) {
+            QQuickItem* panel = nullptr;
+            for (QQuickItem* c : p->childItems()) {
+                if (c->objectName() == QLatin1String("panePanel")) {
+                    panel = c;
+                }
+            }
+            QJsonObject o{ { QStringLiteral("id"), p->property("popupId").toString().mid(7) },
+                           { QStringLiteral("docked"), p->property("edgeDocked").toBool() },
+                           { QStringLiteral("visible"), p->isVisible() && (!panel || panel->isVisible()) } };
+            if (panel) {
+                o.insert(QStringLiteral("panel"), sceneRect(panel));
+            }
+            list.append(o);
+        }
+        out.insert(QStringLiteral("panels"), list);
+        qInfo().noquote() << QStringLiteral("echoedit script: docks ") + QString::fromUtf8(QJsonDocument(out).toJson(QJsonDocument::Compact));
+    }
+    return true;
 }
 
 void EchoEditScript::stroke(const QString& op, int from, int to, float depth)

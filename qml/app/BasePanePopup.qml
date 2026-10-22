@@ -72,6 +72,22 @@ Item {
     property string _siblingSnapSide: ""
     property int   _siblingSnapTargetIdx: -1
 
+    // A floating panel keeps to the window less these strips at its edges: the docks of WidgetDocks.qml, for the
+    // panels that live over the workspace.
+    property real areaLeft: 0
+    property real areaTop: 0
+    property real areaRight: 0
+    property real areaBottom: 0
+
+    // Docked to a window edge (WorkspaceStore.dockLayout): the panel fills its slot in the dock, edgeX..edgeH, square.
+    // panelX/panelY keep where it floats, for when it is undocked. In a collapsed dock it hides.
+    property bool edgeDocked: false
+    property bool edgeCollapsed: false
+    property real edgeX: 0
+    property real edgeY: 0
+    property real edgeW: 0
+    property real edgeH: 0
+
     property bool  _chromeRevealed: false
     readonly property int chromeHideMs: 1600
     readonly property bool chromeShown: !overlayChrome
@@ -107,22 +123,26 @@ Item {
 
     default property alias popupContent: contentHost.data
 
-    visible: popupVisible
+    visible: popupVisible && !edgeCollapsed
+
+    // Where a floating panel's x (or y) may be along a size with strips lead and trail at its ends: popupMargin in from
+    // them, or flush when the panel is too big for that.
+    function _range(size, lead, trail, extent) {
+        var spacing = Math.max(0, popupMargin)
+        var lo = lead + spacing
+        var hi = size - trail - extent - spacing
+        if (hi < lo) { lo = lead; hi = Math.max(lead, size - trail - extent) }
+        return { lo: lo, hi: hi }
+    }
 
     function clampX(value) {
-        var spacing = Math.max(0, popupMargin)
-        var minX = spacing
-        var maxX = width - expandedWidth - spacing
-        if (maxX < minX) { minX = 0; maxX = Math.max(0, width - expandedWidth) }
-        return Math.max(minX, Math.min(value, maxX))
+        var r = _range(width, areaLeft, areaRight, expandedWidth)
+        return Math.max(r.lo, Math.min(value, r.hi))
     }
 
     function clampY(value) {
-        var spacing = Math.max(0, popupMargin)
-        var minY = spacing
-        var maxY = height - expandedHeight - spacing
-        if (maxY < minY) { minY = 0; maxY = Math.max(0, height - expandedHeight) }
-        return Math.max(minY, Math.min(value, maxY))
+        var r = _range(height, areaTop, areaBottom, expandedHeight)
+        return Math.max(r.lo, Math.min(value, r.hi))
     }
 
     readonly property real snapThreshold: 100
@@ -130,18 +150,19 @@ Item {
     function snapToGrid(x, y) {
         var cx = x + expandedWidth / 2
         var cy = y + expandedHeight / 2
-        var W  = width,  H  = height
+        var X0 = areaLeft, Y0 = areaTop
+        var W  = width - areaLeft - areaRight,  H  = height - areaTop - areaBottom
         var hw = expandedWidth / 2, hh = expandedHeight / 2
         var pts = [
-            Qt.point(hw,     hh     ),  // top-left corner
-            Qt.point(W - hw, hh     ),  // top-right corner
-            Qt.point(hw,     H - hh ),  // bottom-left corner
-            Qt.point(W - hw, H - hh ),  // bottom-right corner
-            Qt.point(W * 0.5, H * 0.5) // center
+            Qt.point(X0 + hw,     Y0 + hh     ),  // top-left corner
+            Qt.point(X0 + W - hw, Y0 + hh     ),  // top-right corner
+            Qt.point(X0 + hw,     Y0 + H - hh ),  // bottom-left corner
+            Qt.point(X0 + W - hw, Y0 + H - hh ),  // bottom-right corner
+            Qt.point(X0 + W * 0.5, Y0 + H * 0.5) // center
         ]
         if (snapEdgeCenters) {
-            pts.push(Qt.point(W * 0.5, hh))
-            pts.push(Qt.point(W * 0.5, H - hh))
+            pts.push(Qt.point(X0 + W * 0.5, Y0 + hh))
+            pts.push(Qt.point(X0 + W * 0.5, Y0 + H - hh))
         }
         var best2 = snapThreshold * snapThreshold
         var bx = x, by = y, found = false
@@ -227,7 +248,7 @@ Item {
     }
 
     function resolveOverlapWithSibling() {
-        if (!popupVisible) return
+        if (!popupVisible || edgeDocked) return
         if (dockTargetId !== "") { _applyDock(); return }   // docked → keep glued, dock wins over auto-resolve
         var list = siblingBoundsList
         if (!list || !list.length) return
@@ -381,53 +402,64 @@ Item {
 
     property real lastParentWidth: 0
     property real lastParentHeight: 0
+    property real _lastAreaLeft: 0
+    property real _lastAreaRight: 0
+    property real _lastAreaTop: 0
+    property real _lastAreaBottom: 0
 
-    function rescaleX(oldParentWidth) {
-        var sp = Math.max(0, popupMargin)
-        var oldMin = sp; var oldMax = oldParentWidth - expandedWidth - sp
-        if (oldMax < oldMin) { oldMin = 0; oldMax = Math.max(0, oldParentWidth - expandedWidth) }
-        var t = (oldMax > oldMin) ? Math.max(0, Math.min(1, (panelX - oldMin) / (oldMax - oldMin))) : 0
-        var newMin = sp; var newMax = width - expandedWidth - sp
-        if (newMax < newMin) { newMin = 0; newMax = Math.max(0, width - expandedWidth) }
-        panelX = clampX(newMin + t * (newMax - newMin))
+    // The panel keeps its place between the area's sides when the area changes (the window, a dock).
+    function rescaleX(oldParentWidth, oldLeft, oldRight) {
+        var o = _range(oldParentWidth, oldLeft || 0, oldRight || 0, expandedWidth)
+        var n = _range(width, areaLeft, areaRight, expandedWidth)
+        var t = (o.hi > o.lo) ? Math.max(0, Math.min(1, (panelX - o.lo) / (o.hi - o.lo))) : 0
+        panelX = clampX(n.lo + t * (n.hi - n.lo))
     }
 
-    function rescaleY(oldParentHeight) {
-        var sp = Math.max(0, popupMargin)
-        var oldMin = sp; var oldMax = oldParentHeight - expandedHeight - sp
-        if (oldMax < oldMin) { oldMin = 0; oldMax = Math.max(0, oldParentHeight - expandedHeight) }
-        var t = (oldMax > oldMin) ? Math.max(0, Math.min(1, (panelY - oldMin) / (oldMax - oldMin))) : 0
-        var newMin = sp; var newMax = height - expandedHeight - sp
-        if (newMax < newMin) { newMin = 0; newMax = Math.max(0, height - expandedHeight) }
-        panelY = clampY(newMin + t * (newMax - newMin))
+    function rescaleY(oldParentHeight, oldTop, oldBottom) {
+        var o = _range(oldParentHeight, oldTop || 0, oldBottom || 0, expandedHeight)
+        var n = _range(height, areaTop, areaBottom, expandedHeight)
+        var t = (o.hi > o.lo) ? Math.max(0, Math.min(1, (panelY - o.lo) / (o.hi - o.lo))) : 0
+        panelY = clampY(n.lo + t * (n.hi - n.lo))
     }
 
-    onWidthChanged: {
+    function _refitX() {
         if (width <= 0) return
         if (dockTargetId !== "") {
             _applyDock()
             Qt.callLater(_applyDock)   // re-derive after target repositions this frame
         } else {
-            if (lastParentWidth > 0) rescaleX(lastParentWidth)
+            if (lastParentWidth > 0) rescaleX(lastParentWidth, _lastAreaLeft, _lastAreaRight)
             else panelX = clampX(panelX)
             Qt.callLater(commitPosition)
             Qt.callLater(resolveOverlapWithSibling)
         }
         lastParentWidth = width
+        _lastAreaLeft = areaLeft
+        _lastAreaRight = areaRight
     }
-    onHeightChanged: {
+
+    function _refitY() {
         if (height <= 0) return
         if (dockTargetId !== "") {
             _applyDock()
             Qt.callLater(_applyDock)
         } else {
-            if (lastParentHeight > 0) rescaleY(lastParentHeight)
+            if (lastParentHeight > 0) rescaleY(lastParentHeight, _lastAreaTop, _lastAreaBottom)
             else panelY = clampY(panelY)
             Qt.callLater(commitPosition)
             Qt.callLater(resolveOverlapWithSibling)
         }
         lastParentHeight = height
+        _lastAreaTop = areaTop
+        _lastAreaBottom = areaBottom
     }
+
+    onWidthChanged: _refitX()
+    onAreaLeftChanged: _refitX()
+    onAreaRightChanged: _refitX()
+    onHeightChanged: _refitY()
+    onAreaTopChanged: _refitY()
+    onAreaBottomChanged: _refitY()
     onFullscreenModeChanged: if (fullscreenMode) collapsed = false
 
     Component.onCompleted: {
@@ -437,6 +469,10 @@ Item {
         panelY = clampY(panelY)
         lastParentWidth = width
         lastParentHeight = height
+        _lastAreaLeft = areaLeft
+        _lastAreaRight = areaRight
+        _lastAreaTop = areaTop
+        _lastAreaBottom = areaBottom
     }
 
     Rectangle {
@@ -487,13 +523,15 @@ Item {
 
     Rectangle {
         id: panel
+        objectName: "panePanel"
 
         visible: root.popupVisible
-        x: root.collapsed ? root.panelX + root.expandedWidth - root.collapsedSize : root.panelX
-        y: root.panelY
-        width: root.popupWidth
-        height: root.popupHeight
-        radius: root.panelRadius
+        x: root.edgeDocked ? root.edgeX
+                           : root.collapsed ? root.panelX + root.expandedWidth - root.collapsedSize : root.panelX
+        y: root.edgeDocked ? root.edgeY : root.panelY
+        width: root.edgeDocked ? root.edgeW : root.popupWidth
+        height: root.edgeDocked ? root.edgeH : root.popupHeight
+        radius: root.edgeDocked ? 0 : root.panelRadius
         color: root.collapsed ? "transparent" : root.panelColor
         border.width: 0
         z: 1

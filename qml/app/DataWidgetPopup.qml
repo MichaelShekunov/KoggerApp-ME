@@ -40,13 +40,37 @@ BasePanePopup {
     readonly property real _baseW: _cols * _baseCellW + (_cols - 1) * _baseGap + _basePad * 2 + contentPadding * 2
     readonly property real _baseH: _rows * _baseCellH + (_rows - 1) * _baseGap + _basePad * 2 + contentPadding * 2
 
+    // Docked to a window edge, the grid fills the slot the dock gives it, at the dock's scale (WorkspaceStore.dockLayout).
+    readonly property var _slot: (store && def && def.id) ? store.widgetDockSlot(def.id) : null
+    readonly property real _kShown: _slot ? _appScale * _slot.scale : _k
+    readonly property real _gapShown: _slot ? Math.round(4 * _kShown) : _gap
+    readonly property real _padShown: _slot ? Math.round(8 * _kShown) : _pad
+    readonly property real _gridShownW: _slot ? Math.max(0, _slot.w - 2 * (_padShown + contentPadding)) : _gridW
+    readonly property real _gridShownH: _slot ? Math.max(0, _slot.h - 2 * (_padShown + contentPadding)) : _gridH
+    readonly property real _cellShownW: _slot ? Math.max(0, (_gridShownW - (_cols - 1) * _gapShown) / _cols) : _cellW
+    readonly property real _cellShownH: _slot ? Math.max(0, (_gridShownH - (_rows - 1) * _gapShown) / _rows) : _cellH
+
+    edgeDocked: !!_slot
+    edgeCollapsed: !!_slot && _slot.collapsed === true
+    edgeX: _slot ? _slot.x : 0
+    edgeY: _slot ? _slot.y : 0
+    edgeW: _slot ? _slot.w : 0
+    edgeH: _slot ? _slot.h : 0
+
+    function _reportNaturalSize() {
+        if (store && def && def.id)
+            store.reportWidgetNaturalSize(def.id, _baseW, _baseH, true)
+    }
+    on_BaseWChanged: _reportNaturalSize()
+    on_BaseHChanged: _reportNaturalSize()
+
     readonly property bool _beingEdited: !!(store && store.widgetEditorActive
         && store.widgetEditIndex >= 0 && store.widgetEditIndex < store.widgets.length
         && store.widgets[store.widgetEditIndex] && def
         && store.widgets[store.widgetEditIndex].id === def.id)
 
     popupVisible: !_beingEdited
-    dragEnabled: !(store && store.widgetEditorActive)
+    dragEnabled: !(store && store.widgetEditorActive) && !edgeDocked
     dragAnywhere: true
     headerReserved: false
     resizeEnabled: false
@@ -94,9 +118,10 @@ BasePanePopup {
     onWidgetScaleChanged: _applyScale()
     on_GridWChanged: _applyScale()
     on_GridHChanged: _applyScale()
-    onDefChanged: { _applyScale(); Qt.callLater(syncFromStore) }
+    onDefChanged: { _applyScale(); _reportNaturalSize(); Qt.callLater(syncFromStore) }
 
     Component.onCompleted: {
+        _reportNaturalSize()
         syncFromStore()
         Qt.callLater(syncFromStore)
         Qt.callLater(resolveOverlapWithSibling)
@@ -123,13 +148,13 @@ BasePanePopup {
 
     Rectangle {
         anchors.fill: parent
-        radius: root.panelRadius
+        radius: root.edgeDocked ? 0 : root.panelRadius
         color: Qt.rgba(AppPalette.bg.r, AppPalette.bg.g, AppPalette.bg.b, root._bgAlpha)
         border.width: 0
 
         Item {
-            width: root._gridW
-            height: root._gridH
+            width: root._gridShownW
+            height: root._gridShownH
             anchors.centerIn: parent
 
             Repeater {
@@ -139,11 +164,14 @@ BasePanePopup {
                     required property var modelData
                     readonly property var _sp: root.store._cellSpan(modelData.rep, modelData.big === true)
                     readonly property string _field: modelData.field
+                    // At whole pixels: a docked cell's size is a share of the dock, not a multiple of a pixel.
+                    readonly property real _stepX: root._cellShownW + root._gapShown
+                    readonly property real _stepY: root._cellShownH + root._gapShown
 
-                    x: modelData.col * (root._cellW + root._gap)
-                    y: modelData.row * (root._cellH + root._gap)
-                    width: _sp.sc * root._cellW + (_sp.sc - 1) * root._gap
-                    height: _sp.sr * root._cellH + (_sp.sr - 1) * root._gap
+                    x: Math.round(modelData.col * _stepX)
+                    y: Math.round(modelData.row * _stepY)
+                    width: Math.round((modelData.col + _sp.sc) * _stepX - root._gapShown) - x
+                    height: Math.round((modelData.row + _sp.sr) * _stepY - root._gapShown) - y
 
                     WidgetCellContent {
                         anchors.fill: parent
@@ -151,8 +179,8 @@ BasePanePopup {
                         label: DataFieldCatalog.label(cell._field)
                         value: DataFieldCatalog.formatValue(cell._field, root._ds, root._dmw, root.store, root._sysbat,
                                                             undefined, root._boat, root._sysmon)
-                        k: root._k
-                        gap: root._gap
+                        k: root._kShown
+                        gap: root._gapShown
                         bars: DataFieldCatalog.bars(cell._field, root._dmw, root._sysmon)
                         field: cell._field
                         sys: root._sysmon

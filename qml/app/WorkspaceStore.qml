@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtCore
 import kqml_types 1.0
+import "DockLayout.js" as DockLayout
 import "LayoutRules.js" as Rules
 import "LayoutTree.js" as Tree
 import "LayoutResize.js" as Resize
@@ -562,6 +563,13 @@ property Timer _systemClockTimer: Timer {
 }
 
 property var popupDocks: ({})
+
+function _widgetIds() {
+    var ids = []
+    for (var i = 0; i < widgets.length; ++i)
+        if (widgets[i] && widgets[i].id) ids.push(widgets[i].id)
+    return ids
+}
 
 function widgetIndexById(id) {
     if (!id) return -1
@@ -1153,6 +1161,8 @@ function deleteWidgetAt(index) {
         widgetShownMap = sm
         saveWidgetShown()
     }
+    if (id)
+        _dropWidgetFromDocks(id)
 }
 
 function widgetInstance(id) {
@@ -1282,6 +1292,126 @@ function setWidgetPosition(id, x, y, popupWidth, popupHeight) {
     inst.x = clamp(x, b.minX, b.maxX)
     inst.y = clamp(y, b.minY, b.maxY)
     _writeWidgetInstance(id, inst)
+}
+
+// Widgets docked to the window's edges: the active layout's docks (each layout keeps its own, layouts[i].docks).
+// The layout math is DockLayout.js, the strips and their tabs WidgetDocks.qml (docs/widget-docking.ru.md).
+property var docks: DockLayout.emptyDocks()
+// A widget's size at scale 1, as it reports it: id -> { w, h, scalable }.
+property var widgetNaturalSizes: ({})
+// The line along a dock's inner edge, as the border between two panes, and the gap between two docked widgets.
+readonly property var dockLines: ({ edge: Math.max(1, Tokens.paneGapPx), gap: 1 })
+readonly property var dockLayout: DockLayout.compute(docks, widgetNaturalSizes, widgetShownMap, windowWidth, windowHeight,
+                                                     dockLines)
+readonly property real dockInsetLeft: dockLayout.insets.left
+readonly property real dockInsetRight: dockLayout.insets.right
+readonly property real dockInsetTop: dockLayout.insets.top
+readonly property real dockInsetBottom: dockLayout.insets.bottom
+
+function reportWidgetNaturalSize(id, w, h, scalable) {
+    if (!id || !(w > 0) || !(h > 0))
+        return
+    var rw = Math.round(w), rh = Math.round(h), sc = scalable !== false
+    var cur = widgetNaturalSizes[id]
+    if (cur && cur.w === rw && cur.h === rh && cur.scalable === sc)
+        return
+    var m = {}
+    for (var k in widgetNaturalSizes) m[k] = widgetNaturalSizes[k]
+    m[id] = { w: rw, h: rh, scalable: sc }
+    widgetNaturalSizes = m
+}
+
+function widgetDockSide(id) { return DockLayout.sideOf(docks, id) }
+
+// Where a docked widget is drawn, { side, x, y, w, h, scale, collapsed }; null for a floating one.
+function widgetDockSlot(id) { return (id && dockLayout.widgets[id]) || null }
+
+// The widget into the dock at a side, at index among the widgets there (-1 or past the end: last). False, and
+// nothing changed, when the workspace would keep less than its share of the window (DockLayout.MIN_WORKSPACE_SHARE).
+function dockWidget(id, side, index) {
+    if (widgetIndexById(id) < 0 || !DockLayout.isSide(side))
+        return false
+    var next = DockLayout.withWidget(docks, id, side, typeof index === "number" ? index : -1)
+    if (!DockLayout.fits(next, widgetNaturalSizes, widgetShownMap, windowWidth, windowHeight, dockLines))
+        return false
+    _setDocks(next)
+    return true
+}
+
+function undockWidget(id) {
+    if (widgetDockSide(id) === "")
+        return false
+    _setDocks(DockLayout.withoutWidget(docks, id))
+    return true
+}
+
+function setDockScale(side, scale) {
+    if (!DockLayout.isSide(side))
+        return false
+    var next = DockLayout.withScale(docks, side, scale)
+    if (next[side].scale === docks[side].scale)
+        return true
+    if (!DockLayout.fits(next, widgetNaturalSizes, widgetShownMap, windowWidth, windowHeight, dockLines))
+        return false
+    _setDocks(next)
+    return true
+}
+
+// The thicknesses the dock at a side can take, [{ scale, thickness }] (its thickness handle snaps to them).
+function dockScaleSteps(side) {
+    return DockLayout.scaleSteps(docks, widgetNaturalSizes, widgetShownMap, windowWidth, windowHeight, side, dockLines)
+}
+
+function setDockCollapsed(side, collapsed) {
+    if (!DockLayout.isSide(side) || docks[side].collapsed === (collapsed === true))
+        return
+    _setDocks(DockLayout.withCollapsed(docks, side, collapsed))
+}
+
+function toggleDockCollapsed(side) {
+    if (DockLayout.isSide(side))
+        setDockCollapsed(side, !docks[side].collapsed)
+}
+
+// A dock changes the workspace's size in one step: the panes take it in one frame, without PaneFrame's animation
+// (it would lay the 3D view and the echograms out anew every frame of it), as through a window resize, until
+// commitWorkspaceSize. See docs/widget-docking.ru.md.
+function _holdPaneTransitions() {
+    resizeActive = true
+    layoutTransitionSuspended = true
+    workspaceSizeCommitRequested()
+}
+
+function _setDocks(next) {
+    _holdPaneTransitions()
+    docks = next
+    syncActiveLayout()
+}
+
+// A deleted widget out of every layout's docks.
+function _dropWidgetFromDocks(id) {
+    var next = layouts.slice(0)
+    var changed = false
+    for (var i = 0; i < next.length; ++i) {
+        if (!next[i] || DockLayout.sideOf(next[i].docks, id) === "")
+            continue
+        var e = {}
+        for (var k in next[i]) e[k] = next[i][k]
+        e.docks = DockLayout.withoutWidget(next[i].docks, id)
+        next[i] = e
+        changed = true
+    }
+    if (changed) {
+        layouts = next
+        saveFavoriteLayoutsState()
+    }
+    if (widgetDockSide(id) !== "")
+        _setDocks(DockLayout.withoutWidget(docks, id))
+    if (widgetNaturalSizes[id] !== undefined) {
+        var m = {}
+        for (var n in widgetNaturalSizes) if (n !== id) m[n] = widgetNaturalSizes[n]
+        widgetNaturalSizes = m
+    }
 }
 
 function saveWidgetInstances() {
@@ -3519,7 +3649,8 @@ function normalizeFavoriteLayoutEntry(rawEntry) {
     return {
         layout: normalizedLayout,
         popupLinks: normalizedLinks,
-        echogramStates: normalizedStates
+        echogramStates: normalizedStates,
+        docks: DockLayout.normalize(rawEntry.docks)
     }
 }
 
@@ -3538,7 +3669,8 @@ function favoriteLayoutEntryFromCurrent() {
     return {
         layout: layoutSnapshot,
         popupLinks: favoritePopupLinksFromLeafMapping(snapshotState.leafIdToPaneId, fullscreenPopupSourceByHost),
-        echogramStates: echogramStatesForCurrentTree(snapshotState.leafIdToPaneId)
+        echogramStates: echogramStatesForCurrentTree(snapshotState.leafIdToPaneId),
+        docks: DockLayout.normalize(docks)
     }
 }
 
@@ -3578,7 +3710,10 @@ function writeActiveFavoriteEchogramState(paneId, s) {
     var states = (entry.echogramStates && typeof entry.echogramStates === "object")
         ? Object.assign({}, entry.echogramStates) : ({})
     states[String(paneId)] = s
-    next[idx] = { layout: entry.layout, popupLinks: entry.popupLinks, echogramStates: states }
+    var e = {}   // every field of the entry kept (its docks among them), the echogram states replaced
+    for (var k in entry) e[k] = entry[k]
+    e.echogramStates = states
+    next[idx] = e
     layouts = next
     favoriteStateSaveTimer.restart()
 }
@@ -4216,6 +4351,11 @@ function applyLayout(favoriteIndex) {
         return
 
     var normalizedTree = normalizeAndFixPaneModes(renumberPanes(tree), false)
+    var nextDocks = DockLayout.normalize(entry.docks, _widgetIds())
+    if (JSON.stringify(nextDocks) !== JSON.stringify(docks)) {
+        _holdPaneTransitions()
+        docks = nextDocks
+    }
     layoutTree = normalizedTree
     seedLiveEchogramStatesFromFavorite(entry, normalizedTree)
     fullscreenPopupSourceByHost = popupSourceMapFromFavoriteEntry(entry, normalizedTree)

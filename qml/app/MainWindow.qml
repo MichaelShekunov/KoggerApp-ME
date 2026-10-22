@@ -966,8 +966,8 @@ ApplicationWindow {
             anchors.top: parent.top
             anchors.leftMargin: ((hotkeysPreviewPinned || hotkeysPreviewSticky) && workspaceStore.settingsSide === "left")
                                 ? Math.round(workspaceStore.settingsPanelSizePx * settingsSidebar.progress) + root.hotkeysPreviewGap
-                                : 8
-            anchors.topMargin: 8
+                                : 8 + workspaceStore.dockInsetLeft
+            anchors.topMargin: 8 + workspaceStore.dockInsetTop
             z: workspaceStore.inputLocked
                ? ZOrder.inputLockPanel
                : hotkeysPreviewMode || hotkeysPreviewSticky || (workspaceStore.settingsPanelOpen && hotActions.expanded)
@@ -1282,6 +1282,8 @@ ApplicationWindow {
             z: ZOrder.bottomTrackEditPopup   // поверх глобал/фуллскрин попапов
             store: workspaceStore
             popupId: "btEdit"
+            areaLeft: workspaceStore.dockInsetLeft; areaRight: workspaceStore.dockInsetRight
+            areaTop: workspaceStore.dockInsetTop; areaBottom: workspaceStore.dockInsetBottom
             siblingBoundsList: [root.profilesPopupEffectiveBounds]
             siblingIdList: ["profiles"]
         }
@@ -1292,6 +1294,8 @@ ApplicationWindow {
             z: ZOrder.profilesPopup
             store: workspaceStore
             popupId: "profiles"
+            areaLeft: workspaceStore.dockInsetLeft; areaRight: workspaceStore.dockInsetRight
+            areaTop: workspaceStore.dockInsetTop; areaBottom: workspaceStore.dockInsetBottom
             siblingBoundsList: [root.btEditPopupEffectiveBounds]
             siblingIdList: ["btEdit"]
         }
@@ -1334,6 +1338,8 @@ ApplicationWindow {
                         def: _wdef
                         popupVisible: !!_wdef && !_beingEdited && workspaceStore.widgetShown(_wdef.id)
                         popupId: _wdef ? "widget:" + _wdef.id : ""
+                        areaLeft: workspaceStore.dockInsetLeft; areaRight: workspaceStore.dockInsetRight
+                        areaTop: workspaceStore.dockInsetTop; areaBottom: workspaceStore.dockInsetBottom
                         siblingBoundsList: [root.btEditPopupEffectiveBounds, root.profilesPopupEffectiveBounds]
                         siblingIdList: ["btEdit", "profiles"]
                     }
@@ -1348,12 +1354,21 @@ ApplicationWindow {
                         def: _wdef
                         popupVisible: !!_wdef && workspaceStore.widgetShown(_wdef.id)
                         popupId: _wdef ? "widget:" + _wdef.id : ""
+                        areaLeft: workspaceStore.dockInsetLeft; areaRight: workspaceStore.dockInsetRight
+                        areaTop: workspaceStore.dockInsetTop; areaBottom: workspaceStore.dockInsetBottom
                         siblingBoundsList: [root.btEditPopupEffectiveBounds, root.profilesPopupEffectiveBounds]
                         siblingIdList: ["btEdit", "profiles"]
                     }
                 }
 
             }
+        }
+
+        WidgetDocks {
+            id: widgetDocks
+            anchors.fill: parent
+            z: ZOrder.widgetDocks
+            store: workspaceStore
         }
 
         StandPanelPopup {
@@ -1365,6 +1380,8 @@ ApplicationWindow {
             dev: workspaceStore.standDevice
             popupVisible: workspaceStore.standPanelShown
             popupId: "widget:" + workspaceStore.standPanelId
+            areaLeft: workspaceStore.dockInsetLeft; areaRight: workspaceStore.dockInsetRight
+            areaTop: workspaceStore.dockInsetTop; areaBottom: workspaceStore.dockInsetBottom
             siblingBoundsList: [root.btEditPopupEffectiveBounds, root.profilesPopupEffectiveBounds]
             siblingIdList: ["btEdit", "profiles"]
         }
@@ -1378,6 +1395,8 @@ ApplicationWindow {
             def: workspaceStore.usblPanelDef
             popupVisible: workspaceStore.usblPanelShown
             popupId: "widget:" + workspaceStore.usblPanelId
+            areaLeft: workspaceStore.dockInsetLeft; areaRight: workspaceStore.dockInsetRight
+            areaTop: workspaceStore.dockInsetTop; areaBottom: workspaceStore.dockInsetBottom
             siblingBoundsList: [root.btEditPopupEffectiveBounds, root.profilesPopupEffectiveBounds]
             siblingIdList: ["btEdit", "profiles"]
         }
@@ -1390,6 +1409,8 @@ ApplicationWindow {
             def: workspaceStore.servoPanelDef
             popupVisible: workspaceStore.servoPanelShown
             popupId: "widget:" + workspaceStore.servoPanelId
+            areaLeft: workspaceStore.dockInsetLeft; areaRight: workspaceStore.dockInsetRight
+            areaTop: workspaceStore.dockInsetTop; areaBottom: workspaceStore.dockInsetBottom
             siblingBoundsList: [root.btEditPopupEffectiveBounds, root.profilesPopupEffectiveBounds]
             siblingIdList: ["btEdit", "profiles"]
         }
@@ -1657,9 +1678,12 @@ ApplicationWindow {
             anchors.right: parent.right
             anchors.top: parent.top
             anchors.bottom: parent.bottom
-            anchors.leftMargin: root.settingsInsetLeft
-            anchors.rightMargin: root.settingsInsetRight
-            anchors.bottomMargin: consoleDrawer.height
+            // The docks take the window's edges (WidgetDocks), the settings panel when it pushes takes one too: the
+            // workspace gets what both leave.
+            anchors.leftMargin: Math.max(root.settingsInsetLeft, workspaceStore.dockInsetLeft)
+            anchors.rightMargin: Math.max(root.settingsInsetRight, workspaceStore.dockInsetRight)
+            anchors.topMargin: workspaceStore.dockInsetTop
+            anchors.bottomMargin: consoleDrawer.height + workspaceStore.dockInsetBottom
             store: workspaceStore
             usblPlan: appUsblPlan
             secondaryPlotItem: secondaryContent ? secondaryContent.plot2DInstance : null
@@ -1671,8 +1695,9 @@ ApplicationWindow {
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.bottom: parent.bottom
-            anchors.leftMargin: root.settingsInsetLeft
-            anchors.rightMargin: root.settingsInsetRight
+            anchors.leftMargin: Math.max(root.settingsInsetLeft, workspaceStore.dockInsetLeft)
+            anchors.rightMargin: Math.max(root.settingsInsetRight, workspaceStore.dockInsetRight)
+            anchors.bottomMargin: workspaceStore.dockInsetBottom
             z: ZOrder.consolePanel
             consoleOpen: theme ? theme.consoleVisible : false
             onConsoleOpenChanged: if (consoleOpen) root._lastScrollSurface = "console"

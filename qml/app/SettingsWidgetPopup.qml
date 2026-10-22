@@ -30,9 +30,25 @@ BasePanePopup {
     readonly property var _items: (def && Array.isArray(def.items)) ? def.items : []
 
     // As wide as the widest row wants, within bounds: a row that does not fit puts its label above its controls.
+    // Docked to a window edge, as wide as the slot the dock gives it (WorkspaceStore.dockLayout); it does not scale.
     property real _naturalMax: 0
-    readonly property real _contentW: Math.round(Math.max(220 * _s, Math.min(460 * _s, _naturalMax)))
+    readonly property real _naturalW: Math.round(Math.max(220 * _s, Math.min(460 * _s, _naturalMax)))
+    readonly property var _slot: (store && def && def.id) ? store.widgetDockSlot(def.id) : null
+    readonly property real _contentW: _slot ? Math.max(0, _slot.w - _pad * 2 - contentPadding * 2) : _naturalW
     readonly property real _contentH: _barH + _pad + rowsCol.implicitHeight
+
+    edgeDocked: !!_slot
+    edgeCollapsed: !!_slot && _slot.collapsed === true
+    edgeX: _slot ? _slot.x : 0
+    edgeY: _slot ? _slot.y : 0
+    edgeW: _slot ? _slot.w : 0
+    edgeH: _slot ? _slot.h : 0
+
+    function _reportNaturalSize() {
+        if (store && def && def.id)
+            store.reportWidgetNaturalSize(def.id, Math.round(_naturalW + _pad * 2 + contentPadding * 2),
+                                          Math.round(_contentH + _pad + _contentTopMargin + contentPadding), false)
+    }
 
     function _remeasure() {
         var m = 0
@@ -45,7 +61,7 @@ BasePanePopup {
     }
 
     popupVisible: true
-    dragEnabled: true
+    dragEnabled: !edgeDocked
     dragAnywhere: false
     // The title row is part of the content: BasePanePopup masks its content to rounded corners, which cuts a
     // title bar placed above the content, in the header strip.
@@ -64,7 +80,7 @@ BasePanePopup {
     // Imperative, as in the other panel kinds: BasePanePopup writes into expandedWidth/Height itself, so a
     // binding here is broken the first time it does.
     function _applyScale() {
-        expandedWidth  = Math.round(_contentW + _pad * 2 + contentPadding * 2)
+        expandedWidth  = Math.round(_naturalW + _pad * 2 + contentPadding * 2)
         expandedHeight = Math.round(_contentH + _pad + _contentTopMargin + contentPadding)
     }
 
@@ -85,11 +101,12 @@ BasePanePopup {
         _synced = true
     }
 
-    on_ContentHChanged: _applyScale()
-    on_ContentWChanged: _applyScale()
+    on_ContentHChanged: { _applyScale(); _reportNaturalSize() }
+    on_NaturalWChanged: { _applyScale(); _reportNaturalSize() }
     onDefChanged: { Qt.callLater(_remeasure); _applyScale(); Qt.callLater(syncFromStore) }
 
     Component.onCompleted: {
+        _reportNaturalSize()
         syncFromStore()
         Qt.callLater(syncFromStore)
         Qt.callLater(resolveOverlapWithSibling)

@@ -98,6 +98,7 @@ qt_add_qml_module(kogger_app
         WidgetCard.qml
         WidgetCellContent.qml
         SystemOverview.qml
+        WidgetDocks.qml
         WidgetDragHandle.qml
         WidgetEditOverlay.qml
         WidgetEditPage.qml
@@ -106,6 +107,7 @@ qt_add_qml_module(kogger_app
         WidgetSizeStep.qml
         WorkspaceStore.qml
         WorkspaceView.qml
+        DockLayout.js
         LayoutResize.js
         LayoutRules.js
         LayoutTree.js

@@ -2769,13 +2769,45 @@ load is no more than 20 %.
 - **Not done**: the map tiles still upload all at once in a frame (16 in 9.4 ms on the head unit: not a jerk now);
   the bottom track's O(N) work a ping (a copy of the vertices and updateBounds over all of them) stays, small next to
   these.
-## Widgets docked to a screen edge: a proposal (2026-10-22)
+## Widgets docked to a screen edge (2026-10-22)
 
 The owner: widgets attached and stretched along a screen edge, the rest of the picture moving aside rather than covered.
-Not built; the proposal, in Russian for the owner, is docs/widget-docking.ru.md (docks on the four edges as the
-console drawer's and the settings panel's push already do it, one relayout per action, ghosts while dragging,
-questions for the owner at its end). Measured for it **[verified, this PC, the kiosk's settings]**: the edit script's
-new elayout step (the workspace's margin set and put back as a dock would) - a change 1.1 ms in the GUI thread, the
+The proposal, in Russian for the owner, is docs/widget-docking.ru.md (docks on the four edges as the console drawer's
+and the settings panel's push already do it, one relayout per action, ghosts while dragging). The owner's answers: all
+four edges, each layout its own docks, the collapse tab wanted. Measured for it **[verified, this PC, the kiosk's settings]**: the edit script's
+new `relayout` step (the workspace's margin set and put back as a dock would) - a change 1.1 ms in the GUI thread, the
 sync of the frame that takes it 11 ms median (30-50 max: mostly the echograms painted anew), on screen after 21-25 ms
 median (92-128 max); on the head unit 5-7 times that is expected (inference). So no live resize and no animated
 workspace size: the settings panel's 166 ms push animation relays the workspace out every frame.
+
+**Stage 1 built: the model, the layout, each layout's docks, the drawing; no gestures yet** **[verified: dock_check,
+dock_e2e]**:
+- `qml/app/DockLayout.js`, the math without QML types: a dock a strip along an edge (the side ones the window's height,
+  top and bottom between them), its widgets along it sharing its length in proportion to theirs, as thick as its
+  thickest widget at the dock's scale (a settings widget does not scale) plus a 2 px edge line, 1 px between widgets;
+  a collapsed dock takes no room; `fits` keeps the workspace half the window each way, `scaleSteps` the thicknesses
+  the thickness handle will offer; a window too small for its docks squeezes them.
+- `WorkspaceStore`: `docks` is the active layout's (`layouts[i].docks` keeps each layout's: written by
+  syncActiveLayout, read by applyLayout, a deleted widget taken out of all), `widgetNaturalSizes` (each widget popup
+  reports its size at scale 1), `dockLayout`, `dockInset*`, `dockWidget` / `undockWidget` / `setDockScale` /
+  `setDockCollapsed` / `toggleDockCollapsed` / `dockScaleSteps`. A change holds PaneFrame's 140 ms animation off
+  (`_holdPaneTransitions`, as a window resize does), so the panes take the new size in one frame.
+- `WidgetDocks.qml`: the strips, the edge line, the lines between widgets, the tab in the middle of the inner edge (a
+  tap collapses the dock and brings it back). `BasePanePopup`: `area*` (a floating panel keeps out of the docks and
+  keeps its place between their edges when they change) and `edge*` (docked: the panel in its slot, square; hidden in
+  a collapsed dock). The workspace, the console drawer and the quick-actions panel move with the docks.
+- Found on the way: `writeActiveFavoriteEchogramState` rebuilt a layout entry from three fields and dropped any other
+  (so a layout's docks went with the first echogram state captured after a restart); it copies the entry now.
+- The edit script's dock steps: `dock`, `undock`, `dockScale`, `dockCollapse`, `layout`, `docks` (a JSON snapshot: the
+  docks, insets, slots, steps, natural sizes, the workspace and every widget panel on screen).
+- Checks: `tools/qml_check/dock_check.ps1 [-Mutants]` (8 tests; 13 of 13 mutants caught),
+  `tools/qml_check/dock_e2e.ps1 -Exe <build>` (three runs on the test desktop in a profile of its own; the outcomes
+  worked out from the window's and the widgets' sizes; PASS); pin_live_check and echostate_persist_check PASS on the
+  build.
+- **A correction to the measurement above**: `relayout` timed only the first frame after a change. A change of the
+  workspace's size starts PaneFrame's 140 ms animation (Behaviors on x/y/width/height), that is a relayout every frame
+  of it; the console drawer does that now **[inference from the code, not measured]**. Docks hold it off; stage 3
+  counts the frames.
+- Next: stage 2, the gestures (a widget dragged to an edge with a ghost; a docked one dragged out in the layout edit
+  mode or after a long press; the tab dragged for the thickness), then stage 3, the head unit's measurement (stopping
+  the kiosk needs the owner's word).

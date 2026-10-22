@@ -48,6 +48,14 @@
 //                                    handlers (a finger on the head unit) call them: the pointer circles about the
 //                                    view's middle. Logged: the moves, the frames and the longest gap between them,
 //                                    the time a move took on the GUI thread, how late the moves' timer fired
+//   {"op": "dock", "widget": i | id, "side": s, "at": k}   a widget into the dock at a window edge
+//                                    (WorkspaceStore.dockWidget); i: its place in the list of widgets, k: in the dock
+//   {"op": "undock", "widget": i | id}   {"op": "dockScale", "side": s, "scale": k}
+//   {"op": "dockCollapse", "side": s, "collapsed": true | false}   as the dock's tab does; without "collapsed": toggled
+//   {"op": "layout", "index": i}     the layout applied, as its button does
+//   {"op": "docks"}                  one line of JSON: the docks, their insets and slots, the scale steps, the widgets'
+//                                    sizes at scale 1, the window and the workspace on screen, each widget's panel
+//                                    (docked, visible, where)
 //   {"op": "grab", "path": file.png}                         the window, through the UI probe
 //   {"op": "quit"}
 // An epoch can be given as a share of the recording instead: "fromFrac", "toFrac", "epochFrac".
@@ -89,6 +97,7 @@ private:
     void stroke(const QString& op, int from, int to, float depth);
     void probe(const QString& name, int from, int to, float offset, float radius);
     void dump(const QString& path);
+    bool dockStep(const QString& op, const QJsonObject& s);   // the docks' steps; false: not one of them
     bool startDrag3d(const QJsonObject& s);
     void dragMove();
     void finishDrag3d();
