@@ -469,6 +469,7 @@ Column {
                 width: parent.width
                 fontPixelSize: Tokens.fontLg
                 options: [
+                    { label: "50%",  value: 0.50 },
                     { label: "75%",  value: 0.75 },
                     { label: "100%", value: 1.00 },
                     { label: "125%", value: 1.25 },
