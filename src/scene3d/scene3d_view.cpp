@@ -3704,7 +3704,29 @@ GraphicsScene3dView::InFboRenderer::~InFboRenderer()
 
 void GraphicsScene3dView::InFboRenderer::render()
 {
+    QElapsedTimer took;
+    took.start();
     m_renderer->render();
+    const qint64 renderNs = took.nsecsElapsed();
+
+    int mapTiles = 0;
+    qint64 mapNs = 0;
+    m_renderer->mapViewRenderImpl_.takeUploadStats(mapTiles, mapNs);
+    constexpr qint64 slowNs = 15 * 1000000;
+    if (syncNs_ < slowNs && renderNs < slowNs) {
+        return;
+    }
+    // At most five lines a second; the frames left out are counted into the next.
+    if (slowLogClock_.isValid() && slowLogClock_.elapsed() < 200) {
+        ++slowUnlogged_;
+        return;
+    }
+    slowLogClock_.start();
+    const auto ms = [](qint64 ns) { return QString::number(double(ns) / 1e6, 'f', 1); };
+    qInfo().noquote() << QStringLiteral("scene3d: slow frame: sync %1 ms (mosaic tiles %2 in %3 ms), render %4 ms (map tiles %5 in %6 ms)%7")
+                         .arg(ms(syncNs_)).arg(syncMosaicTiles_).arg(ms(syncMosaicNs_)).arg(ms(renderNs)).arg(mapTiles).arg(ms(mapNs))
+                         .arg(slowUnlogged_ ? QStringLiteral("; %1 more slow frames since the last line").arg(slowUnlogged_) : QString());
+    slowUnlogged_ = 0;
 }
 
 void GraphicsScene3dView::InFboRenderer::synchronize(QQuickFramebufferObject * fbo)
@@ -3724,10 +3746,18 @@ void GraphicsScene3dView::InFboRenderer::synchronize(QQuickFramebufferObject * f
         return;
     }
 
+    QElapsedTimer syncTook;
+    syncTook.start();
+
     // process textures
     processMapTextures(view);
     processMosaicColorTableTexture(glFuncs, view);
-    processMosaicTileTexture      (glFuncs, view);
+    {
+        QElapsedTimer mosaicTook;
+        mosaicTook.start();
+        syncMosaicTiles_ = processMosaicTileTexture(glFuncs, view);
+        syncMosaicNs_ = mosaicTook.nsecsElapsed();
+    }
     processImageTexture(view);
     processSurfaceTexture(view);
 
@@ -3801,6 +3831,8 @@ void GraphicsScene3dView::InFboRenderer::synchronize(QQuickFramebufferObject * f
     m_renderer->compassRenderImpl_.setShadowSettings(view->shadowsEnabled_, view->shadowVector_, view->shadowAmbient_, view->shadowIntensity_, view->shadowHighlight_);
     m_renderer->surfaceViewRenderImpl_.setShadowSettings(view->shadowsEnabled_, view->shadowVector_, view->shadowAmbient_, view->shadowIntensity_, view->shadowHighlight_);
     m_renderer->navigationArrowRenderImpl_.setShadowSettings(view->shadowsEnabled_, view->shadowVector_, view->shadowAmbient_, view->shadowIntensity_, view->shadowHighlight_);
+
+    syncNs_ = syncTook.nsecsElapsed();
 }
 
 QOpenGLFramebufferObject *GraphicsScene3dView::InFboRenderer::createFramebufferObject(const QSize &size)
@@ -3888,7 +3920,7 @@ void GraphicsScene3dView::InFboRenderer::processMosaicColorTableTexture(QOpenGLF
     glFuncs->glPixelStorei(GL_UNPACK_ALIGNMENT, prevUnpack);
 }
 
-void GraphicsScene3dView::InFboRenderer::processMosaicTileTexture(QOpenGLFunctions* glFuncs, GraphicsScene3dView* viewPtr) const // TODO CHECK
+int GraphicsScene3dView::InFboRenderer::processMosaicTileTexture(QOpenGLFunctions* glFuncs, GraphicsScene3dView* viewPtr) const // TODO CHECK
 {
     auto surfacePtr = viewPtr->getSurfaceViewPtr();
 
@@ -3907,7 +3939,7 @@ void GraphicsScene3dView::InFboRenderer::processMosaicTileTexture(QOpenGLFunctio
     {
         auto tasks = surfacePtr->takeMosaicTileTextureToAppend();
         if (tasks.isEmpty()) {
-            return;
+            return 0;
         }
 
         GLint prevUnpack = 4;
@@ -3958,6 +3990,7 @@ void GraphicsScene3dView::InFboRenderer::processMosaicTileTexture(QOpenGLFunctio
 
         glFuncs->glBindTexture(GL_TEXTURE_2D, 0);
         glFuncs->glPixelStorei(GL_UNPACK_ALIGNMENT, prevUnpack);
+        return int(tasks.size());
     }
 }
 

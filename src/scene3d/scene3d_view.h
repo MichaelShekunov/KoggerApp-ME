@@ -187,7 +187,7 @@ public:
         void processMapTextures(GraphicsScene3dView* viewPtr) const;
         // mosaic on surface
         void processMosaicColorTableTexture(QOpenGLFunctions* glFuncs, GraphicsScene3dView* viewPtr) const;
-        void processMosaicTileTexture      (QOpenGLFunctions* glFuncs, GraphicsScene3dView* viewPtr) const;
+        int  processMosaicTileTexture      (QOpenGLFunctions* glFuncs, GraphicsScene3dView* viewPtr) const;   // the tiles uploaded
         // image
         void processImageTexture(GraphicsScene3dView* viewPtr) const;
         // surface
@@ -196,6 +196,13 @@ public:
         QString checkOpenGLError() const;
 
         std::unique_ptr <GraphicsScene3dRenderer> m_renderer;
+
+        // A frame over 15 ms in the sync or the render is logged ("scene3d: slow frame"), with its texture uploads.
+        qint64 syncNs_ = 0;
+        qint64 syncMosaicNs_ = 0;
+        int    syncMosaicTiles_ = 0;
+        int    slowUnlogged_ = 0;
+        QElapsedTimer slowLogClock_;
     };
 
     enum ActiveMode : uint8_t {

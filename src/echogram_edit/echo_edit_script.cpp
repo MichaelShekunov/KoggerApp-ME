@@ -141,6 +141,7 @@ struct EchoEditScript::DragFrames
     std::atomic<int> frames{ 0 };
     std::atomic<qint64> lastNs{ 0 };
     std::atomic<qint64> maxGapNs{ 0 };
+    std::atomic<int> over50ms{ 0 };   // gaps a hand sees as a jerk
 };
 
 EchoEditScript::EchoEditScript(Core* core, QObject* parent) :
@@ -964,6 +965,9 @@ bool EchoEditScript::startDrag3d(const QJsonObject& s)
     dragFrameConn_ = connect(view->window(), &QQuickWindow::frameSwapped, this, [frames]() {
         const qint64 now = frames->clock.nsecsElapsed();
         const qint64 gap = now - frames->lastNs.exchange(now);
+        if (gap > 50 * 1000000LL) {
+            ++frames->over50ms;
+        }
         qint64 worst = frames->maxGapNs.load();
         while (gap > worst && !frames->maxGapNs.compare_exchange_weak(worst, gap)) {
         }
@@ -1015,11 +1019,14 @@ void EchoEditScript::finishDrag3d()
     const qint64 all = std::accumulate(v.begin(), v.end(), qint64(0));
     const int frames = dragFrames_ ? dragFrames_->frames.load() : 0;
     const qint64 gap = dragFrames_ ? dragFrames_->maxGapNs.load() : 0;
-    qInfo().noquote() << QStringLiteral("echoedit script: drag3d %1 s: %2 moves (%3/s), %4 frames (%5/s), longest gap between frames %6 ms; "
-                                        "a move on the GUI thread %7 ms median, %8 ms p95, %9 ms max, %10 ms in all; the moves' timer late by %11 ms at most")
+    const int jerks = dragFrames_ ? dragFrames_->over50ms.load() : 0;
+    qInfo().noquote() << QStringLiteral("echoedit script: drag3d %1 s: %2 moves (%3/s), %4 frames (%5/s), longest gap between frames %6 ms, "
+                                        "%12 gaps over 50 ms; a move on the GUI thread %7 ms median, %8 ms p95, %9 ms max, %10 ms in all; "
+                                        "the moves' timer late by %11 ms at most")
                          .arg(seconds, 0, 'f', 1).arg(v.size()).arg(double(v.size()) / seconds, 0, 'f', 1)
                          .arg(frames).arg(double(frames) / seconds, 0, 'f', 1).arg(ms(gap))
-                         .arg(ms(at(0.5))).arg(ms(at(0.95))).arg(ms(v.empty() ? 0 : v.back())).arg(ms(all)).arg(ms(dragLateMaxNs_));
+                         .arg(ms(at(0.5))).arg(ms(at(0.95))).arg(ms(v.empty() ? 0 : v.back())).arg(ms(all)).arg(ms(dragLateMaxNs_))
+                         .arg(jerks);
     dragView_.clear();
     dragFrames_.reset();
 }

@@ -1,5 +1,7 @@
 #include "map_view.h"
 
+#include <QElapsedTimer>
+
 
 static inline bool toTightRGBA8888(const QImage& in, QByteArray& out, int& w, int& h)
 {
@@ -169,6 +171,10 @@ void MapView::MapViewRenderImplementation::processPendingTextureTasks(QOpenGLFun
     if (!gl)
         return;
 
+    QElapsedTimer took;
+    took.start();
+    lastUploaded_ += pendingInit_.size() + pendingUpdate_.size();
+
     gl->glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
     // del
@@ -272,6 +278,7 @@ void MapView::MapViewRenderImplementation::processPendingTextureTasks(QOpenGLFun
         }
         pendingUpdate_.clear();
     }
+    lastUploadNs_ += took.nsecsElapsed();
 }
 
 void MapView::MapViewRenderImplementation::ensureQuadBuffers(QOpenGLFunctions *gl) const

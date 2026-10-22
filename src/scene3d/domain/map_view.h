@@ -40,7 +40,13 @@ public:
 
         void copyCpuSideFrom(const MapViewRenderImplementation& s); // copy cpu data
 
+        // The texture uploads since the last call: tiles and the time they took (the 3D view's "slow frame" line).
+        void takeUploadStats(int& tiles, qint64& ns) const { tiles = lastUploaded_; ns = lastUploadNs_; lastUploaded_ = 0; lastUploadNs_ = 0; }
+
     private:
+        mutable int    lastUploaded_ = 0;
+        mutable qint64 lastUploadNs_ = 0;
+
         friend class GraphicsScene3dView;
         friend class MapView;
 
