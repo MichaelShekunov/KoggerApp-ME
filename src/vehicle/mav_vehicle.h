@@ -49,6 +49,7 @@ class MavVehicle : public QObject
     Q_PROPERTY(bool connected READ connected NOTIFY linkChanged)
     Q_PROPERTY(int heartbeatAgeS READ heartbeatAgeS NOTIFY linkChanged)
     Q_PROPERTY(bool controlEnabled READ controlEnabled WRITE setControlEnabled NOTIFY controlEnabledChanged)
+    Q_PROPERTY(bool missionsByPlanner READ missionsByPlanner NOTIFY planChanged)
     Q_PROPERTY(QString autopilotText READ autopilotText NOTIFY identityChanged)
     Q_PROPERTY(QString firmwareText READ firmwareText NOTIFY identityChanged)
 
@@ -166,6 +167,13 @@ public:
     int heartbeatAgeS() const;
     bool controlEnabled() const { return controlEnabled_; }
     void setControlEnabled(bool on);
+    /// The missions go through the app's planner (src/mission, src/autopilot: upstream's planner, transfer, run
+    /// tracker and its commands): this vehicle then listens only - telemetry, readiness, heading, health, the link
+    /// track, the ghost, the progress of an RTL - and keeps the heartbeat and the heading source. Its own plan,
+    /// transfers and commands (points, upload, read-back, start, HOLD, RTL, arm, disarm) are refused, it does not
+    /// read the mission when the autopilot appears, and the plan kept in its settings is not shown (it stays there).
+    bool missionsByPlanner() const { return missionsByPlanner_; }
+    void setMissionsByPlanner(bool on);
     QString autopilotText() const { return autopilotText_; }
     QString firmwareText() const { return firmwareText_; }
 
@@ -390,6 +398,7 @@ private:
     void loadSettings();
     void savePlan();
 
+    bool refusedForPlanner(const char* what);   // true (and a log line) when missionsByPlanner
     bool persist_;
     int vehicleSysId_ = -1;
     int vehicleCompId_ = -1;
@@ -397,6 +406,7 @@ private:
     bool wasConnected_ = false;
     QElapsedTimer linkLostAt_;           // running while a logged loss has not been followed by a heartbeat
     bool controlEnabled_ = true;
+    bool missionsByPlanner_ = false;
     QString autopilotText_;
     QString firmwareText_;
     QTimer secondTimer_;

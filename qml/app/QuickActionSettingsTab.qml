@@ -19,6 +19,8 @@ Column {
              : key === "logging"     ? qsTr("Logging")
              : key === "layouts"   ? qsTr("Layouts")
              : key === "bottomTrack" ? qsTr("Bottom track editing")
+             : key === "mission"     ? qsTr("Mission planner")
+             : key === "autopilot"   ? qsTr("Autopilot")
              : key === "widgets"     ? qsTr("Widget panels")
              : key === "console"     ? qsTr("Console")
              : key === "profiles"    ? qsTr("Profiles")
@@ -33,6 +35,8 @@ Column {
              : key === "logging"     ? store.quickActionLoggingEnabled
              : key === "layouts"   ? store.quickActionLayoutsEnabled
              : key === "bottomTrack" ? store.quickActionBottomTrackEnabled
+             : key === "mission"     ? store.quickActionMissionEnabled
+             : key === "autopilot"   ? store.quickActionAutopilotEnabled
              : key === "widgets"     ? store.quickActionWidgetsEnabled
              : key === "console"     ? store.quickActionConsoleEnabled
              : key === "profiles"    ? store.quickActionProfilesEnabled
@@ -56,6 +60,12 @@ Column {
         } else if (key === "bottomTrack") {
             store.quickActionBottomTrackEnabled = v
             store.requestHotkeysReveal("bottomTrack")
+        } else if (key === "mission") {
+            store.quickActionMissionEnabled = v
+            store.requestHotkeysReveal("mission")
+        } else if (key === "autopilot") {
+            store.quickActionAutopilotEnabled = v
+            store.requestHotkeysReveal("autopilot")
         } else if (key === "widgets") {
             store.quickActionWidgetsEnabled = v
             store.requestHotkeysReveal("widgets")

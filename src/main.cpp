@@ -385,6 +385,7 @@ int main(int argc, char *argv[])
     // The boat's autopilot over MAVLink (HeadUnit docs/BOAT_MISSION.md). DeviceManager lives on this
     // thread in the default build; the connections queue by themselves if it ever moves.
     MavVehicle boat;
+    boat.setMissionsByPlanner(true);   // missions and commands: src/mission + src/autopilot (MavVehicle listens)
     SystemBattery systemBattery;
     SystemMonitor systemMonitor;   // the "System" widget: CPU, temperatures, memory, volumes
     core.initAfterApp();
@@ -434,6 +435,8 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("linkManagerWrapper", core.getLinkManagerWrapperPtr());
     engine.rootContext()->setContextProperty("deviceManagerWrapper", core.getDeviceManagerWrapperPtr());
     engine.rootContext()->setContextProperty("deviceTopology", core.getDeviceTopologyModelPtr());
+    engine.rootContext()->setContextProperty("missionPlan", core.getMissionPlanControllerPtr());
+    engine.rootContext()->setContextProperty("missionRun", core.getMissionRunTrackerPtr());
     videoStreams.setSourceModel(core.getLinkManagerWrapperPtr()->getModelPtr());
     engine.rootContext()->setContextProperty("videoStreams", &videoStreams);
     engine.rootContext()->setContextProperty("logViewer", core.getConsolePtr());

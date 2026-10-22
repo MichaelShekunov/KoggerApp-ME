@@ -31,8 +31,8 @@ QtObject {
         // The autopilot's home to the boat now (MavVehicle, over MAVLink): home is where the boat was armed, the
         // launch point RTL returns to.
         { key: "apHomeDist", label: qsTr("From launch point"), unit: qsTr("m"),   group: "autopilot" },
-        // A running mission (MavVehicle, mission_progress.h): the way left, its time at the boat's speed, the battery at
-        // its end once its trend is known.
+        // A running mission: the way left and its time (missionRun in AUTO; MavVehicle, mission_progress.h, on the way
+        // home in RTL), the battery at its end once its trend is known (MavVehicle).
         { key: "apMissionLeft",  label: qsTr("Mission left"),      unit: qsTr("m"),   group: "autopilot" },
         { key: "apMissionEta",   label: qsTr("Mission time left"), unit: qsTr("min"), group: "autopilot" },
         { key: "apBatteryAtEnd", label: qsTr("Battery at finish"), unit: "%",         group: "autopilot" },
@@ -48,7 +48,11 @@ QtObject {
         { key: "sysGpu",      label: qsTr("GPU"),             unit: "%",          group: "system" },
         { key: "sysRam",      label: qsTr("Memory"),          unit: qsTr("GB"),   group: "system" },
         { key: "sysStorage",  label: qsTr("Storage"),         unit: qsTr("GB"),   group: "system" },
-        { key: "sysUptime",   label: qsTr("Uptime"),          unit: "",           group: "system" }
+        { key: "sysUptime",   label: qsTr("Uptime"),          unit: "",           group: "system" },
+        // The autopilot link as the MAVLink stream counts it (DeviceManager, seq gaps over 5 s), and how many echogram
+        // lines arrive (upstream develop, with the missions).
+        { key: "apLink",    label: qsTr("Autopilot link"), unit: "%",            group: "autopilot" },
+        { key: "echoDelivery", label: qsTr("Echogram delivery"), unit: "%",      group: "general" }
     ]
 
     // The palette's stand-in for SystemMonitor: the head unit (RK3588: 4 cores to 1.8 GHz, 4 to 2.4 GHz; one eMMC with
@@ -204,6 +208,17 @@ QtObject {
     function _missionValid(veh) {
         return !!(veh && veh.missionProgressValid)
     }
+    // The mission planner's run (missionRun, src/mission): what a running AUTO mission has left. MavVehicle's own
+    // progress (above) covers an RTL home and its battery trend.
+    function _run() {
+        return (typeof missionRun !== "undefined" && missionRun && missionRun.running) ? missionRun : null
+    }
+    function _leftM(veh) {
+        return _missionValid(veh) ? veh.missionRemainingM : (_run() ? _run().remainingDistance : NaN)
+    }
+    function _leftS(veh) {
+        return _missionValid(veh) ? veh.missionEtaS : (_run() ? _run().remainingSeconds : NaN)
+    }
     function _airTotal(dmw) {
         return dmw.airEchogramKBs + dmw.airTelemetryKBs + dmw.airServiceKBs
     }
@@ -267,8 +282,8 @@ QtObject {
         case "apMode":    return _autopilotValid(dmw) && dmw.pilotModeState >= 0
         case "apArm":     return _autopilotValid(dmw) && dmw.pilotArmState >= 0
         case "apHomeDist": return _homeDistValid(veh)
-        case "apMissionLeft":  return _missionValid(veh)
-        case "apMissionEta":   return _missionValid(veh) && isFinite(veh.missionEtaS)
+        case "apMissionLeft":  return isFinite(_leftM(veh))
+        case "apMissionEta":   return isFinite(_leftS(veh))
         case "apBatteryAtEnd": return _missionValid(veh) && veh.missionBatteryAtEnd >= 0
         case "linkAir":        return !!(dmw && dmw.airValid)
         case "linkRssi":       return !!(dmw && dmw.airValid && dmw.airRssi < 0)
@@ -279,6 +294,8 @@ QtObject {
         case "sysRam":         return _sysOk(sys) && sys.memTotalGB > 0
         case "sysStorage":     return _sysOk(sys) && !!sys.volumes && sys.volumes.length > 0
         case "sysUptime":      return _sysOk(sys) && sys.uptimeS >= 0
+        case "apLink":    return !!(dmw && dmw.autopilotOnline && dmw.autopilotLinkQuality >= 0)
+        case "echoDelivery": return !!(dmw && dmw.echogramDeliveryKnown)
         }
         return false
     }
@@ -316,16 +333,16 @@ QtObject {
         case "apCurrent":
             return (dmw && !isNaN(dmw.vruCurrent)) ? (dmw.vruCurrent.toFixed(1) + " A") : "—"
         case "apMode":
-            return (dmw && dmw.pilotModeState >= 0) ? String(dmw.pilotModeState) : "—"
+            return (dmw && dmw.pilotModeState >= 0) ? dmw.autopilotModeName : "—"
         case "apArm":
             return (dmw && dmw.pilotArmState >= 0) ? (dmw.pilotArmState > 0 ? "ARMED" : "DISARMED") : "—"
         case "apHomeDist":
             return _homeDistValid(veh)
                    ? _distanceText(veh.distanceM(veh.homeLatitude, veh.homeLongitude, veh.latitude, veh.longitude)) : "—"
         case "apMissionLeft":
-            return _missionValid(veh) ? _distanceText(veh.missionRemainingM) : "—"
+            return isFinite(_leftM(veh)) ? _distanceText(_leftM(veh)) : "—"
         case "apMissionEta":
-            return (_missionValid(veh) && isFinite(veh.missionEtaS)) ? _durationText(veh.missionEtaS) : "—"
+            return isFinite(_leftS(veh)) ? _durationText(_leftS(veh)) : "—"
         case "apBatteryAtEnd":
             return (_missionValid(veh) && veh.missionBatteryAtEnd >= 0) ? (veh.missionBatteryAtEnd + " %") : "—"
         case "linkAir":
@@ -354,6 +371,10 @@ QtObject {
             return (_sysOk(sys) && _dataVolume(sys)) ? gbPair(_dataVolume(sys).usedGB, _dataVolume(sys).totalGB) : "—"
         case "sysUptime":
             return (_sysOk(sys) && sys.uptimeS >= 0) ? uptimeText(sys.uptimeS) : "—"
+        case "apLink":
+            return (dmw && dmw.autopilotOnline && dmw.autopilotLinkQuality >= 0) ? (dmw.autopilotLinkQuality + " %") : "—"
+        case "echoDelivery":
+            return (dmw && dmw.echogramDeliveryKnown) ? (dmw.averageChartLosses + " %") : "—"
         }
         return "—"
     }
@@ -409,7 +430,7 @@ QtObject {
         case "sysBattery": return "87 %"
         case "apVoltage": return "12.4 V"
         case "apCurrent": return "3.2 A"
-        case "apMode":    return "3"
+        case "apMode":    return "Auto"
         case "apArm":     return "ARMED"
         case "apMissionLeft":  return "1.24 " + qsTr("km")
         case "apMissionEta":   return "14 " + qsTr("min")
@@ -423,6 +444,8 @@ QtObject {
         case "sysRam":         return gbPair(3.1, 15.6)
         case "sysStorage":     return gbPair(0.1, 16.5)
         case "sysUptime":      return uptimeText(11520)
+        case "apLink":    return "98 %"
+        case "echoDelivery": return "96 %"
         case "usblRange":       return "18.3 " + qsTr("m")
         case "usblAzimuth":     return "127.4°"
         case "usblElevation":   return "-22.8°"

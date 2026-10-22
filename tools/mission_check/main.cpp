@@ -886,6 +886,58 @@ bool isRequest(const QByteArray& bytes, uint32_t messageId)
     return false;
 }
 
+// Which message an outgoing frame of MavVehicle is.
+uint32_t messageOf(const QByteArray& bytes)
+{
+    mavlink_message_t m;
+    mavlink_status_t st;
+    for (char c : bytes) {
+        if (mavlink_parse_char(MAVLINK_COMM_3, uint8_t(c), &m, &st))
+            return m.msgid;
+    }
+    return UINT32_MAX;
+}
+
+// The app runs MavVehicle beside the mission planner (src/mission, src/autopilot; setMissionsByPlanner): it listens and
+// keeps the heartbeat, its own missions and commands are refused - one autopilot, one stack talking missions and
+// commands to it (2026-10-23).
+void plannerModeRules()
+{
+    MavVehicle v(nullptr, false);
+    v.setMissionsByPlanner(true);
+    QList<QByteArray> sent;
+    QObject::connect(&v, &MavVehicle::sendBytes, [&](const QByteArray& b) { sent.append(b); });
+    v.feed(fakeHeartbeat(false, MavVehicle::ModeHold));
+    v.feed(fakeHeartbeat(false, MavVehicle::ModeHold));
+    waitFor([] { return false; }, 2500);   // past the 1.5 s after which it would read the mission
+    int heartbeats = 0;
+    bool missionAsked = false;
+    for (const QByteArray& b : sent) {
+        heartbeats += messageOf(b) == MAVLINK_MSG_ID_HEARTBEAT ? 1 : 0;
+        missionAsked = missionAsked || messageOf(b) == MAVLINK_MSG_ID_MISSION_REQUEST_LIST;
+    }
+    check("planner mode: the mission is not read when the autopilot appears", !missionAsked,
+          QStringLiteral("%1 frames sent").arg(sent.size()));
+    check("planner mode: the heartbeat goes on", heartbeats >= 1, QStringLiteral("%1 heartbeats").arg(heartbeats));
+    sent.clear();
+    v.addPoint(40.35, 45.0);
+    v.uploadPlan();
+    v.readBack();
+    v.loadPlanFromVehicle();
+    v.startMission();
+    v.hold();
+    v.returnHome();
+    v.arm();
+    v.disarm();
+    waitFor([] { return false; }, 300);
+    int other = 0;
+    for (const QByteArray& b : sent)
+        other += messageOf(b) != MAVLINK_MSG_ID_HEARTBEAT ? 1 : 0;
+    check("planner mode: points, upload, read-back, start, HOLD, RTL, arm and disarm refused",
+          v.planCount() == 0 && other == 0 && v.transferState() == MavVehicle::TransferIdle,
+          QStringLiteral("plan %1, %2 frames other than heartbeats, transfer %3").arg(v.planCount()).arg(other).arg(v.transferState()));
+}
+
 // The "From launch point" widget: home is asked for again on arming (ArduPilot moves it there); the distance.
 void homeRules()
 {
@@ -1492,6 +1544,7 @@ int main(int argc, char* argv[])
     surveyRules();
     linkLogRules();
     homeRules();
+    plannerModeRules();
     headingInUseRules();
     linkRateRules();
     trafficRules();

@@ -44,6 +44,8 @@
 #include "mosaic_index_provider.h"
 #include "ui_keepalive.h"
 #include "usb_tap.h"
+#include "mission_plan_controller.h"
+#include "mission_run.h"
 
 class MapExporter;
 class MapLibrary;
@@ -89,6 +91,7 @@ public:
     Q_PROPERTY(bool              needForceZooming             READ getNeedForceZooming             WRITE setNeedForceZooming NOTIFY needForceZoomingChanged)
     Q_PROPERTY(bool              posZeroing                   READ getPosZeroing                   NOTIFY posZeroingChanged)
     Q_PROPERTY(int               bottomTrackEditTool          READ getBottomTrackEditTool          WRITE setBottomTrackEditTool          NOTIFY bottomTrackEditToolChanged)
+    Q_PROPERTY(bool              missionEditorActive          READ getMissionEditorActive          WRITE setMissionEditorActive          NOTIFY missionEditorActiveChanged)
 
     MosaicIndexProvider* getMosaicIndexProviderPtr();
     void setEngine(QQmlApplicationEngine *engine);
@@ -101,6 +104,8 @@ public:
     DeviceManagerWrapper* getDeviceManagerWrapperPtr() const;
     LinkManagerWrapper* getLinkManagerWrapperPtr() const;
     DeviceTopologyModel* getDeviceTopologyModelPtr() const;
+    mission::MissionPlanController* getMissionPlanControllerPtr() const;
+    mission::MissionRunTracker* getMissionRunTrackerPtr() const;
 #ifdef SEPARATE_READING
     QString getTryOpenedfilePath() const;
     void stopDeviceManagerThread() const;
@@ -239,6 +244,9 @@ public slots:
     bool getPosZeroing() const { return isActiveZeroing_; }
     int  getBottomTrackEditTool() const { return bottomTrackEditTool_; }
     Q_INVOKABLE void setBottomTrackEditTool(int tool);
+    bool getMissionEditorActive() const { return missionEditorActive_; }
+    Q_INVOKABLE void setMissionEditorActive(bool active);
+    QString missionDirectoryFor(const QString& logDir) const;
     Q_INVOKABLE bool getIsFileOpening() const;
     Q_INVOKABLE bool getIsAppendMode() const;
     Q_INVOKABLE QString getFileTitle() const;
@@ -269,6 +277,7 @@ public slots:
     Q_INVOKABLE void setIsAttitudeExpected(bool state);
     Q_INVOKABLE void setMapTileProvider(int providerId);
     Q_INVOKABLE void toggleMapTileProvider();
+    Q_INVOKABLE void switchToPreviousMapTileProvider();
     Q_INVOKABLE int getMapTileProviderId() const;
     Q_INVOKABLE QString getMapTileProviderName() const;
     Q_INVOKABLE QVariantList getMapTileProviders() const;
@@ -315,6 +324,7 @@ signals:
     void mapTileLoadingEnabledChanged();
     void posZeroingChanged();
     void bottomTrackEditToolChanged();
+    void missionEditorActiveChanged();
     void languageChanged();
 
 #ifdef SEPARATE_READING
@@ -326,6 +336,7 @@ private slots:
     void onSendMapTextureIdByTileIndx(const map::TileIndex& tileIndx, GLuint textureId); // TODO: maybe store map texture id in mapView
     void onDataProcesstorStateChanged(const DataProcessorType& state);
     void onSendFrameInputToLogger(QUuid uuid, Link* link, const Parsers::FrameParser& frame);
+    void pushMissionRunTelemetry();
 
 private:
     /*methods*/
@@ -371,6 +382,7 @@ private:
     void loadCameraViewFromSettings();
     void onTgcParamsChanged();
     int loadSavedMapTileProviderId() const;
+    void rememberPreviousMapTileProvider(int providerId);
     void resetRealtimeSessionState();
     void restoreRealtimeProcessingFlags();
     void releasePlotCaches();
@@ -404,6 +416,8 @@ private:
     std::unique_ptr<DeviceManagerWrapper> deviceManagerWrapperPtr_;
     std::unique_ptr<LinkManagerWrapper> linkManagerWrapperPtr_;
     std::unique_ptr<DeviceTopologyModel> deviceTopologyModelPtr_;
+    std::unique_ptr<mission::MissionPlanController> missionPlanControllerPtr_;
+    std::unique_ptr<mission::MissionRunTracker> missionRunTrackerPtr_;
     InternetManager* internetManager_;
     QThread* internetThread_;
     std::unique_ptr<map::TileManager> tileManager_;
@@ -506,6 +520,8 @@ private:
     bool isActiveZeroing_;
     bool isBottomTrackZeroing_;
     int  bottomTrackEditTool_ = 0;
+    bool missionEditorActive_ = false;
+    int  previousMapTileProviderId_ = -1;
 
 #ifdef FLASHER
     Q_PROPERTY(QString flasherTextInfo READ flasherTextInfo NOTIFY dev_flasher_changed)

@@ -127,6 +127,12 @@ Item {
             store: root.workspaceRoot ? root.workspaceRoot.store : null
         }
 
+        MissionRunPointCard {
+            anchors.fill: parent
+            view: root.scene3dView
+            hostsView: !!root.scene3dView && root.scene3dView.parent === hostSurface
+        }
+
         BoatMissionPanel {
             id: boatMissionPanel
             anchors.left: parent.left

@@ -324,276 +324,6 @@ Rectangle {
 
             Rectangle { width: parent.width; height: 1; color: AppPalette.separator }
 
-            // ── route ───────────────────────────────────────────────────────────
-            SectionTitle {
-                text: panel.vehicle && panel.vehicle.planCount > 0
-                      ? qsTr("Route: %1 points, %2").arg(panel.vehicle.planCount).arg(panel.metres(panel.vehicle.planLengthM))
-                      : qsTr("Route")
-            }
-
-            PanelButton {
-                width: parent.width
-                text: panel.addMode ? qsTr("Adding points: on") : qsTr("Add points")
-                normalBg: panel.addMode ? AppPalette.accentBgStrong : AppPalette.controlRaised
-                normalBorder: panel.addMode ? AppPalette.accentBorder : AppPalette.border
-                borderWidth: panel.addMode ? 2 : Tokens.cardBorderWidth
-                onClicked: panel.addMode = !panel.addMode
-            }
-
-            Text {
-                width: parent.width
-                wrapMode: Text.WordWrap
-                color: panel.addMode ? AppPalette.accentText : AppPalette.textMuted
-                font.pixelSize: Tokens.fontSm
-                text: panel.addMode
-                      ? qsTr("Tap the map to add a point, drag a numbered point to move it. H is home, where the boat returns.")
-                      : qsTr("Turn on \"Add points\" to place points by tapping the map.")
-            }
-
-            // The point list folds away; the route stays on the map either way.
-            Item {
-                width: parent.width
-                height: Tokens.controlHMd
-                visible: !!panel.vehicle && panel.vehicle.planCount > 0
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: panel.pointsExpanded = !panel.pointsExpanded
-                }
-                KCircleIconButton {
-                    id: foldBtn
-                    anchors.left: parent.left
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: Math.round(26 * panel._s)
-                    height: width
-                    rounded: false
-                    cornerRadius: Tokens.radiusSm
-                    iconSource: panel.pointsExpanded ? "qrc:/icons/ui/chevron-down.svg" : "qrc:/icons/ui/chevron-right.svg"
-                    iconTintColor: AppPalette.textSecond
-                    fillColor: "transparent"
-                    fillHoverColor: AppPalette.cardHover
-                    borderWidth: 0
-                    toolTipText: panel.pointsExpanded ? qsTr("Hide the points") : qsTr("Show the points")
-                    onClicked: panel.pointsExpanded = !panel.pointsExpanded
-                }
-                Text {
-                    anchors.left: foldBtn.right
-                    anchors.leftMargin: Tokens.spaceSm
-                    anchors.verticalCenter: parent.verticalCenter
-                    color: AppPalette.textSecond
-                    font.pixelSize: Tokens.fontSm
-                    font.bold: true
-                    text: qsTr("Points: %1").arg(panel.vehicle ? panel.vehicle.planCount : 0)
-                }
-            }
-
-            Column {
-                width: parent.width
-                spacing: Tokens.spaceXxs
-                visible: panel.pointsExpanded
-                Repeater {
-                    model: panel.vehicle ? panel.vehicle.plan : []
-                    delegate: Rectangle {
-                        id: row
-                        required property int index
-                        required property var modelData
-                        readonly property bool selected: index === panel.selectedIndex
-                        readonly property bool target: !!panel.vehicle && panel.vehicle.mode === 10
-                                                       && panel.vehicle.currentPlanIndex === index
-                        width: parent ? parent.width : 0
-                        height: Tokens.controlHMd
-                        radius: Tokens.radiusMd
-                        color: selected ? AppPalette.accentBg : (rowMouse.containsMouse ? AppPalette.cardHover : "transparent")
-                        border.width: target ? 2 : 0
-                        border.color: AppPalette.accentBorder
-
-                        MouseArea {
-                            id: rowMouse
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            onClicked: panel.selectedIndex = (panel.selectedIndex === row.index ? -1 : row.index)
-                        }
-                        Rectangle {
-                            id: badge
-                            anchors.left: parent.left
-                            anchors.leftMargin: Tokens.spaceXs
-                            anchors.verticalCenter: parent.verticalCenter
-                            width: Math.round(22 * panel._s)
-                            height: width
-                            radius: width / 2
-                            color: row.target ? AppPalette.accent : "#E61B1F24"
-                            Text {
-                                anchors.centerIn: parent
-                                text: String(row.index + 1)
-                                color: "#FFFFFF"
-                                font.pixelSize: Tokens.fontXs
-                                font.bold: true
-                            }
-                        }
-                        Text {
-                            anchors.left: badge.right
-                            anchors.leftMargin: Tokens.spaceSm
-                            anchors.right: delBtn.left
-                            anchors.rightMargin: Tokens.spaceXs
-                            anchors.verticalCenter: parent.verticalCenter
-                            elide: Text.ElideRight
-                            color: AppPalette.text
-                            font.pixelSize: Tokens.fontSm
-                            text: {
-                                var v = panel.vehicle
-                                if (!v) return ""
-                                var d
-                                if (row.index === 0)
-                                    d = v.positionValid ? qsTr("%1 from the boat").arg(panel.metres(v.distanceM(v.latitude, v.longitude,
-                                                                                                            row.modelData.lat, row.modelData.lon)))
-                                                        : ""
-                                else {
-                                    var prev = v.plan[row.index - 1]
-                                    d = qsTr("+%1").arg(panel.metres(v.distanceM(prev.lat, prev.lon, row.modelData.lat, row.modelData.lon)))
-                                }
-                                return row.modelData.lat.toFixed(6) + ", " + row.modelData.lon.toFixed(6) + (d.length ? "  " + d : "")
-                            }
-                        }
-                        KCircleIconButton {
-                            id: delBtn
-                            anchors.right: parent.right
-                            anchors.verticalCenter: parent.verticalCenter
-                            width: Math.round(26 * panel._s)
-                            height: width
-                            rounded: false
-                            cornerRadius: Tokens.radiusSm
-                            iconSource: "qrc:/icons/ui/x.svg"
-                            iconTintColor: AppPalette.dangerText
-                            fillColor: "transparent"
-                            fillHoverColor: AppPalette.cardHover
-                            borderWidth: 0
-                            toolTipText: qsTr("Remove point")
-                            onClicked: {
-                                if (panel.selectedIndex === row.index) panel.selectedIndex = -1
-                                panel.vehicle.removePoint(row.index)
-                            }
-                        }
-                    }
-                }
-            }
-
-            Text {
-                width: parent.width
-                text: qsTr("Speed on the route")
-                color: AppPalette.textSecond
-                font.pixelSize: Tokens.fontSm
-            }
-            KTabBar {
-                width: parent.width
-                fontPixelSize: Tokens.fontSm
-                options: [
-                    { label: "0.5", value: 0.5 },
-                    { label: "0.8", value: 0.8 },
-                    { label: "1", value: 1 },
-                    { label: "1.5", value: 1.5 },
-                    { label: "2", value: 2 }
-                ]
-                currentValue: panel.vehicle ? panel.vehicle.planSpeed : 0
-                onValueSelected: function(v) { if (panel.vehicle) panel.vehicle.planSpeed = v }
-            }
-            // A plan from before these five, or loaded from the boat, can hold another speed: say which.
-            Text {
-                width: parent.width
-                readonly property real v: panel.vehicle ? panel.vehicle.planSpeed : 0
-                visible: !!panel.vehicle && [0.5, 0.8, 1, 1.5, 2].indexOf(v) < 0
-                wrapMode: Text.WordWrap
-                color: AppPalette.textMuted
-                font.pixelSize: Tokens.fontSm
-                text: v > 0 ? qsTr("Now %1 m/s, not one of the speeds above").arg(v.toFixed(1))
-                            : qsTr("Now the boat's own speed (WP_SPEED); pick one above to set it in the mission")
-            }
-
-            KSwitch {
-                width: parent.width
-                rowHeight: Tokens.controlHLg
-                fontPixelSize: Tokens.fontMd
-                text: qsTr("Return home at the end")
-                // a click replaces a `checked` binding, so the model value is pushed in explicitly
-                readonly property bool want: !!panel.vehicle && panel.vehicle.planReturnHome
-                onWantChanged: if (checked !== want) checked = want
-                Component.onCompleted: checked = want
-                onToggled: if (panel.vehicle) panel.vehicle.planReturnHome = checked
-            }
-
-            Row {
-                width: parent.width
-                spacing: Tokens.spaceSm
-                readonly property real bw: (width - spacing) / 2
-                PanelButton {
-                    width: parent.bw
-                    text: qsTr("Upload to boat")
-                    enabled: panel.linked && panel.vehicle.planCount > 0
-                             && panel.vehicle.transferState !== 1 && panel.vehicle.transferState !== 2
-                    onClicked: panel.vehicle.uploadPlan()
-                }
-                ConfirmButton {
-                    width: parent.bw
-                    label: qsTr("Clear route")
-                    enabled: !!panel.vehicle && panel.vehicle.planCount > 0
-                    onConfirmed: { panel.selectedIndex = -1; panel.vehicle.clearPlan() }
-                }
-            }
-            // The boat's mission back into the plan; it replaces the plan, so a second tap when there is one.
-            Item {
-                width: parent.width
-                height: Tokens.controlHLg
-                readonly property bool can: panel.linked && panel.vehicle.transferState !== 1 && panel.vehicle.transferState !== 2
-                PanelButton {
-                    anchors.fill: parent
-                    visible: !panel.vehicle || panel.vehicle.planCount === 0
-                    text: qsTr("Load from boat")
-                    enabled: parent.can
-                    onClicked: { panel.selectedIndex = -1; panel.vehicle.loadPlanFromVehicle() }
-                }
-                ConfirmButton {
-                    anchors.fill: parent
-                    visible: !!panel.vehicle && panel.vehicle.planCount > 0
-                    label: qsTr("Load from boat (replaces the route)")
-                    enabled: parent.can
-                    onConfirmed: { panel.selectedIndex = -1; panel.vehicle.loadPlanFromVehicle() }
-                }
-            }
-
-            // transfer state
-            Column {
-                width: parent.width
-                spacing: Tokens.spaceXxs
-                visible: !!panel.vehicle && (panel.vehicle.transferState !== 0 || panel.vehicle.planOnVehicle)
-                Rectangle {
-                    width: parent.width
-                    height: Math.max(3, Math.round(3 * panel._s))
-                    radius: height / 2
-                    color: AppPalette.trackOff
-                    visible: panel.vehicle && (panel.vehicle.transferState === 1 || panel.vehicle.transferState === 2)
-                    Rectangle {
-                        width: parent.width * (panel.vehicle ? panel.vehicle.transferProgress : 0) / 100
-                        height: parent.height
-                        radius: parent.radius
-                        color: AppPalette.accent
-                    }
-                }
-                Text {
-                    width: parent.width
-                    wrapMode: Text.WordWrap
-                    font.pixelSize: Tokens.fontSm
-                    color: !panel.vehicle ? AppPalette.text
-                         : panel.vehicle.transferState === 4 ? AppPalette.dangerText
-                         : panel.vehicle.planOnVehicle ? AppPalette.linkOkText : AppPalette.text
-                    text: !panel.vehicle ? ""
-                         : (panel.vehicle.transferState === 0 && panel.vehicle.planOnVehicle) ? qsTr("The boat holds this route")
-                         : panel.vehicle.transferText
-                }
-            }
-
-            Rectangle { width: parent.width; height: 1; color: AppPalette.separator }
-
-            // ── control ─────────────────────────────────────────────────────────
-            SectionTitle { text: qsTr("Control") }
-
             // startBlocker() is a function: re-read it whenever something it depends on changes
             property int _blockerTick: 0
             Connections {
@@ -611,67 +341,356 @@ Rectangle {
 
             Text {
                 width: parent.width
-                visible: contentCol.startWhy.length > 0
+                visible: !!panel.vehicle && panel.vehicle.missionsByPlanner
                 wrapMode: Text.WordWrap
                 color: AppPalette.textMuted
                 font.pixelSize: Tokens.fontSm
-                text: qsTr("Start: %1").arg(contentCol.startWhy)
+                text: qsTr("Routes are planned in the mission planner; the boat is armed, started and held from the autopilot card.")
             }
 
-            Row {
+            // The boat's own route and commands (MavVehicle). With the mission planner (missionsByPlanner) they are the
+            // planner's and the autopilot card's, so not here.
+            Column {
                 width: parent.width
-                spacing: Tokens.spaceSm
-                readonly property real bw: (width - spacing) / 2
-                ConfirmButton {
-                    width: parent.bw
-                    label: qsTr("Start mission")
-                    enabled: contentCol.startWhy.length === 0
-                    normalBg: enabled ? AppPalette.accentBgStrong : AppPalette.controlRaised
-                    normalBorder: AppPalette.accentBorder
-                    onConfirmed: panel.vehicle.startMission()
+                spacing: contentCol.spacing
+                visible: !(panel.vehicle && panel.vehicle.missionsByPlanner)
+
+                // ── route ───────────────────────────────────────────────────────────
+                SectionTitle {
+                    text: panel.vehicle && panel.vehicle.planCount > 0
+                          ? qsTr("Route: %1 points, %2").arg(panel.vehicle.planCount).arg(panel.metres(panel.vehicle.planLengthM))
+                          : qsTr("Route")
                 }
+
                 PanelButton {
-                    width: parent.bw
-                    text: qsTr("HOLD")
-                    enabled: panel.linked
-                    bold: true
-                    toolTipText: qsTr("Stop and hold position")
-                    onClicked: panel.vehicle.hold()
+                    width: parent.width
+                    text: panel.addMode ? qsTr("Adding points: on") : qsTr("Add points")
+                    normalBg: panel.addMode ? AppPalette.accentBgStrong : AppPalette.controlRaised
+                    normalBorder: panel.addMode ? AppPalette.accentBorder : AppPalette.border
+                    borderWidth: panel.addMode ? 2 : Tokens.cardBorderWidth
+                    onClicked: panel.addMode = !panel.addMode
                 }
-            }
-            Row {
-                width: parent.width
-                spacing: Tokens.spaceSm
-                readonly property real bw: (width - spacing) / 2
-                ConfirmButton {
-                    width: parent.bw
-                    label: qsTr("Return home")
-                    enabled: panel.linked && !!panel.vehicle && panel.vehicle.homeValid
-                    onConfirmed: panel.vehicle.returnHome()
+
+                Text {
+                    width: parent.width
+                    wrapMode: Text.WordWrap
+                    color: panel.addMode ? AppPalette.accentText : AppPalette.textMuted
+                    font.pixelSize: Tokens.fontSm
+                    text: panel.addMode
+                          ? qsTr("Tap the map to add a point, drag a numbered point to move it. H is home, where the boat returns.")
+                          : qsTr("Turn on \"Add points\" to place points by tapping the map.")
                 }
-                // Disarm stops the boat: one tap. Arm asks twice.
+
+                // The point list folds away; the route stays on the map either way.
                 Item {
-                    width: parent.bw
+                    width: parent.width
+                    height: Tokens.controlHMd
+                    visible: !!panel.vehicle && panel.vehicle.planCount > 0
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: panel.pointsExpanded = !panel.pointsExpanded
+                    }
+                    KCircleIconButton {
+                        id: foldBtn
+                        anchors.left: parent.left
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: Math.round(26 * panel._s)
+                        height: width
+                        rounded: false
+                        cornerRadius: Tokens.radiusSm
+                        iconSource: panel.pointsExpanded ? "qrc:/icons/ui/chevron-down.svg" : "qrc:/icons/ui/chevron-right.svg"
+                        iconTintColor: AppPalette.textSecond
+                        fillColor: "transparent"
+                        fillHoverColor: AppPalette.cardHover
+                        borderWidth: 0
+                        toolTipText: panel.pointsExpanded ? qsTr("Hide the points") : qsTr("Show the points")
+                        onClicked: panel.pointsExpanded = !panel.pointsExpanded
+                    }
+                    Text {
+                        anchors.left: foldBtn.right
+                        anchors.leftMargin: Tokens.spaceSm
+                        anchors.verticalCenter: parent.verticalCenter
+                        color: AppPalette.textSecond
+                        font.pixelSize: Tokens.fontSm
+                        font.bold: true
+                        text: qsTr("Points: %1").arg(panel.vehicle ? panel.vehicle.planCount : 0)
+                    }
+                }
+
+                Column {
+                    width: parent.width
+                    spacing: Tokens.spaceXxs
+                    visible: panel.pointsExpanded
+                    Repeater {
+                        model: panel.vehicle ? panel.vehicle.plan : []
+                        delegate: Rectangle {
+                            id: row
+                            required property int index
+                            required property var modelData
+                            readonly property bool selected: index === panel.selectedIndex
+                            readonly property bool target: !!panel.vehicle && panel.vehicle.mode === 10
+                                                           && panel.vehicle.currentPlanIndex === index
+                            width: parent ? parent.width : 0
+                            height: Tokens.controlHMd
+                            radius: Tokens.radiusMd
+                            color: selected ? AppPalette.accentBg : (rowMouse.containsMouse ? AppPalette.cardHover : "transparent")
+                            border.width: target ? 2 : 0
+                            border.color: AppPalette.accentBorder
+
+                            MouseArea {
+                                id: rowMouse
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                onClicked: panel.selectedIndex = (panel.selectedIndex === row.index ? -1 : row.index)
+                            }
+                            Rectangle {
+                                id: badge
+                                anchors.left: parent.left
+                                anchors.leftMargin: Tokens.spaceXs
+                                anchors.verticalCenter: parent.verticalCenter
+                                width: Math.round(22 * panel._s)
+                                height: width
+                                radius: width / 2
+                                color: row.target ? AppPalette.accent : "#E61B1F24"
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: String(row.index + 1)
+                                    color: "#FFFFFF"
+                                    font.pixelSize: Tokens.fontXs
+                                    font.bold: true
+                                }
+                            }
+                            Text {
+                                anchors.left: badge.right
+                                anchors.leftMargin: Tokens.spaceSm
+                                anchors.right: delBtn.left
+                                anchors.rightMargin: Tokens.spaceXs
+                                anchors.verticalCenter: parent.verticalCenter
+                                elide: Text.ElideRight
+                                color: AppPalette.text
+                                font.pixelSize: Tokens.fontSm
+                                text: {
+                                    var v = panel.vehicle
+                                    if (!v) return ""
+                                    var d
+                                    if (row.index === 0)
+                                        d = v.positionValid ? qsTr("%1 from the boat").arg(panel.metres(v.distanceM(v.latitude, v.longitude,
+                                                                                                                row.modelData.lat, row.modelData.lon)))
+                                                            : ""
+                                    else {
+                                        var prev = v.plan[row.index - 1]
+                                        d = qsTr("+%1").arg(panel.metres(v.distanceM(prev.lat, prev.lon, row.modelData.lat, row.modelData.lon)))
+                                    }
+                                    return row.modelData.lat.toFixed(6) + ", " + row.modelData.lon.toFixed(6) + (d.length ? "  " + d : "")
+                                }
+                            }
+                            KCircleIconButton {
+                                id: delBtn
+                                anchors.right: parent.right
+                                anchors.verticalCenter: parent.verticalCenter
+                                width: Math.round(26 * panel._s)
+                                height: width
+                                rounded: false
+                                cornerRadius: Tokens.radiusSm
+                                iconSource: "qrc:/icons/ui/x.svg"
+                                iconTintColor: AppPalette.dangerText
+                                fillColor: "transparent"
+                                fillHoverColor: AppPalette.cardHover
+                                borderWidth: 0
+                                toolTipText: qsTr("Remove point")
+                                onClicked: {
+                                    if (panel.selectedIndex === row.index) panel.selectedIndex = -1
+                                    panel.vehicle.removePoint(row.index)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Text {
+                    width: parent.width
+                    text: qsTr("Speed on the route")
+                    color: AppPalette.textSecond
+                    font.pixelSize: Tokens.fontSm
+                }
+                KTabBar {
+                    width: parent.width
+                    fontPixelSize: Tokens.fontSm
+                    options: [
+                        { label: "0.5", value: 0.5 },
+                        { label: "0.8", value: 0.8 },
+                        { label: "1", value: 1 },
+                        { label: "1.5", value: 1.5 },
+                        { label: "2", value: 2 }
+                    ]
+                    currentValue: panel.vehicle ? panel.vehicle.planSpeed : 0
+                    onValueSelected: function(v) { if (panel.vehicle) panel.vehicle.planSpeed = v }
+                }
+                // A plan from before these five, or loaded from the boat, can hold another speed: say which.
+                Text {
+                    width: parent.width
+                    readonly property real v: panel.vehicle ? panel.vehicle.planSpeed : 0
+                    visible: !!panel.vehicle && [0.5, 0.8, 1, 1.5, 2].indexOf(v) < 0
+                    wrapMode: Text.WordWrap
+                    color: AppPalette.textMuted
+                    font.pixelSize: Tokens.fontSm
+                    text: v > 0 ? qsTr("Now %1 m/s, not one of the speeds above").arg(v.toFixed(1))
+                                : qsTr("Now the boat's own speed (WP_SPEED); pick one above to set it in the mission")
+                }
+
+                KSwitch {
+                    width: parent.width
+                    rowHeight: Tokens.controlHLg
+                    fontPixelSize: Tokens.fontMd
+                    text: qsTr("Return home at the end")
+                    // a click replaces a `checked` binding, so the model value is pushed in explicitly
+                    readonly property bool want: !!panel.vehicle && panel.vehicle.planReturnHome
+                    onWantChanged: if (checked !== want) checked = want
+                    Component.onCompleted: checked = want
+                    onToggled: if (panel.vehicle) panel.vehicle.planReturnHome = checked
+                }
+
+                Row {
+                    width: parent.width
+                    spacing: Tokens.spaceSm
+                    readonly property real bw: (width - spacing) / 2
+                    PanelButton {
+                        width: parent.bw
+                        text: qsTr("Upload to boat")
+                        enabled: panel.linked && panel.vehicle.planCount > 0
+                                 && panel.vehicle.transferState !== 1 && panel.vehicle.transferState !== 2
+                        onClicked: panel.vehicle.uploadPlan()
+                    }
+                    ConfirmButton {
+                        width: parent.bw
+                        label: qsTr("Clear route")
+                        enabled: !!panel.vehicle && panel.vehicle.planCount > 0
+                        onConfirmed: { panel.selectedIndex = -1; panel.vehicle.clearPlan() }
+                    }
+                }
+                // The boat's mission back into the plan; it replaces the plan, so a second tap when there is one.
+                Item {
+                    width: parent.width
                     height: Tokens.controlHLg
+                    readonly property bool can: panel.linked && panel.vehicle.transferState !== 1 && panel.vehicle.transferState !== 2
                     PanelButton {
                         anchors.fill: parent
-                        visible: !!panel.vehicle && panel.vehicle.armed
-                        text: qsTr("Disarm")
-                        danger: true
-                        enabled: panel.linked
-                        onClicked: panel.vehicle.disarm()
+                        visible: !panel.vehicle || panel.vehicle.planCount === 0
+                        text: qsTr("Load from boat")
+                        enabled: parent.can
+                        onClicked: { panel.selectedIndex = -1; panel.vehicle.loadPlanFromVehicle() }
                     }
                     ConfirmButton {
                         anchors.fill: parent
-                        visible: !panel.vehicle || !panel.vehicle.armed
-                        label: qsTr("Arm")
-                        enabled: panel.linked
-                        onConfirmed: panel.vehicle.arm()
+                        visible: !!panel.vehicle && panel.vehicle.planCount > 0
+                        label: qsTr("Load from boat (replaces the route)")
+                        enabled: parent.can
+                        onConfirmed: { panel.selectedIndex = -1; panel.vehicle.loadPlanFromVehicle() }
                     }
                 }
+
+                // transfer state
+                Column {
+                    width: parent.width
+                    spacing: Tokens.spaceXxs
+                    visible: !!panel.vehicle && (panel.vehicle.transferState !== 0 || panel.vehicle.planOnVehicle)
+                    Rectangle {
+                        width: parent.width
+                        height: Math.max(3, Math.round(3 * panel._s))
+                        radius: height / 2
+                        color: AppPalette.trackOff
+                        visible: panel.vehicle && (panel.vehicle.transferState === 1 || panel.vehicle.transferState === 2)
+                        Rectangle {
+                            width: parent.width * (panel.vehicle ? panel.vehicle.transferProgress : 0) / 100
+                            height: parent.height
+                            radius: parent.radius
+                            color: AppPalette.accent
+                        }
+                    }
+                    Text {
+                        width: parent.width
+                        wrapMode: Text.WordWrap
+                        font.pixelSize: Tokens.fontSm
+                        color: !panel.vehicle ? AppPalette.text
+                             : panel.vehicle.transferState === 4 ? AppPalette.dangerText
+                             : panel.vehicle.planOnVehicle ? AppPalette.linkOkText : AppPalette.text
+                        text: !panel.vehicle ? ""
+                             : (panel.vehicle.transferState === 0 && panel.vehicle.planOnVehicle) ? qsTr("The boat holds this route")
+                             : panel.vehicle.transferText
+                    }
+                }
+
+                Rectangle { width: parent.width; height: 1; color: AppPalette.separator }
+
+                // ── control ─────────────────────────────────────────────────────────
+                SectionTitle { text: qsTr("Control") }
+
+
+                Text {
+                    width: parent.width
+                    visible: contentCol.startWhy.length > 0
+                    wrapMode: Text.WordWrap
+                    color: AppPalette.textMuted
+                    font.pixelSize: Tokens.fontSm
+                    text: qsTr("Start: %1").arg(contentCol.startWhy)
+                }
+
+                Row {
+                    width: parent.width
+                    spacing: Tokens.spaceSm
+                    readonly property real bw: (width - spacing) / 2
+                    ConfirmButton {
+                        width: parent.bw
+                        label: qsTr("Start mission")
+                        enabled: contentCol.startWhy.length === 0
+                        normalBg: enabled ? AppPalette.accentBgStrong : AppPalette.controlRaised
+                        normalBorder: AppPalette.accentBorder
+                        onConfirmed: panel.vehicle.startMission()
+                    }
+                    PanelButton {
+                        width: parent.bw
+                        text: qsTr("HOLD")
+                        enabled: panel.linked
+                        bold: true
+                        toolTipText: qsTr("Stop and hold position")
+                        onClicked: panel.vehicle.hold()
+                    }
+                }
+                Row {
+                    width: parent.width
+                    spacing: Tokens.spaceSm
+                    readonly property real bw: (width - spacing) / 2
+                    ConfirmButton {
+                        width: parent.bw
+                        label: qsTr("Return home")
+                        enabled: panel.linked && !!panel.vehicle && panel.vehicle.homeValid
+                        onConfirmed: panel.vehicle.returnHome()
+                    }
+                    // Disarm stops the boat: one tap. Arm asks twice.
+                    Item {
+                        width: parent.bw
+                        height: Tokens.controlHLg
+                        PanelButton {
+                            anchors.fill: parent
+                            visible: !!panel.vehicle && panel.vehicle.armed
+                            text: qsTr("Disarm")
+                            danger: true
+                            enabled: panel.linked
+                            onClicked: panel.vehicle.disarm()
+                        }
+                        ConfirmButton {
+                            anchors.fill: parent
+                            visible: !panel.vehicle || !panel.vehicle.armed
+                            label: qsTr("Arm")
+                            enabled: panel.linked
+                            onConfirmed: panel.vehicle.arm()
+                        }
+                    }
+                }
+
+                // ── heading source ──────────────────────────────────────────────────
             }
 
-            // ── heading source ──────────────────────────────────────────────────
             SectionTitle { text: qsTr("Heading source") }
             Row {
                 width: parent.width

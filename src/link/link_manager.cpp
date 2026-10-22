@@ -260,6 +260,22 @@ void LinkManager::openAutoConnections()
     // KOGGER_AUTOTEST=UDP:<port>: once, a UDP link that listens on <port> -- a recorded or synthetic
     // stream played to the app as a live device, no hardware and no click. Hidden, so it is never
     // written to pinned_links.xml and does not come back in a normal run.
+    // KOGGER_AUTOTEST=TCP:<port>: the same, a TCP link to 127.0.0.1:<port> -- ArduPilot SITL's serial 0 for the
+    // missions' check (tools/qml_check/mission_sitl_check.ps1).
+    static bool tcpAutotestOpened = false;
+    if (!tcpAutotestOpened && kAutotestPort.startsWith(QStringLiteral("TCP:"))) {
+        tcpAutotestOpened = true;
+        const int port = kAutotestPort.mid(4).toInt();
+        if (port > 0 && port < 65535) {
+            Link* link = createNewLink();
+            link->createAsTcp(QStringLiteral("127.0.0.1"), 0, port);
+            link->setIsHided(true);
+            list_.append(link);
+            doEmitAppendModifyModel(link);
+            link->openAsTcp();
+        }
+    }
+
     static bool udpAutotestOpened = false;
     if (!udpAutotestOpened && kAutotestPort.startsWith(QStringLiteral("UDP:"))) {
         udpAutotestOpened = true;

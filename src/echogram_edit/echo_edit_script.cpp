@@ -219,6 +219,28 @@ EchoEditScript::EchoEditScript(Core* core, QObject* parent) :
     connect(&timer_, &QTimer::timeout, this, &EchoEditScript::step);
     dragTimer_.setTimerType(Qt::PreciseTimer);
     connect(&dragTimer_, &QTimer::timeout, this, &EchoEditScript::dragMove);
+
+    // Every end of a mission transfer and every mission read from the autopilot, for "waitMissionTransfer" and the log.
+    DeviceManagerWrapper* dmw = core_ ? core_->getDeviceManagerWrapperPtr() : nullptr;
+    mission::MissionPlanController* plan = core_ ? core_->getMissionPlanControllerPtr() : nullptr;
+    if (dmw) {
+        auto ended = [this](const char* kind, bool ok, int result, int type) {
+            const QString line = QStringLiteral("mission transfer: %1 %2 result %3 type %4")
+                                 .arg(QLatin1String(kind), ok ? QStringLiteral("ok") : QStringLiteral("failed")).arg(result).arg(type);
+            missionResults_.append(line);
+            qInfo().noquote() << QStringLiteral("echoedit script: ") + line;
+        };
+        connect(dmw, &DeviceManagerWrapper::missionUploadFinished, this, [ended](bool ok, int r, int t) { ended("upload", ok, r, t); });
+        connect(dmw, &DeviceManagerWrapper::missionDownloadFinished, this, [ended](bool ok, int r, int t) { ended("download", ok, r, t); });
+    }
+    if (plan) {
+        connect(plan, &mission::MissionPlanController::vehicleMissionReceived, this,
+                [](bool empty, bool matches, int points, int fence, int rally, int skipped) {
+            qInfo().noquote() << QStringLiteral("echoedit script: mission received: empty %1, matches the plan %2, route points %3, "
+                                                "fence %4, rally %5, skipped %6")
+                                 .arg(int(empty)).arg(int(matches)).arg(points).arg(fence).arg(rally).arg(skipped);
+        });
+    }
 }
 
 void EchoEditScript::armFromEnvironment()
@@ -275,6 +297,27 @@ void EchoEditScript::step()
         if (known || timedOut) {
             qInfo().noquote() << QStringLiteral("echoedit script: waitPresets, %1 ms%2")
                                  .arg(settleClock_.elapsed()).arg(known ? QString() : QStringLiteral(", timed out"));
+            settleClock_.invalidate();
+            ++next_;
+            timer_.start(0);
+            return;
+        }
+        timer_.start(200);
+        return;
+    }
+
+    if (op == QLatin1String("waitAutopilot") || op == QLatin1String("waitMissionTransfer")) {
+        if (!settleClock_.isValid()) {
+            settleClock_.start();
+        }
+        DeviceManagerWrapper* dmw = core_->getDeviceManagerWrapperPtr();
+        const bool done = op == QLatin1String("waitAutopilot")
+                              ? dmw->autopilotOnline()
+                              : (missionResults_.size() > missionResultsBefore_ && !dmw->missionTransferActive());
+        const bool timedOut = settleClock_.elapsed() >= s.value(QStringLiteral("timeoutMs")).toInt(op == QLatin1String("waitAutopilot") ? 30000 : 60000);
+        if (done || timedOut) {
+            qInfo().noquote() << QStringLiteral("echoedit script: %1, %2 ms%3").arg(op).arg(settleClock_.elapsed())
+                                 .arg(done ? QString() : QStringLiteral(", timed out"));
             settleClock_.invalidate();
             ++next_;
             timer_.start(0);
@@ -416,7 +459,7 @@ void EchoEditScript::runStep(const QJsonObject& s)
         depth = d.isEmpty() ? NAN : d.at(d.size() / 2) * float(s.value(QStringLiteral("depthRel")).toDouble());
     }
 
-    if (dockStep(op, s)) {
+    if (dockStep(op, s) || missionStep(op, s)) {
         return;
     }
     if (op == QLatin1String("draw") || op == QLatin1String("erase") || op == QLatin1String("raise") || op == QLatin1String("lower")) {
@@ -1062,6 +1105,98 @@ int EchoEditScript::gestureStep(const QJsonObject& s)
                          .arg(gestureTo_.x(), 0, 'f', 0).arg(gestureTo_.y(), 0, 'f', 0).arg(gestureHoldMs_);
     gestureWin_.clear();
     return -1;
+}
+
+bool EchoEditScript::missionStep(const QString& op, const QJsonObject& s)
+{
+    static const QStringList ops = { QStringLiteral("missionPlan"), QStringLiteral("missionUpload"), QStringLiteral("missionDownload"),
+                                     QStringLiteral("missionState"), QStringLiteral("missionEditor"), QStringLiteral("autopilotMode"),
+                                     QStringLiteral("autopilotArm") };
+    if (!ops.contains(op)) {
+        return false;
+    }
+    mission::MissionPlanController* plan = core_->getMissionPlanControllerPtr();
+    mission::MissionRunTracker* run = core_->getMissionRunTrackerPtr();
+    DeviceManagerWrapper* dmw = core_->getDeviceManagerWrapperPtr();
+    auto pairs = [](const QJsonValue& v) {
+        QVariantList out;
+        for (const QJsonValue& p : v.toArray()) {
+            out.append(QVariant(p.toArray().toVariantList()));
+        }
+        return out;
+    };
+    if (op == QLatin1String("missionPlan")) {
+        plan->newPlan();
+        const QJsonArray home = s.value(QStringLiteral("home")).toArray();
+        if (home.size() == 2) {
+            plan->setHome(home.at(0).toDouble(), home.at(1).toDouble());   // the start point, as the editor sets it
+        }
+        int added = 0;
+        for (const QVariant& p : pairs(s.value(QStringLiteral("points")))) {
+            const QVariantList ll = p.toList();
+            added += plan->addWaypoint(ll.value(0).toDouble(), ll.value(1).toDouble()).isEmpty() ? 0 : 1;
+        }
+        for (const QVariant& p : pairs(s.value(QStringLiteral("rally")))) {
+            const QVariantList ll = p.toList();
+            added += plan->addRally(ll.value(0).toDouble(), ll.value(1).toDouble()).isEmpty() ? 0 : 1;
+        }
+        if (s.contains(QStringLiteral("fence"))) {
+            added += plan->addFence(pairs(s.value(QStringLiteral("fence"))), true).isEmpty() ? 0 : 1;
+        }
+        if (s.contains(QStringLiteral("speed"))) {
+            plan->setCruiseSpeed(s.value(QStringLiteral("speed")).toDouble());
+        }
+        if (s.contains(QStringLiteral("end"))) {
+            plan->setEndAction(s.value(QStringLiteral("end")).toInt());
+        }
+        qInfo().noquote() << QStringLiteral("echoedit script: missionPlan, %1 added: items %2, rally %3, fence %4%5")
+                             .arg(added).arg(plan->itemCount()).arg(plan->rallyCount()).arg(plan->fenceCount())
+                             .arg(plan->lastError().isEmpty() ? QString() : QStringLiteral(", last error: ") + plan->lastError());
+    }
+    else if (op == QLatin1String("missionUpload")) {
+        missionResultsBefore_ = int(missionResults_.size());
+        const bool sent = plan->uploadToVehicle();
+        qInfo().noquote() << QStringLiteral("echoedit script: missionUpload %1%2").arg(sent ? QStringLiteral("started") : QStringLiteral("refused"))
+                             .arg(sent ? QString() : QStringLiteral(": ") + plan->lastError());
+    }
+    else if (op == QLatin1String("missionDownload")) {
+        missionResultsBefore_ = int(missionResults_.size());
+        dmw->downloadMission();
+        qInfo().noquote() << QStringLiteral("echoedit script: missionDownload started");
+    }
+    else if (op == QLatin1String("missionState")) {
+        QJsonObject o;
+        o[QStringLiteral("online")] = dmw->autopilotOnline();
+        o[QStringLiteral("mode")] = dmw->pilotModeState();
+        o[QStringLiteral("modeName")] = dmw->currentAutopilotModeName();
+        o[QStringLiteral("armed")] = dmw->pilotArmState();
+        o[QStringLiteral("missionSeq")] = dmw->missionCurrentSeq();
+        o[QStringLiteral("missionTotal")] = dmw->missionTotal();
+        o[QStringLiteral("transferActive")] = dmw->missionTransferActive();
+        o[QStringLiteral("planItems")] = plan->itemCount();
+        o[QStringLiteral("planRally")] = plan->rallyCount();
+        o[QStringLiteral("planFence")] = plan->fenceCount();
+        o[QStringLiteral("planError")] = plan->lastError();
+        o[QStringLiteral("runKnown")] = run->known();
+        o[QStringLiteral("runItems")] = run->itemCount();
+        o[QStringLiteral("runMatchesPlan")] = run->matchesPlan();
+        o[QStringLiteral("transfers")] = QJsonArray::fromStringList(missionResults_);
+        qInfo().noquote() << QStringLiteral("echoedit script: missionState ")
+                             + QString::fromUtf8(QJsonDocument(o).toJson(QJsonDocument::Compact));
+    }
+    else if (op == QLatin1String("missionEditor")) {
+        core_->setMissionEditorActive(s.value(QStringLiteral("on")).toBool(true));
+        qInfo().noquote() << QStringLiteral("echoedit script: missionEditor %1").arg(core_->getMissionEditorActive() ? 1 : 0);
+    }
+    else if (op == QLatin1String("autopilotMode")) {
+        dmw->autopilotSetMode(s.value(QStringLiteral("mode")).toInt(-1));
+        qInfo().noquote() << QStringLiteral("echoedit script: autopilotMode %1 sent").arg(s.value(QStringLiteral("mode")).toInt(-1));
+    }
+    else {
+        dmw->autopilotArm(s.value(QStringLiteral("on")).toBool(true));
+        qInfo().noquote() << QStringLiteral("echoedit script: autopilotArm %1 sent").arg(s.value(QStringLiteral("on")).toBool(true) ? 1 : 0);
+    }
+    return true;
 }
 
 bool EchoEditScript::dockStep(const QString& op, const QJsonObject& s)

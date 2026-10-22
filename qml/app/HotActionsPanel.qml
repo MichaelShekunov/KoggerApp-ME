@@ -50,6 +50,12 @@ Item {
     readonly property bool _btEditRevealOverride: _revealActiveKey === "bottomTrack"
     readonly property bool showBtEdit: bottomTrackEditorEnabled || _btEditRevealOverride
     readonly property int btTool: (typeof core !== "undefined" && core) ? core.bottomTrackEditTool : 0
+    property bool missionEnabled: true
+    readonly property bool _missionRevealOverride: _revealActiveKey === "mission"
+    readonly property bool showMission: missionEnabled || _missionRevealOverride
+    property bool autopilotEnabled: true
+    readonly property bool _autopilotRevealOverride: _revealActiveKey === "autopilot"
+    readonly property bool showAutopilot: autopilotEnabled || _autopilotRevealOverride
     property bool profilesEnabled: true
     readonly property bool _profilesRevealOverride: _revealActiveKey === "profiles"
     readonly property bool showProfiles: profilesEnabled || _profilesRevealOverride
@@ -1900,6 +1906,51 @@ Item {
     }
 
     Component {
+        id: qaMissionComp
+        KCircleIconButton {
+            width: root.controlHeight
+            height: root.controlHeight
+            iconSource: "qrc:/icons/ui/map_route.svg"
+            iconTintColor: AppPalette.text
+            toolTipText: qsTr("Mission planner")
+            fillColor:        root.buttonFillColor
+            fillHoverColor:   root.buttonHoverColor
+            fillPressedColor: root.buttonPressedColor
+            borderColor:      root.buttonBorderColor
+            borderHoverColor: root.buttonHoverBorderColor
+            highlighted: root.highlightedQuickActionKey === "mission"
+            flashToken: root.highlightPulseToken
+            highlightHold: root.draggingKey === "mission"
+            onClicked: if (typeof core !== "undefined" && core) core.setMissionEditorActive(true)
+        }
+    }
+
+    Component {
+        id: qaAutopilotComp
+        KCircleIconButton {
+            id: autopilotBtn
+            readonly property bool _open: root.store && root.store.autopilotPopupOpen
+            readonly property bool _online: (typeof deviceManagerWrapper !== "undefined" && deviceManagerWrapper) ? deviceManagerWrapper.autopilotOnline : false
+            width: root.controlHeight
+            height: root.controlHeight
+            iconSource: "qrc:/icons/ui/speedboat.svg"
+            iconTintColor: _online ? AppPalette.missionRally : AppPalette.text
+            toolTipText: _open ? qsTr("Close autopilot") : qsTr("Autopilot")
+            fillColor:        _open ? AppPalette.accentBgStrong : root.buttonFillColor
+            fillHoverColor:   _open ? AppPalette.accentBorder : root.buttonHoverColor
+            fillPressedColor: root.buttonPressedColor
+            borderColor:      _open ? AppPalette.accentBorder : root.buttonBorderColor
+            borderHoverColor: _open ? AppPalette.accentBorder : root.buttonHoverBorderColor
+            highlighted: root.highlightedQuickActionKey === "autopilot"
+            flashToken: root.highlightPulseToken
+            highlightHold: root.draggingKey === "autopilot"
+            onClicked: if (root.store) root.store.autopilotPopupOpen = !root.store.autopilotPopupOpen
+
+            KCloseBadge { visible: autopilotBtn._open }
+        }
+    }
+
+    Component {
         id: qaProfilesComp
         KCircleIconButton {
             id: profilesBtn
@@ -1953,6 +2004,8 @@ Item {
         borderHoverColor: root.buttonHoverBorderColor
         toolTipText: qsTr("Open settings")
 
+        KTutorialAnchor { key: "hotActions.settings" }
+
         onClicked: {
             if (!root.showToggleButton)
                 return
@@ -1980,6 +2033,8 @@ Item {
         borderColor: root.buttonBorderColor
         borderHoverColor: root.buttonHoverBorderColor
         toolTipText: root.expanded ? qsTr("Collapse hotkeys") : qsTr("Open hotkeys")
+
+        KTutorialAnchor { key: "hotActions.expand" }
 
         onClicked: {
             if (!root.showToggleButton)
@@ -2175,6 +2230,8 @@ Item {
                            : key === "logging"     ? root._loggingBadgeVisibleExpanded
                            : key === "layouts"   ? root.hasFavoriteLayouts
                            : key === "bottomTrack" ? root.showBtEdit
+                           : key === "mission"     ? root.showMission
+                           : key === "autopilot"   ? root.showAutopilot
                            : key === "widgets"     ? root.showWidgets
                            : key === "console"      ? root.showConsole
                            : key === "profiles"     ? root.showProfiles
@@ -2187,6 +2244,8 @@ Item {
                                    : key === "logging"      ? qaLoggingComp
                                    : key === "layouts"    ? qaFavoritesComp
                                    : key === "bottomTrack"  ? qaBottomTrackComp
+                                   : key === "mission"      ? qaMissionComp
+                                   : key === "autopilot"    ? qaAutopilotComp
                                    : key === "widgets"      ? qaWidgetsComp
                                    : key === "console"      ? qaConsoleComp
                                    : key === "profiles"     ? qaProfilesComp

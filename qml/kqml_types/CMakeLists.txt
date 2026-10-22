@@ -25,6 +25,7 @@ qt_add_qml_module(kogger_kqml_types
         KPinOverlay.qml
         KPinTag.qml
         KScreenKeyboard.qml
+        KScrollBar.qml
         KSlider.qml
         KSpinBox.qml
         KSwitch.qml
@@ -33,6 +34,7 @@ qt_add_qml_module(kogger_kqml_types
         KTapArea.qml
         KToggleRow.qml
         KToolTip.qml
+        KTutorialAnchor.qml
         PinRegistry.qml
         Tokens.qml
         WifiSignalIcon.qml

@@ -78,6 +78,19 @@
 //   {"op": "probe", "tag": name, "root": type}   the UI probe's dump into KOGGER_UI_PROBE's folder: ui-<name>.json
 //                                    (the item tree from the first item of that QML type, else the window's; a
 //                                    Text's words and whether they are cut; ui-<name>.png too with KOGGER_UI_PROBE_PNG=1)
+// The missions (src/mission, src/autopilot; a live autopilot, e.g. KOGGER_AUTOTEST=TCP:5760 to ArduPilot SITL):
+//   {"op": "waitAutopilot", "timeoutMs": 30000}   until an autopilot is bound (DeviceManager's heartbeat rule)
+//   {"op": "missionPlan", "home": [lat, lon], "points": [[lat, lon], ...], "rally": [[lat, lon], ...], "fence": [[lat, lon], ...],
+//    "speed": m/s, "end": endAction}   a new plan in the planner as its editor makes one (fence: one inclusion zone)
+//   {"op": "missionUpload"} / {"op": "missionDownload"}   the plan to the autopilot / the autopilot's mission
+//                                    into the planner (the editor's buttons)
+//   {"op": "waitMissionTransfer", "timeoutMs": 60000}   until the transfer started by the last step has ended;
+//                                    every end is logged: "mission transfer: upload|download ok|failed result type"
+//   {"op": "missionState"}           one line of JSON: the autopilot (online, mode, armed, MISSION_CURRENT seq and
+//                                    total), the planner (items, rally, fence), the run tracker (known, items,
+//                                    matchesPlan)
+//   {"op": "missionEditor", "on": true | false}   the editor opened or closed (core.setMissionEditorActive)
+//   {"op": "autopilotMode", "mode": n} / {"op": "autopilotArm", "on": bool}   the autopilot card's buttons
 //   {"op": "quit"}
 // An epoch can be given as a share of the recording instead: "fromFrac", "toFrac", "epochFrac".
 //
@@ -121,6 +134,7 @@ private:
     void probe(const QString& name, int from, int to, float offset, float radius);
     void dump(const QString& path);
     bool dockStep(const QString& op, const QJsonObject& s);   // the docks' steps; false: not one of them
+    bool missionStep(const QString& op, const QJsonObject& s);   // the missions' steps; false: not one of them
     bool startGesture(const QJsonObject& s);   // "drag": the press
     int gestureStep(const QJsonObject& s);     // the next move or the release: ms to the next call, -1 when done
     bool startDrag3d(const QJsonObject& s);
@@ -145,6 +159,8 @@ private:
     QJsonObject export_;             // the last exportCsv's
     QJsonObject results_;            // the last despike's and turns' counts of pings
     bool live_ = false;              // "live": steps run without a recording open
+    QStringList missionResults_;     // the mission transfers that ended since the script began, as logged
+    int missionResultsBefore_ = 0;   // their count when the last transfer was started by a step
 
     // "drag3d"
     QPointer<QQuickItem> dragView_;

@@ -155,6 +155,25 @@ void MavVehicle::setControlEnabled(bool on)
     emit controlEnabledChanged();
 }
 
+void MavVehicle::setMissionsByPlanner(bool on)
+{
+    if (on == missionsByPlanner_)
+        return;
+    missionsByPlanner_ = on;
+    if (on)
+        plan_.clear();   // not saved: boatMission/planJson stays for a way back
+    emit planChanged();
+}
+
+bool MavVehicle::refusedForPlanner(const char* what)
+{
+    if (!missionsByPlanner_)
+        return false;
+    qInfo().noquote() << QStringLiteral("boat: %1 ignored: the missions and the commands go through the mission planner")
+                         .arg(QLatin1String(what));
+    return true;
+}
+
 QString MavVehicle::modeNameOf(int mode)
 {
     switch (mode) {
@@ -339,7 +358,7 @@ void MavVehicle::handleMessage(const void* p)
                 sendHeartbeat();
             // What mission does the boat hold? Compared with the plan as soon as it is read.
             QTimer::singleShot(1500, this, [this]() {
-                if (transferState_ == TransferIdle && connected())
+                if (transferState_ == TransferIdle && connected() && !missionsByPlanner_)
                     startDownload(false);
             });
         }
@@ -747,6 +766,8 @@ void MavVehicle::addPoint(double lat, double lon)
 
 void MavVehicle::insertPoint(int index, double lat, double lon)
 {
+    if (refusedForPlanner("insertPoint"))
+        return;
     if (!std::isfinite(lat) || !std::isfinite(lon) || qAbs(lat) > 90.0 || qAbs(lon) > 180.0)
         return;
     index = qBound(0, index, int(plan_.size()));
@@ -758,6 +779,8 @@ void MavVehicle::insertPoint(int index, double lat, double lon)
 
 void MavVehicle::movePoint(int index, double lat, double lon)
 {
+    if (refusedForPlanner("movePoint"))
+        return;
     if (index < 0 || index >= plan_.size() || !std::isfinite(lat) || !std::isfinite(lon))
         return;
     plan_[index] = Point{lat, lon};
@@ -766,6 +789,8 @@ void MavVehicle::movePoint(int index, double lat, double lon)
 
 void MavVehicle::removePoint(int index)
 {
+    if (refusedForPlanner("removePoint"))
+        return;
     if (index < 0 || index >= plan_.size())
         return;
     plan_.removeAt(index);
@@ -774,6 +799,8 @@ void MavVehicle::removePoint(int index)
 
 void MavVehicle::clearPlan()
 {
+    if (refusedForPlanner("clearPlan"))
+        return;
     if (plan_.isEmpty())
         return;
     plan_.clear();
@@ -782,6 +809,8 @@ void MavVehicle::clearPlan()
 
 void MavVehicle::setPlanSpeed(double metresPerSecond)
 {
+    if (refusedForPlanner("setPlanSpeed"))
+        return;
     const double v = std::isfinite(metresPerSecond) ? qBound(0.0, metresPerSecond, 20.0) : 0.0;
     if (qFuzzyCompare(v + 1.0, planSpeed_ + 1.0))
         return;
@@ -791,6 +820,8 @@ void MavVehicle::setPlanSpeed(double metresPerSecond)
 
 void MavVehicle::setPlanReturnHome(bool on)
 {
+    if (refusedForPlanner("setPlanReturnHome"))
+        return;
     if (on == planReturnHome_)
         return;
     planReturnHome_ = on;
@@ -1081,6 +1112,8 @@ void MavVehicle::finishTransfer(bool ok, const QString& text)
 
 void MavVehicle::uploadPlan()
 {
+    if (refusedForPlanner("uploadPlan"))
+        return;
     if (transferState_ == TransferUploading || transferState_ == TransferDownloading)
         return;
     if (!connected()) {
@@ -1105,6 +1138,8 @@ void MavVehicle::uploadPlan()
 
 void MavVehicle::readBack()
 {
+    if (refusedForPlanner("readBack"))
+        return;
     if (transferState_ == TransferUploading || transferState_ == TransferDownloading)
         return;
     if (!connected()) {
@@ -1116,6 +1151,8 @@ void MavVehicle::readBack()
 
 void MavVehicle::loadPlanFromVehicle()
 {
+    if (refusedForPlanner("loadPlanFromVehicle"))
+        return;
     if (transferState_ == TransferUploading || transferState_ == TransferDownloading)
         return;
     if (!connected()) {
@@ -1505,6 +1542,8 @@ QString MavVehicle::startBlocker() const
 
 void MavVehicle::startMission()
 {
+    if (refusedForPlanner("startMission"))
+        return;
     // The name is set only once the start really runs: a refusal must not rename a sequence still running.
     const QString why = startBlocker();
     if (!why.isEmpty()) {
@@ -1548,6 +1587,8 @@ void MavVehicle::startMission()
 
 void MavVehicle::hold()
 {
+    if (refusedForPlanner("hold"))
+        return;
     // HOLD, RTL and disarm pre-empt whatever else is running: they are the ways to stop the boat.
     interruptSequence();
     sequenceWhat_ = tr("Hold");
@@ -1556,6 +1597,8 @@ void MavVehicle::hold()
 
 void MavVehicle::returnHome()
 {
+    if (refusedForPlanner("returnHome"))
+        return;
     interruptSequence();
     sequenceWhat_ = tr("Return home");
     runSteps({ stepSetMode(ModeRtl, tr("Switching to RTL")) });
@@ -1563,6 +1606,8 @@ void MavVehicle::returnHome()
 
 void MavVehicle::arm()
 {
+    if (refusedForPlanner("arm"))
+        return;
     if (busy()) {
         emit commandResult(tr("Arm"), false, tr("Another command is running"));
         return;
@@ -1653,6 +1698,8 @@ void MavVehicle::setHeadingSource(int source)
 
 void MavVehicle::disarm()
 {
+    if (refusedForPlanner("disarm"))
+        return;
     interruptSequence();
     sequenceWhat_ = tr("Disarm");
     runSteps({ stepArm(false) });
