@@ -2852,8 +2852,12 @@ dock_e2e]**:
   - the 3D view dragged with the widget docked: 60.0 frames/s, the longest gap 33 ms, 0 gaps over 50 ms (as before);
   - the baseline, the workspace's margin changed as the console drawer does it: 16 frames in 0.8 s, syncs together
     161 ms, the last 610 ms after - the panes' animation, the console's as it is now (not the docks').
-- Not done: the kiosk on the docks' build (the owner's word), the owner's hand on the gestures on the touch screen,
-  the System cell's 76 ms on a resize (a docking only), the console drawer's animated relayout.
+- **Deployed** by the owner's word ("switch the kiosk, and update the PC") **[verified]**: the kiosk on headunit
+  8e455336 since 18:42:25 UTC (ExecStart, active, NRestarts 0, the new session's log only the HDMI1 cursor warning);
+  this PC's two installs (C:\Program Files and %LOCALAPPDATA%\Programs, KoggerApp ME) on me 2ebc93a7, a clean
+  build, the installed exe the same as the packaged one.
+- Not done: the owner's hand on the gestures on the touch screen, the System cell's 76 ms on a resize (a docking
+  only), the console drawer's animated relayout. GitHub not updated.
 
 ## My maps: the view starts over the newest map (2026-10-22, branch `maps-start-view`)
 
