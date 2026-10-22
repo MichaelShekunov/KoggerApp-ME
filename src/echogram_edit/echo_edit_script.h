@@ -36,11 +36,14 @@
 //   {"op": "pinstate", "key": k}     the setting's row controls on the settings page and their mirrors
 //   {"op": "plotState", "set": {"bottomTrackLine": false}}   each echogram's panel state (Plot2D.qml's echoViewState),
 //                                    changed as its controls change it, and logged with what the plot says
-//   {"op": "relayout", "times": n, "margin": px, "side": "right"|"left"|"bottom"}
-//                                    the workspace's margin on a side set and put back n times, as a widget docked to
-//                                    that edge would; logged: the GUI thread's time in the change, the sync of the frame
-//                                    that takes it (the GUI waits: the 3D view's new FBO, the echograms painted anew)
-//                                    and the time to that frame on screen
+//   {"op": "relayout", "times": n, "margin": px, "side": "right"|"left"|"bottom", "intervalMs": ms}
+//                                    the workspace's margin on a side set and put back n times, ms apart (400 without);
+//                                    with "dock": {"widget": id, "side": s} instead, that widget docked there and
+//                                    undocked (WorkspaceStore.dockWidget). Logged: the GUI thread's time in the change,
+//                                    the sync of the frame that takes it (the GUI waits: the 3D view's new FBO, the
+//                                    echograms painted anew), the time to that frame on screen; and every frame until the
+//                                    next change (PaneFrame's animation, if the panes animate): how many, their syncs
+//                                    together, when the last was on screen
 //   {"op": "linkTrack", "points": n, "run": k}   the boat's track by link quality filled as a long session leaves
 //                                    it (MavVehicle::fillLinkTrackForTest), from the plan's first point
 //   {"op": "drag3d", "seconds": s, "hz": n, "radius": px, "turnSeconds": s}
@@ -53,9 +56,18 @@
 //   {"op": "undock", "widget": i | id}   {"op": "dockScale", "side": s, "scale": k}
 //   {"op": "dockCollapse", "side": s, "collapsed": true | false}   as the dock's tab does; without "collapsed": toggled
 //   {"op": "layout", "index": i}     the layout applied, as its button does
+//   {"op": "front", "widget": i | id}   the widget's panel over the others, as a touch on it does
+//   {"op": "editMode", "on": true | false}   the layout edit mode (WorkspaceStore.editableMode)
 //   {"op": "docks"}                  one line of JSON: the docks, their insets and slots, the scale steps, the widgets'
 //                                    sizes at scale 1, the window and the workspace on screen, each widget's panel
 //                                    (docked, visible, where)
+//   {"op": "drag", "from"...: a point, "to"...: a point, "holdMs": ms, "ms": ms, "steps": n, "grab": file.png}
+//                                    a left-button drag on the main window, as a hand makes it: pressed, held holdMs
+//                                    (a long press), moved over ms in n moves, held a moment (the picture taken then),
+//                                    let go. A point: [x, y]; "...Frac": [fx, fy] of the window; "...Widget": id (its
+//                                    panel's middle, or where no other panel covers it, or "...Offset": [dx, dy] from
+//                                    its top-left; none when others cover it all: the step is skipped); "...Tab": a dock's
+//                                    side; "toEdge": side ("toAlong": share along it); "by": [dx, dy] from the start
 //   {"op": "grab", "path": file.png}                         the window, through the UI probe
 //   {"op": "quit"}
 // An epoch can be given as a share of the recording instead: "fromFrac", "toFrac", "epochFrac".
@@ -72,6 +84,7 @@
 #include <QObject>
 #include <QElapsedTimer>
 #include <QPointer>
+#include <QPointF>
 #include <QTimer>
 
 #include <memory>
@@ -81,6 +94,7 @@ class Core;
 class MavVehicle;
 class UiProbe;
 class QQuickItem;
+class QQuickWindow;
 
 class EchoEditScript : public QObject
 {
@@ -98,6 +112,8 @@ private:
     void probe(const QString& name, int from, int to, float offset, float radius);
     void dump(const QString& path);
     bool dockStep(const QString& op, const QJsonObject& s);   // the docks' steps; false: not one of them
+    bool startGesture(const QJsonObject& s);   // "drag": the press
+    int gestureStep(const QJsonObject& s);     // the next move or the release: ms to the next call, -1 when done
     bool startDrag3d(const QJsonObject& s);
     void dragMove();
     void finishDrag3d();
@@ -133,6 +149,12 @@ private:
     int dragIntervalMs_ = 10;
     double dragCx_ = 0.0, dragCy_ = 0.0, dragRadius_ = 0.0, dragTurnS_ = 2.0, dragX_ = 0.0, dragY_ = 0.0;
 
+    // "drag"
+    QPointer<QQuickWindow> gestureWin_;
+    QPointF gestureFrom_, gestureTo_;
+    int gestureSteps_ = 20, gestureStep_ = 0, gestureHoldMs_ = 0, gestureMs_ = 400;
+    QElapsedTimer gestureClock_;
+
     // "relayout"
     QPointer<QQuickItem> relayoutItem_;
     QString relayoutProperty_;       // "anchors.rightMargin", ...
@@ -144,4 +166,8 @@ private:
     std::shared_ptr<RelayoutFrames> relayoutFrames_;
     QList<QMetaObject::Connection> relayoutConns_;
     std::vector<qint64> relayoutChangeNs_, relayoutSyncNs_, relayoutShownNs_;
+    std::vector<qint64> relayoutFrameCount_, relayoutSyncSumNs_, relayoutLastNs_;   // every frame until the next change
+    QPointer<QObject> relayoutStore_;  // "dock": the changes are a widget docked and undocked
+    QString relayoutDockId_, relayoutDockSide_;
+    int relayoutIntervalMs_ = 400;
 };

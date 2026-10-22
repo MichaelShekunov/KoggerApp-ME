@@ -490,9 +490,12 @@ Item {
 
             // By count, the line by index: _infoRows is a new array every second (the monitor's changed()), and as a
             // model it had the Repeater make every line anew each time -- on the head unit a ~150 ms jerk a second
-            // (2026-10-22). The count stays, so the lines stay and only take their new texts.
+            // (2026-10-22). The count stays, so the lines stay and only take their new texts. It is the most lines any
+            // form has (the compact one's CPU and GPU, memory, the volumes), not this form's: a count that changes
+            // makes them all anew too, and a cell docked to an edge or let go changes its form (43 ms of the GUI thread
+            // a dock here, 2026-10-22).
             Repeater {
-                model: ov._infoRows.length
+                model: ov._rows.length + 2
                 delegate: SysRow {
                     objectName: "sysRow"
                     required property int index

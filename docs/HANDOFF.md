@@ -2808,6 +2808,32 @@ dock_e2e]**:
   workspace's size starts PaneFrame's 140 ms animation (Behaviors on x/y/width/height), that is a relayout every frame
   of it; the console drawer does that now **[inference from the code, not measured]**. Docks hold it off; stage 3
   counts the frames.
-- Next: stage 2, the gestures (a widget dragged to an edge with a ghost; a docked one dragged out in the layout edit
-  mode or after a long press; the tab dragged for the thickness), then stage 3, the head unit's measurement (stopping
-  the kiosk needs the owner's word).
+
+**Stage 2 built: the gestures** **[verified: dock_e2e run 4, by mouse events on the window]**:
+- A widget dragged near an edge (`dockEdgeZone`, 60 px x AppPalette.scale, or over that edge's dock; the nearer edge
+  in a corner) shows the dock as it would be, its place in it brighter (`WorkspaceStore.dockTargetAt`, `dockPreview`;
+  red when the workspace would keep less than half the window), and docks there when let go; its place among the
+  dock's widgets follows the pointer along the dock. The ghosts are the widgets' siblings (z just under the widget
+  dragged), so they show over the docked ones.
+- A docked widget is dragged straight away in the layout edit mode, or after a 500 ms press otherwise (the settings
+  widget by its title): it lifts out of its slot under the finger; let go away from the edges it is undocked there (no
+  rescale of its own position as the area grows), over an edge it docks there, over one without room it stays.
+- The tab: a tap collapses or opens the dock; dragged across the edge (10 px x scale before it counts as a drag) a
+  ghost line shows the thickness, snapped to the dock's scale steps, applied when let go (`setDockScale(side, scale,
+  true)` opens a collapsed dock at it).
+- A docked grid's cells can be taller than wide: `WidgetCellContent` sizes its type by the smaller side (no floating
+  cell is taller than wide, so floating panels are unchanged). Before, a tall cell's dash was a thick white bar.
+- Edit script: `drag` (press, hold, move, a picture before the release, release - as QMouseEvents sent to the window;
+  "...Widget" picks a point of the panel no other panel covers, or skips the step), `front`, `editMode`; `relayout`
+  with "dock" docks and undocks a widget, and counts every frame until the next change. `tools/perf/drag_profile.ps1`
+  takes -Action (any step in the drag's place) and -Mark.
+- **Measured on this PC** (the kiosk's layout and widgets, the field recording, 1440x720 on the test desktop)
+  **[verified]**: a workspace margin changed as the console drawer changes it: 19 frames in the 600 ms after it, their
+  syncs together ~100 ms, the last 300 ms after - the panes' animation, a relayout every frame. A widget docked or
+  undocked: 5-10 frames, syncs together 17-37 ms, on screen after 40-63 ms, the GUI thread 3-11 ms; the widget with the
+  System cell 36-74 ms of the GUI thread (on screen after 47-127 ms) - the cell measures its texts anew at the new
+  size, and a 90 ms JS garbage collection was in one sampled run. The System cell's lines Repeater keeps one count
+  across its forms now (every line was made anew on a compact/full switch; sysgui_check test_3d); the cost measured
+  did not move beyond the spread between runs (36-54 ms before, 45 after).
+- Next: stage 3, the head unit (relayout with "dock" and drag3d with docks in probe_drag.sh; stopping the kiosk needs
+  the owner's word). The System cell's cost on a resize is the one to watch there.

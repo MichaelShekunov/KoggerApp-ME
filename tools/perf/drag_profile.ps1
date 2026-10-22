@@ -14,7 +14,8 @@
     sampler.exe (sampler\, built as profile_open.ps1 builds it) samples every -IntervalMs for as long.
     Printed: the step's line (moves, frames and the longest gap between them, the GUI thread's time per
     move, how late the moves' timer fired), the app's "health:" lines, the sampler's report. -NoDrag
-    samples the same stretch without a drag (a "wait"), for a baseline.
+    samples the same stretch without a drag (a "wait"), for a baseline. -Action runs another edit-script step in
+    the drag's place (a "relayout": the docks' cost), the sampler starting at the log line -Mark.
 
 .EXAMPLE
     powershell -ExecutionPolicy Bypass -File tools\perf\drag_profile.ps1 -Exe <build>\KoggerApp.exe -File D:\Temp\hu_field\2026.10.22_07.17.03.klf -PathPrefix "D:\Qt\6.8.3\llvm-mingw_64\bin;D:\Qt\Tools\llvm-mingw1706_64\bin"
@@ -40,6 +41,8 @@ param(
     [int]    $LinkTrack = 0,       # > 0: the boat's track by link quality filled with this many samples first, as a long
                                    # session leaves it (the edit script's "linkTrack", by the plan's first point)
     [int]    $LinkTrackRun = 6,    # its quality changing every this many samples
+    [string] $Action = '',         # an edit-script step (JSON) run instead of the drag, sampled for -DragSeconds
+    [string] $Mark = '',           # with -Action: the text of the log line it starts with ("echoedit script: relayout start")
     [int]    $TimeoutS = 400,
     [string] $Toolchain = 'D:\Qt\Tools\llvm-mingw1706_64\bin',
     [string] $Out = "$env:TEMP\kogger_drag_profile"
@@ -65,7 +68,8 @@ if (-not $NoSampler) {
 }
 
 $inv = [Globalization.CultureInfo]::InvariantCulture
-$act = if ($NoDrag) { '{"op": "wait", "ms": ' + [int]($DragSeconds * 1000) + '}' }
+$act = if ($Action) { $Action }
+       elseif ($NoDrag) { '{"op": "wait", "ms": ' + [int]($DragSeconds * 1000) + '}' }
        else { ('{{"op": "drag3d", "seconds": {0}, "hz": {1}, "radius": {2}, "turnSeconds": {3}}}' -f $DragSeconds.ToString($inv), $MoveHz, $Radius, $TurnSeconds.ToString($inv)) }
 $steps = @('{"op": "settle", "quietMs": 3000, "timeoutMs": 180000}')
 if ($LinkTrack -gt 0) { $steps += @(('{{"op": "linkTrack", "points": {0}, "run": {1}}}' -f $LinkTrack, $LinkTrackRun), '{"op": "wait", "ms": 2000}') }
@@ -85,7 +89,8 @@ if ($SettingsIni) { $psi.EnvironmentVariables['KOGGER_SETTINGS_INI'] = '1' }
 $app = Start-TestDesktopProcess $psi
 
 # The sampler goes as the drag (or the wait in its place) begins: the settle step's line comes just before.
-$mark = if ($NoDrag) { 'echoedit script: settle,' } else { 'echoedit script: drag3d start' }
+$mark = if ($Action) { $(if ($Mark) { $Mark } else { 'echoedit script: ' }) }
+        elseif ($NoDrag) { 'echoedit script: settle,' } else { 'echoedit script: drag3d start' }
 $clock = [System.Diagnostics.Stopwatch]::StartNew()
 $started = $false
 while (-not $app.HasExited -and $clock.Elapsed.TotalSeconds -lt $TimeoutS) {
@@ -112,7 +117,7 @@ $lines = Get-Content -LiteralPath $log -Encoding UTF8
 $start = ($lines | Select-String -Pattern 'log opened' | Select-Object -Last 1).LineNumber
 $mine = $lines[($start - 1)..($lines.Count - 1)]
 "--- the step"
-$mine | Select-String -Pattern 'echoedit script: (drag3d|settle|wait done|linkTrack)' | ForEach-Object { $_.Line -replace '^.*echoedit script: ', '' }
+$mine | Select-String -Pattern 'echoedit script: (drag3d|settle|wait done|linkTrack|relayout)' | ForEach-Object { $_.Line -replace '^.*echoedit script: ', '' }
 "--- health lines of the run"
 $mine | Select-String -Pattern 'health:' | ForEach-Object { $_.Line -replace '^.*health: ', '' }
 if ($sp -and $BurstMs -gt 0 -and (Test-Path -LiteralPath $timeline)) {

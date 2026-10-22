@@ -5,10 +5,11 @@
     gives up, the refusal, the tab's collapse, each layout's own docks, and all of it across a restart.
 
 .DESCRIPTION
-    Three runs of KoggerApp on the test desktop (no window, no focus taken), in a test profile of its own
+    Four runs of KoggerApp on the test desktop (no window, no focus taken), in a test profile of its own
     (KOGGER_PROFILE, an INI file under %APPDATA%\KOGGER written fresh before the first run: four widgets, two layouts,
     no docks), driven by the edit script's dock steps ("dock", "undock", "dockScale", "dockCollapse", "layout") and
-    read back through its "docks" step, which logs the store's docks and what is on screen.
+    its "drag" (the gestures), and read back through its "docks" step, which logs the store's docks and what is on
+    screen.
 
     Every snapshot is held to the same rules:
       - a docked widget's panel is drawn exactly in its slot; in a collapsed dock it is not drawn;
@@ -23,6 +24,13 @@
              DockLayout does), a refusal changing nothing, and at least one refusal. Back to layout 1: its docks kept.
       run 2  after a restart: both layouts' docks as run 1 left them. The right dock opened again, a widget undocked.
       run 3  after a restart: that too kept.
+      run 4  the gestures, by the edit script's "drag" (mouse events on the window, as a hand makes them): a widget
+             dragged to the left edge (a picture of the ghost before it is let go); the left dock's tab dragged 150 px
+             out (the nearest of its scale steps); the tab tapped (collapsed), tapped again (open); a docked widget
+             taken out by a long press and let go in the workspace; the settings widget by a long press on its title
+             to the top edge; the 4x4 widget to the bottom (docked or refused as the sizes say, a picture of the red
+             ghost); in the layout edit mode a docked widget dragged straight to another edge; the right tab tapped
+             (collapsed), then dragged 100 px out (opened at the nearest step). No ghost is left up after a drag.
     Pictures of the window (the UI probe's grab) go to -Out for a look. Exit code 0 when every check holds.
 
 .EXAMPLE
@@ -261,6 +269,67 @@ if ($r3.Snaps.Count -eq 1 -and $T.Count -eq 3) {
 } else {
     Expect $false 'run 3 snapshot' "$($r3.Snaps.Count) of 1"
 }
+
+# --- run 4: the gestures, as a hand makes them (the edit script's "drag": mouse events on the window) --------------------
+$r4 = Invoke-Run 'run4' @(
+    '{"op": "docks"}', '{"op": "front", "widget": "w_dock_a"}',
+    ('{"op": "drag", "fromWidget": "w_dock_a", "toEdge": "left", "ms": 500, "steps": 25, "grab": "' + (Join-Path $Out 'ghost_left.png').Replace('\', '\\') + '"}'),
+    '{"op": "wait", "ms": 600}', '{"op": "docks"}',
+    ('{"op": "drag", "fromTab": "left", "by": [150, 0], "ms": 400, "steps": 20, "grab": "' + (Join-Path $Out 'ghost_thickness.png').Replace('\', '\\') + '"}'),
+    '{"op": "wait", "ms": 600}', '{"op": "docks"}',
+    '{"op": "drag", "fromTab": "left", "by": [0, 0], "ms": 0, "steps": 1}',
+    '{"op": "wait", "ms": 600}', '{"op": "docks"}',
+    '{"op": "drag", "fromTab": "left", "by": [0, 0], "ms": 0, "steps": 1}',
+    '{"op": "wait", "ms": 600}', '{"op": "docks"}',
+    '{"op": "drag", "fromWidget": "w_dock_b", "holdMs": 800, "toFrac": [0.4, 0.45], "ms": 500, "steps": 25}',
+    '{"op": "wait", "ms": 600}', '{"op": "docks"}',
+    '{"op": "drag", "fromWidget": "w_dock_s", "fromOffset": [40, 12], "holdMs": 800, "toEdge": "top", "ms": 500, "steps": 25}',
+    '{"op": "wait", "ms": 600}', '{"op": "docks"}', (& $g 'gestures'), '{"op": "front", "widget": "w_dock_big"}',
+    ('{"op": "drag", "fromWidget": "w_dock_big", "toEdge": "bottom", "ms": 500, "steps": 25, "grab": "' + (Join-Path $Out 'ghost_red.png').Replace('\', '\\') + '"}'),
+    '{"op": "wait", "ms": 600}', '{"op": "docks"}',
+    '{"op": "editMode", "on": true}',
+    '{"op": "drag", "fromWidget": "w_dock_a", "toEdge": "right", "ms": 500, "steps": 25}',
+    '{"op": "wait", "ms": 600}', '{"op": "docks"}',
+    '{"op": "editMode", "on": false}',
+    '{"op": "drag", "fromTab": "right", "by": [0, 0], "ms": 0, "steps": 1}',
+    '{"op": "wait", "ms": 600}', '{"op": "docks"}',
+    '{"op": "drag", "fromTab": "right", "by": [-100, 0], "ms": 400, "steps": 20}',
+    '{"op": "wait", "ms": 600}', '{"op": "docks"}')
+$G = $r4.Snaps
+Expect ($G.Count -eq 11) 'run 4 snapshots' "$($G.Count) of 11; results: $($r4.Results -join ' | ')"
+$covered = @(Get-Content -LiteralPath (Join-Path $Out 'run4.log') -Encoding UTF8 | Where-Object { $_ -match 'echoedit script: drag: ' })
+Expect ($covered.Count -eq 0) 'every drag pressed on its widget' ($covered -join ' | ')
+if ($G.Count -eq 11) {
+    for ($i = 0; $i -lt 11; $i++) { Check-Snap "run 4 #$i" $G[$i] }
+    $stale = @($G | Where-Object { $_.preview })
+    Expect ($stale.Count -eq 0) 'no ghost left after a drag' "$($stale.Count) snapshots with a preview still up"
+    $fitA = Fits $G[0] (With-Widget $G[0] 'w_dock_a' 'left')
+    Expect ((Ids $G[1] 'left') -eq $(if ($fitA) { 'w_dock_a' } else { '' }) -and ((Panel $G[1] 'w_dock_a').docked -eq $fitA)) `
+        'dragged to the left edge' "fits $fitA; $(DocksText $G[1])"
+    $want = [double]$G[1].insets.left + 150
+    $steps = @((@($G[1].steps) | Where-Object { $_.side -eq 'left' }).steps)
+    $best = $null; foreach ($st in $steps) { if (-not $best -or [math]::Abs($st.thickness - $want) -lt [math]::Abs($best.thickness - $want)) { $best = $st } }
+    Expect ($best -and [double]$G[2].docks.left.scale -eq [double]$best.scale -and $G[2].insets.left -eq $best.thickness) `
+        'the tab dragged 150 px out' "from $($G[1].insets.left) px: steps $(($steps | ForEach-Object { "$($_.scale):$($_.thickness)" }) -join ' '); now x$($G[2].docks.left.scale), $($G[2].insets.left) px"
+    Expect ($G[3].docks.left.collapsed -eq $true -and $G[3].insets.left -eq 0 -and -not (Panel $G[3] 'w_dock_a').visible) 'the tab tapped: collapsed' (DocksText $G[3])
+    Expect ($G[4].docks.left.collapsed -eq $false -and $G[4].insets.left -eq $G[2].insets.left -and (Panel $G[4] 'w_dock_a').visible) 'tapped again: open' (DocksText $G[4])
+    $b = Panel $G[5] 'w_dock_b'
+    Expect ((Ids $G[5] 'right') -eq '' -and -not $b.docked -and $b.visible) 'a long press took a widget out of its dock' "$(DocksText $G[5]); b at $($b.panel.x),$($b.panel.y)"
+    Expect ((Ids $G[6] 'top') -eq 'w_dock_s' -and (Ids $G[6] 'bottom') -eq '') 'the settings widget by its title to the top' (DocksText $G[6])
+    $fitBig = Fits $G[6] (With-Widget $G[6] 'w_dock_big' 'bottom')
+    Expect ($(if ($fitBig) { (Ids $G[7] 'bottom') -eq 'w_dock_big' } else { (DocksText $G[7]) -eq (DocksText $G[6]) -and -not (Panel $G[7] 'w_dock_big').docked })) `
+        'the 4x4 widget to the bottom' "fits $fitBig; $(DocksText $G[7])"
+    $fitR = Fits $G[7] (With-Widget $G[7] 'w_dock_a' 'right')
+    Expect ((Ids $G[8] 'right') -eq $(if ($fitR) { 'w_dock_a' } else { '' }) -and (Ids $G[8] 'left') -eq $(if ($fitR) { '' } else { 'w_dock_a' })) `
+        'in the edit mode a docked widget dragged straight to another edge' "fits $fitR; $(DocksText $G[8])"
+    Expect ($G[9].docks.right.collapsed -eq $true -and $G[9].insets.right -eq 0) 'the right tab tapped: collapsed' (DocksText $G[9])
+    $steps = @((@($G[9].steps) | Where-Object { $_.side -eq 'right' }).steps)
+    $best = $null; foreach ($st in $steps) { if (-not $best -or [math]::Abs($st.thickness - 100) -lt [math]::Abs($best.thickness - 100)) { $best = $st } }
+    Expect ($best -and -not $G[10].docks.right.collapsed -and $G[10].insets.right -eq $best.thickness -and [double]$G[10].docks.right.scale -eq [double]$best.scale) `
+        'a collapsed dock pulled out by its tab' "steps $(($steps | ForEach-Object { "$($_.scale):$($_.thickness)" }) -join ' '); $(DocksText $G[10]), $($G[10].insets.right) px"
+}
+$qml = @($r4.Results | Where-Object { $_ -like 'QML:*' })
+Expect ($qml.Count -eq 0) 'run 4 QML errors' ($qml -join ' | ')
 
 "dock e2e: {0} (pictures and logs in {1})" -f ($(if ($failed -eq 0) { 'PASS' } else { "$failed FAIL" })), $Out
 exit ([int]($failed -gt 0))

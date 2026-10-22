@@ -1332,10 +1332,68 @@ function dockWidget(id, side, index) {
     if (widgetIndexById(id) < 0 || !DockLayout.isSide(side))
         return false
     var next = DockLayout.withWidget(docks, id, side, typeof index === "number" ? index : -1)
+    if (JSON.stringify(next) === JSON.stringify(docks))
+        return true
     if (!DockLayout.fits(next, widgetNaturalSizes, widgetShownMap, windowWidth, windowHeight, dockLines))
         return false
     _setDocks(next)
     return true
+}
+
+// A widget dragged with the pointer at (x, y) in the window: the edge it would dock to, the nearer one in a corner,
+// when the pointer is over that edge's dock or within dockEdgeZone of it, and its place among the dock's widgets
+// by the pointer's position along it: { id, side, index, fits, layout } (layout: dockLayout as it would be), or null.
+// While the drag lasts the widget keeps it in dockPreview, and WidgetDocks draws it.
+readonly property int dockEdgeZone: Math.round(60 * AppPalette.scale)
+property var dockPreview: null
+
+function dockTargetAt(id, x, y) {
+    if (!id || !(windowWidth > 0) || !(windowHeight > 0))
+        return null
+    var L = dockLayout
+    var dist = { left: x, right: windowWidth - x, top: y, bottom: windowHeight - y }
+    var side = "", best = Infinity
+    for (var i = 0; i < DockLayout.SIDES.length; ++i) {
+        var sd = DockLayout.SIDES[i]
+        var reach = Math.max(dockEdgeZone, L.insets[sd])
+        if (dist[sd] <= reach && dist[sd] / reach < best) {
+            best = dist[sd] / reach
+            side = sd
+        }
+    }
+    if (side === "")
+        return null
+    var vertical = DockLayout.isVertical(side)
+    var along = vertical ? y : x
+    var rest = []
+    for (var k = 0; k < docks[side].widgets.length; ++k)
+        if (docks[side].widgets[k] !== id) rest.push(docks[side].widgets[k])
+    var index = rest.length
+    for (var m = 0; m < rest.length; ++m) {
+        var r = L.widgets[rest[m]]
+        if (!r || r.collapsed)
+            continue
+        if (along < (vertical ? r.y + r.h / 2 : r.x + r.w / 2)) {
+            index = m
+            break
+        }
+    }
+    var next = DockLayout.withWidget(docks, id, side, index)
+    var shown = {}
+    for (var sk in widgetShownMap) shown[sk] = widgetShownMap[sk]
+    shown[id] = true
+    return { id: id, side: side, index: index,
+             fits: DockLayout.fits(next, widgetNaturalSizes, shown, windowWidth, windowHeight, dockLines),
+             layout: DockLayout.compute(next, widgetNaturalSizes, shown, windowWidth, windowHeight, dockLines) }
+}
+
+// Kept as it was while the pointer stays over the same place: the docks redraw the ghost only when it moves.
+function setDockPreview(preview) {
+    var a = dockPreview, b = preview || null
+    if (a && b && a.id === b.id && a.side === b.side && a.index === b.index && a.fits === b.fits)
+        return
+    if (a !== b)
+        dockPreview = b
 }
 
 function undockWidget(id) {
@@ -1345,11 +1403,14 @@ function undockWidget(id) {
     return true
 }
 
-function setDockScale(side, scale) {
+// open: a collapsed dock opened at that scale too (its tab dragged out).
+function setDockScale(side, scale, open) {
     if (!DockLayout.isSide(side))
         return false
     var next = DockLayout.withScale(docks, side, scale)
-    if (next[side].scale === docks[side].scale)
+    if (open === true)
+        next[side].collapsed = false
+    if (JSON.stringify(next) === JSON.stringify(docks))
         return true
     if (!DockLayout.fits(next, widgetNaturalSizes, widgetShownMap, windowWidth, windowHeight, dockLines))
         return false

@@ -44,13 +44,16 @@ Item {
     readonly property real _margin: Math.round(6 * k)
     readonly property real _minPx: Math.max(6, Math.round(7 * k))
 
-    readonly property int _labelPx:    Math.max(_minPx, Math.round(content.height * 0.17))
-    readonly property int _valuePx:    Math.max(_minPx, Math.round(content.height * 0.30))
-    readonly property int _valueBigPx: Math.max(_minPx, Math.round(content.height * 0.45))
+    // The type follows the cell's height, but no further than its width: a cell is never taller than wide on a
+    // floating panel; stretched along a side dock it is, and a reading the cell's height there is no reading.
+    readonly property real _typeBox: Math.min(content.height, content.width)
+    readonly property int _labelPx:    Math.max(_minPx, Math.round(_typeBox * 0.17))
+    readonly property int _valuePx:    Math.max(_minPx, Math.round(_typeBox * 0.30))
+    readonly property int _valueBigPx: Math.max(_minPx, Math.round(_typeBox * 0.45))
 
     readonly property bool _noData: content.value === "—"
     readonly property bool _barsShown: !!content.bars && content.bars.length > 0 && !content._noData
-    readonly property real _barH: Math.max(3, Math.round(content.height * 0.12))
+    readonly property real _barH: Math.max(3, Math.round(_typeBox * 0.12))
     // Room the value leaves at the bottom for the bar.
     readonly property real _barSpace: _barsShown ? _barH + Math.round(2 * k) : 0
 

@@ -7,6 +7,7 @@
 #include <QFileInfo>
 #include <QGuiApplication>
 #include <QJSValue>
+#include <QMouseEvent>
 #include <QJsonDocument>
 #include <QQmlEngine>
 #include <QQmlProperty>
@@ -21,6 +22,7 @@
 #include <functional>
 #include <limits>
 #include <numeric>
+#include <optional>
 
 #include "core.h"
 #include "device_manager_wrapper.h"
@@ -191,6 +193,12 @@ struct EchoEditScript::RelayoutFrames
     std::atomic<qint64> syncStartNs{ 0 };
     std::atomic<qint64> syncNs{ 0 };
     std::atomic<qint64> shownNs{ 0 };
+    // Every frame since the change, the frame that takes it and any after (an animation's): how many, their syncs
+    // added up, when the last was on screen.
+    std::atomic<qint64> anySyncStartNs{ 0 };
+    std::atomic<int> frames{ 0 };
+    std::atomic<qint64> syncSumNs{ 0 };
+    std::atomic<qint64> lastShownNs{ 0 };
 };
 
 struct EchoEditScript::DragFrames
@@ -308,6 +316,25 @@ void EchoEditScript::step()
         timer_.start(0);
         return;
     }
+    if (op == QLatin1String("drag")) {
+        if (!settleClock_.isValid()) {
+            if (!startGesture(s)) {
+                ++next_;
+                timer_.start(0);
+                return;
+            }
+            settleClock_.start();
+        }
+        const int wait = gestureStep(s);
+        if (wait >= 0) {
+            timer_.start(wait);
+            return;
+        }
+        settleClock_.invalidate();
+        ++next_;
+        timer_.start(300);
+        return;
+    }
     if (op == QLatin1String("relayout")) {
         if (!settleClock_.isValid()) {
             if (!startRelayout(s)) {
@@ -318,7 +345,7 @@ void EchoEditScript::step()
             settleClock_.start();
         }
         if (relayoutStep()) {
-            timer_.start(250);
+            timer_.start(relayoutPending_ ? 20 : relayoutIntervalMs_);
             return;
         }
         settleClock_.invalidate();
@@ -822,10 +849,187 @@ void EchoEditScript::runStep(const QJsonObject& s)
                          .arg(op).arg(from).arg(to).arg(ed->canUndo()).arg(ed->canRedo());
 }
 
+namespace {
+
+// The item a press at p (in the window) goes to first: the topmost visible, enabled one there that takes mouse
+// buttons, children before their parent, the higher z first.
+QQuickItem* pressTarget(QQuickItem* item, const QPointF& p)
+{
+    if (!item->isVisible() || !item->isEnabled()) {
+        return nullptr;
+    }
+    QList<QQuickItem*> kids = item->childItems();
+    std::stable_sort(kids.begin(), kids.end(), [](QQuickItem* a, QQuickItem* b) { return a->z() < b->z(); });
+    for (auto it = kids.crbegin(); it != kids.crend(); ++it) {
+        if (QQuickItem* hit = pressTarget(*it, p)) {
+            return hit;
+        }
+    }
+    return (item->acceptedMouseButtons() != Qt::NoButton && item->contains(item->mapFromScene(p))) ? item : nullptr;
+}
+
+// A point of a "drag" step in the window: [x, y]; a share of the window ("...Frac"); a widget's panel ("...Widget":
+// its id, "...Offset": [dx, dy] from the panel's top-left, its middle without); a dock's tab ("...Tab": side); an
+// edge ("toEdge": side, "toAlong": share along it, 0.5 without: a few pixels in from it). For "to" also "by": [dx, dy]
+// from the start. Null when the step names none it can find.
+std::optional<QPointF> gesturePoint(const QJsonObject& s, const QString& key, QQuickWindow* w, const QPointF& from)
+{
+    const double W = w->contentItem()->width();
+    const double H = w->contentItem()->height();
+    const QJsonArray xy = s.value(key).toArray();
+    if (xy.size() == 2) {
+        return QPointF(xy.at(0).toDouble(), xy.at(1).toDouble());
+    }
+    const QJsonArray frac = s.value(key + QStringLiteral("Frac")).toArray();
+    if (frac.size() == 2) {
+        return QPointF(frac.at(0).toDouble() * W, frac.at(1).toDouble() * H);
+    }
+    if (s.contains(key + QStringLiteral("Widget"))) {
+        QList<QQuickItem*> panels;
+        collectWidgetPanels(w->contentItem(), panels);
+        const QString id = s.value(key + QStringLiteral("Widget")).toString();
+        for (QQuickItem* p : panels) {
+            if (p->property("popupId").toString() != QStringLiteral("widget:") + id) {
+                continue;
+            }
+            for (QQuickItem* c : p->childItems()) {
+                if (c->objectName() == QLatin1String("panePanel")) {
+                    const QRectF r = c->mapRectToScene(QRectF(0.0, 0.0, c->width(), c->height()));
+                    const QJsonArray off = s.value(key + QStringLiteral("Offset")).toArray();
+                    if (off.size() == 2) {
+                        return r.topLeft() + QPointF(off.at(0).toDouble(), off.at(1).toDouble());
+                    }
+                    // Its middle, or where it is not under another panel.
+                    const auto mine = [&](const QPointF& q) {
+                        QQuickItem* t = pressTarget(w->contentItem(), q);
+                        return t && (t == c || c->isAncestorOf(t));
+                    };
+                    if (mine(r.center())) {
+                        return r.center();
+                    }
+                    for (int iy = 1; iy < 8; ++iy) {
+                        for (int ix = 1; ix < 8; ++ix) {
+                            const QPointF q(r.x() + r.width() * ix / 8.0, r.y() + r.height() * iy / 8.0);
+                            if (mine(q)) {
+                                return q;
+                            }
+                        }
+                    }
+                    qWarning().noquote() << QStringLiteral("echoedit script: drag: the panel of %1 is under others").arg(id);
+                    return std::nullopt;
+                }
+            }
+        }
+        return std::nullopt;
+    }
+    if (s.contains(key + QStringLiteral("Tab"))) {
+        const QString name = QStringLiteral("dockTab_") + s.value(key + QStringLiteral("Tab")).toString();
+        std::function<QQuickItem*(QQuickItem*)> find = [&](QQuickItem* item) -> QQuickItem* {
+            if (item->objectName() == name) {
+                return item;
+            }
+            for (QQuickItem* c : item->childItems()) {
+                if (QQuickItem* f = find(c)) {
+                    return f;
+                }
+            }
+            return nullptr;
+        };
+        if (QQuickItem* tab = find(w->contentItem())) {
+            return tab->mapRectToScene(QRectF(0.0, 0.0, tab->width(), tab->height())).center();
+        }
+        return std::nullopt;
+    }
+    if (key == QLatin1String("to") && s.contains(QStringLiteral("toEdge"))) {
+        const QString side = s.value(QStringLiteral("toEdge")).toString();
+        const double along = s.value(QStringLiteral("toAlong")).toDouble(0.5);
+        const double in = 6.0;
+        if (side == QLatin1String("left"))   return QPointF(in, along * H);
+        if (side == QLatin1String("right"))  return QPointF(W - in, along * H);
+        if (side == QLatin1String("top"))    return QPointF(along * W, in);
+        if (side == QLatin1String("bottom")) return QPointF(along * W, H - in);
+        return std::nullopt;
+    }
+    if (key == QLatin1String("to") && s.contains(QStringLiteral("by"))) {
+        const QJsonArray by = s.value(QStringLiteral("by")).toArray();
+        return from + QPointF(by.at(0).toDouble(), by.at(1).toDouble());
+    }
+    return std::nullopt;
+}
+
+void sendMouse(QQuickWindow* w, QEvent::Type type, const QPointF& p, Qt::MouseButton button, Qt::MouseButtons buttons, qint64 ms)
+{
+    QMouseEvent ev(type, p, p, w->mapToGlobal(p), button, buttons, Qt::NoModifier);
+    ev.setTimestamp(quint64(ms));
+    QCoreApplication::sendEvent(w, &ev);
+}
+
+} // namespace
+
+bool EchoEditScript::startGesture(const QJsonObject& s)
+{
+    gestureWin_.clear();
+    for (QWindow* w : QGuiApplication::topLevelWindows()) {
+        auto* qw = qobject_cast<QQuickWindow*>(w);
+        if (qw && qw->isVisible() && findWithProperty(qw->contentItem(), "secondaryPlotItem")) {
+            gestureWin_ = qw;
+            break;
+        }
+    }
+    const auto from = gestureWin_ ? gesturePoint(s, QStringLiteral("from"), gestureWin_, QPointF()) : std::nullopt;
+    const auto to = from ? gesturePoint(s, QStringLiteral("to"), gestureWin_, *from) : std::nullopt;
+    if (!from || !to) {
+        qWarning().noquote() << QStringLiteral("echoedit script: drag: no main window, or its start or end not found");
+        return false;
+    }
+    gestureFrom_ = *from;
+    gestureTo_ = *to;
+    gestureSteps_ = std::max(1, s.value(QStringLiteral("steps")).toInt(20));
+    gestureStep_ = 0;
+    gestureHoldMs_ = std::max(0, s.value(QStringLiteral("holdMs")).toInt(0));
+    gestureMs_ = std::max(0, s.value(QStringLiteral("ms")).toInt(400));
+    gestureClock_.start();
+    sendMouse(gestureWin_, QEvent::MouseButtonPress, gestureFrom_, Qt::LeftButton, Qt::LeftButton, gestureClock_.elapsed());
+    return true;
+}
+
+int EchoEditScript::gestureStep(const QJsonObject& s)
+{
+    if (!gestureWin_) {
+        return -1;
+    }
+    const qint64 now = gestureClock_.elapsed();
+    if (gestureStep_ == 0 && now < gestureHoldMs_) {
+        return int(gestureHoldMs_ - now);
+    }
+    if (gestureStep_ < gestureSteps_) {
+        ++gestureStep_;
+        const QPointF p = gestureFrom_ + (gestureTo_ - gestureFrom_) * (double(gestureStep_) / gestureSteps_);
+        sendMouse(gestureWin_, QEvent::MouseMove, p, Qt::NoButton, Qt::LeftButton, now);
+        return gestureMs_ / gestureSteps_;
+    }
+    // Held still at the end a moment, a picture of what shows then (the ghosts), and let go.
+    if (gestureStep_ == gestureSteps_) {
+        ++gestureStep_;
+        const QString path = s.value(QStringLiteral("grab")).toString();
+        if (!path.isEmpty() && uiProbe_) {
+            uiProbe_->grabWindow(path);
+        }
+        return 120;
+    }
+    sendMouse(gestureWin_, QEvent::MouseButtonRelease, gestureTo_, Qt::LeftButton, Qt::NoButton, now);
+    qInfo().noquote() << QStringLiteral("echoedit script: drag from %1,%2 to %3,%4, held %5 ms: done")
+                         .arg(gestureFrom_.x(), 0, 'f', 0).arg(gestureFrom_.y(), 0, 'f', 0)
+                         .arg(gestureTo_.x(), 0, 'f', 0).arg(gestureTo_.y(), 0, 'f', 0).arg(gestureHoldMs_);
+    gestureWin_.clear();
+    return -1;
+}
+
 bool EchoEditScript::dockStep(const QString& op, const QJsonObject& s)
 {
     static const QStringList ops = { QStringLiteral("dock"), QStringLiteral("undock"), QStringLiteral("dockScale"),
-                                     QStringLiteral("dockCollapse"), QStringLiteral("docks"), QStringLiteral("layout") };
+                                     QStringLiteral("dockCollapse"), QStringLiteral("docks"), QStringLiteral("layout"),
+                                     QStringLiteral("front"), QStringLiteral("editMode") };
     if (!ops.contains(op)) {
         return false;
     }
@@ -863,7 +1067,8 @@ bool EchoEditScript::dockStep(const QString& op, const QJsonObject& s)
     }
     else if (op == QLatin1String("dockScale")) {
         const double scale = s.value(QStringLiteral("scale")).toDouble(1.0);
-        QMetaObject::invokeMethod(store, "setDockScale", Q_RETURN_ARG(QVariant, r), Q_ARG(QVariant, side), Q_ARG(QVariant, scale));
+        QMetaObject::invokeMethod(store, "setDockScale", Q_RETURN_ARG(QVariant, r), Q_ARG(QVariant, side), Q_ARG(QVariant, scale),
+                                  Q_ARG(QVariant, false));
         qInfo().noquote() << QStringLiteral("echoedit script: dockScale %1 %2: %3").arg(side).arg(scale)
                              .arg(r.toBool() ? QStringLiteral("set") : QStringLiteral("refused"));
     }
@@ -875,6 +1080,16 @@ bool EchoEditScript::dockStep(const QString& op, const QJsonObject& s)
             QMetaObject::invokeMethod(store, "toggleDockCollapsed", Q_ARG(QVariant, side));
         }
         qInfo().noquote() << QStringLiteral("echoedit script: dockCollapse %1 done").arg(side);
+    }
+    else if (op == QLatin1String("front")) {
+        const QString id = widgetId();
+        QMetaObject::invokeMethod(store, "widgetBringToFront", Q_ARG(QVariant, id));
+        qInfo().noquote() << QStringLiteral("echoedit script: front %1 done").arg(id);
+    }
+    else if (op == QLatin1String("editMode")) {
+        const bool on = s.value(QStringLiteral("on")).toBool(true);
+        store->setProperty("editableMode", on);
+        qInfo().noquote() << QStringLiteral("echoedit script: editMode %1").arg(store->property("editableMode").toBool());
     }
     else if (op == QLatin1String("layout")) {
         const int index = s.value(QStringLiteral("index")).toInt(0);
@@ -893,6 +1108,7 @@ bool EchoEditScript::dockStep(const QString& op, const QJsonObject& s)
         out.insert(QStringLiteral("activeLayout"), store->property("activeLayoutIndex").toInt());
         out.insert(QStringLiteral("natural"), toJson(store->property("widgetNaturalSizes")));
         out.insert(QStringLiteral("lines"), toJson(store->property("dockLines")));
+        out.insert(QStringLiteral("preview"), !toJson(store->property("dockPreview")).isNull());
         out.insert(QStringLiteral("window"), QJsonObject{ { QStringLiteral("w"), store->property("windowWidth").toDouble() },
                                                           { QStringLiteral("h"), store->property("windowHeight").toDouble() } });
         out.insert(QStringLiteral("workspace"), sceneRect(workspace));
@@ -1243,33 +1459,54 @@ bool EchoEditScript::startRelayout(const QJsonObject& s)
             break;
         }
     }
-    const QString side = s.value(QStringLiteral("side")).toString(QStringLiteral("right"));
-    if (!workspace || !window || (side != QLatin1String("right") && side != QLatin1String("left") && side != QLatin1String("bottom"))) {
+    const QJsonObject dock = s.value(QStringLiteral("dock")).toObject();
+    const QString side = dock.isEmpty() ? s.value(QStringLiteral("side")).toString(QStringLiteral("right"))
+                                        : dock.value(QStringLiteral("side")).toString(QStringLiteral("right"));
+    if (!workspace || !window || (dock.isEmpty() && side != QLatin1String("right") && side != QLatin1String("left")
+                                  && side != QLatin1String("bottom"))) {
         qWarning().noquote() << QStringLiteral("echoedit script: relayout: no workspace on screen, or side \"%1\" not right, left or bottom").arg(side);
         return false;
     }
     relayoutItem_ = workspace;
-    relayoutProperty_ = QStringLiteral("anchors.%1Margin").arg(side);
-    relayoutOrig_ = QQmlProperty::read(workspace, relayoutProperty_).toDouble();
+    relayoutStore_ = dock.isEmpty() ? nullptr : workspace->property("store").value<QObject*>();
+    relayoutDockId_ = dock.value(QStringLiteral("widget")).toString();
+    relayoutDockSide_ = side;
+    if (!dock.isEmpty() && (!relayoutStore_ || relayoutDockId_.isEmpty())) {
+        qWarning().noquote() << QStringLiteral("echoedit script: relayout: no store, or no widget to dock");
+        return false;
+    }
+    relayoutProperty_ = dock.isEmpty() ? QStringLiteral("anchors.%1Margin").arg(side)
+                                       : QStringLiteral("the dock of %1 at the %2").arg(relayoutDockId_, side);
+    relayoutOrig_ = dock.isEmpty() ? QQmlProperty::read(workspace, relayoutProperty_).toDouble() : 0.0;
     relayoutMargin_ = relayoutOrig_ + s.value(QStringLiteral("margin")).toDouble(300.0);
-    relayoutLeft_ = 2 * std::max(1, s.value(QStringLiteral("times")).toInt(10));   // to the margin and back
+    relayoutLeft_ = 2 * std::max(1, s.value(QStringLiteral("times")).toInt(10));   // there and back
+    relayoutIntervalMs_ = std::max(50, s.value(QStringLiteral("intervalMs")).toInt(400));
     relayoutPending_ = false;
     relayoutChangeNs_.clear();
     relayoutSyncNs_.clear();
     relayoutShownNs_.clear();
+    relayoutFrameCount_.clear();
+    relayoutSyncSumNs_.clear();
+    relayoutLastNs_.clear();
 
-    // On the render thread: the first sync after a change is the frame that takes it (the GUI waits through it).
+    // On the render thread: the first sync after a change is the frame that takes it (the GUI waits through it); every
+    // frame until the next change is counted, the panes' animation's if there is one.
     auto frames = std::make_shared<RelayoutFrames>();
     frames->clock.start();
     relayoutFrames_ = frames;
     relayoutConns_ << connect(window, &QQuickWindow::beforeSynchronizing, this, [frames]() {
+        const qint64 now = frames->clock.nsecsElapsed();
+        frames->anySyncStartNs = now;
         if (frames->state.load() == 1) {
-            frames->syncStartNs = frames->clock.nsecsElapsed();
+            frames->syncStartNs = now;
         }
     }, Qt::DirectConnection);
     relayoutConns_ << connect(window, &QQuickWindow::afterSynchronizing, this, [frames]() {
         int one = 1;
         const qint64 now = frames->clock.nsecsElapsed();
+        if (frames->state.load() >= 1 && frames->anySyncStartNs.load() > 0) {
+            frames->syncSumNs += now - frames->anySyncStartNs.load();
+        }
         if (frames->state.load() == 1 && frames->syncStartNs.load() > 0) {
             frames->syncNs = now - frames->syncStartNs.load();
             frames->state.compare_exchange_strong(one, 2);
@@ -1277,13 +1514,20 @@ bool EchoEditScript::startRelayout(const QJsonObject& s)
     }, Qt::DirectConnection);
     relayoutConns_ << connect(window, &QQuickWindow::frameSwapped, this, [frames]() {
         int two = 2;
+        const qint64 now = frames->clock.nsecsElapsed();
+        if (frames->state.load() >= 2) {
+            ++frames->frames;
+            frames->lastShownNs = now;
+        }
         if (frames->state.load() == 2) {
-            frames->shownNs = frames->clock.nsecsElapsed();
+            frames->shownNs = now;
             frames->state.compare_exchange_strong(two, 3);
         }
     }, Qt::DirectConnection);
-    qInfo().noquote() << QStringLiteral("echoedit script: relayout start: %1 from %2 to %3 px, %4 changes")
-                         .arg(relayoutProperty_).arg(relayoutOrig_).arg(relayoutMargin_).arg(relayoutLeft_);
+    qInfo().noquote() << QStringLiteral("echoedit script: relayout start: %1%2, %3 changes %4 ms apart")
+                         .arg(relayoutProperty_)
+                         .arg(relayoutStore_ ? QString() : QStringLiteral(" from %1 to %2 px").arg(relayoutOrig_).arg(relayoutMargin_))
+                         .arg(relayoutLeft_).arg(relayoutIntervalMs_);
     return true;
 }
 
@@ -1293,29 +1537,46 @@ bool EchoEditScript::relayoutStep()
     if (!f) {
         return false;
     }
+    const qint64 now = f->clock.nsecsElapsed();
     if (relayoutPending_) {
-        if (f->state.load() == 3) {
-            relayoutSyncNs_.push_back(f->syncNs.load());
-            relayoutShownNs_.push_back(f->shownNs.load() - relayoutT0_);
-            relayoutPending_ = false;
-        }
-        else if (f->clock.nsecsElapsed() - relayoutT0_ < 3000000000LL) {
+        if (f->state.load() < 3 && now - relayoutT0_ < 3000000000LL) {
             return true;   // its frame still to come
         }
-        else {
-            relayoutSyncNs_.push_back(-1);   // no frame in 3 s
-            relayoutShownNs_.push_back(-1);
-            relayoutPending_ = false;
+        if (now - relayoutT0_ < qint64(relayoutIntervalMs_) * 1000000) {
+            return true;   // and the frames after it
         }
+        const bool shown = f->state.load() == 3;
+        relayoutSyncNs_.push_back(shown ? f->syncNs.load() : -1);   // -1: no frame in 3 s
+        relayoutShownNs_.push_back(shown ? f->shownNs.load() - relayoutT0_ : -1);
+        relayoutFrameCount_.push_back(f->frames.load());
+        relayoutSyncSumNs_.push_back(f->syncSumNs.load());
+        relayoutLastNs_.push_back(f->frames.load() > 0 ? f->lastShownNs.load() - relayoutT0_ : -1);
+        relayoutPending_ = false;
     }
     if (relayoutLeft_ <= 0 || !relayoutItem_) {
         return false;
     }
-    const double value = relayoutLeft_ % 2 == 0 ? relayoutMargin_ : relayoutOrig_;
+    const bool there = relayoutLeft_ % 2 == 0;
     f->syncStartNs = 0;
+    f->frames = 0;
+    f->syncSumNs = 0;
+    f->lastShownNs = 0;
     f->state = 1;
     relayoutT0_ = f->clock.nsecsElapsed();
-    QQmlProperty::write(relayoutItem_.data(), relayoutProperty_, value);
+    if (relayoutStore_) {
+        QVariant r;
+        if (there) {
+            QMetaObject::invokeMethod(relayoutStore_.data(), "dockWidget", Q_RETURN_ARG(QVariant, r), Q_ARG(QVariant, relayoutDockId_),
+                                      Q_ARG(QVariant, relayoutDockSide_), Q_ARG(QVariant, -1));
+        } else {
+            QMetaObject::invokeMethod(relayoutStore_.data(), "undockWidget", Q_RETURN_ARG(QVariant, r), Q_ARG(QVariant, relayoutDockId_));
+        }
+        if (!r.toBool()) {
+            qWarning().noquote() << QStringLiteral("echoedit script: relayout: %1 %2 refused").arg(there ? QStringLiteral("dock") : QStringLiteral("undock"), relayoutDockId_);
+        }
+    } else {
+        QQmlProperty::write(relayoutItem_.data(), relayoutProperty_, there ? relayoutMargin_ : relayoutOrig_);
+    }
     relayoutChangeNs_.push_back(f->clock.nsecsElapsed() - relayoutT0_);
     --relayoutLeft_;
     relayoutPending_ = true;
@@ -1328,20 +1589,25 @@ void EchoEditScript::finishRelayout()
         disconnect(c);
     }
     relayoutConns_.clear();
-    const auto stats = [](const std::vector<qint64>& v) {
+    const auto stats = [](const std::vector<qint64>& v, double unit, int digits) {
         std::vector<qint64> ok;
         for (qint64 x : v) {
             if (x >= 0) ok.push_back(x);
         }
         std::sort(ok.begin(), ok.end());
-        const auto ms = [](qint64 ns) { return QString::number(double(ns) / 1e6, 'f', 1); };
-        return ok.empty() ? QStringLiteral("-") : QStringLiteral("%1 median / %2 max").arg(ms(ok[ok.size() / 2]), ms(ok.back()));
+        const auto u = [&](qint64 x) { return QString::number(double(x) / unit, 'f', digits); };
+        return ok.empty() ? QStringLiteral("-") : QStringLiteral("%1 median / %2 max").arg(u(ok[ok.size() / 2]), u(ok.back()));
     };
     int missing = 0;
     for (qint64 x : relayoutShownNs_) missing += x < 0 ? 1 : 0;
-    qInfo().noquote() << QStringLiteral("echoedit script: relayout %1 changes of %2 by %3 px: in the GUI thread %4 ms, the sync of its frame %5 ms, on screen after %6 ms; %7 without a frame in 3 s")
-                         .arg(relayoutChangeNs_.size()).arg(relayoutProperty_).arg(relayoutMargin_ - relayoutOrig_)
-                         .arg(stats(relayoutChangeNs_), stats(relayoutSyncNs_), stats(relayoutShownNs_)).arg(missing);
+    std::vector<qint64> counts(relayoutFrameCount_.begin(), relayoutFrameCount_.end());
+    qInfo().noquote() << QStringLiteral("echoedit script: relayout %1 changes of %2%3: in the GUI thread %4 ms, the sync of its frame %5 ms, on screen after %6 ms; %7 without a frame in 3 s")
+                         .arg(relayoutChangeNs_.size()).arg(relayoutProperty_)
+                         .arg(relayoutStore_ ? QString() : QStringLiteral(" by %1 px").arg(relayoutMargin_ - relayoutOrig_))
+                         .arg(stats(relayoutChangeNs_, 1e6, 1), stats(relayoutSyncNs_, 1e6, 1), stats(relayoutShownNs_, 1e6, 1)).arg(missing);
+    qInfo().noquote() << QStringLiteral("echoedit script: relayout frames in the %1 ms after a change: %2, their syncs together %3 ms, the last on screen after %4 ms")
+                         .arg(relayoutIntervalMs_).arg(stats(counts, 1.0, 0), stats(relayoutSyncSumNs_, 1e6, 1), stats(relayoutLastNs_, 1e6, 1));
     relayoutFrames_.reset();
     relayoutItem_.clear();
+    relayoutStore_.clear();
 }

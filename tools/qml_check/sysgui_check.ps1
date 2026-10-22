@@ -168,6 +168,10 @@ Item {
     }
     function findOne(item, name) { var a = findAll(item, name, []); return a.length ? a[0] : null }
     function byIndex(a) { return a.slice().sort(function(x, y) { return x.index - y.index }) }
+    // The rows that hold a line: the Repeater keeps as many as the fullest form has, the rest empty and hidden.
+    function sysRows(item) {
+        return findAll(item, "sysRow", []).filter(function(r) { return r.line !== null && r.line !== undefined })
+    }
     function shown(item) {
         for (var p = item; p; p = p.parent) if (!p.visible) return false
         return true
@@ -263,7 +267,7 @@ Item {
             var ov = overview(700, cellPx(2, 1.11), 1.11, mon)
             wait(20)
             verify(ov._wide, "two columns")
-            var rows = byIndex(findAll(ov, "sysRow", []))
+            var rows = byIndex(sysRows(ov))
             compare(rows.length, 3, "memory and two volumes on the right")
             for (var i = 0; i < 3; ++i) { verify(rows[i].visible, "row " + i); compare(rows[i].form, 0, "row " + i + " in full") }
             var r0 = rowParts(rows[0]), r1 = rowParts(rows[1]), r2 = rowParts(rows[2])
@@ -297,7 +301,7 @@ Item {
             // hot: the worn eMMC in red, nearly full memory in red
             var hotOv = overview(700, cellPx(2, 1.11), 1.11, hot)
             wait(20)
-            var hrows = byIndex(findAll(hotOv, "sysRow", []))
+            var hrows = byIndex(sysRows(hotOv))
             var h1 = rowParts(hrows[1])
             compare(h1.pill.children[0].text, "eMMC worn out")
             verify(Qt.colorEqual(h1.pill.border.color, "#EF4444"), "worn out in red")
@@ -308,7 +312,7 @@ Item {
             // a small wide cell (2 x 1): the amounts kept, shortened (the unit, the spaces); the disk as the name
             var two = overview(cellPx(2, 1.11), cellPx(1, 1.11), 1.11, mon)
             wait(20)
-            var trows = byIndex(findAll(two, "sysRow", []))
+            var trows = byIndex(sysRows(two))
             verify(/3\.1 ?\/ ?15\.6/.test(rowParts(trows[0]).value.text), "memory in numbers: " + rowParts(trows[0]).value.text)
             verify(/8\.7 ?\/ ?11\.7/.test(rowParts(trows[1]).value.text), "the eMMC in numbers: " + rowParts(trows[1]).value.text)
             verify(rowParts(trows[1]).label.text === "eMMC" || rowParts(trows[1]).pill.children[0].text.indexOf("eMMC") === 0,
@@ -325,17 +329,46 @@ Item {
             var was = mon.memUsedGB
             try {
                 wait(20)
-                var before = byIndex(findAll(ov, "sysRow", []))
+                var before = byIndex(sysRows(ov))
                 compare(before.length, 3)
                 mon.memUsedGB = 4.2
                 wait(20)
-                var after = byIndex(findAll(ov, "sysRow", []))
+                var after = byIndex(sysRows(ov))
                 compare(after.length, 3)
                 for (var i = 0; i < 3; ++i)
                     verify(after[i] === before[i], "row " + i + " is the same item after a new reading")
                 compare(rowParts(after[0]).value.text, "4.2 / 15.6 GB", "and shows the new amount")
             } finally {
                 mon.memUsedGB = was   // the next tests read mon as it was
+                ov.destroy()
+            }
+        }
+
+        // A cell docked to an edge or let go changes its form (one column <-> compact): the lines stay the same items.
+        // A count of them that changed had the Repeater make them all anew (43 ms of the GUI thread a dock, 2026-10-22).
+        function test_3d_rows_kept_across_forms() {
+            var ov = overview(cellPx(2, 1.11), cellPx(2, 1.11), 1.11, mon)
+            try {
+                wait(20)
+                verify(!ov._compact && !ov._wide, "2 x 2: one column")
+                var before = findAll(ov, "sysRow", [])
+                ov.width = cellPx(1, 1.11)
+                ov.height = cellPx(1, 1.11)
+                wait(20)
+                verify(ov._compact, "1 x 1: compact")
+                var after = findAll(ov, "sysRow", [])
+                compare(after.length, before.length, "as many rows")
+                for (var i = 0; i < after.length; ++i)
+                    verify(before.indexOf(after[i]) >= 0, "row " + i + " the same item")
+                compare(byIndex(sysRows(ov))[0].line.key, "cpu", "the compact form's lines in them")
+                ov.width = 700
+                ov.height = cellPx(2, 1.11)
+                wait(20)
+                verify(ov._wide, "4 x 2: two columns")
+                var wide = findAll(ov, "sysRow", [])
+                for (i = 0; i < wide.length; ++i)
+                    verify(before.indexOf(wide[i]) >= 0, "wide: row " + i + " the same item")
+            } finally {
                 ov.destroy()
             }
         }
@@ -349,7 +382,7 @@ Item {
                 var tag = "1x1 k " + k + " " + mocks[q].name
                 var ov = overview(cellPx(1, k), cellPx(1, k), k, s)
                 wait(10)
-                var rows = byIndex(findAll(ov, "sysRow", [])).filter(function(r) { return r.visible })
+                var rows = byIndex(sysRows(ov)).filter(function(r) { return r.visible })
                 var byKey = {}
                 for (var i = 0; i < rows.length; ++i) byKey[rows[i].line.key] = rowParts(rows[i])
                 var load = Math.round(s.cpuLoad * 100), temp = Math.round(s.cpuTempC) + "\u00b0"
@@ -415,7 +448,7 @@ Item {
             var sq = overview(cellPx(2, 1.11), cellPx(2, 1.11), 1.11, mon)
             wait(20)
             verify(!findOne(sq, "sysGpuRow").visible, "not on the left in one column")
-            var srows = byIndex(findAll(sq, "sysRow", []))
+            var srows = byIndex(sysRows(sq))
             compare(srows[0].line.key, "gpu")
             verify(srows[0].visible)
             sq.destroy()
@@ -432,7 +465,7 @@ Item {
             var w = overview(700, cellPx(2, 1.11), 1.11, win)
             wait(20)
             verify(!findOne(w, "sysGpuRow").visible)
-            verify(findAll(w, "sysRow", []).every(function(r) { return r.line.key !== "gpu" }), "no GPU line")
+            verify(sysRows(w).every(function(r) { return r.line.key !== "gpu" }), "no GPU line")
             w.destroy()
         }
 
@@ -470,7 +503,7 @@ Item {
                         compare(labels[i].parent.form, labels[i].parent._cands.length - 1, tag + ": \"" + labels[i].text + "\" cut before the rest gave way")
                         verify(!rowParts(labels[i].parent).pill.visible, tag + ": \"" + labels[i].text + "\" cut for the disk's kind")
                     }
-                var rows = byIndex(findAll(ov, "sysRow", []))
+                var rows = byIndex(sysRows(ov))
                 for (i = 1; i < rows.length; ++i)
                     verify(!rows[i].visible || rows[i - 1].visible, tag + ": rows left out from the bottom up")
                 var foot = findOne(ov, "sysFoot")
@@ -536,7 +569,7 @@ Item {
             var ov = overview(cellPx(2, 1.11), cellPx(2, 1.11), 1.11, null)
             wait(20)
             verify(findOne(ov, "sysNoData").visible, "the dash")
-            compare(findAll(ov, "sysRow", []).length, 0)
+            compare(sysRows(ov).length, 0)
             ov.sys = { available: false }
             verify(findOne(ov, "sysNoData").visible)
             ov.sys = mon

@@ -40,15 +40,17 @@ BasePanePopup {
     readonly property real _baseW: _cols * _baseCellW + (_cols - 1) * _baseGap + _basePad * 2 + contentPadding * 2
     readonly property real _baseH: _rows * _baseCellH + (_rows - 1) * _baseGap + _basePad * 2 + contentPadding * 2
 
-    // Docked to a window edge, the grid fills the slot the dock gives it, at the dock's scale (WorkspaceStore.dockLayout).
+    // Docked to a window edge, the grid fills the slot the dock gives it, at the dock's scale (WorkspaceStore.dockLayout);
+    // lifted out of it by a drag, it is the floating grid again.
     readonly property var _slot: (store && def && def.id) ? store.widgetDockSlot(def.id) : null
-    readonly property real _kShown: _slot ? _appScale * _slot.scale : _k
-    readonly property real _gapShown: _slot ? Math.round(4 * _kShown) : _gap
-    readonly property real _padShown: _slot ? Math.round(8 * _kShown) : _pad
-    readonly property real _gridShownW: _slot ? Math.max(0, _slot.w - 2 * (_padShown + contentPadding)) : _gridW
-    readonly property real _gridShownH: _slot ? Math.max(0, _slot.h - 2 * (_padShown + contentPadding)) : _gridH
-    readonly property real _cellShownW: _slot ? Math.max(0, (_gridShownW - (_cols - 1) * _gapShown) / _cols) : _cellW
-    readonly property real _cellShownH: _slot ? Math.max(0, (_gridShownH - (_rows - 1) * _gapShown) / _rows) : _cellH
+    readonly property var _shownSlot: _inSlot ? _slot : null
+    readonly property real _kShown: _shownSlot ? _appScale * _shownSlot.scale : _k
+    readonly property real _gapShown: _shownSlot ? Math.round(4 * _kShown) : _gap
+    readonly property real _padShown: _shownSlot ? Math.round(8 * _kShown) : _pad
+    readonly property real _gridShownW: _shownSlot ? Math.max(0, _shownSlot.w - 2 * (_padShown + contentPadding)) : _gridW
+    readonly property real _gridShownH: _shownSlot ? Math.max(0, _shownSlot.h - 2 * (_padShown + contentPadding)) : _gridH
+    readonly property real _cellShownW: _shownSlot ? Math.max(0, (_gridShownW - (_cols - 1) * _gapShown) / _cols) : _cellW
+    readonly property real _cellShownH: _shownSlot ? Math.max(0, (_gridShownH - (_rows - 1) * _gapShown) / _rows) : _cellH
 
     edgeDocked: !!_slot
     edgeCollapsed: !!_slot && _slot.collapsed === true
@@ -70,7 +72,13 @@ BasePanePopup {
         && store.widgets[store.widgetEditIndex].id === def.id)
 
     popupVisible: !_beingEdited
-    dragEnabled: !(store && store.widgetEditorActive) && !edgeDocked
+    // Docked, it is dragged out in the layout edit mode, or after a long press (BasePanePopup).
+    dragEnabled: !(store && store.widgetEditorActive) && (!edgeDocked || (store && store.editableMode))
+    edgeDockable: !(store && store.widgetEditorActive)
+    onEdgeDragMoved: function(x, y) { if (store && def && def.id) edgeTarget = store.dockTargetAt(def.id, x, y) }
+    onEdgeTargetChanged: if (store) store.setDockPreview(edgeTarget)
+    onEdgeDockCommitted: function(side, index) { if (store && def && def.id) store.dockWidget(def.id, side, index) }
+    onEdgeUndockCommitted: if (store && def && def.id) store.undockWidget(def.id)
     dragAnywhere: true
     headerReserved: false
     resizeEnabled: false
@@ -148,7 +156,7 @@ BasePanePopup {
 
     Rectangle {
         anchors.fill: parent
-        radius: root.edgeDocked ? 0 : root.panelRadius
+        radius: root._inSlot ? 0 : root.panelRadius
         color: Qt.rgba(AppPalette.bg.r, AppPalette.bg.g, AppPalette.bg.b, root._bgAlpha)
         border.width: 0
 

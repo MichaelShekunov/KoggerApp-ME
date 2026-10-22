@@ -280,17 +280,49 @@ Item {
     property real _dragStartX: 0
     property real _dragStartY: 0
 
-    function _beginDrag() {
+    // Docking by dragging (WidgetDocks), for the panels that dock (edgeDockable). While dragged, edgeDragMoved gives
+    // the pointer in the window and the panel answers with edgeTarget: where it would dock, { side, index, fits }, or
+    // null away from the edges. Let go over an edge with room: edgeDockCommitted. A docked panel is lifted out of its
+    // slot when its drag starts and drawn floating under the finger: let go away from the edges it is undocked there
+    // (edgeUndockCommitted), over an edge it docks there; over one without room it stays where it was.
+    property bool edgeDockable: false
+    property var  edgeTarget: null
+    property bool _edgeLifted: false
+    property real _floatX: 0          // where a lifted panel floated before, kept while it stays docked
+    property real _floatY: 0
+    property bool _keepPlace: false   // the area changes because this panel docked or undocked: no rescale for it
+    readonly property bool _inSlot: edgeDocked && !_edgeLifted
+    signal edgeDragMoved(real x, real y)
+    signal edgeDockCommitted(string side, int index)
+    signal edgeUndockCommitted()
+
+    function _beginDrag(scenePos) {
+        if (edgeDocked && scenePos) {
+            var p = mapFromItem(null, scenePos.x, scenePos.y)
+            _floatX = panelX
+            _floatY = panelY
+            panelX = Math.round(clampX(p.x - expandedWidth / 2))
+            panelY = Math.round(clampY(p.y - Math.min(expandedHeight / 2, headerHeight)))
+            _edgeLifted = true
+        }
         _dragStartX = panelX
         _dragStartY = panelY
         interactionStarted()
     }
 
-    function _updateDrag(tx, ty) {
+    function _updateDrag(tx, ty, scenePos) {
         var rawX = clampX(_dragStartX + tx)
         var rawY = clampY(_dragStartY + ty)
-        var sibSnap = computeSiblingSnap(rawX, rawY)
-        if (sibSnap !== null) {
+        if (edgeDockable && scenePos) {
+            var p = mapFromItem(null, scenePos.x, scenePos.y)
+            edgeDragMoved(p.x, p.y)
+        }
+        var sibSnap = edgeTarget ? null : computeSiblingSnap(rawX, rawY)
+        if (edgeTarget) {
+            _siblingSnapActive = false
+            _siblingSnapTargetIdx = -1
+            _snapActive = false
+        } else if (sibSnap !== null) {
             _siblingSnapActive = true
             _siblingSnapX = sibSnap.x
             _siblingSnapY = sibSnap.y
@@ -311,6 +343,22 @@ Item {
     }
 
     function _endDrag() {
+        var target = edgeTarget
+        var lifted = _edgeLifted
+        edgeTarget = null
+        _edgeLifted = false
+        if (target && (target.fits || lifted)) {
+            _siblingSnapActive = false
+            _snapActive = false
+            panelX = lifted ? _floatX : _dragStartX
+            panelY = lifted ? _floatY : _dragStartY
+            if (target.fits) {
+                _keepPlace = true
+                edgeDockCommitted(target.side, target.index)
+                _keepPlace = false
+            }
+            return
+        }
         if (_siblingSnapActive) {
             panelX = Math.round(_siblingSnapX)
             panelY = Math.round(_siblingSnapY)
@@ -336,7 +384,34 @@ Item {
         _siblingSnapTargetIdx = -1
         _siblingSnapSide = ""
         commitPosition()
+        if (lifted) {
+            _keepPlace = true
+            edgeUndockCommitted()
+            _keepPlace = false
+        }
         Qt.callLater(resolveOverlapWithSibling)
+    }
+
+    // A docked panel taken out by a long press, where a drag handler is off (outside the layout edit mode): the
+    // press's own mouse area follows it. item: that area, mouse: its event.
+    property bool _holdDragging: false
+    property point _holdStart: Qt.point(0, 0)
+
+    function _beginHoldDrag(item, mouse) {
+        var p = item.mapToItem(null, mouse.x, mouse.y)
+        _holdStart = p
+        _holdDragging = true
+        _beginDrag(p)
+    }
+
+    function _moveHoldDrag(item, mouse) {
+        var p = item.mapToItem(null, mouse.x, mouse.y)
+        _updateDrag(p.x - _holdStart.x, p.y - _holdStart.y, p)
+    }
+
+    function _endHoldDrag() {
+        _holdDragging = false
+        _endDrag()
     }
 
     function commitPosition() {
@@ -428,7 +503,7 @@ Item {
             _applyDock()
             Qt.callLater(_applyDock)   // re-derive after target repositions this frame
         } else {
-            if (lastParentWidth > 0) rescaleX(lastParentWidth, _lastAreaLeft, _lastAreaRight)
+            if (lastParentWidth > 0 && !_keepPlace) rescaleX(lastParentWidth, _lastAreaLeft, _lastAreaRight)
             else panelX = clampX(panelX)
             Qt.callLater(commitPosition)
             Qt.callLater(resolveOverlapWithSibling)
@@ -444,7 +519,7 @@ Item {
             _applyDock()
             Qt.callLater(_applyDock)
         } else {
-            if (lastParentHeight > 0) rescaleY(lastParentHeight, _lastAreaTop, _lastAreaBottom)
+            if (lastParentHeight > 0 && !_keepPlace) rescaleY(lastParentHeight, _lastAreaTop, _lastAreaBottom)
             else panelY = clampY(panelY)
             Qt.callLater(commitPosition)
             Qt.callLater(resolveOverlapWithSibling)
@@ -526,12 +601,12 @@ Item {
         objectName: "panePanel"
 
         visible: root.popupVisible
-        x: root.edgeDocked ? root.edgeX
-                           : root.collapsed ? root.panelX + root.expandedWidth - root.collapsedSize : root.panelX
-        y: root.edgeDocked ? root.edgeY : root.panelY
-        width: root.edgeDocked ? root.edgeW : root.popupWidth
-        height: root.edgeDocked ? root.edgeH : root.popupHeight
-        radius: root.edgeDocked ? 0 : root.panelRadius
+        x: root._inSlot ? root.edgeX
+                        : root.collapsed ? root.panelX + root.expandedWidth - root.collapsedSize : root.panelX
+        y: root._inSlot ? root.edgeY : root.panelY
+        width: root._inSlot ? root.edgeW : root.popupWidth
+        height: root._inSlot ? root.edgeH : root.popupHeight
+        radius: root._inSlot ? 0 : root.panelRadius
         color: root.collapsed ? "transparent" : root.panelColor
         border.width: 0
         z: 1
@@ -587,14 +662,23 @@ Item {
         // (works fine with a real mouse on desktop); for touch we use a
         // sibling TapHandler that has a touch-friendly recognizer.
         MouseArea {
+            id: panelArea
             anchors.fill: parent
             acceptedButtons: Qt.AllButtons
             hoverEnabled: false
-            preventStealing: !root.dragAnywhere
+            preventStealing: !root.dragAnywhere || root._holdDragging
             propagateComposedEvents: false
             z: 0
+            // A docked panel out of its dock by a long press, when it cannot be dragged straight away.
+            pressAndHoldInterval: 500
+            onPressAndHold: function(mouse) {
+                if (root.edgeDocked && root.edgeDockable && !root.dragEnabled)
+                    root._beginHoldDrag(panelArea, mouse)
+            }
+            onPositionChanged: function(mouse) { if (root._holdDragging) root._moveHoldDrag(panelArea, mouse) }
+            onCanceled: if (root._holdDragging) root._endHoldDrag()
             onPressed:       function(mouse) { mouse.accepted = true }
-            onReleased:      function(mouse) { mouse.accepted = true }
+            onReleased:      function(mouse) { mouse.accepted = true; if (root._holdDragging) root._endHoldDrag() }
             onClicked:       function(mouse) { mouse.accepted = true }
             onDoubleClicked: function(mouse) { mouse.accepted = true; root.popupDoubleClicked() }
             onWheel:         function(wheel)  { wheel.accepted = true }
@@ -613,8 +697,8 @@ Item {
                      && !(root.resizeEnabled && (resizeHover.hovered || resizeDrag.active))
             xAxis.enabled: true
             yAxis.enabled: true
-            onActiveChanged: active ? root._beginDrag() : root._endDrag()
-            onTranslationChanged: if (active) root._updateDrag(translation.x, translation.y)
+            onActiveChanged: active ? root._beginDrag(centroid.scenePosition) : root._endDrag()
+            onTranslationChanged: if (active) root._updateDrag(translation.x, translation.y, centroid.scenePosition)
         }
 
         Item {
@@ -670,8 +754,8 @@ Item {
                     enabled: root.dragEnabled && !root.fullscreenMode && !root.dragAnywhere
                     xAxis.enabled: true
                     yAxis.enabled: true
-                    onActiveChanged: active ? root._beginDrag() : root._endDrag()
-                    onTranslationChanged: if (active) root._updateDrag(translation.x, translation.y)
+                    onActiveChanged: active ? root._beginDrag(centroid.scenePosition) : root._endDrag()
+                    onTranslationChanged: if (active) root._updateDrag(translation.x, translation.y, centroid.scenePosition)
                 }
             }
 

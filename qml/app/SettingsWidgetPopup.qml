@@ -34,7 +34,7 @@ BasePanePopup {
     property real _naturalMax: 0
     readonly property real _naturalW: Math.round(Math.max(220 * _s, Math.min(460 * _s, _naturalMax)))
     readonly property var _slot: (store && def && def.id) ? store.widgetDockSlot(def.id) : null
-    readonly property real _contentW: _slot ? Math.max(0, _slot.w - _pad * 2 - contentPadding * 2) : _naturalW
+    readonly property real _contentW: _inSlot ? Math.max(0, _slot.w - _pad * 2 - contentPadding * 2) : _naturalW
     readonly property real _contentH: _barH + _pad + rowsCol.implicitHeight
 
     edgeDocked: !!_slot
@@ -61,7 +61,13 @@ BasePanePopup {
     }
 
     popupVisible: true
-    dragEnabled: !edgeDocked
+    // Docked, it is dragged out in the layout edit mode, or after a long press on its title (BasePanePopup).
+    dragEnabled: !edgeDocked || (store && store.editableMode)
+    edgeDockable: true
+    onEdgeDragMoved: function(x, y) { if (store && def && def.id) edgeTarget = store.dockTargetAt(def.id, x, y) }
+    onEdgeTargetChanged: if (store) store.setDockPreview(edgeTarget)
+    onEdgeDockCommitted: function(side, index) { if (store && def && def.id) store.dockWidget(def.id, side, index) }
+    onEdgeUndockCommitted: if (store && def && def.id) store.undockWidget(def.id)
     dragAnywhere: false
     // The title row is part of the content: BasePanePopup masks its content to rounded corners, which cuts a
     // title bar placed above the content, in the header strip.
@@ -132,10 +138,20 @@ BasePanePopup {
         z: 10
 
         MouseArea {
+            id: titleArea
             anchors.fill: parent
             acceptedButtons: Qt.AllButtons
             cursorShape: Qt.OpenHandCursor
+            preventStealing: root._holdDragging
+            pressAndHoldInterval: 500
             onPressed: function(mouse) { mouse.accepted = true }
+            onPressAndHold: function(mouse) {
+                if (root.edgeDocked && !root.dragEnabled)
+                    root._beginHoldDrag(titleArea, mouse)
+            }
+            onPositionChanged: function(mouse) { if (root._holdDragging) root._moveHoldDrag(titleArea, mouse) }
+            onReleased: if (root._holdDragging) root._endHoldDrag()
+            onCanceled: if (root._holdDragging) root._endHoldDrag()
         }
 
         DragHandler {
@@ -143,8 +159,8 @@ BasePanePopup {
             enabled: root.dragEnabled && !root.collapsed && !root.fullscreenMode
             xAxis.enabled: true
             yAxis.enabled: true
-            onActiveChanged: active ? root._beginDrag() : root._endDrag()
-            onTranslationChanged: if (active) root._updateDrag(translation.x, translation.y)
+            onActiveChanged: active ? root._beginDrag(centroid.scenePosition) : root._endDrag()
+            onTranslationChanged: if (active) root._updateDrag(translation.x, translation.y, centroid.scenePosition)
         }
 
         Text {
