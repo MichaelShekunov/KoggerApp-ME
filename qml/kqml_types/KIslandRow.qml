@@ -196,6 +196,10 @@ Item {
             color: row.hovered ? row.labelHoverColor : row.labelColor
             font.pixelSize: row.labelPixelSize
             font.bold: row.labelBold
+            // A label longer than its column takes a second line rather than "…" (a longer language, the head
+            // unit's wider font; 2026-10-23); a label elided elsewhere than on the right (a path) stays one line.
+            wrapMode: row.labelElide === Text.ElideRight ? Text.WordWrap : Text.NoWrap
+            maximumLineCount: 2
             elide: row.labelElide
             Behavior on color { ColorAnimation { duration: Anim.controlMs; easing.type: Anim.controlEasing } }
         }

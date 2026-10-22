@@ -2936,3 +2936,14 @@ alone (the owner asked for no questions):
   `truncated` (only Text: an input field's text, a password, is never written).
 - Not verified: Android with Chinese or Hindi (are the fonts there); the 3D scene's label atlas is Roboto, so Han or
   Devanagari typed by a user into a contact's name probably does not draw there (from the code).
+
+**Fit on the head unit (2026-10-23).** The PC's lang_fit_check passed, the board's screen did not: its DejaVu is
+wider than Segoe UI and the kiosk runs at 75 %. HeadUnit `linux_setup/probe_lang.sh <tag>` now also dumps the
+settings page per language (the `probe` step) and compares on the board (python3): **[verified]** on headunit
+555e6c4d with the kiosk's settings, cut were en 5 (among them "Русский" in the language picker), ru 3, es 4, zh 0,
+hi 0 - mostly `KIslandRow` labels (the column beside a switch or two spin boxes) and `KTabBar` labels. Fixed in the
+controls, not word by word: a `KIslandRow` label wraps to a second line instead of "…" (unless elided elsewhere than
+on the right, a path); `KTabBar` labels that lack room shrink down to 80 % of their size first (`fontScale`,
+`labelPixelSize`) and only then elide; the mosaic crop labels and "Data source:" wrap. The ru "Смещение XY, мм:"
+is back as it was. PC after it: lang_fit_check 0 in ru zh es hi, English 1 by design (a combo's value);
+lang_check, fold, pin_coverage, pin_mirror, scrollstrip, hscale_panel, widgetsize checks PASS.
