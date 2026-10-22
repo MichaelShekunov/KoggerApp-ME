@@ -2895,3 +2895,6 @@ down. The limits are `WorkspaceStore.widgetMaxCols` (4) and `widgetMaxRows` (5):
 from them, four to a row) both read them. **[verified]** `tools/qml_check/widgetsize_check.ps1 [-Exe <build>]`: the
 size step offline (a card for every size 1x1..4x5 in order, four across, a click sets the size and goes on); in the
 app a stored 4x5 and 1x5 panel load, show, and are five rows tall (507 px against a 1x4's 410), a 4x6 is not loaded.
+Deployed by the owner's word ("deploy") **[verified]**: the kiosk on headunit 15409291 (= me 306ed823) since 19:13:54
+UTC (ExecStart, active, NRestarts 0, the HDMI1 cursor warning only); this PC's two installs on 306ed823, a clean
+build, the installed exe the same as the packaged one.
