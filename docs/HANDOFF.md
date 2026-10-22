@@ -2986,3 +2986,14 @@ the analysis in this session (not kept in the repo).
 - **New test hooks**: `KOGGER_AUTOTEST=TCP:<port>` (a hidden TCP link to 127.0.0.1), edit-script steps
   `waitAutopilot`, `missionPlan`, `missionUpload`, `missionDownload`, `waitMissionTransfer`, `missionState`,
   `missionEditor`, `autopilotMode`, `autopilotArm` (echo_edit_script.h).
+
+**Missions deployed (2026-10-23, the owner away)** **[verified]**: me 9f30e9af. This PC's per-user install on
+9f30e9af (a clean build, the installed exe the same as the packaged one; Program Files still 306ed823, UAC). The kiosk
+on headunit 3c345da6 (= me 9f30e9af + the kiosk patch) since 2026-10-22 22:32:39 UTC: ExecStart, active, NRestarts 0,
+only the HDMI1 cursor warning. Before the switch, on the board: HeadUnit `linux_setup/probe_mission.sh 3c345da6`
+(the editor with a plan on the board's screen; cut only the points' coordinates in their cards and the "At the end"
+value, as on the PC) and `probe_drag.sh <tag> one` over the field recording 2026.10.22_07.17.03 in the kiosk's
+settings: 3c345da6 60.0 frames/s, longest gap 23.5 ms, 0 over 50 ms; 511d4fc2 the same way 60.0, 26.6 ms, 0. Opening
+that recording holds the GUI thread 12.9 s on 3c345da6 and 12.2 s on 511d4fc2: old, not the missions. Not verified:
+the boat on water with upstream's way. Way back: the kiosk `deploy.py switch` with the 511d4fc2 archive (HeadUnit
+docs/STATE.md); in the code, `boat.setMissionsByPlanner(true)` off and the missions' QML entry points.
