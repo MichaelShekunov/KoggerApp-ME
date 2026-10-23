@@ -753,6 +753,124 @@ void IDBinDistSetup::setConfidence(int confidence) {
 }
 
 
+namespace {
+// [length u8][that many bytes], cut to what the frame has; false when not even the length is there.
+bool readLabel(FrameParser& proto, QString* out)
+{
+    if (proto.readAvailable() < 1) {
+        return false;
+    }
+    const int len = qMin<int>(proto.read<U1>(), proto.readAvailable());
+    QByteArray b(len, '\0');
+    if (len > 0) {
+        proto.read(reinterpret_cast<uint8_t*>(b.data()), int16_t(len));
+    }
+    *out = QString::fromLatin1(b);
+    return true;
+}
+}
+
+Resp IDBinBus::parsePayload(FrameParser &proto) {
+    if (proto.ver() != v0) {
+        return respErrorVersion;
+    }
+    if (proto.readAvailable() < 16) {
+        return respErrorPayload;
+    }
+    Bus b;
+    b.id = proto.read<U1>();
+    const U1 count = proto.read<U1>();
+    b.supply = proto.read<U1>();
+    b.functionCaps = proto.read<U1>();
+    b.function = proto.read<U1>();
+    b.functionSaved = proto.read<U1>();
+    b.uartCaps = proto.read<U1>();
+    b.uart = proto.read<U1>();
+    b.uartSaved = proto.read<U1>();
+    b.txPin = proto.read<U1>();
+    b.rxPin = proto.read<U1>();
+    b.baud = proto.read<U4>();
+    const int pinCount = proto.read<U1>();
+    if (proto.readAvailable() < pinCount) {
+        return respErrorPayload;
+    }
+    for (int i = 0; i < pinCount; ++i) {
+        b.pins.append(proto.read<U1>());
+    }
+    if (!readLabel(proto, &b.label)) {
+        return respErrorPayload;
+    }
+    m_count = count;
+    m_last = b.id;
+    m_buses[b.id] = b;
+    return respOk;
+}
+
+void IDBinBus::request(U1 bus) {
+    ProtoBinOut id_out;
+    id_out.create(GETTING, v0, id(), m_address);
+    id_out.write<U1>(bus);
+    id_out.end();
+    emit binFrameOut(id_out);
+}
+
+Resp IDBinPin::parsePayload(FrameParser &proto) {
+    if (proto.ver() == v0) {
+        if (proto.readAvailable() < 14) {
+            return respErrorPayload;
+        }
+        Pin p;
+        p.id = proto.read<U1>();
+        p.bus = proto.read<U1>();
+        p.roleCaps = proto.read<U4>();
+        p.role = proto.read<U1>();
+        p.roleSaved = proto.read<U1>();
+        p.timer = proto.read<U1>();
+        p.param = proto.read<U1>();
+        p.value = proto.read<S4>();
+        if (!readLabel(proto, &p.label) || !readLabel(proto, &p.mcuPin)) {
+            return respErrorPayload;
+        }
+        m_pins[p.id] = p;
+        m_last = p.id;
+        return respOk;
+    }
+    if (proto.ver() == v1) {
+        if (proto.readAvailable() < 1) {
+            return respErrorPayload;
+        }
+        const int count = proto.read<U1>();
+        if (proto.readAvailable() < count * 6) {
+            return respErrorPayload;
+        }
+        for (int i = 0; i < count; ++i) {
+            const U1 id = proto.read<U1>();
+            const U1 role = proto.read<U1>();
+            const S4 value = proto.read<S4>();
+            auto it = m_pins.find(id);
+            if (it != m_pins.end()) {   // a pin not described yet waits for its v0
+                it->role = role;
+                it->value = value;
+            }
+        }
+        m_last = -2;
+        return respOk;
+    }
+    return respErrorVersion;
+}
+
+void IDBinPin::request(U1 pin) {
+    ProtoBinOut id_out;
+    id_out.create(GETTING, v0, id(), m_address);
+    id_out.write<U1>(pin);
+    id_out.end();
+    emit binFrameOut(id_out);
+}
+
+void IDBinPin::requestValues() {
+    simpleRequest(v1);
+}
+
 Resp IDBinRingStat::parsePayload(FrameParser &proto) {
     if (proto.ver() != v0) {
         return respErrorVersion;

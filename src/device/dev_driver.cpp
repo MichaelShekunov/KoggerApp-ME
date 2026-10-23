@@ -64,6 +64,8 @@ DevDriver::DevDriver(QObject *parent)
     regID(idVoltage = new IDBinVoltage(), &DevDriver::receivedVoltage);
     regID(idPreset = new IDBinPreset(), &DevDriver::receivedPreset);
     regID(idRingStat = new IDBinRingStat(), &DevDriver::receivedRingStat);
+    regID(idBus = new IDBinBus(), &DevDriver::receivedBus);
+    regID(idPin = new IDBinPin(), &DevDriver::receivedPin);
 
     regID(idDataset = new IDBinDataset(), &DevDriver::receivedDataset, true);
     regID(idDistSetup = new IDBinDistSetup(), &DevDriver::receivedDistSetup, true);
@@ -221,6 +223,24 @@ DevDriver::DevDriver(QObject *parent)
     m_devSyncDebounceTimer.setSingleShot(true);
     m_devSyncDebounceTimer.setInterval(300);
     connect(&m_devSyncDebounceTimer, &QTimer::timeout, this, &DevDriver::onDevSyncDebounceFired);
+
+    portsAnswerTimer_.setSingleShot(true);
+    portsAnswerTimer_.setInterval(2000);
+    connect(&portsAnswerTimer_, &QTimer::timeout, this, [this]() {
+        if (portsSupport_ == 0 && idBus->buses().isEmpty()) {
+            portsSupport_ = -1;   // a firmware without the port table, asked without the response flag, is silent
+            qInfo().noquote() << wifiTag() << "ports: no answer to ID_BUS 0, no port table";
+        } else {
+            qInfo().noquote() << wifiTag() << "ports: the table's read stopped, no answer";
+        }
+        emit portsChanged();
+    });
+    portsLiveTimer_.setInterval(200);
+    connect(&portsLiveTimer_, &QTimer::timeout, this, [this]() {
+        if (portsSupport_ == 1 && !portsAnswerTimer_.isActive()) {
+            idPin->requestValues();
+        }
+    });
 
     ringStatTimer_.setSingleShot(true);
     ringStatTimer_.setInterval(2000);
@@ -1140,6 +1160,8 @@ void DevDriver::stopConnection() {
     m_processTimer.stop();
     m_devName = "...";
     standProbeSent_ = false;
+    portsProbeSent_ = false;
+    portsLiveTimer_.stop();
     wifiProbeSent_ = false;
     wifiNetAskedAt_ = 0;
     wifiPortsAskedAt_ = 0;
@@ -3428,6 +3450,145 @@ void DevDriver::receivedServoControl(Parsers::Type type, Parsers::Version ver, P
     }
 }
 
+void DevDriver::resetPorts() {
+    idBus->reset();
+    idPin->reset();
+    portsSupport_ = 0;
+    portsAnswerTimer_.stop();
+}
+
+// The next frame of the table: the buses 1..count-1, then each listed pin; one at a time.
+void DevDriver::askNextPort() {
+    const auto& buses = idBus->buses();
+    for (int b = 0; b < idBus->count(); ++b) {
+        if (!buses.contains(b)) {
+            idBus->request(U1(b));
+            portsAnswerTimer_.start();
+            return;
+        }
+    }
+    for (const IDBinBus::Bus& bus : buses) {
+        for (U1 pin : bus.pins) {
+            if (!idPin->pins().contains(pin)) {
+                idPin->request(pin);
+                portsAnswerTimer_.start();
+                return;
+            }
+        }
+    }
+    portsAnswerTimer_.stop();
+    if (portsSupport_ != 1) {
+        portsSupport_ = 1;
+        QStringList parts;
+        for (const IDBinBus::Bus& bus : buses) {
+            parts.append(QStringLiteral("%1 f%2 u%3 s%4").arg(bus.label).arg(bus.function).arg(bus.uart).arg(bus.supply));
+        }
+        qInfo().noquote() << wifiTag() << QStringLiteral("ports: %1 buses, %2 pins: %3")
+                                              .arg(buses.size()).arg(idPin->pins().size()).arg(parts.join(QStringLiteral(", ")));
+        if (portsLiveWanted_) {
+            portsLiveTimer_.start();
+        }
+        emit portsChanged();
+    }
+    emit portValuesChanged();
+}
+
+void DevDriver::receivedBus(Parsers::Type type, Parsers::Version ver, Parsers::Resp resp) {
+    Q_UNUSED(type);
+    Q_UNUSED(ver);
+
+    if (resp == respNone) {
+        askNextPort();
+        return;
+    }
+    if (resp == respErrorID && idBus->buses().isEmpty()) {
+        portsAnswerTimer_.stop();
+        portsSupport_ = -1;
+        qInfo().noquote() << wifiTag() << "ports: ID_BUS unknown to this firmware, no port table";
+        emit portsChanged();
+    }
+}
+
+void DevDriver::receivedPin(Parsers::Type type, Parsers::Version ver, Parsers::Resp resp) {
+    Q_UNUSED(type);
+
+    if (resp != respNone) {
+        return;
+    }
+    if (ver == v0) {
+        askNextPort();
+    } else {
+        emit portValuesChanged();
+    }
+}
+
+QVariantList DevDriver::portBuses() {
+    QVariantList list;
+    if (portsSupport_ != 1) {
+        return list;
+    }
+    for (const IDBinBus::Bus& b : idBus->buses()) {
+        QVariantMap m;
+        m[QStringLiteral("id")] = int(b.id);
+        m[QStringLiteral("label")] = b.label;
+        m[QStringLiteral("supply")] = int(b.supply);
+        m[QStringLiteral("function")] = int(b.function);
+        m[QStringLiteral("functionSaved")] = int(b.functionSaved);
+        m[QStringLiteral("functionCaps")] = int(b.functionCaps);
+        m[QStringLiteral("uart")] = int(b.uart);
+        m[QStringLiteral("uartSaved")] = int(b.uartSaved);
+        m[QStringLiteral("uartCaps")] = int(b.uartCaps);
+        m[QStringLiteral("txPin")] = int(b.txPin);
+        m[QStringLiteral("rxPin")] = int(b.rxPin);
+        m[QStringLiteral("baud")] = double(b.baud);
+        QVariantList pins;
+        for (U1 id : b.pins) {
+            const auto it = idPin->pins().constFind(id);
+            if (it == idPin->pins().cend()) {
+                continue;
+            }
+            QVariantMap p;
+            p[QStringLiteral("id")] = int(it->id);
+            p[QStringLiteral("label")] = it->label;
+            p[QStringLiteral("mcuPin")] = it->mcuPin;
+            p[QStringLiteral("roleCaps")] = double(it->roleCaps);
+            p[QStringLiteral("role")] = int(it->role);
+            p[QStringLiteral("roleSaved")] = int(it->roleSaved);
+            p[QStringLiteral("timer")] = int(it->timer);
+            p[QStringLiteral("param")] = int(it->param);
+            p[QStringLiteral("value")] = int(it->value);
+            pins.append(p);
+        }
+        m[QStringLiteral("pins")] = pins;
+        list.append(m);
+    }
+    return list;
+}
+
+QStringList DevDriver::portPwmOutPins() {
+    QStringList outs{ QString(), QString(), QString() };
+    if (portsSupport_ != 1) {
+        return outs;
+    }
+    for (const IDBinPin::Pin& p : idPin->pins()) {
+        if (p.role == IDBinPin::RolePwm && p.param < 3) {
+            outs[p.param] += (outs[p.param].isEmpty() ? QString() : QStringLiteral(", ")) + p.label;
+        }
+    }
+    return outs;
+}
+
+void DevDriver::setPortsLive(bool on) {
+    portsLiveWanted_ = on;
+    if (on && portsSupport_ == 1) {
+        if (!portsLiveTimer_.isActive()) {
+            portsLiveTimer_.start();
+        }
+    } else {
+        portsLiveTimer_.stop();
+    }
+}
+
 QVariantMap DevDriver::ringStat() {
     const IDBinRingStat::State& s = idRingStat->state();
     QVariantMap m;
@@ -4100,6 +4261,15 @@ void DevDriver::process() {
                     if(idStandScan) idStandScan->probe();
                 }
 
+                // Recorders only, once per connection: the port table (ID_BUS, then ID_PIN), one frame at a time.
+                // Never broadcast: on a GODIO ring a broadcast GET costs the following board a ping.
+                if(isRecorder() && !portsProbeSent_) {
+                    portsProbeSent_ = true;
+                    resetPorts();
+                    idBus->request(0);
+                    portsAnswerTimer_.start();
+                }
+
                 // Wi-Fi module only: nothing else knows ID_WIFI. Asked once per connection; from
                 // then on the module pushes its status on every change and a report each second.
                 if(isWifi() && !wifiProbeSent_) {
@@ -4216,6 +4386,8 @@ void DevDriver::process() {
             restartState();
             streamListRequested_ = false;
             standProbeSent_ = false;
+            portsProbeSent_ = false;   // a device back from a restart may have new roles: the table is read again
+            portsLiveTimer_.stop();
             wifiProbeSent_ = false;
             wifiLastState_ = -1;
             wifiNetAskedAt_ = 0;

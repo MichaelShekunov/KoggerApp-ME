@@ -197,6 +197,20 @@ public:
     bool ringStatBusy() const { return ringStatTimer_.isActive(); }
     /// Asks the board once. Only on request: on a ring with no slack an answer can cost a following board a ping.
     Q_INVOKABLE void ringStatRead();
+
+    /// A Recorder's connectors (ID_BUS / ID_PIN, Recorder firmware with the port table; the recorder fork's
+    /// docs/Port-Config-Spec.md). Asked once per connection of a Recorder only, one frame at a time.
+    /// 1: described, -1: the firmware has none (RespErrorID or silence), 0: not known yet.
+    int portsSupport() const { return portsSupport_; }
+    /// Every connector: id, label, supply (0 none, 1 VBAT, 2 +5.2 V), function, functionSaved, functionCaps, uart,
+    /// uartSaved, uartCaps, txPin, rxPin, baud, pins (each: id, label, mcuPin, roleCaps, role, roleSaved, timer,
+    /// param, value). Empty until the table is read whole.
+    QVariantList portBuses();
+    /// The contacts each logical PWM output OUT1..OUT3 drives (role Pwm, param = its index), labels joined: for the
+    /// servo panel's routing rows. Empty strings while the table is not known.
+    QStringList portPwmOutPins();
+    /// While on, the pins' roles and values are asked every 200 ms in one frame (ID_PIN v1): a page showing them.
+    Q_INVOKABLE void setPortsLive(bool on);
     /// Zeroes the board's counters (SETTING v0 with the key); the board sends its state after.
     Q_INVOKABLE void ringStatReset();
 
@@ -617,6 +631,8 @@ signals:
     /// A slot's frame of the presets in the sonar came (presetSlots, presetsKnown).
     void presetsChanged();
     void ringStatChanged();
+    void portsChanged();
+    void portValuesChanged();
     /// The sonar did not do a recall (version 0), a save (1) or a delete (2): code 2 the flash write did not
     /// verify, 3 a wrong or empty slot, 7 no key (the contract of ID_PRESET). Done is not reported.
     void presetResult(int version, int code);
@@ -806,6 +822,8 @@ protected:
     IDBinVoltage* idVoltage = nullptr;
     IDBinPreset* idPreset = nullptr;
     IDBinRingStat* idRingStat = nullptr;
+    IDBinBus* idBus = nullptr;
+    IDBinPin* idPin = nullptr;
     QSet<quint8> loggedVoltageChannels_;   /* report each channel once, not on every ping */
     qint32 lastSupplyLogged_ = 0;
     IDBinEncoder* idEncoder = nullptr;
@@ -992,6 +1010,8 @@ protected slots:
     void receivedVoltage    (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
     void receivedPreset     (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
     void receivedRingStat   (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
+    void receivedBus        (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
+    void receivedPin        (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
 
     void receivedDataset    (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
     void receivedDistSetup  (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
@@ -1072,6 +1092,13 @@ private:
     // ERR_ID does not know them and is not asked again.
     bool presetsAnswered_ = false;
     QTimer ringStatTimer_;             // no answer to a ring counters request within it: said so
+    bool portsProbeSent_ = false;      // ID_BUS 0 asked on this connection (a Recorder only)
+    int portsSupport_ = 0;             // 1 the Recorder described its ports, -1 it has none, 0 not known
+    QTimer portsAnswerTimer_;          // the read of the table: no answer within it ends it
+    QTimer portsLiveTimer_;            // ID_PIN v1 every 200 ms while a page shows the ports
+    bool portsLiveWanted_ = false;     // a page shows the ports (setPortsLive): the poll starts once the table is read
+    void askNextPort();
+    void resetPorts();
     QString ringStatError_;
     bool presetsUnsupported_ = false;
     int presetAsks_ = 0;

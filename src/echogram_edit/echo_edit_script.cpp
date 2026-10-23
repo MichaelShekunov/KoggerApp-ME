@@ -331,6 +331,30 @@ void EchoEditScript::step()
         return;
     }
 
+    if (op == QLatin1String("waitPorts")) {
+        if (!settleClock_.isValid()) {
+            settleClock_.start();
+        }
+        int support = 0;
+        for (QObject* d : core_->getDeviceManagerWrapperPtr()->getDevList()) {
+            if (d->property("isRecorder").toBool() && d->property("portsSupport").toInt() != 0) {
+                support = d->property("portsSupport").toInt();
+            }
+        }
+        const bool timedOut = settleClock_.elapsed() >= s.value(QStringLiteral("timeoutMs")).toInt(20000);
+        if (support != 0 || timedOut) {
+            qInfo().noquote() << QStringLiteral("echoedit script: waitPorts, %1 ms: %2").arg(settleClock_.elapsed())
+                                 .arg(support == 1 ? QStringLiteral("read") : support < 0 ? QStringLiteral("none")
+                                                                                         : QStringLiteral("timed out"));
+            settleClock_.invalidate();
+            ++next_;
+            timer_.start(0);
+            return;
+        }
+        timer_.start(200);
+        return;
+    }
+
     if (op == QLatin1String("servoDrag")) {
         QObject* dev = firstServoDevice();
         const double from = s.value(QStringLiteral("from")).toDouble();
@@ -1079,6 +1103,41 @@ void EchoEditScript::runStep(const QJsonObject& s)
                                  .arg(d->property("servoManualSupport").toInt())
                                  .arg(d->property("servoCenterDeg").toDouble(), 0, 'f', 2)
                                  .arg(d->property("servoAngleRangeDeg").toDouble(), 0, 'f', 2);
+        }
+    }
+    else if (op == QLatin1String("ports")) {
+        for (QObject* d : core_->getDeviceManagerWrapperPtr()->getDevList()) {
+            if (!d->property("isRecorder").toBool()) {
+                continue;
+            }
+            const QVariantList buses = d->property("portBuses").toList();
+            qInfo().noquote() << QStringLiteral("echoedit script: ports of %1: support %2, %3 buses, OUT pins [%4]")
+                                 .arg(d->property("devName").toString()).arg(d->property("portsSupport").toInt())
+                                 .arg(buses.size()).arg(d->property("portPwmOutPins").toStringList().join(QStringLiteral(" | ")));
+            for (const QVariant& bv : buses) {
+                const QVariantMap b = bv.toMap();
+                QStringList pins;
+                for (const QVariant& pv : b.value(QStringLiteral("pins")).toList()) {
+                    const QVariantMap p = pv.toMap();
+                    pins.append(QStringLiteral("%1 %2 caps 0x%3 role %4/%5 timer %6 param %7 value %8")
+                                    .arg(p.value(QStringLiteral("label")).toString(), p.value(QStringLiteral("mcuPin")).toString())
+                                    .arg(qint64(p.value(QStringLiteral("roleCaps")).toDouble()), 2, 16, QChar('0'))
+                                    .arg(p.value(QStringLiteral("role")).toInt()).arg(p.value(QStringLiteral("roleSaved")).toInt())
+                                    .arg(p.value(QStringLiteral("timer")).toInt()).arg(p.value(QStringLiteral("param")).toInt())
+                                    .arg(p.value(QStringLiteral("value")).toInt()));
+                }
+                qInfo().noquote() << QStringLiteral("echoedit script: port %1 \"%2\": supply %3, function %4/%5 caps 0x%6, "
+                                                    "uart %7/%8 caps 0x%9, tx %10 rx %11, baud %12; %13")
+                                     .arg(b.value(QStringLiteral("id")).toInt()).arg(b.value(QStringLiteral("label")).toString())
+                                     .arg(b.value(QStringLiteral("supply")).toInt()).arg(b.value(QStringLiteral("function")).toInt())
+                                     .arg(b.value(QStringLiteral("functionSaved")).toInt())
+                                     .arg(b.value(QStringLiteral("functionCaps")).toInt(), 2, 16, QChar('0'))
+                                     .arg(b.value(QStringLiteral("uart")).toInt()).arg(b.value(QStringLiteral("uartSaved")).toInt())
+                                     .arg(b.value(QStringLiteral("uartCaps")).toInt(), 2, 16, QChar('0'))
+                                     .arg(b.value(QStringLiteral("txPin")).toInt()).arg(b.value(QStringLiteral("rxPin")).toInt())
+                                     .arg(qint64(b.value(QStringLiteral("baud")).toDouble()))
+                                     .arg(pins.join(QStringLiteral("; ")));
+            }
         }
     }
     else if (op == QLatin1String("devicePage") || op == QLatin1String("ringStat")) {

@@ -51,6 +51,9 @@ public:
     Q_PROPERTY(bool ringStatSupported READ ringStatSupported NOTIFY deviceVersionChanged)
     Q_PROPERTY(QVariantMap ringStat READ ringStat NOTIFY ringStatChanged)
     Q_PROPERTY(bool ringStatBusy READ ringStatBusy NOTIFY ringStatChanged)
+    Q_PROPERTY(int portsSupport READ portsSupport NOTIFY portsChanged)
+    Q_PROPERTY(QVariantList portBuses READ portBuses NOTIFY portValuesChanged)
+    Q_PROPERTY(QStringList portPwmOutPins READ portPwmOutPins NOTIFY portValuesChanged)
 
     Q_PROPERTY(int dspHorSmooth READ dspSmoothFactor WRITE setDspSmoothFactor NOTIFY dspSetupChanged)
     Q_PROPERTY(bool dspState READ getDspSetupState NOTIFY dspSetupChanged)

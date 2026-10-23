@@ -1573,6 +1573,142 @@ Column {
         }
     }
 
+    // ── A Recorder's connectors (ID_BUS / ID_PIN; the recorder fork's docs/Port-Config-Spec.md) ──
+    // Read-only in this version. The pins' live values are asked (one ID_PIN v1 frame every 200 ms) only while this
+    // group is open on a visible page.
+    DeviceSettingsGroup {
+        id: portsGroup
+        objectName: "recorderPortsGroup"
+        width: root.groupWidth; preferredWidth: root.groupWidth
+        title: qsTr("Connectors"); titlePixelSize: 13
+        stateKey: "dev.recorderPorts"; collapsedByDefault: false
+        visible: !!(dev && dev.isRecorder && dev.portsSupport === 1)
+
+        readonly property var buses: dev ? dev.portBuses : []
+        readonly property bool live: root.visible && visible && expanded
+        property var _liveDev: null
+        function _setLive() {
+            var want = live ? dev : null
+            if (_liveDev && _liveDev !== want)
+                _liveDev.setPortsLive(false)
+            if (want && want !== _liveDev)
+                want.setPortsLive(true)
+            _liveDev = want
+        }
+        onLiveChanged: _setLive()
+        Component.onDestruction: if (_liveDev) _liveDev.setPortsLive(false)
+        Connections {
+            target: root
+            ignoreUnknownSignals: true
+            function onDevChanged() { portsGroup._setLive() }
+        }
+
+        function functionName(f) {
+            switch (f) {
+            case 0: return qsTr("Universal")
+            case 1: return qsTr("Sonar port A")
+            case 2: return qsTr("Sonar port B")
+            case 3: return qsTr("Telemetry")
+            case 4: return qsTr("GNSS (navigation)")
+            }
+            return qsTr("Function %1").arg(f)
+        }
+        function uartName(u) { return ["", "USART1", "USART2", "USART3", "LPUART1"][u] || ("UART " + u) }
+        function supplyText(s) {
+            if (s === 1) return qsTr("Battery (VBAT), up to about 30 V")
+            if (s === 2) return qsTr("+5.2 V")
+            return qsTr("None")
+        }
+        function roleText(bus, pin) {
+            switch (pin.role) {
+            case 0: return qsTr("Off")
+            case 1: return pin.id === bus.txPin ? qsTr("UART TX") : pin.id === bus.rxPin ? qsTr("UART RX") : qsTr("UART")
+            case 2: return qsTr("I2C")
+            case 3: return qsTr("PWM to OUT%1 · %2 µs").arg(pin.param + 1).arg(pin.value)
+            case 4: return qsTr("Input, %1 · level %2").arg([qsTr("no pull"), qsTr("pull-up"), qsTr("pull-down")][pin.param] || "").arg(pin.value)
+            case 5: return qsTr("Output · level %1").arg(pin.param)
+            case 6: return qsTr("Analog input · %1 mV").arg(pin.value)
+            }
+            return qsTr("Role %1").arg(pin.role)
+        }
+        function roleName(r) {
+            return [qsTr("Off"), qsTr("UART"), qsTr("I2C"), qsTr("PWM"), qsTr("Input"), qsTr("Output"), qsTr("Analog input")][r]
+                   || qsTr("Role %1").arg(r)
+        }
+        function pinCaption(pin) {
+            var s = pin.mcuPin
+            if (pin.timer > 0)
+                s += qsTr(" · timer %1").arg(pin.timer)
+            if (pin.roleSaved !== pin.role)
+                s += qsTr(" · after a reboot: %1").arg(roleName(pin.roleSaved))
+            return s
+        }
+        function busCaption(bus) {
+            var s = functionName(bus.function)
+            if (bus.uart > 0)
+                s += " · " + uartName(bus.uart) + (bus.baud > 0 ? qsTr(" · %1 baud").arg(bus.baud) : "")
+            if (bus.functionSaved !== bus.function || bus.uartSaved !== bus.uart)
+                s += qsTr(" · after a reboot: %1").arg(functionName(bus.functionSaved))
+            return s
+        }
+
+        Text {
+            width: parent.width; wrapMode: Text.WordWrap
+            color: AppPalette.textSecond; font.pixelSize: Tokens.fontMd
+            text: qsTr("The connectors as the Recorder describes them: what each is for, its power and what each contact does now. This version only shows them.")
+        }
+
+        Repeater {
+            model: [{ device: true, title: qsTr("Device ports") }, { device: false, title: qsTr("Universal connectors") }]
+            delegate: Column {
+                required property var modelData
+                width: parent.width
+                spacing: Tokens.spaceSm
+                readonly property var mine: {
+                    var out = []
+                    for (var i = 0; i < portsGroup.buses.length; ++i)
+                        if ((portsGroup.buses[i].function !== 0) === modelData.device)
+                            out.push(portsGroup.buses[i])
+                    return out
+                }
+                visible: mine.length > 0
+
+                Text {
+                    text: modelData.title
+                    color: AppPalette.textStrong; font.pixelSize: Tokens.fontMd; font.bold: true
+                }
+
+                Repeater {
+                    model: parent.mine
+                    delegate: DevIsland {
+                        id: busCard
+                        required property var modelData
+                        objectName: "portBus_" + modelData.label
+                        width: parent.width
+
+                        DevIslandTitle {
+                            label: busCard.modelData.label
+                            caption: portsGroup.busCaption(busCard.modelData)
+                        }
+                        DevInfoRow {
+                            label: qsTr("Power")
+                            value: portsGroup.supplyText(busCard.modelData.supply)
+                        }
+                        Repeater {
+                            model: busCard.modelData.pins
+                            delegate: DevInfoRow {
+                                required property var modelData
+                                label: modelData.label
+                                value: portsGroup.roleText(busCard.modelData, modelData)
+                                caption: portsGroup.pinCaption(modelData)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     // ── Basic2D user view ─────────────────────────────────────────────────
 
     Column {

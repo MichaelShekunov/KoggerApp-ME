@@ -1845,6 +1845,89 @@ private:
     State m_state;
 };
 
+/* A Recorder's connectors and their contacts (ID_BUS 0x17, ID_PIN 0x16; Recorder firmware feat/port-config, phase 1
+   read-only). Contract: the recorder fork's docs/Port-Config-Spec.md.
+     ID_BUS GETTING v0 [bus]   -> CONTENT v0: [bus][bus count][supply: 0 none, 1 VBAT, 2 +5.2 V][function caps]
+                                  [function][function saved][UART caps][UART][UART saved][TX pin][RX pin][baud u32]
+                                  [pin count][pin ids...][label length][label]
+     ID_PIN GETTING v0 [pin]   -> CONTENT v0: [pin][bus][role caps u32][role][role saved][timer][param][value s32]
+                                  [label length][label][MCU pin length][MCU pin]
+     ID_PIN GETTING v1         -> CONTENT v1: [count] then count x [pin][role][value s32], every pin in id order
+   Asked only of a Recorder, on request (DevDriver); nothing on a cold start. */
+class IDBinBus : public IDBin
+{
+    Q_OBJECT
+public:
+    struct Bus {
+        U1 id = 0;
+        U1 supply = 0;
+        U1 functionCaps = 0;
+        U1 function = 0;
+        U1 functionSaved = 0;
+        U1 uartCaps = 0;
+        U1 uart = 0;
+        U1 uartSaved = 0;
+        U1 txPin = 0xFF;
+        U1 rxPin = 0xFF;
+        U4 baud = 0;
+        QVector<U1> pins;
+        QString label;
+    };
+
+    explicit IDBinBus() : IDBin() {}
+
+    ID id() override { return ID_BUS; }
+    Resp parsePayload(FrameParser &proto) override;
+    void requestAll() override {}
+
+    void request(U1 bus);
+    int count() const { return m_count; }
+    int lastBus() const { return m_last; }
+    const QMap<int, Bus>& buses() const { return m_buses; }
+    void reset() { m_buses.clear(); m_count = 0; m_last = -1; }
+
+private:
+    QMap<int, Bus> m_buses;
+    int m_count = 0;
+    int m_last = -1;
+};
+
+class IDBinPin : public IDBin
+{
+    Q_OBJECT
+public:
+    enum Role : U1 { RoleOff = 0, RoleUart = 1, RoleI2c = 2, RolePwm = 3, RoleDigitalIn = 4, RoleDigitalOut = 5,
+                     RoleAnalogIn = 6 };
+    struct Pin {
+        U1 id = 0;
+        U1 bus = 0;
+        U4 roleCaps = 0;
+        U1 role = 0;
+        U1 roleSaved = 0;
+        U1 timer = 0;
+        U1 param = 0;
+        S4 value = 0;
+        QString label;
+        QString mcuPin;
+    };
+
+    explicit IDBinPin() : IDBin() {}
+
+    ID id() override { return ID_PIN; }
+    Resp parsePayload(FrameParser &proto) override;
+    void requestAll() override {}
+
+    void request(U1 pin);       // v0: one pin's description
+    void requestValues();       // v1: every pin's role and value
+    int lastPin() const { return m_last; }
+    const QMap<int, Pin>& pins() const { return m_pins; }
+    void reset() { m_pins.clear(); m_last = -1; }
+
+private:
+    QMap<int, Pin> m_pins;
+    int m_last = -1;            // the pin of the last v0 frame; -2 after a v1 frame
+};
+
 
 class IDBinNav : public IDBin
 {

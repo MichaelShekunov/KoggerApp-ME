@@ -106,6 +106,12 @@ Column {
 
     property bool _advanced: false
 
+    // "OUT1: O1, IN3, IN1": the contacts that carry each logical output, from a Recorder's port table when it has one.
+    function _outLabel(i, fallback) {
+        var p = body.dev && body.dev.portPwmOutPins
+        return (p && p[i]) ? ("OUT" + (i + 1) + ": " + p[i]) : fallback
+    }
+
     function _devLabel(d) {
         if (!d)
             return ""
@@ -578,7 +584,7 @@ Column {
 
         KIslandRow {
             open: body._advanced
-            label: qsTr("OUT1 (wired)")
+            label: body._outLabel(0, qsTr("OUT1 (wired)"))
 
             DevCombo {
                 model: body._pwmTargets
@@ -594,7 +600,7 @@ Column {
 
         KIslandRow {
             open: body._advanced
-            label: qsTr("OUT2")
+            label: body._outLabel(1, qsTr("OUT2"))
 
             DevCombo {
                 model: body._pwmTargets
@@ -610,7 +616,7 @@ Column {
 
         KIslandRow {
             open: body._advanced
-            label: qsTr("OUT3")
+            label: body._outLabel(2, qsTr("OUT3"))
 
             DevCombo {
                 model: body._pwmTargets

@@ -109,6 +109,9 @@
 // A GODIO ring board's sync counters (ID_RING_STAT, firmware 1.16+), on the device at bus address "addr":
 //   {"op": "devicePage", "addr": n}  its device page opened, as a tap on it in the device list does
 //   {"op": "ringStat", "addr": n, "do": "read" | "reset" | "show"}   asked, zeroed, or what the page shows logged
+// A Recorder's connectors (ID_BUS / ID_PIN), on the first Recorder:
+//   {"op": "waitPorts", "timeoutMs": 20000}   until its port table is read (or known to be missing)
+//   {"op": "ports"}                  every connector and contact, one line each, as the page shows them
 //   {"op": "servoDrag", "from": a, "to": b, "ms": 1000, "everyMs": 5}   the knob dragged: servoManualMove every
 //                                    everyMs from a to b over ms, then servoSet b; logs how many moves it made
 // A sonar's firmware, as its device page's UPGRADE (behind a recorder: the update through it):
