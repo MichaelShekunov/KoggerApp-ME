@@ -3066,3 +3066,16 @@ The kiosk, by the owner's word "switch the kiosk" **[verified]**: headunit 43d95
 the presets of the PULSEblue DSS too) since 2026-10-23 13:36:37 UTC (active, NRestarts 0, no QML error; the boat "HOLD,
 disarmed", the head unit's module on KoggerBoat 4 s after the start); before it 3cbbfdec. The head unit had been
 off ~09:17-13:32 UTC; this PC's installs are still c55749b8 (no word for them yet).
+
+**This PC and the boat's sonar (2026-10-23, the owner: "update the firmware on the boat's sonar, and update the PC")**
+**[verified]**:
+- This PC: both installs (the per-user one and Program Files, UAC confirmed by the owner) on 5ce51c7f, the installed
+  exes the same as the packaged one.
+- The boat's sonar (the 2-channel L412 "NanoSSS", board 17, behind the boat's recorder on port 2) from 11.20 to 11.21,
+  the firmware session's image `NanoSSS_2ch_v11.21_3M2_noWM_ID17.ufw` (md5 59ea5149…, board 17 kept), through the app's
+  update behind a recorder, from the head unit over Wi-Fi: HeadUnit `linux_setup/probe_sonarfw.sh 24a77b74 <ufw> 17`,
+  a probe instance (the kiosk stopped 14:03:05-14:04:22 UTC) with the new edit-script steps `recorderState`,
+  `devState`, `upgrade` (not while a recorder records), `waitUpgrade` (afb7c9b6, bd57c43b). The recorder not recording
+  (state 3); 0 -> 100 % in 14 s, "Upgrade: done"; 1.7 s later the sonar answered GET 0x7C (presets: 11.21 only), 8
+  slots empty; the restarted kiosk read presets and the chart setup (2000 x 20 mm), CHART_Z at 51/s. The settings as
+  the app has them the same before and after (450 kHz, 25 pulses, period 60 ms). The kiosk stays 43d951e5.
