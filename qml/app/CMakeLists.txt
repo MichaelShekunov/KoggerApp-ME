@@ -69,6 +69,7 @@ qt_add_qml_module(kogger_app
         ProfilesPopup.qml
         QuickActionSettingsTab.qml
         SecondaryWindow.qml
+        ServoAngleDial.qml
         ServoPanelBody.qml
         ServoPanelPopup.qml
         ServoPanelSettingsPage.qml

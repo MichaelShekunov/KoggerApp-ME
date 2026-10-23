@@ -3518,165 +3518,165 @@
 <context>
     <name>DevDriver</name>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="136"/>
+        <location filename="../src/device/dev_driver.cpp" line="137"/>
         <source>Port speed %1 set, the module saved it</source>
         <translation>पोर्ट गति %1 सेट की गई, मॉड्यूल ने इसे सहेज लिया</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="139"/>
+        <location filename="../src/device/dev_driver.cpp" line="140"/>
         <source>The module refused %1 bit/s: nothing changed, the port stays at %2</source>
         <translation>मॉड्यूल ने %1 bit/s अस्वीकार किया: कुछ नहीं बदला, पोर्ट %2 पर ही है</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="142"/>
+        <location filename="../src/device/dev_driver.cpp" line="143"/>
         <source>No answer from the module at %1. It keeps that rate (firmware 0.15 saves it at once), so the link stays at %1. If this device cannot do %1, hold the module&apos;s BOOT button 5 s: both ports go back to 921600, then set this link to 921600.</source>
         <translation>%1 पर मॉड्यूल से कोई जवाब नहीं। वह यही दर बनाए रखता है (फ़र्मवेयर 0.15 इसे तुरंत सहेज लेता है), इसलिए लिंक %1 पर ही रहता है। अगर यह डिवाइस %1 पर काम नहीं कर सकता, तो मॉड्यूल का BOOT बटन 5 s तक दबाए रखें: दोनों पोर्ट 921600 पर लौट आते हैं, फिर इस लिंक को 921600 पर सेट करें।</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="147"/>
+        <location filename="../src/device/dev_driver.cpp" line="148"/>
         <source>No answer from the module at %1: the link is back at %2. An unsaved speed is gone after the module&apos;s next reboot.</source>
         <translation>%1 पर मॉड्यूल से कोई जवाब नहीं: लिंक वापस %2 पर है। बिना सहेजी गई गति मॉड्यूल के अगले रीबूट के बाद चली जाती है।</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="179"/>
+        <location filename="../src/device/dev_driver.cpp" line="180"/>
         <source>Port %1: %2 bit/s set, the module saved it</source>
         <translation>पोर्ट %1: %2 bit/s सेट किया गया, मॉड्यूल ने इसे सहेज लिया</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="180"/>
+        <location filename="../src/device/dev_driver.cpp" line="181"/>
         <source>Port %1: line settings applied</source>
         <translation>पोर्ट %1: लाइन सेटिंग्स लागू की गईं</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="184"/>
+        <location filename="../src/device/dev_driver.cpp" line="185"/>
         <source>Port %1: the module did not send the line&apos;s settings, nothing changed</source>
         <translation>पोर्ट %1: मॉड्यूल ने लाइन की सेटिंग्स नहीं भेजीं, कुछ नहीं बदला</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="188"/>
+        <location filename="../src/device/dev_driver.cpp" line="189"/>
         <source>Port %1: the line&apos;s settings are not known, nothing changed</source>
         <translation>पोर्ट %1: लाइन की सेटिंग्स ज्ञात नहीं हैं, कुछ नहीं बदला</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="192"/>
+        <location filename="../src/device/dev_driver.cpp" line="193"/>
         <source>Port %1: the module refused %2 bit/s (code %3)</source>
         <translation>पोर्ट %1: मॉड्यूल ने %2 bit/s अस्वीकार किया (कोड %3)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="193"/>
+        <location filename="../src/device/dev_driver.cpp" line="194"/>
         <source>Port %1: the module refused the line settings (code %2)</source>
         <translation>पोर्ट %1: मॉड्यूल ने लाइन सेटिंग्स अस्वीकार कीं (कोड %2)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="197"/>
+        <location filename="../src/device/dev_driver.cpp" line="198"/>
         <source>Port %1: no answer from the module; what is shown is what it reports</source>
         <translation>पोर्ट %1: मॉड्यूल से कोई जवाब नहीं; जो दिखाया गया है, वही वह बताता है</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="214"/>
-        <location filename="../src/device/dev_driver.cpp" line="216"/>
+        <location filename="../src/device/dev_driver.cpp" line="215"/>
+        <location filename="../src/device/dev_driver.cpp" line="217"/>
         <source>Radio: %1</source>
         <translation>रेडियो: %1</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="1991"/>
+        <location filename="../src/device/dev_driver.cpp" line="2003"/>
         <source>the radio is switched off</source>
         <translation>रेडियो बंद है</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2009"/>
+        <location filename="../src/device/dev_driver.cpp" line="2021"/>
         <source>the module is busy (a window, a survey, a scan or joining runs, or the last window was under 1 s ago)</source>
         <translation>मॉड्यूल व्यस्त है (कोई विंडो, सर्वे, स्कैन या नेटवर्क से जुड़ना चल रहा है, या पिछली विंडो 1 s से कम पहले थी)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2010"/>
+        <location filename="../src/device/dev_driver.cpp" line="2022"/>
         <source>the module refused the report (code %1)</source>
         <translation>मॉड्यूल ने रिपोर्ट अस्वीकार की (कोड %1)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2047"/>
+        <location filename="../src/device/dev_driver.cpp" line="2059"/>
         <source>the module is busy (a survey, a scan or joining a network runs)</source>
         <translation>मॉड्यूल व्यस्त है (सर्वे, स्कैन या किसी नेटवर्क से जुड़ना चल रहा है)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2048"/>
-        <location filename="../src/device/dev_driver.cpp" line="2143"/>
+        <location filename="../src/device/dev_driver.cpp" line="2060"/>
+        <location filename="../src/device/dev_driver.cpp" line="2155"/>
         <source>the module refused the key</source>
         <translation>मॉड्यूल ने कुंजी अस्वीकार की</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2049"/>
+        <location filename="../src/device/dev_driver.cpp" line="2061"/>
         <source>the module refused the survey (code %1)</source>
         <translation>मॉड्यूल ने सर्वे अस्वीकार किया (कोड %1)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2139"/>
+        <location filename="../src/device/dev_driver.cpp" line="2151"/>
         <source>the radio is busy: a channel survey or a link speed window, a scan, or a firmware update (or the first minute after one) runs; try again in a moment</source>
         <translation>रेडियो व्यस्त है: चैनल सर्वे, लिंक की गति की विंडो, स्कैन या फ़र्मवेयर अपडेट (या उसके बाद का पहला मिनट) चल रहा है; थोड़ी देर में फिर कोशिश करें</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2141"/>
+        <location filename="../src/device/dev_driver.cpp" line="2153"/>
         <source>the module refused the request (ERR_PAYLOAD)</source>
         <translation>मॉड्यूल ने अनुरोध अस्वीकार किया (ERR_PAYLOAD)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2142"/>
+        <location filename="../src/device/dev_driver.cpp" line="2154"/>
         <source>over the network the module switches its radio off only for 1 s to 10 min</source>
         <translation>नेटवर्क से मॉड्यूल अपना रेडियो केवल 1 s से 10 min तक के लिए बंद करता है</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2145"/>
+        <location filename="../src/device/dev_driver.cpp" line="2157"/>
         <source>this firmware cannot switch the radio off (that came with 0.20)</source>
         <translation>यह फ़र्मवेयर रेडियो बंद नहीं कर सकता (यह 0.20 में आया)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2146"/>
+        <location filename="../src/device/dev_driver.cpp" line="2158"/>
         <source>the module refused the request (code %1)</source>
         <translation>मॉड्यूल ने अनुरोध अस्वीकार किया (कोड %1)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3233"/>
+        <location filename="../src/device/dev_driver.cpp" line="3245"/>
         <source>The preset was not saved</source>
         <translation>प्रीसेट सहेजा नहीं गया</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3234"/>
+        <location filename="../src/device/dev_driver.cpp" line="3246"/>
         <source>The preset was not deleted</source>
         <translation>प्रीसेट हटाया नहीं गया</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3235"/>
+        <location filename="../src/device/dev_driver.cpp" line="3247"/>
         <source>The preset was not applied</source>
         <translation>प्रीसेट लागू नहीं हुआ</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3236"/>
+        <location filename="../src/device/dev_driver.cpp" line="3248"/>
         <source>the sonar&apos;s flash did not take it</source>
         <translation>सोनार की फ़्लैश मेमोरी ने इसे स्वीकार नहीं किया</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3237"/>
+        <location filename="../src/device/dev_driver.cpp" line="3249"/>
         <source>there is no such preset in the sonar</source>
         <translation>सोनार में ऐसा कोई प्रीसेट नहीं है</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3238"/>
+        <location filename="../src/device/dev_driver.cpp" line="3250"/>
         <source>the sonar asked for the key</source>
         <translation>सोनार ने कुंजी माँगी</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3239"/>
+        <location filename="../src/device/dev_driver.cpp" line="3251"/>
         <source>code %1</source>
         <translation>कोड %1</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3417"/>
+        <location filename="../src/device/dev_driver.cpp" line="3507"/>
         <source>Sync config rejected by device</source>
         <translation>डिवाइस ने सिंक कॉन्फ़िगरेशन अस्वीकार किया</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3983"/>
-        <location filename="../src/device/dev_driver.cpp" line="3996"/>
+        <location filename="../src/device/dev_driver.cpp" line="4073"/>
+        <location filename="../src/device/dev_driver.cpp" line="4086"/>
         <source>no answer from the module</source>
         <translation>मॉड्यूल से कोई जवाब नहीं</translation>
     </message>
@@ -8377,97 +8377,97 @@
         <translation>पोर्ट %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1713"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1714"/>
         <source>Narrow beam: 700 kHz</source>
         <translation>संकीर्ण बीम: 700 kHz</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1713"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1714"/>
         <source>Wide beam: 450 kHz</source>
         <translation>विस्तृत बीम: 450 kHz</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1714"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1715"/>
         <source>%1: %2 kHz. Hold to save the current settings into it</source>
         <translation>%1: %2 kHz। वर्तमान सेटिंग्स इसमें सहेजने के लिए दबाए रखें</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1736"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1737"/>
         <source>Device settings</source>
         <translation>डिवाइस सेटिंग्स</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1788"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1789"/>
         <source>Close second window</source>
         <translation>दूसरी विंडो बंद करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1789"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1790"/>
         <source>Open second window</source>
         <translation>दूसरी विंडो खोलें</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1812"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1813"/>
         <source>Power off</source>
         <translation>पावर बंद करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1894"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1895"/>
         <source>Hide console</source>
         <translation>कंसोल छिपाएँ</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1894"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1895"/>
         <source>Console</source>
         <translation>कंसोल</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1916"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1917"/>
         <source>Mission planner</source>
         <translation>मिशन योजनाकार</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1939"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1940"/>
         <source>Close autopilot</source>
         <translation>ऑटोपायलट कार्ड बंद करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1939"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1940"/>
         <source>Autopilot</source>
         <translation>ऑटोपायलट</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1963"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1964"/>
         <source>Close profiles</source>
         <translation>प्रोफ़ाइल बंद करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1963"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1964"/>
         <source>Settings profiles</source>
         <translation>सेटिंग्स प्रोफ़ाइल</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2006"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2007"/>
         <source>Open settings</source>
         <translation>सेटिंग्स खोलें</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2036"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2037"/>
         <source>Collapse hotkeys</source>
         <translation>त्वरित क्रियाएँ समेटें</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2036"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2037"/>
         <source>Open hotkeys</source>
         <translation>त्वरित क्रियाएँ खोलें</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2355"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2356"/>
         <source>Close bottom track editing</source>
         <translation>बॉटम ट्रैक संपादन बंद करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2356"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2357"/>
         <source>Bottom track editing</source>
         <translation>बॉटम ट्रैक संपादन</translation>
     </message>
@@ -13528,112 +13528,142 @@
 <context>
     <name>ServoPanelBody</name>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="91"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="105"/>
         <source>Off</source>
         <translation>बंद</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="91"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="105"/>
         <source>ServoScan</source>
         <translation>ServoScan</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="263"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="279"/>
         <source>No servo device</source>
         <translation>कोई सर्वो डिवाइस नहीं</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="265"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="281"/>
         <source>On link %1</source>
         <translation>लिंक %1 पर</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="284"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="300"/>
         <source>Device</source>
         <translation>डिवाइस</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="299"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="315"/>
         <source>Control</source>
         <translation>नियंत्रण</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="302"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="318"/>
         <source>Enabled</source>
         <translation>सक्षम</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="316"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="333"/>
+        <source>Manual</source>
+        <translation>मैनुअल मोड</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ServoPanelBody.qml" line="334"/>
+        <source>The firmware does not support manual mode</source>
+        <translation>फ़र्मवेयर मैनुअल मोड का समर्थन नहीं करता</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ServoPanelBody.qml" line="336"/>
+        <source>The servo holds the angle set with the knob; the scan waits until this is off.</source>
+        <translation>सर्वो नॉब से सेट किए गए कोण पर टिका रहता है; इसे बंद करने तक स्कैन रुका रहता है।</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ServoPanelBody.qml" line="350"/>
         <source>Current angle</source>
         <translation>वर्तमान कोण</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="327"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="397"/>
+        <source>Angle, °</source>
+        <translation>कोण, °</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ServoPanelBody.qml" line="420"/>
+        <source>Shift while dragging: finer. Wheel: 1°, with Ctrl: 0.1°.</source>
+        <translation>खींचते समय Shift: अधिक बारीक। व्हील: 1°, Ctrl के साथ: 0.1°।</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ServoPanelBody.qml" line="429"/>
         <source>Reverse mapping</source>
         <translation>उलटी मैपिंग</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="343"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="445"/>
         <source>Scan</source>
         <translation>स्कैन</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="346"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="448"/>
+        <source>Waits while the servo is in manual mode.</source>
+        <translation>सर्वो के मैनुअल मोड में रहने तक प्रतीक्षा करता है।</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ServoPanelBody.qml" line="451"/>
         <source>Step, °</source>
         <translation>चरण, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="364"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="469"/>
         <source>Scan range, °</source>
         <translation>स्कैन रेंज, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="379"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="484"/>
         <source>Center, °</source>
         <translation>केंद्र, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="398"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="503"/>
         <source>More settings</source>
         <translation>अधिक सेटिंग्स</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="410"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="515"/>
         <source>Calibration</source>
         <translation>कैलिब्रेशन</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="416"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="521"/>
         <source>PWM min, µs</source>
         <translation>PWM न्यूनतम, µs</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="432"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="537"/>
         <source>PWM max, µs</source>
         <translation>PWM अधिकतम, µs</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="448"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="553"/>
         <source>Servo angle range, °</source>
         <translation>सर्वो कोण की रेंज, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="463"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="568"/>
         <source>PWM routing</source>
         <translation>PWM रूटिंग</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="469"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="574"/>
         <source>OUT1 (wired)</source>
         <translation>OUT1 (तार से जुड़ा)</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="485"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="590"/>
         <source>OUT2</source>
         <translation>OUT2</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="501"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="606"/>
         <source>OUT3</source>
         <translation>OUT3</translation>
     </message>

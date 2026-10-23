@@ -7,6 +7,7 @@
 #include <QFile>
 #include <QThread>
 #include <type_traits>
+#include <cmath>
 #include <QVariant>
 #include <QXmlStreamWriter>
 #include "notifications.h"
@@ -219,6 +220,17 @@ DevDriver::DevDriver(QObject *parent)
     m_devSyncDebounceTimer.setSingleShot(true);
     m_devSyncDebounceTimer.setInterval(300);
     connect(&m_devSyncDebounceTimer, &QTimer::timeout, this, &DevDriver::onDevSyncDebounceFired);
+
+    servoManualTimer_.setSingleShot(true);
+    servoManualTimer_.setInterval(kServoManualMs);
+    connect(&servoManualTimer_, &QTimer::timeout, this, &DevDriver::flushServoManual);
+    servoReadbackTimer_.setSingleShot(true);
+    servoReadbackTimer_.setInterval(250);
+    connect(&servoReadbackTimer_, &QTimer::timeout, this, [this]() {
+        if (idServoControl) {
+            idServoControl->requestAll();
+        }
+    });
 }
 
 DevDriver::~DevDriver()
@@ -3378,7 +3390,85 @@ void DevDriver::receivedServoControl(Parsers::Type type, Parsers::Version ver, P
     Q_UNUSED(type);
     Q_UNUSED(ver);
 
-    if (resp == respNone) { emit servoControlChanged(); }
+    if (resp == respNone) {
+        if (idServoControl->manual() && servoManualSupport_ != 1) {
+            servoManualSupport_ = 1;
+        }
+        emit servoControlChanged();
+        return;
+    }
+    // A refused setting while manual mode is asked for and the device has never shown it: a firmware without
+    // manual mode, which refuses bit 1 of general this way. It never left the scan, so nothing is sent back.
+    if (resp == respErrorPayload && idServoControl->manual() && servoManualSupport_ != 1) {
+        servoManualSupport_ = -1;
+        stopServoManualDrag();
+        idServoControl->dropManual();
+        qInfo().noquote() << wifiTag() << "servo: manual mode refused, the firmware has none";
+        emit servoControlChanged();
+    }
+}
+
+namespace {
+S2 servoDegToS2(double deg) {
+    return static_cast<S2>(qBound(-32768.0, std::round(deg * IDBinServoControl::AngleScale), 32767.0));
+}
+}
+
+bool DevDriver::servoManual() const {
+    return idServoControl && idServoControl->manual();
+}
+
+void DevDriver::setServoManual(bool on) {
+    if (!idServoControl || on == idServoControl->manual()) {
+        return;
+    }
+    stopServoManualDrag();
+    idServoControl->setManual(on);
+    qInfo().noquote() << wifiTag() << QStringLiteral("servo: manual %1, center_deg %2")
+                                          .arg(on ? "on" : "off").arg(idServoControl->centerDeg() / double(IDBinServoControl::AngleScale), 0, 'f', 2);
+    emit servoControlChanged();
+    servoReadbackTimer_.start();
+}
+
+double DevDriver::servoManualDeg() const {
+    return idServoControl ? idServoControl->manualDeg() / double(IDBinServoControl::AngleScale) : 0.0;
+}
+
+void DevDriver::servoManualMove(double deg) {
+    if (!idServoControl || !idServoControl->manual()) {
+        return;
+    }
+    servoReadbackTimer_.stop();   // an answer from before the drag would pull the dial back
+    servoManualPending_ = deg;
+    servoManualDirty_ = true;
+    if (!servoManualTimer_.isActive()) {
+        flushServoManual();
+    }
+}
+
+void DevDriver::servoManualSet(double deg) {
+    if (!idServoControl || !idServoControl->manual()) {
+        return;
+    }
+    stopServoManualDrag();
+    idServoControl->setManualDeg(servoDegToS2(deg));
+    emit servoControlChanged();
+    servoReadbackTimer_.start();
+}
+
+void DevDriver::flushServoManual() {
+    if (!servoManualDirty_ || !idServoControl) {
+        return;
+    }
+    servoManualDirty_ = false;
+    idServoControl->setManualDeg(servoDegToS2(servoManualPending_));
+    servoManualTimer_.start();
+    emit servoControlChanged();
+}
+
+void DevDriver::stopServoManualDrag() {
+    servoManualTimer_.stop();
+    servoManualDirty_ = false;
 }
 
 // The probe's answer, and the only thing the app ever learns about a stand. An unknown-id

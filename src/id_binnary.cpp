@@ -763,6 +763,9 @@ Resp IDBinServoControl::parsePayload(FrameParser &proto) {
         m_stepDeg       = proto.read<S2>();
         m_rangeDeg      = proto.read<S2>();
         m_centerDeg     = proto.read<S2>();
+        if (manual()) {
+            m_manualDeg = m_centerDeg;
+        }
     } else {
         return respErrorVersion;
     }
@@ -785,19 +788,65 @@ void IDBinServoControl::setAll(U2 general, U2 options, U2 pwm_min_us, U2 pwm_max
     m_rangeDeg      = range_deg;
     m_centerDeg     = center_deg;
 
+    send(true);
+}
+
+void IDBinServoControl::setManual(bool on) {
+    if (on == manual()) {
+        return;
+    }
+    if (on) {
+        m_scanCenterDeg = m_centerDeg;
+        m_manualDeg = clampManual(m_centerDeg);
+        m_general |= GenManual;
+        m_centerDeg = m_manualDeg;
+    } else {
+        m_general &= ~GenManual;
+        m_centerDeg = m_scanCenterDeg;
+    }
+    send(false);
+}
+
+void IDBinServoControl::setManualDeg(S2 deg) {
+    if (!manual()) {
+        return;
+    }
+    m_manualDeg = clampManual(deg);
+    m_centerDeg = m_manualDeg;
+    send(false);
+}
+
+void IDBinServoControl::dropManual() {
+    if (!manual()) {
+        return;
+    }
+    m_general &= ~GenManual;
+    m_centerDeg = m_scanCenterDeg;
+}
+
+S2 IDBinServoControl::clampManual(S2 deg) const {
+    const int half = qMax(0, int(m_angleRangeDeg)) / 2;
+    return static_cast<S2>(qBound(-half, int(deg), half));
+}
+
+void IDBinServoControl::send(bool tracked) {
     ProtoBinOut id_out;
     id_out.create(SETTING, v0, id(), m_address);
-    id_out.write<U2>(general);
-    id_out.write<U2>(options);
-    id_out.write<U2>(pwm_min_us);
-    id_out.write<U2>(pwm_max_us);
-    id_out.write<S2>(angle_range_deg);
-    id_out.write<S2>(step_deg);
-    id_out.write<S2>(range_deg);
-    id_out.write<S2>(center_deg);
+    id_out.write<U2>(m_general);
+    id_out.write<U2>(m_options);
+    id_out.write<U2>(m_pwmMinUs);
+    id_out.write<U2>(m_pwmMaxUs);
+    id_out.write<S2>(m_angleRangeDeg);
+    id_out.write<S2>(m_stepDeg);
+    id_out.write<S2>(m_rangeDeg);
+    id_out.write<S2>(m_centerDeg);
     id_out.end();
 
-    hashBinFrameOut(id_out);
+    if (tracked) {
+        hashBinFrameOut(id_out);
+    } else {
+        emit binFrameOut(id_out);
+    }
 }
 
 

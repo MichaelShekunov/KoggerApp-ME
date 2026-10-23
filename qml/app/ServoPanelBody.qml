@@ -24,15 +24,27 @@ Column {
         property real servoRangeDeg: 180
         property real servoCenterDeg: 0
         property real servoCurrentAngleDeg: 0
+        property bool servoManual: false
+        property real servoManualDeg: 0
+        property int servoManualSupport: 1
         property int pwmRouteOut1: 1
         property int pwmRouteOut2: 0
         property int pwmRouteOut3: 0
+
+        onServoManualChanged: if (servoManual) servoManualDeg = _clampManual(servoCenterDeg)
+        function _clampManual(d) {
+            var h = servoAngleRangeDeg / 2
+            return Math.max(-h, Math.min(h, Math.round(d * 100) / 100))
+        }
+        function servoManualMove(d) { servoManualDeg = _clampManual(d) }
+        function servoManualSet(d) { servoManualDeg = _clampManual(d) }
     }
 
     property Timer _mockSweep: Timer {
         interval: 200
         repeat: true
         running: body.active && body._manualTesting && body.dev === body._mockDev && body._mockDev.servoEnabled
+                 && !body._mockDev.servoManual
         property int dir: 1
         onTriggered: {
             var m = body._mockDev
@@ -66,6 +78,8 @@ Column {
         return 0
     }
     readonly property var dev: _devs.length > 0 ? _devs[_selIndex] : null
+    // Manual mode (docs/SERVO_MANUAL.md): the servo holds the angle set below; the scan and its switch wait.
+    readonly property bool _manual: !!(dev && dev.servoManual)
 
     readonly property var _devNames: {
         var out = []
@@ -173,7 +187,9 @@ Column {
             var d = body.dev
             if (!d)
                 return
-            body._log("device: enabled=" + d.servoEnabled + " reverse=" + d.servoReverse
+            body._log("device: enabled=" + d.servoEnabled + " manual=" + d.servoManual
+                      + (d.servoManual ? " at " + d.servoManualDeg.toFixed(2) + "°" : "")
+                      + " reverse=" + d.servoReverse
                       + "° step=" + d.servoStepDeg.toFixed(2) + "° range=" + d.servoRangeDeg.toFixed(0)
                       + "° center=" + d.servoCenterDeg.toFixed(0)
                       + "° angleRange=" + d.servoAngleRangeDeg.toFixed(0)
@@ -302,6 +318,7 @@ Column {
             label: qsTr("Enabled")
 
             DevSwitch {
+                enabled: !body._manual
                 wantChecked: !!(body.dev && body.dev.servoEnabled)
                 writeBack: function(v) {
                     if (body.dev && body.dev.servoEnabled !== v) {
@@ -313,13 +330,98 @@ Column {
         }
 
         KIslandRow {
+            label: qsTr("Manual")
+            caption: (body.dev && body.dev.servoManualSupport < 0) ? qsTr("The firmware does not support manual mode") : ""
+            captionColor: AppPalette.dangerText
+            toolTipText: qsTr("The servo holds the angle set with the knob; the scan waits until this is off.")
+
+            DevSwitch {
+                wantChecked: body._manual
+                writeBack: function(v) {
+                    if (body.dev && body.dev.servoManual !== v) {
+                        body._log("write manual = " + v)
+                        body.dev.servoManual = v
+                    }
+                }
+            }
+        }
+
+        KIslandRow {
             label: qsTr("Current angle")
 
+            // In manual mode the device sends no attitude: the angle shown is the one it was told to hold.
             Text {
-                text: body._axValid(body._angleDeg) ? body._angleDeg.toFixed(2) + "°" : "—"
+                text: body._manual ? body.dev.servoManualDeg.toFixed(2) + "°"
+                                   : (body._axValid(body._angleDeg) ? body._angleDeg.toFixed(2) + "°" : "—")
                 color: AppPalette.textStrong
                 font.pixelSize: Tokens.fontLg
                 font.bold: true
+            }
+        }
+
+        KIslandRow {
+            open: body._manual
+            stacked: true
+
+            Row {
+                spacing: Tokens.spaceLg
+
+                ServoAngleDial {
+                    id: manualDial
+                    property bool _dragging: false
+                    property real _live: 0
+                    objectName: "servoManualDial"
+                    limit: body.dev ? body.dev.servoAngleRangeDeg / 2 : 90
+                    angle: _dragging ? _live : (body.dev ? body.dev.servoManualDeg : 0)
+                    onPressed: { _live = angle; _dragging = true }
+                    onMoved: function(deg) {
+                        _live = deg
+                        if (body.dev)
+                            body.dev.servoManualMove(deg)
+                    }
+                    onReleased: function(deg) {
+                        _live = deg
+                        _dragging = false
+                        if (body.dev) {
+                            body._log("write manual angle = " + deg.toFixed(2) + "°")
+                            body.dev.servoManualSet(deg)
+                        }
+                    }
+                }
+
+                Column {
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: Tokens.spaceSm
+
+                    Text {
+                        text: qsTr("Angle, °")
+                        color: AppPalette.textSecond
+                        font.pixelSize: Tokens.fontSm
+                    }
+
+                    DevSpin {
+                        readonly property int _half: body.dev ? Math.round(body.dev.servoAngleRangeDeg * 50) : 9000
+                        from: -_half; to: _half; stepSize: 1; divisor: 100; decimals: 2
+                        devValue: body.dev ? Math.round(body.dev.servoManualDeg * 100) : 0
+                        writeBack: function(v) {
+                            if (!body.dev)
+                                return
+                            var deg = v / 100.0
+                            if (Math.abs(body.dev.servoManualDeg - deg) > 0.001) {
+                                body._log("write manual angle = " + deg.toFixed(2) + "°")
+                                body.dev.servoManualSet(deg)
+                            }
+                        }
+                    }
+
+                    Text {
+                        width: body.ctlW
+                        wrapMode: Text.WordWrap
+                        text: qsTr("Shift while dragging: finer. Wheel: 1°, with Ctrl: 0.1°.")
+                        color: AppPalette.textMuted
+                        font.pixelSize: Tokens.fontXs
+                    }
+                }
             }
         }
 
@@ -341,6 +443,9 @@ Column {
     KIsland {
         visible: !!body.dev
         title: qsTr("Scan")
+        enabled: !body._manual
+        opacity: enabled ? 1.0 : 0.55
+        footer: body._manual ? qsTr("Waits while the servo is in manual mode.") : ""
 
         KIslandRow {
             label: qsTr("Step, °")

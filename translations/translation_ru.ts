@@ -3522,165 +3522,165 @@
 <context>
     <name>DevDriver</name>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="136"/>
+        <location filename="../src/device/dev_driver.cpp" line="137"/>
         <source>Port speed %1 set, the module saved it</source>
         <translation>Скорость порта %1 установлена, модуль её сохранил</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="139"/>
+        <location filename="../src/device/dev_driver.cpp" line="140"/>
         <source>The module refused %1 bit/s: nothing changed, the port stays at %2</source>
         <translation>Модуль отказал в %1 бит/с: ничего не изменилось, порт остаётся на %2</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="142"/>
+        <location filename="../src/device/dev_driver.cpp" line="143"/>
         <source>No answer from the module at %1. It keeps that rate (firmware 0.15 saves it at once), so the link stays at %1. If this device cannot do %1, hold the module&apos;s BOOT button 5 s: both ports go back to 921600, then set this link to 921600.</source>
         <translation>Модуль не отвечает на %1. Он держит эту скорость (прошивка 0.15 сохраняет её сразу), поэтому подключение остаётся на %1. Если это устройство не умеет %1, подержите кнопку BOOT модуля 5 с: оба порта вернутся на 921600, затем выставьте это подключение на 921600.</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="147"/>
+        <location filename="../src/device/dev_driver.cpp" line="148"/>
         <source>No answer from the module at %1: the link is back at %2. An unsaved speed is gone after the module&apos;s next reboot.</source>
         <translation>Модуль не отвечает на %1: подключение вернулось на %2. Несохранённая скорость пропадёт после следующей перезагрузки модуля.</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="179"/>
+        <location filename="../src/device/dev_driver.cpp" line="180"/>
         <source>Port %1: %2 bit/s set, the module saved it</source>
         <translation>Порт %1: установлено %2 бит/с, модуль сохранил</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="180"/>
+        <location filename="../src/device/dev_driver.cpp" line="181"/>
         <source>Port %1: line settings applied</source>
         <translation>Порт %1: настройки линии применены</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="184"/>
+        <location filename="../src/device/dev_driver.cpp" line="185"/>
         <source>Port %1: the module did not send the line&apos;s settings, nothing changed</source>
         <translation>Порт %1: модуль не прислал настройки линии, ничего не изменилось</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="188"/>
+        <location filename="../src/device/dev_driver.cpp" line="189"/>
         <source>Port %1: the line&apos;s settings are not known, nothing changed</source>
         <translation>Порт %1: настройки линии неизвестны, ничего не изменилось</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="192"/>
+        <location filename="../src/device/dev_driver.cpp" line="193"/>
         <source>Port %1: the module refused %2 bit/s (code %3)</source>
         <translation>Порт %1: модуль отказал в %2 бит/с (код %3)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="193"/>
+        <location filename="../src/device/dev_driver.cpp" line="194"/>
         <source>Port %1: the module refused the line settings (code %2)</source>
         <translation>Порт %1: модуль отказал в настройках линии (код %2)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="197"/>
+        <location filename="../src/device/dev_driver.cpp" line="198"/>
         <source>Port %1: no answer from the module; what is shown is what it reports</source>
         <translation>Порт %1: модуль не отвечает; показано то, что он сообщает</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="214"/>
-        <location filename="../src/device/dev_driver.cpp" line="216"/>
+        <location filename="../src/device/dev_driver.cpp" line="215"/>
+        <location filename="../src/device/dev_driver.cpp" line="217"/>
         <source>Radio: %1</source>
         <translation>Радио: %1</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="1991"/>
+        <location filename="../src/device/dev_driver.cpp" line="2003"/>
         <source>the radio is switched off</source>
         <translation>радио выключено</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2009"/>
+        <location filename="../src/device/dev_driver.cpp" line="2021"/>
         <source>the module is busy (a window, a survey, a scan or joining runs, or the last window was under 1 s ago)</source>
         <translation>модуль занят (идёт окно, обзор, сканирование или подключение к сети, либо прошлое окно было меньше 1 с назад)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2010"/>
+        <location filename="../src/device/dev_driver.cpp" line="2022"/>
         <source>the module refused the report (code %1)</source>
         <translation>модуль отказал в отчёте (код %1)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2047"/>
+        <location filename="../src/device/dev_driver.cpp" line="2059"/>
         <source>the module is busy (a survey, a scan or joining a network runs)</source>
         <translation>модуль занят (идёт обзор, сканирование или подключение к сети)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2048"/>
-        <location filename="../src/device/dev_driver.cpp" line="2143"/>
+        <location filename="../src/device/dev_driver.cpp" line="2060"/>
+        <location filename="../src/device/dev_driver.cpp" line="2155"/>
         <source>the module refused the key</source>
         <translation>модуль отказал в ключе</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2049"/>
+        <location filename="../src/device/dev_driver.cpp" line="2061"/>
         <source>the module refused the survey (code %1)</source>
         <translation>модуль отказал в обзоре (код %1)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2139"/>
+        <location filename="../src/device/dev_driver.cpp" line="2151"/>
         <source>the radio is busy: a channel survey or a link speed window, a scan, or a firmware update (or the first minute after one) runs; try again in a moment</source>
         <translation>радио занято: идёт обзор каналов, окно скорости связи, сканирование или обновление прошивки (или первая минута после него); повторите чуть позже</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2141"/>
+        <location filename="../src/device/dev_driver.cpp" line="2153"/>
         <source>the module refused the request (ERR_PAYLOAD)</source>
         <translation>модуль отклонил запрос (ERR_PAYLOAD)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2142"/>
+        <location filename="../src/device/dev_driver.cpp" line="2154"/>
         <source>over the network the module switches its radio off only for 1 s to 10 min</source>
         <translation>по сети модуль выключает радио только на время от 1 с до 10 мин</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2145"/>
+        <location filename="../src/device/dev_driver.cpp" line="2157"/>
         <source>this firmware cannot switch the radio off (that came with 0.20)</source>
         <translation>эта прошивка не умеет выключать радио (это появилось в 0.20)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2146"/>
+        <location filename="../src/device/dev_driver.cpp" line="2158"/>
         <source>the module refused the request (code %1)</source>
         <translation>модуль отклонил запрос (код %1)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3233"/>
+        <location filename="../src/device/dev_driver.cpp" line="3245"/>
         <source>The preset was not saved</source>
         <translation>Пресет не записан</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3234"/>
+        <location filename="../src/device/dev_driver.cpp" line="3246"/>
         <source>The preset was not deleted</source>
         <translation>Пресет не удалён</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3235"/>
+        <location filename="../src/device/dev_driver.cpp" line="3247"/>
         <source>The preset was not applied</source>
         <translation>Пресет не применён</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3236"/>
+        <location filename="../src/device/dev_driver.cpp" line="3248"/>
         <source>the sonar&apos;s flash did not take it</source>
         <translation>флеш-память сонара не приняла запись</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3237"/>
+        <location filename="../src/device/dev_driver.cpp" line="3249"/>
         <source>there is no such preset in the sonar</source>
         <translation>в сонаре нет такого пресета</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3238"/>
+        <location filename="../src/device/dev_driver.cpp" line="3250"/>
         <source>the sonar asked for the key</source>
         <translation>сонар требует ключ</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3239"/>
+        <location filename="../src/device/dev_driver.cpp" line="3251"/>
         <source>code %1</source>
         <translation>код %1</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3417"/>
+        <location filename="../src/device/dev_driver.cpp" line="3507"/>
         <source>Sync config rejected by device</source>
         <translation>Конфигурация синхронизации отклонена устройством</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3983"/>
-        <location filename="../src/device/dev_driver.cpp" line="3996"/>
+        <location filename="../src/device/dev_driver.cpp" line="4073"/>
+        <location filename="../src/device/dev_driver.cpp" line="4086"/>
         <source>no answer from the module</source>
         <translation>модуль не отвечает</translation>
     </message>
@@ -8271,7 +8271,7 @@
         <translation>Порт %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2006"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2007"/>
         <source>Open settings</source>
         <translation>Открыть настройки</translation>
     </message>
@@ -8281,17 +8281,17 @@
         <translation>Устройство</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1894"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1895"/>
         <source>Console</source>
         <translation>Консоль</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1894"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1895"/>
         <source>Hide console</source>
         <translation>Скрыть консоль</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1736"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1737"/>
         <source>Device settings</source>
         <translation>Настройки устройства</translation>
     </message>
@@ -8341,22 +8341,22 @@
         <translation>Настройки записи</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1812"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1813"/>
         <source>Power off</source>
         <translation>Выключить питание</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1963"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1964"/>
         <source>Settings profiles</source>
         <translation>Профили настроек</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1963"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1964"/>
         <source>Close profiles</source>
         <translation>Закрыть профили</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2356"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2357"/>
         <source>Bottom track editing</source>
         <translation>Редактирование трека дна</translation>
     </message>
@@ -8406,57 +8406,57 @@
         <translation>дБм</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1713"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1714"/>
         <source>Narrow beam: 700 kHz</source>
         <translation>Узкий луч: 700 кГц</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1713"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1714"/>
         <source>Wide beam: 450 kHz</source>
         <translation>Широкий луч: 450 кГц</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1714"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1715"/>
         <source>%1: %2 kHz. Hold to save the current settings into it</source>
         <translation>%1: %2 кГц. Удерживайте, чтобы записать в него текущие настройки</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1788"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1789"/>
         <source>Close second window</source>
         <translation>Закрыть второе окно</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1789"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1790"/>
         <source>Open second window</source>
         <translation>Открыть второе окно</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1916"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1917"/>
         <source>Mission planner</source>
         <translation>Планировщик миссий</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1939"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1940"/>
         <source>Close autopilot</source>
         <translation>Закрыть автопилот</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1939"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1940"/>
         <source>Autopilot</source>
         <translation>Автопилот</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2036"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2037"/>
         <source>Collapse hotkeys</source>
         <translation>Свернуть быстрые действия</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2036"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2037"/>
         <source>Open hotkeys</source>
         <translation>Открыть быстрые действия</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2355"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2356"/>
         <source>Close bottom track editing</source>
         <translation>Закрыть редактор трека дна</translation>
     </message>
@@ -13532,112 +13532,142 @@
 <context>
     <name>ServoPanelBody</name>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="91"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="105"/>
         <source>Off</source>
         <translation>Выкл</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="91"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="105"/>
         <source>ServoScan</source>
         <translation>ServoScan</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="263"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="279"/>
         <source>No servo device</source>
         <translation>Нет устройства с серво</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="265"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="281"/>
         <source>On link %1</source>
         <translation>На линке %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="284"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="300"/>
         <source>Device</source>
         <translation>Устройство</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="299"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="315"/>
         <source>Control</source>
         <translation>Управление</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="302"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="318"/>
         <source>Enabled</source>
         <translation>Включено</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="316"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="333"/>
+        <source>Manual</source>
+        <translation>Ручной режим</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ServoPanelBody.qml" line="334"/>
+        <source>The firmware does not support manual mode</source>
+        <translation>Прошивка не поддерживает ручной режим</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ServoPanelBody.qml" line="336"/>
+        <source>The servo holds the angle set with the knob; the scan waits until this is off.</source>
+        <translation>Серво держит угол, заданный ручкой; скан ждёт, пока режим не выключат.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ServoPanelBody.qml" line="350"/>
         <source>Current angle</source>
         <translation>Текущий угол</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="327"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="397"/>
+        <source>Angle, °</source>
+        <translation>Угол, °</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ServoPanelBody.qml" line="420"/>
+        <source>Shift while dragging: finer. Wheel: 1°, with Ctrl: 0.1°.</source>
+        <translation>Shift при перетаскивании — точнее. Колесо: 1°, с Ctrl: 0,1°.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ServoPanelBody.qml" line="429"/>
         <source>Reverse mapping</source>
         <translation>Инверсия</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="343"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="445"/>
         <source>Scan</source>
         <translation>Скан</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="346"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="448"/>
+        <source>Waits while the servo is in manual mode.</source>
+        <translation>Ждёт, пока серво в ручном режиме.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ServoPanelBody.qml" line="451"/>
         <source>Step, °</source>
         <translation>Шаг, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="364"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="469"/>
         <source>Scan range, °</source>
         <translation>Диапазон скана, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="379"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="484"/>
         <source>Center, °</source>
         <translation>Центр, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="398"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="503"/>
         <source>More settings</source>
         <translation>Ещё настройки</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="410"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="515"/>
         <source>Calibration</source>
         <translation>Калибровка</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="416"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="521"/>
         <source>PWM min, µs</source>
         <translation>PWM min, мкс</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="432"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="537"/>
         <source>PWM max, µs</source>
         <translation>PWM max, мкс</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="448"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="553"/>
         <source>Servo angle range, °</source>
         <translation>Ход серво, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="463"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="568"/>
         <source>PWM routing</source>
         <translation>Маршрутизация PWM</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="469"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="574"/>
         <source>OUT1 (wired)</source>
         <translation>OUT1 (распаян)</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="485"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="590"/>
         <source>OUT2</source>
         <translation>OUT2</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="501"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="606"/>
         <source>OUT3</source>
         <translation>OUT3</translation>
     </message>

@@ -3518,165 +3518,165 @@
 <context>
     <name>DevDriver</name>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="136"/>
+        <location filename="../src/device/dev_driver.cpp" line="137"/>
         <source>Port speed %1 set, the module saved it</source>
         <translation>端口速率已设为 %1，模块已保存</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="139"/>
+        <location filename="../src/device/dev_driver.cpp" line="140"/>
         <source>The module refused %1 bit/s: nothing changed, the port stays at %2</source>
         <translation>模块拒绝了 %1 bit/s：未作更改，端口保持 %2</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="142"/>
+        <location filename="../src/device/dev_driver.cpp" line="143"/>
         <source>No answer from the module at %1. It keeps that rate (firmware 0.15 saves it at once), so the link stays at %1. If this device cannot do %1, hold the module&apos;s BOOT button 5 s: both ports go back to 921600, then set this link to 921600.</source>
         <translation>模块在 %1 下无应答。它会保持该速率（固件 0.15 会立即保存），因此连接保持在 %1。如果本设备不支持 %1，请按住模块的 BOOT 按钮 5 秒：两个端口都会恢复为 921600，然后将此连接设为 921600。</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="147"/>
+        <location filename="../src/device/dev_driver.cpp" line="148"/>
         <source>No answer from the module at %1: the link is back at %2. An unsaved speed is gone after the module&apos;s next reboot.</source>
         <translation>模块在 %1 下无应答：连接已恢复到 %2。未保存的速率在模块下次重启后失效。</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="179"/>
+        <location filename="../src/device/dev_driver.cpp" line="180"/>
         <source>Port %1: %2 bit/s set, the module saved it</source>
         <translation>端口 %1：已设为 %2 bit/s，模块已保存</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="180"/>
+        <location filename="../src/device/dev_driver.cpp" line="181"/>
         <source>Port %1: line settings applied</source>
         <translation>端口 %1：线路设置已应用</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="184"/>
+        <location filename="../src/device/dev_driver.cpp" line="185"/>
         <source>Port %1: the module did not send the line&apos;s settings, nothing changed</source>
         <translation>端口 %1：模块未发送线路设置，未作更改</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="188"/>
+        <location filename="../src/device/dev_driver.cpp" line="189"/>
         <source>Port %1: the line&apos;s settings are not known, nothing changed</source>
         <translation>端口 %1：线路设置未知，未作更改</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="192"/>
+        <location filename="../src/device/dev_driver.cpp" line="193"/>
         <source>Port %1: the module refused %2 bit/s (code %3)</source>
         <translation>端口 %1：模块拒绝了 %2 bit/s（代码 %3）</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="193"/>
+        <location filename="../src/device/dev_driver.cpp" line="194"/>
         <source>Port %1: the module refused the line settings (code %2)</source>
         <translation>端口 %1：模块拒绝了线路设置（代码 %2）</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="197"/>
+        <location filename="../src/device/dev_driver.cpp" line="198"/>
         <source>Port %1: no answer from the module; what is shown is what it reports</source>
         <translation>端口 %1：模块无应答；显示的是它报告的值</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="214"/>
-        <location filename="../src/device/dev_driver.cpp" line="216"/>
+        <location filename="../src/device/dev_driver.cpp" line="215"/>
+        <location filename="../src/device/dev_driver.cpp" line="217"/>
         <source>Radio: %1</source>
         <translation>无线：%1</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="1991"/>
+        <location filename="../src/device/dev_driver.cpp" line="2003"/>
         <source>the radio is switched off</source>
         <translation>无线已关闭</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2009"/>
+        <location filename="../src/device/dev_driver.cpp" line="2021"/>
         <source>the module is busy (a window, a survey, a scan or joining runs, or the last window was under 1 s ago)</source>
         <translation>模块正忙（正在进行窗口、勘测、扫描或入网，或距上一个窗口不足 1 秒）</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2010"/>
+        <location filename="../src/device/dev_driver.cpp" line="2022"/>
         <source>the module refused the report (code %1)</source>
         <translation>模块拒绝了报告（代码 %1）</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2047"/>
+        <location filename="../src/device/dev_driver.cpp" line="2059"/>
         <source>the module is busy (a survey, a scan or joining a network runs)</source>
         <translation>模块正忙（正在进行勘测、扫描或入网）</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2048"/>
-        <location filename="../src/device/dev_driver.cpp" line="2143"/>
+        <location filename="../src/device/dev_driver.cpp" line="2060"/>
+        <location filename="../src/device/dev_driver.cpp" line="2155"/>
         <source>the module refused the key</source>
         <translation>模块拒绝了密钥</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2049"/>
+        <location filename="../src/device/dev_driver.cpp" line="2061"/>
         <source>the module refused the survey (code %1)</source>
         <translation>模块拒绝了勘测（代码 %1）</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2139"/>
+        <location filename="../src/device/dev_driver.cpp" line="2151"/>
         <source>the radio is busy: a channel survey or a link speed window, a scan, or a firmware update (or the first minute after one) runs; try again in a moment</source>
         <translation>无线正忙：正在进行信道勘测、链路速率窗口、扫描或固件更新（或更新后的第一分钟）；请稍后重试</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2141"/>
+        <location filename="../src/device/dev_driver.cpp" line="2153"/>
         <source>the module refused the request (ERR_PAYLOAD)</source>
         <translation>模块拒绝了请求（ERR_PAYLOAD）</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2142"/>
+        <location filename="../src/device/dev_driver.cpp" line="2154"/>
         <source>over the network the module switches its radio off only for 1 s to 10 min</source>
         <translation>通过网络时，模块只能关闭无线 1 秒到 10 分钟</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2145"/>
+        <location filename="../src/device/dev_driver.cpp" line="2157"/>
         <source>this firmware cannot switch the radio off (that came with 0.20)</source>
         <translation>此固件不能关闭无线（该功能从 0.20 开始提供）</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2146"/>
+        <location filename="../src/device/dev_driver.cpp" line="2158"/>
         <source>the module refused the request (code %1)</source>
         <translation>模块拒绝了请求（代码 %1）</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3233"/>
+        <location filename="../src/device/dev_driver.cpp" line="3245"/>
         <source>The preset was not saved</source>
         <translation>预设未保存</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3234"/>
+        <location filename="../src/device/dev_driver.cpp" line="3246"/>
         <source>The preset was not deleted</source>
         <translation>预设未删除</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3235"/>
+        <location filename="../src/device/dev_driver.cpp" line="3247"/>
         <source>The preset was not applied</source>
         <translation>预设未应用</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3236"/>
+        <location filename="../src/device/dev_driver.cpp" line="3248"/>
         <source>the sonar&apos;s flash did not take it</source>
         <translation>声呐闪存未能写入</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3237"/>
+        <location filename="../src/device/dev_driver.cpp" line="3249"/>
         <source>there is no such preset in the sonar</source>
         <translation>声呐中没有该预设</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3238"/>
+        <location filename="../src/device/dev_driver.cpp" line="3250"/>
         <source>the sonar asked for the key</source>
         <translation>声呐需要密钥</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3239"/>
+        <location filename="../src/device/dev_driver.cpp" line="3251"/>
         <source>code %1</source>
         <translation>代码 %1</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3417"/>
+        <location filename="../src/device/dev_driver.cpp" line="3507"/>
         <source>Sync config rejected by device</source>
         <translation>设备拒绝了同步配置</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3983"/>
-        <location filename="../src/device/dev_driver.cpp" line="3996"/>
+        <location filename="../src/device/dev_driver.cpp" line="4073"/>
+        <location filename="../src/device/dev_driver.cpp" line="4086"/>
         <source>no answer from the module</source>
         <translation>模块无应答</translation>
     </message>
@@ -8377,97 +8377,97 @@
         <translation>端口 %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1713"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1714"/>
         <source>Narrow beam: 700 kHz</source>
         <translation>窄波束：700 kHz</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1713"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1714"/>
         <source>Wide beam: 450 kHz</source>
         <translation>宽波束：450 kHz</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1714"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1715"/>
         <source>%1: %2 kHz. Hold to save the current settings into it</source>
         <translation>%1：%2 kHz。长按可将当前设置保存到此预设</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1736"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1737"/>
         <source>Device settings</source>
         <translation>设备设置</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1788"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1789"/>
         <source>Close second window</source>
         <translation>关闭第二窗口</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1789"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1790"/>
         <source>Open second window</source>
         <translation>打开第二窗口</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1812"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1813"/>
         <source>Power off</source>
         <translation>关机</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1894"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1895"/>
         <source>Hide console</source>
         <translation>隐藏控制台</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1894"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1895"/>
         <source>Console</source>
         <translation>控制台</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1916"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1917"/>
         <source>Mission planner</source>
         <translation>任务规划器</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1939"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1940"/>
         <source>Close autopilot</source>
         <translation>关闭自动驾驶仪卡片</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1939"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1940"/>
         <source>Autopilot</source>
         <translation>自动驾驶仪</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1963"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1964"/>
         <source>Close profiles</source>
         <translation>关闭配置文件</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1963"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1964"/>
         <source>Settings profiles</source>
         <translation>设置配置文件</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2006"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2007"/>
         <source>Open settings</source>
         <translation>打开设置</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2036"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2037"/>
         <source>Collapse hotkeys</source>
         <translation>收起快捷操作</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2036"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2037"/>
         <source>Open hotkeys</source>
         <translation>打开快捷操作</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2355"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2356"/>
         <source>Close bottom track editing</source>
         <translation>关闭底部跟踪编辑</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2356"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2357"/>
         <source>Bottom track editing</source>
         <translation>底部跟踪编辑</translation>
     </message>
@@ -13528,112 +13528,142 @@
 <context>
     <name>ServoPanelBody</name>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="91"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="105"/>
         <source>Off</source>
         <translation>关</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="91"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="105"/>
         <source>ServoScan</source>
         <translation>ServoScan</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="263"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="279"/>
         <source>No servo device</source>
         <translation>无舵机设备</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="265"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="281"/>
         <source>On link %1</source>
         <translation>在连接 %1 上</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="284"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="300"/>
         <source>Device</source>
         <translation>设备</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="299"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="315"/>
         <source>Control</source>
         <translation>控制</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="302"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="318"/>
         <source>Enabled</source>
         <translation>已启用</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="316"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="333"/>
+        <source>Manual</source>
+        <translation>手动模式</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ServoPanelBody.qml" line="334"/>
+        <source>The firmware does not support manual mode</source>
+        <translation>固件不支持手动模式</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ServoPanelBody.qml" line="336"/>
+        <source>The servo holds the angle set with the knob; the scan waits until this is off.</source>
+        <translation>舵机保持旋钮设定的角度；关闭此项之前扫描暂停。</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ServoPanelBody.qml" line="350"/>
         <source>Current angle</source>
         <translation>当前角度</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="327"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="397"/>
+        <source>Angle, °</source>
+        <translation>角度，°</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ServoPanelBody.qml" line="420"/>
+        <source>Shift while dragging: finer. Wheel: 1°, with Ctrl: 0.1°.</source>
+        <translation>拖动时按住 Shift：更精细。滚轮：1°，按住 Ctrl：0.1°。</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ServoPanelBody.qml" line="429"/>
         <source>Reverse mapping</source>
         <translation>反向映射</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="343"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="445"/>
         <source>Scan</source>
         <translation>扫描</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="346"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="448"/>
+        <source>Waits while the servo is in manual mode.</source>
+        <translation>舵机处于手动模式时暂停。</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ServoPanelBody.qml" line="451"/>
         <source>Step, °</source>
         <translation>步长，°</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="364"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="469"/>
         <source>Scan range, °</source>
         <translation>扫描范围，°</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="379"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="484"/>
         <source>Center, °</source>
         <translation>中心，°</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="398"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="503"/>
         <source>More settings</source>
         <translation>更多设置</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="410"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="515"/>
         <source>Calibration</source>
         <translation>校准</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="416"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="521"/>
         <source>PWM min, µs</source>
         <translation>PWM 最小值，µs</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="432"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="537"/>
         <source>PWM max, µs</source>
         <translation>PWM 最大值，µs</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="448"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="553"/>
         <source>Servo angle range, °</source>
         <translation>舵机角度范围，°</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="463"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="568"/>
         <source>PWM routing</source>
         <translation>PWM 路由</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="469"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="574"/>
         <source>OUT1 (wired)</source>
         <translation>OUT1（已接线）</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="485"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="590"/>
         <source>OUT2</source>
         <translation>OUT2</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="501"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="606"/>
         <source>OUT3</source>
         <translation>OUT3</translation>
     </message>

@@ -1,6 +1,7 @@
 #ifndef SONARDRIVERINTERFACE_H
 #define SONARDRIVERINTERFACE_H
 
+#include <cmath>
 #include <QVariantList>
 #include <QVariantMap>
 #include "dev_driver.h"
@@ -212,6 +213,9 @@ public:
     Q_PROPERTY(double servoRangeDeg READ servoRangeDeg WRITE setServoRangeDeg NOTIFY servoControlChanged)
     Q_PROPERTY(double servoCenterDeg READ servoCenterDeg WRITE setServoCenterDeg NOTIFY servoControlChanged)
     Q_PROPERTY(double servoCurrentAngleDeg READ servoCurrentAngleDeg NOTIFY servoCurrentAngleChanged)
+    Q_PROPERTY(bool servoManual READ servoManual WRITE setServoManual NOTIFY servoControlChanged)
+    Q_PROPERTY(double servoManualDeg READ servoManualDeg NOTIFY servoControlChanged)
+    Q_PROPERTY(int servoManualSupport READ servoManualSupport NOTIFY servoControlChanged)
 
     Q_PROPERTY(int pwmRouteOut1 READ pwmRouteOut1 WRITE setPwmRouteOut1 NOTIFY pwmRouteChanged)
     Q_PROPERTY(int pwmRouteOut2 READ pwmRouteOut2 WRITE setPwmRouteOut2 NOTIFY pwmRouteChanged)
@@ -309,7 +313,7 @@ public:
     }
 
     double servoCenterDeg() const {
-        return idServoControl ? double(idServoControl->centerDeg()) / IDBinServoControl::AngleScale : 0.0;
+        return idServoControl ? double(idServoControl->scanCenterDeg()) / IDBinServoControl::AngleScale : 0.0;
     }
     void setServoCenterDeg(double deg) {
         if (idServoControl) idServoControl->setCenterDeg(degToS2(deg));
@@ -326,7 +330,8 @@ public:
 
 private:
     static S2 degToS2(double deg) {
-        double scaled = deg * IDBinServoControl::AngleScale;
+        // Rounded, not cut: 4.1 x 100 is 409.99999999999994 in a double, which went out as 4.09 degrees.
+        double scaled = std::round(deg * IDBinServoControl::AngleScale);
         if (scaled >  32767.0) scaled =  32767.0;
         if (scaled < -32768.0) scaled = -32768.0;
         return static_cast<S2>(scaled);

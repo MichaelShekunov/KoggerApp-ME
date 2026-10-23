@@ -725,7 +725,10 @@ class IDBinServoControl : public IDBin
 public:
     static constexpr int AngleScale = 100;
 
-    enum GeneralBits : U1 { GenEnable = 0x0001 };
+    // GenManual: Recorder firmware with the servo PWM output on X7 (feat/servo-pwm-x7). While it is set,
+    // center_deg carries the angle to hold instead of the scan's center, every SETTING moves the servo there,
+    // and the sonar's triggers do not move it. A firmware without it answers RespErrorPayload.
+    enum GeneralBits : U1 { GenEnable = 0x0001, GenManual = 0x0002 };
     enum OptionsBits : U1 { OptReverse = 0x0001 };
 
     explicit IDBinServoControl() : IDBin() {}
@@ -774,14 +777,42 @@ public:
         setAll(m_general, m_options, m_pwmMinUs, m_pwmMaxUs, m_angleRangeDeg, m_stepDeg, v, m_centerDeg);
     }
 
+    /// center_deg as on the wire: the scan's center, or in manual mode the angle held.
     S2 centerDeg() const { return m_centerDeg; }
+    /// The scan's center. In manual mode the device's center_deg is the angle held, so the scan's center is kept
+    /// here and sent back when manual mode ends; setting it then only changes what will be sent.
+    S2 scanCenterDeg() const { return manual() ? m_scanCenterDeg : m_centerDeg; }
     void setCenterDeg(S2 v) {
+        if (manual()) {
+            m_scanCenterDeg = v;
+            return;
+        }
         setAll(m_general, m_options, m_pwmMinUs, m_pwmMaxUs, m_angleRangeDeg, m_stepDeg, m_rangeDeg, v);
     }
+
+    bool manual() const { return (m_general & GenManual) != 0; }
+    /// Into manual mode holding the scan's center (within the servo's range), or back to the scan with its
+    /// center. Not tracked (see setManualDeg): the caller reads the state back.
+    void setManual(bool on);
+    /// The angle held in manual mode, x AngleScale.
+    S2 manualDeg() const { return m_manualDeg; }
+    /// Moves the servo in manual mode; cut to +-angle_range/2 as the firmware does. Not tracked by the
+    /// acknowledgement check: a drag sends tens of these a second, and the answer to one would not match the
+    /// checksum of the frame sent after it -- the check would then report the servo control lost. Nothing is
+    /// sent outside manual mode.
+    void setManualDeg(S2 deg);
+    /// Leaves manual mode here without sending anything: the device refused it and never entered it.
+    void dropManual();
 
     void requestAll() override { simpleRequest(v0); }
 
 protected:
+    void send(bool tracked);
+    S2 clampManual(S2 deg) const;
+
+    S2 m_scanCenterDeg = 0;   // the scan's center while center_deg carries the manual angle
+    S2 m_manualDeg     = 0;
+
     U2 m_general       = 0;
     U2 m_options       = 0;
     U2 m_pwmMinUs      = 500;

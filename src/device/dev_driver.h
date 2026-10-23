@@ -182,6 +182,22 @@ public:
     /// sonar (tools/preset_check/preset_sonar.ps1) undoes its save with it.
     Q_INVOKABLE void presetDelete(int slot);
 
+    /// Manual mode of a Recorder's servo (ID_SERVO_CONTROL, bit 1 of general; docs/SERVO_MANUAL.md): the servo
+    /// holds an angle set here and the scan stops. Each change is read back from the device a moment later.
+    bool servoManual() const;
+    void setServoManual(bool on);
+    /// The angle held in manual mode, degrees.
+    double servoManualDeg() const;
+    /// 1: the device has shown manual mode; -1: it refused it (a firmware without it); 0: not known yet.
+    /// Per connection.
+    int servoManualSupport() const { return servoManualSupport_; }
+    /// A drag in manual mode: sent at once, then at most every kServoManualMs; a value that comes in between waits
+    /// for the next slot, and only the last such one is sent. Not read back -- servoManualSet() ends a drag.
+    Q_INVOKABLE void servoManualMove(double deg);
+    /// The angle to hold, sent now: the end of a drag or a typed value.
+    Q_INVOKABLE void servoManualSet(double deg);
+    static constexpr int kServoManualMs = 25;   // 40 frames a second at most, the servo's PWM runs at 50 Hz
+
     int soundSpeed();
     void setSoundSpeed(int speed);
 
@@ -1010,6 +1026,13 @@ private:
     bool soundSpeedState_;
     bool uartState_;
     bool servoControlState_ = false;
+    int servoManualSupport_ = 0;
+    QTimer servoManualTimer_;          // paces servoManualMove()
+    QTimer servoReadbackTimer_;        // reads the servo control back after a manual change
+    double servoManualPending_ = 0.0;  // the drag's latest angle, waiting for servoManualTimer_
+    bool servoManualDirty_ = false;
+    void flushServoManual();
+    void stopServoManualDrag();
     // The stand is discovered by probing, not declared: the command family is control-only, so
     // there is no readback to sync and no board version that separates a stand build from a
     // servo one. Both flags reset with the connection — a device may come back reflashed.
