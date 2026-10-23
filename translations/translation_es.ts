@@ -3518,165 +3518,180 @@
 <context>
     <name>DevDriver</name>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="137"/>
+        <location filename="../src/device/dev_driver.cpp" line="138"/>
         <source>Port speed %1 set, the module saved it</source>
         <translation>Velocidad del puerto %1 establecida, el módulo la guardó</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="140"/>
+        <location filename="../src/device/dev_driver.cpp" line="141"/>
         <source>The module refused %1 bit/s: nothing changed, the port stays at %2</source>
         <translation>El módulo rechazó %1 bit/s: no cambió nada, el puerto sigue en %2</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="143"/>
+        <location filename="../src/device/dev_driver.cpp" line="144"/>
         <source>No answer from the module at %1. It keeps that rate (firmware 0.15 saves it at once), so the link stays at %1. If this device cannot do %1, hold the module&apos;s BOOT button 5 s: both ports go back to 921600, then set this link to 921600.</source>
         <translation>Sin respuesta del módulo a %1. Mantiene esa velocidad (el firmware 0.15 la guarda de inmediato), así que la conexión sigue en %1. Si este dispositivo no admite %1, mantenga presionado el botón BOOT del módulo 5 s: ambos puertos vuelven a 921600; después configure esta conexión a 921600.</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="148"/>
+        <location filename="../src/device/dev_driver.cpp" line="149"/>
         <source>No answer from the module at %1: the link is back at %2. An unsaved speed is gone after the module&apos;s next reboot.</source>
         <translation>Sin respuesta del módulo a %1: la conexión volvió a %2. Una velocidad no guardada se pierde con el siguiente reinicio del módulo.</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="180"/>
+        <location filename="../src/device/dev_driver.cpp" line="181"/>
         <source>Port %1: %2 bit/s set, the module saved it</source>
         <translation>Puerto %1: %2 bit/s establecidos, el módulo los guardó</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="181"/>
+        <location filename="../src/device/dev_driver.cpp" line="182"/>
         <source>Port %1: line settings applied</source>
         <translation>Puerto %1: ajustes de línea aplicados</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="185"/>
+        <location filename="../src/device/dev_driver.cpp" line="186"/>
         <source>Port %1: the module did not send the line&apos;s settings, nothing changed</source>
         <translation>Puerto %1: el módulo no envió los ajustes de la línea, no cambió nada</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="189"/>
+        <location filename="../src/device/dev_driver.cpp" line="190"/>
         <source>Port %1: the line&apos;s settings are not known, nothing changed</source>
         <translation>Puerto %1: los ajustes de la línea son desconocidos, no cambió nada</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="193"/>
+        <location filename="../src/device/dev_driver.cpp" line="194"/>
         <source>Port %1: the module refused %2 bit/s (code %3)</source>
         <translation>Puerto %1: el módulo rechazó %2 bit/s (código %3)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="194"/>
+        <location filename="../src/device/dev_driver.cpp" line="195"/>
         <source>Port %1: the module refused the line settings (code %2)</source>
         <translation>Puerto %1: el módulo rechazó los ajustes de línea (código %2)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="198"/>
+        <location filename="../src/device/dev_driver.cpp" line="199"/>
         <source>Port %1: no answer from the module; what is shown is what it reports</source>
         <translation>Puerto %1: sin respuesta del módulo; se muestra lo que este informa</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="215"/>
-        <location filename="../src/device/dev_driver.cpp" line="217"/>
+        <location filename="../src/device/dev_driver.cpp" line="216"/>
+        <location filename="../src/device/dev_driver.cpp" line="218"/>
         <source>Radio: %1</source>
         <translation>Radio: %1</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2003"/>
+        <location filename="../src/device/dev_driver.cpp" line="228"/>
+        <source>No answer from the board</source>
+        <translation>La placa no responde</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2012"/>
         <source>the radio is switched off</source>
         <translation>la radio está apagada</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2021"/>
+        <location filename="../src/device/dev_driver.cpp" line="2030"/>
         <source>the module is busy (a window, a survey, a scan or joining runs, or the last window was under 1 s ago)</source>
         <translation>el módulo está ocupado (hay en curso una ventana, un sondeo, un escaneo o una conexión a la red, o la última ventana fue hace menos de 1 s)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2022"/>
+        <location filename="../src/device/dev_driver.cpp" line="2031"/>
         <source>the module refused the report (code %1)</source>
         <translation>el módulo rechazó el informe (código %1)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2059"/>
+        <location filename="../src/device/dev_driver.cpp" line="2068"/>
         <source>the module is busy (a survey, a scan or joining a network runs)</source>
         <translation>el módulo está ocupado (hay en curso un sondeo, un escaneo o una conexión a una red)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2060"/>
-        <location filename="../src/device/dev_driver.cpp" line="2155"/>
+        <location filename="../src/device/dev_driver.cpp" line="2069"/>
+        <location filename="../src/device/dev_driver.cpp" line="2164"/>
         <source>the module refused the key</source>
         <translation>el módulo rechazó la clave</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2061"/>
+        <location filename="../src/device/dev_driver.cpp" line="2070"/>
         <source>the module refused the survey (code %1)</source>
         <translation>el módulo rechazó el sondeo (código %1)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2151"/>
+        <location filename="../src/device/dev_driver.cpp" line="2160"/>
         <source>the radio is busy: a channel survey or a link speed window, a scan, or a firmware update (or the first minute after one) runs; try again in a moment</source>
         <translation>la radio está ocupada: hay en curso un sondeo de canales, una ventana de velocidad del enlace, un escaneo o una actualización de firmware (o su primer minuto); inténtelo de nuevo en un momento</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2153"/>
+        <location filename="../src/device/dev_driver.cpp" line="2162"/>
         <source>the module refused the request (ERR_PAYLOAD)</source>
         <translation>el módulo rechazó la solicitud (ERR_PAYLOAD)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2154"/>
+        <location filename="../src/device/dev_driver.cpp" line="2163"/>
         <source>over the network the module switches its radio off only for 1 s to 10 min</source>
         <translation>a través de la red el módulo solo apaga su radio de 1 s a 10 min</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2157"/>
+        <location filename="../src/device/dev_driver.cpp" line="2166"/>
         <source>this firmware cannot switch the radio off (that came with 0.20)</source>
         <translation>este firmware no puede apagar la radio (eso llegó con la 0.20)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2158"/>
+        <location filename="../src/device/dev_driver.cpp" line="2167"/>
         <source>the module refused the request (code %1)</source>
         <translation>el módulo rechazó la solicitud (código %1)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3245"/>
+        <location filename="../src/device/dev_driver.cpp" line="3254"/>
         <source>The preset was not saved</source>
         <translation>El preajuste no se guardó</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3246"/>
+        <location filename="../src/device/dev_driver.cpp" line="3255"/>
         <source>The preset was not deleted</source>
         <translation>El preajuste no se eliminó</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3247"/>
+        <location filename="../src/device/dev_driver.cpp" line="3256"/>
         <source>The preset was not applied</source>
         <translation>El preajuste no se aplicó</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3248"/>
+        <location filename="../src/device/dev_driver.cpp" line="3257"/>
         <source>the sonar&apos;s flash did not take it</source>
         <translation>la memoria flash del sonar no lo aceptó</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3249"/>
+        <location filename="../src/device/dev_driver.cpp" line="3258"/>
         <source>there is no such preset in the sonar</source>
         <translation>no existe ese preajuste en el sonar</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3250"/>
+        <location filename="../src/device/dev_driver.cpp" line="3259"/>
         <source>the sonar asked for the key</source>
         <translation>el sonar pidió la clave</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3251"/>
+        <location filename="../src/device/dev_driver.cpp" line="3260"/>
         <source>code %1</source>
         <translation>código %1</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3507"/>
+        <location filename="../src/device/dev_driver.cpp" line="3481"/>
+        <source>This firmware has no ring counters</source>
+        <translation>Este firmware no tiene contadores de anillo</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="3482"/>
+        <source>Refused by the board (code %1)</source>
+        <translation>La placa lo rechazó (código %1)</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="3587"/>
         <source>Sync config rejected by device</source>
         <translation>El dispositivo rechazó la configuración de sincronización</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="4073"/>
-        <location filename="../src/device/dev_driver.cpp" line="4086"/>
+        <location filename="../src/device/dev_driver.cpp" line="4153"/>
+        <location filename="../src/device/dev_driver.cpp" line="4166"/>
         <source>no answer from the module</source>
         <translation>sin respuesta del módulo</translation>
     </message>
@@ -4067,6 +4082,7 @@
         <location filename="../qml/app/DeviceSettingsPage.qml" line="66"/>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="4296"/>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="4299"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5632"/>
         <source>Role</source>
         <translation>Rol</translation>
     </message>
@@ -6952,7 +6968,7 @@
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="5478"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5734"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5816"/>
         <source>Bus address</source>
         <translation>Dirección de bus</translation>
     </message>
@@ -7043,72 +7059,168 @@
         <translation>Velocidad de la línea %1 establecida en ambos sonares y guardada</translation>
     </message>
     <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5623"/>
+        <source>Ring counters</source>
+        <translation>Contadores del anillo</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5628"/>
+        <source>How this board keeps step with the ring. Read them when a sonar&apos;s echogram has holes; reading is a request on the line, so do not keep pressing: on a ring with no time to spare it can cost the following board a ping itself.</source>
+        <translation>Cómo esta placa mantiene el paso con el anillo. Léalos cuando el ecograma de un sonar tenga huecos; la lectura es una solicitud en la línea, así que no la repita: en un anillo sin margen de tiempo puede costarle un ping a la placa siguiente.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5634"/>
+        <source>Follower: pings on the leader&apos;s sync</source>
+        <translation>Seguidora: hace ping con la sincronía de la líder</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5635"/>
+        <source>Leader: sets the pace</source>
+        <translation>Líder: marca el ritmo</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5636"/>
+        <source>, a board before it</source>
+        <translation>, hay una placa antes</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5639"/>
+        <source>Sync interval</source>
+        <translation>Intervalo de sincronía</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5641"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5645"/>
+        <source>%1 ms</source>
+        <translation>%1 ms</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5644"/>
+        <source>Guard before a sync</source>
+        <translation>Margen antes de una sincronía</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5648"/>
+        <source>Pings skipped</source>
+        <translation>Pings omitidos</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5650"/>
+        <source>A sync came while the board was busy; it waited for the next one</source>
+        <translation>Llegó una sincronía mientras la placa estaba ocupada; esperó a la siguiente</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5653"/>
+        <source>Frames cut by a sync</source>
+        <translation>Tramas cortadas por una sincronía</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5657"/>
+        <source>Led after silence</source>
+        <translation>Líder tras silencio</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5659"/>
+        <source>No sync from the board before it, so this one set the pace itself</source>
+        <translation>Sin sincronía de la placa anterior, así que esta marcó el ritmo por sí misma</translation>
+    </message>
+    <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="5662"/>
+        <source>Syncs heard</source>
+        <translation>Sincronías recibidas</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5666"/>
+        <source>Frames passed on</source>
+        <translation>Tramas reenviadas</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5674"/>
+        <source>Asking the board...</source>
+        <translation>Consultando la placa...</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5674"/>
+        <source>Read</source>
+        <translation>Leer</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5681"/>
+        <source>Reset the counters</source>
+        <translation>Poner los contadores a cero</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5682"/>
+        <source>Zeroes the five counters on the board; it sends them back at once</source>
+        <translation>Pone a cero los cinco contadores de la placa; los devuelve enseguida</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5744"/>
         <source>Information</source>
         <translation>Información</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5679"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5761"/>
         <source>Copy</source>
         <translation>Copiar</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5685"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5767"/>
         <source>Device info copied to clipboard</source>
         <translation>Información del dispositivo copiada al portapapeles</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5691"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5773"/>
         <source>Model</source>
         <translation>Modelo</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5696"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5778"/>
         <source>Board type</source>
         <translation>Tipo de placa</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5701"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5783"/>
         <source>Serial number</source>
         <translation>Número de serie</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5708"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5790"/>
         <source>not set</source>
         <translation>no definido</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5713"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5795"/>
         <source>Firmware version</source>
         <translation>Versión de firmware</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5718"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5800"/>
         <source>Bootloader version</source>
         <translation>Versión del cargador de arranque</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5723"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5805"/>
         <source>Running</source>
         <translation>En ejecución</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5728"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5810"/>
         <source>Bootloader</source>
         <translation>Cargador de arranque</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5729"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5811"/>
         <source>Firmware</source>
         <translation>Firmware</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5739"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5821"/>
         <source>Connection</source>
         <translation>Conexión</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5744"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5826"/>
         <source>Chip UID</source>
         <translation>UID del chip</translation>
     </message>
@@ -13563,107 +13675,107 @@
         <translation>Activado</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="333"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="335"/>
         <source>Manual</source>
         <translation>Modo manual</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="334"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="336"/>
         <source>The firmware does not support manual mode</source>
         <translation>El firmware no admite el modo manual</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="336"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="338"/>
         <source>The servo holds the angle set with the knob; the scan waits until this is off.</source>
         <translation>El servo mantiene el ángulo fijado con la perilla; el escaneo espera hasta que esto se desactive.</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="350"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="353"/>
         <source>Current angle</source>
         <translation>Ángulo actual</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="397"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="402"/>
         <source>Angle, °</source>
         <translation>Ángulo, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="420"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="426"/>
         <source>Shift while dragging: finer. Wheel: 1°, with Ctrl: 0.1°.</source>
         <translation>Shift al arrastrar: más fino. Rueda: 1°, con Ctrl: 0,1°.</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="429"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="435"/>
         <source>Reverse mapping</source>
         <translation>Mapeo inverso</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="445"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="451"/>
         <source>Scan</source>
         <translation>Escaneo</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="448"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="455"/>
         <source>Waits while the servo is in manual mode.</source>
         <translation>En espera mientras el servo está en modo manual.</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="451"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="458"/>
         <source>Step, °</source>
         <translation>Paso, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="469"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="476"/>
         <source>Scan range, °</source>
         <translation>Rango de escaneo, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="484"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="491"/>
         <source>Center, °</source>
         <translation>Centro, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="503"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="510"/>
         <source>More settings</source>
         <translation>Más ajustes</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="515"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="522"/>
         <source>Calibration</source>
         <translation>Calibración</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="521"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="528"/>
         <source>PWM min, µs</source>
         <translation>PWM mín., µs</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="537"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="544"/>
         <source>PWM max, µs</source>
         <translation>PWM máx., µs</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="553"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="560"/>
         <source>Servo angle range, °</source>
         <translation>Rango de ángulo del servo, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="568"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="575"/>
         <source>PWM routing</source>
         <translation>Enrutamiento PWM</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="574"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="581"/>
         <source>OUT1 (wired)</source>
         <translation>OUT1 (cableado)</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="590"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="597"/>
         <source>OUT2</source>
         <translation>OUT2</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="606"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="613"/>
         <source>OUT3</source>
         <translation>OUT3</translation>
     </message>

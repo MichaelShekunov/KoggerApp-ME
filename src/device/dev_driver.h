@@ -183,6 +183,23 @@ public:
     /// sonar (tools/preset_check/preset_sonar.ps1) undoes its save with it.
     Q_INVOKABLE void presetDelete(int slot);
 
+    /// A GODIO ring board's sync counters (ID_RING_STAT, firmware 1.16+; docs/RING_UPDATE.md): a ring board
+    /// answering on a bus address, not behind a recorder.
+    bool ringStatSupported() {
+        const int fw = idVersion->fwVersion(), fwMinor = idVersion->fwVersionMinor();
+        return isRingBoard() && (fw > 1 || (fw == 1 && fwMinor >= 16));
+    }
+    /// The counters as last read: known, address, role (0 leader or alone, 1 follower), upstream (a board before
+    /// this one), guardMs, breakIntervalMs (0 not measured), relayed, breaks, torn, timeouts, skipped; error: why
+    /// the last request got no state, empty when it did.
+    QVariantMap ringStat();
+    /// A request is out and nothing has come back yet (2 s at most).
+    bool ringStatBusy() const { return ringStatTimer_.isActive(); }
+    /// Asks the board once. Only on request: on a ring with no slack an answer can cost a following board a ping.
+    Q_INVOKABLE void ringStatRead();
+    /// Zeroes the board's counters (SETTING v0 with the key); the board sends its state after.
+    Q_INVOKABLE void ringStatReset();
+
     /// Another device of this driver's line has been heard (DeviceManager, on each of its frames). For address 0's
     /// driver that has never had a frame -- the line's search -- this holds its asks (DeviceLiveness::searchHeld).
     void holdSearch() { otherDeviceHeardMs_ = QDateTime::currentMSecsSinceEpoch(); }
@@ -599,6 +616,7 @@ signals:
     void supplyVoltageComplete(float volts);   // ID_VOLTAGE channel 0, the supply
     /// A slot's frame of the presets in the sonar came (presetSlots, presetsKnown).
     void presetsChanged();
+    void ringStatChanged();
     /// The sonar did not do a recall (version 0), a save (1) or a delete (2): code 2 the flash write did not
     /// verify, 3 a wrong or empty slot, 7 no key (the contract of ID_PRESET). Done is not reported.
     void presetResult(int version, int code);
@@ -787,6 +805,7 @@ protected:
     IDBinTemp* idTemp = nullptr;
     IDBinVoltage* idVoltage = nullptr;
     IDBinPreset* idPreset = nullptr;
+    IDBinRingStat* idRingStat = nullptr;
     QSet<quint8> loggedVoltageChannels_;   /* report each channel once, not on every ping */
     qint32 lastSupplyLogged_ = 0;
     IDBinEncoder* idEncoder = nullptr;
@@ -972,6 +991,7 @@ protected slots:
     void receivedEncoder    (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
     void receivedVoltage    (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
     void receivedPreset     (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
+    void receivedRingStat   (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
 
     void receivedDataset    (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
     void receivedDistSetup  (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
@@ -1051,6 +1071,8 @@ private:
     // until a slot's frame comes: one lost request must not hide them for the session. A sonar that answers
     // ERR_ID does not know them and is not asked again.
     bool presetsAnswered_ = false;
+    QTimer ringStatTimer_;             // no answer to a ring counters request within it: said so
+    QString ringStatError_;
     bool presetsUnsupported_ = false;
     int presetAsks_ = 0;
     int64_t presetAskedAt_ = 0;

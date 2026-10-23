@@ -48,6 +48,9 @@ public:
     // Presets in the sonar's flash (ID_PRESET): the slots as maps, and whether the sonar has answered at all.
     Q_PROPERTY(QVariantList presetSlots READ presetSlots NOTIFY presetsChanged)
     Q_PROPERTY(bool presetsKnown READ presetsKnown NOTIFY presetsChanged)
+    Q_PROPERTY(bool ringStatSupported READ ringStatSupported NOTIFY deviceVersionChanged)
+    Q_PROPERTY(QVariantMap ringStat READ ringStat NOTIFY ringStatChanged)
+    Q_PROPERTY(bool ringStatBusy READ ringStatBusy NOTIFY ringStatChanged)
 
     Q_PROPERTY(int dspHorSmooth READ dspSmoothFactor WRITE setDspSmoothFactor NOTIFY dspSetupChanged)
     Q_PROPERTY(bool dspState READ getDspSetupState NOTIFY dspSetupChanged)

@@ -1081,6 +1081,42 @@ void EchoEditScript::runStep(const QJsonObject& s)
                                  .arg(d->property("servoAngleRangeDeg").toDouble(), 0, 'f', 2);
         }
     }
+    else if (op == QLatin1String("devicePage") || op == QLatin1String("ringStat")) {
+        const int addr = s.value(QStringLiteral("addr")).toInt(-1);
+        QObject* dev = nullptr;
+        int index = -1, i = 0;
+        for (QObject* d : core_->getDeviceManagerWrapperPtr()->getDevList()) {
+            if (!dev && d->property("busAddress").toInt() == addr) {
+                dev = d;
+                index = i;
+            }
+            ++i;
+        }
+        if (!dev) {
+            qInfo().noquote() << QStringLiteral("echoedit script: %1: no device at address %2").arg(op).arg(addr);
+        } else if (op == QLatin1String("devicePage")) {
+            QObject* store = findObjectWithProperty("settingsPinTarget");
+            if (store) {
+                QMetaObject::invokeMethod(store, "openDeviceSettingsForIndex", Q_ARG(QVariant, index));
+            }
+            qInfo().noquote() << QStringLiteral("echoedit script: devicePage: address %1, device %2 %3").arg(addr).arg(index)
+                                 .arg(store ? QStringLiteral("opened") : QStringLiteral("no store"));
+        } else {
+            const QString what = s.value(QStringLiteral("do")).toString();
+            if (what == QLatin1String("read")) {
+                QMetaObject::invokeMethod(dev, "ringStatRead");
+            } else if (what == QLatin1String("reset")) {
+                QMetaObject::invokeMethod(dev, "ringStatReset");
+            }
+            const QVariantMap m = dev->property("ringStat").toMap();
+            qInfo().noquote() << QStringLiteral("echoedit script: ringStat %1 at %2: supported %3, known %4, role %5, "
+                                                "skipped %6, torn %7, error \"%8\"")
+                                 .arg(what).arg(addr).arg(dev->property("ringStatSupported").toBool())
+                                 .arg(m.value(QStringLiteral("known")).toBool()).arg(m.value(QStringLiteral("role")).toInt())
+                                 .arg(m.value(QStringLiteral("skipped")).toDouble()).arg(m.value(QStringLiteral("torn")).toDouble())
+                                 .arg(m.value(QStringLiteral("error")).toString());
+        }
+    }
     else if (op == QLatin1String("servoManual") || op == QLatin1String("servoSet")) {
         QObject* dev = firstServoDevice();
         bool sent = false;

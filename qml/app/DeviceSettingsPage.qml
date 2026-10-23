@@ -5609,6 +5609,88 @@ Column {
         }
     }
 
+    // ── A ring board's sync counters (ID_RING_STAT, firmware 1.16+; docs/RING_UPDATE.md) ──
+    // Read only on request: on a ring with no slack the answer itself can cost the following board a ping.
+    DevIsland {
+        id: devRingStatGroup
+        objectName: "ringStatIsland"
+        visible: !!(dev && dev.ringStatSupported)
+
+        readonly property var st: dev ? dev.ringStat : ({})
+        readonly property bool known: !!(st && st.known)
+        function count(n) { return known ? Number(n).toFixed(0) : "" }
+
+        DevIslandTitle { label: qsTr("Ring counters") }
+
+        Text {
+            width: parent.width; wrapMode: Text.WordWrap
+            color: AppPalette.textSecond; font.pixelSize: Tokens.fontMd
+            text: qsTr("How this board keeps step with the ring. Read them when a sonar's echogram has holes; reading is a request on the line, so do not keep pressing: on a ring with no time to spare it can cost the following board a ping itself.")
+        }
+
+        DevInfoRow {
+            label: qsTr("Role")
+            value: !devRingStatGroup.known ? ""
+                   : (devRingStatGroup.st.role === 1 ? qsTr("Follower: pings on the leader's sync")
+                                                     : qsTr("Leader: sets the pace"))
+                     + (devRingStatGroup.st.upstream ? qsTr(", a board before it") : "")
+        }
+        DevInfoRow {
+            label: qsTr("Sync interval")
+            value: devRingStatGroup.known && devRingStatGroup.st.breakIntervalMs > 0
+                   ? qsTr("%1 ms").arg(Number(devRingStatGroup.st.breakIntervalMs).toFixed(2)) : ""
+        }
+        DevInfoRow {
+            label: qsTr("Guard before a sync")
+            value: devRingStatGroup.known ? qsTr("%1 ms").arg(Number(devRingStatGroup.st.guardMs).toFixed(2)) : ""
+        }
+        DevInfoRow {
+            label: qsTr("Pings skipped")
+            value: devRingStatGroup.count(devRingStatGroup.st.skipped)
+            caption: devRingStatGroup.known ? qsTr("A sync came while the board was busy; it waited for the next one") : ""
+        }
+        DevInfoRow {
+            label: qsTr("Frames cut by a sync")
+            value: devRingStatGroup.count(devRingStatGroup.st.torn)
+        }
+        DevInfoRow {
+            label: qsTr("Led after silence")
+            value: devRingStatGroup.count(devRingStatGroup.st.timeouts)
+            caption: devRingStatGroup.known ? qsTr("No sync from the board before it, so this one set the pace itself") : ""
+        }
+        DevInfoRow {
+            label: qsTr("Syncs heard")
+            value: devRingStatGroup.count(devRingStatGroup.st.breaks)
+        }
+        DevInfoRow {
+            label: qsTr("Frames passed on")
+            value: devRingStatGroup.count(devRingStatGroup.st.relayed)
+        }
+
+        DevButton {
+            objectName: "ringStatReadButton"
+            width: parent.width; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
+            enabled: !!(dev && !dev.ringStatBusy)
+            text: (dev && dev.ringStatBusy) ? qsTr("Asking the board...") : qsTr("Read")
+            onClicked: if (dev) dev.ringStatRead()
+        }
+        DevButton {
+            objectName: "ringStatResetButton"
+            width: parent.width; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
+            enabled: !!(dev && !dev.ringStatBusy && devRingStatGroup.known)
+            text: qsTr("Reset the counters")
+            toolTipText: qsTr("Zeroes the five counters on the board; it sends them back at once")
+            onClicked: if (dev) dev.ringStatReset()
+        }
+
+        Text {
+            visible: !!(devRingStatGroup.st && devRingStatGroup.st.error && devRingStatGroup.st.error.length > 0)
+            width: parent.width; wrapMode: Text.WordWrap
+            color: AppPalette.dangerText; font.pixelSize: Tokens.fontMd
+            text: devRingStatGroup.st && devRingStatGroup.st.error ? devRingStatGroup.st.error : ""
+        }
+    }
+
                 }
             }
         }

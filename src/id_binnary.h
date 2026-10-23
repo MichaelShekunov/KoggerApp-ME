@@ -1804,6 +1804,47 @@ private:
     int lastSlot_ = -1;
 };
 
+/* A GODIO ring board's sync counters (ID_RING_STAT, firmware 1.16+). Contract: L412_GODIO
+   docs/RING_HOLES_2026-10-23.md, section 8.
+     GETTING v0, no payload       -> CONTENT v0, 32 bytes: [address u8][role u8: 0 leader or alone, 1 follower]
+                                    [a board before this one u8][spare u8][guard window us u32]
+                                    [last BREAK interval us u32, 0 not measured][relayed u32][BREAKs u32]
+                                    [torn by a BREAK u32][leads on a timeout u32][pings skipped u32]
+     SETTING v0 [key]             zeroes the five counters; RESP 1, then the state frame
+   Asked only on request (no cold-start ask): on a ring with no slack the answer can cost a following board a ping. */
+class IDBinRingStat : public IDBin
+{
+    Q_OBJECT
+public:
+    struct State {
+        bool known = false;
+        U1 address = 0;
+        U1 role = 0;          // 0 leader or alone, 1 follower
+        U1 upstream = 0;      // a board before this one (seen from its traffic)
+        U4 guardUs = 0;
+        U4 breakIntervalUs = 0;
+        U4 relayed = 0;
+        U4 breaks = 0;
+        U4 torn = 0;
+        U4 timeouts = 0;
+        U4 skipped = 0;
+    };
+    static constexpr int kFrameBytes = 32;
+
+    explicit IDBinRingStat() : IDBin() {}
+
+    ID id() override { return ID_RING_STAT; }
+    Resp parsePayload(FrameParser &proto) override;
+    void requestAll() override {}   // nothing on its own: read() when asked
+
+    void read() { simpleRequest(v0); }
+    void reset();
+    const State& state() const { return m_state; }
+
+private:
+    State m_state;
+};
+
 
 class IDBinNav : public IDBin
 {

@@ -753,6 +753,38 @@ void IDBinDistSetup::setConfidence(int confidence) {
 }
 
 
+Resp IDBinRingStat::parsePayload(FrameParser &proto) {
+    if (proto.ver() != v0) {
+        return respErrorVersion;
+    }
+    if (proto.readAvailable() < kFrameBytes) {
+        return respErrorPayload;
+    }
+    State s;
+    s.address = proto.read<U1>();
+    s.role = proto.read<U1>();
+    s.upstream = proto.read<U1>();
+    proto.read<U1>();   // spare
+    s.guardUs = proto.read<U4>();
+    s.breakIntervalUs = proto.read<U4>();
+    s.relayed = proto.read<U4>();
+    s.breaks = proto.read<U4>();
+    s.torn = proto.read<U4>();
+    s.timeouts = proto.read<U4>();
+    s.skipped = proto.read<U4>();
+    s.known = true;
+    m_state = s;
+    return respOk;
+}
+
+void IDBinRingStat::reset() {
+    ProtoBinOut id_out;
+    id_out.create(SETTING, v0, id(), m_address);
+    appendKey(id_out);
+    id_out.end();
+    emit binFrameOut(id_out);   // not tracked: the state frame after RESP 1 is the confirmation
+}
+
 Resp IDBinServoControl::parsePayload(FrameParser &proto) {
     if (proto.ver() == v0) {
         m_general       = proto.read<U2>();

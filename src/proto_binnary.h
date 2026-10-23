@@ -120,6 +120,14 @@ enum ID : uint16_t {
        address is undone without opening the case. */
     ID_NET = 0x77, // 119
 
+    /* A GODIO ring board's sync counters (firmware 1.16+): its role, the guard window before the leader's
+       BREAK, the last BREAK interval, frames relayed, BREAKs heard, frames torn by a BREAK, leads taken on a
+       timeout, pings skipped. GETTING only on request -- an answer costs a following board time on a ring with
+       no slack -- and SETTING v0 with the key zeroes the counters. Outside the published protocol, like
+       ID_CHART_Z; 0x76 was free here and in the GODIO, l412_adc and Baikal firmware. Contract:
+       L412_GODIO docs/RING_HOLES_2026-10-23.md, section 8; IDBinRingStat. */
+    ID_RING_STAT = 0x76, // 118
+
     /* Presets in the sonar's own flash (nanoSSS firmware 11.21+): eight slots, each a whole measuring mode and
        a name, recalled and saved by the app's two frequency buttons. Outside the published protocol, like
        ID_CHART_Z; 0x7C was free here and in the firmware. Contract: the l412_adc project's

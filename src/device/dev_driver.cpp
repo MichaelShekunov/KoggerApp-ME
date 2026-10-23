@@ -63,6 +63,7 @@ DevDriver::DevDriver(QObject *parent)
     regID(idEncoder = new IDBinEncoder(), &DevDriver::receivedEncoder);
     regID(idVoltage = new IDBinVoltage(), &DevDriver::receivedVoltage);
     regID(idPreset = new IDBinPreset(), &DevDriver::receivedPreset);
+    regID(idRingStat = new IDBinRingStat(), &DevDriver::receivedRingStat);
 
     regID(idDataset = new IDBinDataset(), &DevDriver::receivedDataset, true);
     regID(idDistSetup = new IDBinDistSetup(), &DevDriver::receivedDistSetup, true);
@@ -220,6 +221,14 @@ DevDriver::DevDriver(QObject *parent)
     m_devSyncDebounceTimer.setSingleShot(true);
     m_devSyncDebounceTimer.setInterval(300);
     connect(&m_devSyncDebounceTimer, &QTimer::timeout, this, &DevDriver::onDevSyncDebounceFired);
+
+    ringStatTimer_.setSingleShot(true);
+    ringStatTimer_.setInterval(2000);
+    connect(&ringStatTimer_, &QTimer::timeout, this, [this]() {
+        ringStatError_ = tr("No answer from the board");
+        qInfo().noquote() << wifiTag() << "ring-stat: no answer";
+        emit ringStatChanged();
+    });
 
     servoManualTimer_.setSingleShot(true);
     servoManualTimer_.setInterval(kServoManualMs);
@@ -3417,6 +3426,63 @@ void DevDriver::receivedServoControl(Parsers::Type type, Parsers::Version ver, P
         qInfo().noquote() << wifiTag() << "servo: manual mode refused, the firmware has none";
         emit servoControlChanged();
     }
+}
+
+QVariantMap DevDriver::ringStat() {
+    const IDBinRingStat::State& s = idRingStat->state();
+    QVariantMap m;
+    m[QStringLiteral("known")] = s.known;
+    m[QStringLiteral("address")] = int(s.address);
+    m[QStringLiteral("role")] = int(s.role);
+    m[QStringLiteral("upstream")] = s.upstream != 0;
+    m[QStringLiteral("guardMs")] = s.guardUs / 1000.0;
+    m[QStringLiteral("breakIntervalMs")] = s.breakIntervalUs / 1000.0;
+    m[QStringLiteral("relayed")] = double(s.relayed);
+    m[QStringLiteral("breaks")] = double(s.breaks);
+    m[QStringLiteral("torn")] = double(s.torn);
+    m[QStringLiteral("timeouts")] = double(s.timeouts);
+    m[QStringLiteral("skipped")] = double(s.skipped);
+    m[QStringLiteral("error")] = ringStatError_;
+    return m;
+}
+
+void DevDriver::ringStatRead() {
+    ringStatError_.clear();
+    idRingStat->read();
+    ringStatTimer_.start();
+    emit ringStatChanged();
+}
+
+void DevDriver::ringStatReset() {
+    ringStatError_.clear();
+    idRingStat->reset();
+    ringStatTimer_.start();
+    emit ringStatChanged();
+}
+
+void DevDriver::receivedRingStat(Parsers::Type type, Parsers::Version ver, Parsers::Resp resp) {
+    Q_UNUSED(type);
+    Q_UNUSED(ver);
+
+    if (resp == respOk) {
+        return;   // the reset taken: its state frame follows
+    }
+    ringStatTimer_.stop();
+    if (resp == respNone) {
+        const IDBinRingStat::State& s = idRingStat->state();
+        ringStatError_.clear();
+        qInfo().noquote() << wifiTag() << QStringLiteral("ring-stat: address %1, %2%3, guard %4 ms, BREAK interval %5 ms; "
+                                                         "relayed %6, BREAKs %7, torn %8, leads on a timeout %9, skipped %10")
+                                              .arg(s.address).arg(s.role ? QStringLiteral("follower") : QStringLiteral("leader"))
+                                              .arg(s.upstream ? QStringLiteral(" (a board before it)") : QString())
+                                              .arg(s.guardUs / 1000.0, 0, 'f', 2).arg(s.breakIntervalUs / 1000.0, 0, 'f', 2)
+                                              .arg(s.relayed).arg(s.breaks).arg(s.torn).arg(s.timeouts).arg(s.skipped);
+    } else {
+        ringStatError_ = resp == respErrorID ? tr("This firmware has no ring counters")
+                                             : tr("Refused by the board (code %1)").arg(int(resp));
+        qInfo().noquote() << wifiTag() << QStringLiteral("ring-stat: refused, code %1").arg(int(resp));
+    }
+    emit ringStatChanged();
 }
 
 namespace {

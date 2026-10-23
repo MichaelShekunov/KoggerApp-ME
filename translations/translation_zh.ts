@@ -3518,165 +3518,180 @@
 <context>
     <name>DevDriver</name>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="137"/>
+        <location filename="../src/device/dev_driver.cpp" line="138"/>
         <source>Port speed %1 set, the module saved it</source>
         <translation>端口速率已设为 %1，模块已保存</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="140"/>
+        <location filename="../src/device/dev_driver.cpp" line="141"/>
         <source>The module refused %1 bit/s: nothing changed, the port stays at %2</source>
         <translation>模块拒绝了 %1 bit/s：未作更改，端口保持 %2</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="143"/>
+        <location filename="../src/device/dev_driver.cpp" line="144"/>
         <source>No answer from the module at %1. It keeps that rate (firmware 0.15 saves it at once), so the link stays at %1. If this device cannot do %1, hold the module&apos;s BOOT button 5 s: both ports go back to 921600, then set this link to 921600.</source>
         <translation>模块在 %1 下无应答。它会保持该速率（固件 0.15 会立即保存），因此连接保持在 %1。如果本设备不支持 %1，请按住模块的 BOOT 按钮 5 秒：两个端口都会恢复为 921600，然后将此连接设为 921600。</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="148"/>
+        <location filename="../src/device/dev_driver.cpp" line="149"/>
         <source>No answer from the module at %1: the link is back at %2. An unsaved speed is gone after the module&apos;s next reboot.</source>
         <translation>模块在 %1 下无应答：连接已恢复到 %2。未保存的速率在模块下次重启后失效。</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="180"/>
+        <location filename="../src/device/dev_driver.cpp" line="181"/>
         <source>Port %1: %2 bit/s set, the module saved it</source>
         <translation>端口 %1：已设为 %2 bit/s，模块已保存</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="181"/>
+        <location filename="../src/device/dev_driver.cpp" line="182"/>
         <source>Port %1: line settings applied</source>
         <translation>端口 %1：线路设置已应用</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="185"/>
+        <location filename="../src/device/dev_driver.cpp" line="186"/>
         <source>Port %1: the module did not send the line&apos;s settings, nothing changed</source>
         <translation>端口 %1：模块未发送线路设置，未作更改</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="189"/>
+        <location filename="../src/device/dev_driver.cpp" line="190"/>
         <source>Port %1: the line&apos;s settings are not known, nothing changed</source>
         <translation>端口 %1：线路设置未知，未作更改</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="193"/>
+        <location filename="../src/device/dev_driver.cpp" line="194"/>
         <source>Port %1: the module refused %2 bit/s (code %3)</source>
         <translation>端口 %1：模块拒绝了 %2 bit/s（代码 %3）</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="194"/>
+        <location filename="../src/device/dev_driver.cpp" line="195"/>
         <source>Port %1: the module refused the line settings (code %2)</source>
         <translation>端口 %1：模块拒绝了线路设置（代码 %2）</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="198"/>
+        <location filename="../src/device/dev_driver.cpp" line="199"/>
         <source>Port %1: no answer from the module; what is shown is what it reports</source>
         <translation>端口 %1：模块无应答；显示的是它报告的值</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="215"/>
-        <location filename="../src/device/dev_driver.cpp" line="217"/>
+        <location filename="../src/device/dev_driver.cpp" line="216"/>
+        <location filename="../src/device/dev_driver.cpp" line="218"/>
         <source>Radio: %1</source>
         <translation>无线：%1</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2003"/>
+        <location filename="../src/device/dev_driver.cpp" line="228"/>
+        <source>No answer from the board</source>
+        <translation>板子没有应答</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2012"/>
         <source>the radio is switched off</source>
         <translation>无线已关闭</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2021"/>
+        <location filename="../src/device/dev_driver.cpp" line="2030"/>
         <source>the module is busy (a window, a survey, a scan or joining runs, or the last window was under 1 s ago)</source>
         <translation>模块正忙（正在进行窗口、勘测、扫描或入网，或距上一个窗口不足 1 秒）</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2022"/>
+        <location filename="../src/device/dev_driver.cpp" line="2031"/>
         <source>the module refused the report (code %1)</source>
         <translation>模块拒绝了报告（代码 %1）</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2059"/>
+        <location filename="../src/device/dev_driver.cpp" line="2068"/>
         <source>the module is busy (a survey, a scan or joining a network runs)</source>
         <translation>模块正忙（正在进行勘测、扫描或入网）</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2060"/>
-        <location filename="../src/device/dev_driver.cpp" line="2155"/>
+        <location filename="../src/device/dev_driver.cpp" line="2069"/>
+        <location filename="../src/device/dev_driver.cpp" line="2164"/>
         <source>the module refused the key</source>
         <translation>模块拒绝了密钥</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2061"/>
+        <location filename="../src/device/dev_driver.cpp" line="2070"/>
         <source>the module refused the survey (code %1)</source>
         <translation>模块拒绝了勘测（代码 %1）</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2151"/>
+        <location filename="../src/device/dev_driver.cpp" line="2160"/>
         <source>the radio is busy: a channel survey or a link speed window, a scan, or a firmware update (or the first minute after one) runs; try again in a moment</source>
         <translation>无线正忙：正在进行信道勘测、链路速率窗口、扫描或固件更新（或更新后的第一分钟）；请稍后重试</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2153"/>
+        <location filename="../src/device/dev_driver.cpp" line="2162"/>
         <source>the module refused the request (ERR_PAYLOAD)</source>
         <translation>模块拒绝了请求（ERR_PAYLOAD）</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2154"/>
+        <location filename="../src/device/dev_driver.cpp" line="2163"/>
         <source>over the network the module switches its radio off only for 1 s to 10 min</source>
         <translation>通过网络时，模块只能关闭无线 1 秒到 10 分钟</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2157"/>
+        <location filename="../src/device/dev_driver.cpp" line="2166"/>
         <source>this firmware cannot switch the radio off (that came with 0.20)</source>
         <translation>此固件不能关闭无线（该功能从 0.20 开始提供）</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2158"/>
+        <location filename="../src/device/dev_driver.cpp" line="2167"/>
         <source>the module refused the request (code %1)</source>
         <translation>模块拒绝了请求（代码 %1）</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3245"/>
+        <location filename="../src/device/dev_driver.cpp" line="3254"/>
         <source>The preset was not saved</source>
         <translation>预设未保存</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3246"/>
+        <location filename="../src/device/dev_driver.cpp" line="3255"/>
         <source>The preset was not deleted</source>
         <translation>预设未删除</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3247"/>
+        <location filename="../src/device/dev_driver.cpp" line="3256"/>
         <source>The preset was not applied</source>
         <translation>预设未应用</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3248"/>
+        <location filename="../src/device/dev_driver.cpp" line="3257"/>
         <source>the sonar&apos;s flash did not take it</source>
         <translation>声呐闪存未能写入</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3249"/>
+        <location filename="../src/device/dev_driver.cpp" line="3258"/>
         <source>there is no such preset in the sonar</source>
         <translation>声呐中没有该预设</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3250"/>
+        <location filename="../src/device/dev_driver.cpp" line="3259"/>
         <source>the sonar asked for the key</source>
         <translation>声呐需要密钥</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3251"/>
+        <location filename="../src/device/dev_driver.cpp" line="3260"/>
         <source>code %1</source>
         <translation>代码 %1</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3507"/>
+        <location filename="../src/device/dev_driver.cpp" line="3481"/>
+        <source>This firmware has no ring counters</source>
+        <translation>此固件没有环路计数器</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="3482"/>
+        <source>Refused by the board (code %1)</source>
+        <translation>板子拒绝了（代码 %1）</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="3587"/>
         <source>Sync config rejected by device</source>
         <translation>设备拒绝了同步配置</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="4073"/>
-        <location filename="../src/device/dev_driver.cpp" line="4086"/>
+        <location filename="../src/device/dev_driver.cpp" line="4153"/>
+        <location filename="../src/device/dev_driver.cpp" line="4166"/>
         <source>no answer from the module</source>
         <translation>模块无应答</translation>
     </message>
@@ -4067,6 +4082,7 @@
         <location filename="../qml/app/DeviceSettingsPage.qml" line="66"/>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="4296"/>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="4299"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5632"/>
         <source>Role</source>
         <translation>角色</translation>
     </message>
@@ -6952,7 +6968,7 @@
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="5478"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5734"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5816"/>
         <source>Bus address</source>
         <translation>总线地址</translation>
     </message>
@@ -7043,72 +7059,168 @@
         <translation>线路速率 %1 已在两台声呐上设置并保存</translation>
     </message>
     <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5623"/>
+        <source>Ring counters</source>
+        <translation>环路计数器</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5628"/>
+        <source>How this board keeps step with the ring. Read them when a sonar&apos;s echogram has holes; reading is a request on the line, so do not keep pressing: on a ring with no time to spare it can cost the following board a ping itself.</source>
+        <translation>该板如何与环路保持同步。声呐回波图出现空洞时再读取；读取是线路上的一次请求，请勿连续点击：在没有时间余量的环路中，它本身就可能让后一块板丢失一次 ping。</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5634"/>
+        <source>Follower: pings on the leader&apos;s sync</source>
+        <translation>从机：随主机的同步信号发 ping</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5635"/>
+        <source>Leader: sets the pace</source>
+        <translation>主机：决定节拍</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5636"/>
+        <source>, a board before it</source>
+        <translation>，前面还有一块板</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5639"/>
+        <source>Sync interval</source>
+        <translation>同步间隔</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5641"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5645"/>
+        <source>%1 ms</source>
+        <translation>%1 ms</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5644"/>
+        <source>Guard before a sync</source>
+        <translation>同步前的保护窗口</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5648"/>
+        <source>Pings skipped</source>
+        <translation>跳过的 ping</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5650"/>
+        <source>A sync came while the board was busy; it waited for the next one</source>
+        <translation>同步信号到来时板子正忙；它等待了下一个</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5653"/>
+        <source>Frames cut by a sync</source>
+        <translation>被同步信号截断的帧</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5657"/>
+        <source>Led after silence</source>
+        <translation>静默后转为主机</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5659"/>
+        <source>No sync from the board before it, so this one set the pace itself</source>
+        <translation>前面的板没有发来同步信号，于是这块板自己决定节拍</translation>
+    </message>
+    <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="5662"/>
+        <source>Syncs heard</source>
+        <translation>收到的同步信号</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5666"/>
+        <source>Frames passed on</source>
+        <translation>转发的帧</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5674"/>
+        <source>Asking the board...</source>
+        <translation>正在询问板子...</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5674"/>
+        <source>Read</source>
+        <translation>读取</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5681"/>
+        <source>Reset the counters</source>
+        <translation>清零计数器</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5682"/>
+        <source>Zeroes the five counters on the board; it sends them back at once</source>
+        <translation>将板上的五个计数器清零；板子会立即发回</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5744"/>
         <source>Information</source>
         <translation>信息</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5679"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5761"/>
         <source>Copy</source>
         <translation>复制</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5685"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5767"/>
         <source>Device info copied to clipboard</source>
         <translation>设备信息已复制到剪贴板</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5691"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5773"/>
         <source>Model</source>
         <translation>型号</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5696"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5778"/>
         <source>Board type</source>
         <translation>板卡类型</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5701"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5783"/>
         <source>Serial number</source>
         <translation>序列号</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5708"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5790"/>
         <source>not set</source>
         <translation>未设置</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5713"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5795"/>
         <source>Firmware version</source>
         <translation>固件版本</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5718"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5800"/>
         <source>Bootloader version</source>
         <translation>引导程序版本</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5723"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5805"/>
         <source>Running</source>
         <translation>运行</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5728"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5810"/>
         <source>Bootloader</source>
         <translation>引导程序</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5729"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5811"/>
         <source>Firmware</source>
         <translation>固件</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5739"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5821"/>
         <source>Connection</source>
         <translation>连接</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5744"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5826"/>
         <source>Chip UID</source>
         <translation>芯片 UID</translation>
     </message>
@@ -13563,107 +13675,107 @@
         <translation>已启用</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="333"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="335"/>
         <source>Manual</source>
         <translation>手动模式</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="334"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="336"/>
         <source>The firmware does not support manual mode</source>
         <translation>固件不支持手动模式</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="336"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="338"/>
         <source>The servo holds the angle set with the knob; the scan waits until this is off.</source>
         <translation>舵机保持旋钮设定的角度；关闭此项之前扫描暂停。</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="350"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="353"/>
         <source>Current angle</source>
         <translation>当前角度</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="397"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="402"/>
         <source>Angle, °</source>
         <translation>角度，°</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="420"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="426"/>
         <source>Shift while dragging: finer. Wheel: 1°, with Ctrl: 0.1°.</source>
         <translation>拖动时按住 Shift：更精细。滚轮：1°，按住 Ctrl：0.1°。</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="429"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="435"/>
         <source>Reverse mapping</source>
         <translation>反向映射</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="445"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="451"/>
         <source>Scan</source>
         <translation>扫描</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="448"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="455"/>
         <source>Waits while the servo is in manual mode.</source>
         <translation>舵机处于手动模式时暂停。</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="451"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="458"/>
         <source>Step, °</source>
         <translation>步长，°</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="469"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="476"/>
         <source>Scan range, °</source>
         <translation>扫描范围，°</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="484"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="491"/>
         <source>Center, °</source>
         <translation>中心，°</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="503"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="510"/>
         <source>More settings</source>
         <translation>更多设置</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="515"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="522"/>
         <source>Calibration</source>
         <translation>校准</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="521"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="528"/>
         <source>PWM min, µs</source>
         <translation>PWM 最小值，µs</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="537"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="544"/>
         <source>PWM max, µs</source>
         <translation>PWM 最大值，µs</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="553"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="560"/>
         <source>Servo angle range, °</source>
         <translation>舵机角度范围，°</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="568"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="575"/>
         <source>PWM routing</source>
         <translation>PWM 路由</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="574"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="581"/>
         <source>OUT1 (wired)</source>
         <translation>OUT1（已接线）</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="590"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="597"/>
         <source>OUT2</source>
         <translation>OUT2</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="606"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="613"/>
         <source>OUT3</source>
         <translation>OUT3</translation>
     </message>

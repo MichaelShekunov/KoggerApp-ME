@@ -106,6 +106,9 @@
 //   {"op": "servo"}                  each servo device's state, one line each
 //   {"op": "servoManual", "on": bool}   the panel's Manual switch
 //   {"op": "servoSet", "deg": x}     the angle to hold, as the knob's release or the angle field
+// A GODIO ring board's sync counters (ID_RING_STAT, firmware 1.16+), on the device at bus address "addr":
+//   {"op": "devicePage", "addr": n}  its device page opened, as a tap on it in the device list does
+//   {"op": "ringStat", "addr": n, "do": "read" | "reset" | "show"}   asked, zeroed, or what the page shows logged
 //   {"op": "servoDrag", "from": a, "to": b, "ms": 1000, "everyMs": 5}   the knob dragged: servoManualMove every
 //                                    everyMs from a to b over ms, then servoSet b; logs how many moves it made
 // A sonar's firmware, as its device page's UPGRADE (behind a recorder: the update through it):
