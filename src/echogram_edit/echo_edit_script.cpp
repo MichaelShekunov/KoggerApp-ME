@@ -1142,17 +1142,19 @@ void EchoEditScript::runStep(const QJsonObject& s)
     }
     else if (op == QLatin1String("devicePage") || op == QLatin1String("ringStat")) {
         const int addr = s.value(QStringLiteral("addr")).toInt(-1);
+        const bool recorder = s.value(QStringLiteral("recorder")).toBool();
         QObject* dev = nullptr;
         int index = -1, i = 0;
         for (QObject* d : core_->getDeviceManagerWrapperPtr()->getDevList()) {
-            if (!dev && d->property("busAddress").toInt() == addr) {
+            if (!dev && (recorder ? d->property("isRecorder").toBool() : d->property("busAddress").toInt() == addr)) {
                 dev = d;
                 index = i;
             }
             ++i;
         }
         if (!dev) {
-            qInfo().noquote() << QStringLiteral("echoedit script: %1: no device at address %2").arg(op).arg(addr);
+            qInfo().noquote() << QStringLiteral("echoedit script: %1: no device at address %2%3").arg(op).arg(addr)
+                                 .arg(recorder ? QStringLiteral(" (no Recorder)") : QString());
         } else if (op == QLatin1String("devicePage")) {
             QObject* store = findObjectWithProperty("settingsPinTarget");
             if (store) {

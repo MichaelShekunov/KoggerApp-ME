@@ -43,8 +43,8 @@ New-Item -ItemType Directory -Force -Path (Split-Path $ini) | Out-Null
 [System.IO.File]::WriteAllText($ini, ($seed -join "`r`n"), $utf8)
 
 $steps = @(
-    '{"op": "waitPorts", "timeoutMs": 40000}', '{"op": "ports"}',
-    '{"op": "devicePage", "addr": 0}', '{"op": "wait", "ms": 70000}',
+    '{"op": "waitPorts", "timeoutMs": 120000}', '{"op": "ports"}',
+    '{"op": "devicePage", "recorder": true}', '{"op": "wait", "ms": 70000}',
     '{"op": "probe", "tag": "page", "root": "DeviceSettingsPage"}', '{"op": "ports"}', '{"op": "quit"}')
 $sp = Join-Path $Out 'steps.json'
 [System.IO.File]::WriteAllText($sp, ('{"live": true, "steps": [' + ($steps -join ",`n") + ']}'), $utf8)

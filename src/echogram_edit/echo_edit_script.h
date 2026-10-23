@@ -107,7 +107,8 @@
 //   {"op": "servoManual", "on": bool}   the panel's Manual switch
 //   {"op": "servoSet", "deg": x}     the angle to hold, as the knob's release or the angle field
 // A GODIO ring board's sync counters (ID_RING_STAT, firmware 1.16+), on the device at bus address "addr":
-//   {"op": "devicePage", "addr": n}  its device page opened, as a tap on it in the device list does
+//   {"op": "devicePage", "addr": n}  its device page opened, as a tap on it in the device list does;
+//                                    {"op": "devicePage", "recorder": true}: the first Recorder's
 //   {"op": "ringStat", "addr": n, "do": "read" | "reset" | "show"}   asked, zeroed, or what the page shows logged
 // A Recorder's connectors (ID_BUS / ID_PIN), on the first Recorder:
 //   {"op": "waitPorts", "timeoutMs": 20000}   until its port table is read (or known to be missing)
