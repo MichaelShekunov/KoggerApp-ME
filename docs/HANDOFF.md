@@ -3052,7 +3052,8 @@ it 0c39cee0.
 **Presets on a real sonar (2026-10-23)**: the firmware session flashed 11.21 (md5 ffd06987…) on the sonar on this PC's
 COM13 and asked for the buttons' live check; the owner chose "with a write, then erase it". The first run found that
 the app never asked: that board answers ID_VERSION as **PULSEblue DSS (129)** -- the l412_adc firmware's identity from
-11.4 on; its ID17 builds call themselves nanoSSS (17) -- and DevDriver asked presets of board 17 only. Now 17 and 129
+11.4 on; it answers nanoSSS (17) only when built with BOARD_ID=17, whatever the image's name says (the firmware
+session, 2026-10-23) -- and DevDriver asked presets of board 17 only. Now 17 and 129
 (an older firmware still gets five asks and silence). `DevDriver::presetDelete` (SETTING v2 with the key; no button)
 and the edit-script step `presetDelete` undo the check's save. **[verified]** `tools/preset_check/preset_sonar.ps1
 -Exe <build> -Port COM13` (the test desktop, a profile of its own, KOGGER_AUTOTEST=COM13): the sonar answered, the

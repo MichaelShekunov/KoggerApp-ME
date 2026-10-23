@@ -3938,8 +3938,9 @@ void DevDriver::process() {
                 }
 
                 // The 2-channel L412 sonar only (firmware 11.21+ keeps presets; an older one answers ERR_ID or nothing).
-                // Its firmware calls itself PULSEblue DSS (129) from 11.4 on, nanoSSS (17) in its ID17 builds: the
-                // board on this PC answered as 129 with 11.21 (2026-10-23).
+                // Its firmware calls itself PULSEblue DSS (129) from 11.4 on, nanoSSS (17) only when built with
+                // BOARD_ID=17 (an image's "_ID17" name says nothing of it): the board on this PC answered as 129 with
+                // 11.21 (2026-10-23).
                 if((boardVersion() == BoardNanoSSS || boardVersion() == BoardPULSEblue_DSS) && !presetsAnswered_
                    && !presetsUnsupported_ && presetAsks_ < 5
                    && curr_time - presetAskedAt_ >= 3000) {
