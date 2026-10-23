@@ -16,7 +16,10 @@ Column {
 
     spacing: Tokens.spaceMd
 
-    readonly property real s: width / 680     // the drawing is laid out on 680 x 500 units
+    // The drawing is laid out on 680 x 500 units. Below 560 px its rows would get shorter than the text: it keeps
+    // 560 px and scrolls sideways instead.
+    readonly property real drawingWidth: Math.max(width, 560)
+    readonly property real s: drawingWidth / 680
     readonly property real fontPx: Math.max(10, 11.5 * s)
 
     // RECORDER Mini v4.0 as the port spec's ID_BUS V1 table gives it (pads and nets from the PcbDoc): the side, the place
@@ -186,132 +189,146 @@ Column {
     readonly property int effectiveOpenPin: openPin === -1 && current ? firstActivePin(current) : openPin
 
     // ── the drawing ──
-    Item {
-        id: drawing
+    Flickable {
+        objectName: "boardDrawing"
         width: view.width
-        height: 500 * view.s
+        height: drawing.height
+        contentWidth: drawing.width
+        contentHeight: drawing.height
+        flickableDirection: Flickable.HorizontalFlick
+        boundsBehavior: Flickable.StopAtBounds
+        interactive: contentWidth > width
+        clip: true
 
-        Canvas {
-            id: wires
-            anchors.fill: parent
-            readonly property var blocksSeen: view.blocks
-            onBlocksSeenChanged: requestPaint()
-            onWidthChanged: requestPaint()
-            onPaint: {
-                var ctx = getContext("2d")
-                ctx.reset()
-                ctx.strokeStyle = AppPalette.textMuted
-                ctx.lineWidth = 1
-                var k = view.s
-                for (var i = 0; i < view.blocks.length; ++i) {
-                    var b = view.blocks[i]
-                    var ax = b.side === "left" ? b.bx + b.bw : b.side === "right" ? b.bx : b.bx + b.bw / 2
-                    var ay = b.side === "top" ? b.by + b.bh : b.by + b.bh / 2
-                    var tx = b.side === "left" ? b.cx : b.side === "right" ? b.cx + b.cw : b.cx + b.cw / 2
-                    var ty = b.side === "top" ? b.cy : b.cy + b.ch / 2
+        Item {
+            id: drawing
+            width: view.drawingWidth
+            height: 500 * view.s
+
+            Canvas {
+                id: wires
+                anchors.fill: parent
+                readonly property var blocksSeen: view.blocks
+                onBlocksSeenChanged: requestPaint()
+                onWidthChanged: requestPaint()
+                onPaint: {
+                    var ctx = getContext("2d")
+                    ctx.reset()
+                    ctx.strokeStyle = AppPalette.textMuted
+                    ctx.lineWidth = 1
+                    var k = view.s
+                    for (var i = 0; i < view.blocks.length; ++i) {
+                        var b = view.blocks[i]
+                        var ax = b.side === "left" ? b.bx + b.bw : b.side === "right" ? b.bx : b.bx + b.bw / 2
+                        var ay = b.side === "top" ? b.by + b.bh : b.by + b.bh / 2
+                        var tx = b.side === "left" ? b.cx : b.side === "right" ? b.cx + b.cw : b.cx + b.cw / 2
+                        var ty = b.side === "top" ? b.cy : b.cy + b.ch / 2
+                        ctx.beginPath()
+                        ctx.moveTo(ax * k, ay * k)
+                        ctx.lineTo(tx * k, ty * k)
+                        ctx.stroke()
+                    }
                     ctx.beginPath()
-                    ctx.moveTo(ax * k, ay * k)
-                    ctx.lineTo(tx * k, ty * k)
+                    ctx.moveTo(340 * k, 386 * k)
+                    ctx.lineTo(340 * k, 408 * k)
                     ctx.stroke()
                 }
-                ctx.beginPath()
-                ctx.moveTo(340 * k, 386 * k)
-                ctx.lineTo(340 * k, 408 * k)
-                ctx.stroke()
             }
-        }
 
-        Rectangle {        // the board
-            x: 250 * view.s; y: 120 * view.s; width: 180 * view.s; height: 250 * view.s
-            radius: 14 * view.s
-            color: Qt.tint(AppPalette.card, Qt.rgba(0.18, 0.55, 0.30, 0.30))
-            border.color: AppPalette.border
-        }
-        Rectangle {
-            x: 310 * view.s; y: 200 * view.s; width: 60 * view.s; height: 60 * view.s; radius: 4 * view.s
-            color: AppPalette.controlRaised; border.color: AppPalette.border
-            Text { anchors.centerIn: parent; text: "MCU"; color: AppPalette.textSecond; font.pixelSize: view.fontPx }
-        }
-        Rectangle {
-            x: 322 * view.s; y: 282 * view.s; width: 36 * view.s; height: 14 * view.s; radius: 6 * view.s
-            color: AppPalette.controlRaised; border.color: AppPalette.border
-        }
-        Text { x: 322 * view.s; y: 300 * view.s; width: 36 * view.s; horizontalAlignment: Text.AlignHCenter
-               text: "USB-C"; color: AppPalette.textSecond; font.pixelSize: view.fontPx * 0.9 }
-        Rectangle {        // the power connector and its readings
-            x: 312 * view.s; y: 356 * view.s; width: 56 * view.s; height: 30 * view.s; radius: 4 * view.s
-            color: AppPalette.linkIdleBg; border.color: AppPalette.linkIdleBorder
-        }
-        Rectangle {
-            objectName: "boardPower"
-            x: 250 * view.s; y: 408 * view.s; width: 180 * view.s; height: 62 * view.s; radius: 6 * view.s
-            color: AppPalette.card; border.color: AppPalette.linkIdleBorder; border.width: 1.5
-            Column {
-                anchors.centerIn: parent
-                spacing: 2
-                Text { anchors.horizontalCenter: parent.horizontalCenter; text: qsTr("POWER 5–30 V")
-                       color: AppPalette.textStrong; font.pixelSize: view.fontPx; font.bold: true }
-                Text { anchors.horizontalCenter: parent.horizontalCenter
-                       text: qsTr("+BAT %1 · GND").arg(view.dev && view.dev.voltage0Mv >= 0 ? view.volts(view.dev.voltage0Mv) : "—")
-                       color: AppPalette.textSecond; font.pixelSize: view.fontPx }
-                Text { anchors.horizontalCenter: parent.horizontalCenter
-                       text: qsTr("5 V rail: %1").arg(view.dev && view.dev.voltage1Mv >= 0 ? view.volts(view.dev.voltage1Mv) : "—")
-                       color: AppPalette.textSecond; font.pixelSize: view.fontPx }
+            Rectangle {        // the board
+                x: 250 * view.s; y: 120 * view.s; width: 180 * view.s; height: 250 * view.s
+                radius: 14 * view.s
+                color: Qt.tint(AppPalette.card, Qt.rgba(0.18, 0.55, 0.30, 0.30))
+                border.color: AppPalette.border
             }
-        }
-
-        Repeater {        // the connectors on the board
-            model: view.blocks
-            delegate: Rectangle {
-                required property var modelData
-                x: modelData.cx * view.s; y: modelData.cy * view.s
-                width: modelData.cw * view.s; height: modelData.ch * view.s; radius: 2
-                color: AppPalette.card
-                border.color: view.blockColor(modelData.bus)
-                border.width: modelData.bus.label === (view.current ? view.current.label : "") ? 3 : 1.5
+            Rectangle {
+                x: 310 * view.s; y: 200 * view.s; width: 60 * view.s; height: 60 * view.s; radius: 4 * view.s
+                color: AppPalette.controlRaised; border.color: AppPalette.border
+                Text { anchors.centerIn: parent; text: "MCU"; color: AppPalette.textSecond; font.pixelSize: view.fontPx }
             }
-        }
-
-        Repeater {        // a block a connector: its contacts and their live values
-            model: view.blocks
-            delegate: Item {
-                id: blk
-                required property var modelData
-                readonly property bool isSelected: modelData.bus.label === (view.current ? view.current.label : "")
-                objectName: "boardBlock_" + modelData.bus.label
-                signal clicked()
-                onClicked: { view.selected = modelData.bus.label; view.openPin = -1 }
-                x: modelData.bx * view.s; y: modelData.by * view.s
-                width: modelData.bw * view.s; height: modelData.bh * view.s
-
-                Rectangle {
-                    anchors.fill: parent
-                    radius: 6 * view.s
-                    color: blk.isSelected ? AppPalette.cardHover : AppPalette.card
-                    border.color: view.blockColor(blk.modelData.bus)
-                    border.width: blk.isSelected ? 3 : 1.5
+            Rectangle {
+                x: 322 * view.s; y: 282 * view.s; width: 36 * view.s; height: 14 * view.s; radius: 6 * view.s
+                color: AppPalette.controlRaised; border.color: AppPalette.border
+            }
+            Text { x: 322 * view.s; y: 300 * view.s; width: 36 * view.s; horizontalAlignment: Text.AlignHCenter
+                   text: "USB-C"; color: AppPalette.textSecond; font.pixelSize: view.fontPx * 0.9 }
+            Rectangle {        // the power connector and its readings
+                x: 312 * view.s; y: 356 * view.s; width: 56 * view.s; height: 30 * view.s; radius: 4 * view.s
+                color: AppPalette.linkIdleBg; border.color: AppPalette.linkIdleBorder
+            }
+            Rectangle {
+                objectName: "boardPower"
+                x: 250 * view.s; y: 408 * view.s; width: 180 * view.s; height: 62 * view.s; radius: 6 * view.s
+                color: AppPalette.card; border.color: AppPalette.linkIdleBorder; border.width: 1.5
+                Column {
+                    anchors.centerIn: parent
+                    spacing: 2
+                    Text { anchors.horizontalCenter: parent.horizontalCenter; text: qsTr("POWER 5–30 V")
+                           color: AppPalette.textStrong; font.pixelSize: view.fontPx; font.bold: true }
+                    Text { anchors.horizontalCenter: parent.horizontalCenter
+                           text: qsTr("+BAT %1 · GND").arg(view.dev && view.dev.voltage0Mv >= 0 ? view.volts(view.dev.voltage0Mv) : "—")
+                           color: AppPalette.textSecond; font.pixelSize: view.fontPx }
+                    Text { anchors.horizontalCenter: parent.horizontalCenter
+                           text: qsTr("5 V rail: %1").arg(view.dev && view.dev.voltage1Mv >= 0 ? view.volts(view.dev.voltage1Mv) : "—")
+                           color: AppPalette.textSecond; font.pixelSize: view.fontPx }
                 }
-                Text {
-                    x: 8 * view.s; y: 5 * view.s; width: parent.width - 16 * view.s
-                    text: view.blockHeader(blk.modelData.bus)
-                    color: AppPalette.textStrong; font.pixelSize: view.fontPx; font.bold: true
-                    elide: Text.ElideRight
+            }
+
+            Repeater {        // the connectors on the board
+                model: view.blocks
+                delegate: Rectangle {
+                    required property var modelData
+                    x: modelData.cx * view.s; y: modelData.cy * view.s
+                    width: modelData.cw * view.s; height: modelData.ch * view.s; radius: 2
+                    color: AppPalette.card
+                    border.color: view.blockColor(modelData.bus)
+                    border.width: modelData.bus.label === (view.current ? view.current.label : "") ? 3 : 1.5
                 }
-                Repeater {
-                    model: blk.modelData.contacts
-                    delegate: Item {
-                        required property var modelData
-                        required property int index
-                        x: 8 * view.s; y: (22 + index * 17) * view.s
-                        width: blk.width - 16 * view.s; height: 17 * view.s
-                        Text { anchors.left: parent.left; anchors.verticalCenter: parent.verticalCenter
-                               text: modelData.name; color: AppPalette.textSecond; font.pixelSize: view.fontPx }
-                        Text { anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
-                               text: view.contactValue(blk.modelData.bus, modelData)
-                               color: AppPalette.textStrong; font.pixelSize: view.fontPx }
+            }
+
+            Repeater {        // a block a connector: its contacts and their live values
+                model: view.blocks
+                delegate: Item {
+                    id: blk
+                    required property var modelData
+                    readonly property bool isSelected: modelData.bus.label === (view.current ? view.current.label : "")
+                    objectName: "boardBlock_" + modelData.bus.label
+                    signal clicked()
+                    onClicked: { view.selected = modelData.bus.label; view.openPin = -1 }
+                    x: modelData.bx * view.s; y: modelData.by * view.s
+                    width: modelData.bw * view.s; height: modelData.bh * view.s
+
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: 6 * view.s
+                        color: blk.isSelected ? AppPalette.cardHover : AppPalette.card
+                        border.color: view.blockColor(blk.modelData.bus)
+                        border.width: blk.isSelected ? 3 : 1.5
                     }
+                    Text {
+                        x: 8 * view.s; y: 5 * view.s; width: parent.width - 16 * view.s
+                        text: view.blockHeader(blk.modelData.bus)
+                        color: AppPalette.textStrong; font.pixelSize: view.fontPx; font.bold: true
+                        // the app's font and longer languages run wider than the block: shrink before eliding
+                        fontSizeMode: Text.HorizontalFit; minimumPixelSize: 7
+                        elide: Text.ElideRight
+                    }
+                    Repeater {
+                        model: blk.modelData.contacts
+                        delegate: Item {
+                            required property var modelData
+                            required property int index
+                            x: 8 * view.s; y: (22 + index * 17) * view.s
+                            width: blk.width - 16 * view.s; height: 17 * view.s
+                            Text { anchors.left: parent.left; anchors.verticalCenter: parent.verticalCenter
+                                   text: modelData.name; color: AppPalette.textSecond; font.pixelSize: view.fontPx }
+                            Text { anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
+                                   text: view.contactValue(blk.modelData.bus, modelData)
+                                   color: AppPalette.textStrong; font.pixelSize: view.fontPx }
+                        }
+                    }
+                    MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: blk.clicked() }
                 }
-                MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: blk.clicked() }
             }
         }
     }

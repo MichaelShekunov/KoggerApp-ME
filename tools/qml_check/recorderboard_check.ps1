@@ -185,6 +185,22 @@ Item {
             wait(300)
             grabImage(root).save(shotPath)
         }
+        function test_07_narrow() {        // a phone's panel: the drawing keeps 560 px and scrolls, nothing is cut
+            view.width = 360
+            var pane = item("boardDrawing")
+            tryVerify(function() { return pane.contentWidth === 560 && pane.interactive })
+            var cut = []
+            function walk(n) {
+                if (n.truncated && n.visible)
+                    cut.push(String(n.text))
+                for (var i = 0; i < n.children.length; ++i)
+                    walk(n.children[i])
+            }
+            walk(pane)
+            compare(cut.join(" | "), "")
+            view.width = 680
+            tryVerify(function() { return !pane.interactive })
+        }
     }
 }
 '@
