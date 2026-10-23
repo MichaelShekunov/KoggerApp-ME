@@ -1036,6 +1036,8 @@ private:
     QTimer servoReadbackTimer_;        // reads the servo control back after a manual change
     double servoManualPending_ = 0.0;  // the drag's latest angle, waiting for servoManualTimer_
     bool servoManualDirty_ = false;
+    int servoManualSent_ = 0;          // manual mode's frames sent on this connection (the read-back's log line)
+    int servoAnswered_ = 0;            // ID_SERVO_CONTROL settings the device answered with RespOk
     void flushServoManual();
     void stopServoManualDrag();
     // The stand is discovered by probing, not declared: the command family is control-only, so

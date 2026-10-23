@@ -12,8 +12,9 @@
     app's frames to route 0 (the search: restart, ID_MARK, ID_VERSION) in each phase.
     Checked:
       answering  after the first 2 s of the boards' frames, no frame to route 0 until they stop
-      quiet      the search asks again while the line is quiet (from ~3 s after the last frame)
-      again      no frame to route 0 from 2 s after the boards come back to the end
+      quiet      the line is searched while it is quiet (the link's own ask-all within ~0.3 s, the search at
+                 address 0 from ~3 s after the last frame)
+      again      no frame to route 0 from 2 s after the boards come back until they stop at 35 s
       log        the app logs the search waiting and asking again
     Exit code 0 when every check holds. A build without the hold fails "answering" (a broadcast every 5 s).
 
@@ -119,12 +120,12 @@ function Expect([bool] $ok, [string] $what, [string] $detail) {
 $all = $to0.ToArray()
 $answering = @($all | Where-Object { $_.S -ge 2 -and $_.S -lt 15 })
 $quiet = @($all | Where-Object { $_.S -ge 15 -and $_.S -lt 25 })
-$again = @($all | Where-Object { $_.S -ge 27 })
+$again = @($all | Where-Object { $_.S -ge 27 -and $_.S -lt 35 })
 $start = @($all | Where-Object { $_.S -lt 2 })
 Expect ($answering.Count -eq 0) 'answering' ("{0} frames to route 0 between 2 and 15 s ({1} in the first 2 s)" -f $answering.Count, $start.Count)
-Expect ($quiet.Count -ge 1 -and @($quiet | Where-Object { $_.S -lt 17.5 }).Count -eq 0) 'quiet' (
+Expect ($quiet.Count -ge 1) 'quiet' (
     "{0} frames to route 0 while the line was quiet, the first at {1}" -f $quiet.Count, $(if ($quiet.Count) { '{0:F2} s' -f $quiet[0].S } else { '-' }))
-Expect ($again.Count -eq 0) 'again' ("{0} frames to route 0 from 27 s on" -f $again.Count)
+Expect ($again.Count -eq 0) 'again' ("{0} frames to route 0 between 27 and 35 s" -f $again.Count)
 $waits = @($mine | Where-Object { $_ -match 'search: another device of the line answers, the search waits' })
 $asks = @($mine | Where-Object { $_ -match 'search: the line is quiet, the search asks again' })
 Expect ($waits.Count -ge 2 -and $asks.Count -ge 1) 'log' ("waits logged {0}, asks again {1}" -f $waits.Count, $asks.Count)

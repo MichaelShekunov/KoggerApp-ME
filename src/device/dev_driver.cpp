@@ -3394,8 +3394,19 @@ void DevDriver::receivedServoControl(Parsers::Type type, Parsers::Version ver, P
         if (idServoControl->manual() && servoManualSupport_ != 1) {
             servoManualSupport_ = 1;
         }
+        if (servoManualSent_ > 0) {   // a read-back after manual mode was used on this connection
+            qInfo().noquote() << wifiTag() << QStringLiteral("servo: the device reports manual %1 at %2, scan center %3; "
+                                                             "manual frames sent %4, settings answered %5")
+                                                  .arg(idServoControl->manual() ? 1 : 0)
+                                                  .arg(idServoControl->manualDeg() / double(IDBinServoControl::AngleScale), 0, 'f', 2)
+                                                  .arg(idServoControl->scanCenterDeg() / double(IDBinServoControl::AngleScale), 0, 'f', 2)
+                                                  .arg(servoManualSent_).arg(servoAnswered_);
+        }
         emit servoControlChanged();
         return;
+    }
+    if (resp == respOk) {
+        ++servoAnswered_;
     }
     // A refused setting while manual mode is asked for and the device has never shown it: a firmware without
     // manual mode, which refuses bit 1 of general this way. It never left the scan, so nothing is sent back.
@@ -3424,6 +3435,7 @@ void DevDriver::setServoManual(bool on) {
     }
     stopServoManualDrag();
     idServoControl->setManual(on);
+    ++servoManualSent_;
     qInfo().noquote() << wifiTag() << QStringLiteral("servo: manual %1, center_deg %2")
                                           .arg(on ? "on" : "off").arg(idServoControl->centerDeg() / double(IDBinServoControl::AngleScale), 0, 'f', 2);
     emit servoControlChanged();
@@ -3452,6 +3464,7 @@ void DevDriver::servoManualSet(double deg) {
     }
     stopServoManualDrag();
     idServoControl->setManualDeg(servoDegToS2(deg));
+    ++servoManualSent_;
     emit servoControlChanged();
     servoReadbackTimer_.start();
 }
@@ -3462,6 +3475,7 @@ void DevDriver::flushServoManual() {
     }
     servoManualDirty_ = false;
     idServoControl->setManualDeg(servoDegToS2(servoManualPending_));
+    ++servoManualSent_;
     servoManualTimer_.start();
     emit servoControlChanged();
 }
