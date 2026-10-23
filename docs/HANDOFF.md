@@ -3118,3 +3118,21 @@ center_deg then being the angle held; built there, not flashed. docs/SERVO_MANUA
   moves, release, out, the control never lost; an old firmware's refusal). ts_check ru zh es hi clean.
 - New test hooks: edit-script steps waitServo, servo, servoManual, servoSet, servoDrag (echo_edit_script.h).
 - Not merged into `me`, not installed, not on hardware.
+
+## The line's search waits while the line's devices answer (2026-10-24, branch `ring-search-hold`)
+
+The owner: holes in one sonar of a GODIO ring on COM18 (460800); "if it is a proper solution, not a crutch, remove
+it". Address 0's driver is each line's search; every device answers it under its own address, so it never had a
+frame and broadcast restart, ID_MARK (a SETTING) and ID_VERSION v0-v2 every 200 ms for 10 s, then every 5 s, for
+ever. In a capture of the ring each broadcast cost the following board a ping (6 of 6; ring_2026-10-23 in the
+transfer folder; the firmware side in L412_GODIO docs/RING_HOLES_2026-10-23.md).
+
+- `DeviceLiveness::searchHeld`: address 0's driver is the search while it has never had a frame; while another device
+  of the line was heard within kStaleMs it asks nothing; a quiet line is searched again. DeviceManager calls
+  `holdSearch()` on each frame of another route; both turns logged ("search: ...").
+- **[verified]** mission_check offline 238 of 238 (5 new); `tools/qml_check/ringsearch_live.ps1` PASS against a UDP
+  stand playing the two boards (0 frames to route 0 while they answer, the quiet line searched, 0 again after); the
+  build without the rule fails it (196 frames in 13 s). Not yet on the real ring (COM18 not connected).
+- The servo's manual mode on the real Recorder (COM17, the owner's "3. да"): **[verified]**
+  `tools/servo_check/servo_device.ps1` PASS -- read-backs 0, 45, -45, 30, 0, off with the scan's center; 55 manual
+  frames, 61 settings answered RespOk; the drag ~32 frames a second, each answered. The motion itself not seen.
