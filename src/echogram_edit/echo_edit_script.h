@@ -101,6 +101,13 @@
 //   {"op": "presetRecall", "slot": n}   {"op": "presetSave", "slot": n, "name": s}
 //                                    on the first device that keeps presets, as its frequency buttons do
 //   {"op": "presetDelete", "slot": n}   empties the slot (no button does: the live check undoes its save)
+// A recorder's servo (ID_SERVO_CONTROL; docs/SERVO_MANUAL.md), on the first device with servo control:
+//   {"op": "waitServo", "timeoutMs": 20000}   until a device has servo control
+//   {"op": "servo"}                  each servo device's state, one line each
+//   {"op": "servoManual", "on": bool}   the panel's Manual switch
+//   {"op": "servoSet", "deg": x}     the angle to hold, as the knob's release or the angle field
+//   {"op": "servoDrag", "from": a, "to": b, "ms": 1000, "everyMs": 5}   the knob dragged: servoManualMove every
+//                                    everyMs from a to b over ms, then servoSet b; logs how many moves it made
 // A sonar's firmware, as its device page's UPGRADE (behind a recorder: the update through it):
 //   {"op": "upgrade", "path": file, "board": n, "addr": n}   the first sonar, or the one of that ID_VERSION board and
 //                                    route; logs the sonar it started on; not while a recorder records
@@ -149,6 +156,7 @@ private:
     void probe(const QString& name, int from, int to, float offset, float radius);
     void dump(const QString& path);
     bool dockStep(const QString& op, const QJsonObject& s);   // the docks' steps; false: not one of them
+    QObject* firstServoDevice() const;   // the first device with servo control, or null
     bool missionStep(const QString& op, const QJsonObject& s);   // the missions' steps; false: not one of them
     bool startGesture(const QJsonObject& s);   // "drag": the press
     int gestureStep(const QJsonObject& s);     // the next move or the release: ms to the next call, -1 when done
@@ -170,6 +178,7 @@ private:
     QTimer timer_;
     QElapsedTimer quiet_;            // since the bottom track last changed
     QElapsedTimer settleClock_;
+    int servoDragMoves_ = 0;           // the moves the running "servoDrag" step has made
     QPointer<QObject> upgradeDev_;     // the sonar the "upgrade" step started on
     int upgradeLogged_ = -10;          // the progress "waitUpgrade" last logged
     QJsonObject probe_;              // the last magnetProbe's numbers, for dump

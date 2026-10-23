@@ -313,6 +313,53 @@ void EchoEditScript::step()
         return;
     }
 
+    if (op == QLatin1String("waitServo")) {
+        if (!settleClock_.isValid()) {
+            settleClock_.start();
+        }
+        const bool known = firstServoDevice() != nullptr;
+        const bool timedOut = settleClock_.elapsed() >= s.value(QStringLiteral("timeoutMs")).toInt(20000);
+        if (known || timedOut) {
+            qInfo().noquote() << QStringLiteral("echoedit script: waitServo, %1 ms%2")
+                                 .arg(settleClock_.elapsed()).arg(known ? QString() : QStringLiteral(", timed out"));
+            settleClock_.invalidate();
+            ++next_;
+            timer_.start(0);
+            return;
+        }
+        timer_.start(200);
+        return;
+    }
+
+    if (op == QLatin1String("servoDrag")) {
+        QObject* dev = firstServoDevice();
+        const double from = s.value(QStringLiteral("from")).toDouble();
+        const double to = s.value(QStringLiteral("to")).toDouble();
+        const int ms = s.value(QStringLiteral("ms")).toInt(1000);
+        if (!settleClock_.isValid()) {
+            settleClock_.start();
+            servoDragMoves_ = 0;
+        }
+        const qint64 t = settleClock_.elapsed();
+        if (dev && t < ms) {
+            QMetaObject::invokeMethod(dev, "servoManualMove", Q_ARG(double, from + (to - from) * double(t) / ms));
+            ++servoDragMoves_;
+            timer_.start(qMax(1, s.value(QStringLiteral("everyMs")).toInt(5)));
+            return;
+        }
+        if (dev) {
+            QMetaObject::invokeMethod(dev, "servoManualSet", Q_ARG(double, to));
+        }
+        qInfo().noquote() << QStringLiteral("echoedit script: servoDrag %1..%2 in %3 ms: %4")
+                             .arg(from).arg(to).arg(t)
+                             .arg(dev ? QStringLiteral("%1 moves, then set %2").arg(servoDragMoves_).arg(to)
+                                      : QStringLiteral("no servo device"));
+        settleClock_.invalidate();
+        ++next_;
+        timer_.start(0);
+        return;
+    }
+
     if (op == QLatin1String("waitPresets")) {
         if (!settleClock_.isValid()) {
             settleClock_.start();
@@ -1019,6 +1066,34 @@ void EchoEditScript::runStep(const QJsonObject& s)
             }
         }
     }
+    else if (op == QLatin1String("servo")) {
+        for (QObject* d : core_->getDeviceManagerWrapperPtr()->getDevList()) {
+            if (!d->property("isServoSupport").toBool()) {
+                continue;
+            }
+            qInfo().noquote() << QStringLiteral("echoedit script: servo of %1: supported %2, enabled %3, manual %4 at %5, "
+                                                "manual support %6, center %7, angle range %8")
+                                 .arg(d->property("devName").toString()).arg(d->property("isServoSupport").toBool())
+                                 .arg(d->property("servoEnabled").toBool()).arg(d->property("servoManual").toBool())
+                                 .arg(d->property("servoManualDeg").toDouble(), 0, 'f', 2)
+                                 .arg(d->property("servoManualSupport").toInt())
+                                 .arg(d->property("servoCenterDeg").toDouble(), 0, 'f', 2)
+                                 .arg(d->property("servoAngleRangeDeg").toDouble(), 0, 'f', 2);
+        }
+    }
+    else if (op == QLatin1String("servoManual") || op == QLatin1String("servoSet")) {
+        QObject* dev = firstServoDevice();
+        bool sent = false;
+        if (dev && op == QLatin1String("servoManual")) {
+            sent = dev->setProperty("servoManual", s.value(QStringLiteral("on")).toBool());
+        } else if (dev) {
+            sent = QMetaObject::invokeMethod(dev, "servoManualSet", Q_ARG(double, s.value(QStringLiteral("deg")).toDouble()));
+        }
+        qInfo().noquote() << QStringLiteral("echoedit script: %1 %2: %3").arg(op)
+                             .arg(op == QLatin1String("servoManual") ? QString::number(s.value(QStringLiteral("on")).toBool())
+                                                                     : QString::number(s.value(QStringLiteral("deg")).toDouble()))
+                             .arg(sent ? QStringLiteral("sent") : QStringLiteral("no servo device"));
+    }
     else if (op == QLatin1String("presetRecall") || op == QLatin1String("presetSave") || op == QLatin1String("presetDelete")) {
         QObject* dev = nullptr;
         for (QObject* d : core_->getDeviceManagerWrapperPtr()->getDevList()) {
@@ -1284,6 +1359,16 @@ int EchoEditScript::gestureStep(const QJsonObject& s)
                          .arg(gestureTo_.x(), 0, 'f', 0).arg(gestureTo_.y(), 0, 'f', 0).arg(gestureHoldMs_);
     gestureWin_.clear();
     return -1;
+}
+
+QObject* EchoEditScript::firstServoDevice() const
+{
+    for (QObject* d : core_->getDeviceManagerWrapperPtr()->getDevList()) {
+        if (d->property("isServoSupport").toBool()) {
+            return d;
+        }
+    }
+    return nullptr;
 }
 
 bool EchoEditScript::missionStep(const QString& op, const QJsonObject& s)
