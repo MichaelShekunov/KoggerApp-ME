@@ -3041,3 +3041,10 @@ it 6848712b. The hardware acceptance from the app (HeadUnit `linux_setup/probe_w
 (the head unit's module rejoined 9.8 s after the boat's timer, the return seen by the status alone),
 retransmissions boat to head unit 3.1-5.3 %; the new texts not cut on the board. WIFI_MODULE.md 2o. The relayed word
 alone (through the module session) was refused by this session's permissions; the owner confirmed here.
+
+**LR's rate (2026-10-23, 7a92cc43)**: the owner's "fix it" through the module session: LR 0x1A is 500 kbit/s by the
+module session's calibration (contract 9), "0.5 Mbit/s · LR"; another LR code "LR, rate not known (code 0xNN)";
+WIFI_MODULE.md 2p. **[verified]** wifi020_check 60 checks, 24 of 24 mutants; mission_check 233; not on an LR link.
+The kiosk, by the owner's word here "switch the kiosk to 3cbbfdec" **[verified]**: headunit 3cbbfdec (= me 7a92cc43 +
+the kiosk patch) since 2026-10-23 09:15:54 UTC (active, NRestarts 0, no QML error, the boat "MANUAL, disarmed"); before
+it 0c39cee0.
