@@ -3180,5 +3180,6 @@ the connectors", "reserve each function's own settings, as with the servo menu".
 - A header shrinks to fit before it is cut; below 560 px the drawing keeps 560 px and scrolls sideways.
 - **[verified]** recorderboard_check 9 of 9 (a mutant without the fit fails test_07); ports_live PASS (8 blocks,
   nothing cut, v1 4.9/s); ports_device on the real Recorder (COM17) PASS: table, 8 blocks uncut, v1 4.8/s.
-- **[observed]** the real Recorder sent no ID_VOLTAGE in a minute although the spec says once a second: VBAT and the
-  power block show "—". Told the Recorder's session.
+- **[observed]** the real Recorder sent no ID_VOLTAGE in a minute: VBAT and the power block show "—". Right for now:
+  the Recorder's session found in its sources that the firmware does not send 0x31 at all (declared only, the ADC
+  module not built); its spec's "once a second" was wrong (fixed in 28ddbe1). Planned for phase 4.
