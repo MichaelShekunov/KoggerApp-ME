@@ -3478,6 +3478,9 @@ void DevDriver::receivedRingStat(Parsers::Type type, Parsers::Version ver, Parse
                                               .arg(s.guardUs / 1000.0, 0, 'f', 2).arg(s.breakIntervalUs / 1000.0, 0, 'f', 2)
                                               .arg(s.relayed).arg(s.breaks).arg(s.torn).arg(s.timeouts).arg(s.skipped);
     } else {
+        // RespErrorID: a firmware that answers an unknown id with an error. GODIO before 1.16 stays silent instead
+        // (only a SETTING gets a RESP there), so for it ringStatSupported's version gate decides, and silence from a
+        // 1.16+ board is the timeout's "no answer".
         ringStatError_ = resp == respErrorID ? tr("This firmware has no ring counters")
                                              : tr("Refused by the board (code %1)").arg(int(resp));
         qInfo().noquote() << wifiTag() << QStringLiteral("ring-stat: refused, code %1").arg(int(resp));
