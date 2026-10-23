@@ -3062,3 +3062,7 @@ table empty; slot 0 saved as a long press saves ("900 kHz, 31 pulses, DSP 1, 500
 before; no refusal. `preset_live.ps1` (the UDP stand) PASS with a delete step. Not seen: the buttons' circles on that
 sonar (the device pill is closed in the probe's dump; the binding is freqpreset_check's), and the second board (11.20)
 -- it is not on this PC.
+The kiosk, by the owner's word "switch the kiosk" **[verified]**: headunit 43d951e5 (= me 09fa9d0a + the kiosk patch,
+the presets of the PULSEblue DSS too) since 2026-10-23 13:36:37 UTC (active, NRestarts 0, no QML error; the boat "HOLD,
+disarmed", the head unit's module on KoggerBoat 4 s after the start); before it 3cbbfdec. The head unit had been
+off ~09:17-13:32 UTC; this PC's installs are still c55749b8 (no word for them yet).
