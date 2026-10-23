@@ -1180,6 +1180,8 @@ bool EchoEditScript::missionStep(const QString& op, const QJsonObject& s)
         o[QStringLiteral("runKnown")] = run->known();
         o[QStringLiteral("runItems")] = run->itemCount();
         o[QStringLiteral("runMatchesPlan")] = run->matchesPlan();
+        o[QStringLiteral("runNav")] = run->navCount();
+        o[QStringLiteral("boatRoute")] = boat_ ? boat_->vehicleRouteSize() : -1;   // the route the ghost follows
         o[QStringLiteral("transfers")] = QJsonArray::fromStringList(missionResults_);
         qInfo().noquote() << QStringLiteral("echoedit script: missionState ")
                              + QString::fromUtf8(QJsonDocument(o).toJson(QJsonDocument::Compact));

@@ -455,6 +455,16 @@ int main(int argc, char *argv[])
     // The head unit module's signal for the boat's track by link quality.
     QObject::connect(core.getDeviceManagerWrapperPtr(), &DeviceManagerWrapper::airChanged, &boat,
                      [&boat, dmw = core.getDeviceManagerWrapperPtr()] { boat.setLinkRssi(dmw->airRssi()); });
+    // The ghost and the progress in AUTO go along the mission the autopilot holds, as the planner's tracker read it.
+    QObject::connect(core.getMissionRunTrackerPtr(), &mission::MissionRunTracker::snapshotChanged, &boat,
+                     [&boat, run = core.getMissionRunTrackerPtr()] {
+        QVector<double> lats, lons;
+        for (const mission::GeoPoint& p : run->navPositions()) {
+            lats.append(p.lat);
+            lons.append(p.lon);
+        }
+        boat.setVehicleRoute(run->navSeqs(), lats, lons);
+    });
     engine.rootContext()->setContextProperty("systemBattery", &systemBattery);
     engine.rootContext()->setContextProperty("systemMonitor", &systemMonitor);
     engine.rootContext()->setContextProperty("langController", &langController);

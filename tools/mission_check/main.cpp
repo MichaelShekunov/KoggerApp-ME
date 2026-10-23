@@ -938,6 +938,39 @@ void plannerModeRules()
           QStringLiteral("plan %1, %2 frames other than heartbeats, transfer %3").arg(v.planCount()).arg(other).arg(v.transferState()));
 }
 
+QByteArray fakeMissionCurrent(int seq);
+QByteArray fakePosition(double lat, double lon, int vxCms);
+QByteArray fakeHome(double lat, double lon);
+
+// Planner mode: the ghost and what is left in AUTO go along the mission the autopilot holds (setVehicleRoute, from
+// the planner's tracker), from MISSION_CURRENT's target on (the owner, 2026-10-23: "I like the ghost").
+void plannerGhostRules()
+{
+    using V = MavVehicle;
+    V v(nullptr, false);
+    v.setMissionsByPlanner(true);
+    const double lat0 = 60.0, lon0 = 30.0;
+    const double east100 = 100.0 / (111195.0 * 0.5);   // 100 m of longitude at 60 degrees
+    // seq 2 behind the boat, seq 3 (the target) 100 m east of it, seq 5 100 m further
+    v.setVehicleRoute({ 2, 3, 5 }, { lat0, lat0, lat0 }, { lon0 - east100, lon0 + east100, lon0 + 2 * east100 });
+    v.feed(fakeHeartbeat(true, V::ModeAuto));
+    v.feed(fakeHeartbeat(true, V::ModeAuto));
+    v.feed(fakeHome(lat0 - 0.001, lon0));
+    v.feed(fakeMissionCurrent(3));
+    v.feed(fakePosition(lat0, lon0, 100));   // 1 m/s
+    const double left = V::distanceM(lat0, lon0, lat0, lon0 + east100) + V::distanceM(lat0, lon0 + east100, lat0, lon0 + 2 * east100);
+    const bool valid = waitFor([&] { return v.missionProgressValid(); }, 2500);
+    check("planner mode: AUTO - what is left goes along the vehicle's route from its target",
+          valid && std::abs(v.missionRemainingM() - left) < 1.0,
+          QStringLiteral("%1 m, expected %2 m").arg(v.missionRemainingM(), 0, 'f', 1).arg(left, 0, 'f', 1));
+    // the link goes: the ghost walks east, towards seq 3, not to home in the south nor back to seq 2
+    const bool ghost = waitFor([&] { return v.ghostValid(); }, 6000);
+    const double moved = V::distanceM(lat0, lon0, v.ghostLatitude(), v.ghostLongitude());
+    check("planner mode: link lost - the ghost moves along the vehicle's route",
+          ghost && v.ghostMoving() && v.ghostLongitude() > lon0 && std::abs(v.ghostLatitude() - lat0) < 1e-6,
+          QStringLiteral("age %1 s, moved %2 m east").arg(v.ghostAgeS()).arg(moved, 0, 'f', 1));
+}
+
 // The "From launch point" widget: home is asked for again on arming (ArduPilot moves it there); the distance.
 void homeRules()
 {
@@ -1355,6 +1388,13 @@ QByteArray fakePosition(double lat, double lon, int vxCms)
     return frame(m);
 }
 
+QByteArray fakeMissionCurrent(int seq)
+{
+    mavlink_message_t m;
+    mavlink_msg_mission_current_pack_chan(1, 1, kFakeChan, &m, uint16_t(seq), 0, 0, 0, 0, 0, 0);
+    return frame(m);
+}
+
 QByteArray fakeHome(double lat, double lon)
 {
     mavlink_message_t m;
@@ -1545,6 +1585,7 @@ int main(int argc, char* argv[])
     linkLogRules();
     homeRules();
     plannerModeRules();
+    plannerGhostRules();
     headingInUseRules();
     linkRateRules();
     trafficRules();

@@ -165,6 +165,17 @@ void MavVehicle::setMissionsByPlanner(bool on)
     emit planChanged();
 }
 
+void MavVehicle::setVehicleRoute(const QVector<int>& seqs, const QVector<double>& lats, const QVector<double>& lons)
+{
+    QVector<mission_progress::Geo> route;
+    const int n = int(std::min({ seqs.size(), lats.size(), lons.size() }));
+    route.reserve(n);
+    for (int i = 0; i < n; ++i)
+        route.append({ lats.at(i), lons.at(i) });
+    vehicleRouteSeqs_ = seqs.mid(0, n);
+    vehicleRoute_ = route;
+}
+
 bool MavVehicle::refusedForPlanner(const char* what)
 {
     if (!missionsByPlanner_)
@@ -845,13 +856,34 @@ QVector<mission_progress::Geo> MavVehicle::planGeo() const
     return out;
 }
 
+QVector<mission_progress::Geo> MavVehicle::autoRouteAhead(const mission_progress::Geo& boat) const
+{
+    namespace mp = mission_progress;
+    if (!missionsByPlanner_) {
+        const int target = currentPlanIndex();
+        return target >= 0 ? mp::routeAhead(boat, planGeo(), target, planReturnHome_, homeValid_, mp::Geo{ homeLat_, homeLon_ })
+                           : QVector<mp::Geo>{};
+    }
+    if (missionCurrent_ < 0)
+        return {};
+    int i = 0;
+    while (i < vehicleRouteSeqs_.size() && vehicleRouteSeqs_.at(i) < missionCurrent_)
+        ++i;
+    if (i >= vehicleRoute_.size())
+        return {};
+    QVector<mp::Geo> route{ boat };
+    route.append(vehicleRoute_.mid(i));
+    return route;
+}
+
 // Each second: what the running mission has left (armed, AUTO on our plan, or RTL home). The speed is the boat's,
 // smoothed, or the plan's while it is too slow to tell; the battery trend runs from the start of the mode.
 void MavVehicle::updateProgress()
 {
     namespace mp = mission_progress;
-    const int target = currentPlanIndex();
-    const bool autoRun = armed_ && mode_ == ModeAuto && target >= 0;
+    const mp::Geo boat{ lat_, lon_ }, home{ homeLat_, homeLon_ };
+    const QVector<mp::Geo> ahead = armed_ && mode_ == ModeAuto ? autoRouteAhead(boat) : QVector<mp::Geo>{};
+    const bool autoRun = ahead.size() > 1;
     const bool rtlRun = armed_ && mode_ == ModeRtl && homeValid_;
     if (!positionValid_ || !(autoRun || rtlRun)) {
         if (progressValid_) {
@@ -869,9 +901,7 @@ void MavVehicle::updateProgress()
         progressMode_ = mode_;
         battery_.add(clock_.elapsed(), batteryRemaining_);
     }
-    const mp::Geo boat{ lat_, lon_ }, home{ homeLat_, homeLon_ };
-    const QVector<mp::Geo> route = autoRun ? mp::routeAhead(boat, planGeo(), target, planReturnHome_, homeValid_, home)
-                                           : QVector<mp::Geo>{ boat, home };
+    const QVector<mp::Geo> route = autoRun ? ahead : QVector<mp::Geo>{ boat, home };
     remainingM_ = mp::lengthM(route);
     const double v = speed_.value();
     etaS_ = mp::etaS(remainingM_, (std::isfinite(v) && v >= mp::kMinSpeedMs) ? v : planSpeed_);
@@ -895,9 +925,8 @@ void MavVehicle::updateGhost()
     }
     const mp::Geo boat{ lat_, lon_ }, home{ homeLat_, homeLon_ };
     QVector<mp::Geo> route;
-    const int target = currentPlanIndex();
-    if (armed_ && mode_ == ModeAuto && target >= 0)
-        route = mp::routeAhead(boat, planGeo(), target, planReturnHome_, homeValid_, home);
+    if (armed_ && mode_ == ModeAuto)
+        route = autoRouteAhead(boat);
     else if (armed_ && mode_ == ModeRtl && homeValid_)
         route = { boat, home };
     const double v = speed_.value();

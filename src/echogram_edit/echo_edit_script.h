@@ -87,8 +87,8 @@
 //   {"op": "waitMissionTransfer", "timeoutMs": 60000}   until the transfer started by the last step has ended;
 //                                    every end is logged: "mission transfer: upload|download ok|failed result type"
 //   {"op": "missionState"}           one line of JSON: the autopilot (online, mode, armed, MISSION_CURRENT seq and
-//                                    total), the planner (items, rally, fence), the run tracker (known, items,
-//                                    matchesPlan)
+//                                    total), the planner (items, rally, fence), the run tracker (known, items, nav,
+//                                    matchesPlan), the route MavVehicle's ghost follows (boatRoute)
 //   {"op": "missionEditor", "on": true | false}   the editor opened or closed (core.setMissionEditorActive)
 //   {"op": "autopilotMode", "mode": n} / {"op": "autopilotArm", "on": bool}   the autopilot card's buttons
 //   {"op": "quit"}

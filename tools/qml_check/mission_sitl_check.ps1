@@ -9,8 +9,8 @@
     2. The app on the test desktop, a test profile of its own written fresh, KOGGER_AUTOTEST=TCP:5760 (a hidden TCP link
        to SITL's serial 0), the edit script's mission steps: the autopilot bound; a plan of three waypoints, a rally
        point and an inclusion fence, 1.5 m/s, made in the planner; uploaded; downloaded again (the planner says
-       whether what came back matches the plan); then armed, AUTO for a while (MISSION_CURRENT must move on), HOLD,
-       disarmed.
+       whether what came back matches the plan; MavVehicle has the tracker's route for its ghost); then armed, AUTO
+       for a while (MISSION_CURRENT must move on), HOLD, disarmed.
     3. The other MAVLink: pymavlink in WSL on SITL's serial 2 (TCP 5762) reads what the autopilot holds - the mission,
        the fence, the rally points, FENCE_ENABLE/TYPE/ACTION - and that is compared with the plan of step 2.
     Exit code 0 when every check holds, 1 when one fails, 2 when SITL or pymavlink is not there.
@@ -112,6 +112,9 @@ try {
     Expect ($transfers.Count -ge 1 -and $transfers[0] -match '^upload ok') 'uploaded' ($transfers -join '; ')
     Expect ($transfers.Count -ge 2 -and $transfers[1] -match '^download ok') 'downloaded' ($transfers -join '; ')
     Expect ($received -match 'empty 0, matches the plan 1, route points \d+, fence 1, rally 1, skipped 0') 'what came back matches the plan' "$received"
+    $read = if ($states.Count -ge 3) { $states[2] } else { $null }
+    Expect ($read -and $read.runNav -ge 5 -and $read.boatRoute -eq $read.runNav) 'the ghost has the vehicle''s route (tracker -> MavVehicle)' `
+        $(if ($read) { "tracker $($read.runNav) positioned items, MavVehicle $($read.boatRoute)" } else { 'no state' })
     $run = if ($states.Count -ge 4) { $states[3] } else { $null }
     Expect ($run -and $run.armed -eq 1 -and $run.modeName -match 'AUTO|Auto' -and $run.missionSeq -ge 2) 'the mission runs (armed, AUTO, MISSION_CURRENT moved on)' `
         $(if ($run) { "armed $($run.armed), mode $($run.modeName), seq $($run.missionSeq) of $($run.missionTotal)" } else { 'no state' })

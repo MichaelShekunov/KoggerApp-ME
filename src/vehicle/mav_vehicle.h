@@ -174,6 +174,11 @@ public:
     /// read the mission when the autopilot appears, and the plan kept in its settings is not shown (it stays there).
     bool missionsByPlanner() const { return missionsByPlanner_; }
     void setMissionsByPlanner(bool on);
+    /// The mission the autopilot holds, for the ghost and the progress in AUTO while the planner runs the missions:
+    /// its positioned navigation items in order with their MAVLink seqs (the planner's tracker, navSeqs and
+    /// navPositions; RTL at home). The way ahead starts at the first of them at or after MISSION_CURRENT's seq.
+    void setVehicleRoute(const QVector<int>& seqs, const QVector<double>& lats, const QVector<double>& lons);
+    int vehicleRouteSize() const { return int(vehicleRoute_.size()); }
     QString autopilotText() const { return autopilotText_; }
     QString firmwareText() const { return firmwareText_; }
 
@@ -395,6 +400,9 @@ private:
     void updateProgress();
     void updateGhost();
     QVector<mission_progress::Geo> planGeo() const;
+    /// The way ahead in AUTO from @p boat: along the own plan, or (missionsByPlanner) along the vehicle's route; empty
+    /// when there is none.
+    QVector<mission_progress::Geo> autoRouteAhead(const mission_progress::Geo& boat) const;
     void loadSettings();
     void savePlan();
 
@@ -407,6 +415,8 @@ private:
     QElapsedTimer linkLostAt_;           // running while a logged loss has not been followed by a heartbeat
     bool controlEnabled_ = true;
     bool missionsByPlanner_ = false;
+    QVector<int> vehicleRouteSeqs_;                 // setVehicleRoute
+    QVector<mission_progress::Geo> vehicleRoute_;
     QString autopilotText_;
     QString firmwareText_;
     QTimer secondTimer_;
