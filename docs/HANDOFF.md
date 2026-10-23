@@ -3034,3 +3034,10 @@ firmware 0.20.0 (contract 10), not yet on the modules (they run 0.19). docs/WIFI
   nothing cut by a translation); `lang_fit_check` PASS; the 16 offline QML checks PASS.
 - **New test hooks**: edit-script steps `wifiPage`, `wifiRadio` (echo_edit_script.h).
 - Not on the kiosk or this PC's installs (no word from the owner yet); not on hardware (0.20 not on the modules).
+The kiosk, by the owner's word here "switch the kiosk to 0c39cee0 and do the acceptance" **[verified]**: headunit
+0c39cee0 (= me d97fc642 + the kiosk patch) since 2026-10-23 08:43:34 UTC (active, NRestarts 0, no QML error); before
+it 6848712b. The hardware acceptance from the app (HeadUnit `linux_setup/probe_wifirf.sh 0c39cee0`, the kiosk stopped
+08:44:09-08:47:09 UTC): [87] off until on and on (back on KoggerBoat 5.9 s after "on"), [88] off for 30 s over the air
+(the head unit's module rejoined 9.8 s after the boat's timer, the return seen by the status alone),
+retransmissions boat to head unit 3.1-5.3 %; the new texts not cut on the board. WIFI_MODULE.md 2o. The relayed word
+alone (through the module session) was refused by this session's permissions; the owner confirmed here.

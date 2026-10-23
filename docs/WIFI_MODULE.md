@@ -554,8 +554,20 @@ public/docs/SBP_WIFI.md 4b).
   wire until on, on, 3 s back by the timer, 7 s refused as busy; over the network 0 s and 601 s not sent, 2 s, back
   by the status alone; the page's texts in each state, no QML warning, in each language nothing cut that English
   shows whole). Both modules run 0.20.0 since 2026-10-23 (the head unit's from 07:03 UTC, the boat's from 07:18, the
-  module session, checked on hardware there); the app's own run on them waits for the kiosk build (the owner's word).
-  The labels' fit on the head unit's DejaVu is an estimate, not measured.
+  module session, checked on hardware there).
+- **Hardware acceptance from the app** **[verified]** (the owner's word "switch the kiosk to 0c39cee0 and do the
+  acceptance", 2026-10-23; the kiosk on headunit 0c39cee0 since 08:43:34 UTC; HeadUnit
+  `linux_setup/probe_wifirf.sh 0c39cee0`, the kiosk stopped 08:44:09-08:47:09 UTC, the app on the board's screen with
+  the kiosk's settings and an edit script): the head unit's module [87] is "over a wire" and the boat's [88] "over the
+  network" by their port summaries. [87] off until on: its state 54 ms after the request, the status idle, the
+  section "The radio is off / Until you switch it on…" with "Switch the radio on", Scan and Measure greyed; on: the
+  status (bit3 clear) came 5 ms before the module's CONTENT, connected to KoggerBoat 5.9 s after "on". [88] off for
+  30 s over the air: its answer in 14 ms, "Radio off · 26 s" and why it cannot be switched on from here; the head
+  unit's module lost it 9.3 s later (code 200), joined again 39.8 s after the switch-off, 9.8 s after the boat's
+  timer; the boat's CONTENT {1, 0} never came, "the status says the radio is back on" did. Retransmissions: in 3.1 to
+  5.3 % (6 of 191, 4 of 75; boat to head unit), the boat module's page 0 of 2 in, 5.3 % (10 of 187) out: the head
+  unit sends the boat few data frames, so its side counts few. On the board's DejaVu nothing of the new texts is
+  cut; the Link speed row ("in: … · out: no data frames in the window") was cut before this change too.
 - **Hardware, by the module session (2026-10-23)**: the boat's module switched off from the head unit for 45 s: the
   head unit's module lost it after 9 s (no beacons) and joined again 61 s after the switch-off, 16 s after the access
   point came back (one run); the boat's CONTENT {1, 0} did not reach the head unit (no link yet), its status did --
@@ -629,5 +641,5 @@ Steps are `wifi-port:` lines in the log. The head unit runs at 2 000 000 since 2
 9. The device chain reads Wi‑Fi → logger → sonar(s), the module first.
 10. Antenna swap (firmware 0.20, §2o): the head unit's module "Until on" → the boat link drops, the antenna is
     changed, "Switch the radio on" → the link is back in about 20 s; the boat's module for 1 min → back by itself
-    without a reboot. Not yet run from the app (the modules are on 0.20 since 2026-10-23; the kiosk build waits for
-    the owner's word).
+    without a reboot. Done 2026-10-23 from the kiosk build 0c39cee0 (§2o, "Hardware acceptance"), the boat's module
+    for 30 s; no antenna was changed.
