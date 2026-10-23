@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QElapsedTimer>
+#include <QHash>
 #include <QObject>
 #include <QTimer>
 #include <QVector>
@@ -299,6 +300,7 @@ struct WifiLinkRate
         int rssi = -128;                             // the mean of its frames; -128 none
         int mode = 0xFF;                             // negotiated (as phy of ID_WIFI v7); 0xFF not known, an access point's
         QVector<Rate> rates;                         // the most frames first
+        int retries = -1;                            // of `frames`, the ones that came again (firmware 0.20); -1 not sent
     };
 
     /** 1 from firmware 0.18, 0 before, -1 while the version is not known. */
@@ -310,7 +312,9 @@ struct WifiLinkRate
     }
 
     /** One CONTENT v1 frame's payload: U1 index, U1 total, U1[6] MAC, U2 window, U2 frames, S1 RSSI, U1 mode, U1 n,
-     *  U1 0, then n x {U1 kind, U1 code, U1 flags, U4 kbit/s, U2 frames}, little-endian; {0, 0} when no other end. */
+     *  U1 0, then n x {U1 kind, U1 code, U1 flags, U4 kbit/s, U2 frames}, little-endian; {0, 0} when no other end.
+     *  Firmware 0.19 appends n x U4 rate bounds (not read here), 0.20 after them U2 frames that came with the Retry
+     *  bit (16 + 13 n + 2 bytes). */
     static bool parse(const QByteArray& b, Page& out)
     {
         out = Page();
@@ -345,6 +349,8 @@ struct WifiLinkRate
             r.frames = u8(o + 7) | (u8(o + 8) << 8);
             out.rates.append(r);
         }
+        if (b.size() >= 16 + 13 * n + 2)
+            out.retries = u8(16 + 13 * n) | (u8(17 + 13 * n) << 8);
         return true;
     }
 
@@ -371,6 +377,51 @@ struct WifiLinkRate
         }
         return QStringLiteral("other (code %1)").arg(r.code);
     }
+};
+
+/**
+ * @brief The other end's frames that came again (the Retry bit: its earlier try or the acknowledgement was lost), summed
+ * over the last link rate reports per other end (firmware 0.20). A 200 ms window holds tens of frames, so one report's
+ * share is noise: up to kKeep reports not older than kMaxAgeMs are added up (the module session's advice, 2026-10-23).
+ * A lower bound: a frame none of whose tries arrived is not seen.
+ */
+class WifiRetryWindow
+{
+public:
+    static constexpr int kKeep = 10;
+    static constexpr qint64 kMaxAgeMs = 30000;
+    struct Sum { int retries = 0, frames = 0, reports = 0; };
+
+    /** One report of one other end; a report without frames, or with more retries than frames, adds nothing. */
+    void add(const QString& mac, int retries, int frames, qint64 nowMs)
+    {
+        if (frames <= 0 || retries < 0 || retries > frames)
+            return;
+        QVector<Entry>& e = byMac_[mac];
+        e.append({ nowMs, retries, frames });
+        while (e.size() > kKeep || (!e.isEmpty() && nowMs - e.first().atMs > kMaxAgeMs))
+            e.removeFirst();
+    }
+    Sum sum(const QString& mac, qint64 nowMs) const
+    {
+        Sum s;
+        const auto it = byMac_.constFind(mac);
+        if (it == byMac_.constEnd())
+            return s;
+        for (const Entry& e : it.value()) {
+            if (nowMs - e.atMs > kMaxAgeMs)
+                continue;
+            s.retries += e.retries;
+            s.frames += e.frames;
+            ++s.reports;
+        }
+        return s;
+    }
+    void clear() { byMac_.clear(); }
+
+private:
+    struct Entry { qint64 atMs; int retries, frames; };
+    QHash<QString, QVector<Entry>> byMac_;
 };
 
 /**
@@ -661,6 +712,68 @@ private:
             entries_.removeFirst();
     }
     QVector<Entry> entries_;
+};
+
+/**
+ * @brief The Wi-Fi module's radio switched off to swap an antenna live (ID_WIFI_RF 0x5A, firmware 0.20; contract: the
+ * module project's docs/SBP_WIFI.md, ID_WIFI_RF). The module stops its radio 200 ms after it answers and starts it
+ * again when its timer runs out, on "on", or at a reboot; nothing is saved. A request that reaches it over the network
+ * must carry a timer of 1..kNetworkMaxS s (it would be cut off through the very radio it stops); over a wire (X1, X2)
+ * the timer is optional, 0 = until "on" or a reboot.
+ */
+struct WifiRf
+{
+    static constexpr int kNetworkMaxS = 600;
+    static constexpr int kWiredMaxS = 65535;
+    /** After the radio is back, the link between two modules returns in about this: a station searches every 15 s
+     *  (the contract's Inference). */
+    static constexpr int kRelinkS = 20;
+
+    /** 1 from firmware 0.20, 0 before, -1 while the version is not known. */
+    static int supportFor(int fwMajor, int fwMinor)
+    {
+        if (fwMajor <= 0 && fwMinor <= 0)
+            return -1;
+        return (fwMajor > 0 || fwMinor >= 20) ? 1 : 0;
+    }
+
+    /** Whether the module takes "off for `seconds`" (0 = no timer) from a request over a wire (`wired`) or not. */
+    static bool offAllowed(int seconds, bool wired)
+    {
+        if (seconds < 0 || seconds > (wired ? kWiredMaxS : kNetworkMaxS))
+            return false;
+        return wired || seconds > 0;
+    }
+
+    /** Whole seconds left of the module's timer, counted on from its report of `reportedS` at `atMs`, rounded up; 0
+     *  once it ran out or when there was none. */
+    static int leftS(int reportedS, qint64 atMs, qint64 nowMs)
+    {
+        if (reportedS <= 0)
+            return 0;
+        const qint64 left = qint64(reportedS) * 1000 - (nowMs - atMs);
+        return left <= 0 ? 0 : int((left + 999) / 1000);
+    }
+
+    /** A status contradicting the module's own answer of less than this ago left the module before the answer (the
+     *  radio stops 200 ms after it): it is not taken. */
+    static constexpr qint64 kSettleMs = 1000;
+    enum StatusStep {
+        StatusKeep,     ///< the status agrees, or is too close to the answer
+        StatusBackOn,   ///< the radio came back (the boat module's push of it was lost while the link was down)
+        StatusOffAsk,   ///< off, by another host or unseen: forget the answer, ask how long
+        StatusAsk       ///< off known only from the status: ask how long
+    };
+    /** What flag bit3 of a status (ID_WIFI v0) does to the module's last ID_WIFI_RF answer (`valid`, `on`, given
+     *  `sinceMs` ago). */
+    static StatusStep onStatus(bool valid, bool on, bool flagOff, qint64 sinceMs)
+    {
+        if (valid && on == flagOff && sinceMs > kSettleMs)
+            return flagOff ? StatusOffAsk : StatusBackOn;
+        if (!valid && flagOff)
+            return StatusAsk;
+        return StatusKeep;
+    }
 };
 
 /**

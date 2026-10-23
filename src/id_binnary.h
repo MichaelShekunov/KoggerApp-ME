@@ -1143,7 +1143,8 @@ public:
 
     enum State : uint8_t { StateIdle = 0, StateSearching = 1, StateConnecting = 2, StateConnected = 3,
                            StateAp = 4 /* firmware 0.10: the module is an access point */ };
-    enum StatusFlag : uint8_t { FlagAutoConnect = 1 << 0, FlagScanning = 1 << 1, FlagCurrentSaved = 1 << 2 };
+    enum StatusFlag : uint8_t { FlagAutoConnect = 1 << 0, FlagScanning = 1 << 1, FlagCurrentSaved = 1 << 2,
+                                FlagRadioOff = 1 << 3 /* firmware 0.20: switched off by ID_WIFI_RF */ };
     enum Reason : uint8_t { ReasonNone = 0, ReasonNotFound = 1, ReasonWrongPassword = 2,
                             ReasonAssociation = 3, ReasonLinkLost = 4, ReasonOther = 5 };
     enum Security : uint8_t { SecOpen = 0, SecWep = 1, SecWpa = 2, SecWpa2 = 3, SecWpaWpa2 = 4,
@@ -1485,6 +1486,44 @@ protected:
     int portSupport_ = -1;
     WifiPorts ports_;
     QElapsedTimer portClock_;         // monotonic time of the port summaries, for their byte rates
+};
+
+/**
+ * @brief ID_WIFI_RF (0x5A, Wi-Fi module firmware 0.20): the radio switched off for a while, to swap an antenna live.
+ * SETTING v0 {key, U1 on, U2 seconds}: on 0 = off for the seconds (0 = until "on" or a reboot; over the network only
+ * 1..600, else ERR_PAYLOAD), 1 = on now. The module confirms, then sends CONTENT v0 {U1 on, U2 seconds left} (after a
+ * refusal too); GETTING v0 asks for it. The rules are WifiRf (device/wifi_ops.h). Contract: the module project's
+ * docs/SBP_WIFI.md, ID_WIFI_RF.
+ */
+class IDBinWifiRf : public IDBin
+{
+    Q_OBJECT
+public:
+    explicit IDBinWifiRf() : IDBin() {}
+
+    ID id() override { return ID_WIFI_RF; }
+    Resp parsePayload(FrameParser &proto) override;
+    // Asked by the page and when the module's status says its radio is off; also what a SETTING without its
+    // confirmation is followed by (IDBin's set timer).
+    void requestAll() override { simpleRequest(v0); }
+
+    struct State {
+        bool valid = false;
+        bool on = true;
+        uint16_t secondsLeft = 0;     // off: what is left of the module's timer when it answered, 0 = no timer
+    };
+    /** SETTING v0 {key, 0, seconds}: off for `seconds`, 0 = until "on" or a reboot. */
+    void switchOff(uint16_t seconds);
+    /** SETTING v0 {key, 1, 0}: on now. */
+    void switchOn();
+    const State& state() const { return state_; }
+    /** The module's last answer is overruled by a newer status (ID_WIFI v0 flag bit3): the radio came back. */
+    void markOn() { state_.valid = true; state_.on = true; state_.secondsLeft = 0; }
+    void reset() { state_ = State(); }
+
+protected:
+    void send(uint8_t on, uint16_t seconds);
+    State state_;
 };
 
 class IDBinVersion : public IDBin

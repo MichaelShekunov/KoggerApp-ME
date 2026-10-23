@@ -518,6 +518,56 @@ morning. GCS_PID_MASK (PID_TUNING) is unchanged. The
 module's own counter (17-18 KB/s) is above the 11.2 KB/s of frames; how it counts is in the module's docs, not
 checked here.
 
+## 2o. The radio switched off to swap the antenna (firmware 0.20, 2026-10-23)
+
+The owner, through the module session: an option to switch the radio off "until a reboot", to change the antenna
+live. Contract: the module project's docs/SBP_WIFI.md, `ID_WIFI_RF` = 0x5A (contract 10; in English its
+public/docs/SBP_WIFI.md 4b).
+
+- **Frames** (`IDBinWifiRf`, `src/id_binnary.*`): SETTING v0 `{KEY, U1 on, U2 seconds}` (on 0 = off for the seconds,
+  0 = until "on" or a reboot; 1 = on), GETTING v0, CONTENT v0 `{U1 on, U2 seconds left}`. The module confirms, then
+  sends the state, after a refusal too. A frame that is not CONTENT (a SETTING seen on the link) is not taken.
+- **Rules** (`WifiRf`, `src/device/wifi_ops.h`): firmware 0.20 and later. A request that reaches the module over the
+  network must carry a timer of 1..600 s (the module is reached through the very radio it stops; it refuses
+  anything else with ERR_PAYLOAD), over a wire (X1, X2) 0..65535. The seconds left are counted on from the module's
+  answer. Its status (`ID_WIFI` v0) has flag bit3 while the radio is off; a status that contradicts the module's
+  last answer wins when that answer is over 1 s old: the boat's module pushes CONTENT {1, 0} when its timer runs out,
+  but the link is still down then, and its status is the first thing that comes back.
+- **DevDriver**: `wifiRfSupport`, `wifiRadioOff` / `wifiRadioOffTimed` / `wifiRadioOffUntilOn`, `wifiRadioOffLeft()`,
+  `wifiRadioWired` (the module's port summary, §2e, says this app's requests come through X1 or X2; not known counts
+  as the network, the safe side), `wifiRfError`; `wifiRadioSwitchOff(seconds)` sends nothing the module would refuse,
+  `wifiRadioSwitchOn()`; `wifiRefresh()` asks for the state too. While the radio is off no survey, link speed window
+  or scan is sent (the module refuses them with ERR_RUNTIME); a restart of the module resets the state (nothing is
+  saved). Log lines: `wifi-rf:`.
+- **The page**: the "Antenna swap" section (folds, `wifi.radioOff`) under Radio. On: "Switch the radio off for" --
+  over a wire "Until on" (the default: the owner's "until a reboot"), 1, 2, 5, 10 min; over the network 30 s, 1 min
+  (the default) .. 10 min -- and "Switch the radio off" (a second tap sends it); the caption says how long the boat
+  link drops, about 20 s more while the modules find each other again (the contract's *Inference*). Off: the time
+  left, ticking, or "until you switch it on"; "Switch the radio on" over a wire, over the network why not. The
+  section's title shows "Radio off · 42 s", the Wi‑Fi section's chip "Radio off".
+- **Checks** **[verified]**: `tools/wifi020_check/run.ps1` (offline: the frames byte by byte against the contract's
+  three examples, what is taken, the rules, flag bit3, the retransmissions of §2p; 55 checks, `-Mutants` 20 of 20
+  caught); `tools/qml_check/radiooff_check.ps1` (the section cut out of the page against a made-up module: 10 tests;
+  it caught a property named `left`, which Item already has as an anchor line -- the page would not have loaded);
+  `tools/wifi020_check/rf_live.ps1 -Codes ru,zh,es,hi` (the app against a stand that plays the module over UDP: over a
+  wire until on, on, 3 s back by the timer, 7 s refused as busy; over the network 0 s and 601 s not sent, 2 s, back
+  by the status alone; the page's texts in each state, no QML warning, in each language nothing cut that English
+  shows whole). Not yet on hardware: the modules are on 0.19 (2026-10-23). The labels' fit on the head unit's DejaVu
+  is an estimate, not measured.
+
+## 2p. Retransmissions (firmware 0.20, 2026-10-23)
+
+The owner, through the module session: the share of frames sent again. The link speed page (§2m) carries, after
+0.19's n x U4 rate bounds, U2 of the other end's frames that came with the Retry bit (the page 16 + 13 n + 2 bytes;
+contract: the module's docs/SBP_WIFI.md 3б). `WifiLinkRate::parse` reads it when the page is that long (`retries`,
+-1 before 0.20); `WifiRetryWindow` (`src/device/wifi_ops.h`) sums the last 10 reports, none over 30 s old, per other
+end (a 200 ms window holds tens of frames: one report's share is noise). The Wi‑Fi section's "Retransmissions" row:
+"in: 7.5 % (9 of 120)" -- the other end's frames as this module hears them -- and "out" from the other end's report
+when the app sees that module too (§2k); the `wifi-rate:` log line adds the counts. A lower bound: a frame none of
+whose tries arrived is not seen, and a module cannot count its own retransmissions (ESP-IDF has no counter, the
+module session). Not done: 0.19's bounds are not read, so an LR link still shows "LR, speed not calibrated" although
+0.19 reports 500 kbit/s with flag bit2 once the frames' timing proves it (contract 9).
+
 ## 2c. Port speed of the module (line 0)
 
 The module's line 0 runs at any speed from 9600 to 4 000 000 (`ID_UART` v0 `{KEY, 1, U4 baud}`, answered at the
@@ -570,3 +620,6 @@ Steps are `wifi-port:` lines in the log. The head unit runs at 2 000 000 since 2
    Verified 2026‑09‑25 with the boat at 10.0.0.10:14444 (UDP): about 35 datagrams and 110 frames
    per second come down with no drops.
 9. The device chain reads Wi‑Fi → logger → sonar(s), the module first.
+10. Antenna swap (firmware 0.20, §2o): the head unit's module "Until on" → the boat link drops, the antenna is
+    changed, "Switch the radio on" → the link is back in about 20 s; the boat's module for 1 min → back by itself
+    without a reboot. Not yet run (the modules are on 0.19).

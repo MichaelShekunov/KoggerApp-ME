@@ -842,6 +842,56 @@ void EchoEditScript::runStep(const QJsonObject& s)
                                  + slotLines.join(QStringLiteral(", "));
         }
     }
+    else if (op == QLatin1String("wifiPage") || op == QLatin1String("wifiRadio")) {
+        // The first Wi-Fi module. wifiPage: its device page opened, as a tap on it in the device list does. wifiRadio:
+        // its radio switched off ({"off": seconds}) or on ({"on": true}) through DevDriver as the page does; with
+        // neither, its radio state as the page reads it (docs/WIFI_MODULE.md 2o).
+        QObject* dev = nullptr;
+        int index = -1, i = 0;
+        for (QObject* d : core_->getDeviceManagerWrapperPtr()->getDevList()) {
+            if (!dev && d->property("isWifi").toBool()) {
+                dev = d;
+                index = i;
+            }
+            ++i;
+        }
+        if (!dev) {
+            qInfo().noquote() << QStringLiteral("echoedit script: %1: no Wi-Fi module").arg(op);
+        }
+        else if (op == QLatin1String("wifiPage")) {
+            QObject* store = findObjectWithProperty("settingsPinTarget");
+            if (store) {
+                QMetaObject::invokeMethod(store, "openDeviceSettingsForIndex", Q_ARG(QVariant, index));
+            }
+            qInfo().noquote() << QStringLiteral("echoedit script: wifiPage: device %1 %2").arg(index)
+                                 .arg(store ? QStringLiteral("opened") : QStringLiteral("no store"));
+        }
+        else {
+            bool sent = false;
+            if (s.contains(QStringLiteral("off"))) {
+                const int seconds = s.value(QStringLiteral("off")).toInt();
+                QMetaObject::invokeMethod(dev, "wifiRadioSwitchOff", Q_RETURN_ARG(bool, sent), Q_ARG(int, seconds));
+                qInfo().noquote() << QStringLiteral("echoedit script: wifiRadio off %1: %2").arg(seconds)
+                                     .arg(sent ? QStringLiteral("sent") : QStringLiteral("not sent"));
+            }
+            else if (s.value(QStringLiteral("on")).toBool()) {
+                QMetaObject::invokeMethod(dev, "wifiRadioSwitchOn", Q_RETURN_ARG(bool, sent));
+                qInfo().noquote() << QStringLiteral("echoedit script: wifiRadio on: %1")
+                                     .arg(sent ? QStringLiteral("sent") : QStringLiteral("not sent"));
+            }
+            else {
+                int left = 0;
+                QMetaObject::invokeMethod(dev, "wifiRadioOffLeft", Q_RETURN_ARG(int, left));
+                qInfo().noquote() << QStringLiteral("echoedit script: wifiRadio state: support %1 off %2 timed %3 untilOn %4 "
+                                                    "left %5 wired %6 error \"%7\"")
+                                     .arg(dev->property("wifiRfSupport").toInt()).arg(dev->property("wifiRadioOff").toBool())
+                                     .arg(dev->property("wifiRadioOffTimed").toBool())
+                                     .arg(dev->property("wifiRadioOffUntilOn").toBool())
+                                     .arg(left).arg(dev->property("wifiRadioWired").toBool())
+                                     .arg(dev->property("wifiRfError").toString());
+            }
+        }
+    }
     else if (op == QLatin1String("presetRecall") || op == QLatin1String("presetSave")) {
         QObject* dev = nullptr;
         for (QObject* d : core_->getDeviceManagerWrapperPtr()->getDevList()) {

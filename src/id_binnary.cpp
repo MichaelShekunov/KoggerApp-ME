@@ -1876,6 +1876,42 @@ void IDBinWifiNet::reset() {
     ports_.reset();
 }
 
+Resp IDBinWifiRf::parsePayload(FrameParser &proto) {
+    // A SETTING seen on the link (its key where the state would be) is not the module's state.
+    if (proto.type() != CONTENT)
+        return respErrorType;
+    if (proto.ver() != v0)
+        return respErrorVersion;
+    if (proto.readAvailable() < 3)
+        return respErrorPayload;
+    const uint8_t on = proto.read<U1>();
+    const uint16_t left = proto.read<U2>();
+    if (on > 1)
+        return respErrorPayload;
+    state_.valid = true;
+    state_.on = on == 1;
+    state_.secondsLeft = state_.on ? 0 : left;
+    return respOk;
+}
+
+void IDBinWifiRf::send(uint8_t on, uint16_t seconds) {
+    ProtoBinOut out;
+    out.create(SETTING, v0, id(), m_address);
+    appendKey(out);
+    out.write<U1>(on);
+    out.write<U2>(seconds);
+    out.end();
+    hashBinFrameOut(out);
+}
+
+void IDBinWifiRf::switchOff(uint16_t seconds) {
+    send(0, seconds);
+}
+
+void IDBinWifiRf::switchOn() {
+    send(1, 0);
+}
+
 Resp IDBinVersion::parsePayload(FrameParser &proto) {
     if(proto.ver() == v0) {
         m_boardVersionMinor = proto.read<U1>();

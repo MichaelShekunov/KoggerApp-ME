@@ -252,7 +252,9 @@ public:
     int wifiLinkRateSupport();
     bool wifiLinkRateRunning();
     /** Per other end: mac, windowMs, frames, rssi (-128 none), mode, text (the most frames' rate; empty without
-     *  frames), rates [{kind, code, sgi, bw40, kbps, frames, text}]. */
+     *  frames), rates [{kind, code, sgi, bw40, kbps, frames, text}], retries (of this report's frames the ones that came
+     *  again, -1 before firmware 0.20), and over the last reports (WifiRetryWindow) retrySum of retryFrames in
+     *  retryReports. */
     QVariantList wifiLinkRates();
     QString wifiLinkRateError() const { return wifiLinkRateError_; }
     /** Asks for a report (a 200 ms window); nothing while one runs or before firmware 0.18. */
@@ -263,6 +265,35 @@ public:
     /** The app's monotonic clock the link events are stamped with, ms. */
     Q_INVOKABLE double wifiClockMs() const { return wifiClock_.isValid() ? double(wifiClock_.elapsed()) : 0.0; }
     QStringList wifiSavedNetworks();
+
+    // Firmware 0.20: the radio switched off to swap an antenna (ID_WIFI_RF 0x5A; the rules: WifiRf, device/wifi_ops.h).
+    /** 1 from firmware 0.20, 0 before, -1 the version not known. */
+    int wifiRfSupport();
+    /** The radio is off on request: the module's last ID_WIFI_RF state; before one, flag bit3 of its status (ID_WIFI
+     *  v0). A status that contradicts a state over a second old wins (the radio came back, or another host switched
+     *  it off). */
+    bool wifiRadioOff();
+    /** Off with the module's timer running: it switches the radio on by itself, wifiRadioOffLeft() s from now. */
+    bool wifiRadioOffTimed();
+    /** Off with no timer, by the module's answer: until switched on or a reboot. Neither this nor timed while the
+     *  off is known only from the status (the module is asked how long). */
+    bool wifiRadioOffUntilOn();
+    /** Whole seconds until the module's timer switches the radio on, counted on from its last answer; 0 when it ran
+     *  out or there is none. A plain call (no NOTIFY): the page ticks it. */
+    Q_INVOKABLE int wifiRadioOffLeft();
+    /** This app reaches the module over a wire (X1/X2 by its latest port summary): "on" reaches it while the radio is
+     *  off, and the timer may be left out. False over the network and while not known. */
+    bool wifiRadioWired();
+    /** Why the last switch-off or switch-on was refused; empty when it was not. */
+    QString wifiRfError() const { return wifiRfError_; }
+    /** Switches the radio off for `seconds`: 0 = until switched on or a reboot (over a wire only), over the network
+     *  1..600 (WifiRf::offAllowed). False when nothing was sent: no connection, firmware before 0.20, or seconds the
+     *  module would refuse. */
+    Q_INVOKABLE bool wifiRadioSwitchOff(int seconds);
+    /** Switches the radio on now; false when nothing was sent. */
+    Q_INVOKABLE bool wifiRadioSwitchOn();
+    /** Asks the module for its radio state (ID_WIFI_RF GETTING v0). */
+    Q_INVOKABLE void wifiRadioRefresh();
 
     // Relay of the boat's SBP stream through the module (ID_WIFI v5 / v6, firmware 0.6+).
     int wifiRelaySupport();
@@ -587,6 +618,7 @@ signals:
     void wifiReportChanged();
     void wifiNetworksChanged();
     void wifiSurveyChanged();
+    void wifiRfChanged();
     void wifiLinkEventsChanged();
     void wifiLinkRateChanged();
     void wifiSavedChanged();
@@ -750,6 +782,7 @@ protected:
     IDBinMark* idMark = nullptr;
     IDBinFlash* idFlash = nullptr;
     IDBinWifiSurvey* idWifiSurvey = nullptr;
+    IDBinWifiRf* idWifiRf = nullptr;
     IDBinBoot* idBoot = nullptr;
     IDBinUpdate* idUpdate = nullptr;
 
@@ -927,6 +960,9 @@ protected slots:
     void receivedWifi       (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
     void receivedWifiNet    (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
     void receivedWifiSurvey (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
+    void receivedWifiRf     (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
+    /** Takes flag bit3 of a status (ID_WIFI v0) against the module's last ID_WIFI_RF state (wifiRadioOff()). */
+    void wifiRfOnStatus(bool flagOff);
     void logWifiSurvey();
     void logWifiNet(int ver);
     void logWifiPort(int port, int page);
@@ -995,6 +1031,8 @@ private:
     WifiSurveyWindow wifiSurveyWindow_;   // the last surveys, for the mean the pick goes by
     int wifiSurveyTaken_ = 0;         // IDBinWifiSurvey::completedCount() already taken into the window
     bool wifiSurveyAskedAgain_ = false;   // the late survey was asked for once more (GETTING v0)
+    QString wifiRfError_;             // why the last switch-off or switch-on was refused
+    qint64 wifiRfAtMs_ = 0;           // wifiClock_ time of the module's last ID_WIFI_RF state
     QString wifiFwLogged_;            // the module firmware version last written to the log
     int wifiLastState_ = -1;
     WifiRestartWatch wifiRestart_;     // module uptime reports, to see a restart
@@ -1002,6 +1040,7 @@ private:
     QString wifiLinkRateError_;        // why the last link rate report did not come
     int wifiLinkRateTaken_ = 0;        // IDBinWifiSurvey::rateCompletedCount() already logged
     QString wifiLinkRateLogged_;       // the main rates last written to the log
+    WifiRetryWindow wifiRetries_;      // the other ends' frames that came again, over the last reports (0.20)
     WifiLossWatch wifiLoss_;           // requests the module could not queue (0.14), to log when they grow
     QElapsedTimer wifiClock_;          // the monotonic time those reports are compared with
     WifiPortChange* wifiPort_ = nullptr;

@@ -122,6 +122,7 @@ private:
         case 0x57: return QStringLiteral("WIFI");
         case 0x58: return QStringLiteral("WIFI_NET");
         case 0x59: return QStringLiteral("WIFI_SURVEY");
+        case 0x5A: return QStringLiteral("WIFI_RF");
         case 0x64: return QStringLiteral("NAV");
         case 0x7D: return QStringLiteral("CHART_Z");
         }

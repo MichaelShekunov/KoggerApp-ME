@@ -3010,3 +3010,27 @@ by him), the installed exes the same as the packaged one. The kiosk is still 3c3
 The kiosk, by the owner's word "yes, switch the kiosk" **[verified]**: headunit 6848712b (= me cf1854c2 + the kiosk
 patch) since 2026-10-23 06:12:12 UTC (ExecStart, active, NRestarts 0, only the HDMI1 cursor warning); before it
 3c345da6.
+
+## The Wi-Fi module's radio off for an antenna swap; retransmissions (2026-10-23, firmware 0.20)
+
+Asked by the module session ("WiFi модуль для HeadUnit") with the owner's words: an option to switch the radio off
+"until a reboot", to change the antenna live; then the share of retransmitted frames. Both are in the module's
+firmware 0.20.0 (contract 10), not yet on the modules (they run 0.19). docs/WIFI_MODULE.md 2o and 2p.
+
+- **Radio off** (`ID_WIFI_RF` 0x5A): `IDBinWifiRf`, the rules in `WifiRf` (device/wifi_ops.h), DevDriver's
+  `wifiRadio*` / `wifiRf*`, the page's "Antenna swap" section under Radio. Over a wire (the module's port summary
+  says this app is on X1/X2) "Until on" is offered and the default, and "Switch the radio on" works while off; over the
+  network only 30 s .. 10 min, and the module comes back by itself. The status's flag bit3 is taken against the
+  module's answer (the boat module's "on" push is lost while the link is down). Survey, link speed and scan are not
+  sent while off.
+- **Retransmissions**: `WifiLinkRate::parse` reads the U2 after 0.19's bounds; `WifiRetryWindow` sums the last 10
+  reports per other end; the Wi-Fi section's "Retransmissions" row, in and out.
+- **Buttons**: `KButton`'s label shrinks to 80 % before it is cut, like `KTabBar`'s: the device page had ru
+  "Применить" cut in a port card and ru/es "Save for next boot" (TRANSLATIONS.md).
+- **[verified]** `tools/wifi020_check/run.ps1 -Mutants` 55 checks, 20 of 20 mutants caught (the frames byte by byte
+  against the contract's examples); `tools/qml_check/radiooff_check.ps1` 10 tests (caught a property `left`, which
+  Item has: the page would not have loaded); `tools/wifi020_check/rf_live.ps1 -Codes ru,zh,es,hi` PASS (the app on
+  the test desktop against a UDP stand playing the module: wired and network runs, the page's texts, no QML warning,
+  nothing cut by a translation); `lang_fit_check` PASS; the 16 offline QML checks PASS.
+- **New test hooks**: edit-script steps `wifiPage`, `wifiRadio` (echo_edit_script.h).
+- Not on the kiosk or this PC's installs (no word from the owner yet); not on hardware (0.20 not on the modules).

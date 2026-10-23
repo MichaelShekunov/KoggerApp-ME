@@ -1858,6 +1858,9 @@ Column {
         readonly property int wifiState: live ? dev.wifiState : 0
         readonly property bool connected: live && wifiState === 3
         readonly property bool busy: live && (wifiState === 1 || wifiState === 2)
+        // Switched off to swap the antenna (firmware 0.20, the Antenna swap section): no scan, no survey meanwhile.
+        readonly property bool radioOff: root._isWifi && !!dev.wifiRadioOff
+        onRadioOffChanged: if (radioOff) watchAir = false
         // The module runs as an access point (the running role from ID_WIFI_NET, else the AP state of v0): the
         // station-only parts (auto-connect, scan, networks, join, saved networks) are hidden, only the AP state shows.
         readonly property bool apRole: root._wifiAp
@@ -1994,6 +1997,13 @@ Column {
             var e = list[0]
             var t = e.frames > 0 && e.text.length ? e.text : qsTr("no data frames in the window")
             return t + (list.length > 1 ? " " + qsTr("(and %1 more)").arg(list.length - 1) : "")
+        }
+        // The (first) other end's frames that came again over the last reports (firmware 0.20): "2.4 % (9 of 371)"
+        function retryText(list) {
+            if (!list || !list.length || !(list[0].retryFrames > 0))
+                return ""
+            var e = list[0]
+            return qsTr("%1 % (%2 of %3)").arg((100 * e.retrySum / e.retryFrames).toFixed(1)).arg(e.retrySum).arg(e.retryFrames)
         }
         // "17 of 21 frames; 4 at 65.0 Mbit/s · 11n MCS7; -43 dBm"
         function rateDetail(list) {
@@ -2308,20 +2318,23 @@ Column {
 
             Rectangle {
                 id: wifiChip
-                readonly property color fg: (wifiIsland.connected || wifiIsland.apRole) ? AppPalette.linkOkText
-                                          : (wifiIsland.busy ? AppPalette.linkIdleText : AppPalette.linkDownText)
+                // 1 good, 2 waiting (also switched off on purpose), 3 down
+                readonly property int tone: wifiIsland.radioOff ? 2 : (wifiIsland.connected || wifiIsland.apRole) ? 1
+                                          : wifiIsland.busy ? 2 : 3
+                readonly property color fg: tone === 1 ? AppPalette.linkOkText
+                                          : (tone === 2 ? AppPalette.linkIdleText : AppPalette.linkDownText)
                 height: Math.round(24 * AppPalette.scale)
                 width: wifiChipText.implicitWidth + 2 * Tokens.spaceMd
                 radius: height / 2
-                color: (wifiIsland.connected || wifiIsland.apRole) ? AppPalette.linkOkBg
-                     : (wifiIsland.busy ? AppPalette.linkIdleBg : AppPalette.linkDownBg)
+                color: tone === 1 ? AppPalette.linkOkBg : (tone === 2 ? AppPalette.linkIdleBg : AppPalette.linkDownBg)
                 border.width: Tokens.cardBorderWidth
-                border.color: (wifiIsland.connected || wifiIsland.apRole) ? AppPalette.linkOkBorder
-                            : (wifiIsland.busy ? AppPalette.linkIdleBorder : AppPalette.linkDownBorder)
+                border.color: tone === 1 ? AppPalette.linkOkBorder
+                            : (tone === 2 ? AppPalette.linkIdleBorder : AppPalette.linkDownBorder)
                 Text {
                     id: wifiChipText
                     anchors.centerIn: parent
-                    text: wifiIsland.live ? wifiIsland.stateText(wifiIsland.wifiState) : qsTr("No data")
+                    text: !wifiIsland.live ? qsTr("No data")
+                        : wifiIsland.radioOff ? qsTr("Radio off") : wifiIsland.stateText(wifiIsland.wifiState)
                     color: wifiChip.fg
                     font.pixelSize: Tokens.fontSm
                     font.bold: true
@@ -2336,6 +2349,8 @@ Column {
             caption: {
                 if (!wifiIsland.live)
                     return qsTr("Waiting for the module…")
+                if (wifiIsland.radioOff)
+                    return qsTr("The radio is switched off to swap the antenna (Antenna swap below)")
                 if (wifiIsland.apRole)
                     return qsTr("Own access point · ch %1 · %2 · clients: %3").arg(wifiIsland.channel)
                            .arg(wifiIsland.securityText(wifiIsland.security)).arg(wifiIsland.clients)
@@ -2420,6 +2435,20 @@ Column {
                        + qsTr("The PHY rate of the other end's data frames in a 0.2 s window, every 3 s while this section is open. LR: the module does not decode its rate yet.")
             }
         }
+        // Retransmissions (firmware 0.20 on the module reporting them): each end counts the other's frames that came again.
+        DevInfoRow {
+            label: qsTr("Retransmissions")
+            stacked: true
+            value: {
+                if (!wifiIsland.rateShown)
+                    return ""
+                var rx = wifiIsland.retryText(wifiIsland.linkRates)
+                var tx = wifiIsland.retryText(wifiIsland.peerRates)
+                return (rx.length ? qsTr("in: %1").arg(rx) : "") + (rx.length && tx.length ? "  ·  " : "")
+                       + (tx.length ? qsTr("out: %1").arg(tx) : "")
+            }
+            caption: qsTr("Of the other end's data frames, the share that came again: its earlier try or the acknowledgement was lost. Summed over the last 10 measurements (about 30 s). In: the other end's frames as this module hears them; out: this module's, as the other end hears them. A lower bound: a frame none of whose tries arrived is not seen.")
+        }
 
         KIslandRow {
             open: wifiIsland.live && !wifiIsland.apRole
@@ -2451,7 +2480,7 @@ Column {
                 DevButton {
                     width: parent.bw; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
                     text: wifiIsland.scanning ? qsTr("Scanning…") : qsTr("Scan")
-                    enabled: !wifiIsland.scanning
+                    enabled: !wifiIsland.scanning && !wifiIsland.radioOff
                     toolTipText: qsTr("Look for networks nearby (takes a few seconds)")
                     onClicked: if (dev) dev.wifiScan()
                 }
@@ -2602,7 +2631,7 @@ Column {
                 DevButton {
                     width: Math.round(160 * AppPalette.scale); height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
                     text: wifiIsland.surveying ? qsTr("Measuring…") : qsTr("Measure")
-                    enabled: !wifiIsland.surveying
+                    enabled: !wifiIsland.surveying && !wifiIsland.radioOff
                     toolTipText: qsTr("Measure the Wi‑Fi airtime of every channel now (about 4 s)")
                     onClicked: if (dev) dev.wifiSurvey()
                 }
@@ -3265,7 +3294,9 @@ Column {
 
         DevStackedRow {
             label: qsTr("Transmit power limit, dBm")
+            // while the radio is off (Antenna swap) the module reads its power in use as 0
             caption: !radioIsland.valid ? ""
+                     : (root._isWifi && dev.wifiRadioOff) ? qsTr("The radio is off")
                      : qsTr("In use: %1 dBm").arg(radioIsland.powerNow)
                        + (Math.abs(radioIsland.r.powerDbm - radioIsland.powerNow) >= 0.25
                           ? qsTr(" (saved %1 dBm; the driver works in steps)").arg(radioIsland.r.powerDbm) : "")
@@ -3358,6 +3389,150 @@ Column {
                     onClicked: { radioIsland.dirty = false; radioIsland.sync(true); dev.wifiRefresh() }
                 }
             }
+        }
+    }
+
+    // ── Wi‑Fi module: the radio switched off to swap the antenna (firmware 0.20, ID_WIFI_RF) ──
+    // Over the network the module goes off only for a time (up to 10 min): it is reached through the very radio it
+    // stops, and comes back by itself. Over a wire (X1/X2) "until switched on" is offered too (the owner asked for
+    // "until a reboot"), and Switch on reaches it while it is off. The rules are WifiRf in C++.
+    DevIsland {
+        id: radioOffIsland
+        foldKey: "wifi.radioOff"
+        width: root.groupWidth
+        visible: root._isWifi && dev.wifiRfSupport === 1
+        rowMinHeight: Tokens.controlHMd + Tokens.spaceXs
+
+        readonly property bool off: root._isWifi && !!dev.wifiRadioOff
+        readonly property bool timed: root._isWifi && !!dev.wifiRadioOffTimed
+        readonly property bool untilOn: root._isWifi && !!dev.wifiRadioOffUntilOn
+        readonly property bool wired: root._isWifi && !!dev.wifiRadioWired
+        readonly property string error: root._isWifi && dev.wifiRfError ? dev.wifiRfError : ""
+        // the seconds left of the module's timer, ticked once a second while it runs
+        property real tick: 0
+        readonly property int secondsLeft: tick >= 0 && timed && root.dev ? root.dev.wifiRadioOffLeft() : 0
+        // what the tabs offer: over the network a time only (the module takes up to 600 s); 0 = until switched on
+        readonly property var choices: wired ? [0, 60, 120, 300, 600] : [30, 60, 120, 300, 600]
+        property int chosen: -1                   // -1: until switched on over a wire, 1 min over the network
+        readonly property int seconds: choices.indexOf(chosen) >= 0 ? chosen : (wired ? 0 : 60)
+        property string warned: ""                // the refusal already shown as a notice
+        function spanText(s) {
+            if (s < 60)
+                return qsTr("%1 s").arg(s)
+            if (s % 60 === 0)
+                return qsTr("%1 min").arg(s / 60)
+            return qsTr("%1 min %2 s").arg(Math.floor(s / 60)).arg(s % 60)
+        }
+        function switchOff() {
+            if (!dev.wifiRadioSwitchOff(seconds)) {
+                notifications.warning(qsTr("Not sent: no connection to the module"))
+                return
+            }
+            notifications.info(seconds > 0 ? qsTr("Switching the module's radio off for %1").arg(spanText(seconds))
+                                           : qsTr("Switching the module's radio off until you switch it on"))
+        }
+        function switchOn() {
+            if (!dev.wifiRadioSwitchOn())
+                notifications.warning(qsTr("Not sent: no connection to the module"))
+        }
+        Timer {
+            interval: 1000; repeat: true; triggeredOnStart: true
+            running: radioOffIsland.visible && radioOffIsland.timed
+            onTriggered: radioOffIsland.tick = Date.now()
+        }
+        Connections {
+            target: root._isWifi ? root.dev : null
+            ignoreUnknownSignals: true
+            function onWifiRfChanged() {
+                var e = radioOffIsland.error
+                if (e.length && e !== radioOffIsland.warned)
+                    notifications.warning(qsTr("Radio: %1").arg(e))
+                radioOffIsland.warned = e
+            }
+        }
+
+        DevIslandTitle {
+            label: qsTr("Antenna swap")
+            foldIsland: radioOffIsland
+            WifiBadge {
+                id: radioOffBadge
+                visible: radioOffIsland.off
+                tone: 2
+                text: radioOffIsland.timed && radioOffIsland.secondsLeft > 0
+                      ? qsTr("Radio off · %1").arg(radioOffIsland.spanText(radioOffIsland.secondsLeft)) : qsTr("Radio off")
+            }
+        }
+
+        // On: how long, and the button
+        DevStackedRow {
+            open: !radioOffIsland.off
+            label: qsTr("Switch the radio off for")
+            caption: radioOffIsland.wired
+                     ? qsTr("Over the cable: the module stays in reach and may stay off until you switch it on (or it restarts).")
+                     : qsTr("Over the network: the module is reached through this very radio, so it goes off only for a time (up to 10 min) and comes back by itself.")
+            KTabBar {
+                id: radioOffTabs
+                width: parent.width
+                fontPixelSize: Tokens.fontSm
+                options: radioOffIsland.choices.map(function(s) {
+                    return { label: s === 0 ? qsTr("Until on") : radioOffIsland.spanText(s), value: s }
+                })
+                currentValue: radioOffIsland.seconds
+                onValueSelected: function(v) { radioOffIsland.chosen = v }
+            }
+        }
+        DevStackedRow {
+            open: !radioOffIsland.off
+            caption: radioOffIsland.seconds > 0
+                     ? qsTr("The boat link drops for %1, and about 20 s more while the modules find each other again.")
+                       .arg(radioOffIsland.spanText(radioOffIsland.seconds))
+                     : qsTr("The boat link drops until you switch the radio on, and about 20 s more while the modules find each other again.")
+            ConfirmDevButton {
+                id: radioOffButton
+                width: parent.width
+                label: qsTr("Switch the radio off")
+                onConfirmed: radioOffIsland.switchOff()
+            }
+        }
+
+        // Off: for how long, and back on
+        KIslandRow {
+            id: radioOffState
+            open: radioOffIsland.off
+            label: qsTr("The radio is off")
+            labelBold: true
+            caption: radioOffIsland.timed
+                     ? (radioOffIsland.secondsLeft > 0
+                        ? qsTr("On again in %1, by the module's timer.").arg(radioOffIsland.spanText(radioOffIsland.secondsLeft))
+                        : qsTr("The time is up: the module switches its radio on; the boat link comes back in about 20 s."))
+                     : radioOffIsland.untilOn ? qsTr("Until you switch it on, or until the module restarts.")
+                     : qsTr("Asking the module for how long…")
+            captionColor: AppPalette.linkIdleText
+        }
+        DevStackedRow {
+            id: radioOnRow
+            open: radioOffIsland.off && radioOffIsland.wired
+            DevButton {
+                id: radioOnButton
+                width: parent.width; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
+                text: qsTr("Switch the radio on")
+                onClicked: radioOffIsland.switchOn()
+            }
+        }
+        KIslandRow {
+            id: radioOffRemote
+            open: radioOffIsland.off && !radioOffIsland.wired
+            minHeight: 0
+            verticalPadding: Tokens.spaceSm
+            caption: qsTr("This module is reached through its radio, so it cannot be switched on from here: it comes back by itself when its time is up.")
+        }
+        KIslandRow {
+            id: radioOffError
+            open: radioOffIsland.error.length > 0
+            minHeight: 0
+            verticalPadding: Tokens.spaceSm
+            caption: radioOffIsland.error
+            captionColor: AppPalette.dangerText
         }
     }
 

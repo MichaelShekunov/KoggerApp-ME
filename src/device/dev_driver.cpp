@@ -74,6 +74,7 @@ DevDriver::DevDriver(QObject *parent)
     regID(idWifi = new IDBinWifi(), &DevDriver::receivedWifi);
     regID(idWifiNet = new IDBinWifiNet(), &DevDriver::receivedWifiNet);
     regID(idWifiSurvey = new IDBinWifiSurvey(), &DevDriver::receivedWifiSurvey);
+    regID(idWifiRf = new IDBinWifiRf(), &DevDriver::receivedWifiRf);
     regID(idVersion = new IDBinVersion(), &DevDriver::receivedVersion, true);
 
     regID(idMark = new IDBinMark(), &DevDriver::receivedMark);
@@ -1572,6 +1573,7 @@ void DevDriver::receivedWifi(Parsers::Type type, Parsers::Version ver, Parsers::
             }
         }
         wifiPort_->moduleAnswered();
+        wifiRfOnStatus((st.flags & IDBinWifi::FlagRadioOff) != 0);
         emit wifiStatusChanged();
         emit wifiReportChanged();   // RSSI and rates live in both frames
         break;
@@ -1950,6 +1952,11 @@ QVariantList DevDriver::wifiLinkRates() {
         m["rssi"] = p.rssi;
         m["mode"] = p.mode;
         m["text"] = (p.frames == 0 || p.rates.isEmpty()) ? QString() : WifiLinkRate::text(p.rates.first());
+        m["retries"] = p.retries;
+        const WifiRetryWindow::Sum r = wifiRetries_.sum(p.mac, wifiClock_.elapsed());
+        m["retrySum"] = r.retries;
+        m["retryFrames"] = r.frames;
+        m["retryReports"] = r.reports;
         QVariantList rates;
         for (const WifiLinkRate::Rate& r : p.rates) {
             QVariantMap x;
@@ -1969,7 +1976,8 @@ QVariantList DevDriver::wifiLinkRates() {
 }
 
 void DevDriver::wifiLinkRate() {
-    if (!m_state.connect || wifiLinkRateSupport() != 1 || idWifiSurvey->rateRunning() || idWifiSurvey->running())
+    if (!m_state.connect || wifiLinkRateSupport() != 1 || idWifiSurvey->rateRunning() || idWifiSurvey->running()
+        || wifiRadioOff())
         return;
     wifiLinkRateError_.clear();
     idWifiSurvey->requestLinkRate(uint16_t(WifiLinkRate::kWindowMs));
@@ -1979,6 +1987,11 @@ void DevDriver::wifiLinkRate() {
 void DevDriver::wifiSurvey() {
     if (!m_state.connect || wifiSurveySupport() != 1 || idWifiSurvey->running())
         return;
+    if (wifiRadioOff()) {                         // the module refuses it (ERR_RUNTIME) until the radio is back
+        wifiSurveyError_ = tr("the radio is switched off");
+        emit wifiSurveyChanged();
+        return;
+    }
     wifiSurveyError_.clear();
     wifiSurveyAskedAgain_ = false;
     idWifiSurvey->start(uint16_t(WifiSurvey::kDwellMs), 0);   // every channel it may visit
@@ -2001,14 +2014,20 @@ void DevDriver::receivedWifiSurvey(Parsers::Type type, Parsers::Version ver, Par
         if (idWifiSurvey->rateCompletedCount() != wifiLinkRateTaken_) {
             wifiLinkRateTaken_ = idWifiSurvey->rateCompletedCount();
             QStringList parts, mains;
+            const qint64 now = wifiClock_.elapsed();
             for (const QByteArray& page : idWifiSurvey->ratePages()) {
                 WifiLinkRate::Page p;
                 if (!WifiLinkRate::parse(page, p) || p.total == 0)
                     continue;
+                wifiRetries_.add(p.mac, p.retries, p.frames, now);
                 const QString main = p.rates.isEmpty() ? QStringLiteral("no data frames") : WifiLinkRate::text(p.rates.first());
                 mains << p.mac + QStringLiteral(": ") + main;
-                parts << QStringLiteral("%1: %2 (%3 of %4 frames, %5 dBm)").arg(p.mac, main)
-                             .arg(p.rates.isEmpty() ? 0 : p.rates.first().frames).arg(p.frames).arg(p.rssi);
+                const WifiRetryWindow::Sum r = wifiRetries_.sum(p.mac, now);
+                parts << QStringLiteral("%1: %2 (%3 of %4 frames, %5 dBm%6)").arg(p.mac, main)
+                             .arg(p.rates.isEmpty() ? 0 : p.rates.first().frames).arg(p.frames).arg(p.rssi)
+                             .arg(p.retries < 0 ? QString()
+                                  : QStringLiteral("; came again %1, over the last %2 reports %3 of %4")
+                                        .arg(p.retries).arg(r.reports).arg(r.retries).arg(r.frames));
             }
             // the log keeps a changed main rate, not every report
             const QString key = mains.join(QStringLiteral("; "));
@@ -2050,6 +2069,106 @@ void DevDriver::logWifiSurvey() {
                                                               : QString());
     qInfo().noquote() << wifiTag() << QStringLiteral("wifi-survey: Wi-Fi airtime %1; best %2 by the mean of %3 (* our channel)")
                              .arg(parts.join(QLatin1Char(' '))).arg(wifiSurveyBest()).arg(wifiSurveySamples());
+}
+
+int DevDriver::wifiRfSupport() {
+    return isWifi() ? WifiRf::supportFor(idVersion->fwVersion(), idVersion->fwVersionMinor()) : 0;
+}
+
+bool DevDriver::wifiRadioOff() {
+    const IDBinWifiRf::State& s = idWifiRf->state();
+    if (s.valid)
+        return !s.on;
+    const auto& st = idWifi->status();
+    return st.valid && (st.flags & IDBinWifi::FlagRadioOff) != 0;
+}
+
+bool DevDriver::wifiRadioOffTimed() {
+    const IDBinWifiRf::State& s = idWifiRf->state();
+    return s.valid && !s.on && s.secondsLeft > 0;
+}
+
+bool DevDriver::wifiRadioOffUntilOn() {
+    const IDBinWifiRf::State& s = idWifiRf->state();
+    return s.valid && !s.on && s.secondsLeft == 0;
+}
+
+int DevDriver::wifiRadioOffLeft() {
+    if (!wifiRadioOffTimed())
+        return 0;
+    return WifiRf::leftS(idWifiRf->state().secondsLeft, wifiRfAtMs_, wifiClock_.elapsed());
+}
+
+bool DevDriver::wifiRadioWired() { return wifiNetOwnPort() >= 0; }
+
+bool DevDriver::wifiRadioSwitchOff(int seconds) {
+    const bool wired = wifiRadioWired();
+    if (!m_state.connect || wifiRfSupport() != 1 || !WifiRf::offAllowed(seconds, wired))
+        return false;
+    wifiRfError_.clear();
+    idWifiRf->switchOff(uint16_t(seconds));
+    qInfo().noquote() << wifiTag() << QStringLiteral("wifi-rf: switching the radio off %1, over %2")
+                             .arg(seconds > 0 ? QStringLiteral("for %1 s").arg(seconds) : QStringLiteral("until on"),
+                                  wired ? QStringLiteral("a wire") : QStringLiteral("the network"));
+    emit wifiRfChanged();
+    return true;
+}
+
+bool DevDriver::wifiRadioSwitchOn() {
+    if (!m_state.connect || wifiRfSupport() != 1)
+        return false;
+    wifiRfError_.clear();
+    idWifiRf->switchOn();
+    qInfo().noquote() << wifiTag() << "wifi-rf: switching the radio on";
+    emit wifiRfChanged();
+    return true;
+}
+
+void DevDriver::wifiRadioRefresh() {
+    if (m_state.connect && wifiRfSupport() == 1)
+        idWifiRf->requestAll();
+}
+
+void DevDriver::receivedWifiRf(Parsers::Type type, Parsers::Version ver, Parsers::Resp resp) {
+    Q_UNUSED(type);
+    Q_UNUSED(ver);
+    if (resp != respNone) {
+        if (resp == respOk)
+            return;                               // the state follows (CONTENT v0)
+        wifiRfError_ = resp == respErrorRuntime
+            ? tr("the radio is busy: a channel survey or a link speed window, a scan, or a firmware update (or the first minute after one) runs; try again in a moment")
+            : resp == respErrorPayload
+            ? (wifiRadioWired() ? tr("the module refused the request (ERR_PAYLOAD)")
+                                : tr("over the network the module switches its radio off only for 1 s to 10 min"))
+            : resp == respErrorKey ? tr("the module refused the key")
+            : (resp == respErrorID || resp == respErrorVersion || resp == respErrorType)
+            ? tr("this firmware cannot switch the radio off (that came with 0.20)")
+            : tr("the module refused the request (code %1)").arg(int(resp));
+        qInfo().noquote() << wifiTag() << QStringLiteral("wifi-rf: refused: %1").arg(wifiRfError_);
+        emit wifiRfChanged();
+        return;
+    }
+    wifiRfAtMs_ = wifiClock_.elapsed();
+    const IDBinWifiRf::State& s = idWifiRf->state();
+    qInfo().noquote() << wifiTag() << (s.on ? QStringLiteral("wifi-rf: radio on")
+                                       : s.secondsLeft > 0 ? QStringLiteral("wifi-rf: radio off, on again in %1 s").arg(s.secondsLeft)
+                                       : QStringLiteral("wifi-rf: radio off until switched on or a reboot"));
+    emit wifiRfChanged();
+}
+
+void DevDriver::wifiRfOnStatus(bool flagOff) {
+    const IDBinWifiRf::State& s = idWifiRf->state();
+    const WifiRf::StatusStep step = WifiRf::onStatus(s.valid, s.on, flagOff, wifiClock_.elapsed() - wifiRfAtMs_);
+    if (step == WifiRf::StatusBackOn) {
+        qInfo().noquote() << wifiTag() << "wifi-rf: the status says the radio is back on";
+        idWifiRf->markOn();
+    } else if (step == WifiRf::StatusOffAsk) {
+        qInfo().noquote() << wifiTag() << "wifi-rf: the status says the radio is off: asking for how long";
+        idWifiRf->reset();                        // off by the status until the module says for how long
+    }
+    if ((step == WifiRf::StatusOffAsk || step == WifiRf::StatusAsk) && m_state.connect && wifiRfSupport() == 1)
+        idWifiRf->requestAll();
+    emit wifiRfChanged();
 }
 
 QStringList DevDriver::wifiSavedNetworks() {
@@ -2562,11 +2681,13 @@ bool DevDriver::wifiSetRelay(int mode, int addr, const QString& ip, int rport, i
 }
 
 void DevDriver::wifiRefresh() {
-    if (m_state.connect) idWifi->requestAll();
+    if (!m_state.connect) return;
+    idWifi->requestAll();
+    if (wifiRfSupport() == 1) idWifiRf->requestAll();
 }
 
 void DevDriver::wifiScan() {
-    if (!m_state.connect) return;
+    if (!m_state.connect || wifiRadioOff()) return;   // refused (ERR_RUNTIME) while the radio is off
     idWifi->scan();
     emit wifiNetworksChanged();
 }
@@ -3921,6 +4042,13 @@ void DevDriver::process() {
                 idWifiSurvey->reset();
                 wifiSurveyWindow_.clear();
                 emit wifiSurveyChanged();
+            }
+            wifiRetries_.clear();
+            // A restart switches the radio on (nothing of ID_WIFI_RF is saved)
+            if(idWifiRf->state().valid || !wifiRfError_.isEmpty()) {
+                idWifiRf->reset();
+                wifiRfError_.clear();
+                emit wifiRfChanged();
             }
             if(idWifi->hasData()) {
                 idWifi->reset();

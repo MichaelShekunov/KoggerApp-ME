@@ -100,6 +100,11 @@
 //   {"op": "presets"}                the presets each device reported, one line a device
 //   {"op": "presetRecall", "slot": n}   {"op": "presetSave", "slot": n, "name": s}
 //                                    on the first device that keeps presets, as its frequency buttons do
+// For the Wi-Fi module's radio switched off (ID_WIFI_RF, firmware 0.20), on the first Wi-Fi module:
+//   {"op": "wifiPage"}               its device page opened
+//   {"op": "wifiRadio", "off": s} / {"op": "wifiRadio", "on": true}
+//                                    switched off for s seconds (0 = until on) or on, as the page does
+//   {"op": "wifiRadio"}              its radio state as the page reads it, logged
 
 #include <QJsonArray>
 #include <QJsonObject>

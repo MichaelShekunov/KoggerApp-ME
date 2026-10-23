@@ -42,12 +42,18 @@ Button {
         }
     }
 
+    // A label that does not fit gets smaller first, down to minFontScale of fontPixelSize, and is cut only then, as
+    // KTabBar's: translations run longer than English ("Применить" in a port card's 96 px, 2026-10-23).
+    property real minFontScale: 0.8
+
     contentItem: Text {
         id: label
         text: control.text
         color: control.hovered ? Qt.lighter(control.textColor, Anim.hoverLighten) : control.textColor
         font.pixelSize: control.fontPixelSize
         font.bold: control.bold
+        fontSizeMode: Text.HorizontalFit
+        minimumPixelSize: Math.max(1, Math.floor(control.fontPixelSize * control.minFontScale))
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
         elide: Text.ElideRight

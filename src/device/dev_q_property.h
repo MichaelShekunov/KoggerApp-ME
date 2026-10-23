@@ -145,6 +145,14 @@ public:
     Q_PROPERTY(bool wifiLinkRateRunning READ wifiLinkRateRunning NOTIFY wifiLinkRateChanged)
     Q_PROPERTY(QVariantList wifiLinkRates READ wifiLinkRates NOTIFY wifiLinkRateChanged)
     Q_PROPERTY(QString wifiLinkRateError READ wifiLinkRateError NOTIFY wifiLinkRateChanged)
+    // Firmware 0.20: the radio switched off to swap an antenna (ID_WIFI_RF); the seconds left are a call,
+    // wifiRadioOffLeft(), that the page ticks.
+    Q_PROPERTY(int wifiRfSupport READ wifiRfSupport NOTIFY deviceVersionChanged)
+    Q_PROPERTY(bool wifiRadioOff READ wifiRadioOff NOTIFY wifiRfChanged)
+    Q_PROPERTY(bool wifiRadioOffTimed READ wifiRadioOffTimed NOTIFY wifiRfChanged)
+    Q_PROPERTY(bool wifiRadioOffUntilOn READ wifiRadioOffUntilOn NOTIFY wifiRfChanged)
+    Q_PROPERTY(bool wifiRadioWired READ wifiRadioWired NOTIFY wifiNetPortsChanged)
+    Q_PROPERTY(QString wifiRfError READ wifiRfError NOTIFY wifiRfChanged)
     Q_PROPERTY(QStringList wifiSavedNetworks READ wifiSavedNetworks NOTIFY wifiSavedChanged)
     // Relay of the boat's stream through the module (v5 configuration, v6 counters).
     Q_PROPERTY(int wifiRelaySupport READ wifiRelaySupport NOTIFY wifiRelayChanged)
