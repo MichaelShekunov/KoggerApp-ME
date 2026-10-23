@@ -3675,23 +3675,23 @@
         <translation>कोड %1</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3645"/>
+        <location filename="../src/device/dev_driver.cpp" line="3649"/>
         <source>This firmware has no ring counters</source>
         <translation>इस फ़र्मवेयर में रिंग काउंटर नहीं हैं</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3646"/>
+        <location filename="../src/device/dev_driver.cpp" line="3650"/>
         <source>Refused by the board (code %1)</source>
         <translation>बोर्ड ने अस्वीकार किया (कोड %1)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3751"/>
+        <location filename="../src/device/dev_driver.cpp" line="3755"/>
         <source>Sync config rejected by device</source>
         <translation>डिवाइस ने सिंक कॉन्फ़िगरेशन अस्वीकार किया</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="4326"/>
-        <location filename="../src/device/dev_driver.cpp" line="4339"/>
+        <location filename="../src/device/dev_driver.cpp" line="4330"/>
+        <location filename="../src/device/dev_driver.cpp" line="4343"/>
         <source>no answer from the module</source>
         <translation>मॉड्यूल से कोई जवाब नहीं</translation>
     </message>
@@ -4068,28 +4068,28 @@
     <name>DeviceSettingsPage</name>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="64"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3174"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3076"/>
         <source>Boat link</source>
         <translation>नाव से लिंक</translation>
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="65"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4775"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4677"/>
         <source>Lines</source>
         <translation>लाइनें</translation>
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="66"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4432"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4435"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5768"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4334"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4337"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5670"/>
         <source>Role</source>
         <translation>भूमिका</translation>
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="67"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2334"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4440"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2236"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4342"/>
         <source>Access point</source>
         <translation>एक्सेस पॉइंट</translation>
     </message>
@@ -4100,7 +4100,7 @@
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="69"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5177"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5079"/>
         <source>Network (USB)</source>
         <translation>नेटवर्क (USB)</translation>
     </message>
@@ -4116,21 +4116,21 @@
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="79"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3702"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3604"/>
         <source>Port speed</source>
         <translation>पोर्ट की गति</translation>
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="80"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3429"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3331"/>
         <source>Radio</source>
         <translation>रेडियो</translation>
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="81"/>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="82"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4343"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4614"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4245"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4516"/>
         <source>Module address</source>
         <translation>मॉड्यूल का पता</translation>
     </message>
@@ -4141,7 +4141,7 @@
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="105"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3825"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3727"/>
         <source>nothing</source>
         <translation>कुछ नहीं</translation>
     </message>
@@ -4199,40 +4199,40 @@
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="512"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1836"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5045"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5101"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1738"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4947"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5003"/>
         <source>Echogram</source>
         <translation>इकोग्राम</translation>
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="513"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1893"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5058"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1795"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4960"/>
         <source>Rangefinder</source>
         <translation>रेंजफ़ाइंडर</translation>
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="514"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5071"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4973"/>
         <source>Transducer</source>
         <translation>ट्रांसड्यूसर</translation>
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="515"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5084"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4986"/>
         <source>DSP</source>
         <translation>DSP</translation>
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="516"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5096"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4998"/>
         <source>Dataset</source>
         <translation>डेटासेट</translation>
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="517"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5147"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5049"/>
         <source>Actions</source>
         <translation>क्रियाएँ</translation>
     </message>
@@ -4312,8 +4312,8 @@
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="977"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2336"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2499"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2238"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2401"/>
         <source>Connecting…</source>
         <translation>कनेक्ट हो रहा है…</translation>
     </message>
@@ -4497,7 +4497,7 @@
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="1353"/>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="1489"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2696"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2598"/>
         <source>Cancel</source>
         <translation>रद्द करें</translation>
     </message>
@@ -4522,7 +4522,7 @@
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="1386"/>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="1523"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4106"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4008"/>
         <source>Saved</source>
         <translation>सहेजा गया</translation>
     </message>
@@ -4532,37 +4532,35 @@
         <translation>डाउनलोड &quot;%1&quot; में सहेजे जाते हैं</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1747"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1649"/>
         <source>Not applied to the device</source>
         <translation>डिवाइस पर लागू नहीं हुआ</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1769"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1671"/>
         <source>Period, ms</source>
         <translation>अवधि, ms</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1816"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1718"/>
         <source>Distance, m</source>
         <translation>दूरी, m</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1830"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1732"/>
         <source>Frequency, kHz</source>
         <translation>आवृत्ति, kHz</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1624"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1635"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1850"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1899"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3102"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3110"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3217"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3503"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4207"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4792"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5112"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1752"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1801"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3004"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3012"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3119"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3405"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4109"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4694"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5014"/>
         <source>Off</source>
         <translation>बंद</translation>
     </message>
@@ -4572,2822 +4570,2662 @@
         <translation>कनेक्टर</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1608"/>
-        <source>Universal</source>
-        <translation>सामान्य</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1609"/>
-        <source>Sonar port A</source>
-        <translation>सोनार पोर्ट A</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1610"/>
-        <source>Sonar port B</source>
-        <translation>सोनार पोर्ट B</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1611"/>
-        <source>Telemetry</source>
-        <translation>टेलीमेट्री</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1612"/>
-        <source>GNSS (navigation)</source>
-        <translation>GNSS (नेविगेशन)</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1614"/>
-        <source>Function %1</source>
-        <translation>फ़ंक्शन %1</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1618"/>
-        <source>Battery (VBAT), up to about 30 V</source>
-        <translation>बैटरी (VBAT), लगभग 30 V तक</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1619"/>
-        <source>+5.2 V</source>
-        <translation>+5.2 V</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1620"/>
-        <source>None</source>
-        <translation>कोई नहीं</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1625"/>
-        <source>UART TX</source>
-        <translation>UART TX</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1625"/>
-        <source>UART RX</source>
-        <translation>UART RX</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1626"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1635"/>
-        <source>I2C</source>
-        <translation>I2C</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1627"/>
-        <source>PWM to OUT%1 · %2 µs</source>
-        <translation>OUT%1 पर PWM · %2 µs</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1628"/>
-        <source>Input, %1 · level %2</source>
-        <translation>इनपुट, %1 · स्तर %2</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1628"/>
-        <source>no pull</source>
-        <translation>बिना पुल</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1628"/>
-        <source>pull-up</source>
-        <translation>पुल-अप</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1628"/>
-        <source>pull-down</source>
-        <translation>पुल-डाउन</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1629"/>
-        <source>Output · level %1</source>
-        <translation>आउटपुट · स्तर %1</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1630"/>
-        <source>Analog input · %1 mV</source>
-        <translation>एनालॉग इनपुट · %1 mV</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1632"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1636"/>
-        <source>Role %1</source>
-        <translation>भूमिका %1</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1635"/>
-        <source>PWM</source>
-        <translation>PWM</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1635"/>
-        <source>Input</source>
-        <translation>इनपुट</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1635"/>
-        <source>Output</source>
-        <translation>आउटपुट</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1635"/>
-        <source>Analog input</source>
-        <translation>एनालॉग इनपुट</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1641"/>
-        <source> · timer %1</source>
-        <translation> · टाइमर %1</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1643"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1651"/>
-        <source> · after a reboot: %1</source>
-        <translation> · रीबूट के बाद: %1</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1649"/>
-        <source> · %1 baud</source>
-        <translation> · %1 बॉड</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1658"/>
-        <source>The connectors as the Recorder describes them: what each is for, its power and what each contact does now. This version only shows them.</source>
-        <translation>Recorder स्वयं जैसे कनेक्टरों का वर्णन करता है: हर एक किस लिए है, उसकी बिजली, और हर संपर्क अभी क्या करता है। यह संस्करण इन्हें केवल दिखाता है।</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1662"/>
-        <source>Device ports</source>
-        <translation>डिवाइस पोर्ट</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1662"/>
-        <source>Universal connectors</source>
-        <translation>सामान्य कनेक्टर</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1694"/>
-        <source>Power</source>
-        <translation>बिजली</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1850"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5112"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1752"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5014"/>
         <source>8-bit</source>
         <translation>8-बिट</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1850"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5112"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1752"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5014"/>
         <source>Compressed</source>
         <translation>संपीड़ित</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1850"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5112"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1752"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5014"/>
         <source>IQ</source>
         <translation>IQ</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1850"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5112"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1752"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5014"/>
         <source>RAW</source>
         <translation>RAW</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1877"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1779"/>
         <source>Resolution, cm</source>
         <translation>रिज़ॉल्यूशन, cm</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1899"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3111"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1801"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3013"/>
         <source>On</source>
         <translation>चालू</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1899"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1801"/>
         <source>NMEA</source>
         <translation>NMEA</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1914"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1816"/>
         <source>Confidence threshold, %</source>
         <translation>विश्वास सीमा, %</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1957"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1859"/>
         <source>Favourites:</source>
         <translation>पसंदीदा:</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1974"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1876"/>
         <source>Tap a star next to a setting to pin it here</source>
         <translation>किसी सेटिंग को यहाँ पिन करने के लिए उसके पास वाले तारे पर टैप करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2083"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1985"/>
         <source>Wi‑Fi airtime: others %1 (mean %2)</source>
         <translation>Wi‑Fi एयरटाइम: अन्य %1 (औसत %2)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2085"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1987"/>
         <source>, ours %1</source>
         <translation>, हमारा %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2086"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1988"/>
         <source>%1 frames/s</source>
         <translation>%1 फ़्रेम/s</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2087"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2863"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1989"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2765"/>
         <source>%1 transmitters</source>
         <translation>%1 ट्रांसमीटर</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2088"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1990"/>
         <source>the strongest %1 dBm</source>
         <translation>सबसे मज़बूत %1 dBm</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2088"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2310"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1990"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2212"/>
         <source>nothing heard</source>
         <translation>कोई सिग्नल नहीं</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2093"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1995"/>
         <source>No network heard on it or up to 3 channels away (last scan).</source>
         <translation>इस चैनल पर या उससे 3 चैनल तक की दूरी पर कोई नेटवर्क नहीं मिला (पिछला स्कैन)।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2098"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2000"/>
         <source>Networks heard (last scan): %1 on it, %2 up to 3 channels away</source>
         <translation>मिले नेटवर्क (पिछला स्कैन): इस चैनल पर %1, 3 चैनल तक की दूरी पर %2</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2134"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2036"/>
         <source>no data frames in the window</source>
         <translation>विंडो में कोई डेटा फ़्रेम नहीं</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2135"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2037"/>
         <source>(and %1 more)</source>
         <translation>(और %1 अन्य)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2142"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2044"/>
         <source>%1 % (%2 of %3)</source>
         <translation>%1 % (%3 में से %2)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2150"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2052"/>
         <source>%1 of %2 frames</source>
         <translation>%2 में से %1 फ़्रेम</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2152"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2054"/>
         <source>%1 at %2</source>
         <translation>%2 पर %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2154"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2495"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2718"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2912"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4552"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2056"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2397"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2620"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2814"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4454"/>
         <source>dBm</source>
         <translation>dBm</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2182"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3557"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2084"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3459"/>
         <source>%1 s</source>
         <translation>%1 s</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2184"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2379"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3559"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2086"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2281"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3461"/>
         <source>%1 min</source>
         <translation>%1 min</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2185"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2379"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2087"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2281"/>
         <source>%1 h %2 min</source>
         <translation>%1 h %2 min</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2190"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2092"/>
         <source>the access point&apos;s beacons stopped: it went off or out of reach</source>
         <translation>एक्सेस पॉइंट के बीकन बंद हो गए: वह बंद हो गया या पहुँच से बाहर है</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2191"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2093"/>
         <source>the network is not heard</source>
         <translation>नेटवर्क का सिग्नल नहीं मिल रहा</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2192"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2094"/>
         <source>authentication failed</source>
         <translation>प्रमाणीकरण विफल</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2193"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2359"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2095"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2261"/>
         <source>association failed</source>
         <translation>एसोसिएशन विफल</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2195"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2097"/>
         <source>the key handshake timed out: a wrong password?</source>
         <translation>कुंजी हैंडशेक का समय समाप्त: गलत पासवर्ड?</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2199"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2101"/>
         <source>the access point let this module go</source>
         <translation>एक्सेस पॉइंट ने इस मॉड्यूल को डिस्कनेक्ट कर दिया</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2207"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3835"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4764"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2109"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3737"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4666"/>
         <source>code %1</source>
         <translation>कोड %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2212"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2114"/>
         <source>The module restarted</source>
         <translation>मॉड्यूल रीस्टार्ट हुआ</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2214"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2116"/>
         <source>A client joined</source>
         <translation>एक क्लाइंट कनेक्ट हुआ</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2215"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2117"/>
         <source>The last client left</source>
         <translation>अंतिम क्लाइंट डिस्कनेक्ट हुआ</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2215"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2117"/>
         <source>A client left</source>
         <translation>एक क्लाइंट डिस्कनेक्ट हुआ</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2217"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2119"/>
         <source>Connected to %1</source>
         <translation>%1 से कनेक्ट हुआ</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2218"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2120"/>
         <source>Access point %1 up</source>
         <translation>एक्सेस पॉइंट %1 चालू हुआ</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2219"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2220"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2121"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2122"/>
         <source>Link lost</source>
         <translation>लिंक टूट गया</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2219"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2121"/>
         <source>Connecting to %1</source>
         <translation>%1 से कनेक्ट हो रहा है</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2220"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2122"/>
         <source>Looking for the network</source>
         <translation>नेटवर्क खोजा जा रहा है</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2221"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2123"/>
         <source>Stopped</source>
         <translation>रुक गया</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2223"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2125"/>
         <source>State %1</source>
         <translation>स्थिति %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2233"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2135"/>
         <source>%1 now, the weakest %2 dBm</source>
         <translation>अभी %1, सबसे कमज़ोर %2 dBm</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2235"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2137"/>
         <source>ch %1 · %2 dBm</source>
         <translation>चैनल %1 · %2 dBm</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2237"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2139"/>
         <source>ch %1 · clients: %2</source>
         <translation>चैनल %1 · क्लाइंट: %2</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2247"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2149"/>
         <source>%1 ago</source>
         <translation>%1 पहले</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2249"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2151"/>
         <source>as the app found it</source>
         <translation>जैसा ऐप ने पाया</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2251"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2153"/>
         <source>the link had held %1</source>
         <translation>लिंक %1 तक बना रहा था</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2253"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2155"/>
         <source>%1 after the previous</source>
         <translation>पिछली घटना के %1 बाद</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2277"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2179"/>
         <source>updating…</source>
         <translation>अपडेट हो रहा है…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2279"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2181"/>
         <source>From an earlier measurement.</source>
         <translation>पहले के माप से।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2282"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2184"/>
         <source>updated just now</source>
         <translation>अभी-अभी अपडेट हुआ</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2284"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2186"/>
         <source>updated %1 s ago</source>
         <translation>%1 s पहले अपडेट हुआ</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2285"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2187"/>
         <source>updated %1 min ago</source>
         <translation>%1 min पहले अपडेट हुआ</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2310"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2212"/>
         <source>%1 dBm</source>
         <translation>%1 dBm</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2335"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4110"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2237"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4012"/>
         <source>Connected</source>
         <translation>कनेक्ट है</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2337"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2239"/>
         <source>Searching…</source>
         <translation>खोजा जा रहा है…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2339"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2483"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2241"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2385"/>
         <source>Not connected</source>
         <translation>कनेक्ट नहीं है</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2343"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4500"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2245"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4402"/>
         <source>Open</source>
         <translation>खुला</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2350"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2252"/>
         <source>Enterprise</source>
         <translation>Enterprise</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2353"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2255"/>
         <source>Secured</source>
         <translation>सुरक्षित</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2357"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2259"/>
         <source>network not found</source>
         <translation>नेटवर्क नहीं मिला</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2358"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2260"/>
         <source>wrong password</source>
         <translation>गलत पासवर्ड</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2360"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2262"/>
         <source>connection lost</source>
         <translation>कनेक्शन टूट गया</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2361"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2263"/>
         <source>disconnected</source>
         <translation>डिस्कनेक्ट हो गया</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2366"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2268"/>
         <source>MB/s</source>
         <translation>MB/s</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2367"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2269"/>
         <source>KB/s</source>
         <translation>KB/s</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2368"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2270"/>
         <source>B/s</source>
         <translation>B/s</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2371"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2273"/>
         <source>GB</source>
         <translation>GB</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2372"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2274"/>
         <source>MB</source>
         <translation>MB</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2373"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2275"/>
         <source>KB</source>
         <translation>KB</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2374"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2276"/>
         <source>B</source>
         <translation>B</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2405"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2307"/>
         <source>Enter the network name</source>
         <translation>नेटवर्क का नाम दर्ज करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2411"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2313"/>
         <source>Connecting to %1…</source>
         <translation>%1 से कनेक्ट हो रहा है…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2414"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2316"/>
         <source>Network name or password is too long</source>
         <translation>नेटवर्क का नाम या पासवर्ड बहुत लंबा है</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2427"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2329"/>
         <source>Wi‑Fi connected: %1</source>
         <translation>Wi‑Fi कनेक्ट हुआ: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2430"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2332"/>
         <source>Wi‑Fi: %1 (%2)</source>
         <translation>Wi‑Fi: %1 (%2)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2440"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2342"/>
         <source>the module is busy, try again in a moment</source>
         <translation>मॉड्यूल व्यस्त है, थोड़ी देर में फिर कोशिश करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2441"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2343"/>
         <source>the module rejected the request</source>
         <translation>मॉड्यूल ने अनुरोध अस्वीकार कर दिया</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2442"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2344"/>
         <source>response code %1</source>
         <translation>प्रतिक्रिया कोड %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2443"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2345"/>
         <source>Wi‑Fi command failed: %1</source>
         <translation>Wi‑Fi कमांड विफल: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2472"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3108"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2374"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3010"/>
         <source>No data</source>
         <translation>कोई डेटा नहीं</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2473"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3598"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2375"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3500"/>
         <source>Radio off</source>
         <translation>रेडियो बंद</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2487"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2389"/>
         <source>Waiting for the module…</source>
         <translation>मॉड्यूल की प्रतीक्षा…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2489"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2391"/>
         <source>The radio is switched off to swap the antenna (Antenna swap below)</source>
         <translation>एंटीना बदलने के लिए रेडियो बंद है (नीचे “एंटीना बदलना” देखें)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2491"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2393"/>
         <source>Own access point · ch %1 · %2 · clients: %3</source>
         <translation>अपना एक्सेस पॉइंट · चैनल %1 · %2 · क्लाइंट: %3</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2495"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2714"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2912"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2397"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2616"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2814"/>
         <source>ch %1</source>
         <translation>चैनल %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2501"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2403"/>
         <source>Looking for a saved network…</source>
         <translation>सहेजा गया नेटवर्क खोजा जा रहा है…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2504"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2406"/>
         <source>Last attempt: %1</source>
         <translation>पिछला प्रयास: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2505"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2407"/>
         <source>Auto-connect is off</source>
         <translation>ऑटो-कनेक्ट बंद है</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2505"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2407"/>
         <source>No saved networks yet</source>
         <translation>अभी कोई सहेजा गया नेटवर्क नहीं</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2530"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4117"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2432"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4019"/>
         <source>Traffic</source>
         <translation>ट्रैफ़िक</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2532"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2434"/>
         <source>%1 received, %2 sent</source>
         <translation>%1 प्राप्त, %2 भेजा गया</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2534"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2436"/>
         <source>Module up %1</source>
         <translation>मॉड्यूल %1 से चालू है</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2535"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2437"/>
         <source> · last restart: %1</source>
         <translation> · पिछला रीस्टार्ट: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2536"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2438"/>
         <source> · requests lost: %1</source>
         <translation> · खोए अनुरोध: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2541"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2443"/>
         <source>Both ends</source>
         <translation>दोनों सिरे</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2543"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2445"/>
         <source>%1 dBm here · %2 dBm there · %3 dB apart</source>
         <translation>यहाँ %1 dBm · वहाँ %2 dBm · %3 dB का अंतर</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2547"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2449"/>
         <source>Here: how this access point hears its weakest client; there: how the client&apos;s module hears this access point. A big gap points to one end: its antenna, its transmit power or the module.</source>
         <translation>यहाँ: यह एक्सेस पॉइंट अपने सबसे कमज़ोर क्लाइंट को कैसे सुनता है; वहाँ: क्लाइंट का मॉड्यूल इस एक्सेस पॉइंट को कैसे सुनता है। बड़ा अंतर किसी एक सिरे की ओर इशारा करता है: उसका एंटीना, उसकी ट्रांसमिट पावर या मॉड्यूल।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2548"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2450"/>
         <source>Here: how this module hears its access point; there: how the access point hears it (its weakest client). A big gap points to one end: its antenna, its transmit power or the module.</source>
         <translation>यहाँ: यह मॉड्यूल अपने एक्सेस पॉइंट को कैसे सुनता है; वहाँ: एक्सेस पॉइंट इसे कैसे सुनता है (उसका सबसे कमज़ोर क्लाइंट)। बड़ा अंतर किसी एक सिरे की ओर इशारा करता है: उसका एंटीना, उसकी ट्रांसमिट पावर या मॉड्यूल।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2552"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2454"/>
         <source>Link speed</source>
         <translation>लिंक की गति</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2560"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2462"/>
         <source>not measured: %1</source>
         <translation>मापा नहीं गया: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2560"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2462"/>
         <source>measuring…</source>
         <translation>मापा जा रहा है…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2561"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2583"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2463"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2485"/>
         <source>in: %1</source>
         <translation>इनकमिंग: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2562"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2584"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2464"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2486"/>
         <source>out: %1</source>
         <translation>आउटगोइंग: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2569"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2471"/>
         <source>In: %1.</source>
         <translation>इनकमिंग: %1।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2570"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2472"/>
         <source>Out, as the other end hears it: %1.</source>
         <translation>आउटगोइंग, जैसा दूसरा सिरा इसे सुनता है: %1।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2576"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2478"/>
         <source>Retransmissions</source>
         <translation>पुनःप्रेषण</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2586"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2488"/>
         <source>Of the other end&apos;s data frames, the share that came again: its earlier try or the acknowledgement was lost. Summed over the last 10 measurements (about 30 s). In: the other end&apos;s frames as this module hears them; out: this module&apos;s, as the other end hears them. A lower bound: a frame none of whose tries arrived is not seen.</source>
         <translation>दूसरे सिरे के डेटा फ़्रेम में से वह हिस्सा जो दोबारा आया: उसकी पिछली कोशिश या उसकी पुष्टि खो गई। पिछले 10 मापों (लगभग 30 s) का योग। इनकमिंग: दूसरे सिरे के फ़्रेम, जैसे यह मॉड्यूल उन्हें सुनता है; आउटगोइंग: इस मॉड्यूल के फ़्रेम, जैसे दूसरा सिरा उन्हें सुनता है। यह निचली सीमा है: जिस फ़्रेम की कोई भी कोशिश नहीं पहुँची, वह दिखता ही नहीं।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2591"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2493"/>
         <source>Auto-connect</source>
         <translation>ऑटो-कनेक्ट</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2592"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2494"/>
         <source>Join the strongest saved network at power-up and after a loss</source>
         <translation>चालू होने पर और कनेक्शन टूटने के बाद सबसे मज़बूत सहेजे गए नेटवर्क से जुड़ें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2605"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2507"/>
         <source>Auto-connect off: the module leaves the network</source>
         <translation>ऑटो-कनेक्ट बंद: मॉड्यूल नेटवर्क छोड़ देता है</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2618"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2520"/>
         <source>Scanning…</source>
         <translation>स्कैन हो रहा है…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2618"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2520"/>
         <source>Scan</source>
         <translation>स्कैन करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2620"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2522"/>
         <source>Look for networks nearby (takes a few seconds)</source>
         <translation>आस-पास के नेटवर्क खोजें (कुछ सेकंड लगते हैं)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2625"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2527"/>
         <source>Disconnect</source>
         <translation>डिस्कनेक्ट करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2627"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2529"/>
         <source>Leave the network and switch auto-connect off</source>
         <translation>नेटवर्क छोड़ें और ऑटो-कनेक्ट बंद करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2632"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2534"/>
         <source>Wi‑Fi disconnected, auto-connect off</source>
         <translation>Wi‑Fi डिस्कनेक्ट हुआ, ऑटो-कनेक्ट बंद</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2637"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2539"/>
         <source>Other…</source>
         <translation>अन्य…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2638"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2540"/>
         <source>Join a network that hides its name</source>
         <translation>ऐसे नेटवर्क से जुड़ें जो अपना नाम छिपाता है</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2647"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2549"/>
         <source>Join a hidden network</source>
         <translation>छिपे हुए नेटवर्क से जुड़ें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2647"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2549"/>
         <source>Join %1</source>
         <translation>%1 से जुड़ें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2651"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4485"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2553"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4387"/>
         <source>Network name (SSID)</source>
         <translation>नेटवर्क का नाम (SSID)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2655"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2557"/>
         <source>SSID</source>
         <translation>SSID</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2661"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2668"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4490"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2563"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2570"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4392"/>
         <source>Password</source>
         <translation>पासवर्ड</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2662"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2564"/>
         <source>Saved network: the module keeps its password to itself, type it once more</source>
         <translation>सहेजा गया नेटवर्क: मॉड्यूल इसका पासवर्ड नहीं बताता, इसे एक बार फिर टाइप करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2663"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2565"/>
         <source>Leave empty for an open network</source>
         <translation>खुले नेटवर्क के लिए खाली छोड़ें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2674"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2576"/>
         <source>Remember this network</source>
         <translation>यह नेटवर्क याद रखें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2675"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2577"/>
         <source>Stored in the module once an address is obtained</source>
         <translation>पता मिलने पर मॉड्यूल में सहेजा जाता है</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2686"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2588"/>
         <source>Connect</source>
         <translation>कनेक्ट करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2705"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2607"/>
         <source>Networks nearby (searching…)</source>
         <translation>आस-पास के नेटवर्क (खोज जारी…)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2705"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2607"/>
         <source>Networks nearby</source>
         <translation>आस-पास के नेटवर्क</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2712"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2614"/>
         <source>(hidden network)</source>
         <translation>(छिपा हुआ नेटवर्क)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2715"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3044"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2617"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2946"/>
         <source>connected</source>
         <translation>कनेक्ट है</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2715"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2617"/>
         <source>saved</source>
         <translation>सहेजा गया</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2730"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2632"/>
         <source>Nothing found yet. Tap Scan.</source>
         <translation>अभी तक कुछ नहीं मिला। “स्कैन करें” पर टैप करें।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2740"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2642"/>
         <source>Channels</source>
         <translation>चैनल</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2744"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2646"/>
         <source>Live</source>
         <translation>लाइव</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2746"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2648"/>
         <source>Measuring again and again while this page is open; each measurement takes about 4 s and pauses the boat link.</source>
         <translation>जब तक यह पेज खुला है, बार-बार माप होता है; हर माप में लगभग 4 s लगते हैं और नाव से लिंक रुक जाता है।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2747"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2649"/>
         <source>Scanning again and again while this page is open; each scan takes 2–4 s and may stall the boat link.</source>
         <translation>जब तक यह पेज खुला है, बार-बार स्कैन होता है; हर स्कैन में 2–4 s लगते हैं और नाव से लिंक अटक सकता है।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2748"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2650"/>
         <source>Off: the picture is of one measurement.</source>
         <translation>बंद: तस्वीर एक ही माप की है।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2748"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2650"/>
         <source>Off: the picture is of one scan.</source>
         <translation>बंद: तस्वीर एक ही स्कैन की है।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2762"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2664"/>
         <source>Wi‑Fi airtime</source>
         <translation>Wi‑Fi एयरटाइम</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2763"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2665"/>
         <source>Measured by the module: the share of the time the air carried Wi‑Fi frames on each channel, 0.3 s a channel (a lower bound: interference that is not Wi‑Fi is not seen). A bar is the other networks&apos; share in the last measurement, with our own link&apos;s on top in a lighter tone (it moves with us; neighbours of our channel • hear it too); the figure and the tick, the mean of the last measurements, are the others&apos; share, which the pick goes by. A measurement takes about 4 s and pauses the boat link. Tap a channel for its details.</source>
         <translation>मॉड्यूल द्वारा मापा गया: हर चैनल पर समय का वह हिस्सा जब हवा में Wi‑Fi फ़्रेम थे, प्रति चैनल 0.3 s (यह निचली सीमा है: जो हस्तक्षेप Wi‑Fi नहीं है, वह नहीं दिखता)। हर स्तंभ पिछले माप में अन्य नेटवर्कों का हिस्सा है, और उसके ऊपर हल्के रंग में हमारे अपने लिंक का हिस्सा (यह हमारे साथ चलता है; हमारे चैनल • के पड़ोसी भी इसे सुनते हैं); संख्या और निशान, यानी पिछले मापों का औसत, अन्य नेटवर्कों का हिस्सा हैं, और सुझाव इसी पर आधारित है। एक माप में लगभग 4 s लगते हैं और नाव से लिंक रुक जाता है। विवरण के लिए किसी चैनल पर टैप करें।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2769"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2671"/>
         <source>Measuring…</source>
         <translation>मापा जा रहा है…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2769"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2671"/>
         <source>Measure</source>
         <translation>मापें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2771"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2673"/>
         <source>Measure the Wi‑Fi airtime of every channel now (about 4 s)</source>
         <translation>अभी हर चैनल का Wi‑Fi एयरटाइम मापें (लगभग 4 s)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2858"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2760"/>
         <source>Least busy (mean of %1)</source>
         <translation>सबसे कम व्यस्त (%1 का औसत)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2859"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2761"/>
         <source>Least busy (Wi‑Fi airtime)</source>
         <translation>सबसे कम व्यस्त (Wi‑Fi एयरटाइम)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2862"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2871"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2992"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2998"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2764"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2773"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2894"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2900"/>
         <source>channel %1</source>
         <translation>चैनल %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2868"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2770"/>
         <source>Our channel now (•)</source>
         <translation>अभी हमारा चैनल (•)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2871"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2773"/>
         <source>others %1</source>
         <translation>अन्य %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2872"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2774"/>
         <source>ours %1</source>
         <translation>हमारा %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2879"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2781"/>
         <source>Not measured: %1</source>
         <translation>मापा नहीं गया: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2892"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2794"/>
         <source>Channel %1</source>
         <translation>चैनल %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2892"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2794"/>
         <source>the pick</source>
         <translation>सुझाया गया</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2893"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2795"/>
         <source>ours now</source>
         <translation>अभी हमारा</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2911"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2813"/>
         <source>(hidden)</source>
         <translation>(छिपा हुआ)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2913"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2815"/>
         <source>our link</source>
         <translation>हमारा लिंक</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2924"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2826"/>
         <source>Networks heard (scan)</source>
         <translation>मिले नेटवर्क (स्कैन)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2926"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2828"/>
         <source>By the last scan: the power of the other networks on and next to each channel, with how 2.4 GHz channels overlap; our own network is left out. Tap a channel for its details.</source>
         <translation>पिछले स्कैन के अनुसार: हर चैनल पर और उसके पास अन्य नेटवर्कों की पावर, 2.4 GHz चैनलों के ओवरलैप को ध्यान में रखकर; हमारा अपना नेटवर्क शामिल नहीं है। विवरण के लिए किसी चैनल पर टैप करें।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2927"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2829"/>
         <source>By the networks heard: their power, counted with how 2.4 GHz channels overlap; our own network is left out. The traffic on a channel is not measured: that needs the module&apos;s firmware 0.16. Tap a channel for its details.</source>
         <translation>मिले नेटवर्कों के अनुसार: उनकी पावर, 2.4 GHz चैनलों के ओवरलैप को ध्यान में रखकर गिनी गई; हमारा अपना नेटवर्क शामिल नहीं है। चैनल पर ट्रैफ़िक नहीं मापा जाता: इसके लिए मॉड्यूल का फ़र्मवेयर 0.16 चाहिए। विवरण के लिए किसी चैनल पर टैप करें।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2991"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2893"/>
         <source>Least busy</source>
         <translation>सबसे कम व्यस्त</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2997"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2899"/>
         <source>The boat link now (•)</source>
         <translation>अभी नाव से लिंक (•)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3008"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2910"/>
         <source>To move the link there, set channel %1 in Role and access point → Channel below, then Apply; the head unit&apos;s module follows by itself.</source>
         <translation>लिंक को वहाँ ले जाने के लिए, नीचे “भूमिका और एक्सेस पॉइंट → चैनल” में चैनल %1 सेट करें, फिर “लागू करें”; हेड यूनिट का मॉड्यूल अपने आप साथ आ जाएगा।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3009"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2911"/>
         <source>To move the link there, set channel %1 on the boat&apos;s module: Role and access point → Channel, then Apply; this module follows by itself.</source>
         <translation>लिंक को वहाँ ले जाने के लिए, नाव के मॉड्यूल पर चैनल %1 सेट करें: “भूमिका और एक्सेस पॉइंट → चैनल”, फिर “लागू करें”; यह मॉड्यूल अपने आप साथ आ जाएगा।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3017"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2919"/>
         <source>Link events</source>
         <translation>लिंक की घटनाएँ</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3037"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2939"/>
         <source>Saved networks</source>
         <translation>सहेजे गए नेटवर्क</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3058"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2960"/>
         <source>Forget</source>
         <translation>भूल जाएँ</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3063"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2965"/>
         <source>Forgotten: %1</source>
         <translation>भुला दिया गया: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3098"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3000"/>
         <source>Ready</source>
         <translation>तैयार</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3099"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3001"/>
         <source>Waiting for the boat</source>
         <translation>नाव की प्रतीक्षा</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3100"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3002"/>
         <source>No Wi‑Fi</source>
         <translation>Wi‑Fi नहीं</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3106"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3008"/>
         <source>No relay in firmware</source>
         <translation>फ़र्मवेयर में रिले नहीं</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3130"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3032"/>
         <source>Module address must be 0…255</source>
         <translation>मॉड्यूल का पता 0…255 होना चाहिए</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3134"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3036"/>
         <source>Boat port must be 1…65535</source>
         <translation>नाव का पोर्ट 1…65535 होना चाहिए</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3145"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3047"/>
         <source>Boat IP address must be four numbers 0…255</source>
         <translation>नाव के IP पते में 0…255 की चार संख्याएँ होनी चाहिए</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3151"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3053"/>
         <source>Relay switched off; the module answers at address %1</source>
         <translation>रिले बंद; मॉड्यूल पता %1 पर जवाब देता है</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3153"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3055"/>
         <source>Relay settings sent; the module now answers at address %1 and shows up as a new device</source>
         <translation>रिले सेटिंग्स भेजी गईं; मॉड्यूल अब पता %1 पर जवाब देता है और नए डिवाइस के रूप में दिखता है</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3205"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3107"/>
         <source>Module firmware %1 has no relay. Update it to 0.6 or newer with Upgrade below.</source>
         <translation>मॉड्यूल फ़र्मवेयर %1 में रिले नहीं है। नीचे “अपग्रेड” से इसे 0.6 या नए संस्करण में अपडेट करें।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3212"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4203"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4788"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3114"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4105"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4690"/>
         <source>Mode</source>
         <translation>मोड</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3227"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3129"/>
         <source>Module address on this port</source>
         <translation>इस पोर्ट पर मॉड्यूल का पता</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3228"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3130"/>
         <source>Must differ from the boat device&apos;s address, which is usually 0</source>
         <translation>नाव के डिवाइस के पते से अलग होना चाहिए, जो आमतौर पर 0 होता है</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3239"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3141"/>
         <source>Boat IP address</source>
         <translation>नाव का IP पता</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3240"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3142"/>
         <source>0.0.0.0 with UDP: the module answers whoever sends to it first</source>
         <translation>UDP के साथ 0.0.0.0: मॉड्यूल उसे जवाब देता है जो सबसे पहले उसे डेटा भेजता है</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3250"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3152"/>
         <source>Boat port</source>
         <translation>नाव का पोर्ट</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3251"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3153"/>
         <source>UDP or TCP port of the boat device</source>
         <translation>नाव के डिवाइस का UDP या TCP पोर्ट</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3262"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4238"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4823"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3164"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4140"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4725"/>
         <source>Own UDP port</source>
         <translation>अपना UDP पोर्ट</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3263"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3165"/>
         <source>The port the boat sends to; 0 = same as the boat port</source>
         <translation>वह पोर्ट जिस पर नाव डेटा भेजती है; 0 = नाव के पोर्ट जैसा</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3280"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3518"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4263"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4322"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4531"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4661"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4853"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5327"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3182"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3420"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4165"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4224"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4433"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4563"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4755"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5229"/>
         <source>Apply</source>
         <translation>लागू करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3287"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3189"/>
         <source>Send the settings to the module; it stores and applies them at once</source>
         <translation>सेटिंग्स मॉड्यूल को भेजें; वह उन्हें तुरंत सहेजता और लागू करता है</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3292"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3524"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4269"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4537"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4667"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4859"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3194"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3426"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4171"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4439"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4569"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4761"/>
         <source>Read back</source>
         <translation>फिर से पढ़ें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3293"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3195"/>
         <source>Discard edits and show what the module has</source>
         <translation>बदलाव रद्द करें और मॉड्यूल में मौजूद मान दिखाएँ</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3306"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3208"/>
         <source>Relay counters</source>
         <translation>रिले काउंटर</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3309"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3211"/>
         <source>Peer</source>
         <translation>पीयर</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3314"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3216"/>
         <source>To the boat</source>
         <translation>नाव की ओर</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3316"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4194"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4876"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3218"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4096"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4778"/>
         <source>%1 frames · %2 packets · %3 dropped</source>
         <translation>%1 फ़्रेम · %2 पैकेट · %3 छोड़े गए</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3320"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3222"/>
         <source>From the boat</source>
         <translation>नाव से</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3322"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4199"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4881"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3224"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4101"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4783"/>
         <source>%1 packets · %2 frames · %3 dropped</source>
         <translation>%1 पैकेट · %2 फ़्रेम · %3 छोड़े गए</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3326"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3228"/>
         <source>For the module</source>
         <translation>मॉड्यूल के लिए</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3327"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4159"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3229"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4061"/>
         <source>%1 frames</source>
         <translation>%1 फ़्रेम</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3363"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3564"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3572"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3265"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3466"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3474"/>
         <source>Not sent: no connection to the module</source>
         <translation>नहीं भेजा गया: मॉड्यूल से कनेक्शन नहीं</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3369"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3271"/>
         <source>Radio settings sent to the module</source>
         <translation>रेडियो सेटिंग्स मॉड्यूल को भेजी गईं</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3378"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3280"/>
         <source>Firmware 0.11 refuses LR only for an access point; update the module to 0.12.</source>
         <translation>फ़र्मवेयर 0.11 एक्सेस पॉइंट के लिए “केवल LR” अस्वीकार करता है; मॉड्यूल को 0.12 पर अपडेट करें।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3379"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3281"/>
         <source>The module refused these radio settings (ERR_PAYLOAD).</source>
         <translation>मॉड्यूल ने ये रेडियो सेटिंग्स अस्वीकार कर दीं (ERR_PAYLOAD)।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3381"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3283"/>
         <source>The module refused these radio settings: not possible now (ERR_RUNTIME).</source>
         <translation>मॉड्यूल ने ये रेडियो सेटिंग्स अस्वीकार कर दीं: अभी संभव नहीं (ERR_RUNTIME)।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3382"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3284"/>
         <source>The module refused these radio settings (code %1).</source>
         <translation>मॉड्यूल ने ये रेडियो सेटिंग्स अस्वीकार कर दीं (कोड %1)।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3409"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3311"/>
         <source>no link</source>
         <translation>लिंक नहीं</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3425"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3585"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3327"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3487"/>
         <source>Radio: %1</source>
         <translation>रेडियो: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3432"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3334"/>
         <source>Transmit power limit, dBm</source>
         <translation>ट्रांसमिट पावर की सीमा, dBm</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3436"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3338"/>
         <source>In use: %1 dBm</source>
         <translation>उपयोग में: %1 dBm</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3438"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3340"/>
         <source> (saved %1 dBm; the driver works in steps)</source>
         <translation> (सहेजा गया %1 dBm; ड्राइवर चरणों में काम करता है)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3450"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3352"/>
         <source>Protocols</source>
         <translation>प्रोटोकॉल</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3452"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3354"/>
         <source>Access point: each client negotiates its own mode.</source>
         <translation>एक्सेस पॉइंट: हर क्लाइंट अपना मोड खुद तय करता है।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3453"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3355"/>
         <source>Link now: %1</source>
         <translation>मौजूदा लिंक: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3454"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3356"/>
         <source>. LR needs an LR-capable access point: another Kogger module (Espressif) with LR or b/g/n+LR.</source>
         <translation>। LR के लिए LR-सक्षम एक्सेस पॉइंट चाहिए: LR या b/g/n+LR वाला दूसरा Kogger मॉड्यूल (Espressif)।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3469"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3371"/>
         <source>LR only: phones and laptops cannot join; only Espressif stations with LR (another Kogger module set to LR or b/g/n+LR) can.</source>
         <translation>केवल LR: फ़ोन और लैपटॉप नहीं जुड़ सकते; केवल LR वाले Espressif स्टेशन (LR या b/g/n+LR पर सेट दूसरा Kogger मॉड्यूल) जुड़ सकते हैं।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3480"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3382"/>
         <source>Channel width</source>
         <translation>चैनल की चौड़ाई</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3481"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3383"/>
         <source>20 MHz only: 40 MHz needs 802.11n (b/g/n or b/g/n+LR); LR, b and b/g run at 20 MHz.</source>
         <translation>केवल 20 MHz: 40 MHz के लिए 802.11n (b/g/n या b/g/n+LR) चाहिए; LR, b और b/g 20 MHz पर चलते हैं।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3483"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3385"/>
         <source>No link: the saved width is shown</source>
         <translation>लिंक नहीं: सहेजी गई चौड़ाई दिखाई गई है</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3484"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3386"/>
         <source>In use: %1 MHz</source>
         <translation>उपयोग में: %1 MHz</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3486"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3388"/>
         <source> (saved %1 MHz)</source>
         <translation> (सहेजा गया %1 MHz)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3487"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3389"/>
         <source> (saved %1 MHz; the access point gives no 40 MHz)</source>
         <translation> (सहेजा गया %1 MHz; एक्सेस पॉइंट 40 MHz नहीं देता)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3491"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3393"/>
         <source>20 MHz</source>
         <translation>20 MHz</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3492"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3394"/>
         <source>40 MHz</source>
         <translation>40 MHz</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3493"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3395"/>
         <source>40 MHz needs 802.11n</source>
         <translation>40 MHz के लिए 802.11n चाहिए</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3499"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3401"/>
         <source>Power save</source>
         <translation>ऊर्जा बचत</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3503"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3405"/>
         <source>Min</source>
         <translation>न्यूनतम</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3503"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3405"/>
         <source>Max</source>
         <translation>अधिकतम</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3509"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3411"/>
         <source>Checking what the module uses now… </source>
         <translation>जाँच हो रही है कि मॉड्यूल अभी क्या उपयोग कर रहा है… </translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3510"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3412"/>
         <source>Not applied yet: the menu differs from what the module uses. </source>
         <translation>अभी लागू नहीं हुआ: मेनू मॉड्यूल की मौजूदा सेटिंग से अलग है। </translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3511"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3413"/>
         <source>Protocol and width changes make the module reconnect: the boat link drops for a few seconds. 40 MHz needs 802.11n and an access point that gives it.</source>
         <translation>प्रोटोकॉल और चैनल चौड़ाई बदलने पर मॉड्यूल फिर से कनेक्ट होता है: नाव से लिंक कुछ सेकंड के लिए टूट जाता है। 40 MHz के लिए 802.11n और उसे देने वाला एक्सेस पॉइंट चाहिए।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3560"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3462"/>
         <source>%1 min %2 s</source>
         <translation>%1 min %2 s</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3567"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3469"/>
         <source>Switching the module&apos;s radio off for %1</source>
         <translation>मॉड्यूल का रेडियो %1 के लिए बंद किया जा रहा है</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3568"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3470"/>
         <source>Switching the module&apos;s radio off until you switch it on</source>
         <translation>मॉड्यूल का रेडियो तब तक के लिए बंद किया जा रहा है जब तक आप उसे चालू न करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3591"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3493"/>
         <source>Antenna swap</source>
         <translation>एंटीना बदलना</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3598"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3500"/>
         <source>Radio off · %1</source>
         <translation>रेडियो बंद · %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3605"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3507"/>
         <source>Switch the radio off for</source>
         <translation>रेडियो बंद करने की अवधि</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3607"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3509"/>
         <source>Over the cable: the module stays in reach and may stay off until you switch it on (or it restarts).</source>
         <translation>केबल से: मॉड्यूल पहुँच में रहता है और तब तक बंद रह सकता है जब तक आप उसे चालू न करें (या वह रीस्टार्ट न हो)।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3608"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3510"/>
         <source>Over the network: the module is reached through this very radio, so it goes off only for a time (up to 10 min) and comes back by itself.</source>
         <translation>नेटवर्क से: मॉड्यूल तक इसी रेडियो के ज़रिए पहुँचा जाता है, इसलिए वह केवल कुछ समय (10 min तक) के लिए बंद होता है और अपने आप वापस आता है।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3614"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3516"/>
         <source>Until on</source>
         <translation>चालू करने तक</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3623"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3525"/>
         <source>The boat link drops for %1, and about 20 s more while the modules find each other again.</source>
         <translation>नाव से लिंक %1 के लिए टूट जाएगा, और लगभग 20 s और, जब तक मॉड्यूल एक-दूसरे को फिर से ढूँढ़ते हैं।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3625"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3527"/>
         <source>The boat link drops until you switch the radio on, and about 20 s more while the modules find each other again.</source>
         <translation>नाव से लिंक तब तक टूटा रहेगा जब तक आप रेडियो चालू न करें, और लगभग 20 s और, जब तक मॉड्यूल एक-दूसरे को फिर से ढूँढ़ते हैं।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3629"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3531"/>
         <source>Switch the radio off</source>
         <translation>रेडियो बंद करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3435"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3638"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3337"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3540"/>
         <source>The radio is off</source>
         <translation>रेडियो बंद है</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2571"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2473"/>
         <source>The PHY rate of the other end&apos;s data frames in a 0.2 s window, every 3 s while this section is open.</source>
         <translation>दूसरे सिरे के डेटा फ़्रेम की PHY दर, 0.2 s की विंडो में, हर 3 s पर, जब तक यह अनुभाग खुला है।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3642"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3544"/>
         <source>On again in %1, by the module&apos;s timer.</source>
         <translation>मॉड्यूल के टाइमर से %1 में फिर चालू होगा।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3643"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3545"/>
         <source>The time is up: the module switches its radio on; the boat link comes back in about 20 s.</source>
         <translation>समय पूरा हुआ: मॉड्यूल अपना रेडियो चालू कर रहा है; नाव से लिंक लगभग 20 s में लौटेगा।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3644"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3546"/>
         <source>Until you switch it on, or until the module restarts.</source>
         <translation>जब तक आप उसे चालू न करें, या जब तक मॉड्यूल रीस्टार्ट न हो।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3645"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3547"/>
         <source>Asking the module for how long…</source>
         <translation>मॉड्यूल से पूछा जा रहा है कि कितनी देर के लिए…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3654"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3556"/>
         <source>Switch the radio on</source>
         <translation>रेडियो चालू करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3663"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3565"/>
         <source>This module is reached through its radio, so it cannot be switched on from here: it comes back by itself when its time is up.</source>
         <translation>इस मॉड्यूल तक उसके रेडियो से पहुँचा जाता है, इसलिए उसे यहाँ से चालू नहीं किया जा सकता: समय पूरा होने पर वह अपने आप चालू हो जाएगा।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3694"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3596"/>
         <source>The port speed could not be changed now: nothing changed</source>
         <translation>पोर्ट की गति अभी नहीं बदली जा सकी: कुछ नहीं बदला</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3705"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3607"/>
         <source>Module port to this device, bit/s</source>
         <translation>इस डिवाइस की ओर मॉड्यूल का पोर्ट, bit/s</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3707"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3609"/>
         <source>Now %1. The module keeps the speed it is given here; this device&apos;s port follows.</source>
         <translation>अभी %1। मॉड्यूल यहाँ दी गई गति बनाए रखता है; इस डिवाइस का पोर्ट उसी के अनुसार चलता है।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3708"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4293"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3610"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4195"/>
         <source>Changing to %1… (it finishes even if this page is closed)</source>
         <translation>%1 पर बदला जा रहा है… (यह पेज बंद करने पर भी पूरा होगा)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3720"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3622"/>
         <source>The boat stream is about 92 KB/s: 921k is full, 2M leaves half free. Both ends must do the speed (the head unit&apos;s UART6: up to 4M).</source>
         <translation>नाव से आने वाला डेटा प्रवाह लगभग 92 KB/s है: 921k पूरा भर जाता है, 2M आधा खाली छोड़ता है। दोनों सिरों को यह गति समर्थित होनी चाहिए (हेड यूनिट का UART6: 4M तक)।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3723"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3625"/>
         <source>Apply %1</source>
         <translation>%1 लागू करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3769"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3671"/>
         <source>Module address must be 1…254: 0 is where devices sit, 255 is refused</source>
         <translation>मॉड्यूल का पता 1…254 होना चाहिए: 0 डिवाइसों का है, 255 अस्वीकार किया जाता है</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3777"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3679"/>
         <source>line off</source>
         <translation>लाइन बंद</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3782"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3684"/>
         <source>senders</source>
         <translation>प्रेषक</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3782"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3684"/>
         <source>broadcast :%1</source>
         <translation>ब्रॉडकास्ट :%1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3787"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4743"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3689"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4645"/>
         <source>ready</source>
         <translation>तैयार</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3788"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4744"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3690"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4646"/>
         <source>no peer</source>
         <translation>कोई पीयर नहीं</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3789"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4745"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3691"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4647"/>
         <source>no Wi‑Fi</source>
         <translation>Wi‑Fi नहीं</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3791"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4179"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4747"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3693"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4081"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4649"/>
         <source>off</source>
         <translation>बंद</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3794"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3696"/>
         <source>Two UDP lines cannot share a local port: to swap the ports of X1 and X2, first move one line to a free port, then give the other line the freed one.</source>
         <translation>दो UDP लाइनें एक ही लोकल पोर्ट साझा नहीं कर सकतीं: X1 और X2 के पोर्ट आपस में बदलने के लिए पहले एक लाइन को खाली पोर्ट पर ले जाएँ, फिर खाली हुआ पोर्ट दूसरी लाइन को दें।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3799"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3701"/>
         <source>The module did not send the line&apos;s settings: nothing changed.</source>
         <translation>मॉड्यूल ने लाइन की सेटिंग्स नहीं भेजीं: कुछ नहीं बदला।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3800"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3702"/>
         <source>The line&apos;s settings are not known yet: nothing changed. Read back and try again.</source>
         <translation>लाइन की सेटिंग्स अभी ज्ञात नहीं हैं: कुछ नहीं बदला। फिर से पढ़ें और दोबारा कोशिश करें।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3803"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3705"/>
         <source>The module refused the rate: invalid value.</source>
         <translation>मॉड्यूल ने दर अस्वीकार कर दी: अमान्य मान।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3804"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3706"/>
         <source>The module refused these settings: invalid values.</source>
         <translation>मॉड्यूल ने ये सेटिंग्स अस्वीकार कर दीं: अमान्य मान।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3805"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3707"/>
         <source>The module refused: wrong key.</source>
         <translation>मॉड्यूल ने अस्वीकार कर दिया: गलत कुंजी।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3806"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3708"/>
         <source>The module refused: not possible now or in this role.</source>
         <translation>मॉड्यूल ने अस्वीकार कर दिया: अभी या इस भूमिका में संभव नहीं।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3807"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3709"/>
         <source>The module refused (code %1).</source>
         <translation>मॉड्यूल ने अस्वीकार कर दिया (कोड %1)।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3808"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3710"/>
         <source>No answer from the module: the fields show what it reports now.</source>
         <translation>मॉड्यूल से कोई उत्तर नहीं: फ़ील्ड वही दिखा रहे हैं जो वह अभी बता रहा है।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3826"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3728"/>
         <source>unreadable bytes (wrong rate?)</source>
         <translation>अपठनीय बाइट (गलत दर?)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3827"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3729"/>
         <source>SBP host</source>
         <translation>SBP होस्ट</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3828"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3730"/>
         <source>SBP device(s)</source>
         <translation>SBP डिवाइस</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3829"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3731"/>
         <source>SBP host and devices</source>
         <translation>SBP होस्ट और डिवाइस</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3832"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3734"/>
         <source>IP bridge (SLIP)</source>
         <translation>IP ब्रिज (SLIP)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3833"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3735"/>
         <source>other framed traffic</source>
         <translation>अन्य फ़्रेम वाला ट्रैफ़िक</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3838"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3740"/>
         <source>never</source>
         <translation>कभी नहीं</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3839"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3741"/>
         <source>%1 s ago</source>
         <translation>%1 s पहले</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3840"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3742"/>
         <source>%1 min ago</source>
         <translation>%1 min पहले</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3841"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3743"/>
         <source>%1 h ago</source>
         <translation>%1 h पहले</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3846"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3748"/>
         <source>generic</source>
         <translation>सामान्य</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3847"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3749"/>
         <source>fixed wing</source>
         <translation>फ़िक्स्ड विंग</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3848"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3750"/>
         <source>quadrotor</source>
         <translation>क्वाडकॉप्टर</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3849"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3751"/>
         <source>helicopter</source>
         <translation>हेलीकॉप्टर</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3850"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3752"/>
         <source>ground station</source>
         <translation>ग्राउंड स्टेशन</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3851"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3753"/>
         <source>rover</source>
         <translation>रोवर</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3852"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3754"/>
         <source>boat</source>
         <translation>नाव</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3853"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3755"/>
         <source>submarine</source>
         <translation>पनडुब्बी</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3854"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3756"/>
         <source>hexarotor</source>
         <translation>हेक्साकॉप्टर</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3855"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3757"/>
         <source>octorotor</source>
         <translation>ऑक्टोकॉप्टर</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3856"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3758"/>
         <source>onboard computer</source>
         <translation>ऑनबोर्ड कंप्यूटर</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3857"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3759"/>
         <source>gimbal</source>
         <translation>जिम्बल</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3859"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3761"/>
         <source>camera</source>
         <translation>कैमरा</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3861"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3763"/>
         <source>type %1</source>
         <translation>प्रकार %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3865"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3767"/>
         <source>generic autopilot</source>
         <translation>सामान्य ऑटोपायलट</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3867"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3769"/>
         <source>no autopilot</source>
         <translation>ऑटोपायलट नहीं</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3870"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3772"/>
         <source>autopilot %1</source>
         <translation>ऑटोपायलट %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3890"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3792"/>
         <source>Ports</source>
         <translation>पोर्ट</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3895"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3797"/>
         <source>This device is connected through %1</source>
         <translation>यह डिवाइस %1 के ज़रिए जुड़ा है</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3896"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3798"/>
         <source>This device reaches the module over the network</source>
         <translation>यह डिवाइस नेटवर्क के ज़रिए मॉड्यूल तक पहुँचता है</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3897"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3799"/>
         <source>X1 and X2 are equal: the module answers on either, and each port has its own rate.</source>
         <translation>X1 और X2 बराबर हैं: मॉड्यूल किसी पर भी उत्तर देता है, और हर पोर्ट की अपनी दर है।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4009"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3911"/>
         <source>%1 already listens on UDP %2.</source>
         <translation>%1 पहले से UDP %2 पर सुन रहा है।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4014"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3916"/>
         <source>Not sent: check the fields (IP a.b.c.d, ports 0–65535, pins −1…127), or wait for the running change.</source>
         <translation>नहीं भेजा गया: फ़ील्ड जाँचें (IP a.b.c.d, पोर्ट 0–65535, पिन −1…127), या चल रहे बदलाव के पूरा होने का इंतज़ार करें।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4022"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3924"/>
         <source>The rate of %1 could not be changed now: nothing changed</source>
         <translation>%1 की दर अभी नहीं बदली जा सकी: कुछ नहीं बदला</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4091"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3993"/>
         <source>this device</source>
         <translation>यह डिवाइस</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4092"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3994"/>
         <source>provisional</source>
         <translation>अस्थायी</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4095"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4101"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3997"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4003"/>
         <source>UART off</source>
         <translation>UART बंद</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4096"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3998"/>
         <source>no data</source>
         <translation>कोई डेटा नहीं</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4100"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4002"/>
         <source>Rate</source>
         <translation>दर</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4101"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4003"/>
         <source>%1 bit/s</source>
         <translation>%1 bit/s</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4104"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4006"/>
         <source>Provisional: kept once a request for the module comes through this port, otherwise back to %1 in 10 s</source>
         <translation>अस्थायी: इस पोर्ट से मॉड्यूल के लिए अनुरोध आते ही बनी रहेगी, अन्यथा 10 s में %1 पर लौट जाएगी</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4105"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4007"/>
         <source>Saved: %1 (in effect after a reboot)</source>
         <translation>सहेजा गया: %1 (रीबूट के बाद लागू)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4113"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4015"/>
         <source>Gets the module&apos;s reports</source>
         <translation>मॉड्यूल की रिपोर्ट प्राप्त करता है</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4113"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4015"/>
         <source>Gets no reports from the module</source>
         <translation>मॉड्यूल से रिपोर्ट प्राप्त नहीं करता</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4118"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4020"/>
         <source>RX %1 · TX %2</source>
         <translation>RX %1 · TX %2</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4120"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4022"/>
         <source>%1 received, %2 sent · last RX %3</source>
         <translation>%1 प्राप्त, %2 भेजा गया · अंतिम RX %3</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4126"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4028"/>
         <source>Frames RX/TX</source>
         <translation>फ़्रेम RX/TX</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4133"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4035"/>
         <source>From the port: %1 requests, %2 content · to it: %3 requests, %4 content</source>
         <translation>पोर्ट से: %1 अनुरोध, %2 सामग्री फ़्रेम · पोर्ट को: %3 अनुरोध, %4 सामग्री फ़्रेम</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4136"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4038"/>
         <source>for the module %1, its own frames %2</source>
         <translation>मॉड्यूल के लिए %1, उसके अपने फ़्रेम %2</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4139"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4041"/>
         <source>Losses</source>
         <translation>हानि</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4141"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4043"/>
         <source>%1 RX overflows · %2 TX drops</source>
         <translation>%1 RX ओवरफ़्लो · %2 TX ड्रॉप</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4146"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4048"/>
         <source>Devices on this port</source>
         <translation>इस पोर्ट पर डिवाइस</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4152"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4054"/>
         <source>MAVLink %1/%2 · %3</source>
         <translation>MAVLink %1/%2 · %3</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4153"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4055"/>
         <source>no heartbeat yet</source>
         <translation>अभी तक कोई heartbeat नहीं</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4154"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4056"/>
         <source>SBP %1</source>
         <translation>SBP %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4156"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4058"/>
         <source>board %1</source>
         <translation>बोर्ड %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4160"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4062"/>
         <source>fw %1</source>
         <translation>फ़र्मवेयर %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4161"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4063"/>
         <source>SN %1</source>
         <translation>SN %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4162"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4064"/>
         <source>heard %1</source>
         <translation>%1 सुना गया</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4169"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4071"/>
         <source>None heard</source>
         <translation>कोई सुनाई नहीं दिया</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4175"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4077"/>
         <source>Network side (line %1)</source>
         <translation>नेटवर्क पक्ष (लाइन %1)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4177"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4867"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4079"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4769"/>
         <source>State</source>
         <translation>स्थिति</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4188"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4090"/>
         <source>last data %1</source>
         <translation>अंतिम डेटा %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4192"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4874"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4094"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4776"/>
         <source>To the network</source>
         <translation>नेटवर्क की ओर</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4197"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4879"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4099"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4781"/>
         <source>From the network</source>
         <translation>नेटवर्क से</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4214"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4799"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4116"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4701"/>
         <source>Send to</source>
         <translation>किसे भेजें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4215"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4800"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4117"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4702"/>
         <source>The peer below</source>
         <translation>नीचे दिया गया पीयर</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4216"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4118"/>
         <source>Whoever sent to this UDP port (up to 4, forgotten after 60 s of silence)</source>
         <translation>इस UDP पोर्ट पर भेजने वालों को (अधिकतम 4, 60 s की चुप्पी के बाद भुला दिए जाते हैं)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4217"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4802"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4119"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4704"/>
         <source>Broadcast in the subnet to the peer port</source>
         <translation>सबनेट में पीयर पोर्ट पर ब्रॉडकास्ट</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4221"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4806"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4123"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4708"/>
         <source>Fixed</source>
         <translation>निश्चित</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4221"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4806"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4123"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4708"/>
         <source>Senders</source>
         <translation>प्रेषक</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4221"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4806"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4123"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4708"/>
         <source>Broadcast</source>
         <translation>ब्रॉडकास्ट</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4228"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4813"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4130"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4715"/>
         <source>Peer IP address</source>
         <translation>पीयर का IP पता</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4233"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4818"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4135"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4720"/>
         <source>Peer port</source>
         <translation>पीयर पोर्ट</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4239"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4141"/>
         <source>0 = the peer port. Each UDP line needs a port of its own: to swap the ports of X1 and X2, move one line to a free port first.</source>
         <translation>0 = पीयर पोर्ट। हर UDP लाइन को अपना अलग पोर्ट चाहिए: X1 और X2 के पोर्ट आपस में बदलने के लिए पहले एक लाइन को खाली पोर्ट पर ले जाएँ।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4244"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4835"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4146"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4737"/>
         <source>TX / RX pins</source>
         <translation>TX / RX पिन</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4245"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4147"/>
         <source>Allowed 0, 1, 3, 4, 5, 6, 7, 10; −1 switches the UART off; new pins start after a reboot</source>
         <translation>अनुमत 0, 1, 3, 4, 5, 6, 7, 10; −1 UART बंद करता है; नए पिन रीबूट के बाद काम करते हैं</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4254"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4156"/>
         <source>Applying… (it finishes even if this page is closed)</source>
         <translation>लागू किया जा रहा है… (यह पेज बंद करने पर भी पूरा होगा)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4255"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4157"/>
         <source>This device&apos;s port: switching its line off ends the network (boat) link through it; the module keeps answering here.</source>
         <translation>इस डिवाइस का पोर्ट: इसकी लाइन बंद करने से इसके ज़रिए नेटवर्क (नाव) लिंक टूट जाता है; मॉड्यूल यहाँ उत्तर देता रहता है।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4256"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4158"/>
         <source>Only the fields changed here are sent; the module keeps the rest as it has them.</source>
         <translation>केवल यहाँ बदले गए फ़ील्ड भेजे जाते हैं; बाकी को मॉड्यूल जैसा है वैसा ही रखता है।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4292"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4194"/>
         <source>Set the rate</source>
         <translation>दर सेट करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4295"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4197"/>
         <source>This device&apos;s port: the module keeps the new rate at once (firmware 0.15) and the link here follows. If this device cannot do the rate, the link is lost until the module&apos;s BOOT button is held 5 s (both ports back to 921600).</source>
         <translation>इस डिवाइस का पोर्ट: मॉड्यूल नई दर तुरंत रख लेता है (फ़र्मवेयर 0.15) और यहाँ का लिंक उसका अनुसरण करता है। अगर यह डिवाइस यह दर नहीं संभाल सकता, तो लिंक तब तक टूटा रहता है जब तक मॉड्यूल का BOOT बटन 5 s दबाकर न रखा जाए (दोनों पोर्ट 921600 पर लौट आते हैं)।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4296"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4198"/>
         <source>This device&apos;s port: the link here follows, the module has to answer at the new rate, then it is saved.</source>
         <translation>इस डिवाइस का पोर्ट: यहाँ का लिंक उसका अनुसरण करता है, मॉड्यूल को नई दर पर उत्तर देना होता है, फिर दर सहेजी जाती है।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4297"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4199"/>
         <source>Not this device&apos;s port: saved in the module at once.</source>
         <translation>इस डिवाइस का पोर्ट नहीं: तुरंत मॉड्यूल में सहेजा जाता है।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4300"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4202"/>
         <source> 5M: both ends must do it (the head unit&apos;s UART6 was tried up to 4M only; a USB adapter needs 5M in its data sheet).</source>
         <translation> 5M: दोनों सिरों को इसका समर्थन करना चाहिए (हेड यूनिट का UART6 केवल 4M तक आज़माया गया; USB एडैप्टर की डेटाशीट में 5M लिखा होना चाहिए)।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4301"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4203"/>
         <source> 5M: both ends must do it (the head unit&apos;s UART6 was tried up to 4M; a USB adapter needs 5M in its data sheet). Without an answer at 5M the link goes back by itself.</source>
         <translation> 5M: दोनों सिरों को इसका समर्थन करना चाहिए (हेड यूनिट का UART6 4M तक आज़माया गया; USB एडैप्टर की डेटाशीट में 5M लिखा होना चाहिए)। 5M पर उत्तर न मिलने पर लिंक अपने आप पहले जैसा हो जाता है।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4302"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4204"/>
         <source> 5M: the device on this port must do it too. The module keeps the rate: set it back here if that device stops answering.</source>
         <translation> 5M: इस पोर्ट पर लगे डिवाइस को भी इसका समर्थन करना चाहिए। मॉड्यूल यह दर बनाए रखता है: अगर वह डिवाइस उत्तर देना बंद कर दे, तो इसे यहाँ वापस बदलें।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4344"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4246"/>
         <source>Must differ from the devices behind the ports (a sonar is usually 0); 1…254. The module then reappears as a new device.</source>
         <translation>पोर्ट के पीछे लगे डिवाइसों से अलग होना चाहिए (सोनार का आमतौर पर 0 होता है); 1…254। इसके बाद मॉड्यूल एक नए डिवाइस के रूप में फिर दिखाई देता है।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4351"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4899"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4253"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4801"/>
         <source>Set</source>
         <translation>सेट करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4393"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4295"/>
         <source>Role saved: %1 after the next reboot</source>
         <translation>भूमिका सहेजी गई: अगले रीबूट के बाद %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4400"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4302"/>
         <source>Check the fields: name 1–32 bytes, password 8–63 characters (none for an open network), channel 1–11, clients 1–10</source>
         <translation>फ़ील्ड जाँचें: नाम 1–32 बाइट, पासवर्ड 8–63 अक्षर (खुले नेटवर्क के लिए कोई नहीं), चैनल 1–11, क्लाइंट 1–10</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4409"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4311"/>
         <source>access point</source>
         <translation>एक्सेस पॉइंट</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4409"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4311"/>
         <source>station</source>
         <translation>स्टेशन</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4432"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4334"/>
         <source>Role and access point</source>
         <translation>भूमिका और एक्सेस पॉइंट</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4436"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4338"/>
         <source>Running: %1</source>
         <translation>अभी चल रहा है: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4440"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4342"/>
         <source>Station</source>
         <translation>स्टेशन</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4449"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4351"/>
         <source>Saved role: %1 — takes effect after a reboot</source>
         <translation>सहेजी गई भूमिका: %1 — रीबूट के बाद लागू होगी</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4456"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4358"/>
         <source>As an access point the module stops joining the boat&apos;s network, so this head unit loses the boat link until the role is switched back. It then answers at address 88 unless an own address is set.</source>
         <translation>एक्सेस पॉइंट के रूप में मॉड्यूल नाव के नेटवर्क से जुड़ना बंद कर देता है, इसलिए यह हेड यूनिट तब तक नाव से लिंक खो देती है जब तक भूमिका वापस न बदली जाए। तब यह पते 88 पर उत्तर देता है, जब तक कि अपना पता सेट न किया गया हो।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4457"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4359"/>
         <source>As an access point the module stops joining the boat&apos;s network, so this head unit loses the boat link until the role is switched back. With a relaying line it answers at its relay address (88 by default).</source>
         <translation>एक्सेस पॉइंट के रूप में मॉड्यूल नाव के नेटवर्क से जुड़ना बंद कर देता है, इसलिए यह हेड यूनिट तब तक नाव से लिंक खो देती है जब तक भूमिका वापस न बदली जाए। रिले करने वाली लाइन होने पर यह अपने रिले पते पर उत्तर देता है (डिफ़ॉल्ट रूप से 88)।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4458"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4360"/>
         <source>As a station the module joins saved networks, as before.</source>
         <translation>स्टेशन के रूप में मॉड्यूल पहले की तरह सहेजे गए नेटवर्कों से जुड़ता है।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4465"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4367"/>
         <source>Apply and reboot</source>
         <translation>लागू करें और रीबूट करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4470"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4372"/>
         <source>Role sent; the module restarts</source>
         <translation>भूमिका भेजी गई; मॉड्यूल फिर से शुरू हो रहा है</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4475"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4377"/>
         <source>Save for next boot</source>
         <translation>अगले बूट के लिए सहेजें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4482"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4384"/>
         <source>Access point network</source>
         <translation>एक्सेस पॉइंट नेटवर्क</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4491"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4393"/>
         <source>8–63 characters. Leave it empty to keep the current password.</source>
         <translation>8–63 अक्षर। मौजूदा पासवर्ड रखने के लिए इसे खाली छोड़ें।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4492"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4394"/>
         <source>unchanged</source>
         <translation>अपरिवर्तित</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4496"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4398"/>
         <source>Security</source>
         <translation>सुरक्षा</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4507"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4409"/>
         <source>Channel (1–11)</source>
         <translation>चैनल (1–11)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4512"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4414"/>
         <source>Clients at most (1–10)</source>
         <translation>अधिकतम क्लाइंट (1–10)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4517"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4419"/>
         <source>Hidden network</source>
         <translation>छिपा हुआ नेटवर्क</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4523"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4425"/>
         <source>The access point restarts with the new settings; its clients reconnect.</source>
         <translation>एक्सेस पॉइंट नई सेटिंग्स के साथ फिर से शुरू होता है; उसके क्लाइंट दोबारा जुड़ते हैं।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4524"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4426"/>
         <source>Stored now, used once the module runs as an access point.</source>
         <translation>अभी सहेजा गया, मॉड्यूल के एक्सेस पॉइंट के रूप में चलने पर उपयोग होगा।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4545"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4447"/>
         <source>Clients: %1</source>
         <translation>क्लाइंट: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4559"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4461"/>
         <source>Refresh clients</source>
         <translation>क्लाइंट रीफ़्रेश करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4585"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4487"/>
         <source>Addresses must be four numbers a.b.c.d, the lease 1–2880 minutes</source>
         <translation>पते चार संख्याओं a.b.c.d के रूप में होने चाहिए, लीज़ 1–2880 मिनट की</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4612"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4514"/>
         <source>Access point address and DHCP</source>
         <translation>एक्सेस पॉइंट का पता और DHCP</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4618"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4520"/>
         <source>Mask</source>
         <translation>मास्क</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4622"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4524"/>
         <source>DHCP server</source>
         <translation>DHCP सर्वर</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4627"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4529"/>
         <source>Address pool</source>
         <translation>पता पूल</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4628"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4530"/>
         <source>Inside the subnet, without the module&apos;s own address, at most 100 addresses</source>
         <translation>सबनेट के भीतर, मॉड्यूल के अपने पते के बिना, अधिकतम 100 पते</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4639"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4541"/>
         <source>Lease, minutes (1–2880)</source>
         <translation>लीज़, मिनट (1–2880)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4644"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4546"/>
         <source>Offer a gateway</source>
         <translation>गेटवे दें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4645"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4547"/>
         <source>Off by default: the module has no internet, a phone would route all traffic to it</source>
         <translation>डिफ़ॉल्ट रूप से बंद: मॉड्यूल के पास इंटरनेट नहीं है, फ़ोन सारा ट्रैफ़िक उसी की ओर भेजने लगेगा</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4650"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4552"/>
         <source>Offer DNS</source>
         <translation>DNS दें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4654"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4556"/>
         <source>Used by the access point. In that role a change applies at once and every client takes a new lease.</source>
         <translation>एक्सेस पॉइंट इसका उपयोग करता है। उस भूमिका में बदलाव तुरंत लागू होता है और हर क्लाइंट नई लीज़ लेता है।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4707"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4609"/>
         <source>Check the fields: IP a.b.c.d, ports 0–65535, line 1 speed 9600–4000000</source>
         <translation>फ़ील्ड जाँचें: IP a.b.c.d, पोर्ट 0–65535, लाइन 1 की गति 9600–4000000</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4722"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4624"/>
         <source>Module address must be 1…255: 0 is where devices sit</source>
         <translation>मॉड्यूल का पता 1…255 होना चाहिए: 0 डिवाइसों का है</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4758"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4660"/>
         <source>Wi‑Fi module: settings applied</source>
         <translation>Wi‑Fi मॉड्यूल: सेटिंग्स लागू हुईं</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4760"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4662"/>
         <source>Wi‑Fi module refused the settings: %1</source>
         <translation>Wi‑Fi मॉड्यूल ने सेटिंग्स अस्वीकार कर दीं: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4761"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4663"/>
         <source>invalid values</source>
         <translation>अमान्य मान</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4762"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4664"/>
         <source>wrong key</source>
         <translation>गलत कुंजी</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4763"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4665"/>
         <source>not possible now or in this role</source>
         <translation>अभी या इस भूमिका में संभव नहीं</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4778"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4680"/>
         <source>Line</source>
         <translation>लाइन</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4782"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4684"/>
         <source>0 · X1, this port</source>
         <translation>0 · X1, यह पोर्ट</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4782"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4684"/>
         <source>1 · X2</source>
         <translation>1 · X2</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4801"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4703"/>
         <source>Whoever sent to this port (up to 4, forgotten after 60 s of silence)</source>
         <translation>इस पोर्ट पर भेजने वालों को (अधिकतम 4, 60 s की चुप्पी के बाद भुला दिए जाते हैं)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4824"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4726"/>
         <source>0 = the peer port</source>
         <translation>0 = पीयर पोर्ट</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4829"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4731"/>
         <source>Baud rate</source>
         <translation>बॉड दर</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4830"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4732"/>
         <source>9600–4000000; line 0 uses the device baud rate below</source>
         <translation>9600–4000000; लाइन 0 नीचे दी गई डिवाइस बॉड दर का उपयोग करती है</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4836"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4738"/>
         <source>Allowed 0, 1, 3, 4, 5, 6, 7, 10; −1 switches UART1 off; new pins start after a reboot</source>
         <translation>अनुमत 0, 1, 3, 4, 5, 6, 7, 10; −1 UART1 बंद करता है; नए पिन रीबूट के बाद काम करते हैं</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4845"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4747"/>
         <source>Line 0 is this port: switching it off ends the boat link, and the module goes back to address 0.</source>
         <translation>लाइन 0 यही पोर्ट है: इसे बंद करने से नाव से लिंक टूट जाता है, और मॉड्यूल पते 0 पर लौट जाता है।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4865"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4767"/>
         <source>Line %1 counters</source>
         <translation>लाइन %1 के काउंटर</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4870"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4772"/>
         <source>senders: %1</source>
         <translation>प्रेषक: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1625"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1635"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4884"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4786"/>
         <source>UART</source>
         <translation>UART</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4886"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4788"/>
         <source>%1 receive overflows · %2 transmit drops · %3 frames for the module</source>
         <translation>%1 प्राप्ति ओवरफ़्लो · %2 प्रेषण ड्रॉप · मॉड्यूल के लिए %3 फ़्रेम</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4891"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4793"/>
         <source>Module address while relaying</source>
         <translation>रिले करते समय मॉड्यूल का पता</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4892"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4794"/>
         <source>Must differ from the devices behind the lines (a sonar is usually 0). The module then reappears as a new device.</source>
         <translation>लाइनों के पीछे लगे डिवाइसों से अलग होना चाहिए (सोनार का आमतौर पर 0 होता है)। इसके बाद मॉड्यूल एक नए डिवाइस के रूप में फिर दिखाई देता है।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4975"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4877"/>
         <source>Advanced settings</source>
         <translation>उन्नत सेटिंग्स</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4999"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4901"/>
         <source>Finish pinning settings</source>
         <translation>सेटिंग्स पिन करना समाप्त करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5000"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4902"/>
         <source>Pin settings to favourites</source>
         <translation>सेटिंग्स को पसंदीदा में पिन करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5156"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5058"/>
         <source>Erase settings</source>
         <translation>सेटिंग्स मिटाएँ</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5157"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5059"/>
         <source>Erase device settings (reset)</source>
         <translation>डिवाइस सेटिंग्स मिटाएँ (रीसेट)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5158"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5060"/>
         <source>Settings erased on device: %1</source>
         <translation>डिवाइस पर सेटिंग्स मिटा दी गईं: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5162"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5064"/>
         <source>Reboot</source>
         <translation>रीबूट करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5163"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5065"/>
         <source>Reboot the device</source>
         <translation>डिवाइस रीबूट करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5164"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5066"/>
         <source>Reboot command sent: %1</source>
         <translation>रीबूट कमांड भेजा गया: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5192"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5094"/>
         <source>Address, mask or host address is not four octets</source>
         <translation>पता, मास्क या होस्ट पता चार ऑक्टेट का नहीं है</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5195"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5097"/>
         <source>Network settings sent: %1</source>
         <translation>नेटवर्क सेटिंग्स भेजी गईं: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5222"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5124"/>
         <source>Device address</source>
         <translation>डिवाइस का पता</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5253"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5155"/>
         <source>Subnet mask</source>
         <translation>सबनेट मास्क</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5284"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5186"/>
         <source>Host address</source>
         <translation>होस्ट का पता</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5315"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5217"/>
         <source>Hand the host its address (DHCP)</source>
         <translation>होस्ट को उसका पता दें (DHCP)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5328"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5230"/>
         <source>Send the addresses to the device. They take effect at once; write them with Flash settings to survive a reboot.</source>
         <translation>पते डिवाइस को भेजें। ये तुरंत लागू होते हैं; रीबूट के बाद भी बने रहें, इसके लिए इन्हें “फ़्लैश में सहेजें” से लिखें।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5333"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5235"/>
         <source>Default</source>
         <translation>डिफ़ॉल्ट</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5334"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5236"/>
         <source>Put the factory addresses in the fields; Apply sends them</source>
         <translation>फ़ील्ड में फ़ैक्टरी पते भरें; “लागू करें” उन्हें भेजता है</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5343"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5245"/>
         <source>Reading the device settings...</source>
         <translation>डिवाइस सेटिंग्स पढ़ी जा रही हैं...</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5345"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5247"/>
         <source>Adapter MAC %1.</source>
         <translation>एडैप्टर MAC %1।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5346"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5248"/>
         <source>The device answers a discovery request on UDP port 18020, broadcast included, so it can be found and put back even when the addresses do not match. That port is fixed.</source>
         <translation>डिवाइस UDP पोर्ट 18020 पर खोज अनुरोध का उत्तर देता है, ब्रॉडकास्ट सहित, इसलिए पते मेल न खाने पर भी उसे ढूँढा और वापस ठीक किया जा सकता है। यह पोर्ट निश्चित है।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5347"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5249"/>
         <source>These settings are not in the device memory: a reboot brings back the stored ones.</source>
         <translation>ये सेटिंग्स डिवाइस की मेमोरी में नहीं हैं: रीबूट करने पर सहेजी हुई सेटिंग्स लौट आएँगी।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5356"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5258"/>
         <source>Settings file</source>
         <translation>सेटिंग्स फ़ाइल</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5383"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5285"/>
         <source>Open settings file</source>
         <translation>सेटिंग्स फ़ाइल खोलें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5396"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5298"/>
         <source>Save settings file</source>
         <translation>सेटिंग्स फ़ाइल सहेजें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5415"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5317"/>
         <source>Upgrade</source>
         <translation>अपग्रेड</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5423"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5325"/>
         <source>Behind a recorder: the sonar is moved to 115200 first and the recorder follows it. Keep the power on until the update ends.</source>
         <translation>रिकॉर्डर के पीछे: पहले सोनार को 115200 पर ले जाया जाता है और रिकॉर्डर उसका अनुसरण करता है। अपडेट पूरा होने तक बिजली चालू रखें।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5424"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5326"/>
         <source>This sonar is behind a recorder on a bus address. To update it, connect it to a computer directly.</source>
         <translation>यह सोनार बस पते के साथ एक रिकॉर्डर के पीछे है। इसे अपडेट करने के लिए इसे सीधे कंप्यूटर से जोड़ें।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5479"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5381"/>
         <source>Please choose a file</source>
         <translation>कृपया एक फ़ाइल चुनें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5526"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5428"/>
         <source>Enter path</source>
         <translation>पथ दर्ज करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5536"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5438"/>
         <source>Choose firmware</source>
         <translation>फ़र्मवेयर चुनें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5546"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5448"/>
         <source>UPGRADE</source>
         <translation>अपग्रेड करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5557"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5459"/>
         <source>Flashing device %1 with file %2</source>
         <translation>डिवाइस %1 को फ़ाइल %2 से फ़्लैश किया जा रहा है</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5559"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5585"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5461"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5487"/>
         <source>Failed to open firmware file: %1</source>
         <translation>फ़र्मवेयर फ़ाइल नहीं खुल सकी: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5571"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5473"/>
         <source>UPGRADE ALL ON THIS LINE</source>
         <translation>इस लाइन पर सभी को अपग्रेड करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5572"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5474"/>
         <source>Every sonar sharing this line, one after another</source>
         <translation>इस लाइन को साझा करने वाले सभी सोनार, एक के बाद एक</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5583"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5485"/>
         <source>Flashing every sonar on the line of %1 with file %2</source>
         <translation>%1 की लाइन के हर सोनार को फ़ाइल %2 से फ़्लैश किया जा रहा है</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5598"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5500"/>
         <source>Device %1 successfully flashed with file %2</source>
         <translation>डिवाइस %1 को फ़ाइल %2 से सफलतापूर्वक फ़्लैश किया गया</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5601"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5503"/>
         <source>Failed to flash device %1 with file %2 (error code %3)</source>
         <translation>डिवाइस %1 को फ़ाइल %2 से फ़्लैश नहीं किया जा सका (त्रुटि कोड %3)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5614"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5952"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5516"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5854"/>
         <source>Bus address</source>
         <translation>बस पता</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5624"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5526"/>
         <source>The number of this sonar on a line it shares. 0: alone on its line. 1: first in the ring, its RX on the host&apos;s TX (left). 2: last, its TX on the host&apos;s RX (right). Only this board may be on the line while the address is set.</source>
         <translation>साझा लाइन पर इस सोनार की संख्या। 0: अपनी लाइन पर अकेला। 1: रिंग में पहला, इसका RX होस्ट के TX पर (बाएँ)। 2: आख़िरी, इसका TX होस्ट के RX पर (दाएँ)। पता सेट करते समय लाइन पर केवल यही बोर्ड होना चाहिए।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5639"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5541"/>
         <source>Setting the address...</source>
         <translation>पता सेट किया जा रहा है...</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5639"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5541"/>
         <source>Set and save address %1</source>
         <translation>पता %1 सेट करें और सहेजें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5640"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5542"/>
         <source>Checks that this board is alone on the line, sets the address, writes it to the board&apos;s memory and reads it back from there</source>
         <translation>जाँचता है कि लाइन पर केवल यही बोर्ड है, पता सेट करता है, उसे बोर्ड की मेमोरी में लिखता है और वहीं से वापस पढ़ता है</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5661"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5563"/>
         <source>Address %1 is set and saved in the board.</source>
         <translation>पता %1 सेट है और बोर्ड में सहेजा गया है।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5662"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5564"/>
         <source>Address not set: %1</source>
         <translation>पता सेट नहीं हुआ: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5664"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5566"/>
         <source>Bus address %1 is set and saved</source>
         <translation>बस पता %1 सेट और सहेजा गया</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5666"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5568"/>
         <source>Bus address not set: %1</source>
         <translation>बस पता सेट नहीं हुआ: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5676"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5578"/>
         <source>Line speed</source>
         <translation>लाइन की गति</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5689"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5591"/>
         <source>In a ring every board passes the other&apos;s bytes on, so both sonars and this computer&apos;s port run at one rate: pick it for the longest wire. Estimate, not measured: 921600 up to about 5 m, 460800 about 10 m, 230400 about 20 m, 115200 about 40 m. A lower rate carries less: if a sonar&apos;s echogram drops out, raise Period. The new rate is checked on both sonars, then written to their memory.</source>
         <translation>रिंग में हर बोर्ड दूसरे बोर्ड के बाइट आगे भेजता है, इसलिए दोनों सोनार और इस कंप्यूटर का पोर्ट एक ही दर पर चलते हैं: इसे सबसे लंबे तार के हिसाब से चुनें। अनुमान, मापा नहीं गया: 921600 लगभग 5 m तक, 460800 लगभग 10 m, 230400 लगभग 20 m, 115200 लगभग 40 m। कम दर कम डेटा ले जाती है: अगर किसी सोनार का इकोग्राम गायब होने लगे, तो “अवधि” बढ़ाएँ। नई दर दोनों सोनार पर जाँची जाती है, फिर उनकी मेमोरी में लिखी जाती है।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5696"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5598"/>
         <source>Now: %1</source>
         <translation>अभी: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5713"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5615"/>
         <source>Changing the line speed...</source>
         <translation>लाइन की गति बदली जा रही है...</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5713"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5615"/>
         <source>Set %1 for the whole line and save</source>
         <translation>पूरी लाइन के लिए %1 सेट करें और सहेजें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5714"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5616"/>
         <source>Moves both sonars and this port to the new rate, checks that both answer on it, writes it to their memory and reads it back from there</source>
         <translation>दोनों सोनार और इस पोर्ट को नई दर पर ले जाता है, जाँचता है कि दोनों उस पर उत्तर देते हैं, उसे उनकी मेमोरी में लिखता है और वहीं से वापस पढ़ता है</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5735"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5637"/>
         <source>The line runs at %1; both sonars keep it.</source>
         <translation>लाइन %1 पर चल रही है; दोनों सोनार इसे बनाए रखते हैं।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5736"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5743"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5638"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5645"/>
         <source>Line speed: %1</source>
         <translation>लाइन की गति: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5741"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5643"/>
         <source>Line speed %1 is set on both sonars and saved</source>
         <translation>लाइन की गति %1 दोनों सोनार पर सेट और सहेजी गई</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5759"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5661"/>
         <source>Ring counters</source>
         <translation>रिंग काउंटर</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5764"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5666"/>
         <source>How this board keeps step with the ring. Read them when a sonar&apos;s echogram has holes; reading is a request on the line, so do not keep pressing: on a ring with no time to spare it can cost the following board a ping itself.</source>
         <translation>यह बोर्ड रिंग के साथ कैसे तालमेल रखता है। जब किसी सोनार के इकोग्राम में छेद हों तब इन्हें पढ़ें; पढ़ना लाइन पर एक अनुरोध है, इसलिए बार-बार न दबाएँ: बिना समय-अंतर वाले रिंग में यह स्वयं अगले बोर्ड का एक पिंग छुड़वा सकता है।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5770"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5672"/>
         <source>Follower: pings on the leader&apos;s sync</source>
         <translation>फ़ॉलोअर: लीडर के सिंक पर पिंग करता है</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5771"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5673"/>
         <source>Leader: sets the pace</source>
         <translation>लीडर: गति तय करता है</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5772"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5674"/>
         <source>, a board before it</source>
         <translation>, इससे पहले एक बोर्ड है</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5775"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5677"/>
         <source>Sync interval</source>
         <translation>सिंक अंतराल</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5777"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5781"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5679"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5683"/>
         <source>%1 ms</source>
         <translation>%1 ms</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5780"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5682"/>
         <source>Guard before a sync</source>
         <translation>सिंक से पहले सुरक्षा विंडो</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5784"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5686"/>
         <source>Pings skipped</source>
         <translation>छूटे पिंग</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5786"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5688"/>
         <source>A sync came while the board was busy; it waited for the next one</source>
         <translation>सिंक आया तब बोर्ड व्यस्त था; उसने अगले की प्रतीक्षा की</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5789"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5691"/>
         <source>Frames cut by a sync</source>
         <translation>सिंक से कटे फ़्रेम</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5793"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5695"/>
         <source>Led after silence</source>
         <translation>चुप्पी के बाद लीडर बना</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5795"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5697"/>
         <source>No sync from the board before it, so this one set the pace itself</source>
         <translation>पिछले बोर्ड से सिंक नहीं आया, इसलिए इसने स्वयं गति तय की</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5798"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5700"/>
         <source>Syncs heard</source>
         <translation>प्राप्त सिंक</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5802"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5704"/>
         <source>Frames passed on</source>
         <translation>आगे भेजे गए फ़्रेम</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5810"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5712"/>
         <source>Asking the board...</source>
         <translation>बोर्ड से पूछा जा रहा है...</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5810"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5712"/>
         <source>Read</source>
         <translation>पढ़ें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5817"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5719"/>
         <source>Reset the counters</source>
         <translation>काउंटर शून्य करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5818"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5720"/>
         <source>Zeroes the five counters on the board; it sends them back at once</source>
         <translation>बोर्ड पर पाँचों काउंटर शून्य करता है; बोर्ड उन्हें तुरंत वापस भेजता है</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5880"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5782"/>
         <source>Information</source>
         <translation>जानकारी</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5897"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5799"/>
         <source>Copy</source>
         <translation>कॉपी करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5903"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5805"/>
         <source>Device info copied to clipboard</source>
         <translation>डिवाइस की जानकारी क्लिपबोर्ड पर कॉपी की गई</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5909"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5811"/>
         <source>Model</source>
         <translation>मॉडल</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5914"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5816"/>
         <source>Board type</source>
         <translation>बोर्ड का प्रकार</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5919"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5821"/>
         <source>Serial number</source>
         <translation>सीरियल नंबर</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5926"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5828"/>
         <source>not set</source>
         <translation>सेट नहीं</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5931"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5833"/>
         <source>Firmware version</source>
         <translation>फ़र्मवेयर संस्करण</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5936"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5838"/>
         <source>Bootloader version</source>
         <translation>बूटलोडर संस्करण</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5941"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5843"/>
         <source>Running</source>
         <translation>चल रहा है</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5946"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5848"/>
         <source>Bootloader</source>
         <translation>बूटलोडर</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5947"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5849"/>
         <source>Firmware</source>
         <translation>फ़र्मवेयर</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5957"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5859"/>
         <source>Connection</source>
         <translation>कनेक्शन</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5962"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5864"/>
         <source>Chip UID</source>
         <translation>चिप UID</translation>
     </message>
@@ -13330,6 +13168,485 @@
         <location filename="../qml/app/QuickActionSettingsTab.qml" line="92"/>
         <source>Toggle which items appear and drag to reorder them.</source>
         <translation>चुनें कि कौन-से आइटम दिखें, और क्रम बदलने के लिए उन्हें खींचें।</translation>
+    </message>
+</context>
+<context>
+    <name>RecorderBoardView</name>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="104"/>
+        <source>contacts</source>
+        <translation>संपर्क</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="104"/>
+        <source>sonar A</source>
+        <translation>सोनार A</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="104"/>
+        <source>sonar B</source>
+        <translation>सोनार B</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="104"/>
+        <source>telemetry</source>
+        <translation>टेलीमेट्री</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="104"/>
+        <source>navigation</source>
+        <translation>नेविगेशन</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="106"/>
+        <source>Separate contacts</source>
+        <translation>अलग-अलग संपर्क</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="106"/>
+        <source>Sonar port A</source>
+        <translation>सोनार पोर्ट A</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="106"/>
+        <source>Sonar port B</source>
+        <translation>सोनार पोर्ट B</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="106"/>
+        <source>Telemetry (Wi-Fi bridge)</source>
+        <translation>टेलीमेट्री (Wi-Fi ब्रिज)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="107"/>
+        <source>GNSS (navigation)</source>
+        <translation>GNSS (नेविगेशन)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="107"/>
+        <source>Function %1</source>
+        <translation>फ़ंक्शन %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="110"/>
+        <source> V</source>
+        <translation> V</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="113"/>
+        <source>auto</source>
+        <translation>ऑटो</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="114"/>
+        <source>%1 Mbaud</source>
+        <translation>%1 Mबॉड</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="114"/>
+        <source>%1 baud</source>
+        <translation>%1 बॉड</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="132"/>
+        <source>transmit</source>
+        <translation>भेजना</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="132"/>
+        <source>receive</source>
+        <translation>प्राप्त</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="132"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="143"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="402"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="414"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="424"/>
+        <source>UART</source>
+        <translation>UART</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="134"/>
+        <source>PWM OUT%1 · %2 µs</source>
+        <translation>PWM OUT%1 · %2 µs</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="135"/>
+        <source>input · %1</source>
+        <translation>इनपुट · %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="136"/>
+        <source>output · %1</source>
+        <translation>आउटपुट · %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="137"/>
+        <source>ADC · %1</source>
+        <translation>ADC · %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="138"/>
+        <source>off</source>
+        <translation>बंद</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="140"/>
+        <source>role %1</source>
+        <translation>भूमिका %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="143"/>
+        <source>Off</source>
+        <translation>बंद</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="143"/>
+        <source>I2C</source>
+        <translation>I2C</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="143"/>
+        <source>PWM (servo)</source>
+        <translation>PWM (सर्वो)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="143"/>
+        <source>Digital input</source>
+        <translation>डिजिटल इनपुट</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="143"/>
+        <source>Digital output</source>
+        <translation>डिजिटल आउटपुट</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="144"/>
+        <source>ADC (0–3.3 V)</source>
+        <translation>ADC (0–3.3 V)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="144"/>
+        <source>Role %1</source>
+        <translation>भूमिका %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="155"/>
+        <source>battery voltage (VBAT), up to about 30 V</source>
+        <translation>बैटरी वोल्टेज (VBAT), लगभग 30 V तक</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="155"/>
+        <source>+5.2 V</source>
+        <translation>+5.2 V</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="155"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="493"/>
+        <source>none</source>
+        <translation>कोई नहीं</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="163"/>
+        <source>data coming in</source>
+        <translation>डेटा आ रहा है</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="164"/>
+        <source>no data now</source>
+        <translation>अभी कोई डेटा नहीं</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="164"/>
+        <source>nothing connected yet</source>
+        <translation>अभी कुछ जुड़ा नहीं है</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="171"/>
+        <source>nothing</source>
+        <translation>कुछ नहीं</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="172"/>
+        <source>the servo, held by hand</source>
+        <translation>सर्वो, हाथ से तय कोण</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="172"/>
+        <source>the servo, scanning</source>
+        <translation>सर्वो, स्कैन कर रहा है</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="173"/>
+        <source>the servo, stopped</source>
+        <translation>सर्वो, रुका हुआ</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="247"/>
+        <source>POWER 5–30 V</source>
+        <translation>पावर 5–30 V</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="250"/>
+        <source>+BAT %1 · GND</source>
+        <translation>+BAT %1 · GND</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="253"/>
+        <source>5 V rail: %1</source>
+        <translation>5 V रेल: %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="333"/>
+        <source>reserved</source>
+        <translation>आरक्षित</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="376"/>
+        <source>Power on the connector: %1</source>
+        <translation>कनेक्टर पर बिजली: %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="381"/>
+        <source>This firmware of the Recorder only reports its connectors; changing them comes with its next phases. Rows marked reserved wait for the firmware too.</source>
+        <translation>Recorder का यह फ़र्मवेयर केवल अपने कनेक्टरों की जानकारी देता है; इन्हें बदलना अगले चरणों में आएगा। "आरक्षित" चिह्नित पंक्तियाँ भी फ़र्मवेयर की प्रतीक्षा में हैं।</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="384"/>
+        <source>Function</source>
+        <translation>फ़ंक्शन</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="387"/>
+        <source>After a reboot</source>
+        <translation>रीबूट के बाद</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="392"/>
+        <source>This connector carries the battery voltage, up to about 30 V: a 5 V GNSS receiver or Wi-Fi bridge on it burns. Connect one only through a converter.</source>
+        <translation>इस कनेक्टर पर बैटरी वोल्टेज है, लगभग 30 V तक: 5 V का GNSS रिसीवर या Wi-Fi ब्रिज इस पर जल जाएगा। इन्हें केवल कन्वर्टर के ज़रिए जोड़ें।</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="399"/>
+        <source>Sonar port</source>
+        <translation>सोनार पोर्ट</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="400"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="422"/>
+        <source>Link</source>
+        <translation>कनेक्शन</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="401"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="413"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="423"/>
+        <source>Speed</source>
+        <translation>गति</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="403"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="425"/>
+        <source>Protocol</source>
+        <translation>प्रोटोकॉल</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="404"/>
+        <source>Ping sync</source>
+        <translation>पिंग सिंक</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="405"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="486"/>
+        <source>Write to the log</source>
+        <translation>लॉग में लिखें</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="406"/>
+        <source>Pass on to the host</source>
+        <translation>होस्ट को भेजें</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="407"/>
+        <source>Traffic and errors</source>
+        <translation>ट्रैफ़िक और त्रुटियाँ</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="412"/>
+        <source>Telemetry</source>
+        <translation>टेलीमेट्री</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="415"/>
+        <source>What goes to the host</source>
+        <translation>होस्ट को क्या भेजें</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="416"/>
+        <source>Channel load</source>
+        <translation>चैनल लोड</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="421"/>
+        <source>Navigation</source>
+        <translation>नेविगेशन</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="426"/>
+        <source>Rate</source>
+        <translation>दर</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="427"/>
+        <source>Time from PPS</source>
+        <translation>PPS से समय</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="428"/>
+        <source>Fix and satellites</source>
+        <translation>फ़िक्स और उपग्रह</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="457"/>
+        <source> → %1 after a reboot</source>
+        <translation> → रीबूट के बाद %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="466"/>
+        <source>Servo on %1</source>
+        <translation>%1 पर सर्वो</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="467"/>
+        <source>Output</source>
+        <translation>आउटपुट</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="468"/>
+        <source>What drives it</source>
+        <translation>इसे क्या चलाता है</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="469"/>
+        <source>Pulse now</source>
+        <translation>अभी पल्स</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="469"/>
+        <source>%1 µs</source>
+        <translation>%1 µs</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="470"/>
+        <source>Timer</source>
+        <translation>टाइमर</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="473"/>
+        <source>Open the servo panel</source>
+        <translation>सर्वो पैनल खोलें</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="480"/>
+        <source>ADC on %1</source>
+        <translation>%1 पर ADC</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="481"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="492"/>
+        <source>Now</source>
+        <translation>अभी</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="482"/>
+        <source>Name</source>
+        <translation>नाम</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="483"/>
+        <source>Divider, scale</source>
+        <translation>डिवाइडर, स्केल</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="484"/>
+        <source>Units</source>
+        <translation>इकाइयाँ</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="485"/>
+        <source>Alarm threshold</source>
+        <translation>अलार्म सीमा</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="491"/>
+        <source>Input %1</source>
+        <translation>इनपुट %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="493"/>
+        <source>Pull</source>
+        <translation>पुल</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="493"/>
+        <source>up</source>
+        <translation>ऊपर</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="493"/>
+        <source>down</source>
+        <translation>नीचे</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="494"/>
+        <source>Event</source>
+        <translation>घटना</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="495"/>
+        <source>Debounce</source>
+        <translation>डिबाउंस</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="496"/>
+        <source>Pulse counter</source>
+        <translation>पल्स काउंटर</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="497"/>
+        <source>Mark in the log on an event</source>
+        <translation>घटना पर लॉग में चिह्न</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="502"/>
+        <source>Output %1</source>
+        <translation>आउटपुट %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="503"/>
+        <source>Level</source>
+        <translation>स्तर</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="504"/>
+        <source>Mode</source>
+        <translation>मोड</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="505"/>
+        <source>Pulse length</source>
+        <translation>पल्स अवधि</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="509"/>
+        <source>The contact is off.</source>
+        <translation>संपर्क बंद है।</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="517"/>
+        <source>SCL and SDA have 10 kOhm pull-ups to 3.3 V on the board.</source>
+        <translation>बोर्ड पर SCL और SDA में 3.3 V पर 10 kOhm पुल-अप हैं।</translation>
     </message>
 </context>
 <context>

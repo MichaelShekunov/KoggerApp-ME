@@ -14,7 +14,7 @@
                  UARTs 2 3 1 4 0 0 0 0
       pins       17; IN1, IN3, O1 PWM to OUT1; the other universal pins off; device-port pins UART with no role caps
       outs       the servo panel's OUT1 row: IN1, IN3, O1
-      page       the Connectors group shows a card per bus, no text cut
+      page       the Connectors group shows the board, a block per connector, no text cut
       live       ID_PIN v1 asked about 5 times a second while the group is open (the minute's traffic tally)
     Exit code 0 when every check holds.
 
@@ -101,13 +101,13 @@ if (Test-Path $json) {
     while ($stack.Count) {
         $n = $stack.Pop()
         if ($n.name -eq 'recorderPortsGroup') { $groupShown = [bool]$n.visible }
-        if ($n.name -and ([string]$n.name).StartsWith('portBus_') -and $n.visible) { $cards += ([string]$n.name).Substring(8) }
+        if ($n.name -and ([string]$n.name).StartsWith('boardBlock_') -and $n.visible) { $cards += ([string]$n.name).Substring(11) }
         if ($n.truncated -and $n.visible) { $cut += [string]$n.text }
         foreach ($c in @($n.children)) { if ($c) { $stack.Push($c) } }
     }
 }
 Expect ($groupShown -and $cards.Count -eq 8 -and $cut.Count -eq 0) 'page' (
-    "group shown {0}; cards {1}; cut texts {2}" -f $groupShown, (($cards | Sort-Object) -join ' '), $(if ($cut.Count) { $cut -join ' | ' } else { 'none' }))
+    "group shown {0}; blocks {1}; cut texts {2}" -f $groupShown, (($cards | Sort-Object) -join ' '), $(if ($cut.Count) { $cut -join ' | ' } else { 'none' }))
 $tally = @($mine | Where-Object { $_ -match 'sent:.*KP1 \[0\] id 0x16 v1 [\d.]+ KB/s ([\d.]+)/s' } | ForEach-Object {
     if ($_ -match 'KP1 \[0\] id 0x16 v1 [\d.]+ KB/s ([\d.]+)/s') { [double]$Matches[1] } })
 Expect ($tally.Count -ge 1 -and ($tally | Measure-Object -Maximum).Maximum -ge 3.0 -and ($tally | Measure-Object -Maximum).Maximum -le 5.5) 'live' (

@@ -209,6 +209,10 @@ public:
     /// The contacts each logical PWM output OUT1..OUT3 drives (role Pwm, param = its index), labels joined: for the
     /// servo panel's routing rows. Empty strings while the table is not known.
     QStringList portPwmOutPins();
+    /// ID_VOLTAGE channels 0 and 1 as last read, millivolts; -1 until one comes. On a Recorder 0 is VBAT and 1 the
+    /// +5.2 V rail; on a nanoSSS 1 is a diagnostic channel (receivedVoltage names them).
+    int voltage0Mv() const { return voltage0Mv_; }
+    int voltage1Mv() const { return voltage1Mv_; }
     /// While on, the pins' roles and values are asked every 200 ms in one frame (ID_PIN v1): a page showing them.
     Q_INVOKABLE void setPortsLive(bool on);
     /// Zeroes the board's counters (SETTING v0 with the key); the board sends its state after.
@@ -633,6 +637,7 @@ signals:
     void ringStatChanged();
     void portsChanged();
     void portValuesChanged();
+    void voltagesChanged();
     /// The sonar did not do a recall (version 0), a save (1) or a delete (2): code 2 the flash write did not
     /// verify, 3 a wrong or empty slot, 7 no key (the contract of ID_PRESET). Done is not reported.
     void presetResult(int version, int code);
@@ -1096,6 +1101,8 @@ private:
     int portsSupport_ = 0;             // 1 the Recorder described its ports, -1 it has none, 0 not known
     QTimer portsAnswerTimer_;          // the read of the table: no answer within it ends it
     QTimer portsLiveTimer_;            // ID_PIN v1 every 200 ms while a page shows the ports
+    int voltage0Mv_ = -1;              // ID_VOLTAGE channel 0 as last read, -1 none yet
+    int voltage1Mv_ = -1;              // channel 1
     bool portsLiveWanted_ = false;     // a page shows the ports (setPortsLive): the poll starts once the table is read
     void askNextPort();
     void resetPorts();

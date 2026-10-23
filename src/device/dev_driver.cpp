@@ -3366,6 +3366,10 @@ void DevDriver::receivedVoltage(Parsers::Type type, Parsers::Version ver, Parser
     const quint8 ch = idVoltage->lastId();
     const qint32 raw = idVoltage->lastRaw();
     emit voltageComplete(ch, raw);
+    if (ch <= 1) {
+        (ch == 0 ? voltage0Mv_ : voltage1Mv_) = raw;
+        emit voltagesChanged();
+    }
     if (ch == 0) {
         emit supplyVoltageComplete(raw / 1000.0f);
     }

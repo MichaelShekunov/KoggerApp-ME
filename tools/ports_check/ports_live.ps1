@@ -13,7 +13,7 @@
       ask        each bus and each pin asked once, one frame at a time (the next asked only after an answer)
       quiet      no ID_PIN v1 before the page is open
       live       ID_PIN v1 about 5 times a second while it is open (10..17 in 3 s)
-      page       the Connectors group shows 8 cards, "PWM to OUT1 · 1500 µs" among the texts, nothing cut
+      page       the Connectors group shows the board with 8 blocks, "PWM to OUT1 · 1500 µs" among the texts, nothing cut
       servo      the servo panel's OUT1 row would read "OUT1: IN1, IN3, O1" (the property behind it)
       qml        no QML error in the log
     Exit code 0 when every check holds.
@@ -192,7 +192,7 @@ if (Test-Path $json) {
     while ($stack.Count) {
         $n = $stack.Pop()
         if ($n.name -eq 'recorderPortsGroup') { $groupShown = [bool]$n.visible }
-        if ($n.name -and ([string]$n.name).StartsWith('portBus_') -and $n.visible) { $cards += ([string]$n.name).Substring(8) }
+        if ($n.name -and ([string]$n.name).StartsWith('boardBlock_') -and $n.visible) { $cards += ([string]$n.name).Substring(11) }
         if ($n.text -and $n.visible) { $texts += [string]$n.text }
         if ($n.truncated -and $n.visible) { $cut += [string]$n.text }
         foreach ($c in @($n.children)) { if ($c) { $stack.Push($c) } }
@@ -200,7 +200,7 @@ if (Test-Path $json) {
 }
 $pwmTexts = @($texts | Where-Object { $_ -match '1500' -and $_ -match 'OUT1' })
 Expect ($groupShown -and $cards.Count -eq 8 -and $pwmTexts.Count -eq 3 -and $cut.Count -eq 0) 'page' (
-    "group shown {0}; cards {1}; PWM texts {2}; cut {3}" -f $groupShown, $cards.Count, $pwmTexts.Count, $(if ($cut.Count) { $cut -join ' | ' } else { 'none' }))
+    "group shown {0}; blocks {1}; PWM texts {2}; cut {3}" -f $groupShown, $cards.Count, $pwmTexts.Count, $(if ($cut.Count) { $cut -join ' | ' } else { 'none' }))
 $portsLine = @($mine | Where-Object { $_ -match 'echoedit script: ports of ' } | Select-Object -Last 1)
 Expect ($portsLine.Count -eq 1 -and $portsLine[0] -match 'OUT pins \[IN1, IN3, O1 \|') 'servo' ($(if ($portsLine.Count) { $portsLine[0] -replace '^.*OUT pins ', '' } else { '-' }))
 $qml = @($mine | Where-Object { $_ -match '\.qml:\d+' -and $_ -match 'Error|TypeError|ReferenceError|Unable to assign|Cannot assign' })

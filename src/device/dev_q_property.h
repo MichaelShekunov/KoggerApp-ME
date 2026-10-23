@@ -54,6 +54,8 @@ public:
     Q_PROPERTY(int portsSupport READ portsSupport NOTIFY portsChanged)
     Q_PROPERTY(QVariantList portBuses READ portBuses NOTIFY portValuesChanged)
     Q_PROPERTY(QStringList portPwmOutPins READ portPwmOutPins NOTIFY portValuesChanged)
+    Q_PROPERTY(int voltage0Mv READ voltage0Mv NOTIFY voltagesChanged)
+    Q_PROPERTY(int voltage1Mv READ voltage1Mv NOTIFY voltagesChanged)
 
     Q_PROPERTY(int dspHorSmooth READ dspSmoothFactor WRITE setDspSmoothFactor NOTIFY dspSetupChanged)
     Q_PROPERTY(bool dspState READ getDspSetupState NOTIFY dspSetupChanged)
