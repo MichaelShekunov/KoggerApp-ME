@@ -3007,3 +3007,6 @@ tracker's route on each `snapshotChanged` (main.cpp) and `autoRouteAhead()` serv
 mission_sitl_check 14/14 (the tracker's 6 positioned items reach MavVehicle). This PC, by the owner's word "update
 this PC fully, I'll confirm the rights": both installs on c55749b8 (the per-user one and Program Files, UAC confirmed
 by him), the installed exes the same as the packaged one. The kiosk is still 3c345da6 (without this change).
+The kiosk, by the owner's word "yes, switch the kiosk" **[verified]**: headunit 6848712b (= me cf1854c2 + the kiosk
+patch) since 2026-10-23 06:12:12 UTC (ExecStart, active, NRestarts 0, only the HDMI1 cursor warning); before it
+3c345da6.
