@@ -285,6 +285,34 @@ void EchoEditScript::step()
     const QJsonObject s = steps_.at(next_).toObject();
     const QString op = s.value(QStringLiteral("op")).toString();
 
+    if (op == QLatin1String("waitUpgrade")) {
+        // Until the update the "upgrade" step started ends: its device's upgradeFWStatus 101 (flashed) or -1
+        // (failed); the progress in steps of 10 %.
+        if (!settleClock_.isValid()) {
+            settleClock_.start();
+            upgradeLogged_ = -10;
+        }
+        const int st = upgradeDev_ ? upgradeDev_->property("upgradeFWStatus").toInt() : -1;
+        if (st >= 0 && st <= 100 && st / 10 > upgradeLogged_ / 10) {
+            upgradeLogged_ = st;
+            qInfo().noquote() << QStringLiteral("echoedit script: waitUpgrade, %1 %, %2 ms").arg(st).arg(settleClock_.elapsed());
+        }
+        const bool timedOut = settleClock_.elapsed() >= s.value(QStringLiteral("timeoutMs")).toInt(180000);
+        if (!upgradeDev_ || st == 101 || st == -1 || timedOut) {
+            qInfo().noquote() << QStringLiteral("echoedit script: waitUpgrade, %1 ms: %2").arg(settleClock_.elapsed())
+                                 .arg(!upgradeDev_ ? QStringLiteral("no update running")
+                                      : st == 101 ? QStringLiteral("flashed")
+                                      : st == -1 ? QStringLiteral("failed")
+                                      : QStringLiteral("timed out at %1 %").arg(st));
+            settleClock_.invalidate();
+            ++next_;
+            timer_.start(0);
+            return;
+        }
+        timer_.start(250);
+        return;
+    }
+
     if (op == QLatin1String("waitPresets")) {
         if (!settleClock_.isValid()) {
             settleClock_.start();
@@ -841,6 +869,56 @@ void EchoEditScript::runStep(const QJsonObject& s)
                                  .arg(d->property("devName").toString()).arg(d->property("presetsKnown").toBool())
                                  + slotLines.join(QStringLiteral(", "));
         }
+    }
+    else if (op == QLatin1String("upgrade")) {
+        // A firmware file into a sonar as its device page's UPGRADE does (Core::upgradeFW; behind a recorder the
+        // update through it): the first sonar, or the one whose ID_VERSION board is "board" at the route "addr".
+        const int board = s.value(QStringLiteral("board")).toInt(-1);
+        const int addr = s.value(QStringLiteral("addr")).toInt(-1);
+        QObject* dev = nullptr;
+        for (QObject* d : core_->getDeviceManagerWrapperPtr()->getDevList()) {
+            if (!dev && d->property("isSonar").toBool() && (board < 0 || d->property("devType").toInt() == board)
+                && (addr < 0 || d->property("busAddress").toInt() == addr)) {
+                dev = d;
+            }
+        }
+        const QString path = s.value(QStringLiteral("path")).toString();
+        // Who it is, read before the update starts: the update resets what the sonar reported
+        const QString who = !dev ? QString()
+            : QStringLiteral("%1 (board %2, route %3, firmware %4, behind a recorder %5)")
+                  .arg(dev->property("devName").toString()).arg(dev->property("devType").toInt())
+                  .arg(dev->property("busAddress").toInt()).arg(dev->property("fwVersion").toString())
+                  .arg(dev->property("isBehindRecorder").toBool());
+        const bool started = dev && core_->upgradeFW(path, dev);
+        upgradeDev_ = started ? dev : nullptr;
+        qInfo().noquote() << QStringLiteral("echoedit script: upgrade %1: %2").arg(path,
+            !dev ? QStringLiteral("no such sonar")
+                 : who + (started ? QStringLiteral(": started") : QStringLiteral(": the file did not open")));
+    }
+    else if (op == QLatin1String("devState")) {
+        // A sonar's settings as the app has them (TRANSC, CHART_SETUP, DIST_SETUP, DATASET, DSP, sound speed, UART):
+        // the first sonar, or the one of "board" at "addr" -- to compare before and after an update.
+        const int board = s.value(QStringLiteral("board")).toInt(-1);
+        const int addr = s.value(QStringLiteral("addr")).toInt(-1);
+        QObject* dev = nullptr;
+        for (QObject* d : core_->getDeviceManagerWrapperPtr()->getDevList()) {
+            if (!dev && d->property("isSonar").toBool() && (board < 0 || d->property("devType").toInt() == board)
+                && (addr < 0 || d->property("busAddress").toInt() == addr)) {
+                dev = d;
+            }
+        }
+        const auto v = [dev](const char* name) { return dev->property(name).toInt(); };
+        qInfo().noquote() << (!dev ? QStringLiteral("echoedit script: devState: no such sonar")
+            : QStringLiteral("echoedit script: devState %1 (board %2, route %3): trans %4 kHz %5 pulses boost %6; chart %7 x %8 mm "
+                             "offset %9; ").arg(dev->property("devName").toString()).arg(v("devType")).arg(v("busAddress"))
+                  .arg(v("transFreq")).arg(v("transPulse")).arg(v("transBoost")).arg(v("chartSamples")).arg(v("chartResolution"))
+                  .arg(v("chartOffset"))
+              + QStringLiteral("dist max %1 dead %2 confidence %3; dataset chart %4 chartZ %5 dist %6 temp %7 voltage %8 "
+                               "euler %9; ").arg(v("distMax")).arg(v("distDeadZone")).arg(v("distConfidence"))
+                  .arg(v("datasetChart")).arg(v("datasetChartZ")).arg(v("datasetDist")).arg(v("datasetTemp"))
+                  .arg(v("datasetVoltage")).arg(v("datasetEuler"))
+              + QStringLiteral("period %1/%2 ms; dsp smooth %3; sound %4; baud %5").arg(v("ch1Period")).arg(v("ch2Period"))
+                  .arg(v("dspHorSmooth")).arg(v("soundSpeed")).arg(v("baudrate")));
     }
     else if (op == QLatin1String("wifiPage") || op == QLatin1String("wifiRadio")) {
         // The first Wi-Fi module, or the one at "addr" (its bus address: the head unit's 87, the boat's 88 behind it).
