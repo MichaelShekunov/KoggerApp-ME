@@ -889,11 +889,33 @@ void EchoEditScript::runStep(const QJsonObject& s)
                   .arg(dev->property("devName").toString()).arg(dev->property("devType").toInt())
                   .arg(dev->property("busAddress").toInt()).arg(dev->property("fwVersion").toString())
                   .arg(dev->property("isBehindRecorder").toBool());
-        const bool started = dev && core_->upgradeFW(path, dev);
+        // Not while a recorder records: through one it answers the bootloader's route 0 itself (HANDOFF, "A sonar
+        // behind a recorder"), and what its firmware does with that while writing is not known.
+        QString recording;
+        for (QObject* d : core_->getDeviceManagerWrapperPtr()->getDevList()) {
+            if (d->property("recorderStatusValid").toBool() && d->property("recorderRecordingState").toInt() == 2) {
+                recording = d->property("devName").toString();
+            }
+        }
+        const bool started = dev && recording.isEmpty() && core_->upgradeFW(path, dev);
         upgradeDev_ = started ? dev : nullptr;
         qInfo().noquote() << QStringLiteral("echoedit script: upgrade %1: %2").arg(path,
             !dev ? QStringLiteral("no such sonar")
-                 : who + (started ? QStringLiteral(": started") : QStringLiteral(": the file did not open")));
+                 : who + (started ? QStringLiteral(": started")
+                          : !recording.isEmpty() ? QStringLiteral(": not started, %1 records").arg(recording)
+                          : QStringLiteral(": the file did not open")));
+    }
+    else if (op == QLatin1String("recorderState")) {
+        // Every recorder's status as the app has it (ID_RECORDER_STATUS; recording state 2 = recording).
+        for (QObject* d : core_->getDeviceManagerWrapperPtr()->getDevList()) {
+            if (d->property("recorderStatusValid").toBool()) {
+                qInfo().noquote() << QStringLiteral("echoedit script: recorderState %1: state %2 mode %3 condition %4 flags 0x%5")
+                                     .arg(d->property("devName").toString()).arg(d->property("recorderRecordingState").toInt())
+                                     .arg(d->property("recorderRecordingMode").toInt())
+                                     .arg(d->property("recorderDeviceCondition").toInt())
+                                     .arg(d->property("recorderStatusFlags").toInt(), 0, 16);
+            }
+        }
     }
     else if (op == QLatin1String("devState")) {
         // A sonar's settings as the app has them (TRANSC, CHART_SETUP, DIST_SETUP, DATASET, DSP, sound speed, UART):

@@ -103,7 +103,8 @@
 //   {"op": "presetDelete", "slot": n}   empties the slot (no button does: the live check undoes its save)
 // A sonar's firmware, as its device page's UPGRADE (behind a recorder: the update through it):
 //   {"op": "upgrade", "path": file, "board": n, "addr": n}   the first sonar, or the one of that ID_VERSION board and
-//                                    route; logs the sonar it started on
+//                                    route; logs the sonar it started on; not while a recorder records
+//   {"op": "recorderState"}          every recorder's status, one line each
 //   {"op": "waitUpgrade", "timeoutMs": 180000}   until that update ends (flashed / failed), the progress every 10 %
 //   {"op": "devState", "board": n, "addr": n}   the sonar's settings as the app has them, one log line
 // For the Wi-Fi module's radio switched off (ID_WIFI_RF, firmware 0.20), on the first Wi-Fi module, or with
