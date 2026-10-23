@@ -5,6 +5,7 @@
 #include <QHash>
 #include <QVector>
 #include <QTimer>
+#include <QDateTime>
 #include <QUuid>
 #include <QVariantMap>
 #include <QVariantList>
@@ -181,6 +182,10 @@ public:
     /// Empty a slot (SETTING v2 with the key). No button calls it in this version: the live check of the buttons on a
     /// sonar (tools/preset_check/preset_sonar.ps1) undoes its save with it.
     Q_INVOKABLE void presetDelete(int slot);
+
+    /// Another device of this driver's line has been heard (DeviceManager, on each of its frames). For address 0's
+    /// driver that has never had a frame -- the line's search -- this holds its asks (DeviceLiveness::searchHeld).
+    void holdSearch() { otherDeviceHeardMs_ = QDateTime::currentMSecsSinceEpoch(); }
 
     /// Manual mode of a Recorder's servo (ID_SERVO_CONTROL, bit 1 of general; docs/SERVO_MANUAL.md): the servo
     /// holds an angle set here and the scan stops. Each change is read back from the device a moment later.
@@ -1092,5 +1097,7 @@ private:
     bool dataStale_ = false;
     int64_t lastQuietProbe_ = 0;
     DeviceLiveness::Unanswered unanswered_;   // asked less while it is without the mark (process())
+    int64_t otherDeviceHeardMs_ = 0;          // another device of this line, last heard (holdSearch), 0: never
+    bool searchHeldLogged_ = false;
     void updateDataStale(int64_t now);
 };

@@ -754,6 +754,14 @@ void DeviceManager::frameInput(QUuid uuid, Link* link, Parsers::FrameParser fram
             // its payload first -- the parser then read channel 0, value 0, every frame (2026-10-19).
 #endif
             dev->protoComplete(frame);
+            if (frame.route() != 0) {   // the line's search waits while its devices answer (DeviceLiveness::searchHeld)
+                const auto line = devTree_.constFind(uuid);
+                if (line != devTree_.cend()) {
+                    if (DevQProperty* search = line->value(0, nullptr)) {
+                        search->holdSearch();
+                    }
+                }
+            }
             autoRingUpgrade(uuid);
             autoBusAddress(uuid);
             autoRingRate(uuid);

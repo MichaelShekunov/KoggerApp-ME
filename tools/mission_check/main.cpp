@@ -1236,6 +1236,38 @@ void unansweredRules()
     check("unanswered: the first tick asks", U().askDue(t0));
 }
 
+// The line's search (address 0's driver while it has never had a frame) waits while another device of the line has
+// been heard within kStaleMs; a device at address 0 is not held; a quiet line is searched again.
+void searchHoldRules()
+{
+    using L = DeviceLiveness;
+    const int64_t t0 = 100000;
+    check("search: held while another device was heard 1 s ago", L::searchHeld(0, t0, t0 + 1000));
+    check("search: asks again after 3 s of a quiet line", !L::searchHeld(0, t0, t0 + L::kStaleMs));
+    check("search: asks while no other device was ever heard", !L::searchHeld(0, 0, t0));
+    check("search: a device at address 0 (it had frames) is never held", !L::searchHeld(t0, t0 + 900, t0 + 1000));
+    {
+        // A ring: its two boards send a frame each every 50 ms from t0 + 100 ms; the search ticks every 200 ms.
+        DeviceLiveness::Unanswered u;
+        int before = 0, during = 0, after = 0;
+        int64_t other = 0;
+        for (int64_t now = t0; now < t0 + 60000; now += 50) {
+            if (now >= t0 + 100 && now < t0 + 40000) {
+                other = now;                                   // frames from routes 1 and 2
+            }
+            if ((now - t0) % 200 != 0 || L::searchHeld(u.lastFrameMs, other, now) || !u.askDue(now)) {
+                continue;
+            }
+            (now < t0 + 100 ? before : now < t0 + 40000 ? during : after) += 1;
+        }
+        // one ask before the boards are heard; none while they answer; the line quiet from t0 + 40 s: asked again
+        // from t0 + 43 s, every 5 s by then (its first ask was 43 s ago): 43000, 48000, 53000, 58000
+        check("search: a ring heard: no broadcast while it answers, asked again when it is gone",
+              before == 1 && during == 0 && after == 4,
+              QStringLiteral("before %1, while answering %2, after %3").arg(before).arg(during).arg(after));
+    }
+}
+
 // When a link asks every device on it (LinkAskAll, Link::onCheckedTimerEnd each 100 ms).
 void linkAskAllRules()
 {
@@ -1609,6 +1641,7 @@ int main(int argc, char* argv[])
     linkRateRules();
     trafficRules();
     unansweredRules();
+    searchHoldRules();
     linkAskAllRules();
     progressRules();
     linkTrackRules();

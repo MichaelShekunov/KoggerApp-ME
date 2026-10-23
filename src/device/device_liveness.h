@@ -41,6 +41,19 @@ struct DeviceLiveness
     static constexpr int64_t kStableMarkMs = 2000;
     static constexpr int64_t kSilenceMs = 1000;
 
+    /** Whether the link's search waits. Address 0's driver is only the search while it has never had a frame
+     *  (ownLastFrameMs 0); a device at address 0 answers it and is asked as any other. While another device of the
+     *  line has been heard within kStaleMs (otherLastFrameMs), the search asks nothing: every device answers it under
+     *  its own address, so it finds nothing new, and the broadcast restart, mark (a SETTING) and VERSION only
+     *  disturb -- the following board of a GODIO ring answers them instead of waiting for the leader's BREAK and
+     *  drops a ping each time (L412_GODIO docs/RING_HOLES_2026-10-23.md; 6 asks, 6 pings of [2] missing). When the
+     *  line goes quiet (a cable out, a rate change), it asks again. A device joined to a line that answers already
+     *  and sends nothing by itself is found then, or on reconnecting. */
+    static bool searchHeld(int64_t ownLastFrameMs, int64_t otherLastFrameMs, int64_t nowMs)
+    {
+        return ownLastFrameMs == 0 && otherLastFrameMs > 0 && nowMs - otherLastFrameMs < kStaleMs;
+    }
+
     /** The back-off of one device: frames from protoComplete, ticks from process(). */
     struct Unanswered
     {
