@@ -542,7 +542,8 @@ public/docs/SBP_WIFI.md 4b).
 - **The page**: the "Antenna swap" section (folds, `wifi.radioOff`) under Radio. On: "Switch the radio off for" --
   over a wire "Until on" (the default: the owner's "until a reboot"), 1, 2, 5, 10 min; over the network 30 s, 1 min
   (the default) .. 10 min -- and "Switch the radio off" (a second tap sends it); the caption says how long the boat
-  link drops, about 20 s more while the modules find each other again (the contract's *Inference*). Off: the time
+  link drops, about 20 s more while the modules find each other again (an upper estimate: the module session measured
+  16 s after the access point came back, once, 2026-10-23). Off: the time
   left, ticking, or "until you switch it on"; "Switch the radio on" over a wire, over the network why not. The
   section's title shows "Radio off · 42 s", the Wi‑Fi section's chip "Radio off".
 - **Checks** **[verified]**: `tools/wifi020_check/run.ps1` (offline: the frames byte by byte against the contract's
@@ -552,8 +553,13 @@ public/docs/SBP_WIFI.md 4b).
   `tools/wifi020_check/rf_live.ps1 -Codes ru,zh,es,hi` (the app against a stand that plays the module over UDP: over a
   wire until on, on, 3 s back by the timer, 7 s refused as busy; over the network 0 s and 601 s not sent, 2 s, back
   by the status alone; the page's texts in each state, no QML warning, in each language nothing cut that English
-  shows whole). Not yet on hardware: the modules are on 0.19 (2026-10-23). The labels' fit on the head unit's DejaVu
-  is an estimate, not measured.
+  shows whole). Both modules run 0.20.0 since 2026-10-23 (the head unit's from 07:03 UTC, the boat's from 07:18, the
+  module session, checked on hardware there); the app's own run on them waits for the kiosk build (the owner's word).
+  The labels' fit on the head unit's DejaVu is an estimate, not measured.
+- **Hardware, by the module session (2026-10-23)**: the boat's module switched off from the head unit for 45 s: the
+  head unit's module lost it after 9 s (no beacons) and joined again 61 s after the switch-off, 16 s after the access
+  point came back (one run); the boat's CONTENT {1, 0} did not reach the head unit (no link yet), its status did --
+  the case the status rule above is for.
 
 ## 2p. Retransmissions (firmware 0.20, 2026-10-23)
 
@@ -565,7 +571,8 @@ end (a 200 ms window holds tens of frames: one report's share is noise). The Wi�
 "in: 7.5 % (9 of 120)" -- the other end's frames as this module hears them -- and "out" from the other end's report
 when the app sees that module too (§2k); the `wifi-rate:` log line adds the counts. A lower bound: a frame none of
 whose tries arrived is not seen, and a module cannot count its own retransmissions (ESP-IDF has no counter, the
-module session). Not done: 0.19's bounds are not read, so an LR link still shows "LR, speed not calibrated" although
+module session). On hardware (the module session, the office, -46 dBm, 10 windows each way, 2026-10-23): boat to head
+unit 7 of 190 (3.7 %), head unit to boat 3 of 191 (1.6 %); single windows 0..19 %, hence the sum. Not done: 0.19's bounds are not read, so an LR link still shows "LR, speed not calibrated" although
 0.19 reports 500 kbit/s with flag bit2 once the frames' timing proves it (contract 9).
 
 ## 2c. Port speed of the module (line 0)
@@ -622,4 +629,5 @@ Steps are `wifi-port:` lines in the log. The head unit runs at 2 000 000 since 2
 9. The device chain reads Wi‑Fi → logger → sonar(s), the module first.
 10. Antenna swap (firmware 0.20, §2o): the head unit's module "Until on" → the boat link drops, the antenna is
     changed, "Switch the radio on" → the link is back in about 20 s; the boat's module for 1 min → back by itself
-    without a reboot. Not yet run (the modules are on 0.19).
+    without a reboot. Not yet run from the app (the modules are on 0.20 since 2026-10-23; the kiosk build waits for
+    the owner's word).
