@@ -19,27 +19,31 @@ Column {
     readonly property real s: width / 680     // the drawing is laid out on 680 x 500 units
     readonly property real fontPx: Math.max(10, 11.5 * s)
 
-    // RECORDER Mini v4.0 (the port spec's connector table, the board's pinout): where each connector sits and its
-    // contacts in board order. A label not in it gets a free place and its signal pins, GND and its supply.
+    // RECORDER Mini v4.0 as the port spec's ID_BUS V1 table gives it (pads and nets from the PcbDoc): the side, the place
+    // along it going clockwise round the board, and the contacts in clockwise order, contact 1 first. A label not in it
+    // gets a free place and its signal pins, GND and its supply. The device does not send V1 yet (reserved, not
+    // scheduled); when it does, it replaces this table.
     readonly property var knownLayout: ({
-        "GNSS":   { side: "top",   slot: 0, order: ["TX", "RX", "+5V", "GND"] },
-        "TELEM":  { side: "top",   slot: 1, order: ["TX", "RX", "+5V", "GND"] },
-        "I2C":    { side: "left",  slot: 0, order: ["+5V", "GND", "SDA", "SCL"] },
-        "IN3,4":  { side: "left",  slot: 1, order: ["+5V", "GND", "IN4", "IN3"] },
-        "SONAR1": { side: "left",  slot: 2, order: ["TX", "RX", "GND", "VBAT"] },
+        "GNSS":   { side: "top",   slot: 0, order: ["TX", "RX", "GND", "+5V"] },
+        "TELEM":  { side: "top",   slot: 1, order: ["TX", "RX", "GND", "+5V"] },
         "IN1,2":  { side: "right", slot: 0, order: ["IN1", "IN2", "GND", "+5V"] },
-        "OUTS":   { side: "right", slot: 1, order: ["O1", "O2", "O3", "GND"] },
-        "SONAR2": { side: "right", slot: 2, order: ["TX", "RX", "GND", "VBAT"] }
+        "OUTS":   { side: "right", slot: 1, order: ["O3", "O2", "GND", "O1"] },
+        "SONAR2": { side: "right", slot: 2, order: ["TX", "RX", "GND", "VBAT"] },
+        "SONAR1": { side: "left",  slot: 0, order: ["TX", "RX", "GND", "VBAT"] },
+        "IN3,4":  { side: "left",  slot: 1, order: ["IN3", "IN4", "GND", "+5V"] },
+        "I2C":    { side: "left",  slot: 2, order: ["SCL", "SDA", "GND", "+5V"] }
     })
-    readonly property var places: [{ side: "top", slot: 0 }, { side: "top", slot: 1 }, { side: "left", slot: 0 },
-                                   { side: "left", slot: 1 }, { side: "left", slot: 2 }, { side: "right", slot: 0 },
-                                   { side: "right", slot: 1 }, { side: "right", slot: 2 }]
+    readonly property var places: [{ side: "top", slot: 0 }, { side: "top", slot: 1 }, { side: "right", slot: 0 },
+                                   { side: "right", slot: 1 }, { side: "right", slot: 2 }, { side: "left", slot: 0 },
+                                   { side: "left", slot: 1 }, { side: "left", slot: 2 }]
 
+    // Clockwise slots: the top runs left to right, the right side top to bottom, the left side bottom to top.
     function geometry(side, slot) {
         if (side === "top")
             return { bx: slot === 0 ? 150 : 350, by: 6, bw: 180, cx: slot === 0 ? 270 : 354, cy: 122, cw: 56, ch: 16 }
-        var y = [118, 216, 314][slot]
-        var cy = [150, 220, 290][slot]
+        var row = side === "left" ? 2 - slot : slot
+        var y = [118, 216, 314][row]
+        var cy = [150, 220, 290][row]
         return side === "left" ? { bx: 10, by: y, bw: 200, cx: 252, cy: cy, cw: 16, ch: 48 }
                                : { bx: 470, by: y, bw: 200, cx: 412, cy: cy, cw: 16, ch: 48 }
     }
@@ -58,7 +62,8 @@ Column {
             if (!lay)
                 continue
             var supplyPin = bus.supply === 1 ? "VBAT" : bus.supply === 2 ? "+5V" : ""
-            var order = lay.order || []
+            // a block lists its contacts from the top down: on the left side clockwise is bottom to top
+            var order = lay.order ? (lay.side === "left" ? lay.order.slice().reverse() : lay.order) : []
             var contacts = [], seen = {}
             for (var o = 0; o < order.length; ++o) {
                 var pin = null
@@ -424,7 +429,8 @@ Column {
             InfoRow { label: qsTr("UART"); value: menu.bus ? view.uartName(menu.bus.uart) : "" }
             InfoRow { label: qsTr("Protocol"); reserved: true }
             InfoRow { label: qsTr("Rate"); reserved: true }
-            InfoRow { label: qsTr("Time from PPS"); reserved: true }
+            // the GNSS connector has no PPS line: a PPS wire goes to a universal input (its "Use as" row)
+            InfoRow { label: qsTr("PPS"); value: qsTr("on a universal input") }
             InfoRow { label: qsTr("Fix and satellites"); reserved: true }
         }
 
@@ -495,6 +501,7 @@ Column {
                     InfoRow { label: qsTr("Debounce"); reserved: true }
                     InfoRow { label: qsTr("Pulse counter"); reserved: true }
                     InfoRow { label: qsTr("Mark in the log on an event"); reserved: true }
+                    InfoRow { label: qsTr("Use as PPS or ping trigger"); reserved: true }
                 }
                 MenuSection {
                     objectName: "menuOutput_" + pinItem.modelData.label
@@ -503,6 +510,7 @@ Column {
                     InfoRow { label: qsTr("Level"); value: String(pinItem.modelData.param) }
                     InfoRow { label: qsTr("Mode"); reserved: true }
                     InfoRow { label: qsTr("Pulse length"); reserved: true }
+                    InfoRow { label: qsTr("Toggle, pulse now"); reserved: true }
                 }
                 Text {
                     visible: pinItem.open && pinItem.modelData.role === 0

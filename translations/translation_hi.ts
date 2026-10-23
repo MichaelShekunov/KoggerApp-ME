@@ -13173,478 +13173,493 @@
 <context>
     <name>RecorderBoardView</name>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="104"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="109"/>
         <source>contacts</source>
         <translation>संपर्क</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="104"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="109"/>
         <source>sonar A</source>
         <translation>सोनार A</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="104"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="109"/>
         <source>sonar B</source>
         <translation>सोनार B</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="104"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="109"/>
         <source>telemetry</source>
         <translation>टेलीमेट्री</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="104"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="109"/>
         <source>navigation</source>
         <translation>नेविगेशन</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="106"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="111"/>
         <source>Separate contacts</source>
         <translation>अलग-अलग संपर्क</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="106"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="111"/>
         <source>Sonar port A</source>
         <translation>सोनार पोर्ट A</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="106"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="111"/>
         <source>Sonar port B</source>
         <translation>सोनार पोर्ट B</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="106"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="111"/>
         <source>Telemetry (Wi-Fi bridge)</source>
         <translation>टेलीमेट्री (Wi-Fi ब्रिज)</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="107"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="112"/>
         <source>GNSS (navigation)</source>
         <translation>GNSS (नेविगेशन)</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="107"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="112"/>
         <source>Function %1</source>
         <translation>फ़ंक्शन %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="110"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="115"/>
         <source> V</source>
         <translation> V</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="113"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="118"/>
         <source>auto</source>
         <translation>ऑटो</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="114"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="119"/>
         <source>%1 Mbaud</source>
         <translation>%1 Mबॉड</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="114"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="119"/>
         <source>%1 baud</source>
         <translation>%1 बॉड</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="132"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="137"/>
         <source>transmit</source>
         <translation>भेजना</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="132"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="137"/>
         <source>receive</source>
         <translation>प्राप्त</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="132"/>
-        <location filename="../qml/app/RecorderBoardView.qml" line="143"/>
-        <location filename="../qml/app/RecorderBoardView.qml" line="402"/>
-        <location filename="../qml/app/RecorderBoardView.qml" line="414"/>
-        <location filename="../qml/app/RecorderBoardView.qml" line="424"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="137"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="148"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="407"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="419"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="429"/>
         <source>UART</source>
         <translation>UART</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="134"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="139"/>
         <source>PWM OUT%1 · %2 µs</source>
         <translation>PWM OUT%1 · %2 µs</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="135"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="140"/>
         <source>input · %1</source>
         <translation>इनपुट · %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="136"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="141"/>
         <source>output · %1</source>
         <translation>आउटपुट · %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="137"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="142"/>
         <source>ADC · %1</source>
         <translation>ADC · %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="138"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="143"/>
         <source>off</source>
         <translation>बंद</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="140"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="145"/>
         <source>role %1</source>
         <translation>भूमिका %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="143"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="148"/>
         <source>Off</source>
         <translation>बंद</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="143"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="148"/>
         <source>I2C</source>
         <translation>I2C</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="143"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="148"/>
         <source>PWM (servo)</source>
         <translation>PWM (सर्वो)</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="143"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="148"/>
         <source>Digital input</source>
         <translation>डिजिटल इनपुट</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="143"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="148"/>
         <source>Digital output</source>
         <translation>डिजिटल आउटपुट</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="144"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="149"/>
         <source>ADC (0–3.3 V)</source>
         <translation>ADC (0–3.3 V)</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="144"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="149"/>
         <source>Role %1</source>
         <translation>भूमिका %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="155"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="160"/>
         <source>battery voltage (VBAT), up to about 30 V</source>
         <translation>बैटरी वोल्टेज (VBAT), लगभग 30 V तक</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="155"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="160"/>
         <source>+5.2 V</source>
         <translation>+5.2 V</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="155"/>
-        <location filename="../qml/app/RecorderBoardView.qml" line="493"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="160"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="499"/>
         <source>none</source>
         <translation>कोई नहीं</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="163"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="168"/>
         <source>data coming in</source>
         <translation>डेटा आ रहा है</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="164"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="169"/>
         <source>no data now</source>
         <translation>अभी कोई डेटा नहीं</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="164"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="169"/>
         <source>nothing connected yet</source>
         <translation>अभी कुछ जुड़ा नहीं है</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="171"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="176"/>
         <source>nothing</source>
         <translation>कुछ नहीं</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="172"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="177"/>
         <source>the servo, held by hand</source>
         <translation>सर्वो, हाथ से तय कोण</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="172"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="177"/>
         <source>the servo, scanning</source>
         <translation>सर्वो, स्कैन कर रहा है</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="173"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="178"/>
         <source>the servo, stopped</source>
         <translation>सर्वो, रुका हुआ</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="247"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="252"/>
         <source>POWER 5–30 V</source>
         <translation>पावर 5–30 V</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="250"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="255"/>
         <source>+BAT %1 · GND</source>
         <translation>+BAT %1 · GND</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="253"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="258"/>
         <source>5 V rail: %1</source>
         <translation>5 V रेल: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="333"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="338"/>
         <source>reserved</source>
         <translation>आरक्षित</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="376"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="381"/>
         <source>Power on the connector: %1</source>
         <translation>कनेक्टर पर बिजली: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="381"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="386"/>
         <source>This firmware of the Recorder only reports its connectors; changing them comes with its next phases. Rows marked reserved wait for the firmware too.</source>
-        <translation>Recorder का यह फ़र्मवेयर केवल अपने कनेक्टरों की जानकारी देता है; इन्हें बदलना अगले चरणों में आएगा। "आरक्षित" चिह्नित पंक्तियाँ भी फ़र्मवेयर की प्रतीक्षा में हैं।</translation>
+        <translation>Recorder का यह फ़र्मवेयर केवल अपने कनेक्टरों की जानकारी देता है; इन्हें बदलना अगले चरणों में आएगा। &quot;आरक्षित&quot; चिह्नित पंक्तियाँ भी फ़र्मवेयर की प्रतीक्षा में हैं।</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="384"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="389"/>
         <source>Function</source>
         <translation>फ़ंक्शन</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="387"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="392"/>
         <source>After a reboot</source>
         <translation>रीबूट के बाद</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="392"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="397"/>
         <source>This connector carries the battery voltage, up to about 30 V: a 5 V GNSS receiver or Wi-Fi bridge on it burns. Connect one only through a converter.</source>
         <translation>इस कनेक्टर पर बैटरी वोल्टेज है, लगभग 30 V तक: 5 V का GNSS रिसीवर या Wi-Fi ब्रिज इस पर जल जाएगा। इन्हें केवल कन्वर्टर के ज़रिए जोड़ें।</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="399"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="404"/>
         <source>Sonar port</source>
         <translation>सोनार पोर्ट</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="400"/>
-        <location filename="../qml/app/RecorderBoardView.qml" line="422"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="405"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="427"/>
         <source>Link</source>
         <translation>कनेक्शन</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="401"/>
-        <location filename="../qml/app/RecorderBoardView.qml" line="413"/>
-        <location filename="../qml/app/RecorderBoardView.qml" line="423"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="406"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="418"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="428"/>
         <source>Speed</source>
         <translation>गति</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="403"/>
-        <location filename="../qml/app/RecorderBoardView.qml" line="425"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="408"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="430"/>
         <source>Protocol</source>
         <translation>प्रोटोकॉल</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="404"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="409"/>
         <source>Ping sync</source>
         <translation>पिंग सिंक</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="405"/>
-        <location filename="../qml/app/RecorderBoardView.qml" line="486"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="410"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="492"/>
         <source>Write to the log</source>
         <translation>लॉग में लिखें</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="406"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="411"/>
         <source>Pass on to the host</source>
         <translation>होस्ट को भेजें</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="407"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="412"/>
         <source>Traffic and errors</source>
         <translation>ट्रैफ़िक और त्रुटियाँ</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="412"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="417"/>
         <source>Telemetry</source>
         <translation>टेलीमेट्री</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="415"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="420"/>
         <source>What goes to the host</source>
         <translation>होस्ट को क्या भेजें</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="416"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="421"/>
         <source>Channel load</source>
         <translation>चैनल लोड</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="421"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="426"/>
         <source>Navigation</source>
         <translation>नेविगेशन</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="426"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="431"/>
         <source>Rate</source>
         <translation>दर</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="427"/>
-        <source>Time from PPS</source>
-        <translation>PPS से समय</translation>
+        <location filename="../qml/app/RecorderBoardView.qml" line="433"/>
+        <source>PPS</source>
+        <translation>PPS</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="428"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="433"/>
+        <source>on a universal input</source>
+        <translation>सार्वभौमिक इनपुट से</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="434"/>
         <source>Fix and satellites</source>
         <translation>फ़िक्स और उपग्रह</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="457"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="463"/>
         <source> → %1 after a reboot</source>
         <translation> → रीबूट के बाद %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="466"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="472"/>
         <source>Servo on %1</source>
         <translation>%1 पर सर्वो</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="467"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="473"/>
         <source>Output</source>
         <translation>आउटपुट</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="468"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="474"/>
         <source>What drives it</source>
         <translation>इसे क्या चलाता है</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="469"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="475"/>
         <source>Pulse now</source>
         <translation>अभी पल्स</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="469"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="475"/>
         <source>%1 µs</source>
         <translation>%1 µs</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="470"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="476"/>
         <source>Timer</source>
         <translation>टाइमर</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="473"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="479"/>
         <source>Open the servo panel</source>
         <translation>सर्वो पैनल खोलें</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="480"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="486"/>
         <source>ADC on %1</source>
         <translation>%1 पर ADC</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="481"/>
-        <location filename="../qml/app/RecorderBoardView.qml" line="492"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="487"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="498"/>
         <source>Now</source>
         <translation>अभी</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="482"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="488"/>
         <source>Name</source>
         <translation>नाम</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="483"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="489"/>
         <source>Divider, scale</source>
         <translation>डिवाइडर, स्केल</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="484"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="490"/>
         <source>Units</source>
         <translation>इकाइयाँ</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="485"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="491"/>
         <source>Alarm threshold</source>
         <translation>अलार्म सीमा</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="491"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="497"/>
         <source>Input %1</source>
         <translation>इनपुट %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="493"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="499"/>
         <source>Pull</source>
         <translation>पुल</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="493"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="499"/>
         <source>up</source>
         <translation>ऊपर</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="493"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="499"/>
         <source>down</source>
         <translation>नीचे</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="494"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="500"/>
         <source>Event</source>
         <translation>घटना</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="495"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="501"/>
         <source>Debounce</source>
         <translation>डिबाउंस</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="496"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="502"/>
         <source>Pulse counter</source>
         <translation>पल्स काउंटर</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="497"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="503"/>
         <source>Mark in the log on an event</source>
         <translation>घटना पर लॉग में चिह्न</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="502"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="504"/>
+        <source>Use as PPS or ping trigger</source>
+        <translation>PPS या पिंग ट्रिगर के रूप में</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="509"/>
         <source>Output %1</source>
         <translation>आउटपुट %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="503"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="510"/>
         <source>Level</source>
         <translation>स्तर</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="504"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="511"/>
         <source>Mode</source>
         <translation>मोड</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="505"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="512"/>
         <source>Pulse length</source>
         <translation>पल्स अवधि</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="509"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="513"/>
+        <source>Toggle, pulse now</source>
+        <translation>टॉगल, अभी पल्स</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/RecorderBoardView.qml" line="517"/>
         <source>The contact is off.</source>
         <translation>संपर्क बंद है।</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="517"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="525"/>
         <source>SCL and SDA have 10 kOhm pull-ups to 3.3 V on the board.</source>
         <translation>बोर्ड पर SCL और SDA में 3.3 V पर 10 kOhm पुल-अप हैं।</translation>
     </message>

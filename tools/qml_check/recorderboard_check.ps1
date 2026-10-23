@@ -140,11 +140,15 @@ Item {
             var s1 = texts(item("boardBlock_SONAR1"))
             verify(has(s1, "SONAR1 · sonar A · 57600 baud"), s1.join(" | "))
             verify(has(s1, "transmit") && has(s1, "receive") && has(s1, "12.40 V"), s1.join(" | "))
-            compare(s1.indexOf("TX") < s1.indexOf("RX") && s1.indexOf("RX") < s1.indexOf("GND") && s1.indexOf("GND") < s1.indexOf("VBAT"), true)
+            // the port spec's ID_BUS V1 table: on the left side contact 1 is the bottom one, so VBAT is on top
+            compare(s1.indexOf("VBAT") < s1.indexOf("GND") && s1.indexOf("GND") < s1.indexOf("RX") && s1.indexOf("RX") < s1.indexOf("TX"), true)
             var in34 = texts(item("boardBlock_IN3,4"))
             verify(has(in34, "PWM OUT1 · 1500 µs") && has(in34, "off"), in34.join(" | "))
             compare(in34.indexOf("+5V") < in34.indexOf("GND") && in34.indexOf("GND") < in34.indexOf("IN4") && in34.indexOf("IN4") < in34.indexOf("IN3"), true)
             var outs = texts(item("boardBlock_OUTS"))
+            compare(outs.indexOf("O3") < outs.indexOf("O2") && outs.indexOf("O2") < outs.indexOf("GND") && outs.indexOf("GND") < outs.indexOf("O1"), true)
+            var gnss = texts(item("boardBlock_GNSS"))
+            compare(gnss.indexOf("TX") < gnss.indexOf("RX") && gnss.indexOf("RX") < gnss.indexOf("GND") && gnss.indexOf("GND") < gnss.indexOf("+5V"), true)
             verify(!has(outs, "+5V") && !has(outs, "VBAT"), "OUTS has no supply pin: " + outs.join(" | "))
         }
         function test_03_default_menu() {
