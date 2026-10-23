@@ -843,13 +843,15 @@ void EchoEditScript::runStep(const QJsonObject& s)
         }
     }
     else if (op == QLatin1String("wifiPage") || op == QLatin1String("wifiRadio")) {
-        // The first Wi-Fi module. wifiPage: its device page opened, as a tap on it in the device list does. wifiRadio:
-        // its radio switched off ({"off": seconds}) or on ({"on": true}) through DevDriver as the page does; with
-        // neither, its radio state as the page reads it (docs/WIFI_MODULE.md 2o).
+        // The first Wi-Fi module, or the one at "addr" (its bus address: the head unit's 87, the boat's 88 behind it).
+        // wifiPage: its device page opened, as a tap on it in the device list does. wifiRadio: its radio switched off
+        // ({"off": seconds}) or on ({"on": true}) through DevDriver as the page does; with neither, its radio state as
+        // the page reads it (docs/WIFI_MODULE.md 2o).
+        const int addr = s.value(QStringLiteral("addr")).toInt(-1);
         QObject* dev = nullptr;
         int index = -1, i = 0;
         for (QObject* d : core_->getDeviceManagerWrapperPtr()->getDevList()) {
-            if (!dev && d->property("isWifi").toBool()) {
+            if (!dev && d->property("isWifi").toBool() && (addr < 0 || d->property("busAddress").toInt() == addr)) {
                 dev = d;
                 index = i;
             }
@@ -883,12 +885,13 @@ void EchoEditScript::runStep(const QJsonObject& s)
                 int left = 0;
                 QMetaObject::invokeMethod(dev, "wifiRadioOffLeft", Q_RETURN_ARG(int, left));
                 qInfo().noquote() << QStringLiteral("echoedit script: wifiRadio state: support %1 off %2 timed %3 untilOn %4 "
-                                                    "left %5 wired %6 error \"%7\"")
+                                                    "left %5 wired %6 error \"%7\" addr %8 state %9")
                                      .arg(dev->property("wifiRfSupport").toInt()).arg(dev->property("wifiRadioOff").toBool())
                                      .arg(dev->property("wifiRadioOffTimed").toBool())
                                      .arg(dev->property("wifiRadioOffUntilOn").toBool())
                                      .arg(left).arg(dev->property("wifiRadioWired").toBool())
-                                     .arg(dev->property("wifiRfError").toString());
+                                     .arg(dev->property("wifiRfError").toString()).arg(dev->property("busAddress").toInt())
+                                     .arg(dev->property("wifiState").toInt());
             }
         }
     }
