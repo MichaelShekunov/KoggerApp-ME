@@ -1,11 +1,12 @@
 import QtQuick 2.15
 import kqml_types 1.0
 
-// One of a device's two frequency buttons in its pill (HotActionsPanel). When the sonar keeps presets in its own
-// flash (ID_PRESET, nanoSSS firmware 11.21+) and this button's slot is used: the slot's frequency in the circle,
-// its name beside it, and a tap recalls the slot. Otherwise a tap sets `khz`, as before. On a sonar that keeps
-// presets a long press (holdMs) asks to save the sonar's current settings into the slot (saveAsked); on any other
-// a long press is a tap. The texts come from the panel, so its translations stay where they are.
+// One of a device's two frequency buttons in its pill (HotActionsPanel). The circle shows the beam, not a number
+// (the owner, 2026-10-23): slot 0 (700 kHz) the narrow one, slot 1 (450 kHz) the wide one; the frequency is in the
+// tooltip. When the sonar keeps presets in its own flash (ID_PRESET, firmware 11.21+) and this button's slot is used:
+// its name beside the circle, and a tap recalls the slot. Otherwise a tap sets `khz`, as before. On a sonar that
+// keeps presets a long press (holdMs) asks to save the sonar's current settings into the slot (saveAsked); on any
+// other a long press is a tap. The texts come from the panel, so its translations stay where they are.
 KCircleIconButton {
     id: btn
 
@@ -31,8 +32,9 @@ KCircleIconButton {
                                           : !!(dev && dev.transFreq === khz)
     readonly property bool held: _held
 
-    glyph: preset ? String(preset.freqKhz) : String(khz)
-    glyphPixelSize: Math.round(11 * uiScale)
+    iconSource: slot === 0 ? "qrc:/icons/ui/beam-narrow.svg" : "qrc:/icons/ui/beam-wide.svg"
+    iconTintColor: AppPalette.text
+    iconPixelSize: Math.round(Math.min(width, height) * 0.66)   // a thin drawing: more of the circle than the usual 56 %
     fillColor:        active ? AppPalette.accentBgStrong : AppPalette.card
     fillHoverColor:   active ? AppPalette.accentBgHover : AppPalette.cardHover
     fillPressedColor: active ? AppPalette.accentBgPressed : AppPalette.bgDeep
@@ -67,7 +69,7 @@ KCircleIconButton {
         done()
     }
 
-    // The preset's name beside the button: the circle has room for the frequency only.
+    // The preset's name beside the button: the circle has room for the beam only.
     Rectangle {
         id: nameLabel
         objectName: "presetNameLabel"

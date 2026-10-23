@@ -119,6 +119,8 @@
         <file>icons/ui/mode-loiter.svg</file>
         <file>icons/ui/mode-auto.svg</file>
         <file>icons/ui/mode-rtl.svg</file>
+        <file>icons/ui/beam-narrow.svg</file>
+        <file>icons/ui/beam-wide.svg</file>
         <file>icons/ui/folder_full.svg</file>
         <file>icons/ui/folder.svg</file>
         <file>icons/ui/external-link.svg</file>

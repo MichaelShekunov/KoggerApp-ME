@@ -5,10 +5,11 @@
 .DESCRIPTION
   Runs the real FreqPresetButton.qml over the kqml_types sources with two stand-in sonars, one without presets
   and one that keeps them (slot 0 used, slot 1 empty):
-    1. without presets: 700 in the circle, a tap sets 700 kHz and closes the pill, a long press is a tap;
-    2. slot 0 used: its frequency in the circle and its name beside it, lit when the sonar runs it, a tap
+    1. without presets: the narrow beam in the circle (slot 0), a tap sets 700 kHz and closes the pill, a long press
+       is a tap;
+    2. slot 0 used: the narrow beam still in the circle and its name beside it, lit when the sonar runs it, a tap
        recalls it, a long press asks to save into it and the release recalls nothing;
-    3. slot 1 empty on a sonar that keeps presets: 450 and no name, a tap sets 450 kHz, a long press asks to
+    3. slot 1 empty on a sonar that keeps presets: the wide beam and no name, a tap sets 450 kHz, a long press asks to
        save into slot 1;
     4. a short press on a used slot recalls it and asks nothing.
   With -Mutants it also runs the check over copies of the button with one fault each and expects every one of
@@ -98,7 +99,8 @@ Item {
 
         function test_1_without_presets() {
             b.dev = plain; b.slot = 0; b.khz = 700
-            compare(b.glyph, "700")
+            verify(String(b.iconSource).indexOf("beam-narrow.svg") >= 0, "the narrow beam in the circle")
+            compare(b.glyph, "", "no number")
             compare(b.toolTipText, "fixed")
             verify(!findChild(b, "presetNameLabel").visible, "no name beside it")
             b.clicked()
@@ -112,7 +114,7 @@ Item {
 
         function test_2_used_slot() {
             b.dev = keeps; b.slot = 0; b.khz = 700
-            compare(b.glyph, "815", "the slot's frequency in the circle")
+            verify(String(b.iconSource).indexOf("beam-narrow.svg") >= 0, "slot 0: the narrow beam, whatever its frequency")
             compare(b.toolTipText, "Narrow: 815 kHz")
             verify(findChild(b, "presetNameLabel").visible, "its name beside it")
             compare(findChild(b, "presetNameText").text, "Narrow")
@@ -134,7 +136,7 @@ Item {
 
         function test_3_empty_slot() {
             b.dev = keeps; b.slot = 1; b.khz = 450
-            compare(b.glyph, "450")
+            verify(String(b.iconSource).indexOf("beam-wide.svg") >= 0, "slot 1: the wide beam")
             verify(!findChild(b, "presetNameLabel").visible)
             b.clicked()
             compare(keeps.transFreq, 450, "a tap sets 450 kHz")
@@ -201,7 +203,9 @@ $faults = @(
     @{ Name = 'lit by the frequency alone';         From = 'dev.transFreq === preset.freqKhz && dev.transPulse === preset.pulses'; To = 'dev.transFreq === preset.freqKhz' },
     @{ Name = 'the pill stays open after a tap';    From = "dev.transFreq = khz`n        done()"; To = 'dev.transFreq = khz' },
     @{ Name = 'the name not shown';                 From = 'visible: !!btn.preset'; To = 'visible: false' },
-    @{ Name = 'the save asked for the other slot';  From = 'btn.saveAsked(btn.slot)'; To = 'btn.saveAsked(1 - btn.slot)' }
+    @{ Name = 'the save asked for the other slot';  From = 'btn.saveAsked(btn.slot)'; To = 'btn.saveAsked(1 - btn.slot)' },
+    @{ Name = 'the beams swapped';                  From = 'slot === 0 ? "qrc:/icons/ui/beam-narrow.svg" : "qrc:/icons/ui/beam-wide.svg"'; To = 'slot === 0 ? "qrc:/icons/ui/beam-wide.svg" : "qrc:/icons/ui/beam-narrow.svg"' },
+    @{ Name = 'one beam for both';                  From = 'slot === 0 ? "qrc:/icons/ui/beam-narrow.svg" : "qrc:/icons/ui/beam-wide.svg"'; To = '"qrc:/icons/ui/beam-narrow.svg"' }
 )
 $missed = 0
 $i = 0

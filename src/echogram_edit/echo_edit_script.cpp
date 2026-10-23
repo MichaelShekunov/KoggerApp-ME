@@ -905,6 +905,30 @@ void EchoEditScript::runStep(const QJsonObject& s)
                           : !recording.isEmpty() ? QStringLiteral(": not started, %1 records").arg(recording)
                           : QStringLiteral(": the file did not open")));
     }
+    else if (op == QLatin1String("clickItem")) {
+        // A tap on the "index"-th item (window order) whose objectName is "name": its clicked() as its MouseArea
+        // emits it -- a device badge (devBadgeButton) opens its pill.
+        const QString name = s.value(QStringLiteral("name")).toString();
+        const int index = s.value(QStringLiteral("index")).toInt(0);
+        QList<QQuickItem*> found;
+        for (QWindow* w : QGuiApplication::topLevelWindows()) {
+            if (auto* qw = qobject_cast<QQuickWindow*>(w)) {
+                std::function<void(QQuickItem*)> walk = [&](QQuickItem* it) {
+                    if (it->objectName() == name) {
+                        found.append(it);
+                    }
+                    for (QQuickItem* c : it->childItems()) {
+                        walk(c);
+                    }
+                };
+                walk(qw->contentItem());
+            }
+        }
+        const bool clicked = index >= 0 && index < found.size()
+                             && QMetaObject::invokeMethod(found.at(index), "clicked");
+        qInfo().noquote() << QStringLiteral("echoedit script: clickItem %1 #%2 of %3: %4").arg(name).arg(index)
+                             .arg(found.size()).arg(clicked ? QStringLiteral("clicked") : QStringLiteral("not clicked"));
+    }
     else if (op == QLatin1String("recorderState")) {
         // Every recorder's status as the app has it (ID_RECORDER_STATUS; recording state 2 = recording).
         for (QObject* d : core_->getDeviceManagerWrapperPtr()->getDevList()) {

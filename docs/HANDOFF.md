@@ -3079,3 +3079,14 @@ off ~09:17-13:32 UTC; this PC's installs are still c55749b8 (no word for them ye
   (state 3); 0 -> 100 % in 14 s, "Upgrade: done"; 1.7 s later the sonar answered GET 0x7C (presets: 11.21 only), 8
   slots empty; the restarted kiosk read presets and the chart setup (2000 x 20 mm), CHART_Z at 51/s. The settings as
   the app has them the same before and after (450 kHz, 25 pulses, period 60 ms). The kiosk stays 43d951e5.
+
+**The frequency buttons show the beam (2026-10-23)**: the owner: "the badges under the sonar's pictogram where 400
+and 700 is written: change them to the wide and the narrow beam". `FreqPresetButton` draws `beam-narrow.svg` for
+slot 0 (700 kHz) and `beam-wide.svg` for slot 1 (450 kHz) instead of the number, 66 % of the circle, tinted as the
+panel's icons; the frequency moved to the tooltip ("Narrow beam: 700 kHz", "Wide beam: 450 kHz"; ru, zh, es, hi); a
+used preset still shows its name beside it. The two SVGs are drawn here in Tabler's outline style
+(third_party/icons/README.md). **[verified]** `freqpreset_check -Mutants` 12 of 12 (2 new: the beams swapped, one
+beam for both); `about_check`; `preset_live` PASS; the pill pictured in the app against the UDP nanoSSS stand with the
+new edit-script step `clickItem` (objectName `devBadgeButton` on the device badge): with presets the beams and the
+names, without them the beams only, the narrow one lit at 700 kHz. The device badge's own small "700" (the
+frequency in use) is unchanged.

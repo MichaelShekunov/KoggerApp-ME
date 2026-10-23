@@ -3670,13 +3670,13 @@
         <translation>कोड %1</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3409"/>
+        <location filename="../src/device/dev_driver.cpp" line="3417"/>
         <source>Sync config rejected by device</source>
         <translation>डिवाइस ने सिंक कॉन्फ़िगरेशन अस्वीकार किया</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3971"/>
-        <location filename="../src/device/dev_driver.cpp" line="3984"/>
+        <location filename="../src/device/dev_driver.cpp" line="3983"/>
+        <location filename="../src/device/dev_driver.cpp" line="3996"/>
         <source>no answer from the module</source>
         <translation>मॉड्यूल से कोई जवाब नहीं</translation>
     </message>
@@ -8377,97 +8377,97 @@
         <translation>पोर्ट %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1712"/>
-        <source>Set 700 kHz</source>
-        <translation>700 kHz सेट करें</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1712"/>
-        <source>Set 450 kHz</source>
-        <translation>450 kHz सेट करें</translation>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1713"/>
+        <source>Narrow beam: 700 kHz</source>
+        <translation>संकीर्ण बीम: 700 kHz</translation>
     </message>
     <message>
         <location filename="../qml/app/HotActionsPanel.qml" line="1713"/>
+        <source>Wide beam: 450 kHz</source>
+        <translation>विस्तृत बीम: 450 kHz</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1714"/>
         <source>%1: %2 kHz. Hold to save the current settings into it</source>
         <translation>%1: %2 kHz। वर्तमान सेटिंग्स इसमें सहेजने के लिए दबाए रखें</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1735"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1736"/>
         <source>Device settings</source>
         <translation>डिवाइस सेटिंग्स</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1787"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1788"/>
         <source>Close second window</source>
         <translation>दूसरी विंडो बंद करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1788"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1789"/>
         <source>Open second window</source>
         <translation>दूसरी विंडो खोलें</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1811"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1812"/>
         <source>Power off</source>
         <translation>पावर बंद करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1893"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1894"/>
         <source>Hide console</source>
         <translation>कंसोल छिपाएँ</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1893"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1894"/>
         <source>Console</source>
         <translation>कंसोल</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1915"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1916"/>
         <source>Mission planner</source>
         <translation>मिशन योजनाकार</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1938"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1939"/>
         <source>Close autopilot</source>
         <translation>ऑटोपायलट कार्ड बंद करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1938"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1939"/>
         <source>Autopilot</source>
         <translation>ऑटोपायलट</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1962"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1963"/>
         <source>Close profiles</source>
         <translation>प्रोफ़ाइल बंद करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1962"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1963"/>
         <source>Settings profiles</source>
         <translation>सेटिंग्स प्रोफ़ाइल</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2005"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2006"/>
         <source>Open settings</source>
         <translation>सेटिंग्स खोलें</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2035"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2036"/>
         <source>Collapse hotkeys</source>
         <translation>त्वरित क्रियाएँ समेटें</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2035"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2036"/>
         <source>Open hotkeys</source>
         <translation>त्वरित क्रियाएँ खोलें</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2354"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2355"/>
         <source>Close bottom track editing</source>
         <translation>बॉटम ट्रैक संपादन बंद करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2355"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2356"/>
         <source>Bottom track editing</source>
         <translation>बॉटम ट्रैक संपादन</translation>
     </message>

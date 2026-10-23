@@ -3670,13 +3670,13 @@
         <translation>代码 %1</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3409"/>
+        <location filename="../src/device/dev_driver.cpp" line="3417"/>
         <source>Sync config rejected by device</source>
         <translation>设备拒绝了同步配置</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3971"/>
-        <location filename="../src/device/dev_driver.cpp" line="3984"/>
+        <location filename="../src/device/dev_driver.cpp" line="3983"/>
+        <location filename="../src/device/dev_driver.cpp" line="3996"/>
         <source>no answer from the module</source>
         <translation>模块无应答</translation>
     </message>
@@ -8378,96 +8378,96 @@
     </message>
     <message>
         <location filename="../qml/app/HotActionsPanel.qml" line="1713"/>
+        <source>Narrow beam: 700 kHz</source>
+        <translation>窄波束：700 kHz</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1713"/>
+        <source>Wide beam: 450 kHz</source>
+        <translation>宽波束：450 kHz</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1714"/>
         <source>%1: %2 kHz. Hold to save the current settings into it</source>
         <translation>%1：%2 kHz。长按可将当前设置保存到此预设</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1712"/>
-        <source>Set 700 kHz</source>
-        <translation>设为 700 kHz</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1712"/>
-        <source>Set 450 kHz</source>
-        <translation>设为 450 kHz</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1735"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1736"/>
         <source>Device settings</source>
         <translation>设备设置</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1787"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1788"/>
         <source>Close second window</source>
         <translation>关闭第二窗口</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1788"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1789"/>
         <source>Open second window</source>
         <translation>打开第二窗口</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1811"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1812"/>
         <source>Power off</source>
         <translation>关机</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1893"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1894"/>
         <source>Hide console</source>
         <translation>隐藏控制台</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1893"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1894"/>
         <source>Console</source>
         <translation>控制台</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1915"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1916"/>
         <source>Mission planner</source>
         <translation>任务规划器</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1938"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1939"/>
         <source>Close autopilot</source>
         <translation>关闭自动驾驶仪卡片</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1938"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1939"/>
         <source>Autopilot</source>
         <translation>自动驾驶仪</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1962"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1963"/>
         <source>Close profiles</source>
         <translation>关闭配置文件</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1962"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1963"/>
         <source>Settings profiles</source>
         <translation>设置配置文件</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2005"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2006"/>
         <source>Open settings</source>
         <translation>打开设置</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2035"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2036"/>
         <source>Collapse hotkeys</source>
         <translation>收起快捷操作</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2035"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2036"/>
         <source>Open hotkeys</source>
         <translation>打开快捷操作</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2354"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2355"/>
         <source>Close bottom track editing</source>
         <translation>关闭底部跟踪编辑</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2355"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2356"/>
         <source>Bottom track editing</source>
         <translation>底部跟踪编辑</translation>
     </message>

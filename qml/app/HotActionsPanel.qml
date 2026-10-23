@@ -1570,6 +1570,7 @@ Item {
 
                 KCircleIconButton {
                     id: devBadgeButton
+                    objectName: "devBadgeButton"   // the edit script's clickItem opens a device's pill by it
                     anchors.fill: parent
                     iconSource: devBadge._wifi ? "" : root.iconForDevice(devBadge._dev)
                     iconTintColor: AppPalette.text
@@ -1697,7 +1698,8 @@ Item {
                             }
                         }
 
-                        // The two frequency buttons: 700 and 450 kHz, or the sonar's presets 0 and 1 (presetOf).
+                        // The two frequency buttons, the narrow beam and the wide one: 700 and 450 kHz, or the sonar's
+                        // presets 0 and 1 (FreqPresetButton).
                         Repeater {
                             model: 2
                             delegate: FreqPresetButton {
@@ -1709,7 +1711,7 @@ Item {
                                 uiScale: root._s
                                 visible: devBadge._transducer
                                 width: devBadge.width; height: width
-                                tipFixed: index === 0 ? qsTr("Set 700 kHz") : qsTr("Set 450 kHz")
+                                tipFixed: index === 0 ? qsTr("Narrow beam: 700 kHz") : qsTr("Wide beam: 450 kHz")
                                 tipPresetFormat: qsTr("%1: %2 kHz. Hold to save the current settings into it")
                                 // The name beside the button on the side of the window with more room.
                                 labelLeft: {

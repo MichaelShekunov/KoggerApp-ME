@@ -13,6 +13,7 @@ and **[assumption]** are not.
 | Downloaded from SVG Repo (<https://www.svgrepo.com>; each icon is under the licence of its collection there) | `3dcube.svg`, `combo-selection.svg`, `one-finger.svg`, `tool.svg`: "Uploaded to: SVG Repo" in the file **[verified]** | **not known**: the collections were not recorded | -- |
 | Traced with Potrace | `double_route.svg`, `double_route_crossed_out.svg`, `isobaths.svg`, `side_scan.svg` | the project's own drawings **[assumption]** | -- |
 | Not recorded | `terminal.svg` (two strokes), `conn.png`, `diagonal_stripe.png` | the project's own **[assumption]** | -- |
+| Drawn in this fork, 2026-10-23, for the frequency buttons (the narrow and the wide beam, the owner's request) | `beam-narrow.svg`, `beam-wide.svg`: Tabler's 24 x 24 outline style without its `class` **[verified, drawn here]** | the project's own **[verified]** | -- |
 | Upstream KoggerApp, the autopilot card (commit 051c7558 "feat: autopilot popup", 2026; ported with the missions 2026-10-23) | `mode-auto.svg`, `mode-hold.svg`, `mode-loiter.svg`, `mode-manual.svg`, `mode-rtl.svg`: Tabler's 24 x 24 outline style without its `class` **[verified, the files]** | the project's own **[assumption: drawn there, no source named]** | -- |
 
 The Tabler files were copied in over time and their version was not recorded: the newer carry the class
