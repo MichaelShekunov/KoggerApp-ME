@@ -3150,3 +3150,17 @@ later") with ID_RING_STAT 0x76, contract L412_GODIO docs/RING_HOLES_2026-10-23.m
 - **[verified]** `tools/ringstat_check/run.ps1 -Mutants` 9 of 9; `ringstat_live.ps1` PASS (a stand with a 1.16 and a
   1.14 board: one read and one reset to 1.16 only, the values on the page uncut, no island for 1.14, no QML error).
 - New edit-script steps: devicePage, ringStat.
+
+## A Recorder's connectors, read only (2026-10-24, branch `recorder-ports`)
+
+The owner asked for every connector of the logger configurable from the app; the Recorder's session wrote the contract
+(the recorder fork's docs/Port-Config-Spec.md) and flashed phase 1 (GETTING only). docs/RECORDER_PORTS.md.
+
+- `IDBinBus` (0x17), `IDBinPin` (0x16, v0 descriptions, v1 all values); DevDriver asks a Recorder only, once per
+  connection, one frame at a time; portsSupport, portBuses, portPwmOutPins, setPortsLive (v1 every 200 ms while the
+  group is open). The Recorder's page: "Connectors". The servo panel's OUTn rows name their contacts.
+- Edit-script steps waitPorts, ports, scrollTo; devicePage takes "recorder": true.
+- **[verified]** ports_check -Mutants 8 of 8; ports_live.ps1 PASS (a stand with the real table: one ask each, no v1
+  before the page, ~5/s while open, 8 cards uncut, OUT1 "IN1, IN3, O1", the grab looked at); ports_device.ps1 on the
+  real Recorder (COM17): the table read right. Its page part is to be run again: the page step looked for address 0
+  (the Recorder answers from 250; fixed) and the owner's KoggerApp held COM17 for the first 80 s.
