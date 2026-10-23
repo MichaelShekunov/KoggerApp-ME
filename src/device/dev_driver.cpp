@@ -3277,6 +3277,14 @@ void DevDriver::presetSave(int slot, const QString& name) {
     idPreset->save(slot, name);
 }
 
+void DevDriver::presetDelete(int slot) {
+    if (!m_state.connect || !presetsAnswered_ || slot < 0 || slot >= IDBinPreset::kSlots) {
+        return;
+    }
+    qInfo().noquote() << QStringLiteral("preset: delete slot %1 \"%2\"").arg(slot).arg(idPreset->slot(slot).name);
+    idPreset->remove(slot);
+}
+
 void DevDriver::receivedAtt(Parsers::Type type, Parsers::Version ver, Parsers::Resp resp) {
     Q_UNUSED(type);
     Q_UNUSED(ver);
@@ -3929,8 +3937,11 @@ void DevDriver::process() {
                     wifiNetAskedAt_ = curr_time;
                 }
 
-                // A nanoSSS only (firmware 11.21+ keeps presets; an older one answers ERR_ID or nothing).
-                if(boardVersion() == BoardNanoSSS && !presetsAnswered_ && !presetsUnsupported_ && presetAsks_ < 5
+                // The 2-channel L412 sonar only (firmware 11.21+ keeps presets; an older one answers ERR_ID or nothing).
+                // Its firmware calls itself PULSEblue DSS (129) from 11.4 on, nanoSSS (17) in its ID17 builds: the
+                // board on this PC answered as 129 with 11.21 (2026-10-23).
+                if((boardVersion() == BoardNanoSSS || boardVersion() == BoardPULSEblue_DSS) && !presetsAnswered_
+                   && !presetsUnsupported_ && presetAsks_ < 5
                    && curr_time - presetAskedAt_ >= 3000) {
                     ++presetAsks_;
                     presetAskedAt_ = curr_time;

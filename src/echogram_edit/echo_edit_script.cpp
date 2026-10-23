@@ -895,7 +895,7 @@ void EchoEditScript::runStep(const QJsonObject& s)
             }
         }
     }
-    else if (op == QLatin1String("presetRecall") || op == QLatin1String("presetSave")) {
+    else if (op == QLatin1String("presetRecall") || op == QLatin1String("presetSave") || op == QLatin1String("presetDelete")) {
         QObject* dev = nullptr;
         for (QObject* d : core_->getDeviceManagerWrapperPtr()->getDevList()) {
             if (!dev && d->property("presetsKnown").toBool()) {
@@ -906,6 +906,8 @@ void EchoEditScript::runStep(const QJsonObject& s)
         bool sent = false;
         if (dev && op == QLatin1String("presetRecall")) {
             sent = QMetaObject::invokeMethod(dev, "presetRecall", Q_ARG(int, slot));
+        } else if (dev && op == QLatin1String("presetDelete")) {
+            sent = QMetaObject::invokeMethod(dev, "presetDelete", Q_ARG(int, slot));
         } else if (dev) {
             sent = QMetaObject::invokeMethod(dev, "presetSave", Q_ARG(int, slot), Q_ARG(QString, s.value(QStringLiteral("name")).toString()));
         }

@@ -100,6 +100,7 @@
 //   {"op": "presets"}                the presets each device reported, one line a device
 //   {"op": "presetRecall", "slot": n}   {"op": "presetSave", "slot": n, "name": s}
 //                                    on the first device that keeps presets, as its frequency buttons do
+//   {"op": "presetDelete", "slot": n}   empties the slot (no button does: the live check undoes its save)
 // For the Wi-Fi module's radio switched off (ID_WIFI_RF, firmware 0.20), on the first Wi-Fi module, or with
 // "addr": n on the one at that bus address:
 //   {"op": "wifiPage"}               its device page opened

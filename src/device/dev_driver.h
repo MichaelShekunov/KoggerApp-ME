@@ -178,6 +178,9 @@ public:
     Q_INVOKABLE void presetRecall(int slot);
     /// Save the sonar's current settings into a slot under `name` (24 bytes of UTF-8 at most).
     Q_INVOKABLE void presetSave(int slot, const QString& name);
+    /// Empty a slot (SETTING v2 with the key). No button calls it in this version: the live check of the buttons on a
+    /// sonar (tools/preset_check/preset_sonar.ps1) undoes its save with it.
+    Q_INVOKABLE void presetDelete(int slot);
 
     int soundSpeed();
     void setSoundSpeed(int speed);

@@ -3048,3 +3048,16 @@ WIFI_MODULE.md 2p. **[verified]** wifi020_check 60 checks, 24 of 24 mutants; mis
 The kiosk, by the owner's word here "switch the kiosk to 3cbbfdec" **[verified]**: headunit 3cbbfdec (= me 7a92cc43 +
 the kiosk patch) since 2026-10-23 09:15:54 UTC (active, NRestarts 0, no QML error, the boat "MANUAL, disarmed"); before
 it 0c39cee0.
+
+**Presets on a real sonar (2026-10-23)**: the firmware session flashed 11.21 (md5 ffd06987…) on the sonar on this PC's
+COM13 and asked for the buttons' live check; the owner chose "with a write, then erase it". The first run found that
+the app never asked: that board answers ID_VERSION as **PULSEblue DSS (129)** -- the l412_adc firmware's identity from
+11.4 on; its ID17 builds call themselves nanoSSS (17) -- and DevDriver asked presets of board 17 only. Now 17 and 129
+(an older firmware still gets five asks and silence). `DevDriver::presetDelete` (SETTING v2 with the key; no button)
+and the edit-script step `presetDelete` undo the check's save. **[verified]** `tools/preset_check/preset_sonar.ps1
+-Exe <build> -Port COM13` (the test desktop, a profile of its own, KOGGER_AUTOTEST=COM13): the sonar answered, the
+table empty; slot 0 saved as a long press saves ("900 kHz, 31 pulses, DSP 1, 5000 cells of 10 mm, offset 0, period
+50 ms, factory, "Narrow beam"", 19 ms after the request); recalled, not refused; deleted, empty again; the table as
+before; no refusal. `preset_live.ps1` (the UDP stand) PASS with a delete step. Not seen: the buttons' circles on that
+sonar (the device pill is closed in the probe's dump; the binding is freqpreset_check's), and the second board (11.20)
+-- it is not on this PC.

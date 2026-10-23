@@ -18,6 +18,8 @@
       recall     SETTING v0 [1] came; the empty 5 was refused (code 3) and the app said so
       save       SETTING v1 [0] with the key and the name padded to 24 bytes; [3] with zeros for the key
       after      the app shows the new names of 0 and 3
+      delete     presetDelete (no button; preset_sonar.ps1 undoes its save with it): SETTING v2 [3][the key], slot 3
+                 empty after
     Exit code 0 when every check holds.
 
 .EXAMPLE
@@ -88,7 +90,8 @@ $steps = @(
     '{"op": "presetRecall", "slot": 5}', '{"op": "wait", "ms": 800}',
     '{"op": "presetSave", "slot": 0, "name": "\u0422\u0435\u0441\u0442"}', '{"op": "wait", "ms": 800}',
     '{"op": "presetSave", "slot": 3, "name": "user 3"}', '{"op": "wait", "ms": 800}',
-    '{"op": "presets"}', '{"op": "quit"}')
+    '{"op": "presets"}',
+    '{"op": "presetDelete", "slot": 3}', '{"op": "wait", "ms": 800}', '{"op": "presets"}', '{"op": "quit"}')
 $scriptPath = Join-Path $Out 'script.json'
 ('{"live": true, "steps": [' + ($steps -join ",`n") + ']}') | Set-Content -LiteralPath $scriptPath -Encoding ASCII
 
@@ -188,9 +191,15 @@ $want0 = [byte[]]($utf8.GetBytes($newName) + (New-Object byte[] (24 - $utf8.GetB
 $ok0 = $save0.Count -eq 1 -and [BitConverter]::ToUInt32($save0[0].Payload, 1) -eq $key -and ((Compare-Object $save0[0].Payload[5..28] $want0 -SyncWindow 0) -eq $null)
 $ok3 = $save3.Count -eq 1 -and [BitConverter]::ToUInt32($save3[0].Payload, 1) -eq 0
 Expect ($ok0 -and $ok3) 'save' ("slot 0: the key and the name padded to 24 bytes {0}; slot 3: no key {1}" -f $ok0, $ok3)
-$after = @($mine | Where-Object { $_ -match 'echoedit script: presets of ' } | Select-Object -Last 1)
-$afterOk = $after.Count -eq 1 -and $after[0].Contains('0: 777 kHz 20 pulses "' + $newName + '"') -and $after[0].Contains('3: 777 kHz 20 pulses "user 3"')
+$tablesLogged = @($mine | Where-Object { $_ -match 'echoedit script: presets of ' })
+$after = @($tablesLogged | Select-Object -Last 2 | Select-Object -First 1)
+$afterOk = $tablesLogged.Count -ge 3 -and $after[0].Contains('0: 777 kHz 20 pulses "' + $newName + '"') -and $after[0].Contains('3: 777 kHz 20 pulses "user 3"')
 Expect $afterOk 'after' ($(if ($after.Count) { $after[0] -replace '^\S+ \S+ \S+ \[\w+\] default: ', '' } else { 'no line' }))
+# presetDelete (no button; the live check on a sonar undoes its save with it): SETTING v2 [3][the key], slot 3 empty
+$del3 = @($got | Where-Object { $_.Type -eq 2 -and $_.Ver -eq 2 -and $_.Payload.Length -eq 5 -and $_.Payload[0] -eq 3 })
+$last = @($tablesLogged | Select-Object -Last 1)
+$delOk = $del3.Count -eq 1 -and [BitConverter]::ToUInt32($del3[0].Payload, 1) -eq $key -and $last.Count -eq 1 -and $last[0].Contains('3: empty') -and $last[0].Contains('0: 777 kHz 20 pulses "' + $newName + '"')
+Expect $delOk 'delete' ("SETTING v2 [3][the key] {0}; then {1}" -f $del3.Count, $(if ($last.Count) { $last[0] -replace '^.*presets of ', '' } else { 'no line' }))
 "preset live: {0}" -f ($(if ($failed -eq 0) { 'PASS' } else { "$failed FAIL" }))
 "logs: {0}, {1}" -f (Join-Path $Out 'kogger.log'), (Join-Path $Out 'stand.txt')
 exit ([int]($failed -gt 0))
