@@ -3136,3 +3136,17 @@ transfer folder; the firmware side in L412_GODIO docs/RING_HOLES_2026-10-23.md).
 - The servo's manual mode on the real Recorder (COM17, the owner's "3. да"): **[verified]**
   `tools/servo_check/servo_device.ps1` PASS -- read-backs 0, 45, -45, 30, 0, off with the scan's center; 55 manual
   frames, 61 settings answered RespOk; the drag ~32 frames a second, each answered. The motion itself not seen.
+
+## Ring counters on a GODIO ring board's page (2026-10-24, branch `ring-stat`)
+
+The owner's "делай" for the ring's firmware side (window from the line rate, no ping lost to an empty setting, skip
+counters shown outward). The firmware session made 1.16 (built only, not on the boards: the owner said "a bit
+later") with ID_RING_STAT 0x76, contract L412_GODIO docs/RING_HOLES_2026-10-23.md section 8.
+
+- `IDBinRingStat`; DevDriver ringStatSupported (ring board, firmware 1.16+), ringStat, ringStatRead, ringStatReset,
+  2 s timeout; the device page's "Ring counters" island after "Line speed", Read and Reset; ru zh es hi.
+- Asked only on request, never at connect or periodically: on a ring with no slack an answer can cost the following
+  board a ping.
+- **[verified]** `tools/ringstat_check/run.ps1 -Mutants` 9 of 9; `ringstat_live.ps1` PASS (a stand with a 1.16 and a
+  1.14 board: one read and one reset to 1.16 only, the values on the page uncut, no island for 1.14, no QML error).
+- New edit-script steps: devicePage, ringStat.
