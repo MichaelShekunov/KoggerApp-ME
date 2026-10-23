@@ -25,7 +25,8 @@ is that one line).
   vehicle's mission: "Go here" / "Start from here" (`MissionRunPointCard.qml`).
 - **MavVehicle (context property `boat`) only listens** in the app: heartbeat to the boat (FS_GCS), navigation
   readiness (EKF), GPS heading and the heading source switch (EK3_SRC1_YAW), autopilot health, messages, the track
-  by link quality, the ghost when the link is lost, the RTL progress and the battery at its end. Its plan, upload,
+  by link quality, the ghost when the link is lost and what is left with the battery at its end - in AUTO along the
+  mission the autopilot holds (the tracker's route, `setVehicleRoute`, since c55749b8), in RTL to home. Its plan, upload,
   read-back, start, HOLD, RTL, arm and disarm are refused (a log line `boat: ... ignored`), it no longer reads the
   mission when the autopilot appears, and the plan kept in `boatMission/planJson` is not shown (it stays there).
   The boat panel shows the diagnostics only; the widgets "Mission left" / "Mission time left" take AUTO's from

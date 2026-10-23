@@ -2997,3 +2997,13 @@ settings: 3c345da6 60.0 frames/s, longest gap 23.5 ms, 0 over 50 ms; 511d4fc2 th
 that recording holds the GUI thread 12.9 s on 3c345da6 and 12.2 s on 511d4fc2: old, not the missions. Not verified:
 the boat on water with upstream's way. Way back: the kiosk `deploy.py switch` with the 511d4fc2 archive (HeadUnit
 docs/STATE.md); in the code, `boat.setMissionsByPlanner(true)` off and the missions' QML entry points.
+
+**The ghost along the vehicle's mission (2026-10-23, c55749b8).** The owner on the night's report: "in the old mission
+code I like the ghost, and pinging the boat so it does not go home at once when the link is lost"; keep the
+autopilot card opening by itself; no proofreading of the languages. The heartbeat had stayed (planner mode); the ghost
+in AUTO had not (it walked MavVehicle's own, now empty, plan). Now `MavVehicle::setVehicleRoute` takes the planner's
+tracker's route on each `snapshotChanged` (main.cpp) and `autoRouteAhead()` serves both the ghost and what is left
+(BOAT_MISSION.md). **[verified]** mission_check offline 230/230 (2 new, a mutant fails both), SITL 268/268,
+mission_sitl_check 14/14 (the tracker's 6 positioned items reach MavVehicle). This PC, by the owner's word "update
+this PC fully, I'll confirm the rights": both installs on c55749b8 (the per-user one and Program Files, UAC confirmed
+by him), the installed exes the same as the packaged one. The kiosk is still 3c345da6 (without this change).
