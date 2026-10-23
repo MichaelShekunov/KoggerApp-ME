@@ -318,6 +318,7 @@ Column {
             label: qsTr("Enabled")
 
             DevSwitch {
+                objectName: "servoEnabledSwitch"
                 enabled: !body._manual
                 wantChecked: !!(body.dev && body.dev.servoEnabled)
                 writeBack: function(v) {
@@ -330,12 +331,14 @@ Column {
         }
 
         KIslandRow {
+            objectName: "servoManualRow"
             label: qsTr("Manual")
             caption: (body.dev && body.dev.servoManualSupport < 0) ? qsTr("The firmware does not support manual mode") : ""
             captionColor: AppPalette.dangerText
             toolTipText: qsTr("The servo holds the angle set with the knob; the scan waits until this is off.")
 
             DevSwitch {
+                objectName: "servoManualSwitch"
                 wantChecked: body._manual
                 writeBack: function(v) {
                     if (body.dev && body.dev.servoManual !== v) {
@@ -351,6 +354,7 @@ Column {
 
             // In manual mode the device sends no attitude: the angle shown is the one it was told to hold.
             Text {
+                objectName: "servoCurrentAngle"
                 text: body._manual ? body.dev.servoManualDeg.toFixed(2) + "°"
                                    : (body._axValid(body._angleDeg) ? body._angleDeg.toFixed(2) + "°" : "—")
                 color: AppPalette.textStrong
@@ -360,6 +364,7 @@ Column {
         }
 
         KIslandRow {
+            objectName: "servoManualDialRow"
             open: body._manual
             stacked: true
 
@@ -400,6 +405,7 @@ Column {
                     }
 
                     DevSpin {
+                        objectName: "servoManualSpin"
                         readonly property int _half: body.dev ? Math.round(body.dev.servoAngleRangeDeg * 50) : 9000
                         from: -_half; to: _half; stepSize: 1; divisor: 100; decimals: 2
                         devValue: body.dev ? Math.round(body.dev.servoManualDeg * 100) : 0
@@ -443,6 +449,7 @@ Column {
     KIsland {
         visible: !!body.dev
         title: qsTr("Scan")
+        objectName: "servoScanIsland"
         enabled: !body._manual
         opacity: enabled ? 1.0 : 0.55
         footer: body._manual ? qsTr("Waits while the servo is in manual mode.") : ""
