@@ -1093,12 +1093,31 @@ void linkRateRules()
           && p.rates[0].frames == 17, ok ? R::text(p.rates[0]) : QString());
     check("link rate: the long guard interval", ok && R::text(p.rates[1]) == QStringLiteral("65.0 Mbit/s · 11n MCS7"),
           ok ? R::text(p.rates[1]) : QString());
+    // LR (the module session's calibration 2026-10-02): code 0x1A is 500 kbit/s, sent as a number (flag bit2) only
+    // where the frames' timing proves it; another code is not known
     R::Rate lr; lr.kind = R::KindLr; lr.code = 0x1A; lr.kbps = 0; lr.frames = 30;
     R::Page q;
-    check("link rate: LR without a number (the module does not decode it)",
-          R::parse(ratePage(0, 1, boat, 200, 30, -60, 0, { lr }), q)
-              && R::text(q.rates[0]) == QStringLiteral("LR, speed not calibrated"),
+    check("link rate: LR 0x1A without a number is 500 kbit/s by the code",
+          R::parse(ratePage(0, 1, boat, 200, 30, -60, 0, { lr }), q) && q.rates.size() == 1 && q.rates[0].kbps == 500
+              && R::text(q.rates[0]) == QStringLiteral("0.5 Mbit/s · LR"),
           q.rates.isEmpty() ? QString() : R::text(q.rates[0]));
+    R::Rate lrProven = lr; lrProven.flags = 0x04; lrProven.kbps = 500;
+    R::Page q2;
+    check("link rate: LR proven by the frames' timing (0.19, flag bit2)",
+          R::parse(ratePage(0, 1, boat, 200, 30, -60, 0, { lrProven }), q2) && q2.rates.size() == 1
+              && q2.rates[0].kbps == 500 && R::text(q2.rates[0]) == QStringLiteral("0.5 Mbit/s · LR"),
+          q2.rates.isEmpty() ? QString() : R::text(q2.rates[0]));
+    R::Rate lrOther = lr; lrOther.code = 0x1B;
+    R::Page q3;
+    check("link rate: LR with another code is not known",
+          R::parse(ratePage(0, 1, boat, 200, 30, -60, 0, { lrOther }), q3) && q3.rates.size() == 1 && q3.rates[0].kbps == 0
+              && R::text(q3.rates[0]) == QStringLiteral("LR, rate not known (code 0x1B)"),
+          q3.rates.isEmpty() ? QString() : R::text(q3.rates[0]));
+    R::Rate gCode = lr; gCode.kind = R::Kind11g;
+    R::Page q4;
+    check("link rate: code 0x1A of another kind is not taken for LR's 500",
+          R::parse(ratePage(0, 1, boat, 200, 30, -60, 2, { gCode }), q4) && q4.rates.size() == 1 && q4.rates[0].kbps == 0,
+          q4.rates.isEmpty() ? QString() : R::text(q4.rates[0]));
     R::Page none;
     check("link rate: no other end is {0, 0}", R::parse(QByteArray("\x00\x00", 2), none) && none.total == 0);
     R::Page cut;

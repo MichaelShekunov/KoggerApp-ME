@@ -2432,7 +2432,7 @@ Column {
                 var outD = wifiIsland.rateDetail(wifiIsland.peerRates)
                 return (inD.length ? qsTr("In: %1.").arg(inD) + " " : "")
                        + (outD.length ? qsTr("Out, as the other end hears it: %1.").arg(outD) + " " : "")
-                       + qsTr("The PHY rate of the other end's data frames in a 0.2 s window, every 3 s while this section is open. LR: the module does not decode its rate yet.")
+                       + qsTr("The PHY rate of the other end's data frames in a 0.2 s window, every 3 s while this section is open.")
             }
         }
         // Retransmissions (firmware 0.20 on the module reporting them): each end counts the other's frames that came again.

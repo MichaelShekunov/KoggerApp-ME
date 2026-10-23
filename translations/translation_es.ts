@@ -5128,11 +5128,6 @@
         <translation>Salida, tal como la recibe el otro extremo: %1.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2435"/>
-        <source>The PHY rate of the other end&apos;s data frames in a 0.2 s window, every 3 s while this section is open. LR: the module does not decode its rate yet.</source>
-        <translation>La velocidad PHY de las tramas de datos del otro extremo en una ventana de 0.2 s, cada 3 s mientras esta sección está abierta. LR: el módulo aún no decodifica su velocidad.</translation>
-    </message>
-    <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="2440"/>
         <source>Retransmissions</source>
         <translation>Retransmisiones</translation>
@@ -5853,6 +5848,11 @@
         <location filename="../qml/app/DeviceSettingsPage.qml" line="3502"/>
         <source>The radio is off</source>
         <translation>La radio está apagada</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2435"/>
+        <source>The PHY rate of the other end&apos;s data frames in a 0.2 s window, every 3 s while this section is open.</source>
+        <translation>La velocidad PHY de las tramas de datos del otro extremo en una ventana de 0.2 s, cada 3 s mientras esta sección está abierta.</translation>
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="3506"/>

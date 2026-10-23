@@ -278,19 +278,24 @@ private:
  * @brief The Wi-Fi module's link rate report (ID_WIFI_SURVEY v1, firmware 0.18; the module's docs/SBP_WIFI.md 3b).
  *
  * Per other end of the link (a station's access point, an access point's clients): the PHY rates its data frames came
- * at in a short listening window, the most frames first. The module does not decode LR (kbit/s 0, the code a raw field
- * of the received frame): no number is shown for it. Listening cuts the link's throughput (ESP-IDF), so the app asks
- * rarely, and the two ends apart.
+ * at in a short listening window, the most frames first. LR's code is a raw field of the received frame: from 0.19 the
+ * module sends 500 kbit/s (flag bit2) for a window whose frames' timing proves it, and the code itself was calibrated
+ * (kLrCode500). Listening cuts the link's throughput (ESP-IDF), so the app asks rarely, and the two ends apart.
  */
 struct WifiLinkRate
 {
     static constexpr int kWindowMs = 200;       ///< the module's default window
     static constexpr int kEveryMs = 3000;       ///< not more often: listening cuts the throughput
     static constexpr int kPeerDelayMs = 400;    ///< the other end is asked this much later: the windows apart
+    /** LR's code for 500 kbit/s: every LR frame carries it, and frames in a row bounded it at 372-380 kbit/s, never
+     *  above 500 (the module session on hardware, 2026-10-02; contract 9). LR has 250 and 500 only; 250 never came. */
+    static constexpr int kLrCode500 = 0x1A;
+    static constexpr uint32_t kLr500Kbps = 500;
     enum Kind { KindOther = 0, Kind11b = 1, Kind11g = 2, Kind11n = 3, KindLr = 4 };
     struct Rate {
-        int kind = KindOther, code = 0, flags = 0;   // flags (11n): bit0 short guard interval, bit1 40 MHz
-        uint32_t kbps = 0;                           // 0: not known (LR always)
+        int kind = KindOther, code = 0, flags = 0;   // flags (11n): bit0 short guard interval, bit1 40 MHz; LR: bit2
+                                                     // the rate proven by the frames' timing (0.19)
+        uint32_t kbps = 0;                           // 0: not known
         int frames = 0;
     };
     struct Page {
@@ -347,6 +352,9 @@ struct WifiLinkRate
             r.kbps = uint32_t(u8(o + 3)) | (uint32_t(u8(o + 4)) << 8) | (uint32_t(u8(o + 5)) << 16)
                    | (uint32_t(u8(o + 6)) << 24);
             r.frames = u8(o + 7) | (u8(o + 8) << 8);
+            // A window without two LR frames in a row proves nothing, and 0.18 never sends a number: the code does
+            if (r.kind == KindLr && r.kbps == 0 && r.code == kLrCode500)
+                r.kbps = kLr500Kbps;
             out.rates.append(r);
         }
         if (b.size() >= 16 + 13 * n + 2)
@@ -354,14 +362,16 @@ struct WifiLinkRate
         return true;
     }
 
-    /** "72.2 Mbit/s · 11n MCS7 SGI", "54.0 Mbit/s · 11g", "LR, speed not calibrated". */
+    /** "72.2 Mbit/s · 11n MCS7 SGI", "54.0 Mbit/s · 11g", "0.5 Mbit/s · LR", "LR, rate not known (code 0x1B)". */
     static QString text(const Rate& r)
     {
         const QString mbit = r.kbps ? QString::number(r.kbps / 1000.0, 'f', 1) + QStringLiteral(" Mbit/s")
                                     : QStringLiteral("? Mbit/s");
         switch (r.kind) {
         case KindLr:
-            return QStringLiteral("LR, speed not calibrated");
+            return r.kbps ? mbit + QStringLiteral(" · LR")
+                          : QStringLiteral("LR, rate not known (code 0x%1)")
+                                .arg(QString::number(r.code, 16).toUpper().rightJustified(2, QLatin1Char('0')));
         case Kind11n: {
             QString t = mbit + QStringLiteral(" · 11n MCS%1").arg(r.code);
             if (r.flags & 0x01)

@@ -5128,11 +5128,6 @@
         <translation>出（对端接收）：%1。</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2435"/>
-        <source>The PHY rate of the other end&apos;s data frames in a 0.2 s window, every 3 s while this section is open. LR: the module does not decode its rate yet.</source>
-        <translation>对端数据帧在 0.2 秒窗口内的 PHY 速率，本部分展开时每 3 秒测量一次。LR：模块尚不能解析其速率。</translation>
-    </message>
-    <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="2440"/>
         <source>Retransmissions</source>
         <translation>重传</translation>
@@ -5853,6 +5848,11 @@
         <location filename="../qml/app/DeviceSettingsPage.qml" line="3502"/>
         <source>The radio is off</source>
         <translation>无线已关闭</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2435"/>
+        <source>The PHY rate of the other end&apos;s data frames in a 0.2 s window, every 3 s while this section is open.</source>
+        <translation>对端数据帧在 0.2 秒窗口内的 PHY 速率，本部分展开时每 3 秒测量一次。</translation>
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="3506"/>

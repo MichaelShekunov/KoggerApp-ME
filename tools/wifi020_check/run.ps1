@@ -89,7 +89,11 @@ $faults = @(
     @{ Name = 'eleven reports kept';                 File = $ops; From = 'while (e.size() > kKeep ||'; To = 'while (e.size() > kKeep + 1 ||' },
     @{ Name = 'old reports summed';                  File = $ops; From = "            if (nowMs - e.atMs > kMaxAgeMs)`n                continue;`n            s.retries += e.retries;"; To = '            s.retries += e.retries;' },
     @{ Name = 'more retries than frames taken';      File = $ops; From = 'if (frames <= 0 || retries < 0 || retries > frames)'; To = 'if (frames <= 0 || retries < 0)' },
-    @{ Name = 'the radio-off flag on bit4';          File = 'id_binnary.h'; From = 'FlagRadioOff = 1 << 3'; To = 'FlagRadioOff = 1 << 4' }
+    @{ Name = 'the radio-off flag on bit4';          File = 'id_binnary.h'; From = 'FlagRadioOff = 1 << 3'; To = 'FlagRadioOff = 1 << 4' },
+    @{ Name = 'LR 0x1A not taken for 500';           File = $ops; From = 'if (r.kind == KindLr && r.kbps == 0 && r.code == kLrCode500)'; To = 'if (false)' },
+    @{ Name = 'any LR code taken for 500';           File = $ops; From = 'r.kbps == 0 && r.code == kLrCode500)'; To = 'r.kbps == 0)' },
+    @{ Name = 'code 0x1A of any kind taken for 500'; File = $ops; From = 'if (r.kind == KindLr && r.kbps == 0 && r.code'; To = 'if (r.kbps == 0 && r.code' },
+    @{ Name = 'LR shown without its number';         File = $ops; From = "case KindLr:`n            return r.kbps ? mbit"; To = "case KindLr:`n            return false ? mbit" }
 )
 
 $utf8 = New-Object System.Text.UTF8Encoding $false

@@ -5128,11 +5128,6 @@
         <translation>आउटगोइंग, जैसा दूसरा सिरा इसे सुनता है: %1।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2435"/>
-        <source>The PHY rate of the other end&apos;s data frames in a 0.2 s window, every 3 s while this section is open. LR: the module does not decode its rate yet.</source>
-        <translation>दूसरे सिरे के डेटा फ़्रेम की PHY दर, 0.2 s की विंडो में, हर 3 s पर, जब तक यह अनुभाग खुला है। LR: मॉड्यूल अभी इसकी दर डिकोड नहीं करता।</translation>
-    </message>
-    <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="2440"/>
         <source>Retransmissions</source>
         <translation>पुनःप्रेषण</translation>
@@ -5853,6 +5848,11 @@
         <location filename="../qml/app/DeviceSettingsPage.qml" line="3502"/>
         <source>The radio is off</source>
         <translation>रेडियो बंद है</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2435"/>
+        <source>The PHY rate of the other end&apos;s data frames in a 0.2 s window, every 3 s while this section is open.</source>
+        <translation>दूसरे सिरे के डेटा फ़्रेम की PHY दर, 0.2 s की विंडो में, हर 3 s पर, जब तक यह अनुभाग खुला है।</translation>
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="3506"/>

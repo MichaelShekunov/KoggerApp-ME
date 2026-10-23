@@ -311,6 +311,29 @@ int main(int argc, char** argv)
        && p.rates.isEmpty() && p.retries == 0, QString("retries %1").arg(p.retries));
     ok("a 0.20 page is 16 + 13 n + 2 bytes", ratePage(371, 3, 20, 9).size() == 16 + 13 * 3 + 2);
 
+    std::printf("\nlink rate report: LR (0.19 proof, the code calibrated 2026-10-02)\n");
+    // The module session's two pages, as host/sbpframe.parse_linkrate takes them (0.20 layout, one other end, one LR
+    // rate): proven in the window (flag 0x04, 500, bound 376, 1 came again), and not proven (flag 0, 0, bound 240).
+    const QByteArray lrProven = hex("00 01 d8 3b da 29 cf d1 c8 00 14 00 d2 00 01 00 04 1a 04 f4 01 00 00 14 00 78 01 00 00 01 00");
+    const QByteArray lrBare = hex("00 01 d8 3b da 29 cf d1 c8 00 14 00 d2 00 01 00 04 1a 00 00 00 00 00 14 00 f0 00 00 00 01 00");
+    ok("LR proven: parsed, 20 frames at -46 dBm, 1 came again", WifiLinkRate::parse(lrProven, p) && p.frames == 20
+       && p.rssi == -46 && p.retries == 1 && p.rates.size() == 1 && p.rates[0].kind == WifiLinkRate::KindLr
+       && p.rates[0].code == 0x1A && p.rates[0].flags == 0x04, QString("%1 frames %2 dBm").arg(p.frames).arg(p.rssi));
+    ok("LR proven: 500 kbit/s, \"0.5 Mbit/s · LR\"", p.rates.size() == 1 && p.rates[0].kbps == 500
+       && WifiLinkRate::text(p.rates[0]) == QString::fromUtf8("0.5 Mbit/s \xC2\xB7 LR"),
+       p.rates.isEmpty() ? QString() : WifiLinkRate::text(p.rates[0]));
+    ok("LR 0x1A not proven in the window: 500 by the code", WifiLinkRate::parse(lrBare, p) && p.rates.size() == 1
+       && p.rates[0].flags == 0 && p.rates[0].kbps == 500 && WifiLinkRate::text(p.rates[0]) == QString::fromUtf8("0.5 Mbit/s \xC2\xB7 LR"),
+       p.rates.isEmpty() ? QString() : WifiLinkRate::text(p.rates[0]));
+    QByteArray lrOther = lrBare;
+    lrOther[17] = char(0x1B);
+    ok("LR with another code: not known, the code shown", WifiLinkRate::parse(lrOther, p) && p.rates.size() == 1
+       && p.rates[0].kbps == 0 && WifiLinkRate::text(p.rates[0]) == QStringLiteral("LR, rate not known (code 0x1B)"),
+       p.rates.isEmpty() ? QString() : WifiLinkRate::text(p.rates[0]));
+    QByteArray gWith1A = lrBare;
+    gWith1A[16] = char(WifiLinkRate::Kind11g);
+    ok("code 0x1A of 11g: not LR's 500", WifiLinkRate::parse(gWith1A, p) && p.rates.size() == 1 && p.rates[0].kbps == 0);
+
     WifiRetryWindow w;
     const QString a = QStringLiteral("24:6f:28:aa:bb:cc"), b = QStringLiteral("24:6f:28:11:22:33");
     w.add(a, 3, 40, 0);

@@ -450,8 +450,8 @@ window; CONTENT v1 per other end (a station's access point, an access point's cl
 negotiated mode and up to 4 rates {kind, code, flags, kbit/s, frames}. The island's "Link speed" shows "in" (this
 module's report: how it receives the other end) and "out" (the other end's report, when the app sees it: how it
 receives this module), asked every 3 s while the section is open, the other end 400 ms later: listening cuts the
-link's throughput (ESP-IDF), and the two windows are kept apart. LR is not decoded by the module (kbit/s 0): "LR,
-speed not calibrated". Measured by the module session in b/g/n: both ways 11n MCS7 SGI, 72.2 Mbit/s. An access point
+link's throughput (ESP-IDF), and the two windows are kept apart. LR: "0.5 Mbit/s · LR" (§2p, since 2026-10-23; before,
+"LR, speed not calibrated"). Measured by the module session in b/g/n: both ways 11n MCS7 SGI, 72.2 Mbit/s. An access point
 hears its client only when the client sends: an empty window is a quiet link, not a fault.
 
 ## 2n. What the boat link carries (2026-09-30)
@@ -547,7 +547,7 @@ public/docs/SBP_WIFI.md 4b).
   left, ticking, or "until you switch it on"; "Switch the radio on" over a wire, over the network why not. The
   section's title shows "Radio off · 42 s", the Wi‑Fi section's chip "Radio off".
 - **Checks** **[verified]**: `tools/wifi020_check/run.ps1` (offline: the frames byte by byte against the contract's
-  three examples, what is taken, the rules, flag bit3, the retransmissions of §2p; 55 checks, `-Mutants` 20 of 20
+  three examples, what is taken, the rules, flag bit3, the retransmissions and LR's rate of §2p; 60 checks, `-Mutants` 24 of 24
   caught); `tools/qml_check/radiooff_check.ps1` (the section cut out of the page against a made-up module: 10 tests;
   it caught a property named `left`, which Item already has as an anchor line -- the page would not have loaded);
   `tools/wifi020_check/rf_live.ps1 -Codes ru,zh,es,hi` (the app against a stand that plays the module over UDP: over a
@@ -584,8 +584,18 @@ end (a 200 ms window holds tens of frames: one report's share is noise). The Wi�
 when the app sees that module too (§2k); the `wifi-rate:` log line adds the counts. A lower bound: a frame none of
 whose tries arrived is not seen, and a module cannot count its own retransmissions (ESP-IDF has no counter, the
 module session). On hardware (the module session, the office, -46 dBm, 10 windows each way, 2026-10-23): boat to head
-unit 7 of 190 (3.7 %), head unit to boat 3 of 191 (1.6 %); single windows 0..19 %, hence the sum. Not done: 0.19's bounds are not read, so an LR link still shows "LR, speed not calibrated" although
-0.19 reports 500 kbit/s with flag bit2 once the frames' timing proves it (contract 9).
+unit 7 of 190 (3.7 %), head unit to boat 3 of 191 (1.6 %); single windows 0..19 %, hence the sum.
+
+**LR's rate (2026-10-23; the owner's "fix it" through the module session).** "LR, speed not calibrated" is gone. From
+0.19 the module sends an LR rate as 500 kbit/s with flag bit2 when its window's frames' timing proves it (a bound of
+300..550 kbit/s), else 0; and the code itself was calibrated on hardware on 2026-10-02 (the module session, contract 9):
+every LR frame carries 0x1A, frames in a row bounded it at 372-380 kbit/s in 6 windows of 6, never above 500 in 18;
+LR has 250 and 500 only, and 250 never came. So `WifiLinkRate::parse` takes an LR rate of code 0x1A without a number
+as 500 kbit/s too (0.18 sends none at all), and `text()` reads "0.5 Mbit/s · LR"; another LR code "LR, rate not known
+(code 0xNN)". Everything that reads the rates (the Link speed row, `wifi-rate:` lines) gets the 500. Checked on the
+module session's two pages, proven and not (`tools/wifi020_check`, 4 more mutants caught) and in mission_check; not
+on an LR link: both modules run b/g/n, and moving the boat link to LR only for this risks leaving the boat without
+it (the module session). 0.19's bounds themselves are still not read.
 
 ## 2c. Port speed of the module (line 0)
 

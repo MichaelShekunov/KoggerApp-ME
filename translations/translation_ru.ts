@@ -4812,11 +4812,6 @@
         <translation>Выход, как его слышит другой конец: %1.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2435"/>
-        <source>The PHY rate of the other end&apos;s data frames in a 0.2 s window, every 3 s while this section is open. LR: the module does not decode its rate yet.</source>
-        <translation>PHY-скорость кадров данных другого конца в окне 0,2 с, каждые 3 с, пока этот раздел открыт. LR: модуль пока не расшифровывает её скорость.</translation>
-    </message>
-    <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="2440"/>
         <source>Retransmissions</source>
         <translation>Повторы</translation>
@@ -5537,6 +5532,11 @@
         <location filename="../qml/app/DeviceSettingsPage.qml" line="3502"/>
         <source>The radio is off</source>
         <translation>Радио выключено</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2435"/>
+        <source>The PHY rate of the other end&apos;s data frames in a 0.2 s window, every 3 s while this section is open.</source>
+        <translation>PHY-скорость кадров данных другого конца в окне 0,2 с, каждые 3 с, пока этот раздел открыт.</translation>
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="3506"/>
