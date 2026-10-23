@@ -108,8 +108,9 @@ if (Test-Path $json) {
 }
 Expect ($groupShown -and $cards.Count -eq 8 -and $cut.Count -eq 0) 'page' (
     "group shown {0}; blocks {1}; cut texts {2}" -f $groupShown, (($cards | Sort-Object) -join ' '), $(if ($cut.Count) { $cut -join ' | ' } else { 'none' }))
-$tally = @($mine | Where-Object { $_ -match 'sent:.*KP1 \[0\] id 0x16 v1 [\d.]+ KB/s ([\d.]+)/s' } | ForEach-Object {
-    if ($_ -match 'KP1 \[0\] id 0x16 v1 [\d.]+ KB/s ([\d.]+)/s') { [double]$Matches[1] } })
+# the Recorder answers on its own route (250), and the app asks it there
+$tally = @($mine | Where-Object { $_ -match 'sent:.*KP1 \[\d+\] id 0x16 v1 [\d.]+ KB/s ([\d.]+)/s' } | ForEach-Object {
+    if ($_ -match 'sent:.*KP1 \[\d+\] id 0x16 v1 [\d.]+ KB/s ([\d.]+)/s') { [double]$Matches[1] } })
 Expect ($tally.Count -ge 1 -and ($tally | Measure-Object -Maximum).Maximum -ge 3.0 -and ($tally | Measure-Object -Maximum).Maximum -le 5.5) 'live' (
     "ID_PIN v1 per second in the minute tallies: {0}" -f $(if ($tally.Count) { $tally -join ', ' } else { 'none logged' }))
 "ports device: {0}" -f ($(if ($failed -eq 0) { 'PASS' } else { "$failed FAIL" }))

@@ -3164,3 +3164,21 @@ The owner asked for every connector of the logger configurable from the app; the
   before the page, ~5/s while open, 8 cards uncut, OUT1 "IN1, IN3, O1", the grab looked at); ports_device.ps1 on the
   real Recorder (COM17): the table read right. Its page part is to be run again: the page step looked for address 0
   (the Recorder answers from 250; fixed) and the owner's KoggerApp held COM17 for the first 80 s.
+
+## A Recorder's connectors as the board (2026-10-24, branch `recorder-board`)
+
+The owner: "a picture of the logger where the connectors are interactive", "the pinout visible, live values beside
+the connectors", "reserve each function's own settings, as with the servo menu". docs/RECORDER_PORTS.md.
+
+- `qml/app/RecorderBoardView.qml` replaces the cards: the board drawn on 680 x 500 units, a block per connector with
+  its contacts in board order and live values, the power block (ID_VOLTAGE ch 0/1, `voltage0Mv`/`voltage1Mv`). A tap
+  opens the connector's menu below; a universal connector's contact opens its role's menu. Rows the firmware does not
+  have yet are tagged "reserved"; their layouts are in the port spec (recorder commit 882c0c7, ID_BUS V2-V5,
+  ID_PIN V2-V5), asked for by this session with the owner's "норм".
+- Place and contact order: `knownLayout`, the spec's ID_BUS V1 table for v4.0 (clockwise, contact 1 first, so the
+  left side reads bottom up; OUTS is O3, O2, GND, O1). The device does not send V1 yet.
+- A header shrinks to fit before it is cut; below 560 px the drawing keeps 560 px and scrolls sideways.
+- **[verified]** recorderboard_check 9 of 9 (a mutant without the fit fails test_07); ports_live PASS (8 blocks,
+  nothing cut, v1 4.9/s); ports_device on the real Recorder (COM17) PASS: table, 8 blocks uncut, v1 4.8/s.
+- **[observed]** the real Recorder sent no ID_VOLTAGE in a minute although the spec says once a second: VBAT and the
+  power block show "—". Told the Recorder's session.
