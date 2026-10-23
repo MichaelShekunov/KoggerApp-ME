@@ -3090,3 +3090,8 @@ beam for both); `about_check`; `preset_live` PASS; the pill pictured in the app 
 new edit-script step `clickItem` (objectName `devBadgeButton` on the device badge): with presets the beams and the
 names, without them the beams only, the narrow one lit at 700 kHz. The device badge's own small "700" (the
 frequency in use) is unchanged.
+"Update everywhere" (the owner, 2026-10-23) **[verified]**: this PC's two installs (the per-user one and Program Files,
+UAC confirmed by the owner) on 33f2be94, the installed exes the same as the packaged one; the kiosk on headunit
+c1730548 (= me 33f2be94 + the kiosk patch) since 14:47:53 UTC (active, NRestarts 0, no QML error, the boat "HOLD,
+disarmed", the sonar's presets read); before it 43d951e5. The head unit had restarted about 14:44 UTC (a clean stop of
+the kiosk at 14:44:00, not a crash).
