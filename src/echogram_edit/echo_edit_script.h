@@ -119,6 +119,8 @@
 //   {"op": "upgrade", "path": file, "board": n, "addr": n}   the first sonar, or the one of that ID_VERSION board and
 //                                    route; logs the sonar it started on; not while a recorder records
 //   {"op": "recorderState"}          every recorder's status, one line each
+//   {"op": "scrollTo", "name": objectName}   the first item of that objectName brought to the top of the Flickable
+//                                    holding it (for a grab of a page longer than the window)
 //   {"op": "clickItem", "name": objectName, "index": n}   a tap on that item (its clicked()): "devBadgeButton" opens a
 //                                    device's pill
 //   {"op": "waitUpgrade", "timeoutMs": 180000}   until that update ends (flashed / failed), the progress every 10 %

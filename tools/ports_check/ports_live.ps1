@@ -29,7 +29,9 @@ param(
     [int]    $Port = 47651,
     [string] $Out = "$env:TEMP\kogger_ports_live",
     [string] $PerfReg = 'D:\YandexDisk\DelphiProjects\KoggerApp_myEdition_transfer\KoggerApp-perf.reg',
-    [int]    $TimeoutS = 90
+    [int]    $TimeoutS = 90,
+    # a picture of the window with the page open, to look at
+    [string] $Shot
 )
 
 $ErrorActionPreference = 'Stop'
@@ -98,7 +100,13 @@ $version = Kp1 1 0 0x20 ([byte[]](0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 9
 
 $steps = @('{"op": "waitPorts", "timeoutMs": 30000}', '{"op": "wait", "ms": 2000}', '{"op": "ports"}',
            '{"op": "devicePage", "recorder": true}', '{"op": "wait", "ms": 3000}',
-           '{"op": "probe", "tag": "page", "root": "DeviceSettingsPage"}', '{"op": "quit"}')
+           '{"op": "probe", "tag": "page", "root": "DeviceSettingsPage"}')
+if ($Shot) {
+    $steps += '{"op": "scrollTo", "name": "recorderPortsGroup"}'
+    $steps += '{"op": "wait", "ms": 600}'
+    $steps += ('{"op": "grab", "path": "' + $Shot.Replace('\', '/') + '"}')
+}
+$steps += '{"op": "quit"}'
 $scriptPath = Join-Path $Out 'script.json'
 [System.IO.File]::WriteAllText($scriptPath, ('{"live": true, "steps": [' + ($steps -join ",`n") + ']}'), $utf8)
 
@@ -173,7 +181,8 @@ $tableDone = if ($pinAsks.Count) { $pinAsks[-1].T } else { 0 }
 $early = @($v1 | Where-Object { $_.T -lt $tableDone + 1800 })
 Expect ($early.Count -eq 0) 'quiet' ("{0} ID_PIN v1 within 1.8 s after the table was read (the page not open yet)" -f $early.Count)
 $span = if ($v1.Count -ge 2) { ($v1[-1].T - $v1[0].T) / 1000.0 } else { 0 }
-Expect ($v1.Count -ge 10 -and $v1.Count -le 17) 'live' ("{0} ID_PIN v1 over {1:F1} s" -f $v1.Count, $span)
+$rate = if ($span -gt 0) { ($v1.Count - 1) / $span } else { 0 }
+Expect ($v1.Count -ge 10 -and $rate -ge 3.5 -and $rate -le 5.6) 'live' ("{0} ID_PIN v1 over {1:F1} s, {2:F1} a second" -f $v1.Count, $span, $rate)
 $json = Join-Path $Out 'ui-page.json'
 $cards = @(); $cut = @(); $texts = @(); $groupShown = $false
 if (Test-Path $json) {

@@ -976,6 +976,39 @@ void EchoEditScript::runStep(const QJsonObject& s)
                           : !recording.isEmpty() ? QStringLiteral(": not started, %1 records").arg(recording)
                           : QStringLiteral(": the file did not open")));
     }
+    else if (op == QLatin1String("scrollTo")) {
+        const QString name = s.value(QStringLiteral("name")).toString();
+        QQuickItem* target = nullptr;
+        for (QWindow* w : QGuiApplication::topLevelWindows()) {
+            if (auto* qw = qobject_cast<QQuickWindow*>(w)) {
+                std::function<void(QQuickItem*)> walk = [&](QQuickItem* it) {
+                    if (!target && it->objectName() == name && it->isVisible()) {
+                        target = it;
+                    }
+                    for (QQuickItem* c : it->childItems()) {
+                        walk(c);
+                    }
+                };
+                walk(qw->contentItem());
+            }
+        }
+        QQuickItem* flick = target ? target->parentItem() : nullptr;
+        while (flick && !flick->inherits("QQuickFlickable")) {
+            flick = flick->parentItem();
+        }
+        bool moved = false;
+        if (flick) {
+            QQuickItem* content = flick->property("contentItem").value<QQuickItem*>();
+            if (content) {
+                const qreal y = target->mapToItem(content, QPointF(0, 0)).y();
+                const qreal maxY = qMax<qreal>(0.0, flick->property("contentHeight").toReal() - flick->height());
+                moved = flick->setProperty("contentY", qBound<qreal>(0.0, y, maxY));
+            }
+        }
+        qInfo().noquote() << QStringLiteral("echoedit script: scrollTo %1: %2").arg(name)
+                             .arg(!target ? QStringLiteral("no such item") : moved ? QStringLiteral("scrolled")
+                                                                                  : QStringLiteral("no Flickable"));
+    }
     else if (op == QLatin1String("clickItem")) {
         // A tap on the "index"-th item (window order) whose objectName is "name": its clicked() as its MouseArea
         // emits it -- a device badge (devBadgeButton) opens its pill.
