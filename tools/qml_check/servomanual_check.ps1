@@ -21,7 +21,9 @@
 param(
     [string]$QtBin = $(if ($env:QT_BIN) { $env:QT_BIN } else { 'D:\Qt\6.8.3\llvm-mingw_64\bin' }),
     # keep the generated test (its folder is printed) to read a compile error's line
-    [switch]$KeepWork
+    [switch]$KeepWork,
+    # a picture of the panel in manual mode at 25 degrees, to look at (Windows' fonts for the offscreen platform)
+    [string]$Shot
 )
 $ErrorActionPreference = 'Stop'
 
@@ -110,6 +112,7 @@ Item {
         function servoManualSet(d) { sets = sets.concat([d]); servoManualDeg = d }
     }
 
+    Rectangle { anchors.fill: parent; color: AppPalette.bg }   // the app's background: the islands' titles are light
     Flickable {
         anchors.fill: parent
         contentHeight: body.height
@@ -120,6 +123,7 @@ Item {
         }
     }
 
+    readonly property string shotPath: "%SHOT%"
     TestCase {
         name: "ServoManual"
         when: windowShown
@@ -234,6 +238,14 @@ Item {
             fakeDev.servoManualSet(12.34)
             compare(spin.devValue, 1234)
         }
+        function test_08_shot() {
+            if (!shotPath)
+                skip("no -Shot")
+            enterManual()
+            fakeDev.servoManualSet(25)
+            wait(400)
+            grabImage(root).save(shotPath)   // void in Qt 6; the script looks for the file
+        }
         function test_07_refused() {
             enterManual()
             // DevDriver on RespErrorPayload: manual dropped here, support known as none.
@@ -255,7 +267,8 @@ try {
     $env:PATH = "$QtBin;$env:PATH"
     $env:QT_FORCE_STDERR_LOGGING = '1'
     $path = Join-Path $work 'tst_servomanual.qml'
-    Write-Utf8 $path $test
+    Write-Utf8 $path ($test.Replace('%SHOT%', $Shot.Replace('\', '/')))
+    if ($Shot) { $env:QT_QPA_FONTDIR = Join-Path $env:WINDIR 'Fonts' }
     $outFile = Join-Path $work 'out.txt'
     $errFile = Join-Path $work 'err.txt'
     $p = Start-Process -FilePath $runner -NoNewWindow -Wait -PassThru `

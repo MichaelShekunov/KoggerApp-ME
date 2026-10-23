@@ -3095,3 +3095,26 @@ UAC confirmed by the owner) on 33f2be94, the installed exes the same as the pack
 c1730548 (= me 33f2be94 + the kiosk patch) since 14:47:53 UTC (active, NRestarts 0, no QML error, the boat "HOLD,
 disarmed", the sonar's presets read); before it 43d951e5. The head unit had restarted about 14:44 UTC (a clean stop of
 the kiosk at 14:44:00, not a crash).
+
+## The servo's manual mode: the axis turned with a knob (2026-10-23, branch `servo-manual`)
+
+Asked by the session "Logger Recorder GitLab" with the owner's words: a manual mode in the servo panel, the axis
+turned with the mouse. The Recorder's firmware (`feat/servo-pwm-x7`) has it as bit 1 of ID_SERVO_CONTROL's general,
+center_deg then being the angle held; built there, not flashed. docs/SERVO_MANUAL.md.
+
+- `IDBinServoControl`: setManual / setManualDeg / dropManual; the scan's center kept apart while center_deg carries
+  the angle, and sent back on the way out. Manual mode's frames go without the acknowledgement check: a drag's
+  answers never match the frame sent last, and after 1.5 s the class would report the control lost and the panel
+  drop the device.
+- `DevDriver`: servoManual, servoManualMove (paced: 25 ms slots, ~31 ms on Windows' coarse timer),
+  servoManualSet, a read-back 250 ms after a change; RespErrorPayload before manual mode was ever shown is a
+  firmware without it.
+- Panel: Manual switch, `ServoAngleDial` (a relative turn, Shift finer, wheel 1 deg / Ctrl 0.1) with a 0.01 field;
+  Scan and Enabled wait; Current angle shows the angle held.
+- `degToS2` rounds: 4.1 deg went out as 4.09.
+- **[verified]** `tools/servo_check/run.ps1 -Mutants` PASS, 10 of 10 mutants caught;
+  `tools/qml_check/servomanual_check.ps1` 9 of 9, the shot looked at; `tools/servo_check/servo_live.ps1` PASS
+  (the app on the test desktop against a UDP stand playing the Recorder: in, read-back, pace 34 frames for 181
+  moves, release, out, the control never lost; an old firmware's refusal). ts_check ru zh es hi clean.
+- New test hooks: edit-script steps waitServo, servo, servoManual, servoSet, servoDrag (echo_edit_script.h).
+- Not merged into `me`, not installed, not on hardware.

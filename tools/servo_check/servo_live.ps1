@@ -78,6 +78,7 @@ function Invoke-Run([string] $kind, [string[]] $steps) {
     # Windows reports an ICMP "port unreachable" of an earlier send (the app not listening yet) as a reset of the
     # next Receive; SIO_UDP_CONNRESET off keeps the stand going.
     [void]$udp.Client.IOControl(-1744830452, [byte[]](0, 0, 0, 0), $null)
+    $udp.Client.ReceiveTimeout = 20   # a blocking receive: a frame is timed when it comes, not when a sleep ends
     $app = New-Object System.Net.IPEndPoint([System.Net.IPAddress]::Loopback, $Port)
     $psi = New-Object System.Diagnostics.ProcessStartInfo
     $psi.FileName = $Exe; $psi.UseShellExecute = $false; $psi.WorkingDirectory = Split-Path $Exe
@@ -100,9 +101,8 @@ function Invoke-Run([string] $kind, [string[]] $steps) {
                 $f = Kp1 1 0 0x20 ([byte[]](0, 17, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4)) $false   # VERSION v0
                 [void]$udp.Send($f, $f.Length, $app)
             }
-            if ($udp.Available -le 0) { Start-Sleep -Milliseconds 1; continue }
             $remote = New-Object System.Net.IPEndPoint([System.Net.IPAddress]::Any, 0)
-            $d = $udp.Receive([ref]$remote)
+            try { $d = $udp.Receive([ref]$remote) } catch [System.Net.Sockets.SocketException] { continue }
             $t = $clock.Elapsed.TotalMilliseconds
             $i = 0
             while ($i + 8 -le $d.Length) {
@@ -143,7 +143,10 @@ function Invoke-Run([string] $kind, [string[]] $steps) {
     $mine | Set-Content -LiteralPath (Join-Path $Out "kogger_$kind.log") -Encoding UTF8
     $got | ForEach-Object { '{0,9:F1} ms  {1}  general {2}  center {3}' -f $_.T, $(if ($_.Type -eq 3) { 'GET    ' } else { 'SETTING' }), $_.General, $_.Center } |
         Set-Content -LiteralPath (Join-Path $Out "stand_$kind.txt") -Encoding ASCII
-    return [pscustomobject]@{ Got = @($got); Log = $mine }
+    $r = New-Object psobject
+    $r | Add-Member -NotePropertyName Got -NotePropertyValue ($got.ToArray())
+    $r | Add-Member -NotePropertyName Log -NotePropertyValue $mine
+    return $r
 }
 
 $failed = 0
@@ -165,24 +168,31 @@ $in = @($manualSets | Select-Object -First 1)
 Expect ($in.Count -eq 1 -and $in[0].Center -eq 1500) 'in' ("first SETTING with bit 1: {0}" -f $(if ($in.Count) { "center $($in[0].Center)" } else { 'none' }))
 $getAfter = @($a.Got | Where-Object { $_.Type -eq 3 -and $in.Count -and $_.T -gt $in[0].T })
 $servoLines = @($a.Log | Where-Object { $_ -match 'echoedit script: servo of ' })
-Expect ($getAfter.Count -ge 1 -and $servoLines.Count -ge 2 -and $servoLines[1] -match 'manual true at 15\.00, manual support 1') 'readback' (
+Expect ($getAfter.Count -ge 1 -and $servoLines.Count -ge 2 -and $servoLines[1] -match 'manual 1 at 15\.00, manual support 1') 'readback' (
     "GETs after it: {0}; {1}" -f $getAfter.Count, $(if ($servoLines.Count -ge 2) { $servoLines[1] -replace '^.*servo of ', '' } else { 'no line' }))
 $dragLine = @($a.Log | Where-Object { $_ -match 'echoedit script: servoDrag .*: (\d+) moves' } | Select-Object -Last 1)
 $moves = if ($dragLine.Count -and $dragLine[0] -match ': (\d+) moves') { [int]$Matches[1] } else { 0 }
 # The drag's frames: bit 1, between the entry and the typed 12.34.
 $typed = @($manualSets | Where-Object { $_.Center -eq 1234 } | Select-Object -First 1)
 $drag = @($manualSets | Where-Object { $in.Count -and $typed.Count -and $_.T -gt $in[0].T -and $_.T -lt $typed[0].T })
+# One slot is 25 ms (Windows' coarse timer makes it ~31): at most 4 in any 100 ms, 5 with the release. Counted in a
+# window, not as the closest two: a frame the stand reads late shortens the next gap without the app sending sooner.
+$most = 0
+for ($k = 0; $k -lt $drag.Count; $k++) {
+    $n = @($drag | Where-Object { $_.T -ge $drag[$k].T -and $_.T -lt $drag[$k].T + 100 }).Count
+    if ($n -gt $most) { $most = $n }
+}
 $gaps = @(for ($k = 1; $k -lt $drag.Count - 1; $k++) { $drag[$k].T - $drag[$k - 1].T })   # the release not counted
-$minGap = if ($gaps.Count) { ($gaps | Measure-Object -Minimum).Minimum } else { 0 }
-Expect ($drag.Count -ge 10 -and $drag.Count -le 46 -and $minGap -ge 20 -and $moves -gt $drag.Count) 'pace' (
-    "{0} SETTINGs for {1} moves, the closest two {2:F1} ms apart" -f $drag.Count, $moves, $minGap)
+$median = if ($gaps.Count) { @($gaps | Sort-Object)[[int]($gaps.Count / 2)] } else { 0 }
+Expect ($drag.Count -ge 10 -and $drag.Count -le 42 -and $most -le 5 -and $moves -gt 2 * $drag.Count) 'pace' (
+    "{0} SETTINGs for {1} moves; at most {2} in 100 ms; the median gap {3:F1} ms" -f $drag.Count, $moves, $most, $median)
 $lastDrag = @($drag | Select-Object -Last 1)
 Expect ($lastDrag.Count -eq 1 -and $lastDrag[0].Center -eq -4000 -and $typed.Count -eq 1) 'release' (
     "the drag's last {0}; 12.34 typed: {1}" -f $(if ($lastDrag.Count) { $lastDrag[0].Center } else { 'none' }), $(if ($typed.Count) { 'center 1234' } else { 'not sent as 1234' }))
 $outSet = @($sets | Where-Object { $typed.Count -and $_.T -gt $typed[0].T -and -not ($_.General -band 2) } | Select-Object -First 1)
-Expect ($outSet.Count -eq 1 -and $outSet[0].Center -eq 1500 -and $servoLines.Count -ge 5 -and $servoLines[4] -match 'manual false') 'out' (
+Expect ($outSet.Count -eq 1 -and $outSet[0].Center -eq 1500 -and $servoLines.Count -ge 5 -and $servoLines[4] -match 'manual 0 at ') 'out' (
     "SETTING without bit 1: {0}" -f $(if ($outSet.Count) { "center $($outSet[0].Center)" } else { 'none' }))
-$held = @($servoLines | Where-Object { $_ -match 'supported true' })
+$held = @($servoLines | Where-Object { $_ -match 'supported 1,' })
 Expect ($servoLines.Count -eq 5 -and $held.Count -eq 5) 'held' ("{0} of {1} state lines with servo control" -f $held.Count, $servoLines.Count)
 
 # ---- run "old"
@@ -193,7 +203,7 @@ $b = Invoke-Run 'old' @(
 $bSets = @($b.Got | Where-Object { $_.Type -eq 2 -and ($_.General -band 2) })
 $refusedLog = @($b.Log | Where-Object { $_ -match 'servo: manual mode refused' })
 $bLine = @($b.Log | Where-Object { $_ -match 'echoedit script: servo of ' } | Select-Object -Last 1)
-Expect ($bSets.Count -eq 1 -and $refusedLog.Count -eq 1 -and $bLine.Count -eq 1 -and $bLine[0] -match 'manual false at .*manual support -1') 'refused' (
+Expect ($bSets.Count -eq 1 -and $refusedLog.Count -eq 1 -and $bLine.Count -eq 1 -and $bLine[0] -match 'manual 0 at .*manual support -1') 'refused' (
     "SETTINGs with bit 1: {0}; refusal logged {1}; {2}" -f $bSets.Count, $refusedLog.Count, $(if ($bLine.Count) { $bLine[0] -replace '^.*servo of ', '' } else { 'no line' }))
 
 "servo live: {0}" -f ($(if ($failed -eq 0) { 'PASS' } else { "$failed FAIL" }))
