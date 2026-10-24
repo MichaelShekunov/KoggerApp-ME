@@ -4388,7 +4388,7 @@
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="821"/>
         <source>Flash settings</source>
-        <translation>Прошить</translation>
+        <translation>Сохранить в устройство</translation>
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="1583"/>
@@ -6607,7 +6607,7 @@
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="5230"/>
         <source>Send the addresses to the device. They take effect at once; write them with Flash settings to survive a reboot.</source>
-        <translation>Отправить адреса в устройство. Они действуют сразу; чтобы они пережили перезагрузку, запишите их кнопкой «Прошивка».</translation>
+        <translation>Отправить адреса в устройство. Они действуют сразу; чтобы они пережили перезагрузку, запишите их кнопкой «Сохранить в устройство».</translation>
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="5235"/>
@@ -13743,7 +13743,7 @@
     <message>
         <location filename="../qml/legacy_qml/devices/RecorderBox.qml" line="293"/>
         <source>Flash settings</source>
-        <translation>Прошивка</translation>
+        <translation>Сохранить в устройство</translation>
     </message>
     <message>
         <location filename="../qml/legacy_qml/devices/RecorderBox.qml" line="303"/>
@@ -14446,7 +14446,7 @@
     <message>
         <location filename="../qml/legacy_qml/devices/SonarBox.qml" line="41"/>
         <source>Flash settings</source>
-        <translation>Прошивка</translation>
+        <translation>Сохранить в устройство</translation>
     </message>
     <message>
         <location filename="../qml/legacy_qml/devices/SonarBox.qml" line="51"/>
