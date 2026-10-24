@@ -30,6 +30,8 @@ param(
     [int[]]  $Addrs = @(1, 2),
     [int]    $HoldS = 60,
     [switch] $ConnectOnly,
+    # The speed search left on: the port starts at -Baud and the app looks for the line's rate itself.
+    [switch] $Search,
     [string] $PathPrefix,
     [string] $Profile = 'ringdevice',
     [string] $Out = "$env:TEMP\kogger_ringstat_device",
@@ -58,7 +60,8 @@ $links = @(
     ('        <baudrate>{0}</baudrate>' -f $Baud), '        <parity>false</parity>', '        <link_type>1</link_type>',
     '        <address></address>', '        <source_port>0</source_port>', '        <destination_port>0</destination_port>',
     '        <is_pinned>true</is_pinned>', '        <is_hided>false</is_hided>', '        <is_not_available>false</is_not_available>',
-    '        <connection_status>false</connection_status>', '        <auto_speed_selection>false</auto_speed_selection>',
+    '        <connection_status>false</connection_status>',
+    ('        <auto_speed_selection>{0}</auto_speed_selection>' -f $(if ($Search) { 'true' } else { 'false' })),
     '    </link>', '</pinned_links>', '')
 [System.IO.File]::WriteAllText((Join-Path $cfg 'pinned_links.xml'), ($links -join "`n"), $utf8)
 
@@ -133,8 +136,8 @@ if (-not $ConnectOnly) {
         $r = @($reads | Where-Object { $_.Addr -eq $a })
         if ($r.Count -lt 2) { $allRead = $false; "board {0}: {1} read(s)" -f $a, $r.Count; continue }
         $x = $r[0]; $y = $r[-1]
-        "board {0}: {1}{2}, guard {3} ms, interval {4}; first read relayed {5}, BREAKs {6}, lost {7}, leads {8}, skipped {9}" -f `
-            $a, $x.Role, $(if ($x.Up) { ' (a board before it)' } else { '' }), $x.Guard, $x.Interval, $x.Relayed, $x.Breaks, $x.Lost, $x.Leads, $x.Skipped
+        "board {0}: {1}{2}, guard {3} ms, interval {4}; first read relayed {5}, BREAKs {6}, lost {7}, leads {8}, skipped {9}; last read leads {10}" -f `
+            $a, $x.Role, $(if ($x.Up) { ' (a board before it)' } else { '' }), $x.Guard, $x.Interval, $x.Relayed, $x.Breaks, $x.Lost, $x.Leads, $x.Skipped, $y.Leads
         $span = ($y.At - $x.At).TotalSeconds
         "board {0}: grew in {1:F1} s between the reads: relayed +{2}, BREAKs +{3} ({4:F2}/s), lost +{5}, leads +{6}, skipped +{7}" -f `
             $a, $span, ($y.Relayed - $x.Relayed), ($y.Breaks - $x.Breaks), $(if ($span -gt 0) { ($y.Breaks - $x.Breaks) / $span } else { 0 }),
