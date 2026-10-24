@@ -110,6 +110,9 @@
 //   {"op": "devicePage", "addr": n}  its device page opened, as a tap on it in the device list does;
 //                                    {"op": "devicePage", "recorder": true}: the first Recorder's
 //   {"op": "ringStat", "addr": n, "do": "read" | "reset" | "show"}   asked, zeroed, or what the page shows logged
+// A serial link by its port name, as the connection list's controls do, each part only when given, in this order:
+//   {"op": "link", "port": "COM18", "close": true, "baud": 115200, "search": bool, "open": true}
+//                                    close it, set its rate, its speed search, open it again (LinkRateSearch)
 // A Recorder's connectors (ID_BUS / ID_PIN), on the first Recorder:
 //   {"op": "waitPorts", "timeoutMs": 20000}   until its port table is read (or known to be missing)
 //   {"op": "ports"}                  every connector and contact, one line each, as the page shows them

@@ -1211,6 +1211,38 @@ void EchoEditScript::runStep(const QJsonObject& s)
                                  .arg(m.value(QStringLiteral("error")).toString());
         }
     }
+    else if (op == QLatin1String("link")) {
+        const QString port = s.value(QStringLiteral("port")).toString();
+        LinkManagerWrapper* links = core_->getLinkManagerWrapperPtr();
+        QUuid uuid;
+        for (const QString& u : links->serialUuids()) {
+            Link* l = links->getLinkPtr(QUuid(u));
+            if (l && l->getPortName() == port)
+                uuid = QUuid(u);
+        }
+        QStringList did;
+        if (uuid.isNull()) {
+            did << QStringLiteral("no such serial link");
+        } else {                                    // queued to the link worker in this order
+            if (s.value(QStringLiteral("close")).toBool()) {
+                links->closeLink(uuid);
+                did << QStringLiteral("closed");
+            }
+            if (s.contains(QStringLiteral("baud"))) {
+                links->updateBaudrate(uuid, s.value(QStringLiteral("baud")).toInt());
+                did << QStringLiteral("baud %1").arg(s.value(QStringLiteral("baud")).toInt());
+            }
+            if (s.contains(QStringLiteral("search"))) {
+                emit links->sendAutoSpeedSelection(uuid, s.value(QStringLiteral("search")).toBool());
+                did << QStringLiteral("search %1").arg(s.value(QStringLiteral("search")).toBool() ? "on" : "off");
+            }
+            if (s.value(QStringLiteral("open")).toBool()) {
+                links->reopenLink(uuid.toString());
+                did << QStringLiteral("opened");
+            }
+        }
+        qInfo().noquote() << QStringLiteral("echoedit script: link %1: %2").arg(port, did.join(QStringLiteral(", ")));
+    }
     else if (op == QLatin1String("servoManual") || op == QLatin1String("servoSet")) {
         QObject* dev = firstServoDevice();
         bool sent = false;
