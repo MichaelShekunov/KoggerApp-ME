@@ -3156,6 +3156,20 @@ later") with ID_RING_STAT 0x76, contract L412_GODIO docs/RING_HOLES_2026-10-23.m
   0, shown as "not measured". `ringstat_live.ps1` plays a 1.17 leader and a 1.17 follower with the numbers the
   firmware's session read from a live one; PASS. Not yet run by the app on the live ring (COM18).
 
+## A serial link's rate search listens first (2026-10-24, the owner's "Исправь")
+
+The firmware's session found on the owner's ring (460800): one request at 115200 looks like a BREAK to the leader, which
+gives up its role for two periods; both boards lose pings (five of five; 921600 into the same line did no harm). The
+app's search started at 921600 and went 115200, 921600, 9600, 38400, 115200, 921600, 460800 asking every 100 ms:
+about eight slow requests on every connect to such a ring.
+
+- `src/link/link_rate_search.h`: the rates once each, fastest first; a listening pass (nothing sent: no ask-all, no
+  device frame through `Link::writeFrame`), then an asking pass, alternating. A port just opened listens at its own
+  rate first. A firmware update searches as before (a bootloader answers only when asked).
+- Cost: a quiet device is found ~1.4 s later; a ring, or any device that talks unasked, with nothing sent.
+- **[verified]** `tools/mission_check --offline` 242/242 (four new `rate search` rules; three mutants caught);
+  `ringstat_live.ps1` and `ports_live.ps1` PASS (UDP, no change). docs/RING_UPDATE.md.
+
 ## A Recorder's connectors, read only (2026-10-24, branch `recorder-ports`)
 
 The owner asked for every connector of the logger configurable from the app; the Recorder's session wrote the contract
