@@ -4071,58 +4071,58 @@
 <context>
     <name>DeviceSettingsPage</name>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5784"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5785"/>
         <source>Information</source>
         <translation>Информация</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5813"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5814"/>
         <source>Model</source>
         <translation>Модель</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5818"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5819"/>
         <source>Board type</source>
         <translation>Тип платы</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5823"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5824"/>
         <source>Serial number</source>
         <translation>Серийный номер</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5830"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5831"/>
         <source>not set</source>
         <translation>не задан</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5835"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5836"/>
         <source>Firmware version</source>
         <translation>Версия прошивки</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5840"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5841"/>
         <source>Bootloader version</source>
         <translation>Версия загрузчика</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5845"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5846"/>
         <source>Running</source>
         <translation>Режим</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5850"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5851"/>
         <source>Bootloader</source>
         <translation>Загрузчик</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5851"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5852"/>
         <source>Firmware</source>
         <translation>Прошивка</translation>
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="5516"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5856"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5857"/>
         <source>Bus address</source>
         <translation>Адрес на шине</translation>
     </message>
@@ -4264,77 +4264,77 @@
         <translation>Пропущено пингов</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5689"/>
-        <source>A sync came while the board was busy; it waited for the next one</source>
-        <translation>Синхроимпульс пришёл, пока плата была занята; она ждала следующий</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5697"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5698"/>
         <source>Led after silence</source>
         <translation>Стала ведущей после тишины</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5699"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5700"/>
         <source>No sync from the board before it, so this one set the pace itself</source>
         <translation>От платы перед ней не было синхроимпульса, и эта задала темп сама</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5702"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5703"/>
         <source>Syncs heard</source>
         <translation>Синхроимпульсов принято</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5706"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5707"/>
         <source>Frames passed on</source>
         <translation>Кадров передано дальше</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5714"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5715"/>
         <source>Asking the board...</source>
         <translation>Запрос к плате...</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5714"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5715"/>
         <source>Read</source>
         <translation>Прочитать</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5721"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5722"/>
         <source>Reset the counters</source>
         <translation>Обнулить счётчики</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5722"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5723"/>
         <source>Zeroes the five counters on the board; it sends them back at once</source>
         <translation>Обнуляет пять счётчиков на плате; она сразу присылает их обратно</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5861"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5862"/>
         <source>Connection</source>
         <translation>Подключение</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5866"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5867"/>
         <source>Chip UID</source>
         <translation>UID чипа</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5801"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5802"/>
         <source>Copy</source>
         <translation>Скопировать</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5692"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5690"/>
+        <source>A sync came later than usual: the board skipped a ping, or the leader sent the sync late</source>
+        <translation>Синхроимпульс пришёл позже обычного: плата пропустила пинг или ведущая выдала его с опозданием</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5693"/>
         <source>Frames lost passing on</source>
         <translation>Кадров потеряно при пересылке</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5694"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5695"/>
         <source>A frame of the board before it was lost on its way through this one</source>
         <translation>Кадр платы перед ней пропал по пути через эту</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5807"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5808"/>
         <source>Device info copied to clipboard</source>
         <translation>Информация об устройстве скопирована в буфер обмена</translation>
     </message>

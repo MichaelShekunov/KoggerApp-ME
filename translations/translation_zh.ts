@@ -5865,12 +5865,17 @@
         <translation>关闭无线</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5692"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5690"/>
+        <source>A sync came later than usual: the board skipped a ping, or the leader sent the sync late</source>
+        <translation>同步信号比平常晚到：这块板跳过了一个 ping，或者主板发出同步信号晚了</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5693"/>
         <source>Frames lost passing on</source>
         <translation>转发中丢失的帧</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5694"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5695"/>
         <source>A frame of the board before it was lost on its way through this one</source>
         <translation>前面那块板的帧在经过这块板时丢失</translation>
     </message>
@@ -6983,7 +6988,7 @@
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="5516"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5856"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5857"/>
         <source>Bus address</source>
         <translation>总线地址</translation>
     </message>
@@ -7125,117 +7130,112 @@
         <translation>跳过的 ping</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5689"/>
-        <source>A sync came while the board was busy; it waited for the next one</source>
-        <translation>同步信号到来时板子正忙；它等待了下一个</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5697"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5698"/>
         <source>Led after silence</source>
         <translation>静默后转为主机</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5699"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5700"/>
         <source>No sync from the board before it, so this one set the pace itself</source>
         <translation>前面的板没有发来同步信号，于是这块板自己决定节拍</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5702"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5703"/>
         <source>Syncs heard</source>
         <translation>收到的同步信号</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5706"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5707"/>
         <source>Frames passed on</source>
         <translation>转发的帧</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5714"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5715"/>
         <source>Asking the board...</source>
         <translation>正在询问板子...</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5714"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5715"/>
         <source>Read</source>
         <translation>读取</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5721"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5722"/>
         <source>Reset the counters</source>
         <translation>清零计数器</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5722"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5723"/>
         <source>Zeroes the five counters on the board; it sends them back at once</source>
         <translation>将板上的五个计数器清零；板子会立即发回</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5784"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5785"/>
         <source>Information</source>
         <translation>信息</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5801"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5802"/>
         <source>Copy</source>
         <translation>复制</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5807"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5808"/>
         <source>Device info copied to clipboard</source>
         <translation>设备信息已复制到剪贴板</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5813"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5814"/>
         <source>Model</source>
         <translation>型号</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5818"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5819"/>
         <source>Board type</source>
         <translation>板卡类型</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5823"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5824"/>
         <source>Serial number</source>
         <translation>序列号</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5830"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5831"/>
         <source>not set</source>
         <translation>未设置</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5835"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5836"/>
         <source>Firmware version</source>
         <translation>固件版本</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5840"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5841"/>
         <source>Bootloader version</source>
         <translation>引导程序版本</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5845"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5846"/>
         <source>Running</source>
         <translation>运行</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5850"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5851"/>
         <source>Bootloader</source>
         <translation>引导程序</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5851"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5852"/>
         <source>Firmware</source>
         <translation>固件</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5861"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5862"/>
         <source>Connection</source>
         <translation>连接</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5866"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5867"/>
         <source>Chip UID</source>
         <translation>芯片 UID</translation>
     </message>

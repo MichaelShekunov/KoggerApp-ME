@@ -5865,12 +5865,17 @@
         <translation>Apagar la radio</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5692"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5690"/>
+        <source>A sync came later than usual: the board skipped a ping, or the leader sent the sync late</source>
+        <translation>La sincronía llegó más tarde de lo habitual: la placa omitió un ping o la principal la envió con retraso</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5693"/>
         <source>Frames lost passing on</source>
         <translation>Tramas perdidas al reenviar</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5694"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5695"/>
         <source>A frame of the board before it was lost on its way through this one</source>
         <translation>Una trama de la placa anterior se perdió al pasar por esta</translation>
     </message>
@@ -6983,7 +6988,7 @@
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="5516"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5856"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5857"/>
         <source>Bus address</source>
         <translation>Dirección de bus</translation>
     </message>
@@ -7125,117 +7130,112 @@
         <translation>Pings omitidos</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5689"/>
-        <source>A sync came while the board was busy; it waited for the next one</source>
-        <translation>Llegó una sincronía mientras la placa estaba ocupada; esperó a la siguiente</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5697"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5698"/>
         <source>Led after silence</source>
         <translation>Líder tras silencio</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5699"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5700"/>
         <source>No sync from the board before it, so this one set the pace itself</source>
         <translation>Sin sincronía de la placa anterior, así que esta marcó el ritmo por sí misma</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5702"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5703"/>
         <source>Syncs heard</source>
         <translation>Sincronías recibidas</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5706"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5707"/>
         <source>Frames passed on</source>
         <translation>Tramas reenviadas</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5714"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5715"/>
         <source>Asking the board...</source>
         <translation>Consultando la placa...</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5714"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5715"/>
         <source>Read</source>
         <translation>Leer</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5721"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5722"/>
         <source>Reset the counters</source>
         <translation>Poner los contadores a cero</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5722"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5723"/>
         <source>Zeroes the five counters on the board; it sends them back at once</source>
         <translation>Pone a cero los cinco contadores de la placa; los devuelve enseguida</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5784"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5785"/>
         <source>Information</source>
         <translation>Información</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5801"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5802"/>
         <source>Copy</source>
         <translation>Copiar</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5807"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5808"/>
         <source>Device info copied to clipboard</source>
         <translation>Información del dispositivo copiada al portapapeles</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5813"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5814"/>
         <source>Model</source>
         <translation>Modelo</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5818"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5819"/>
         <source>Board type</source>
         <translation>Tipo de placa</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5823"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5824"/>
         <source>Serial number</source>
         <translation>Número de serie</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5830"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5831"/>
         <source>not set</source>
         <translation>no definido</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5835"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5836"/>
         <source>Firmware version</source>
         <translation>Versión de firmware</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5840"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5841"/>
         <source>Bootloader version</source>
         <translation>Versión del cargador de arranque</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5845"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5846"/>
         <source>Running</source>
         <translation>En ejecución</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5850"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5851"/>
         <source>Bootloader</source>
         <translation>Cargador de arranque</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5851"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5852"/>
         <source>Firmware</source>
         <translation>Firmware</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5861"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5862"/>
         <source>Connection</source>
         <translation>Conexión</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5866"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5867"/>
         <source>Chip UID</source>
         <translation>UID del chip</translation>
     </message>

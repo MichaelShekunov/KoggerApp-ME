@@ -5686,7 +5686,8 @@ Column {
         DevInfoRow {
             label: qsTr("Pings skipped")
             value: devRingStatGroup.count(devRingStatGroup.st.skipped)
-            caption: devRingStatGroup.known ? qsTr("A sync came while the board was busy; it waited for the next one") : ""
+            // 1.17 counts an interval of 1.5 periods or more: a skipped ping and a leader's late BREAK look the same
+            caption: devRingStatGroup.known ? qsTr("A sync came later than usual: the board skipped a ping, or the leader sent the sync late") : ""
         }
         DevInfoRow {        // 1.16: cut by a sync; from 1.17 (relay through DMA): did not fit the relay buffer
             label: qsTr("Frames lost passing on")

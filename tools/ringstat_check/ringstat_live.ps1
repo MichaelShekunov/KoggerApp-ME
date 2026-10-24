@@ -209,6 +209,7 @@ $read3Texts = if ($r3) { $r3.Texts -join ' | ' } else { '' }
 Expect ($p1 -and $p1.Visible -and $r1 -and $r1.Visible -and $readTexts -match 'Ring counters' -and $readTexts -match '7\.64 ms' -and
         $readTexts -match '(^| \| )not measured( \| |$)' -and $readTexts -notmatch '0\.00 ms' -and
         $readTexts -match 'Frames lost passing on' -and $readTexts -match '(^| \| )5( \| |$)' -and
+        $readTexts -match 'A sync came later than usual' -and
         $z1 -and $resetTexts -match '(^| \| )0( \| |$)' -and $p2 -and -not $p2.Visible -and
         $r3 -and $r3.Visible -and $read3Texts -match 'Follower: pings on the leader''s sync, a board before it' -and
         $read3Texts -match '51\.98 ms' -and $read3Texts -match '(^| \| )3693( \| |$)') 'page' (
