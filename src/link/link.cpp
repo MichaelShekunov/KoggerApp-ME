@@ -48,6 +48,7 @@ void Link::createAsSerial(const QString &portName, int baudrate, bool parity)
     baudrate_ = baudrate;
     autoSpeedSelection_ = true;
     baudrateSearchList_ = QList<uint32_t>(baudrateSearchList.cbegin(), baudrateSearchList.cend()); // by default
+    rateSearch_.setRates(baudrateSearchList_);
     resetLastSearchIndx();
 }
 
@@ -72,7 +73,14 @@ void Link::openAsSerial()
         emit connectionStatusChanged(uuid_);
     }
     baudrateSearchList_ = QList<uint32_t>(baudrateSearchList.cbegin(), baudrateSearchList.cend());
+    rateSearch_.setRates(baudrateSearchList_);
     resetLastSearchIndx();
+    // A port just opened has heard nothing: its own rate is listened to first, for one search step.
+    timeoutCnt_ = linkNumTimeoutsSmall;
+    if (isReceivesData_) {
+        isReceivesData_ = false;
+        emit isReceivesDataChanged(uuid_);
+    }
 }
 
 void Link::createAsUdp(const QString &address, int sourcePort, int destinationPort)
@@ -554,7 +562,14 @@ void Link::setAttribute(LinkAttribute attribute) {
 
 bool Link::writeFrame(FrameParser frame)
 {
-    return  attribute_ == LinkAttribute::kLinkAttributeNone && !devicesMuted_ && frame.isComplete() && write(QByteArray((const char*)frame.frame(), frame.frameLen()));
+    return  attribute_ == LinkAttribute::kLinkAttributeNone && !devicesMuted_ && !searchListening() && frame.isComplete() && write(QByteArray((const char*)frame.frame(), frame.frameLen()));
+}
+
+bool Link::searchListening() const
+{
+    return linkType_ == LinkType::kLinkSerial && attribute_ == LinkAttribute::kLinkAttributeNone && autoSpeedSelection_
+           && !ratePinned_ && !onUpgradingFirmware_ && !localGhostIgnoreCount_ && !isReceivesData_ && !searchAsks_
+           && !rateSearch_.empty();
 }
 
 bool Link::write(QByteArray data)
@@ -654,18 +669,24 @@ void Link::onCheckedTimerEnd()
 
     if (isNeedSearch) {
         timeoutCnt_ = linkNumTimeoutsSmall;
-        //qDebug() << "   link: timeout ended do emit sendDoRequestAll" << uuid_;
-        auto currBaudrate = baudrateSearchList_.at(lastSearchIndx_);
-        lastSearchIndx_ = (lastSearchIndx_ + 1) % baudrateSearchList_.size();
-        //qDebug() << "   link: trying find" << currBaudrate << "on" << lastSearchIndx_;
+        uint32_t currBaudrate = 0;
+        if (autoSpeedSelection_ && !onUpgradingFirmware_ && !localGhostIgnoreCount_ && !rateSearch_.empty()) {
+            const LinkRateSearch::Step step = rateSearch_.next();   // listening first, fastest first
+            currBaudrate = step.rate;
+            searchAsks_ = step.asks;
+        } else {                                                    // a bootloader answers only when asked
+            currBaudrate = baudrateSearchList_.at(lastSearchIndx_);
+            lastSearchIndx_ = (lastSearchIndx_ + 1) % baudrateSearchList_.size();
+            searchAsks_ = true;
+        }
         setBaudrate(currBaudrate);
         emit baudrateChanged(uuid_);
     }
 
     // Every device on the link is asked for its version: each tick while nothing comes in; while data comes in only
-    // once the link has gone quiet (LinkAskAll).
+    // once the link has gone quiet (LinkAskAll). Not in a listening step of the rate search.
     if (askAll_.tick(newDataReceived, isReceivesData_, onUpgradingFirmware_) && !ratePinned_
-        && attribute_ == LinkAttribute::kLinkAttributeNone) {
+        && attribute_ == LinkAttribute::kLinkAttributeNone && !searchListening()) {
         emit sendDoRequestAll(uuid_);
     }
 
@@ -734,6 +755,8 @@ void Link::toParser(const QByteArray data)
 void Link::resetLastSearchIndx()
 {
     lastSearchIndx_ = 0;
+    rateSearch_.reset();
+    searchAsks_ = false;
 }
 
 std::atomic<quint64> Link::s_rxBytes{0};

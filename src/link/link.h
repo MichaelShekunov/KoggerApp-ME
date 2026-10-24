@@ -24,6 +24,7 @@
 
 #include "link_defs.h"
 #include "link_ask_all.h"
+#include "link_rate_search.h"
 #include "proto_binnary.h"
 
 using namespace Parsers;
@@ -129,6 +130,8 @@ private:
     void deleteDev();
     void toParser(const QByteArray data);
     void resetLastSearchIndx();
+    /// A serial link searching its rate in a listening step: nothing is sent (LinkRateSearch).
+    bool searchListening() const;
 
 public:
     /**
@@ -171,7 +174,9 @@ private:
     uint32_t lastTotalCnt_;
     bool isReceivesData_;
     QList<uint32_t> baudrateSearchList_;
-    int lastSearchIndx_;
+    int lastSearchIndx_;          // the search during a firmware update: the list in its own order, asking
+    LinkRateSearch rateSearch_;   // the search otherwise: listening, then asking, fastest rate first
+    bool searchAsks_ = false;     // the step the link holds may send
     bool onUpgradingFirmware_;
     bool ratePinned_ = false;
     bool devicesMuted_ = false;

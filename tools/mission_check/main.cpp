@@ -28,6 +28,7 @@
 #include "system_stats.h"
 #include "system_monitor.h"
 #include "link/link_ask_all.h"
+#include "link/link_rate_search.h"
 
 #if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
@@ -1321,6 +1322,68 @@ void linkAskAllRules()
     }
 }
 
+// A serial link's baud rate search (LinkRateSearch): it never sends below a line's rate before that rate was tried.
+void linkRateSearchRules()
+{
+    const QList<uint32_t> list(baudrateSearchList.cbegin(), baudrateSearchList.cend());
+    const QList<uint32_t> order{ 921600, 460800, 230400, 115200, 38400, 9600 };
+    {
+        LinkRateSearch s;
+        s.setRates(list);
+        QStringList got;
+        bool ok = true;
+        for (int pass = 0; pass < 3; ++pass)
+            for (uint32_t r : order) {
+                const LinkRateSearch::Step st = s.next();
+                got << QStringLiteral("%1%2").arg(st.rate).arg(st.asks ? QStringLiteral("a") : QString());
+                ok = ok && st.rate == r && st.asks == (pass == 1);
+            }
+        check("rate search: once each, fastest first; a listening pass, an asking one, listening again", ok,
+              got.join(QLatin1Char(' ')));
+    }
+    // A line at each rate of the list, with a device that talks unasked (a ring) or only answers (a quiet one).
+    for (const bool talks : { true, false }) {
+        bool ok = true;
+        QStringList bad;
+        for (uint32_t line : order) {
+            LinkRateSearch s;
+            s.setRates(list);
+            bool found = false;
+            int sentBelow = 0, sent = 0;
+            for (int i = 0; i < 100 && !found; ++i) {
+                const LinkRateSearch::Step st = s.next();
+                if (st.rate == line && (talks || st.asks))
+                    found = true;                                 // heard, or answered
+                else if (st.asks) {
+                    ++sent;
+                    if (st.rate < line)
+                        ++sentBelow;
+                }
+            }
+            const bool lineOk = found && sentBelow == 0 && (!talks || sent == 0);
+            if (!lineOk)
+                bad << QStringLiteral("%1: found %2, sent %3, below the line %4").arg(line).arg(found).arg(sent).arg(sentBelow);
+            ok = ok && lineOk;
+        }
+        check(talks ? "rate search: a device that talks is found with nothing sent, at every rate"
+                    : "rate search: a quiet device is asked only at rates above its own before it answers",
+              ok, bad.isEmpty() ? QStringLiteral("all six rates") : bad.join(QStringLiteral("; ")));
+    }
+    {
+        LinkRateSearch s;
+        s.setRates(list);
+        for (int i = 0; i < 8; ++i)
+            s.next();                                             // into the asking pass
+        s.reset();                                                // data came in
+        const LinkRateSearch::Step st = s.next();
+        LinkRateSearch none;
+        none.setRates({});
+        check("rate search: a reset starts a listening pass at the fastest rate; no rates, no step",
+              st.rate == 921600 && !st.asks && none.empty() && none.next().rate == 0,
+              QStringLiteral("%1 %2").arg(st.rate).arg(st.asks));
+    }
+}
+
 // Mission progress (mission_progress.h): the way ahead, its time, the battery at its end, a boat along it.
 void progressRules()
 {
@@ -1643,6 +1706,7 @@ int main(int argc, char* argv[])
     unansweredRules();
     searchHoldRules();
     linkAskAllRules();
+    linkRateSearchRules();
     progressRules();
     linkTrackRules();
     airMeterRules();
