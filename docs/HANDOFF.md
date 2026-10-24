@@ -3150,6 +3150,11 @@ later") with ID_RING_STAT 0x76, contract L412_GODIO docs/RING_HOLES_2026-10-23.m
 - **[verified]** `tools/ringstat_check/run.ps1 -Mutants` 9 of 9; `ringstat_live.ps1` PASS (a stand with a 1.16 and a
   1.14 board: one read and one reset to 1.16 only, the values on the page uncut, no island for 1.14, no QML error).
 - New edit-script steps: devicePage, ringStat.
+- **1.17 (on the owner's boards since 2026-10-24).** The relay goes through DMA, so nothing cuts a frame any more. The
+  "torn" field, in the same place, now counts relayed frames lost for want of room in the relay buffer. The island and
+  the log call it "frames lost passing on", true for both. A leader does not time BREAKs and reports an interval of
+  0, shown as "not measured". `ringstat_live.ps1` plays a 1.17 leader and a 1.17 follower with the numbers the
+  firmware's session read from a live one; PASS. Not yet run by the app on the live ring (COM18).
 
 ## A Recorder's connectors, read only (2026-10-24, branch `recorder-ports`)
 
