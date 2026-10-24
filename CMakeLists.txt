@@ -191,6 +191,15 @@ target_sources(KoggerApp PRIVATE
     src/kec/kec.c src/kec/kec.h src/kec/kec_tab.h)
 target_include_directories(KoggerApp PRIVATE src/kec)
 
+# echocodec (ID_CHART V3 from SonarN; docs/ECHO_CODECS.md): chart_codec.h verbatim from the codec's
+# repository, compiled once as C by its host wrapper. The decoder is float: no fused multiply-add, so the
+# cells round as in the reference build (Android arm64 would fuse otherwise).
+target_sources(KoggerApp PRIVATE
+    src/codec/chart_codec.h src/codec/chart_codec_host.h src/codec/chart_codec_host.c
+    src/codec/chart_v3.h src/codec/chart_v3.cpp)
+set_source_files_properties(src/codec/chart_codec_host.c PROPERTIES COMPILE_OPTIONS "-ffp-contract=off")
+target_include_directories(KoggerApp PRIVATE src/codec)
+
 target_sources(KoggerApp PRIVATE
     resources/icons.qrc
     resources/resources.qrc)

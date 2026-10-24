@@ -279,7 +279,7 @@ Resp IDBinChartZ::parsePayload(FrameParser &proto) {
                                     reinterpret_cast<uint8_t*>(decoded_.data()),
                                     static_cast<int>(decoded_.size()));
     if (got <= 0) {
-        ++dropped_;
+        ++undecoded_;
         return respErrorPayload;
     }
 
@@ -292,6 +292,26 @@ Resp IDBinChartZ::parsePayload(FrameParser &proto) {
 }
 
 Resp IDBinChart::parsePayload(FrameParser &proto) {
+    if (proto.ver() == v3) {   // echocodec range blocks, as SonarN sends them (ChartV3Assembler, docs/ECHO_CODECS.md)
+        const int len = proto.readAvailable();
+        if (len <= 0) {
+            return respErrorPayload;
+        }
+        std::vector<uint8_t> frame(static_cast<size_t>(len));
+        proto.read(frame.data(), len);
+        std::vector<ChartV3Assembler::Ping> pings;
+        const bool ok = v3_.feed(frame.data(), len, pings);
+        // Two pings come out of one frame only when a block of the next ping ends one that had blocks missing and
+        // is itself a whole ping; the second replaces the first before anyone reads it.
+        for (const ChartV3Assembler::Ping& p : pings) {
+            ++v3Pings_;
+            v3Filled_ += static_cast<uint32_t>(p.missingBlocks);
+            lossIndex_ = (lossIndex_ + 1) % lossHistory_.size();
+            lossHistory_[lossIndex_] = p.missingBlocks ? 1 : 0;
+            acceptDecoded(p.cells.data(), static_cast<int>(p.cells.size()), p.resolMm, 0, 1);
+        }
+        return ok ? respOk : respErrorPayload;
+    }
     if(proto.ver() == v0 || proto.ver() == v1) {
         U2 m_seqOffset = proto.read<U2>();
         U2 sampleResol = proto.read<U2>();

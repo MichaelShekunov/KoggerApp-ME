@@ -4,7 +4,10 @@
 // application's own classes, the compressed ping has to match its plain twin side for side:
 // port against port, starboard against starboard.
 //
-//   chartz_check <capture.bin>          (set CHARTZ_VERBOSE=1 for a line per ping)
+//   chartz_check <capture.bin> [<vectors dir>]   (set CHARTZ_VERBOSE=1 for a line per ping)
+//
+// With the vectors dir (KoggerEchoCodec test/app_vectors) it also runs ID_CHART V3 (echocodec, SonarN) frames
+// through FrameParser and IDBinChart.
 //
 // The capture is the raw byte stream off the serial port (nanosss_v119_both.bin: firmware 11.9,
 // 4000 cells, both DATASET bits). Exit 0 = pass, 1 = fail, 2 = could not run.
@@ -67,6 +70,78 @@ void ok(const char* name, bool bad, const QString& detail)
     if (bad) {
         ++fails;
     }
+}
+
+// One KP1 frame: BB 55 route mode id len payload ck1 ck2, mode = type | version << 3, Fletcher over route..payload.
+QByteArray kp1(uint8_t type, uint8_t ver, uint8_t id, const QByteArray& payload)
+{
+    QByteArray body;
+    body.append(char(0)).append(char(type | (ver << 3))).append(char(id)).append(char(payload.size())).append(payload);
+    uint8_t c1 = 0, c2 = 0;
+    for (char b : body) {
+        c1 = uint8_t(c1 + uint8_t(b));
+        c2 = uint8_t(c2 + c1);
+    }
+    return QByteArray("\xBB\x55", 2) + body + char(c1) + char(c2);
+}
+
+// ID_CHART V3 (echocodec, SonarN) through the application's own path: KP1 frames of the codec repository's test
+// vectors (echocodec_v3.vec: "ECV3" u32 count, per ping u8 nframes, nframes x (u8 len, payload), u16 n, expected[n]),
+// blocks in reverse order, parsed by FrameParser into IDBinChart. A ping comes out on the native grid: uniform pings
+// are the expected cells, progressive ones count cells of resol_mm.
+void v3Vectors(const QString& dir)
+{
+    QFile f(dir + "/echocodec_v3.vec");
+    if (!f.open(QIODevice::ReadOnly)) {
+        ok("echocodec V3 vectors read", true, "cannot open " + f.fileName());
+        return;
+    }
+    const QByteArray d = f.readAll();
+    int pos = 8;
+    const auto u8 = [&](void) -> int { return pos < d.size() ? uint8_t(d[pos++]) : -1; };
+    if (!d.startsWith("ECV3") || d.size() < 8) {
+        ok("echocodec V3 vectors read", true, "not an ECV3 file");
+        return;
+    }
+    const uint32_t count = uint8_t(d[4]) | (uint8_t(d[5]) << 8) | (uint8_t(d[6]) << 16) | (uint32_t(uint8_t(d[7])) << 24);
+    IDBinChart chart;
+    int pings = 0, published = 0, bad = 0, refused = 0;
+    for (uint32_t i = 0; i < count && pos < d.size(); ++i) {
+        const int nf = u8();
+        QVector<QByteArray> frames;
+        for (int k = 0; k < nf; ++k) {
+            const int len = u8();
+            frames.append(d.mid(pos, len));
+            pos += len;
+        }
+        const int lo = u8();
+        const int n = lo | (u8() << 8);   // two statements: the operands of | are not sequenced
+        const QByteArray expected = d.mid(pos, n);
+        pos += n;
+        ++pings;
+        const QByteArray& h = frames.front();
+        const int mode = uint8_t(h[0]), resol = uint8_t(h[1]), cells = uint8_t(h[2]) | (uint8_t(h[3]) << 8);
+        for (int k = frames.size() - 1; k >= 0; --k) {
+            QByteArray raw = kp1(1, 3, Parsers::ID_CHART, frames[k]);
+            Parsers::FrameParser proto;
+            proto.setContext(reinterpret_cast<uint8_t*>(raw.data()), static_cast<uint32_t>(raw.size()));
+            proto.process();
+            if (!proto.isComplete() || proto.id() != Parsers::ID_CHART || chart.parse(proto) != Parsers::respOk) {
+                ++refused;
+            }
+            if (chart.readAndClearIsCompleteChart()) {
+                ++published;
+                const bool geometry = chart.chartSize() == cells && chart.resolution() == resol && chart.absOffset() == 0;
+                const bool same = mode != 0 || QByteArray(reinterpret_cast<const char*>(chart.logData8()), chart.chartSize()) == expected;
+                if (!geometry || !same) {
+                    ++bad;
+                }
+            }
+        }
+    }
+    ok("echocodec V3: every ping published by IDBinChart", published != pings || refused != 0 || pings == 0,
+       QString("%1 of %2 pings, %3 frames refused").arg(published).arg(pings).arg(refused));
+    ok("echocodec V3: native grid, uniform pings as the reference", bad != 0, QString("%1 wrong").arg(bad));
 }
 
 } // namespace
@@ -218,6 +293,11 @@ int main(int argc, char** argv)
        QString("worst rms %1").arg(worst, 0, 'f', 2));
     ok("port and starboard are not exchanged", swapped != 0 || conclusive == 0,
        QString("%1 swapped of %2 that can tell").arg(swapped).arg(conclusive));
+
+    if (argc > 2) {
+        std::printf("\n");
+        v3Vectors(QString::fromLocal8Bit(argv[2]));
+    }
 
     std::printf("\n%s\n", fails ? "FAILED" : "all checks passed");
     return fails ? 1 : 0;

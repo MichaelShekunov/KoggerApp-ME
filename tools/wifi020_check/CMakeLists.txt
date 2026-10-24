@@ -23,7 +23,9 @@ add_executable(wifi020_check
     ${WIFI020_SRC}/id_binnary.cpp
     ${WIFI020_SRC}/device/wifi_ops.h
     ${WIFI020_SRC}/device/wifi_ops.cpp
-    ${KOGGER_SRC}/kec/kec.c)
+    ${KOGGER_SRC}/kec/kec.c
+    ${KOGGER_SRC}/codec/chart_v3.cpp        # id_binnary.cpp: ID_CHART V3
+    ${KOGGER_SRC}/codec/chart_codec_host.c)
 
 # The voltage check's stub/ first: its core.h stands in for the application's
 target_include_directories(wifi020_check PRIVATE

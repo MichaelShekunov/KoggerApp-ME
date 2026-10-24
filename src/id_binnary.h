@@ -13,6 +13,7 @@
 #include "dataset_defs.h"
 #include "proto_binnary.h"
 #include "device/wifi_ops.h"
+#include "codec/chart_v3.h"
 
 
 using namespace Parsers;
@@ -276,6 +277,10 @@ public:
         m_isCompleteChart = true;
     }
 
+    /** ID_CHART V3 pings published, and their blocks that had to come from the previous ping, since the last call. */
+    uint32_t takeV3Pings() { const uint32_t v = v3Pings_; v3Pings_ = 0; return v; }
+    uint32_t takeV3Filled() { const uint32_t v = v3Filled_; v3Filled_ = 0; return v; }
+
     QList<Segment> getErrList() {
         if (!compErrList_.empty()) {
             auto retVal = std::move(compErrList_);
@@ -319,6 +324,8 @@ signals:
 private:
     QVector<uint8_t> lossHistory_;
     int lossIndex_ = 0;
+    ChartV3Assembler v3_;   // ID_CHART V3: echocodec blocks into whole pings
+    uint32_t v3Pings_ = 0, v3Filled_ = 0;
 };
 
 
@@ -353,6 +360,13 @@ public:
         return v;
     }
 
+    /** Whole pings the decoder refused (a stream it does not know), since the last call. */
+    uint32_t takeUndecoded() {
+        uint32_t v = undecoded_;
+        undecoded_ = 0;
+        return v;
+    }
+
 private:
     IDBinChart* sink_ = nullptr;
     int channels_ = 1;            ///< 1, or 2 when the stream carries both sides
@@ -363,6 +377,7 @@ private:
     int filled_ = 0;             // contiguous bytes received so far
     bool holed_ = false;         // a slice was missed: the ping is unusable
     uint32_t dropped_ = 0;
+    uint32_t undecoded_ = 0;
 
     U2 resol_ = 0;
     U2 absOffset_ = 0;

@@ -24,7 +24,9 @@ add_executable(voltage_check
     ${VOLTAGE_SRC}/id_binnary.cpp
     ${KOGGER_SRC}/device/wifi_ops.h
     ${KOGGER_SRC}/device/wifi_ops.cpp   # id_binnary.cpp calls WifiPorts
-    ${KOGGER_SRC}/kec/kec.c)
+    ${KOGGER_SRC}/kec/kec.c
+    ${KOGGER_SRC}/codec/chart_v3.cpp        # id_binnary.cpp: ID_CHART V3
+    ${KOGGER_SRC}/codec/chart_codec_host.c)
 
 # stub/ first: its core.h stands in for the application's
 target_include_directories(voltage_check PRIVATE

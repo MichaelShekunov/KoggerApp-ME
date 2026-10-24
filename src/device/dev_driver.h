@@ -1143,6 +1143,9 @@ private:
     int errorFreezeCnt_;
     int averageChartLosses_;
     int chartSides_ = 0;
+    QElapsedTimer chartLogClock_;      // logChartHealth: once a minute while chart frames come
+    int chartPings_ = 0;               // whole pings since its last line
+    void logChartHealth();
     QString lastChartSetupLog_;        // the device's chart setup as last logged
     void logChartSetupSent();
     QUuid linkUuid_;

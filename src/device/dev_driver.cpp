@@ -3177,14 +3177,40 @@ void DevDriver::receivedDist(Parsers::Type type, Parsers::Version ver, Parsers::
     emit distComplete(getChannelId(), idDist->dist_mm());
 }
 
+// Once a minute while echogram frames come: how many pings came out whole, and what the compressed paths lost --
+// a KEC stream with a slice missing, a whole KEC stream the decoder refused (a format it does not know: GODIO's
+// feature-block KEC before src/kec was updated), echocodec blocks taken from the previous ping. Called on every
+// chart frame, whole or not, so a stream that never decodes is still reported.
+void DevDriver::logChartHealth()
+{
+    if (!chartLogClock_.isValid()) {
+        chartLogClock_.start();
+        return;
+    }
+    if (chartLogClock_.elapsed() < 60000) {
+        return;
+    }
+    const double s = chartLogClock_.restart() / 1000.0;
+    const uint32_t holed = idChartZ->takeDropped(), undecoded = idChartZ->takeUndecoded();
+    const uint32_t v3 = idChart->takeV3Pings(), filled = idChart->takeV3Filled();
+    qInfo().noquote() << QStringLiteral("[%1] echogram: %2 pings in %3 s; ID_CHART_Z %4 dropped for a missing slice, "
+                                        "%5 the decoder refused; ID_CHART V3 %6 pings, %7 blocks from the previous ping")
+                             .arg(m_busAddress).arg(chartPings_).arg(s, 0, 'f', 1).arg(holed).arg(undecoded).arg(v3).arg(filled);
+    chartPings_ = 0;
+}
+
 void DevDriver::receivedChart(Parsers::Type type, Parsers::Version ver, Parsers::Resp resp)
 {
     Q_UNUSED(type);
     Q_UNUSED(resp);
 
     bool isCompleteChart = idChart->readAndClearIsCompleteChart();
+    if (isCompleteChart) {
+        ++chartPings_;
+    }
+    logChartHealth();
 
-    if (!isCompleteChart || (ver != v0 && ver != v1)) {
+    if (!isCompleteChart || (ver != v0 && ver != v1 && ver != v3)) {   // v3: echocodec, one side
         return;
     }
 

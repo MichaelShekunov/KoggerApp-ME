@@ -22,8 +22,16 @@
 #define KEC_MAXFRAME  512        /* samples per frame; equals the container's frame size */
 
 /* Encoder rate-control state. Zero-initialise once; carry it across pings so each
- * ping starts at the step the previous one settled on. */
-typedef struct { uint8_t qi; } kec_rc_state;
+ * frame of a ping starts at the step the same frame of the previous ping settled on.
+ * One step per frame position, not one per ping: the near field and the far field of
+ * a ping need different steps, and a single shared step missed and was re-coded on
+ * most frames (2.2 coding passes per frame on the 2026-10-24 test set; 1.2 per-frame).
+ * Frames past the last slot share it. A slot holds rung + 1; 0 means the frame has not been
+ * coded yet and starts where the previous frame of the same ping ended (measured on the
+ * board 2026-10-24: without this the first ping after power-up re-coded every frame from
+ * the finest rung, +49% cycles on that ping). */
+#define KEC_RC_FRAMES 24         /* 24 x 512 samples = 12288, the longest ping seen */
+typedef struct { uint8_t qi[KEC_RC_FRAMES]; } kec_rc_state;
 
 /* Compress `n` samples into at most `budget` bytes.
  * Returns bytes written, or -1 if `out` is too small (need budget + KEC_HDR slack).
