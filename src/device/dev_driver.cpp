@@ -3636,11 +3636,15 @@ void DevDriver::receivedRingStat(Parsers::Type type, Parsers::Version ver, Parse
     if (resp == respNone) {
         const IDBinRingStat::State& s = idRingStat->state();
         ringStatError_.clear();
-        qInfo().noquote() << wifiTag() << QStringLiteral("ring-stat: address %1, %2%3, guard %4 ms, BREAK interval %5 ms; "
-                                                         "relayed %6, BREAKs %7, torn %8, leads on a timeout %9, skipped %10")
+        // a leader sends the BREAKs and does not time them: it reports an interval of 0. "torn" is a relayed frame
+        // lost: cut by a BREAK up to 1.16, dropped for want of room in the relay buffer from 1.17
+        const QString interval = s.breakIntervalUs ? QStringLiteral("%1 ms").arg(s.breakIntervalUs / 1000.0, 0, 'f', 2)
+                                                   : QStringLiteral("not measured");
+        qInfo().noquote() << wifiTag() << QStringLiteral("ring-stat: address %1, %2%3, guard %4 ms, BREAK interval %5; "
+                                                         "relayed %6, BREAKs %7, lost passing on %8, leads on a timeout %9, skipped %10")
                                               .arg(s.address).arg(s.role ? QStringLiteral("follower") : QStringLiteral("leader"))
                                               .arg(s.upstream ? QStringLiteral(" (a board before it)") : QString())
-                                              .arg(s.guardUs / 1000.0, 0, 'f', 2).arg(s.breakIntervalUs / 1000.0, 0, 'f', 2)
+                                              .arg(s.guardUs / 1000.0, 0, 'f', 2).arg(interval)
                                               .arg(s.relayed).arg(s.breaks).arg(s.torn).arg(s.timeouts).arg(s.skipped);
     } else {
         // RespErrorID: a firmware that answers an unknown id with an error. GODIO before 1.16 stays silent instead

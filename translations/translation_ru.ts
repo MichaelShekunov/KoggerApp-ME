@@ -3679,23 +3679,23 @@
         <translation>код %1</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3649"/>
+        <location filename="../src/device/dev_driver.cpp" line="3653"/>
         <source>This firmware has no ring counters</source>
         <translation>В этой прошивке нет счётчиков кольца</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3650"/>
+        <location filename="../src/device/dev_driver.cpp" line="3654"/>
         <source>Refused by the board (code %1)</source>
         <translation>Плата отказала (код %1)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3755"/>
+        <location filename="../src/device/dev_driver.cpp" line="3759"/>
         <source>Sync config rejected by device</source>
         <translation>Конфигурация синхронизации отклонена устройством</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="4330"/>
-        <location filename="../src/device/dev_driver.cpp" line="4343"/>
+        <location filename="../src/device/dev_driver.cpp" line="4334"/>
+        <location filename="../src/device/dev_driver.cpp" line="4347"/>
         <source>no answer from the module</source>
         <translation>модуль не отвечает</translation>
     </message>
@@ -4071,58 +4071,58 @@
 <context>
     <name>DeviceSettingsPage</name>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5782"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5784"/>
         <source>Information</source>
         <translation>Информация</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5811"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5813"/>
         <source>Model</source>
         <translation>Модель</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5816"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5818"/>
         <source>Board type</source>
         <translation>Тип платы</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5821"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5823"/>
         <source>Serial number</source>
         <translation>Серийный номер</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5828"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5830"/>
         <source>not set</source>
         <translation>не задан</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5833"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5835"/>
         <source>Firmware version</source>
         <translation>Версия прошивки</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5838"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5840"/>
         <source>Bootloader version</source>
         <translation>Версия загрузчика</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5843"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5845"/>
         <source>Running</source>
         <translation>Режим</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5848"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5850"/>
         <source>Bootloader</source>
         <translation>Загрузчик</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5849"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5851"/>
         <source>Firmware</source>
         <translation>Прошивка</translation>
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="5516"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5854"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5856"/>
         <source>Bus address</source>
         <translation>Адрес на шине</translation>
     </message>
@@ -4243,88 +4243,98 @@
         <translation>Период синхроимпульса</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5679"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5683"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5680"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5684"/>
         <source>%1 ms</source>
         <translation>%1 мс</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5682"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5680"/>
+        <source>not measured</source>
+        <translation>не измеряется</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5683"/>
         <source>Guard before a sync</source>
         <translation>Защитное окно перед синхроимпульсом</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5686"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5687"/>
         <source>Pings skipped</source>
         <translation>Пропущено пингов</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5688"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5689"/>
         <source>A sync came while the board was busy; it waited for the next one</source>
         <translation>Синхроимпульс пришёл, пока плата была занята; она ждала следующий</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5691"/>
-        <source>Frames cut by a sync</source>
-        <translation>Кадров оборвано синхроимпульсом</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5695"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5697"/>
         <source>Led after silence</source>
         <translation>Стала ведущей после тишины</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5697"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5699"/>
         <source>No sync from the board before it, so this one set the pace itself</source>
         <translation>От платы перед ней не было синхроимпульса, и эта задала темп сама</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5700"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5702"/>
         <source>Syncs heard</source>
         <translation>Синхроимпульсов принято</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5704"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5706"/>
         <source>Frames passed on</source>
         <translation>Кадров передано дальше</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5712"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5714"/>
         <source>Asking the board...</source>
         <translation>Запрос к плате...</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5712"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5714"/>
         <source>Read</source>
         <translation>Прочитать</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5719"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5721"/>
         <source>Reset the counters</source>
         <translation>Обнулить счётчики</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5720"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5722"/>
         <source>Zeroes the five counters on the board; it sends them back at once</source>
         <translation>Обнуляет пять счётчиков на плате; она сразу присылает их обратно</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5859"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5861"/>
         <source>Connection</source>
         <translation>Подключение</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5864"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5866"/>
         <source>Chip UID</source>
         <translation>UID чипа</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5799"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5801"/>
         <source>Copy</source>
         <translation>Скопировать</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5805"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5692"/>
+        <source>Frames lost passing on</source>
+        <translation>Кадров потеряно при пересылке</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5694"/>
+        <source>A frame of the board before it was lost on its way through this one</source>
+        <translation>Кадр платы перед ней пропал по пути через эту</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5807"/>
         <source>Device info copied to clipboard</source>
         <translation>Информация об устройстве скопирована в буфер обмена</translation>
     </message>
@@ -13177,493 +13187,493 @@
 <context>
     <name>RecorderBoardView</name>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="109"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="112"/>
         <source>contacts</source>
         <translation>контакты</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="109"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="112"/>
         <source>sonar A</source>
         <translation>сонар A</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="109"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="112"/>
         <source>sonar B</source>
         <translation>сонар B</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="109"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="112"/>
         <source>telemetry</source>
         <translation>телеметрия</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="109"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="112"/>
         <source>navigation</source>
         <translation>навигация</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="111"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="114"/>
         <source>Separate contacts</source>
         <translation>Отдельные контакты</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="111"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="114"/>
         <source>Sonar port A</source>
         <translation>Порт сонара A</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="111"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="114"/>
         <source>Sonar port B</source>
         <translation>Порт сонара B</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="111"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="114"/>
         <source>Telemetry (Wi-Fi bridge)</source>
         <translation>Телеметрия (Wi-Fi мост)</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="112"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="115"/>
         <source>GNSS (navigation)</source>
         <translation>GNSS (навигация)</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="112"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="115"/>
         <source>Function %1</source>
         <translation>Функция %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="115"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="118"/>
         <source> V</source>
         <translation> В</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="118"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="121"/>
         <source>auto</source>
         <translation>авто</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="119"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="122"/>
         <source>%1 Mbaud</source>
         <translation>%1 Мбод</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="119"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="122"/>
         <source>%1 baud</source>
         <translation>%1 бод</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="137"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="140"/>
         <source>transmit</source>
         <translation>передача</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="137"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="140"/>
         <source>receive</source>
         <translation>приём</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="137"/>
-        <location filename="../qml/app/RecorderBoardView.qml" line="148"/>
-        <location filename="../qml/app/RecorderBoardView.qml" line="407"/>
-        <location filename="../qml/app/RecorderBoardView.qml" line="419"/>
-        <location filename="../qml/app/RecorderBoardView.qml" line="429"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="140"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="151"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="424"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="436"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="446"/>
         <source>UART</source>
         <translation>UART</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="139"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="142"/>
         <source>PWM OUT%1 · %2 µs</source>
         <translation>ШИМ OUT%1 · %2 мкс</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="140"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="143"/>
         <source>input · %1</source>
         <translation>вход · %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="141"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="144"/>
         <source>output · %1</source>
         <translation>выход · %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="142"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="145"/>
         <source>ADC · %1</source>
         <translation>АЦП · %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="143"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="146"/>
         <source>off</source>
         <translation>выкл.</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="145"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="148"/>
         <source>role %1</source>
         <translation>роль %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="148"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="151"/>
         <source>Off</source>
         <translation>Выкл.</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="148"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="151"/>
         <source>I2C</source>
         <translation>I2C</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="148"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="151"/>
         <source>PWM (servo)</source>
         <translation>ШИМ (серва)</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="148"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="151"/>
         <source>Digital input</source>
         <translation>Цифровой вход</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="148"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="151"/>
         <source>Digital output</source>
         <translation>Цифровой выход</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="149"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="152"/>
         <source>ADC (0–3.3 V)</source>
         <translation>АЦП (0–3,3 В)</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="149"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="152"/>
         <source>Role %1</source>
         <translation>Роль %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="160"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="163"/>
         <source>battery voltage (VBAT), up to about 30 V</source>
         <translation>напряжение батареи (VBAT), до ~30 В</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="160"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="163"/>
         <source>+5.2 V</source>
         <translation>+5,2 В</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="160"/>
-        <location filename="../qml/app/RecorderBoardView.qml" line="499"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="163"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="516"/>
         <source>none</source>
         <translation>нет</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="168"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="171"/>
         <source>data coming in</source>
         <translation>данные идут</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="169"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="172"/>
         <source>no data now</source>
         <translation>данных сейчас нет</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="169"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="172"/>
         <source>nothing connected yet</source>
         <translation>пока ничего не подключено</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="176"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="179"/>
         <source>nothing</source>
         <translation>ничего</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="177"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="180"/>
         <source>the servo, held by hand</source>
         <translation>серва, угол задан вручную</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="177"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="180"/>
         <source>the servo, scanning</source>
         <translation>серва, скан</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="178"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="181"/>
         <source>the servo, stopped</source>
         <translation>серва, остановлена</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="252"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="266"/>
         <source>POWER 5–30 V</source>
         <translation>ПИТАНИЕ 5–30 В</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="255"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="269"/>
         <source>+BAT %1 · GND</source>
         <translation>+BAT %1 · GND</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="258"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="272"/>
         <source>5 V rail: %1</source>
         <translation>шина 5 В: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="338"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="355"/>
         <source>reserved</source>
         <translation>резерв</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="381"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="398"/>
         <source>Power on the connector: %1</source>
         <translation>Питание на разъёме: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="386"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="403"/>
         <source>This firmware of the Recorder only reports its connectors; changing them comes with its next phases. Rows marked reserved wait for the firmware too.</source>
         <translation>Эта прошивка Recorder только сообщает о разъёмах; менять их можно будет со следующими этапами. Строки с пометкой «резерв» тоже ждут прошивку.</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="389"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="406"/>
         <source>Function</source>
         <translation>Назначение</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="392"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="409"/>
         <source>After a reboot</source>
         <translation>После перезагрузки</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="397"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="414"/>
         <source>This connector carries the battery voltage, up to about 30 V: a 5 V GNSS receiver or Wi-Fi bridge on it burns. Connect one only through a converter.</source>
         <translation>На этом разъёме напряжение батареи, до ~30 В: 5-вольтовый GNSS или Wi-Fi мост на нём сгорит. Подключайте их только через преобразователь.</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="404"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="421"/>
         <source>Sonar port</source>
         <translation>Порт сонара</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="405"/>
-        <location filename="../qml/app/RecorderBoardView.qml" line="427"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="422"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="444"/>
         <source>Link</source>
         <translation>Связь</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="406"/>
-        <location filename="../qml/app/RecorderBoardView.qml" line="418"/>
-        <location filename="../qml/app/RecorderBoardView.qml" line="428"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="423"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="435"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="445"/>
         <source>Speed</source>
         <translation>Скорость</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="408"/>
-        <location filename="../qml/app/RecorderBoardView.qml" line="430"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="425"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="447"/>
         <source>Protocol</source>
         <translation>Протокол</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="409"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="426"/>
         <source>Ping sync</source>
         <translation>Синхронизация пинга</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="410"/>
-        <location filename="../qml/app/RecorderBoardView.qml" line="492"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="427"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="509"/>
         <source>Write to the log</source>
         <translation>Писать в лог</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="411"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="428"/>
         <source>Pass on to the host</source>
         <translation>Пересылать на хост</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="412"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="429"/>
         <source>Traffic and errors</source>
         <translation>Трафик и ошибки</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="417"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="434"/>
         <source>Telemetry</source>
         <translation>Телеметрия</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="420"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="437"/>
         <source>What goes to the host</source>
         <translation>Что отправлять на хост</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="421"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="438"/>
         <source>Channel load</source>
         <translation>Загрузка канала</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="426"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="443"/>
         <source>Navigation</source>
         <translation>Навигация</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="431"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="448"/>
         <source>Rate</source>
         <translation>Частота</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="433"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="450"/>
         <source>PPS</source>
         <translation>PPS</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="433"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="450"/>
         <source>on a universal input</source>
         <translation>через универсальный вход</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="434"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="451"/>
         <source>Fix and satellites</source>
         <translation>Фикс и спутники</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="463"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="480"/>
         <source> → %1 after a reboot</source>
         <translation> → %1 после перезагрузки</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="472"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="489"/>
         <source>Servo on %1</source>
         <translation>Серва на %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="473"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="490"/>
         <source>Output</source>
         <translation>Выход</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="474"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="491"/>
         <source>What drives it</source>
         <translation>Что его ведёт</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="475"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="492"/>
         <source>Pulse now</source>
         <translation>Импульс сейчас</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="475"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="492"/>
         <source>%1 µs</source>
         <translation>%1 мкс</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="476"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="493"/>
         <source>Timer</source>
         <translation>Таймер</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="479"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="496"/>
         <source>Open the servo panel</source>
         <translation>Открыть панель сервы</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="486"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="503"/>
         <source>ADC on %1</source>
         <translation>АЦП на %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="487"/>
-        <location filename="../qml/app/RecorderBoardView.qml" line="498"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="504"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="515"/>
         <source>Now</source>
         <translation>Сейчас</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="488"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="505"/>
         <source>Name</source>
         <translation>Название</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="489"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="506"/>
         <source>Divider, scale</source>
         <translation>Делитель, коэффициент</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="490"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="507"/>
         <source>Units</source>
         <translation>Единицы</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="491"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="508"/>
         <source>Alarm threshold</source>
         <translation>Порог тревоги</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="497"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="514"/>
         <source>Input %1</source>
         <translation>Вход %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="499"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="516"/>
         <source>Pull</source>
         <translation>Подтяжка</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="499"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="516"/>
         <source>up</source>
         <translation>вверх</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="499"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="516"/>
         <source>down</source>
         <translation>вниз</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="500"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="517"/>
         <source>Event</source>
         <translation>Событие</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="501"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="518"/>
         <source>Debounce</source>
         <translation>Антидребезг</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="502"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="519"/>
         <source>Pulse counter</source>
         <translation>Счётчик импульсов</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="503"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="520"/>
         <source>Mark in the log on an event</source>
         <translation>Метка в лог по событию</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="504"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="521"/>
         <source>Use as PPS or ping trigger</source>
         <translation>Как PPS или запуск пинга</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="509"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="526"/>
         <source>Output %1</source>
         <translation>Выход %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="510"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="527"/>
         <source>Level</source>
         <translation>Уровень</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="511"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="528"/>
         <source>Mode</source>
         <translation>Режим</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="512"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="529"/>
         <source>Pulse length</source>
         <translation>Длительность импульса</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="513"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="530"/>
         <source>Toggle, pulse now</source>
         <translation>Переключить, импульс сейчас</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="517"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="534"/>
         <source>The contact is off.</source>
         <translation>Контакт выключен.</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="525"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="542"/>
         <source>SCL and SDA have 10 kOhm pull-ups to 3.3 V on the board.</source>
         <translation>На плате у SCL и SDA подтяжки 10 кОм к 3,3 В.</translation>
     </message>

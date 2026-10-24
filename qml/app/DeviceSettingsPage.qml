@@ -5673,10 +5673,11 @@ Column {
                                                      : qsTr("Leader: sets the pace"))
                      + (devRingStatGroup.st.upstream ? qsTr(", a board before it") : "")
         }
-        DevInfoRow {
+        DevInfoRow {        // a leader sends syncs and does not time them: it reports 0
             label: qsTr("Sync interval")
-            value: devRingStatGroup.known && devRingStatGroup.st.breakIntervalMs > 0
-                   ? qsTr("%1 ms").arg(Number(devRingStatGroup.st.breakIntervalMs).toFixed(2)) : ""
+            value: !devRingStatGroup.known ? ""
+                   : devRingStatGroup.st.breakIntervalMs > 0
+                     ? qsTr("%1 ms").arg(Number(devRingStatGroup.st.breakIntervalMs).toFixed(2)) : qsTr("not measured")
         }
         DevInfoRow {
             label: qsTr("Guard before a sync")
@@ -5687,9 +5688,10 @@ Column {
             value: devRingStatGroup.count(devRingStatGroup.st.skipped)
             caption: devRingStatGroup.known ? qsTr("A sync came while the board was busy; it waited for the next one") : ""
         }
-        DevInfoRow {
-            label: qsTr("Frames cut by a sync")
+        DevInfoRow {        // 1.16: cut by a sync; from 1.17 (relay through DMA): did not fit the relay buffer
+            label: qsTr("Frames lost passing on")
             value: devRingStatGroup.count(devRingStatGroup.st.torn)
+            caption: devRingStatGroup.known ? qsTr("A frame of the board before it was lost on its way through this one") : ""
         }
         DevInfoRow {
             label: qsTr("Led after silence")

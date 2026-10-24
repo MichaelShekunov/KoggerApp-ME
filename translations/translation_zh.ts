@@ -3675,23 +3675,23 @@
         <translation>代码 %1</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3649"/>
+        <location filename="../src/device/dev_driver.cpp" line="3653"/>
         <source>This firmware has no ring counters</source>
         <translation>此固件没有环路计数器</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3650"/>
+        <location filename="../src/device/dev_driver.cpp" line="3654"/>
         <source>Refused by the board (code %1)</source>
         <translation>板子拒绝了（代码 %1）</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3755"/>
+        <location filename="../src/device/dev_driver.cpp" line="3759"/>
         <source>Sync config rejected by device</source>
         <translation>设备拒绝了同步配置</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="4330"/>
-        <location filename="../src/device/dev_driver.cpp" line="4343"/>
+        <location filename="../src/device/dev_driver.cpp" line="4334"/>
+        <location filename="../src/device/dev_driver.cpp" line="4347"/>
         <source>no answer from the module</source>
         <translation>模块无应答</translation>
     </message>
@@ -5865,6 +5865,16 @@
         <translation>关闭无线</translation>
     </message>
     <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5692"/>
+        <source>Frames lost passing on</source>
+        <translation>转发中丢失的帧</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5694"/>
+        <source>A frame of the board before it was lost on its way through this one</source>
+        <translation>前面那块板的帧在经过这块板时丢失</translation>
+    </message>
+    <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="3337"/>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="3540"/>
         <source>The radio is off</source>
@@ -6973,7 +6983,7 @@
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="5516"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5854"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5856"/>
         <source>Bus address</source>
         <translation>总线地址</translation>
     </message>
@@ -7094,138 +7104,138 @@
         <translation>同步间隔</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5679"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5683"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5680"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5684"/>
         <source>%1 ms</source>
         <translation>%1 ms</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5682"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5680"/>
+        <source>not measured</source>
+        <translation>不测量</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5683"/>
         <source>Guard before a sync</source>
         <translation>同步前的保护窗口</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5686"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5687"/>
         <source>Pings skipped</source>
         <translation>跳过的 ping</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5688"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5689"/>
         <source>A sync came while the board was busy; it waited for the next one</source>
         <translation>同步信号到来时板子正忙；它等待了下一个</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5691"/>
-        <source>Frames cut by a sync</source>
-        <translation>被同步信号截断的帧</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5695"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5697"/>
         <source>Led after silence</source>
         <translation>静默后转为主机</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5697"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5699"/>
         <source>No sync from the board before it, so this one set the pace itself</source>
         <translation>前面的板没有发来同步信号，于是这块板自己决定节拍</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5700"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5702"/>
         <source>Syncs heard</source>
         <translation>收到的同步信号</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5704"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5706"/>
         <source>Frames passed on</source>
         <translation>转发的帧</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5712"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5714"/>
         <source>Asking the board...</source>
         <translation>正在询问板子...</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5712"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5714"/>
         <source>Read</source>
         <translation>读取</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5719"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5721"/>
         <source>Reset the counters</source>
         <translation>清零计数器</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5720"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5722"/>
         <source>Zeroes the five counters on the board; it sends them back at once</source>
         <translation>将板上的五个计数器清零；板子会立即发回</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5782"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5784"/>
         <source>Information</source>
         <translation>信息</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5799"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5801"/>
         <source>Copy</source>
         <translation>复制</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5805"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5807"/>
         <source>Device info copied to clipboard</source>
         <translation>设备信息已复制到剪贴板</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5811"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5813"/>
         <source>Model</source>
         <translation>型号</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5816"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5818"/>
         <source>Board type</source>
         <translation>板卡类型</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5821"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5823"/>
         <source>Serial number</source>
         <translation>序列号</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5828"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5830"/>
         <source>not set</source>
         <translation>未设置</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5833"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5835"/>
         <source>Firmware version</source>
         <translation>固件版本</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5838"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5840"/>
         <source>Bootloader version</source>
         <translation>引导程序版本</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5843"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5845"/>
         <source>Running</source>
         <translation>运行</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5848"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5850"/>
         <source>Bootloader</source>
         <translation>引导程序</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5849"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5851"/>
         <source>Firmware</source>
         <translation>固件</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5859"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5861"/>
         <source>Connection</source>
         <translation>连接</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5864"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5866"/>
         <source>Chip UID</source>
         <translation>芯片 UID</translation>
     </message>
@@ -13173,493 +13183,493 @@
 <context>
     <name>RecorderBoardView</name>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="109"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="112"/>
         <source>contacts</source>
         <translation>触点</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="109"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="112"/>
         <source>sonar A</source>
         <translation>声呐 A</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="109"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="112"/>
         <source>sonar B</source>
         <translation>声呐 B</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="109"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="112"/>
         <source>telemetry</source>
         <translation>遥测</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="109"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="112"/>
         <source>navigation</source>
         <translation>导航</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="111"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="114"/>
         <source>Separate contacts</source>
         <translation>独立触点</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="111"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="114"/>
         <source>Sonar port A</source>
         <translation>声呐端口 A</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="111"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="114"/>
         <source>Sonar port B</source>
         <translation>声呐端口 B</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="111"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="114"/>
         <source>Telemetry (Wi-Fi bridge)</source>
         <translation>遥测（Wi-Fi 网桥）</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="112"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="115"/>
         <source>GNSS (navigation)</source>
         <translation>GNSS（导航）</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="112"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="115"/>
         <source>Function %1</source>
         <translation>功能 %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="115"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="118"/>
         <source> V</source>
         <translation> V</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="118"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="121"/>
         <source>auto</source>
         <translation>自动</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="119"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="122"/>
         <source>%1 Mbaud</source>
         <translation>%1 M波特</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="119"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="122"/>
         <source>%1 baud</source>
         <translation>%1 波特</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="137"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="140"/>
         <source>transmit</source>
         <translation>发送</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="137"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="140"/>
         <source>receive</source>
         <translation>接收</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="137"/>
-        <location filename="../qml/app/RecorderBoardView.qml" line="148"/>
-        <location filename="../qml/app/RecorderBoardView.qml" line="407"/>
-        <location filename="../qml/app/RecorderBoardView.qml" line="419"/>
-        <location filename="../qml/app/RecorderBoardView.qml" line="429"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="140"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="151"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="424"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="436"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="446"/>
         <source>UART</source>
         <translation>UART</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="139"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="142"/>
         <source>PWM OUT%1 · %2 µs</source>
         <translation>PWM OUT%1 · %2 µs</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="140"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="143"/>
         <source>input · %1</source>
         <translation>输入 · %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="141"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="144"/>
         <source>output · %1</source>
         <translation>输出 · %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="142"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="145"/>
         <source>ADC · %1</source>
         <translation>ADC · %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="143"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="146"/>
         <source>off</source>
         <translation>关</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="145"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="148"/>
         <source>role %1</source>
         <translation>角色 %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="148"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="151"/>
         <source>Off</source>
         <translation>关闭</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="148"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="151"/>
         <source>I2C</source>
         <translation>I2C</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="148"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="151"/>
         <source>PWM (servo)</source>
         <translation>PWM（舵机）</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="148"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="151"/>
         <source>Digital input</source>
         <translation>数字输入</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="148"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="151"/>
         <source>Digital output</source>
         <translation>数字输出</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="149"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="152"/>
         <source>ADC (0–3.3 V)</source>
         <translation>ADC（0–3.3 V）</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="149"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="152"/>
         <source>Role %1</source>
         <translation>角色 %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="160"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="163"/>
         <source>battery voltage (VBAT), up to about 30 V</source>
         <translation>电池电压（VBAT），最高约 30 V</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="160"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="163"/>
         <source>+5.2 V</source>
         <translation>+5.2 V</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="160"/>
-        <location filename="../qml/app/RecorderBoardView.qml" line="499"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="163"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="516"/>
         <source>none</source>
         <translation>无</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="168"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="171"/>
         <source>data coming in</source>
         <translation>数据正在到达</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="169"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="172"/>
         <source>no data now</source>
         <translation>目前没有数据</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="169"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="172"/>
         <source>nothing connected yet</source>
         <translation>尚未连接任何设备</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="176"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="179"/>
         <source>nothing</source>
         <translation>无</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="177"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="180"/>
         <source>the servo, held by hand</source>
         <translation>舵机，手动保持角度</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="177"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="180"/>
         <source>the servo, scanning</source>
         <translation>舵机，扫描中</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="178"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="181"/>
         <source>the servo, stopped</source>
         <translation>舵机，已停止</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="252"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="266"/>
         <source>POWER 5–30 V</source>
         <translation>电源 5–30 V</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="255"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="269"/>
         <source>+BAT %1 · GND</source>
         <translation>+BAT %1 · GND</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="258"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="272"/>
         <source>5 V rail: %1</source>
         <translation>5 V 电源轨：%1</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="338"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="355"/>
         <source>reserved</source>
         <translation>预留</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="381"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="398"/>
         <source>Power on the connector: %1</source>
         <translation>接口供电：%1</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="386"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="403"/>
         <source>This firmware of the Recorder only reports its connectors; changing them comes with its next phases. Rows marked reserved wait for the firmware too.</source>
         <translation>此版本的 Recorder 固件只报告其接口；修改功能要等后续阶段。标有“预留”的行同样等待固件支持。</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="389"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="406"/>
         <source>Function</source>
         <translation>功能</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="392"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="409"/>
         <source>After a reboot</source>
         <translation>重启后</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="397"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="414"/>
         <source>This connector carries the battery voltage, up to about 30 V: a 5 V GNSS receiver or Wi-Fi bridge on it burns. Connect one only through a converter.</source>
         <translation>此接口带电池电压，最高约 30 V：5 V 的 GNSS 接收机或 Wi-Fi 网桥接上会烧毁。只能通过转换器连接。</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="404"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="421"/>
         <source>Sonar port</source>
         <translation>声呐端口</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="405"/>
-        <location filename="../qml/app/RecorderBoardView.qml" line="427"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="422"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="444"/>
         <source>Link</source>
         <translation>连接</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="406"/>
-        <location filename="../qml/app/RecorderBoardView.qml" line="418"/>
-        <location filename="../qml/app/RecorderBoardView.qml" line="428"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="423"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="435"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="445"/>
         <source>Speed</source>
         <translation>速率</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="408"/>
-        <location filename="../qml/app/RecorderBoardView.qml" line="430"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="425"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="447"/>
         <source>Protocol</source>
         <translation>协议</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="409"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="426"/>
         <source>Ping sync</source>
         <translation>Ping 同步</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="410"/>
-        <location filename="../qml/app/RecorderBoardView.qml" line="492"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="427"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="509"/>
         <source>Write to the log</source>
         <translation>写入日志</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="411"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="428"/>
         <source>Pass on to the host</source>
         <translation>转发到主机</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="412"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="429"/>
         <source>Traffic and errors</source>
         <translation>流量和错误</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="417"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="434"/>
         <source>Telemetry</source>
         <translation>遥测</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="420"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="437"/>
         <source>What goes to the host</source>
         <translation>发送给主机的内容</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="421"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="438"/>
         <source>Channel load</source>
         <translation>通道负载</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="426"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="443"/>
         <source>Navigation</source>
         <translation>导航</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="431"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="448"/>
         <source>Rate</source>
         <translation>频率</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="433"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="450"/>
         <source>PPS</source>
         <translation>PPS</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="433"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="450"/>
         <source>on a universal input</source>
         <translation>经通用输入</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="434"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="451"/>
         <source>Fix and satellites</source>
         <translation>定位和卫星</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="463"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="480"/>
         <source> → %1 after a reboot</source>
         <translation> → 重启后为 %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="472"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="489"/>
         <source>Servo on %1</source>
         <translation>%1 上的舵机</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="473"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="490"/>
         <source>Output</source>
         <translation>输出</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="474"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="491"/>
         <source>What drives it</source>
         <translation>驱动来源</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="475"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="492"/>
         <source>Pulse now</source>
         <translation>当前脉宽</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="475"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="492"/>
         <source>%1 µs</source>
         <translation>%1 µs</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="476"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="493"/>
         <source>Timer</source>
         <translation>定时器</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="479"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="496"/>
         <source>Open the servo panel</source>
         <translation>打开舵机面板</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="486"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="503"/>
         <source>ADC on %1</source>
         <translation>%1 上的 ADC</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="487"/>
-        <location filename="../qml/app/RecorderBoardView.qml" line="498"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="504"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="515"/>
         <source>Now</source>
         <translation>当前</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="488"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="505"/>
         <source>Name</source>
         <translation>名称</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="489"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="506"/>
         <source>Divider, scale</source>
         <translation>分压比、系数</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="490"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="507"/>
         <source>Units</source>
         <translation>单位</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="491"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="508"/>
         <source>Alarm threshold</source>
         <translation>报警阈值</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="497"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="514"/>
         <source>Input %1</source>
         <translation>输入 %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="499"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="516"/>
         <source>Pull</source>
         <translation>上下拉</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="499"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="516"/>
         <source>up</source>
         <translation>上拉</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="499"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="516"/>
         <source>down</source>
         <translation>下拉</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="500"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="517"/>
         <source>Event</source>
         <translation>事件</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="501"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="518"/>
         <source>Debounce</source>
         <translation>消抖</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="502"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="519"/>
         <source>Pulse counter</source>
         <translation>脉冲计数器</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="503"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="520"/>
         <source>Mark in the log on an event</source>
         <translation>事件时在日志中标记</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="504"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="521"/>
         <source>Use as PPS or ping trigger</source>
         <translation>用作 PPS 或 ping 触发</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="509"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="526"/>
         <source>Output %1</source>
         <translation>输出 %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="510"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="527"/>
         <source>Level</source>
         <translation>电平</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="511"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="528"/>
         <source>Mode</source>
         <translation>模式</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="512"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="529"/>
         <source>Pulse length</source>
         <translation>脉冲长度</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="513"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="530"/>
         <source>Toggle, pulse now</source>
         <translation>翻转、立即脉冲</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="517"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="534"/>
         <source>The contact is off.</source>
         <translation>该触点已关闭。</translation>
     </message>
     <message>
-        <location filename="../qml/app/RecorderBoardView.qml" line="525"/>
+        <location filename="../qml/app/RecorderBoardView.qml" line="542"/>
         <source>SCL and SDA have 10 kOhm pull-ups to 3.3 V on the board.</source>
         <translation>板上的 SCL 和 SDA 有 10 kΩ 上拉到 3.3 V。</translation>
     </message>
