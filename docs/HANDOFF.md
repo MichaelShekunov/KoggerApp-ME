@@ -3156,6 +3156,22 @@ later") with ID_RING_STAT 0x76, contract L412_GODIO docs/RING_HOLES_2026-10-23.m
   0, shown as "not measured". `ringstat_live.ps1` plays a 1.17 leader and a 1.17 follower with the numbers the
   firmware's session read from a live one; PASS. Not yet run by the app on the live ring (COM18).
 
+## Echogram codecs: KEC with feature blocks, echocodec V3 (2026-10-24)
+
+The owner's task through the session "GitLab (fork) COMPRESSION"; the owner allowed echocodec's internal code in
+ME (not in the public KoggerApp). docs/ECHO_CODECS.md.
+
+- `src/kec` from KoggerEchoCodec d9ac0e0: one decoder for the old and the feature-block ID_CHART_Z streams (GODIO
+  sends the new one since 2026-10-24; the old decoder refused every ping of it).
+- `src/codec`: chart_codec.h (echocodec @ e6a02dd) behind a C wrapper built with -ffp-contract=off;
+  `ChartV3Assembler` puts ID_CHART V3 blocks together (any order, missing from the previous ping of the same
+  geometry, late ones ignored) and maps progressive bands onto the native grid; IDBinChart publishes it as a
+  plain ping.
+- A line a minute per device: pings, CHART_Z slices missing / streams refused, V3 blocks filled.
+- **[verified]** codec_check 10/10, 6/6 mutants; chartz_check (the nanoSSS capture and V3 through FrameParser +
+  IDBinChart); the live GODIO board on COM18: 50 of 50 captured pings carry feature blocks, 1051 pings in 60 s,
+  0 dropped, 0 refused. No SonarN here: V3 checked on the vectors only.
+
 ## A serial link's rate search listens first (2026-10-24, the owner's "Исправь")
 
 The firmware's session found on the owner's ring (460800): one request at 115200 looks like a BREAK to the leader, which
