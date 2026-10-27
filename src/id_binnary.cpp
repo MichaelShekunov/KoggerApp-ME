@@ -791,6 +791,32 @@ bool readLabel(FrameParser& proto, QString* out)
 }
 
 Resp IDBinBus::parsePayload(FrameParser &proto) {
+    const Version ver = proto.ver();
+    if (ver == v2 || ver == v3 || ver == v4) {   // a UART function's settings
+        const int need = ver == v2 ? 8 : ver == v3 ? 6 : 7;
+        if (proto.readAvailable() < need) {
+            return respErrorPayload;
+        }
+        const U1 function = proto.read<U1>();
+        if (functionVersion(function) != ver) {
+            return respErrorPayload;
+        }
+        FunctionSettings f = m_func[function];
+        f.baud = proto.read<U4>();
+        if (ver == v2) {
+            f.protocol = proto.read<U1>();
+            f.log = proto.read<U1>();
+            f.toHost = proto.read<U1>();
+        } else if (ver == v3) {
+            f.toHost = proto.read<U1>();
+        } else {
+            f.protocol = proto.read<U1>();
+            f.rateHz = proto.read<U1>();
+        }
+        f.valid = true;
+        m_func[function] = f;
+        return respOk;
+    }
     if (proto.ver() != v0) {
         return respErrorVersion;
     }
@@ -832,6 +858,58 @@ void IDBinBus::request(U1 bus) {
     id_out.write<U1>(bus);
     id_out.end();
     emit binFrameOut(id_out);
+}
+
+Version IDBinBus::functionVersion(int function) {
+    return function == 1 || function == 2 ? v2 : function == FunctionTelemetry ? v3 : function == 4 ? v4 : v0;
+}
+
+const IDBinBus::FunctionSettings& IDBinBus::functionSettings(int function) const {
+    return m_func[function >= 1 && function <= 4 ? function : 0];
+}
+
+void IDBinBus::requestFunction(U1 function) {
+    ProtoBinOut id_out;
+    id_out.create(GETTING, functionVersion(function), id(), m_address);
+    id_out.write<U1>(function);
+    id_out.end();
+    emit binFrameOut(id_out);
+}
+
+void IDBinBus::setFunctionBaud(U1 function, U4 baud) {
+    const Version ver = functionVersion(function);
+    const FunctionSettings& f = functionSettings(function);
+    ProtoBinOut id_out;
+    id_out.create(SETTING, ver, id(), m_address);
+    id_out.write<U1>(function);
+    id_out.write<U4>(baud);
+    if (ver == v2) {
+        id_out.write<U1>(f.protocol);
+        id_out.write<U1>(f.log);
+        id_out.write<U1>(f.toHost);
+    } else if (ver == v3) {
+        id_out.write<U1>(f.valid ? f.toHost : U1(0));   // telemetry to the host: the firmware takes 0 only
+    } else {
+        id_out.write<U1>(f.protocol);
+        id_out.write<U1>(f.rateHz);
+    }
+    id_out.end();
+    emit binFrameOut(id_out);
+}
+
+void IDBinBus::setBusFunction(U1 bus, U1 function, U1 uart) {
+    ProtoBinOut id_out;
+    id_out.create(SETTING, v0, id(), m_address);
+    id_out.write<U1>(bus);
+    id_out.write<U1>(function);
+    id_out.write<U1>(uart);
+    id_out.end();
+    emit binFrameOut(id_out);
+}
+
+const QVector<U4>& IDBinBus::functionBauds() {
+    static const QVector<U4> bauds = { 0, 9600, 19200, 38400, 57600, 115200, 230400, 460800, 921600, 2000000, 5000000 };
+    return bauds;
 }
 
 Resp IDBinPin::parsePayload(FrameParser &proto) {

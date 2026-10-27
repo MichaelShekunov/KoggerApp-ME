@@ -136,20 +136,21 @@ Item {
                     verify(!overlap(blocks[i], blocks[j]), labels[i] + " clear of " + labels[j])
             }
         }
-        function test_02_values() {
+        function test_02_values() {        // the owner, 2026-10-27: a bigger font and only what matters in a block
             var s1 = texts(item("boardBlock_SONAR1"))
-            verify(has(s1, "SONAR1 · sonar A · 57600 baud"), s1.join(" | "))
-            verify(has(s1, "transmit") && has(s1, "receive") && has(s1, "12.40 V"), s1.join(" | "))
-            // the port spec's ID_BUS V1 table: on the left side contact 1 is the bottom one, so VBAT is on top
-            compare(s1.indexOf("VBAT") < s1.indexOf("GND") && s1.indexOf("GND") < s1.indexOf("RX") && s1.indexOf("RX") < s1.indexOf("TX"), true)
-            var in34 = texts(item("boardBlock_IN3,4"))
-            verify(has(in34, "PWM OUT1 · 1500 µs") && has(in34, "off"), in34.join(" | "))
-            compare(in34.indexOf("+5V") < in34.indexOf("GND") && in34.indexOf("GND") < in34.indexOf("IN4") && in34.indexOf("IN4") < in34.indexOf("IN3"), true)
-            var outs = texts(item("boardBlock_OUTS"))
-            compare(outs.indexOf("O3") < outs.indexOf("O2") && outs.indexOf("O2") < outs.indexOf("GND") && outs.indexOf("GND") < outs.indexOf("O1"), true)
-            var gnss = texts(item("boardBlock_GNSS"))
-            compare(gnss.indexOf("TX") < gnss.indexOf("RX") && gnss.indexOf("RX") < gnss.indexOf("GND") && gnss.indexOf("GND") < gnss.indexOf("+5V"), true)
-            verify(!has(outs, "+5V") && !has(outs, "VBAT"), "OUTS has no supply pin: " + outs.join(" | "))
+            compare(s1.join(" | "), "SONAR1 | sonar A | 57600")
+            compare(texts(item("boardBlock_TELEM")).join(" | "), "TELEM | telemetry | 5000000")
+            compare(texts(item("boardBlock_GNSS")).join(" | "), "GNSS | navigation | 9600")
+            // a universal connector: its contacts that do something, in board order; the ones off are left out
+            compare(texts(item("boardBlock_IN3,4")).join(" | "), "IN3,4 | IN3 | OUT1 · 1500 µs")
+            compare(texts(item("boardBlock_OUTS")).join(" | "), "OUTS | O1 | OUT1 · 1500 µs")
+            compare(texts(item("boardBlock_I2C")).join(" | "), "I2C")
+            // the supply reading moved to the power block, shown only when the Recorder sends it
+            verify(has(texts(item("boardPower")), "+BAT 12.40 V · GND"), texts(item("boardPower")).join(" | "))
+            fakeDev.voltage0Mv = -1
+            tryVerify(function() { return !has(texts(item("boardPower")), "+BAT — · GND") && texts(item("boardPower")).length === 1 })
+            fakeDev.voltage0Mv = 12400
+            verify(item("boardBlock_SONAR1").height < item("boardBlock_IN1,2").height + 1, "a port's block no taller than a contacts one")
         }
         function test_03_default_menu() {
             verify(item("menuSonar").visible)
@@ -175,8 +176,8 @@ Item {
         function test_05_live() {
             fakeDev.portBuses = root.table(1720)
             fakeDev.voltage0Mv = 11980
-            tryVerify(function() { return has(texts(item("boardBlock_IN3,4")), "PWM OUT1 · 1720 µs") })
-            tryVerify(function() { return has(texts(item("boardBlock_SONAR1")), "11.98 V") })
+            tryVerify(function() { return has(texts(item("boardBlock_IN3,4")), "OUT1 · 1720 µs") })
+            tryVerify(function() { return has(texts(item("boardPower")), "+BAT 11.98 V · GND") })
         }
         function test_06_shot() {
             if (!shotPath)
@@ -185,10 +186,26 @@ Item {
             wait(300)
             grabImage(root).save(shotPath)
         }
-        function test_07_narrow() {        // a phone's panel: the drawing keeps 560 px and scrolls, nothing is cut
+        function test_07_narrow() {        // the owner's panel (~540 px, 2026-10-27) and a phone's: laid out at 560 px and
+                                           // scaled down whole, every block inside the width (a sideways scroll cut them)
+            var layout = item("boardLayout")
+            var labels = ["SONAR1", "SONAR2", "TELEM", "GNSS", "I2C", "IN1,2", "IN3,4", "OUTS"]
+            var widths = [540, 360]
+            for (var k = 0; k < widths.length; ++k) {
+                view.width = widths[k]
+                tryVerify(function() { return layout.width === 560 && Math.abs(layout.scale - view.width / 560) < 1e-6 })
+                for (var i = 0; i < labels.length; ++i) {
+                    var b = item("boardBlock_" + labels[i])
+                    var p = b.mapToItem(view, 0, 0), q = b.mapToItem(view, b.width, b.height)
+                    verify(p.x >= 0 && q.x <= view.width + 0.5, labels[i] + " inside at " + view.width + " px: " + p.x + ".." + q.x)
+                }
+                verify(item("boardDrawing").height <= 500 * 560 / 680 * layout.scale + 0.5, "the drawing's height scaled too")
+            }
+            view.width = 680
+            tryVerify(function() { return layout.scale === 1 && layout.width === 680 })
+        }
+        function test_08_narrow_text() {   // and nothing cut in the 560 px layout
             view.width = 360
-            var pane = item("boardDrawing")
-            tryVerify(function() { return pane.contentWidth === 560 && pane.interactive })
             var cut = []
             function walk(n) {
                 if (n.truncated && n.visible)
@@ -196,10 +213,9 @@ Item {
                 for (var i = 0; i < n.children.length; ++i)
                     walk(n.children[i])
             }
-            walk(pane)
-            compare(cut.join(" | "), "")
+            walk(item("boardDrawing"))
             view.width = 680
-            tryVerify(function() { return !pane.interactive })
+            compare(cut.join(" | "), "")
         }
     }
 }

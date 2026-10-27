@@ -73,7 +73,15 @@ $faults = @(
     @{ Name = 'v1 entries of 5 bytes';               File = 'id_binnary.cpp'; From = 'const S4 value = proto.read<S4>();'; To = 'const S4 value = proto.read<S2>();' },
     @{ Name = 'v1 invents undescribed pins';         File = 'id_binnary.cpp'; From = "            if (it != m_pins.end()) {   // a pin not described yet waits for its v0`n                it->role = role;`n                it->value = value;`n            }"; To = "            m_pins[id].role = role;`n            m_pins[id].value = value;" },
     @{ Name = 'the pin request without its id';      File = 'id_binnary.cpp'; From = "    id_out.write<U1>(pin);`n"; To = '' },
-    @{ Name = 'values asked as v0';                  File = 'id_binnary.cpp'; From = '    simpleRequest(v1);'; To = '    simpleRequest(v0);' }
+    @{ Name = 'values asked as v0';                  File = 'id_binnary.cpp'; From = '    simpleRequest(v1);'; To = '    simpleRequest(v0);' },
+    @{ Name = 'v2 log and to-host swapped';          File = 'id_binnary.cpp'; From = "            f.log = proto.read<U1>();`n            f.toHost = proto.read<U1>();"; To = "            f.toHost = proto.read<U1>();`n            f.log = proto.read<U1>();" },
+    @{ Name = 'a function taken in any version';     File = 'id_binnary.cpp'; From = "        if (functionVersion(function) != ver) {`n            return respErrorPayload;`n        }`n"; To = '' },
+    @{ Name = 'v3 moves the rate in use (old meaning)'; File = 'id_binnary.cpp'; From = "        m_func[function] = f;`n        return respOk;"; To = "        m_func[function] = f;`n        for (Bus& b : m_buses) { if (b.function == function) { b.baud = f.baud; } }`n        return respOk;" },
+    @{ Name = 'telemetry unread sent with to-host 1'; File = 'id_binnary.cpp'; From = 'id_out.write<U1>(f.valid ? f.toHost : U1(0));'; To = 'id_out.write<U1>(f.toHost);' },
+    @{ Name = 'the swap without its UART';           File = 'id_binnary.cpp'; From = "    id_out.write<U1>(function);`n    id_out.write<U1>(uart);`n"; To = "    id_out.write<U1>(function);`n" },
+    @{ Name = 'auto not among the rates';            File = 'id_binnary.cpp'; From = '{ 0, 9600, 19200'; To = '{ 9600, 19200' },
+    @{ Name = 'settings asked as v0';                File = 'id_binnary.cpp'; From = 'id_out.create(GETTING, functionVersion(function), id(), m_address);'; To = 'id_out.create(GETTING, v0, id(), m_address);' },
+    @{ Name = 'navigation rate dropped';             File = 'id_binnary.cpp'; From = "            f.rateHz = proto.read<U1>();`n"; To = '' }
 )
 
 $utf8 = New-Object System.Text.UTF8Encoding $false

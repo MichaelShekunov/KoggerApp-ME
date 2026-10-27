@@ -1868,11 +1868,22 @@ private:
      ID_PIN GETTING v0 [pin]   -> CONTENT v0: [pin][bus][role caps u32][role][role saved][timer][param][value s32]
                                   [label length][label][MCU pin length][MCU pin]
      ID_PIN GETTING v1         -> CONTENT v1: [count] then count x [pin][role][value s32], every pin in id order
+     The UART connectors (function caps 0x1E: buses 0..3, SONAR1, SONAR2, TELEM, GNSS), firmware with the settings:
+     ID_BUS SETTING v0 [bus][function][its own UART] -> the function onto that connector, the one there onto the
+                                  connector set free (a swap; each of the four functions on exactly one connector)
+     A function's settings, addressed by the function and moving with it; GETTING [function] -> the same fields:
+       v2 sonar A/B: [1|2][baud u32][protocol][log][to host]   v3 telemetry: [3][baud u32][to host]
+       v4 navigation: [4][baud u32][protocol][rate Hz]         baud 0 = auto (the port searches)
+     A SETTING answers RespOk; RespErrorPayload: a bad value; RespErrorRuntime: it changes the UART it came
+     through (only USB changes everything). Kept over a restart only after ID_FLASH (DevDriver sends it).
+     The baud a v2..v4 answer carries is the setting; the rate in use is the bus's baud in v0.
    Asked only of a Recorder, on request (DevDriver); nothing on a cold start. */
 class IDBinBus : public IDBin
 {
     Q_OBJECT
 public:
+    static constexpr U1 FunctionTelemetry = 3;
+
     struct Bus {
         U1 id = 0;
         U1 supply = 0;
@@ -1899,12 +1910,34 @@ public:
     int count() const { return m_count; }
     int lastBus() const { return m_last; }
     const QMap<int, Bus>& buses() const { return m_buses; }
-    void reset() { m_buses.clear(); m_count = 0; m_last = -1; }
+    void reset() { m_buses.clear(); m_count = 0; m_last = -1; m_func = {}; }
+
+    /// A UART function's settings (1 sonar A, 2 sonar B, 3 telemetry, 4 navigation) as the Recorder last reported
+    /// them (v2..v4); not valid until an answer. The defaults are what a SETTING sends for fields never read.
+    struct FunctionSettings {
+        bool valid = false;
+        U4 baud = 0;          // 0 = auto
+        U1 protocol = 0;
+        U1 log = 1;           // sonar: written to the log
+        U1 toHost = 1;        // sonar: passed on to the host; telemetry: 0
+        U1 rateHz = 0;        // navigation
+    };
+    /// The version a function's settings use: v2, v3, v4; v0 for anything else (no settings).
+    static Version functionVersion(int function);
+    const FunctionSettings& functionSettings(int function) const;
+    void requestFunction(U1 function);
+    /// SETTING of the function's version with this baud and its other fields as last read.
+    void setFunctionBaud(U1 function, U4 baud);
+    /// SETTING v0: the function onto the bus (a swap), with the bus's own UART.
+    void setBusFunction(U1 bus, U1 function, U1 uart);
+    /// The rates the firmware takes: 0 (auto), then 9600 .. 5000000.
+    static const QVector<U4>& functionBauds();
 
 private:
     QMap<int, Bus> m_buses;
     int m_count = 0;
     int m_last = -1;
+    std::array<FunctionSettings, 5> m_func = {};   // by function, 0 unused
 };
 
 class IDBinPin : public IDBin

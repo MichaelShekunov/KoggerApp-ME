@@ -355,6 +355,31 @@ void EchoEditScript::step()
         return;
     }
 
+    if (op == QLatin1String("waitPortOp")) {
+        if (!settleClock_.isValid()) {
+            settleClock_.start();
+        }
+        QObject* rec = nullptr;
+        for (QObject* dv : core_->getDeviceManagerWrapperPtr()->getDevList()) {
+            if (dv->property("isRecorder").toBool()) {
+                rec = dv;
+                break;
+            }
+        }
+        const bool settled = rec && rec->property("portSettable").toInt() != 0
+                             && rec->property("portState").toInt() != DevDriver::PortSending;
+        if (settled || settleClock_.elapsed() >= s.value(QStringLiteral("timeoutMs")).toInt(20000)) {
+            qInfo().noquote() << QStringLiteral("echoedit script: waitPortOp, %1 ms: %2").arg(settleClock_.elapsed())
+                                 .arg(settled ? QStringLiteral("settled") : QStringLiteral("timed out"));
+            settleClock_.invalidate();
+            ++next_;
+            timer_.start(0);
+            return;
+        }
+        timer_.start(100);
+        return;
+    }
+
     if (op == QLatin1String("servoDrag")) {
         QObject* dev = firstServoDevice();
         const double from = s.value(QStringLiteral("from")).toDouble();
@@ -1136,6 +1161,42 @@ void EchoEditScript::runStep(const QJsonObject& s)
                                  .arg(d->property("servoManualSupport").toInt())
                                  .arg(d->property("servoCenterDeg").toDouble(), 0, 'f', 2)
                                  .arg(d->property("servoAngleRangeDeg").toDouble(), 0, 'f', 2);
+        }
+    }
+    else if (op == QLatin1String("portFunction") || op == QLatin1String("portBaud") || op == QLatin1String("portState")) {
+        for (QObject* dv : core_->getDeviceManagerWrapperPtr()->getDevList()) {
+            if (!dv->property("isRecorder").toBool()) {
+                continue;
+            }
+            if (op == QLatin1String("portFunction")) {
+                QMetaObject::invokeMethod(dv, "setPortFunction", Q_ARG(int, s.value(QStringLiteral("bus")).toInt()),
+                                          Q_ARG(int, s.value(QStringLiteral("function")).toInt()));
+            } else if (op == QLatin1String("portBaud")) {
+                QMetaObject::invokeMethod(dv, "setPortBaud", Q_ARG(int, s.value(QStringLiteral("function")).toInt()),
+                                          Q_ARG(int, s.value(QStringLiteral("baud")).toInt()));
+            }
+            QStringList buses, funcs;
+            for (const QVariant& bv : dv->property("portBuses").toList()) {
+                const QVariantMap b = bv.toMap();
+                if (b.value(QStringLiteral("functionCaps")).toInt() & 0x1E) {
+                    buses.append(QStringLiteral("%1 f%2 %3").arg(b.value(QStringLiteral("label")).toString())
+                                     .arg(b.value(QStringLiteral("function")).toInt())
+                                     .arg(qint64(b.value(QStringLiteral("baud")).toDouble())));
+                }
+            }
+            const QVariantList fl = dv->property("portFunctions").toList();
+            for (int f = 1; f < fl.size(); ++f) {
+                const QVariantMap m = fl.at(f).toMap();
+                funcs.append(QStringLiteral("f%1 %2").arg(f).arg(m.value(QStringLiteral("support")).toInt() == 1
+                                 ? QString::number(qint64(m.value(QStringLiteral("baud")).toDouble())) : QStringLiteral("-")));
+            }
+            qInfo().noquote() << QStringLiteral("echoedit script: %1 of %2: settable %3, state %4 on bus %5; buses %6; "
+                                                "settings %7; %8 link")
+                                 .arg(op, dv->property("devName").toString()).arg(dv->property("portSettable").toInt())
+                                 .arg(dv->property("portState").toInt()).arg(dv->property("portStateBus").toInt())
+                                 .arg(buses.join(QStringLiteral(", ")), funcs.join(QStringLiteral(", ")))
+                                 .arg(dv->property("linkSerial").toBool() ? QStringLiteral("serial") : QStringLiteral("network"));
+            break;
         }
     }
     else if (op == QLatin1String("ports")) {

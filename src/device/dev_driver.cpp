@@ -235,10 +235,26 @@ DevDriver::DevDriver(QObject *parent)
         }
         emit portsChanged();
     });
+    portOpTimer_.setSingleShot(true);
+    portOpTimer_.setInterval(2000);
+    connect(&portOpTimer_, &QTimer::timeout, this, [this]() {
+        qInfo().noquote() << wifiTag() << QStringLiteral("ports: no answer (step %1, function %2)").arg(portOp_).arg(portOpFunction_);
+        if (portOp_ == PortOpReadFunctions) {
+            portSupport_[portOpFunction_] = -1;
+            readNextFunction();
+        } else if (portOp_ != PortOpNone) {
+            portDone(portOp_ == PortOpSave ? PortNotSaved : PortNoAnswer);
+        }
+    });
     portsLiveTimer_.setInterval(200);
     connect(&portsLiveTimer_, &QTimer::timeout, this, [this]() {
         if (portsSupport_ == 1 && !portsAnswerTimer_.isActive()) {
             idPin->requestValues();
+            // a rate on auto moves while its port searches: the connectors' v0 (the rate in use), one a second
+            const QVector<int> uarts = uartBuses();
+            if (portSettable() == 1 && portOp_ == PortOpNone && !uarts.isEmpty() && ++portLiveTick_ % 5 == 0) {
+                idBus->request(U1(uarts.at((portLiveTick_ / 5) % uarts.size())));
+            }
         }
     });
 
@@ -3485,6 +3501,13 @@ void DevDriver::resetPorts() {
     idPin->reset();
     portsSupport_ = 0;
     portsAnswerTimer_.stop();
+    portOpTimer_.stop();
+    portOp_ = PortOpNone;
+    portQueue_.clear();
+    portSupport_ = {};
+    portState_ = PortIdle;
+    portOpBus_ = -1;
+    emit portSettingsChanged();
 }
 
 // The next frame of the table: the buses 1..count-1, then each listed pin; one at a time.
@@ -3519,14 +3542,250 @@ void DevDriver::askNextPort() {
             portsLiveTimer_.start();
         }
         emit portsChanged();
+
+        portQueue_.clear();
+        int caps = 0;
+        for (const IDBinBus::Bus& bus : buses) {
+            caps |= bus.functionCaps;
+        }
+        for (int f = 1; f <= 4; ++f) {
+            if (caps & (1 << f)) {
+                portQueue_.append(f);
+            }
+        }
+        if (portOp_ == PortOpNone && !portQueue_.isEmpty()) {
+            portOp_ = PortOpReadFunctions;
+            readNextFunction();
+        }
     }
     emit portValuesChanged();
 }
 
+QVector<int> DevDriver::uartBuses() const {
+    QVector<int> out;
+    for (const IDBinBus::Bus& b : idBus->buses()) {
+        if (b.functionCaps & 0x1E) {   // the UART functions 1..4
+            out.append(b.id);
+        }
+    }
+    return out;
+}
+
+int DevDriver::busOfFunction(int function) const {
+    for (const IDBinBus::Bus& b : idBus->buses()) {
+        if ((b.functionCaps & 0x1E) && b.function == function) {
+            return b.id;
+        }
+    }
+    return -1;
+}
+
+int DevDriver::portSettable() const {
+    if (portOp_ == PortOpReadFunctions) {   // known once every function has answered or not
+        return 0;
+    }
+    bool asked = false;
+    for (int f = 1; f <= 4; ++f) {
+        if (portSupport_[f] == 1) {
+            return 1;
+        }
+        asked = asked || portSupport_[f] != 0;
+    }
+    return asked ? -1 : 0;
+}
+
+QVariantList DevDriver::portFunctions() const {
+    QVariantList list;
+    for (int f = 0; f <= 4; ++f) {
+        const IDBinBus::FunctionSettings& s = idBus->functionSettings(f);
+        QVariantMap m;
+        m[QStringLiteral("support")] = f ? portSupport_[f] : 0;
+        m[QStringLiteral("valid")] = f && s.valid;
+        m[QStringLiteral("baud")] = qint64(s.baud);
+        list.append(m);
+    }
+    return list;
+}
+
+QVariantList DevDriver::portBauds() const {
+    QVariantList list;
+    for (U4 b : IDBinBus::functionBauds()) {
+        list.append(int(b));
+    }
+    return list;
+}
+
+void DevDriver::setLinkSerial(bool on) {
+    if (linkSerial_ != on) {
+        linkSerial_ = on;
+        emit portSettingsChanged();
+    }
+}
+
+void DevDriver::readNextFunction() {
+    if (portQueue_.isEmpty()) {
+        portOpTimer_.stop();
+        portOp_ = PortOpNone;
+        QStringList parts;
+        for (int f = 1; f <= 4; ++f) {
+            parts.append(QStringLiteral("f%1 %2 baud %3").arg(f).arg(portSupport_[f]).arg(idBus->functionSettings(f).baud));
+        }
+        qInfo().noquote() << wifiTag() << QStringLiteral("ports: settings %1").arg(parts.join(QStringLiteral(", ")));
+        emit portSettingsChanged();
+        emit portValuesChanged();
+        return;
+    }
+    portOpFunction_ = portQueue_.takeFirst();
+    idBus->requestFunction(U1(portOpFunction_));
+    portOpTimer_.start();
+}
+
+void DevDriver::readNextBus() {
+    if (portQueue_.isEmpty()) {
+        if (portOpMoves_) {
+            const IDBinBus::Bus b = idBus->buses().value(portOpBus_);
+            portResult_ = b.function == portOpFunction_ ? PortSaved : PortRefusedValue;
+        }
+        qInfo().noquote() << wifiTag() << QStringLiteral("ports: read back, result %1").arg(portResult_);
+        emit portValuesChanged();
+        portDone(portResult_);
+        return;
+    }
+    idBus->request(U1(portQueue_.takeFirst()));
+    portOpTimer_.start();
+}
+
+void DevDriver::portDone(int state) {
+    portOpTimer_.stop();
+    portOp_ = PortOpNone;
+    portQueue_.clear();
+    portState_ = state;
+    emit portSettingsChanged();
+}
+
+void DevDriver::setPortFunction(int bus, int function) {
+    const IDBinBus::Bus b = idBus->buses().value(bus);
+    if (portSettable() != 1 || portOp_ != PortOpNone || !idBus->buses().contains(bus) || function < 1 || function > 4
+        || !(b.functionCaps & (1 << function)) || b.function == function) {
+        return;
+    }
+    U1 uart = b.uart;
+    for (int u = 0; !uart && u < 8; ++u) {   // the bus's own UART: its one UART caps bit when it reports none
+        if (b.uartCaps & (1 << u)) {
+            uart = U1(u + 1);
+        }
+    }
+    portOp_ = PortOpSetFunction;
+    portOpMoves_ = true;
+    portOpBus_ = bus;
+    portOpFunction_ = function;
+    portState_ = PortSending;
+    idBus->setBusFunction(U1(bus), U1(function), uart);
+    portOpTimer_.start();
+    qInfo().noquote() << wifiTag() << QStringLiteral("ports: function %1 onto %2 (was %3; %4 link)")
+                                          .arg(function).arg(b.label).arg(b.function).arg(linkSerial_ ? "serial" : "network");
+    emit portSettingsChanged();
+}
+
+void DevDriver::setPortBaud(int function, int baud) {
+    if (portSettable() != 1 || portOp_ != PortOpNone || function < 1 || function > 4 || portSupport_[function] != 1
+        || baud < 0 || !IDBinBus::functionBauds().contains(U4(baud)) || idBus->functionSettings(function).baud == U4(baud)) {
+        return;
+    }
+    portOp_ = PortOpSetBaud;
+    portOpMoves_ = false;
+    portOpFunction_ = function;
+    portOpBus_ = busOfFunction(function);
+    portWanted_ = U4(baud);
+    portState_ = PortSending;
+    idBus->setFunctionBaud(U1(function), portWanted_);
+    portOpTimer_.start();
+    qInfo().noquote() << wifiTag() << QStringLiteral("ports: function %1 rate %2 (was %3; %4 link)")
+                                          .arg(function).arg(baud).arg(idBus->functionSettings(function).baud)
+                                          .arg(linkSerial_ ? "serial" : "network");
+    emit portSettingsChanged();
+}
+
+// A SETTING's answer: 1 RespOk, 3 a bad value, 8 the change would touch the UART it came through; any other code (a
+// firmware without the setting) is taken as a refusal of the value.
+void DevDriver::portSetAnswered(Parsers::Resp resp) {
+    qInfo().noquote() << wifiTag() << QStringLiteral("ports: the setting answered %1").arg(int(resp));
+    if (resp == respOk) {
+        portOp_ = PortOpSave;
+        idFlash->flashing();
+        portOpTimer_.start();
+    } else {
+        portDone(resp == respErrorRuntime ? PortRefusedLink : PortRefusedValue);
+    }
+}
+
+// An ID_BUS frame while an exchange is out; false: not the exchange's, the table's (receivedBus goes on with it).
+// The firmware acks a GET after its CONTENT: that RespOk never ends a read, the CONTENT does.
+bool DevDriver::portAnswer(Parsers::Version ver, Parsers::Resp resp) {
+    const Version fver = IDBinBus::functionVersion(portOpFunction_);
+    switch (portOp_) {
+    case PortOpReadFunctions:
+    case PortOpReadBack:
+        if (ver != fver) {
+            return false;
+        }
+        if (resp == respOk) {
+            return true;
+        }
+        if (portOp_ == PortOpReadFunctions) {
+            portSupport_[portOpFunction_] = resp == respNone && idBus->functionSettings(portOpFunction_).valid ? 1 : -1;
+            readNextFunction();
+            return true;
+        }
+        if (resp != respNone) {
+            portDone(PortNoAnswer);
+            return true;
+        }
+        portResult_ = idBus->functionSettings(portOpFunction_).baud == portWanted_ ? PortSaved : PortRefusedValue;
+        portOp_ = PortOpReadBuses;
+        portQueue_.clear();
+        if (busOfFunction(portOpFunction_) >= 0) {
+            portQueue_.append(busOfFunction(portOpFunction_));   // its connector: the rate in use
+        }
+        emit portSettingsChanged();
+        readNextBus();
+        return true;
+    case PortOpSetFunction:
+        if (ver != v0 || resp == respNone) {
+            return false;
+        }
+        portSetAnswered(resp);
+        return true;
+    case PortOpSetBaud:
+        if (ver != fver || resp == respNone) {
+            return false;
+        }
+        portSetAnswered(resp);
+        return true;
+    case PortOpReadBuses:
+        if (ver != v0) {
+            return false;
+        }
+        if (resp == respOk) {
+            return true;
+        }
+        if (resp != respNone) {
+            portDone(PortNoAnswer);
+            return true;
+        }
+        readNextBus();
+        return true;
+    default:
+        return false;
+    }
+}
+
 void DevDriver::receivedBus(Parsers::Type type, Parsers::Version ver, Parsers::Resp resp) {
     Q_UNUSED(type);
-    Q_UNUSED(ver);
 
+    if (portOp_ != PortOpNone && portOp_ != PortOpSave && portAnswer(ver, resp)) {
+        return;
+    }
     if (resp == respNone) {
         askNextPort();
         return;
@@ -3898,7 +4157,21 @@ void DevDriver::receivedFlash(Parsers::Type type, Parsers::Version ver, Parsers:
 {
     Q_UNUSED(type);
     Q_UNUSED(ver);
-    Q_UNUSED(resp);
+
+    if (portOp_ == PortOpSave && resp != respNone) {   // the save after a connector's change
+        qInfo().noquote() << wifiTag() << QStringLiteral("ports: ID_FLASH answered %1").arg(int(resp));
+        if (resp != respOk) {
+            portDone(PortNotSaved);
+        } else if (portOpMoves_) {   // a swap moves two functions: all four connectors read again
+            portOp_ = PortOpReadBuses;
+            portQueue_ = uartBuses();
+            readNextBus();
+        } else {
+            portOp_ = PortOpReadBack;
+            idBus->requestFunction(U1(portOpFunction_));
+            portOpTimer_.start();
+        }
+    }
 }
 
 void DevDriver::receivedBoot(Parsers::Type type, Parsers::Version ver, Parsers::Resp resp)

@@ -2063,6 +2063,7 @@ DevQProperty* DeviceManager::createDev(QUuid uuid, Link* link, uint8_t addr)
     devTree_[uuid][addr] = dev;
     dev->setBusAddress(addr);
     dev->setLinkUuid(uuid);
+    dev->setLinkSerial(link != nullptr && link->getLinkType() == LinkType::kLinkSerial);
 
 #ifdef SEPARATE_READING
     auto connType = Qt::AutoConnection;

@@ -215,6 +215,31 @@ public:
     int voltage1Mv() const { return voltage1Mv_; }
     /// While on, the pins' roles and values are asked every 200 ms in one frame (ID_PIN v1): a page showing them.
     Q_INVOKABLE void setPortsLive(bool on);
+
+    /// The Recorder's UART connectors: each one's function and each function's rate (ID_BUS V0 SETTING, V2..V4; the
+    /// recorder fork's Port-Config-Spec.md). After the table, each function's settings are read once.
+    /// 1: the firmware answered them; -1: it has none (refused or silent); 0: not known yet.
+    int portSettable() const;
+    /// By function (index 1 sonar A .. 4 navigation; 0 unused): support (1, -1, 0), valid, baud (the setting, 0 auto).
+    QVariantList portFunctions() const;
+    /// The rates the firmware takes: 0 (auto), then 9600 .. 5000000.
+    QVariantList portBauds() const;
+    /// Where the last change stands, and the connector it was made on (-1 none yet).
+    enum PortState { PortIdle = 0, PortSending, PortSaved, PortRefusedLink, PortRefusedValue, PortNoAnswer, PortNotSaved };
+    int portState() const { return portState_; }
+    int portStateBus() const { return portOpBus_; }
+    /// The app's link to this device is a serial port. The firmware changes its UART connectors only from its USB
+    /// port and refuses through a UART, which is how a UDP or TCP link (the Wi-Fi bridge) reaches it. A serial
+    /// adapter on a UART connector is a serial link too: the refusal tells it apart (PortRefusedLink).
+    bool linkSerial() const { return linkSerial_; }
+    void setLinkSerial(bool on);
+    /// The function onto the connector (a swap with the connector that has it): SETTING v0, on RespOk ID_FLASH, then
+    /// the four UART connectors read again. One change at a time.
+    Q_INVOKABLE void setPortFunction(int bus, int function);
+    /// The function's rate (0 auto): SETTING v2..v4, on RespOk ID_FLASH, then its settings and its connector read
+    /// again. A rate not in portBauds() is not sent.
+    Q_INVOKABLE void setPortBaud(int function, int baud);
+
     /// Zeroes the board's counters (SETTING v0 with the key); the board sends its state after.
     Q_INVOKABLE void ringStatReset();
 
@@ -637,6 +662,7 @@ signals:
     void ringStatChanged();
     void portsChanged();
     void portValuesChanged();
+    void portSettingsChanged();
     void voltagesChanged();
     /// The sonar did not do a recall (version 0), a save (1) or a delete (2): code 2 the flash write did not
     /// verify, 3 a wrong or empty slot, 7 no key (the contract of ID_PRESET). Done is not reported.
@@ -1106,6 +1132,28 @@ private:
     bool portsLiveWanted_ = false;     // a page shows the ports (setPortsLive): the poll starts once the table is read
     void askNextPort();
     void resetPorts();
+    // The UART connectors' settings: one exchange out at a time, portOp_ says which; portOpTimer_ ends it.
+    enum PortOp { PortOpNone = 0, PortOpReadFunctions, PortOpSetFunction, PortOpSetBaud, PortOpSave, PortOpReadBuses,
+                  PortOpReadBack };
+    int portOp_ = PortOpNone;
+    int portOpFunction_ = 0;           // the function the exchange is about (a read, a rate, a function moved)
+    int portOpBus_ = -1;               // the connector the change was made on
+    bool portOpMoves_ = false;         // the change moves a function (else it sets a rate)
+    uint32_t portWanted_ = 0;          // the rate the SETTING asked for
+    int portResult_ = PortSaved;       // what the read-back found
+    QVector<int> portQueue_;           // functions or connectors still to read in this step
+    std::array<int, 5> portSupport_ = {};   // by function: 1 answered, -1 refused or silent, 0 not asked
+    int portState_ = PortIdle;
+    bool linkSerial_ = false;
+    int portLiveTick_ = 0;             // the live poll also reads one UART connector a second (auto rates move)
+    QTimer portOpTimer_;
+    QVector<int> uartBuses() const;
+    int busOfFunction(int function) const;
+    void readNextFunction();
+    void readNextBus();
+    bool portAnswer(Parsers::Version ver, Parsers::Resp resp);
+    void portSetAnswered(Parsers::Resp resp);
+    void portDone(int state);
     QString ringStatError_;
     bool presetsUnsupported_ = false;
     int presetAsks_ = 0;

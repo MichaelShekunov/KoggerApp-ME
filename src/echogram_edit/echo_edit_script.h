@@ -116,6 +116,11 @@
 // A Recorder's connectors (ID_BUS / ID_PIN), on the first Recorder:
 //   {"op": "waitPorts", "timeoutMs": 20000}   until its port table is read (or known to be missing)
 //   {"op": "ports"}                  every connector and contact, one line each, as the page shows them
+//   {"op": "portFunction", "bus": n, "function": f}   a UART connector's function (setPortFunction: a swap)
+//   {"op": "portBaud", "function": f, "baud": b}       a function's rate, 0 = auto (setPortBaud)
+//   {"op": "portState"}              the UART connectors (label, function, rate in use), the functions' settings, the
+//                                    state of the last change and the link's kind -- one line; the two above log it too
+//   {"op": "waitPortOp", "timeoutMs": 20000}   until the settings are read (or known missing) and no change is out
 //   {"op": "servoDrag", "from": a, "to": b, "ms": 1000, "everyMs": 5}   the knob dragged: servoManualMove every
 //                                    everyMs from a to b over ms, then servoSet b; logs how many moves it made
 // A sonar's firmware, as its device page's UPGRADE (behind a recorder: the update through it):

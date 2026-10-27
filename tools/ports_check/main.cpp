@@ -7,6 +7,9 @@
 //  2. ID_PIN CONTENT v0: [pin][bus][role caps u32][role][saved][timer][param][value s32][label][MCU pin]; v1: [count] then
 //     count x [pin][role][value s32], taken for pins already described.
 //  3. Requests: ID_BUS GETTING v0 [bus], ID_PIN GETTING v0 [pin], ID_PIN GETTING v1 empty; nothing on a cold start.
+//  4. The UART connectors' settings (the spec's ID_BUS V0 SETTING and V2..V4): v2/v3/v4 answers taken by function
+//     (baud = the setting, 0 auto; the connector's rate in use stays the v0 one), wrong function or length refused;
+//     GETTING [function], SETTING with the other fields as read (defaults when never read), SETTING v0 [bus][f][uart].
 // Exit 0 = pass, 1 = fail.
 #include <QCoreApplication>
 #include <QObject>
@@ -175,6 +178,62 @@ int main(int argc, char** argv)
     ok("cut in its pin list: refused", feed(shortBus, 0x17, kp1(Parsers::CONTENT, 0, 0x17, sonar1().left(16))) == Parsers::respErrorPayload);
     ok("and neither kept", shortBus.buses().isEmpty());
 
+    std::printf("\nthe UART connectors' settings (ID_BUS V0 SETTING, V2..V4)\n");
+    // TELEM: function 3 (telemetry), USART1, 115200 in use; caps 0x1E (the four UART functions) and its own UART only.
+    QByteArray telem;
+    for (int v : { 2, 8, 2, 0x1E, 3, 3, 0x01, 1, 1, 6, 7 }) {
+        telem.append(char(v));
+    }
+    le(telem, 115200, 4);
+    telem.append(char(2));
+    telem.append(char(6));
+    telem.append(char(7));
+    label(telem, "TELEM");
+    ok("TELEM: taken", feed(bus, 0x17, kp1(Parsers::CONTENT, 0, 0x17, telem)) == Parsers::respOk);
+    ok("versions: sonar A/B v2, telemetry v3, navigation v4, none for 0", IDBinBus::functionVersion(1) == Parsers::v2
+       && IDBinBus::functionVersion(2) == Parsers::v2 && IDBinBus::functionVersion(3) == Parsers::v3
+       && IDBinBus::functionVersion(4) == Parsers::v4 && IDBinBus::functionVersion(0) == Parsers::v0);
+    ok("no settings before an answer", !bus.functionSettings(3).valid && !bus.functionSettings(1).valid);
+    QByteArray v3;
+    v3.append(char(3));
+    le(v3, 0, 4);               // auto
+    v3.append(char(0));
+    ok("v3 [3][0][0]: taken", feed(bus, 0x17, kp1(Parsers::CONTENT, 3, 0x17, v3)) == Parsers::respOk);
+    ok("telemetry on auto (0); the TELEM connector keeps the rate in use, 115200",
+       bus.functionSettings(3).valid && bus.functionSettings(3).baud == 0 && bus.buses().value(2).baud == 115200,
+       QString("%1 / %2").arg(bus.functionSettings(3).baud).arg(bus.buses().value(2).baud));
+    QByteArray v2;
+    v2.append(char(2));
+    le(v2, 115200, 4);
+    for (int v : { 0, 0, 1 }) {     // log 0, to host 1: the two told apart
+        v2.append(char(v));
+    }
+    ok("v2 [2][115200][0][0][1]: taken", feed(bus, 0x17, kp1(Parsers::CONTENT, 2, 0x17, v2)) == Parsers::respOk);
+    const IDBinBus::FunctionSettings sb = bus.functionSettings(2);
+    ok("sonar B: 115200, protocol 0, log 0, to host 1", sb.valid && sb.baud == 115200 && sb.protocol == 0 && sb.log == 0 && sb.toHost == 1,
+       QString("%1 %2 %3 %4").arg(sb.baud).arg(sb.protocol).arg(sb.log).arg(sb.toHost));
+    QByteArray v4;
+    v4.append(char(4));
+    le(v4, 9600, 4);
+    v4.append(char(0));
+    v4.append(char(5));
+    ok("v4 [4][9600][0][5]: taken", feed(bus, 0x17, kp1(Parsers::CONTENT, 4, 0x17, v4)) == Parsers::respOk);
+    ok("navigation: 9600, rate 5 Hz", bus.functionSettings(4).baud == 9600 && bus.functionSettings(4).rateHz == 5,
+       QString("%1 %2").arg(bus.functionSettings(4).baud).arg(bus.functionSettings(4).rateHz));
+    QByteArray v2tele = v2;
+    v2tele[0] = char(3);
+    ok("v2 carrying telemetry: refused, its settings kept",
+       feed(bus, 0x17, kp1(Parsers::CONTENT, 2, 0x17, v2tele)) == Parsers::respErrorPayload && bus.functionSettings(3).baud == 0);
+    QByteArray v3sonar = v3;
+    v3sonar[0] = char(1);
+    ok("v3 carrying sonar A: refused", feed(bus, 0x17, kp1(Parsers::CONTENT, 3, 0x17, v3sonar)) == Parsers::respErrorPayload
+       && !bus.functionSettings(1).valid);
+    ok("v4 cut short: refused", feed(bus, 0x17, kp1(Parsers::CONTENT, 4, 0x17, v4.left(6))) == Parsers::respErrorPayload);
+    ok("v5: refused", feed(bus, 0x17, kp1(Parsers::CONTENT, 5, 0x17, v3)) == Parsers::respErrorVersion);
+    const QVector<U4>& bauds = IDBinBus::functionBauds();
+    ok("11 rates: 0 (auto), then 9600 .. 5000000, with 2000000", bauds.size() == 11 && bauds.first() == 0 && bauds.at(1) == 9600
+       && bauds.last() == 5000000 && bauds.contains(2000000) && !bauds.contains(1000000), QString("%1 rates").arg(bauds.size()));
+
     std::printf("\nID_PIN\n");
     IDBinPin pin;
     ok("IN3 v0: taken", feed(pin, 0x16, kp1(Parsers::CONTENT, 0, 0x16, in3(1000))) == Parsers::respOk);
@@ -235,6 +294,38 @@ int main(int argc, char** argv)
     ok("ID_PIN GETTING v0 [12]", c.type == Parsers::GETTING && c.ver == 0 && c.id == 0x16 && c.payload == QByteArray(1, char(12)) && c.sum);
     ok("ID_PIN GETTING v1, empty", d.type == Parsers::GETTING && d.ver == 1 && d.id == 0x16 && d.len == 0 && d.sum,
        QString("v%1 len %2").arg(d.ver).arg(d.len));
+    bus.requestFunction(1);
+    bus.requestFunction(3);
+    bus.requestFunction(4);
+    bus.setFunctionBaud(2, 2000000);
+    bus.setFunctionBaud(3, 0);
+    bus.setFunctionBaud(4, 921600);
+    bus.setBusFunction(2, 3, 1);
+    const char* sentNames[] = { "GETTING v2 [1]", "GETTING v3 [3]", "GETTING v4 [4]",
+                                "SETTING v2 [2][2000000][0][0][1] (the rest as read)", "SETTING v3 [3][0][0] (auto)",
+                                "SETTING v4 [4][921600][0][5] (the rate as read)", "SETTING v0 [2][3][1] (TELEM gets telemetry)" };
+    const int sentTypes[] = { Parsers::GETTING, Parsers::GETTING, Parsers::GETTING, Parsers::SETTING, Parsers::SETTING,
+                              Parsers::SETTING, Parsers::SETTING };
+    const int sentVers[] = { 2, 3, 4, 2, 3, 4, 0 };
+    const char* sentHex[] = { "01", "03", "04", "0280841e00000001", "030000000000", "0400100e000005", "020301" };
+    for (int i = 0; i < 7; ++i) {
+        const Sent f = sentFrame(out.value(3 + i));
+        ok(QString("ID_BUS %1").arg(sentNames[i]).toUtf8().constData(),
+           f.type == sentTypes[i] && f.ver == sentVers[i] && f.id == 0x17 && f.sum && f.payload == QByteArray::fromHex(sentHex[i])
+           && (uchar(out.value(3 + i).at(3)) & 0x80),
+           QString("v%1 %2").arg(f.ver).arg(QString(f.payload.toHex(' '))));
+    }
+    IDBinBus fresh;
+    QVector<QByteArray> out2;
+    QObject::connect(&fresh, &IDBin::binFrameOut, [&out2](Parsers::ProtoBinOut f) {
+        out2.append(QByteArray(reinterpret_cast<const char*>(f.frame()), f.frameLen()));
+    });
+    fresh.setFunctionBaud(3, 115200);
+    fresh.setFunctionBaud(1, 57600);
+    ok("never read: telemetry goes with to host 0, sonar A with protocol 0, log 1, to host 1",
+       sentFrame(out2.value(0)).payload == QByteArray::fromHex("0300c2010000")
+       && sentFrame(out2.value(1)).payload == QByteArray::fromHex("0100e10000000101"),
+       QString(sentFrame(out2.value(0)).payload.toHex(' ')) + " | " + QString(sentFrame(out2.value(1)).payload.toHex(' ')));
 
     std::printf("\nports_check: %s\n", fails ? "FAILED" : "PASS");
     return fails ? 1 : 0;

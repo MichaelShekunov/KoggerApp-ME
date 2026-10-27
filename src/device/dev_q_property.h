@@ -54,6 +54,12 @@ public:
     Q_PROPERTY(int portsSupport READ portsSupport NOTIFY portsChanged)
     Q_PROPERTY(QVariantList portBuses READ portBuses NOTIFY portValuesChanged)
     Q_PROPERTY(QStringList portPwmOutPins READ portPwmOutPins NOTIFY portValuesChanged)
+    Q_PROPERTY(int portSettable READ portSettable NOTIFY portSettingsChanged)
+    Q_PROPERTY(QVariantList portFunctions READ portFunctions NOTIFY portSettingsChanged)
+    Q_PROPERTY(QVariantList portBauds READ portBauds CONSTANT)
+    Q_PROPERTY(int portState READ portState NOTIFY portSettingsChanged)
+    Q_PROPERTY(int portStateBus READ portStateBus NOTIFY portSettingsChanged)
+    Q_PROPERTY(bool linkSerial READ linkSerial NOTIFY portSettingsChanged)
     Q_PROPERTY(int voltage0Mv READ voltage0Mv NOTIFY voltagesChanged)
     Q_PROPERTY(int voltage1Mv READ voltage1Mv NOTIFY voltagesChanged)
 

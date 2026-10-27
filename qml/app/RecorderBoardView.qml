@@ -16,11 +16,12 @@ Column {
 
     spacing: Tokens.spaceMd
 
-    // The drawing is laid out on 680 x 500 units. Below 560 px its rows would get shorter than the text: it keeps
-    // 560 px and scrolls sideways instead.
+    // The drawing is laid out on 680 x 500 units. Below 560 px its rows would get shorter than the text: it is laid
+    // out at 560 px and the whole of it scaled down to the width (a sideways scroll went unnoticed and the right
+    // column looked cut, the owner's panel 2026-10-27).
     readonly property real drawingWidth: Math.max(width, 560)
     readonly property real s: drawingWidth / 680
-    readonly property real fontPx: Math.max(10, 11.5 * s)
+    readonly property real fontPx: Math.max(12, 18 * s)
 
     // RECORDER Mini v4.0 as the port spec's ID_BUS V1 table gives it (pads and nets from the PcbDoc): the side, the place
     // along it going clockwise round the board, and the contacts in clockwise order, contact 1 first. A label not in it
@@ -43,12 +44,12 @@ Column {
     // Clockwise slots: the top runs left to right, the right side top to bottom, the left side bottom to top.
     function geometry(side, slot) {
         if (side === "top")
-            return { bx: slot === 0 ? 150 : 350, by: 6, bw: 180, cx: slot === 0 ? 270 : 354, cy: 122, cw: 56, ch: 16 }
+            return { bx: slot === 0 ? 130 : 350, by: 6, bw: 200, cx: slot === 0 ? 270 : 354, cy: 122, cw: 56, ch: 16 }
         var row = side === "left" ? 2 - slot : slot
-        var y = [118, 216, 314][row]
+        var y = [114, 218, 322][row]
         var cy = [150, 220, 290][row]
-        return side === "left" ? { bx: 10, by: y, bw: 200, cx: 252, cy: cy, cw: 16, ch: 48 }
-                               : { bx: 470, by: y, bw: 200, cx: 412, cy: cy, cw: 16, ch: 48 }
+        return side === "left" ? { bx: 10, by: y, bw: 220, cx: 252, cy: cy, cw: 16, ch: 48 }
+                               : { bx: 450, by: y, bw: 220, cx: 412, cy: cy, cw: 16, ch: 48 }
     }
 
     readonly property var blocks: {
@@ -88,11 +89,22 @@ Column {
                 if (supplyPin)
                     contacts.push({ name: supplyPin, power: supplyPin })
             }
+            // What a block shows (the owner, 2026-10-27: "a bigger font, the extra information away"): a port its
+            // function and the rate in use in one row; a universal connector only its contacts that do something,
+            // in board order. Supply and ground pins, TX/RX and contacts that are off are in the menu.
+            var rows = []
+            if (bus.function !== 0) {
+                rows.push({ name: functionShort(bus.function), value: rateShort(bus.baud) })
+            } else {
+                for (var c = 0; c < contacts.length; ++c)
+                    if (contacts[c].pin && contacts[c].pin.role !== 0)
+                        rows.push({ name: contacts[c].name, pin: contacts[c].pin })
+            }
             var g = geometry(lay.side, lay.slot)
             g.side = lay.side
             g.bus = bus
-            g.contacts = contacts
-            g.bh = 22 + contacts.length * 17 + 6
+            g.contacts = rows
+            g.bh = 28 + rows.length * 22 + (rows.length ? 6 : 2)
             out.push(g)
         }
         return out
@@ -121,11 +133,47 @@ Column {
             return qsTr("auto")
         return b >= 1000000 ? qsTr("%1 Mbaud").arg(Math.round(b / 100000) / 10) : qsTr("%1 baud").arg(b)
     }
-    function blockHeader(bus) {
-        var t = bus.label + " · " + functionShort(bus.function)
-        if (bus.function !== 0)
-            t += " · " + baudText(bus.baud)
-        return t
+    // The UART connectors' functions and rates (DevDriver::setPortFunction, setPortBaud): settable once the firmware
+    // has answered their settings.
+    readonly property bool portsSettable: !!dev && dev.portSettable === 1
+    function isUart(bus) { return !!bus && (bus.functionCaps & 0x1E) !== 0 }
+    function functionsOf(bus) {
+        var out = []
+        for (var f = 1; f <= 4; ++f)
+            if (bus && (bus.functionCaps & (1 << f)))
+                out.push(f)
+        return out
+    }
+    function rateSetting(f) { var l = dev ? dev.portFunctions : null; return l && l[f] ? l[f].baud : 0 }
+    function rateIndex(f) { return dev && dev.portBauds ? Math.max(0, dev.portBauds.indexOf(rateSetting(f))) : 0 }
+    function rateText(b) { return b > 0 ? baudText(b) : qsTr("Auto") }
+    function portOn() { return !!dev && !!dev.linkSerial && dev.portState !== 1 }
+    function portNote(bus) {
+        if (!dev || !bus)
+            return ""
+        if (dev.portStateBus === bus.id) {
+            switch (dev.portState) {
+            case 1: return qsTr("Setting…")
+            case 2: return qsTr("Done and saved: it holds after a restart of the Recorder.")
+            case 3: return qsTr("Refused: the Recorder changes its UART connectors only over its USB port.")
+            case 4: return qsTr("Refused: the Recorder does not take this setting.")
+            case 5: return qsTr("No answer from the Recorder.")
+            case 6: return qsTr("Done, but not saved: after a restart the Recorder goes back to the old setting.")
+            }
+        }
+        return dev.linkSerial ? qsTr("A function picked here swaps places with the connector that has it now. A change applies at once and is saved; make it with the Recorder on its USB port: through a UART it refuses.")
+                              : qsTr("The Recorder changes its UART connectors only over its USB port; this connection goes through the network.")
+    }
+    function rateShort(b) { return b > 0 ? String(b) : qsTr("auto") }
+    // a contact's role and value on the board, short; the menu has the long form (contactValue)
+    function boardValue(p) {
+        switch (p.role) {
+        case 3: return qsTr("OUT%1 · %2 µs").arg(p.param + 1).arg(p.value)
+        case 4: return qsTr("input · %1").arg(p.value)
+        case 5: return qsTr("output · %1").arg(p.param)
+        case 6: return volts(p.value)
+        }
+        return roleName(p.role)
     }
     function contactValue(bus, c) {
         if (c.power) {
@@ -189,21 +237,18 @@ Column {
     readonly property int effectiveOpenPin: openPin === -1 && current ? firstActivePin(current) : openPin
 
     // ── the drawing ──
-    Flickable {
+    Item {
         objectName: "boardDrawing"
         width: view.width
-        height: drawing.height
-        contentWidth: drawing.width
-        contentHeight: drawing.height
-        flickableDirection: Flickable.HorizontalFlick
-        boundsBehavior: Flickable.StopAtBounds
-        interactive: contentWidth > width
-        clip: true
+        height: drawing.height * drawing.scale
 
         Item {
             id: drawing
+            objectName: "boardLayout"
             width: view.drawingWidth
             height: 500 * view.s
+            transformOrigin: Item.TopLeft
+            scale: view.width > 0 ? Math.min(1, view.width / view.drawingWidth) : 1
 
             Canvas {
                 id: wires
@@ -250,25 +295,29 @@ Column {
                 x: 322 * view.s; y: 282 * view.s; width: 36 * view.s; height: 14 * view.s; radius: 6 * view.s
                 color: AppPalette.controlRaised; border.color: AppPalette.border
             }
-            Text { x: 322 * view.s; y: 300 * view.s; width: 36 * view.s; horizontalAlignment: Text.AlignHCenter
-                   text: "USB-C"; color: AppPalette.textSecond; font.pixelSize: view.fontPx * 0.9 }
+            Text { x: 312 * view.s; y: 300 * view.s; width: 56 * view.s; horizontalAlignment: Text.AlignHCenter
+                   text: "USB-C"; color: AppPalette.textSecond; font.pixelSize: view.fontPx * 0.8 }
             Rectangle {        // the power connector and its readings
                 x: 312 * view.s; y: 356 * view.s; width: 56 * view.s; height: 30 * view.s; radius: 4 * view.s
                 color: AppPalette.linkIdleBg; border.color: AppPalette.linkIdleBorder
             }
             Rectangle {
                 objectName: "boardPower"
-                x: 250 * view.s; y: 408 * view.s; width: 180 * view.s; height: 62 * view.s; radius: 6 * view.s
+                x: 250 * view.s; y: 408 * view.s; width: 180 * view.s; radius: 6 * view.s
+                height: (view.dev && (view.dev.voltage0Mv >= 0 || view.dev.voltage1Mv >= 0) ? 66 : 34) * view.s
                 color: AppPalette.card; border.color: AppPalette.linkIdleBorder; border.width: 1.5
                 Column {
                     anchors.centerIn: parent
                     spacing: 2
                     Text { anchors.horizontalCenter: parent.horizontalCenter; text: qsTr("POWER 5–30 V")
                            color: AppPalette.textStrong; font.pixelSize: view.fontPx; font.bold: true }
+                    // the readings only when the Recorder sends them (ID_VOLTAGE; this firmware does not yet)
                     Text { anchors.horizontalCenter: parent.horizontalCenter
+                           visible: !!view.dev && view.dev.voltage0Mv >= 0
                            text: qsTr("+BAT %1 · GND").arg(view.dev && view.dev.voltage0Mv >= 0 ? view.volts(view.dev.voltage0Mv) : "—")
                            color: AppPalette.textSecond; font.pixelSize: view.fontPx }
                     Text { anchors.horizontalCenter: parent.horizontalCenter
+                           visible: !!view.dev && view.dev.voltage1Mv >= 0
                            text: qsTr("5 V rail: %1").arg(view.dev && view.dev.voltage1Mv >= 0 ? view.volts(view.dev.voltage1Mv) : "—")
                            color: AppPalette.textSecond; font.pixelSize: view.fontPx }
                 }
@@ -306,8 +355,9 @@ Column {
                         border.width: blk.isSelected ? 3 : 1.5
                     }
                     Text {
-                        x: 8 * view.s; y: 5 * view.s; width: parent.width - 16 * view.s
-                        text: view.blockHeader(blk.modelData.bus)
+                        x: 8 * view.s; y: 4 * view.s; width: parent.width - 16 * view.s; height: 24 * view.s
+                        verticalAlignment: Text.AlignVCenter
+                        text: blk.modelData.bus.label
                         color: AppPalette.textStrong; font.pixelSize: view.fontPx; font.bold: true
                         // the app's font and longer languages run wider than the block: shrink before eliding
                         fontSizeMode: Text.HorizontalFit; minimumPixelSize: 7
@@ -318,12 +368,12 @@ Column {
                         delegate: Item {
                             required property var modelData
                             required property int index
-                            x: 8 * view.s; y: (22 + index * 17) * view.s
-                            width: blk.width - 16 * view.s; height: 17 * view.s
+                            x: 8 * view.s; y: (28 + index * 22) * view.s
+                            width: blk.width - 16 * view.s; height: 22 * view.s
                             Text { anchors.left: parent.left; anchors.verticalCenter: parent.verticalCenter
                                    text: modelData.name; color: AppPalette.textSecond; font.pixelSize: view.fontPx }
                             Text { anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
-                                   text: view.contactValue(blk.modelData.bus, modelData)
+                                   text: modelData.pin ? view.boardValue(modelData.pin) : modelData.value
                                    color: AppPalette.textStrong; font.pixelSize: view.fontPx }
                         }
                     }
@@ -366,6 +416,42 @@ Column {
         }
     }
 
+    // A row with a choice: a pick goes out as a request, and the shown choice follows what the Recorder reports.
+    component ComboRow: Item {
+        id: cr
+        property string label: ""
+        property var items: []
+        property int index: 0
+        property bool on: true
+        property var dev: null
+        property alias comboName: crCombo.objectName
+        signal picked(int index)
+        width: parent ? parent.width : 0
+        height: crCombo.height + Tokens.spaceSm * 2
+        Rectangle { anchors.top: parent.top; width: parent.width; height: 1; color: AppPalette.separator }
+        Text {
+            anchors.left: parent.left; anchors.verticalCenter: parent.verticalCenter
+            text: cr.label; color: AppPalette.textStrong; font.pixelSize: Tokens.fontMd
+        }
+        KCombo {
+            id: crCombo
+            anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
+            enabled: cr.on
+            model: cr.items
+            currentIndex: cr.index
+            onActivated: function(i) {
+                if (i !== cr.index)
+                    cr.picked(i)
+            }
+        }
+        onIndexChanged: crCombo.currentIndex = index
+        Connections {     // a pick the Recorder did not take: back to what it reports
+            target: cr.dev
+            ignoreUnknownSignals: true   // the board check's stand device has no settings
+            function onPortSettingsChanged() { crCombo.currentIndex = cr.index }
+        }
+    }
+
     component MenuSection: Rectangle {
         default property alias rows: sectionColumn.data
         property string title: ""
@@ -400,10 +486,53 @@ Column {
         }
         Text {
             width: parent.width; wrapMode: Text.WordWrap
-            text: qsTr("This firmware of the Recorder only reports its connectors; changing them comes with its next phases. Rows marked reserved wait for the firmware too.")
+            text: view.portsSettable
+                  ? qsTr("Of the connectors' settings this firmware of the Recorder takes the UART connectors' functions and speeds; the rest comes with its next phases. Rows marked reserved wait for the firmware too.")
+                  : qsTr("This firmware of the Recorder only reports its connectors; changing them comes with its next phases. Rows marked reserved wait for the firmware too.")
             color: AppPalette.textMuted; font.pixelSize: Tokens.fontSm
         }
-        InfoRow { label: qsTr("Function"); value: menu.bus ? view.functionLong(menu.bus.function) : "" }
+        InfoRow {
+            visible: !view.portsSettable || !view.isUart(menu.bus)
+            label: qsTr("Function"); value: menu.bus ? view.functionLong(menu.bus.function) : ""
+        }
+        // a UART connector, firmware with the settings: its function, its function's rate, the rate in use
+        ComboRow {
+            objectName: "portFunctionRow"
+            comboName: "portFunctionCombo"
+            visible: view.portsSettable && view.isUart(menu.bus)
+            dev: view.dev
+            label: qsTr("Function")
+            items: view.functionsOf(menu.bus).map(function(f) { return view.functionLong(f) })
+            index: Math.max(0, view.functionsOf(menu.bus).indexOf(menu.bus ? menu.bus.function : 0))
+            on: view.portOn()
+            onPicked: function(i) { view.dev.setPortFunction(menu.bus.id, view.functionsOf(menu.bus)[i]) }
+        }
+        ComboRow {
+            objectName: "portBaudRow"
+            comboName: "portBaudCombo"
+            visible: view.portsSettable && view.isUart(menu.bus) && !!menu.bus && menu.bus.function >= 1
+            dev: view.dev
+            label: qsTr("Speed")
+            items: view.dev && view.dev.portBauds ? view.dev.portBauds.map(function(b) { return view.rateText(b) }) : []
+            index: menu.bus ? view.rateIndex(menu.bus.function) : 0
+            on: view.portOn()
+            onPicked: function(i) { view.dev.setPortBaud(menu.bus.function, view.dev.portBauds[i]) }
+        }
+        InfoRow {
+            objectName: "portBaudNow"
+            visible: view.portsSettable && view.isUart(menu.bus)
+            label: qsTr("Speed now")
+            value: menu.bus ? (menu.bus.baud > 0 ? view.baudText(menu.bus.baud) : qsTr("searching")) : ""
+        }
+        Text {
+            objectName: "portNote"
+            visible: view.portsSettable && view.isUart(menu.bus)
+            width: parent.width; wrapMode: Text.WordWrap
+            text: view.portNote(menu.bus)
+            color: view.dev && menu.bus && view.dev.portStateBus === menu.bus.id && view.dev.portState >= 3
+                   ? AppPalette.dangerText : AppPalette.textMuted
+            font.pixelSize: Tokens.fontSm
+        }
         InfoRow {
             visible: !!menu.bus && (menu.bus.functionSaved !== menu.bus.function || menu.bus.uartSaved !== menu.bus.uart)
             label: qsTr("After a reboot"); value: menu.bus ? view.functionLong(menu.bus.functionSaved) : ""
@@ -420,7 +549,7 @@ Column {
             visible: !!menu.bus && (menu.bus.function === 1 || menu.bus.function === 2)
             title: qsTr("Sonar port")
             InfoRow { label: qsTr("Link"); value: menu.bus ? view.linkState(menu.bus.function) : "" }
-            InfoRow { label: qsTr("Speed"); value: menu.bus ? view.baudText(menu.bus.baud) : "" }
+            InfoRow { visible: !view.portsSettable; label: qsTr("Speed"); value: menu.bus ? view.baudText(menu.bus.baud) : "" }
             InfoRow { label: qsTr("UART"); value: menu.bus ? view.uartName(menu.bus.uart) : "" }
             InfoRow { label: qsTr("Protocol"); reserved: true }
             InfoRow { label: qsTr("Ping sync"); reserved: true }
@@ -432,7 +561,17 @@ Column {
             objectName: "menuTelemetry"
             visible: !!menu.bus && menu.bus.function === 3
             title: qsTr("Telemetry")
-            InfoRow { label: qsTr("Speed"); value: menu.bus ? view.baudText(menu.bus.baud) : "" }
+            InfoRow { visible: !view.portsSettable; label: qsTr("Speed"); value: menu.bus ? view.baudText(menu.bus.baud) : "" }
+            Text {
+                objectName: "telemetryRateNote"
+                visible: view.portsSettable
+                width: parent ? parent.width : 0
+                wrapMode: Text.WordWrap
+                topPadding: Tokens.spaceXs; bottomPadding: Tokens.spaceXs
+                text: view.rateSetting(3) > 0 ? qsTr("The Wi-Fi bridge has to run at the same speed.")
+                                              : qsTr("On auto the port tries the speeds after 3 s without requests from the host: the host is found while it keeps asking.")
+                color: AppPalette.textMuted; font.pixelSize: Tokens.fontSm
+            }
             InfoRow { label: qsTr("UART"); value: menu.bus ? view.uartName(menu.bus.uart) : "" }
             InfoRow { label: qsTr("What goes to the host"); reserved: true }
             InfoRow { label: qsTr("Channel load"); reserved: true }
@@ -442,7 +581,7 @@ Column {
             visible: !!menu.bus && menu.bus.function === 4
             title: qsTr("Navigation")
             InfoRow { label: qsTr("Link"); value: view.linkState(4) }
-            InfoRow { label: qsTr("Speed"); value: menu.bus ? view.baudText(menu.bus.baud) : "" }
+            InfoRow { visible: !view.portsSettable; label: qsTr("Speed"); value: menu.bus ? view.baudText(menu.bus.baud) : "" }
             InfoRow { label: qsTr("UART"); value: menu.bus ? view.uartName(menu.bus.uart) : "" }
             InfoRow { label: qsTr("Protocol"); reserved: true }
             InfoRow { label: qsTr("Rate"); reserved: true }

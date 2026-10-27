@@ -3218,3 +3218,64 @@ the connectors", "reserve each function's own settings, as with the servo menu".
 - **[observed]** the real Recorder sent no ID_VOLTAGE in a minute: VBAT and the power block show "—". Right for now:
   the Recorder's session found in its sources that the firmware does not send 0x31 at all (declared only, the ADC
   module not built); its spec's "once a second" was wrong (fixed in 28ddbe1). Planned for phase 4.
+
+## The Recorder's UART connectors, the board's fit, the .klf association (2026-10-27, first PC, uncommitted)
+
+Asked by the session "Проверка папки GitLab", which wrote the firmware side and checked it on the device over USB.
+Contract: Port-Config-Spec.md, ID_BUS V0 SETTING and V2..V4. The owner's condition: local only, no push and no
+network git. docs/RECORDER_PORTS.md, "Функции и скорости UART-разъёмов". The same day's TELEM-only rate (V3 as the
+rate in use) was replaced by this: V3 is now the telemetry function's setting, with 0 = auto.
+
+- `IDBinBus`:
+  - v2/v3/v4 answers are taken by function into `functionSettings(f)` (baud 0 = auto, protocol, log, to host, rate).
+  - `requestFunction`.
+  - `setFunctionBaud` sends the other fields as read, or the spec's defaults.
+  - `setBusFunction` (SETTING v0 [bus][f][uart], a swap).
+  - `functionBauds()` is 0 and then 9600 .. 5000000.
+- `DevDriver`:
+  - After the table, each function's settings are read, one at a time.
+  - `setPortFunction`: SETTING v0, then ID_FLASH, then the four UART connectors are read again.
+  - `setPortBaud`: SETTING v2..v4, then ID_FLASH, then its settings and its connector are read again.
+  - Properties: portSettable, portFunctions, portBauds, portState, portStateBus, linkSerial (DeviceManager::createDev).
+  - The live poll also reads one UART connector's v0 a second (auto rates move).
+  - Log lines "ports:".
+- The firmware acks a GET after its CONTENT. The ack never ends a read; the CONTENT does.
+- The menu: Function and Speed choices (ComboRow), "Speed now" from v0, a note.
+  - They are off on a UDP/TCP link.
+  - The sections' read-only Speed rows show only for a firmware without the settings.
+- Edit-script steps portFunction, portBaud, portState, waitPortOp; the telem steps are gone.
+- **[verified]** ports_check -Mutants: 16 of 16.
+- **[verified]** ports_live PASS. The stand plays the settings firmware from the owner's device state:
+  - the frame order is checked;
+  - so is the driver's state after each step;
+  - the menu is off on UDP, and SONAR1 shows the refusal;
+  - the grab was looked at.
+- ts_check ru zh es hi is clean.
+- Installer: task `klfassoc` (on by default) registers its own ProgId `KoggerAppME.klf` in HKA: the .klf default,
+  OpenWithProgids, the icon, and open = "{app}\KoggerApp.exe" "%1". `ChangesAssociations=yes`.
+- A Windows "Open with" choice (UserChoice / UserChoiceLatest) still wins. On the first PC it was the official
+  `KoggerApp.klf`, whose exe (Program Files\Kogger\KoggerApp) is gone since 2026-10-17. So that ProgId's command
+  and icon in HKCU were pointed at `%LOCALAPPDATA%\Programs\KoggerApp ME\KoggerApp.exe`.
+  - The backup of the old values: D:\Temp\kogger_install\me_telem_20261027\KoggerApp.klf_before_20261027.reg.
+  - **[verified]** AssocQueryString(.klf) gives that exe.
+  - On the hidden desktop (perf profile), the exe started with D:\Temp\perf\00014_03.05.2025.KLF as its argument
+    logged "File opened".
+- Installed on the first PC 2026-10-27 19:03, both installs: the TELEM-rate build with the .klf association
+  (setup KoggerApp-ME-1.0.3-setup-20261027-185906.exe, build_info "dirty: yes", exe C6000643..., hashes MATCH).
+  The board fit and the UART connectors are built, not installed.
+- The board on a narrow panel. The owner's panel was ~540 px, and the right column was cut: under 560 px the
+  drawing kept 560 px and scrolled sideways. Now it is laid out at 560 px and scaled down whole (`boardLayout`, its
+  `scale`).
+  - recorderboard_check test_07_narrow checks that at 540 and 360 px every block is inside: PASS.
+  - ports_live "fit" checks the same in the app: it FAILED on the build before (OUTS, IN1,2, SONAR2 out, as on the
+    owner's screen) and PASSES after (scale 0.964).
+  - test_08_narrow_text (the old text-cut check) failed on this PC with the long block headers, the 8e825206 file too
+    (qmltestrunner without Qt fonts). With the short blocks below it passes here as well.
+- The board's blocks, the owner 2026-10-27: "a bigger font, the extra information away".
+  - Each block now has the connector's label in bold, then one row for a port (function and the rate in use) or
+    only the contacts that do something for a universal connector.
+  - Supply/GND pins, TX/RX and contacts that are off went to the menu only. The power block's readings show only
+    when ID_VOLTAGE comes.
+  - The font is 18 units (about 14 px on a 540 px panel, was about 10). The side blocks are 220 units, the top ones
+    200; the side rows are at 114/218/322.
+  - **[verified]** recorderboard_check all PASS (the block texts compared whole); ports_live PASS; grab looked at.
