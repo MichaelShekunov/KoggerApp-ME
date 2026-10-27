@@ -59,6 +59,8 @@ PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
 DisableProgramGroupPage=yes
 AllowNoIcons=yes
+; the .klf association ([Registry]): Explorer is told to reload it after install and uninstall
+ChangesAssociations=yes
 LicenseFile={#SourcePath}\..\LICENSE
 
 [Languages]
@@ -67,6 +69,17 @@ Name: "ru"; MessagesFile: "compiler:Languages\Russian.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; Flags: unchecked
+Name: "klfassoc"; Description: "{cm:AssocFileExtension,{#MyAppName},.klf}"
+
+[Registry]
+; A double-click on a .klf recording opens it here (the app opens its first argument). The ProgId is this app's
+; own, so the official KoggerApp's (KoggerApp.klf) is left alone; HKA is HKCU or HKLM by the install mode. A choice
+; the user made in Windows (UserChoice) still wins over the default set here: "Open with" picks this app then.
+Root: HKA; Subkey: "Software\Classes\.klf"; ValueType: string; ValueName: ""; ValueData: "KoggerAppME.klf"; Flags: uninsdeletevalue; Tasks: klfassoc
+Root: HKA; Subkey: "Software\Classes\.klf\OpenWithProgids"; ValueType: string; ValueName: "KoggerAppME.klf"; ValueData: ""; Flags: uninsdeletevalue; Tasks: klfassoc
+Root: HKA; Subkey: "Software\Classes\KoggerAppME.klf"; ValueType: string; ValueName: ""; ValueData: "Kogger log file (KLF)"; Flags: uninsdeletekey; Tasks: klfassoc
+Root: HKA; Subkey: "Software\Classes\KoggerAppME.klf\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\{#MyAppExe},0"; Tasks: klfassoc
+Root: HKA; Subkey: "Software\Classes\KoggerAppME.klf\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExe}"" ""%1"""; Tasks: klfassoc
 
 [InstallDelete]
 ; The same product (AppId) under its name until 2026-10-18: its default folder and shortcuts.
