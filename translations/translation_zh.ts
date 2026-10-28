@@ -4269,23 +4269,23 @@ udp://@:1234
         <translation>代码 %1</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3889"/>
+        <location filename="../src/device/dev_driver.cpp" line="3898"/>
         <source>This firmware has no ring counters</source>
         <translation>此固件没有环路计数器</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3890"/>
+        <location filename="../src/device/dev_driver.cpp" line="3899"/>
         <source>Refused by the board (code %1)</source>
         <translation>板子拒绝了（代码 %1）</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3995"/>
+        <location filename="../src/device/dev_driver.cpp" line="4004"/>
         <source>Sync config rejected by device</source>
         <translation>设备拒绝了同步配置</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="4709"/>
-        <location filename="../src/device/dev_driver.cpp" line="4722"/>
+        <location filename="../src/device/dev_driver.cpp" line="4718"/>
+        <location filename="../src/device/dev_driver.cpp" line="4731"/>
         <source>no answer from the module</source>
         <translation>模块无应答</translation>
     </message>
@@ -17712,157 +17712,187 @@ udp://@:1234
 <context>
     <name>ServoPanelBody</name>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="106"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="110"/>
         <source>Off</source>
         <translation>关</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="106"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="110"/>
         <source>ServoScan</source>
         <translation>ServoScan</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="298"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="121"/>
+        <source>Any sonar on Sonar A</source>
+        <translation>声呐 A 输入上的任意声呐</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ServoPanelBody.qml" line="122"/>
+        <source>Any sonar on Sonar B</source>
+        <translation>声呐 B 输入上的任意声呐</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ServoPanelBody.qml" line="132"/>
+        <source>address %1</source>
+        <translation>地址 %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ServoPanelBody.qml" line="136"/>
+        <source>Address %1 on Sonar %2, not seen now</source>
+        <translation>声呐 %2 输入上的地址 %1，当前未检测到</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ServoPanelBody.qml" line="344"/>
         <source>No servo device</source>
         <translation>无舵机设备</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="300"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="346"/>
         <source>On link %1</source>
         <translation>在连接 %1 上</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="319"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="365"/>
         <source>Device</source>
         <translation>设备</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="334"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="380"/>
         <source>Control</source>
         <translation>控制</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="337"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="383"/>
         <source>Enabled</source>
         <translation>已启用</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="354"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="400"/>
         <source>Manual</source>
         <translation>手动模式</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="355"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="401"/>
         <source>The firmware does not support manual mode</source>
         <translation>固件不支持手动模式</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="357"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="403"/>
         <source>The servo holds the angle set with the knob; the scan waits until this is off.</source>
         <translation>舵机保持旋钮设定的角度；关闭此项之前扫描暂停。</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="372"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="418"/>
         <source>Current angle</source>
         <translation>当前角度</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="421"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="467"/>
         <source>Angle, °</source>
         <translation>角度，°</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="445"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="491"/>
         <source>Shift while dragging: finer. Wheel: 1°, with Ctrl: 0.1°.</source>
         <translation>拖动时按住 Shift：更精细。滚轮：1°，按住 Ctrl：0.1°。</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="454"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="500"/>
         <source>Reverse mapping</source>
         <translation>反向映射</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="470"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="516"/>
         <source>Scan</source>
         <translation>扫描</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="474"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="520"/>
         <source>Waits while the servo is in manual mode.</source>
         <translation>舵机处于手动模式时暂停。</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="477"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="525"/>
+        <source>Steps on</source>
+        <translation>步进触发</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ServoPanelBody.qml" line="527"/>
+        <source>Whose pings move the scan one step: any sonar on a Sonar A or Sonar B input of the recorder, or one sonar.</source>
+        <translation>哪个声呐的 ping 使扫描前进一步：记录仪声呐 A 或声呐 B 输入上的任意声呐，或某一个声呐。</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ServoPanelBody.qml" line="545"/>
         <source>Step, °</source>
         <translation>步长，°</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="495"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="563"/>
         <source>Scan range, °</source>
         <translation>扫描范围，°</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="510"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="578"/>
         <source>Center, °</source>
         <translation>中心，°</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="529"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="597"/>
         <source>More settings</source>
         <translation>更多设置</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="541"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="609"/>
         <source>Calibration</source>
         <translation>校准</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="547"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="615"/>
         <source>PWM min, µs</source>
         <translation>PWM 最小值，µs</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="563"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="631"/>
         <source>PWM max, µs</source>
         <translation>PWM 最大值，µs</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="582"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="650"/>
         <source>PWM frequency, Hz</source>
         <translation>PWM 频率，Hz</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="583"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="651"/>
         <source>Period %1 µs, the pulse must be shorter. With PWM max %2 µs: up to %3 Hz.</source>
         <translation>周期 %1 µs，脉冲必须更短。PWM 最大值为 %2 µs 时：最高 %3 Hz。</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="585"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="653"/>
         <source>Analog servos run at 50 Hz, digital ones usually up to 333 Hz. Higher frequencies suit only servos with a narrow pulse, shorter than the period.</source>
         <translation>模拟舵机工作在 50 Hz，数字舵机通常最高 333 Hz。更高的频率只适用于脉冲较窄、短于周期的舵机。</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="602"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="670"/>
         <source>Servo angle range, °</source>
         <translation>舵机角度范围，°</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="617"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="685"/>
         <source>PWM routing</source>
         <translation>PWM 路由</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="623"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="691"/>
         <source>OUT1 (wired)</source>
         <translation>OUT1（已接线）</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="639"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="707"/>
         <source>OUT2</source>
         <translation>OUT2</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="655"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="723"/>
         <source>OUT3</source>
         <translation>OUT3</translation>
     </message>

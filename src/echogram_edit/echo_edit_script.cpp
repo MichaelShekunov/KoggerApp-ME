@@ -1177,14 +1177,16 @@ void EchoEditScript::runStep(const QJsonObject& s)
                 continue;
             }
             qInfo().noquote() << QStringLiteral("echoedit script: servo of %1: supported %2, enabled %3, manual %4 at %5, "
-                                                "manual support %6, center %7, angle range %8, pwm %9 Hz")
+                                                "manual support %6, center %7, angle range %8, pwm %9 Hz, steps on %10/%11/%12")
                                  .arg(d->property("devName").toString()).arg(d->property("isServoSupport").toBool())
                                  .arg(d->property("servoEnabled").toBool()).arg(d->property("servoManual").toBool())
                                  .arg(d->property("servoManualDeg").toDouble(), 0, 'f', 2)
                                  .arg(d->property("servoManualSupport").toInt())
                                  .arg(d->property("servoCenterDeg").toDouble(), 0, 'f', 2)
                                  .arg(d->property("servoAngleRangeDeg").toDouble(), 0, 'f', 2)
-                                 .arg(d->property("servoPwmHz").toInt());
+                                 .arg(d->property("servoPwmHz").toInt())
+                                 .arg(d->property("servoTriggerKind").toInt()).arg(d->property("servoTriggerFunction").toInt())
+                                 .arg(d->property("servoTriggerAddress").toInt());
         }
     }
     else if (op == QLatin1String("portFunction") || op == QLatin1String("portBaud") || op == QLatin1String("portState")) {
@@ -1339,6 +1341,14 @@ void EchoEditScript::runStep(const QJsonObject& s)
         qInfo().noquote() << QStringLiteral("echoedit script: %1 %2: %3").arg(op)
                              .arg(op == QLatin1String("servoManual") ? QString::number(s.value(QStringLiteral("on")).toBool())
                                                                      : QString::number(s.value(QStringLiteral("deg")).toDouble()))
+                             .arg(sent ? QStringLiteral("sent") : QStringLiteral("no servo device"));
+    }
+    else if (op == QLatin1String("servoTrigger")) {
+        QObject* dev = firstServoDevice();
+        const int function = s.value(QStringLiteral("function")).toInt();
+        const int address = s.value(QStringLiteral("address")).toInt();
+        const bool sent = dev && QMetaObject::invokeMethod(dev, "setServoTrigger", Q_ARG(int, function), Q_ARG(int, address));
+        qInfo().noquote() << QStringLiteral("echoedit script: servoTrigger %1/%2: %3").arg(function).arg(address)
                              .arg(sent ? QStringLiteral("sent") : QStringLiteral("no servo device"));
     }
     else if (op == QLatin1String("servoPwmHz")) {

@@ -821,9 +821,24 @@ public:
     /// Sends the frequency, then reads it back. Not tracked: the read-back shows whether the device took it.
     void setPwmHz(U2 hz);
 
+    /// What steps the scan (ID_SERVO_CONTROL v2 [kind][function][address], Recorder firmware from 2026-10-28). Kind
+    /// 1: a ping of a device of sonar function 1 (Sonar A) or 2 (Sonar B), the one with that host address, or any
+    /// of them for address 0. trigKind() is 0 until the device answers v2: a firmware without it steps on every
+    /// Sonar A device.
+    enum TriggerKind : U1 { TrigSonarPing = 1 };
+    U1 trigKind() const { return m_trigKind; }
+    U1 trigFunction() const { return m_trigFunction; }
+    U1 trigAddress() const { return m_trigAddress; }
+    /// Makes the pings of `function`'s device `address` (0: any) the step source, then reads it back. Not tracked.
+    void setTrigger(U1 function, U1 address);
+    /// The sonar function a device with this host address sits behind, as the firmware maps addresses: Sonar B
+    /// (2) for 2 (its device without an address of its own) and 9..15, Sonar A (1) otherwise.
+    static int functionOfAddress(int address) { return (address == 2 || (address >= 9 && address <= 15)) ? 2 : 1; }
+
     void requestAll() override {
         simpleRequest(v0);
         simpleRequest(v1);
+        simpleRequest(v2);
     }
 
 protected:
@@ -842,6 +857,9 @@ protected:
     S2 m_rangeDeg      = 18000;
     S2 m_centerDeg     = 0;
     U2 m_pwmHz         = 0;
+    U1 m_trigKind      = 0;
+    U1 m_trigFunction  = 1;
+    U1 m_trigAddress   = 0;
 };
 
 

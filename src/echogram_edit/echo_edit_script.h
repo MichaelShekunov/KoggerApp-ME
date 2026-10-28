@@ -107,6 +107,7 @@
 //   {"op": "servoManual", "on": bool}   the panel's Manual switch
 //   {"op": "servoSet", "deg": x}     the angle to hold, as the knob's release or the angle field
 //   {"op": "servoPwmHz", "hz": n}    the PWM frequency row (ID_SERVO_CONTROL v1)
+//   {"op": "servoTrigger", "function": f, "address": a}   the "Steps on" row (ID_SERVO_CONTROL v2; address 0: any)
 // A GODIO ring board's sync counters (ID_RING_STAT, firmware 1.16+), on the device at bus address "addr":
 //   {"op": "devicePage", "addr": n}  its device page opened, as a tap on it in the device list does;
 //                                    {"op": "devicePage", "recorder": true}: the first Recorder's

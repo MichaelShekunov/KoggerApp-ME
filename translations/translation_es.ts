@@ -4269,23 +4269,23 @@ udp://@:1234
         <translation>código %1</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3889"/>
+        <location filename="../src/device/dev_driver.cpp" line="3898"/>
         <source>This firmware has no ring counters</source>
         <translation>Este firmware no tiene contadores de anillo</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3890"/>
+        <location filename="../src/device/dev_driver.cpp" line="3899"/>
         <source>Refused by the board (code %1)</source>
         <translation>La placa lo rechazó (código %1)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3995"/>
+        <location filename="../src/device/dev_driver.cpp" line="4004"/>
         <source>Sync config rejected by device</source>
         <translation>El dispositivo rechazó la configuración de sincronización</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="4709"/>
-        <location filename="../src/device/dev_driver.cpp" line="4722"/>
+        <location filename="../src/device/dev_driver.cpp" line="4718"/>
+        <location filename="../src/device/dev_driver.cpp" line="4731"/>
         <source>no answer from the module</source>
         <translation>sin respuesta del módulo</translation>
     </message>
@@ -17713,157 +17713,187 @@ udp://@:1234
 <context>
     <name>ServoPanelBody</name>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="106"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="110"/>
         <source>Off</source>
         <translation>Desactivado</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="106"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="110"/>
         <source>ServoScan</source>
         <translation>ServoScan</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="298"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="121"/>
+        <source>Any sonar on Sonar A</source>
+        <translation>Cualquier sonar en la entrada Sonar A</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ServoPanelBody.qml" line="122"/>
+        <source>Any sonar on Sonar B</source>
+        <translation>Cualquier sonar en la entrada Sonar B</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ServoPanelBody.qml" line="132"/>
+        <source>address %1</source>
+        <translation>dirección %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ServoPanelBody.qml" line="136"/>
+        <source>Address %1 on Sonar %2, not seen now</source>
+        <translation>Dirección %1 en la entrada Sonar %2, no visible ahora</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ServoPanelBody.qml" line="344"/>
         <source>No servo device</source>
         <translation>Ningún dispositivo con servo</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="300"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="346"/>
         <source>On link %1</source>
         <translation>En el enlace %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="319"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="365"/>
         <source>Device</source>
         <translation>Dispositivo</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="334"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="380"/>
         <source>Control</source>
         <translation>Control</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="337"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="383"/>
         <source>Enabled</source>
         <translation>Activado</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="354"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="400"/>
         <source>Manual</source>
         <translation>Modo manual</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="355"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="401"/>
         <source>The firmware does not support manual mode</source>
         <translation>El firmware no admite el modo manual</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="357"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="403"/>
         <source>The servo holds the angle set with the knob; the scan waits until this is off.</source>
         <translation>El servo mantiene el ángulo fijado con la perilla; el escaneo espera hasta que esto se desactive.</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="372"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="418"/>
         <source>Current angle</source>
         <translation>Ángulo actual</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="421"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="467"/>
         <source>Angle, °</source>
         <translation>Ángulo, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="445"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="491"/>
         <source>Shift while dragging: finer. Wheel: 1°, with Ctrl: 0.1°.</source>
         <translation>Shift al arrastrar: más fino. Rueda: 1°, con Ctrl: 0,1°.</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="454"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="500"/>
         <source>Reverse mapping</source>
         <translation>Mapeo inverso</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="470"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="516"/>
         <source>Scan</source>
         <translation>Escaneo</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="474"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="520"/>
         <source>Waits while the servo is in manual mode.</source>
         <translation>En espera mientras el servo está en modo manual.</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="477"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="525"/>
+        <source>Steps on</source>
+        <translation>Paso según</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ServoPanelBody.qml" line="527"/>
+        <source>Whose pings move the scan one step: any sonar on a Sonar A or Sonar B input of the recorder, or one sonar.</source>
+        <translation>Qué pings avanzan el escaneo un paso: cualquier sonar en la entrada Sonar A o Sonar B del registrador, o un sonar concreto.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ServoPanelBody.qml" line="545"/>
         <source>Step, °</source>
         <translation>Paso, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="495"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="563"/>
         <source>Scan range, °</source>
         <translation>Rango de escaneo, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="510"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="578"/>
         <source>Center, °</source>
         <translation>Centro, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="529"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="597"/>
         <source>More settings</source>
         <translation>Más ajustes</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="541"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="609"/>
         <source>Calibration</source>
         <translation>Calibración</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="547"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="615"/>
         <source>PWM min, µs</source>
         <translation>PWM mín., µs</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="563"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="631"/>
         <source>PWM max, µs</source>
         <translation>PWM máx., µs</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="582"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="650"/>
         <source>PWM frequency, Hz</source>
         <translation>Frecuencia PWM, Hz</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="583"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="651"/>
         <source>Period %1 µs, the pulse must be shorter. With PWM max %2 µs: up to %3 Hz.</source>
         <translation>Periodo %1 µs, el pulso debe ser más corto. Con PWM máx. %2 µs: hasta %3 Hz.</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="585"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="653"/>
         <source>Analog servos run at 50 Hz, digital ones usually up to 333 Hz. Higher frequencies suit only servos with a narrow pulse, shorter than the period.</source>
         <translation>Los servos analógicos funcionan a 50 Hz, los digitales normalmente hasta 333 Hz. Las frecuencias más altas solo sirven para servos de pulso estrecho, más corto que el periodo.</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="602"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="670"/>
         <source>Servo angle range, °</source>
         <translation>Rango de ángulo del servo, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="617"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="685"/>
         <source>PWM routing</source>
         <translation>Enrutamiento PWM</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="623"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="691"/>
         <source>OUT1 (wired)</source>
         <translation>OUT1 (cableado)</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="639"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="707"/>
         <source>OUT2</source>
         <translation>OUT2</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="655"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="723"/>
         <source>OUT3</source>
         <translation>OUT3</translation>
     </message>

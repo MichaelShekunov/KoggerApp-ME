@@ -87,6 +87,13 @@ Item {
         property int servoPwmMinUs: 500
         property int servoPwmMaxUs: 2500
         property int servoPwmHz: 50
+        property int servoTriggerKind: 1
+        property int servoTriggerFunction: 1
+        property int servoTriggerAddress: 0
+        property var triggerWrites: []
+        function setServoTrigger(f, a) {
+            triggerWrites = triggerWrites.concat([f + "/" + a]); servoTriggerFunction = f; servoTriggerAddress = a
+        }
         property real servoAngleRangeDeg: 90
         property real servoStepDeg: 4.5
         property real servoRangeDeg: 60
@@ -111,6 +118,15 @@ Item {
         }
         function servoManualMove(d) { moves = moves.concat([d]); servoManualDeg = d }
         function servoManualSet(d) { sets = sets.concat([d]); servoManualDeg = d }
+    }
+
+    // DeviceTopologyModel's group of the recorder's link: two sonars on its ports.
+    QtObject { id: sonarA; property string devName: "Basic2D"; property int devSN: 11; property int busAddress: 1; property bool isRecorder: false }
+    QtObject { id: sonarB; property string devName: "NanoSSS"; property int devSN: 22; property int busAddress: 9; property bool isRecorder: false }
+    QtObject {
+        id: fakeTopology
+        property var groups: [1]
+        function groupForDevice(d) { return d === fakeDev ? { children: [{ device: sonarA }, { device: sonarB }] } : {} }
     }
 
     Rectangle { anchors.fill: parent; color: AppPalette.bg }   // the app's background: the islands' titles are light
@@ -162,6 +178,7 @@ Item {
 
         function initTestCase() {
             body._allDevs = [fakeDev]
+            body.topology = fakeTopology
             tryVerify(function() { return body.dev === fakeDev })
         }
         function init() {
@@ -272,6 +289,35 @@ Item {
             fakeDev.servoPwmHz = 50
             fakeDev.servoPwmMaxUs = 2500
             body._advanced = false
+        }
+        // The step source (ID_SERVO_CONTROL v2): any sonar on Sonar A or B, or one of the recorder's sonars.
+        function test_10_steps_on() {
+            var row = item("servoTriggerRow"), combo = item("servoTriggerCombo")
+            fakeDev.servoTriggerKind = 1
+            fakeDev.servoTriggerFunction = 1
+            fakeDev.servoTriggerAddress = 0
+            fakeDev.triggerWrites = []
+            verify(row.visible)
+            compare(JSON.stringify(combo.model), JSON.stringify(["Any sonar on Sonar A", "Any sonar on Sonar B",
+                    "Basic2D · 11 · address 1", "NanoSSS · 22 · address 9"]))
+            compare(combo.wantIndex, 0)
+            combo.writeBack(3)
+            compare(JSON.stringify(fakeDev.triggerWrites), JSON.stringify(["2/9"]))
+            compare(combo.wantIndex, 3)
+            combo.writeBack(3)                                      // the same again: nothing sent
+            compare(fakeDev.triggerWrites.length, 1)
+            combo.writeBack(2)
+            compare(fakeDev.triggerWrites[1], "1/1")
+            fakeDev.servoTriggerFunction = 1                        // a sonar not seen now stays listed
+            fakeDev.servoTriggerAddress = 5
+            compare(combo.model.length, 5)
+            compare(combo.model[4], "Address 5 on Sonar A, not seen now")
+            compare(combo.wantIndex, 4)
+            fakeDev.servoTriggerKind = 0                            // a firmware without v2: no row
+            verify(!row.visible)
+            fakeDev.servoTriggerKind = 1
+            fakeDev.servoTriggerFunction = 1
+            fakeDev.servoTriggerAddress = 0
         }
         function test_07_refused() {
             enterManual()

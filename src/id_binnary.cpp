@@ -1038,6 +1038,10 @@ Resp IDBinServoControl::parsePayload(FrameParser &proto) {
         }
     } else if (proto.ver() == v1) {
         m_pwmHz = proto.read<U2>();
+    } else if (proto.ver() == v2) {
+        m_trigKind     = proto.read<U1>();
+        m_trigFunction = proto.read<U1>();
+        m_trigAddress  = proto.read<U1>();
     } else {
         return respErrorVersion;
     }
@@ -1052,6 +1056,18 @@ void IDBinServoControl::setPwmHz(U2 hz) {
     emit binFrameOut(id_out);
 
     simpleRequest(v1);
+}
+
+void IDBinServoControl::setTrigger(U1 function, U1 address) {
+    ProtoBinOut id_out;
+    id_out.create(SETTING, v2, id(), m_address);
+    id_out.write<U1>(TrigSonarPing);
+    id_out.write<U1>(function);
+    id_out.write<U1>(address);
+    id_out.end();
+    emit binFrameOut(id_out);
+
+    simpleRequest(v2);
 }
 
 void IDBinServoControl::startColdStartTimer()

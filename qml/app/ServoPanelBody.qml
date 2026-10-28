@@ -20,6 +20,10 @@ Column {
         property int servoPwmMinUs: 500
         property int servoPwmMaxUs: 2500
         property int servoPwmHz: 50
+        property int servoTriggerKind: 1
+        property int servoTriggerFunction: 1
+        property int servoTriggerAddress: 0
+        function setServoTrigger(f, a) { servoTriggerFunction = f; servoTriggerAddress = a }
         property real servoAngleRangeDeg: 180
         property real servoStepDeg: 4.5
         property real servoRangeDeg: 180
@@ -106,6 +110,47 @@ Column {
     readonly property var _pwmTargets: [qsTr("Off"), qsTr("ServoScan")]
 
     property bool _advanced: false
+
+    // The links and the devices on them (DeviceTopologyModel); a check hands in its own.
+    property var topology: (typeof deviceTopology !== "undefined") ? deviceTopology : null
+
+    // What steps the scan (ID_SERVO_CONTROL v2): the pings of any sonar on Sonar A or Sonar B, or of one sonar, by
+    // the host address the app knows it by, among the devices on this recorder's ports. The device's own choice is
+    // kept in the list when that sonar is not seen now.
+    readonly property var _trigOptions: {
+        var out = [{ f: 1, a: 0, text: qsTr("Any sonar on Sonar A") },
+                   { f: 2, a: 0, text: qsTr("Any sonar on Sonar B") }]
+        var groups = body.topology ? body.topology.groups : null   // re-read when the links' devices change
+        var g = (body.dev && groups) ? body.topology.groupForDevice(body.dev) : null
+        var kids = (g && g.children) ? g.children : []
+        for (var i = 0; i < kids.length; ++i) {
+            var d = kids[i] ? kids[i].device : null
+            var a = d ? d.busAddress : 0
+            if (!d || d.isRecorder || !(a >= 1 && a <= 255))
+                continue
+            out.push({ f: (a === 2 || (a >= 9 && a <= 15)) ? 2 : 1, a: a,
+                       text: body._devLabel(d) + " · " + qsTr("address %1").arg(a) })
+        }
+        if (body.dev && body.dev.servoTriggerKind === 1 && body._trigIndex(out) < 0)
+            out.push({ f: body.dev.servoTriggerFunction, a: body.dev.servoTriggerAddress,
+                       text: qsTr("Address %1 on Sonar %2, not seen now").arg(body.dev.servoTriggerAddress)
+                             .arg(body.dev.servoTriggerFunction === 2 ? "B" : "A") })
+        return out
+    }
+    function _trigIndex(opts) {
+        if (!body.dev)
+            return -1
+        for (var i = 0; i < opts.length; ++i)
+            if (opts[i].f === body.dev.servoTriggerFunction && opts[i].a === body.dev.servoTriggerAddress)
+                return i
+        return -1
+    }
+    readonly property var _trigTexts: {
+        var out = []
+        for (var i = 0; i < _trigOptions.length; ++i)
+            out.push(_trigOptions[i].text)
+        return out
+    }
 
     // The PWM frequency the outputs run at: the device's answer, or 50 Hz from a firmware without the setting.
     readonly property int _pwmHz: (body.dev && body.dev.servoPwmHz > 0) ? body.dev.servoPwmHz : 50
@@ -212,7 +257,8 @@ Column {
                       + "° center=" + d.servoCenterDeg.toFixed(0)
                       + "° angleRange=" + d.servoAngleRangeDeg.toFixed(0)
                       + "° pwm=" + d.servoPwmMinUs + ".." + d.servoPwmMaxUs + "µs"
-                      + (d.servoPwmHz > 0 ? " " + d.servoPwmHz + "Hz" : ""))
+                      + (d.servoPwmHz > 0 ? " " + d.servoPwmHz + "Hz" : "")
+                      + (d.servoTriggerKind > 0 ? " steps on " + d.servoTriggerFunction + "/" + d.servoTriggerAddress : ""))
         }
 
         function onPwmRouteChanged() {
@@ -472,6 +518,28 @@ Column {
         enabled: !body._manual
         opacity: enabled ? 1.0 : 0.55
         footer: body._manual ? qsTr("Waits while the servo is in manual mode.") : ""
+
+        KIslandRow {
+            objectName: "servoTriggerRow"
+            visible: !!(body.dev && body.dev.servoTriggerKind > 0)
+            label: qsTr("Steps on")
+            stacked: true
+            toolTipText: qsTr("Whose pings move the scan one step: any sonar on a Sonar A or Sonar B input of the recorder, or one sonar.")
+
+            DevCombo {
+                objectName: "servoTriggerCombo"
+                width: parent ? parent.width : body.ctlW
+                model: body._trigTexts
+                wantIndex: Math.max(0, body._trigIndex(body._trigOptions))
+                writeBack: function(i) {
+                    var o = body._trigOptions[i]
+                    if (!body.dev || !o || (o.f === body.dev.servoTriggerFunction && o.a === body.dev.servoTriggerAddress))
+                        return
+                    body._log("write steps on = " + o.f + "/" + o.a)
+                    body.dev.setServoTrigger(o.f, o.a)
+                }
+            }
+        }
 
         KIslandRow {
             label: qsTr("Step, °")

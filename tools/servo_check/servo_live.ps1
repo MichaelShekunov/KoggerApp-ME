@@ -28,6 +28,11 @@
       read       a GET v1 at the start, 50 Hz shown
       refused    1000 Hz sent as SETTING v1, the stand's 3 logged, read back, still 50 Hz shown
       set        333 Hz sent, read back, 333 Hz shown
+    Run "trigger" (ID_SERVO_CONTROL v2, the step source; the stand starts at any Sonar A device, kind 1 function 1
+    address 0, and refuses a kind other than 1 or a function other than 1 or 2). The script: Sonar B address 9.
+    Checked:
+      source     a GET v2 at the start, "steps on 1/1/0" shown; SETTING v2 [1, 2, 9] sent and taken, read back,
+                 "steps on 1/2/9" shown
     Exit code 0 when every check holds.
 
 .EXAMPLE
@@ -80,6 +85,7 @@ function Invoke-Run([string] $kind, [string[]] $steps) {
     ('{"live": true, "steps": [' + ($steps -join ",`n") + ']}') | Set-Content -LiteralPath $scriptPath -Encoding ASCII
     $st = @{ General = 1; Options = 0; PwmMin = 500; PwmMax = 2500; AngleRange = 18000; Step = 450; Range = 9000; Center = 1500 }
     $hz = 50   # the PWM frequency, answered on v1 in the run "pwmhz" only
+    $trig = @(1, 1, 0)   # the step source, answered on v2 in the run "trigger" only
 
     $udp = New-Object System.Net.Sockets.UdpClient(New-Object System.Net.IPEndPoint([System.Net.IPAddress]::Loopback, ($Port + 1)))
     # Windows reports an ICMP "port unreachable" of an earlier send (the app not listening yet) as a reset of the
@@ -132,6 +138,20 @@ function Invoke-Run([string] $kind, [string[]] $steps) {
                         [void]$udp.Send($f, $f.Length, $app)
                     }
                 }
+                if ($id -eq 0x27 -and $ver -eq 2 -and $kind -eq 'trigger') {
+                    $p = [byte[]]($d[($i + 6)..($i + 5 + [Math]::Max($len, 1))] | Select-Object -First $len)
+                    if ($type -eq 3) {
+                        $got.Add([pscustomobject]@{ T = $t; Type = 23; General = -1; Center = 0; Hz = 0 })
+                        $f = Kp1 1 2 0x27 ([byte[]]$trig) $false
+                        [void]$udp.Send($f, $f.Length, $app)
+                    } elseif ($type -eq 2 -and $len -eq 3) {
+                        $code = 1
+                        if ($p[0] -ne 1 -or $p[1] -lt 1 -or $p[1] -gt 2) { $code = 3 } else { $trig = @($p[0], $p[1], $p[2]) }
+                        $got.Add([pscustomobject]@{ T = $t; Type = 22; General = -1; Center = 0; Hz = 0; Code = $code; Trig = ($p -join '/') })
+                        $f = Kp1 1 2 0x27 ([byte[]]($code, $d[$i + $total - 2], $d[$i + $total - 1])) $true
+                        [void]$udp.Send($f, $f.Length, $app)
+                    }
+                }
                 if ($id -eq 0x27 -and $ver -eq 0) {
                     $p = [byte[]]($d[($i + 6)..($i + 5 + [Math]::Max($len, 1))] | Select-Object -First $len)
                     if ($type -eq 3) {
@@ -164,7 +184,8 @@ function Invoke-Run([string] $kind, [string[]] $steps) {
     $mine = @($text -split "`r?`n")
     $mine | Set-Content -LiteralPath (Join-Path $Out "kogger_$kind.log") -Encoding UTF8
     $got | ForEach-Object {
-        if ($_.Type -ge 12) { '{0,9:F1} ms  {1}  hz {2}' -f $_.T, $(if ($_.Type -eq 13) { 'GET v1 ' } else { "SET v1 (answered $($_.Code))" }), $_.Hz }
+        if ($_.Type -ge 22) { '{0,9:F1} ms  {1}' -f $_.T, $(if ($_.Type -eq 23) { 'GET v2 ' } else { "SET v2 $($_.Trig) (answered $($_.Code))" }) }
+        elseif ($_.Type -ge 12) { '{0,9:F1} ms  {1}  hz {2}' -f $_.T, $(if ($_.Type -eq 13) { 'GET v1 ' } else { "SET v1 (answered $($_.Code))" }), $_.Hz }
         else { '{0,9:F1} ms  {1}  general {2}  center {3}' -f $_.T, $(if ($_.Type -eq 3) { 'GET    ' } else { 'SETTING' }), $_.General, $_.Center }
     } |
         Set-Content -LiteralPath (Join-Path $Out "stand_$kind.txt") -Encoding ASCII
@@ -230,7 +251,7 @@ $refusedLog = @($b.Log | Where-Object { $_ -match 'servo: manual mode refused' }
 $bLine = @($b.Log | Where-Object { $_ -match 'echoedit script: servo of ' } | Select-Object -Last 1)
 Expect ($bSets.Count -eq 1 -and $refusedLog.Count -eq 1 -and $bLine.Count -eq 1 -and $bLine[0] -match 'manual 0 at .*manual support -1') 'refused' (
     "SETTINGs with bit 1: {0}; refusal logged {1}; {2}" -f $bSets.Count, $refusedLog.Count, $(if ($bLine.Count) { $bLine[0] -replace '^.*servo of ', '' } else { 'no line' }))
-Expect ($bLine.Count -eq 1 -and $bLine[0] -match ', pwm 0 Hz$') 'no v1' ("{0}" -f $(if ($bLine.Count) { $bLine[0] -replace '^.*angle range ', 'angle range ' } else { 'no line' }))
+Expect ($bLine.Count -eq 1 -and $bLine[0] -match ', pwm 0 Hz, steps on 0/1/0$') 'no v1' ("{0}" -f $(if ($bLine.Count) { $bLine[0] -replace '^.*angle range ', 'angle range ' } else { 'no line' }))
 
 # ---- run "pwmhz"
 $c = Invoke-Run 'pwmhz' @(
@@ -240,17 +261,29 @@ $c = Invoke-Run 'pwmhz' @(
 $cLines = @($c.Log | Where-Object { $_ -match 'echoedit script: servo of ' })
 $cGets = @($c.Got | Where-Object { $_.Type -eq 13 })
 $cSets = @($c.Got | Where-Object { $_.Type -eq 12 })
-Expect ($cGets.Count -ge 1 -and $cLines.Count -ge 1 -and $cLines[0] -match ', pwm 50 Hz$') 'read' (
+Expect ($cGets.Count -ge 1 -and $cLines.Count -ge 1 -and $cLines[0] -match ', pwm 50 Hz,') 'read' (
     "GET v1 {0}; {1}" -f $cGets.Count, $(if ($cLines.Count) { $cLines[0] -replace '^.*angle range ', 'angle range ' } else { 'no line' }))
 $s1000 = @($cSets | Where-Object { $_.Hz -eq 1000 })
 $answered3 = @($c.Log | Where-Object { $_ -match 'servo: ID_SERVO_CONTROL v1 \(PWM frequency\) answered 3' })
 $getAfter1000 = @($cGets | Where-Object { $s1000.Count -and $_.T -gt $s1000[0].T })
-Expect ($s1000.Count -eq 1 -and $s1000[0].Code -eq 3 -and $answered3.Count -eq 1 -and $getAfter1000.Count -ge 1 -and $cLines.Count -ge 2 -and $cLines[1] -match ', pwm 50 Hz$') 'refused' (
+Expect ($s1000.Count -eq 1 -and $s1000[0].Code -eq 3 -and $answered3.Count -eq 1 -and $getAfter1000.Count -ge 1 -and $cLines.Count -ge 2 -and $cLines[1] -match ', pwm 50 Hz,') 'refused' (
     "SET 1000: {0}, refusal logged {1}, GET after {2}; {3}" -f $s1000.Count, $answered3.Count, $getAfter1000.Count, $(if ($cLines.Count -ge 2) { $cLines[1] -replace '^.*, pwm', 'pwm' } else { 'no line' }))
 $s333 = @($cSets | Where-Object { $_.Hz -eq 333 })
 $getAfter333 = @($cGets | Where-Object { $s333.Count -and $_.T -gt $s333[0].T })
-Expect ($s333.Count -eq 1 -and $s333[0].Code -eq 1 -and $getAfter333.Count -ge 1 -and $cLines.Count -ge 3 -and $cLines[2] -match ', pwm 333 Hz$') 'set' (
+Expect ($s333.Count -eq 1 -and $s333[0].Code -eq 1 -and $getAfter333.Count -ge 1 -and $cLines.Count -ge 3 -and $cLines[2] -match ', pwm 333 Hz,') 'set' (
     "SET 333: {0}, GET after {1}; {2}" -f $s333.Count, $getAfter333.Count, $(if ($cLines.Count -ge 3) { $cLines[2] -replace '^.*, pwm', 'pwm' } else { 'no line' }))
+
+# ---- run "trigger"
+$e = Invoke-Run 'trigger' @(
+    '{"op": "waitServo", "timeoutMs": 30000}', '{"op": "wait", "ms": 700}', '{"op": "servo"}',
+    '{"op": "servoTrigger", "function": 2, "address": 9}', '{"op": "wait", "ms": 700}', '{"op": "servo"}', '{"op": "quit"}')
+$eLines = @($e.Log | Where-Object { $_ -match 'echoedit script: servo of ' })
+$eGets = @($e.Got | Where-Object { $_.Type -eq 23 })
+$eSets = @($e.Got | Where-Object { $_.Type -eq 22 })
+$eGetAfter = @($eGets | Where-Object { $eSets.Count -and $_.T -gt $eSets[0].T })
+Expect ($eGets.Count -ge 1 -and $eLines.Count -ge 2 -and $eLines[0] -match 'steps on 1/1/0$' -and $eSets.Count -eq 1 -and $eSets[0].Trig -eq '1/2/9' -and $eSets[0].Code -eq 1 -and $eGetAfter.Count -ge 1 -and $eLines[1] -match 'steps on 1/2/9$') 'source' (
+    "GET v2 {0}; SET {1}; GET after {2}; {3} -> {4}" -f $eGets.Count, $(if ($eSets.Count) { $eSets[0].Trig } else { 'none' }), $eGetAfter.Count,
+    $(if ($eLines.Count) { $eLines[0] -replace '^.*steps on', 'steps on' } else { 'no line' }), $(if ($eLines.Count -ge 2) { $eLines[1] -replace '^.*steps on', 'steps on' } else { 'no line' }))
 
 "servo live: {0}" -f ($(if ($failed -eq 0) { 'PASS' } else { "$failed FAIL" }))
 "logs: {0}" -f $Out

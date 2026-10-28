@@ -10,6 +10,8 @@
 //  5. The PWM frequency (ID_SERVO_CONTROL v1 [U2 hz], Recorder firmware from 2026-10-28): read with v0 at the start,
 //     sent as SETTING v1 and read back; unknown (0) until the device answers v1; the period is 1e6 / hz us, as the
 //     firmware counts it.
+//  6. The step source (v2 [U1 kind][U1 function][U1 address]): read at the start, sent as SETTING v2 with kind 1 and
+//     read back; unknown (kind 0) until the device answers v2; a host address's sonar function as the firmware maps it.
 // Exit 0 = pass, 1 = fail.
 #include <QCoreApplication>
 #include <QElapsedTimer>
@@ -279,9 +281,11 @@ int main(int argc, char** argv)
         ok("unknown before the device answers v1: 0", sv3.pwmHz() == 0);
         sv3.requestAll();
         const Sent g0 = sentFrame(out3.value(0)), g1 = sentFrame(out3.value(1));
-        ok("the start reads v0 and v1: two GETTING to 0x27", out3.size() == 2 && g0.type == Parsers::GETTING
-           && g0.ver == 0 && g0.id == 0x27 && g1.type == Parsers::GETTING && g1.ver == 1 && g1.id == 0x27 && g1.sum,
-           QString("%1 frames, v%2 v%3").arg(out3.size()).arg(g0.ver).arg(g1.ver));
+        const Sent g2 = sentFrame(out3.value(2));
+        ok("the start reads v0, v1 and v2: three GETTING to 0x27", out3.size() == 3 && g0.type == Parsers::GETTING
+           && g0.ver == 0 && g0.id == 0x27 && g1.type == Parsers::GETTING && g1.ver == 1 && g1.id == 0x27 && g1.sum
+           && g2.type == Parsers::GETTING && g2.ver == 2 && g2.id == 0x27 && g2.sum,
+           QString("%1 frames, v%2 v%3 v%4").arg(out3.size()).arg(g0.ver).arg(g1.ver).arg(g2.ver));
         feed(sv3, kp1(Parsers::CONTENT, 0, 0x27, statePayload(dev)));
         ok("a v0 answer leaves the frequency unknown", sv3.pwmHz() == 0, QString("%1").arg(sv3.pwmHz()));
         QByteArray p;
@@ -305,6 +309,36 @@ int main(int argc, char** argv)
            && Servo::periodUs(333) == 3003 && Servo::periodUs(1000) == 1000,
            QString("%1 %2 %3").arg(Servo::periodUs(50)).arg(Servo::periodUs(333)).arg(Servo::periodUs(1000)));
         ok("range 50..1000 Hz", Servo::PwmHzMin == 50 && Servo::PwmHzMax == 1000);
+    }
+
+    std::printf("\nthe step source (v2)\n");
+    {
+        Servo sv4;
+        QVector<QByteArray> out4;
+        QObject::connect(&sv4, &IDBin::binFrameOut, [&out4](Parsers::ProtoBinOut f) {
+            out4.append(QByteArray(reinterpret_cast<const char*>(f.frame()), f.frameLen()));
+        });
+        ok("unknown before the device answers v2: kind 0", sv4.trigKind() == 0);
+        QByteArray p;
+        p.append(char(1)); p.append(char(2)); p.append(char(10));
+        feed(sv4, kp1(Parsers::CONTENT, 2, 0x27, p));
+        ok("a v2 answer: kind 1, Sonar B, address 10", sv4.trigKind() == 1 && sv4.trigFunction() == 2
+           && sv4.trigAddress() == 10, QString("%1 %2 %3").arg(sv4.trigKind()).arg(sv4.trigFunction()).arg(sv4.trigAddress()));
+
+        sv4.setTrigger(1, 3);
+        const auto* b = reinterpret_cast<const uint8_t*>(out4.value(0).constData());
+        const Sent s = sentFrame(out4.value(0)), r = sentFrame(out4.value(1));
+        ok("sent: SETTING v2 to 0x27, 3 bytes [1, 1, 3], checksum right", out4.size() == 2 && s.type == Parsers::SETTING
+           && s.ver == 2 && s.id == 0x27 && s.len == 3 && s.sum && b[6] == 1 && b[7] == 1 && b[8] == 3,
+           QString("%1 frames, type %2 v%3 len %4").arg(out4.size()).arg(s.type).arg(s.ver).arg(s.len));
+        ok("then read back: GETTING v2", r.type == Parsers::GETTING && r.ver == 2 && r.id == 0x27,
+           QString("type %1 v%2").arg(r.type).arg(r.ver));
+        ok("shown as the device has it until the read-back", sv4.trigFunction() == 2 && sv4.trigAddress() == 10);
+        ok("not tracked", !reportedLost(sv4));
+        ok("the function of a host address: 1, 3..7 Sonar A; 2, 9..15 Sonar B; 8 and 16 Sonar A",
+           Servo::functionOfAddress(1) == 1 && Servo::functionOfAddress(2) == 2 && Servo::functionOfAddress(3) == 1
+           && Servo::functionOfAddress(7) == 1 && Servo::functionOfAddress(8) == 1 && Servo::functionOfAddress(9) == 2
+           && Servo::functionOfAddress(15) == 2 && Servo::functionOfAddress(16) == 1);
     }
 
     std::printf("\nservo_check: %s\n", fails ? "FAILED" : "PASS");

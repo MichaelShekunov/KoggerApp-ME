@@ -80,7 +80,12 @@ $faults = @(
     @{ Name = 'the frequency sent as v0';                 File = 'id_binnary.cpp'; From = "id_out.create(SETTING, v1, id(), m_address);`n    id_out.write<U2>(hz);"; To = "id_out.create(SETTING, v0, id(), m_address);`n    id_out.write<U2>(hz);" },
     @{ Name = 'the frequency not read back';              File = 'id_binnary.cpp'; From = "emit binFrameOut(id_out);`n`n    simpleRequest(v1);"; To = 'emit binFrameOut(id_out);' },
     @{ Name = 'the frequency not read at the start';      File = 'id_binnary.h';   From = "simpleRequest(v0);`n        simpleRequest(v1);"; To = 'simpleRequest(v0);' },
-    @{ Name = 'the period one microsecond long';          File = 'id_binnary.h';   From = 'return hz > 0 ? 1000000 / hz : 0;'; To = 'return hz > 0 ? 1000000 / hz + 1 : 0;' }
+    @{ Name = 'the period one microsecond long';          File = 'id_binnary.h';   From = 'return hz > 0 ? 1000000 / hz : 0;'; To = 'return hz > 0 ? 1000000 / hz + 1 : 0;' },
+    @{ Name = 'the step source answer not taken';         File = 'id_binnary.cpp'; From = 'm_trigAddress  = proto.read<U1>();'; To = 'proto.read<U1>();' },
+    @{ Name = 'the step source sent with kind 0';         File = 'id_binnary.cpp'; From = 'id_out.write<U1>(TrigSonarPing);'; To = 'id_out.write<U1>(0);' },
+    @{ Name = 'function and address swapped';             File = 'id_binnary.cpp'; From = "id_out.write<U1>(function);`n    id_out.write<U1>(address);"; To = "id_out.write<U1>(address);`n    id_out.write<U1>(function);" },
+    @{ Name = 'the step source not read at the start';    File = 'id_binnary.h';   From = "simpleRequest(v1);`n        simpleRequest(v2);"; To = 'simpleRequest(v1);' },
+    @{ Name = 'address 2 taken for Sonar A';              File = 'id_binnary.h';   From = 'return (address == 2 || (address >= 9'; To = 'return ((address >= 9' }
 )
 
 $utf8 = New-Object System.Text.UTF8Encoding $false

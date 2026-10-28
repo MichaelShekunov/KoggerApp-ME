@@ -222,6 +222,9 @@ public:
     Q_PROPERTY(int servoPwmMinUs READ servoPwmMinUs WRITE setServoPwmMinUs NOTIFY servoControlChanged)
     Q_PROPERTY(int servoPwmMaxUs READ servoPwmMaxUs WRITE setServoPwmMaxUs NOTIFY servoControlChanged)
     Q_PROPERTY(int servoPwmHz READ servoPwmHz WRITE setServoPwmHz NOTIFY servoControlChanged)
+    Q_PROPERTY(int servoTriggerKind READ servoTriggerKind NOTIFY servoControlChanged)
+    Q_PROPERTY(int servoTriggerFunction READ servoTriggerFunction NOTIFY servoControlChanged)
+    Q_PROPERTY(int servoTriggerAddress READ servoTriggerAddress NOTIFY servoControlChanged)
     Q_PROPERTY(double servoAngleRangeDeg READ servoAngleRangeDeg WRITE setServoAngleRangeDeg NOTIFY servoControlChanged)
     Q_PROPERTY(double servoStepDeg READ servoStepDeg WRITE setServoStepDeg NOTIFY servoControlChanged)
     Q_PROPERTY(double servoRangeDeg READ servoRangeDeg WRITE setServoRangeDeg NOTIFY servoControlChanged)
@@ -337,6 +340,15 @@ public:
     // 0: the firmware has no frequency setting (ID_SERVO_CONTROL v1) and runs the servo at 50 Hz.
     int servoPwmHz() const { return idServoControl ? idServoControl->pwmHz() : 0; }
     void setServoPwmHz(int hz) { if (idServoControl) idServoControl->setPwmHz(static_cast<U2>(hz)); }
+
+    // What steps the scan (ID_SERVO_CONTROL v2): kind 0 while unknown (a firmware without it: every Sonar A device),
+    // 1 a sonar's pings; function 1 Sonar A, 2 Sonar B; address the device's host address, 0 any of the function.
+    int servoTriggerKind() const { return idServoControl ? idServoControl->trigKind() : 0; }
+    int servoTriggerFunction() const { return idServoControl ? idServoControl->trigFunction() : 1; }
+    int servoTriggerAddress() const { return idServoControl ? idServoControl->trigAddress() : 0; }
+    Q_INVOKABLE void setServoTrigger(int function, int address) {
+        if (idServoControl) idServoControl->setTrigger(static_cast<U1>(function), static_cast<U1>(address));
+    }
 
     double servoAngleRangeDeg() const {
         return idServoControl ? double(idServoControl->angleRangeDeg()) / IDBinServoControl::AngleScale : 0.0;

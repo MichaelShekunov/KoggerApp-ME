@@ -4269,23 +4269,23 @@ udp://@:1234
         <translation>कोड %1</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3889"/>
+        <location filename="../src/device/dev_driver.cpp" line="3898"/>
         <source>This firmware has no ring counters</source>
         <translation>इस फ़र्मवेयर में रिंग काउंटर नहीं हैं</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3890"/>
+        <location filename="../src/device/dev_driver.cpp" line="3899"/>
         <source>Refused by the board (code %1)</source>
         <translation>बोर्ड ने अस्वीकार किया (कोड %1)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3995"/>
+        <location filename="../src/device/dev_driver.cpp" line="4004"/>
         <source>Sync config rejected by device</source>
         <translation>डिवाइस ने सिंक कॉन्फ़िगरेशन अस्वीकार किया</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="4709"/>
-        <location filename="../src/device/dev_driver.cpp" line="4722"/>
+        <location filename="../src/device/dev_driver.cpp" line="4718"/>
+        <location filename="../src/device/dev_driver.cpp" line="4731"/>
         <source>no answer from the module</source>
         <translation>मॉड्यूल से कोई जवाब नहीं</translation>
     </message>
@@ -17713,157 +17713,187 @@ udp://@:1234
 <context>
     <name>ServoPanelBody</name>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="106"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="110"/>
         <source>Off</source>
         <translation>बंद</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="106"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="110"/>
         <source>ServoScan</source>
         <translation>ServoScan</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="298"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="121"/>
+        <source>Any sonar on Sonar A</source>
+        <translation>सोनार A इनपुट पर कोई भी सोनार</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ServoPanelBody.qml" line="122"/>
+        <source>Any sonar on Sonar B</source>
+        <translation>सोनार B इनपुट पर कोई भी सोनार</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ServoPanelBody.qml" line="132"/>
+        <source>address %1</source>
+        <translation>पता %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ServoPanelBody.qml" line="136"/>
+        <source>Address %1 on Sonar %2, not seen now</source>
+        <translation>सोनार %2 इनपुट पर पता %1, अभी नहीं दिख रहा</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ServoPanelBody.qml" line="344"/>
         <source>No servo device</source>
         <translation>कोई सर्वो डिवाइस नहीं</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="300"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="346"/>
         <source>On link %1</source>
         <translation>लिंक %1 पर</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="319"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="365"/>
         <source>Device</source>
         <translation>डिवाइस</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="334"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="380"/>
         <source>Control</source>
         <translation>नियंत्रण</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="337"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="383"/>
         <source>Enabled</source>
         <translation>सक्षम</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="354"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="400"/>
         <source>Manual</source>
         <translation>मैनुअल मोड</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="355"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="401"/>
         <source>The firmware does not support manual mode</source>
         <translation>फ़र्मवेयर मैनुअल मोड का समर्थन नहीं करता</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="357"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="403"/>
         <source>The servo holds the angle set with the knob; the scan waits until this is off.</source>
         <translation>सर्वो नॉब से सेट किए गए कोण पर टिका रहता है; इसे बंद करने तक स्कैन रुका रहता है।</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="372"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="418"/>
         <source>Current angle</source>
         <translation>वर्तमान कोण</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="421"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="467"/>
         <source>Angle, °</source>
         <translation>कोण, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="445"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="491"/>
         <source>Shift while dragging: finer. Wheel: 1°, with Ctrl: 0.1°.</source>
         <translation>खींचते समय Shift: अधिक बारीक। व्हील: 1°, Ctrl के साथ: 0.1°।</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="454"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="500"/>
         <source>Reverse mapping</source>
         <translation>उलटी मैपिंग</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="470"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="516"/>
         <source>Scan</source>
         <translation>स्कैन</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="474"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="520"/>
         <source>Waits while the servo is in manual mode.</source>
         <translation>सर्वो के मैनुअल मोड में रहने तक प्रतीक्षा करता है।</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="477"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="525"/>
+        <source>Steps on</source>
+        <translation>चरण का स्रोत</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ServoPanelBody.qml" line="527"/>
+        <source>Whose pings move the scan one step: any sonar on a Sonar A or Sonar B input of the recorder, or one sonar.</source>
+        <translation>किसके पिंग स्कैन को एक चरण आगे बढ़ाते हैं: रिकॉर्डर के सोनार A या सोनार B इनपुट पर कोई भी सोनार, या एक चुना हुआ सोनार।</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ServoPanelBody.qml" line="545"/>
         <source>Step, °</source>
         <translation>चरण, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="495"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="563"/>
         <source>Scan range, °</source>
         <translation>स्कैन रेंज, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="510"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="578"/>
         <source>Center, °</source>
         <translation>केंद्र, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="529"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="597"/>
         <source>More settings</source>
         <translation>अधिक सेटिंग्स</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="541"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="609"/>
         <source>Calibration</source>
         <translation>कैलिब्रेशन</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="547"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="615"/>
         <source>PWM min, µs</source>
         <translation>PWM न्यूनतम, µs</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="563"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="631"/>
         <source>PWM max, µs</source>
         <translation>PWM अधिकतम, µs</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="582"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="650"/>
         <source>PWM frequency, Hz</source>
         <translation>PWM आवृत्ति, Hz</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="583"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="651"/>
         <source>Period %1 µs, the pulse must be shorter. With PWM max %2 µs: up to %3 Hz.</source>
         <translation>अवधि %1 µs, पल्स इससे छोटी होनी चाहिए। PWM अधिकतम %2 µs पर: %3 Hz तक।</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="585"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="653"/>
         <source>Analog servos run at 50 Hz, digital ones usually up to 333 Hz. Higher frequencies suit only servos with a narrow pulse, shorter than the period.</source>
         <translation>एनालॉग सर्वो 50 Hz पर चलते हैं, डिजिटल सर्वो आमतौर पर 333 Hz तक। इससे ऊँची आवृत्ति केवल संकरी पल्स वाले सर्वो के लिए है, जिनकी पल्स अवधि से छोटी हो।</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="602"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="670"/>
         <source>Servo angle range, °</source>
         <translation>सर्वो कोण की रेंज, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="617"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="685"/>
         <source>PWM routing</source>
         <translation>PWM रूटिंग</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="623"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="691"/>
         <source>OUT1 (wired)</source>
         <translation>OUT1 (तार से जुड़ा)</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="639"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="707"/>
         <source>OUT2</source>
         <translation>OUT2</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="655"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="723"/>
         <source>OUT3</source>
         <translation>OUT3</translation>
     </message>

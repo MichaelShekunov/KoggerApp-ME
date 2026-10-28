@@ -3408,12 +3408,21 @@ void DevDriver::receivedDistSetup(Parsers::Type type, Parsers::Version ver, Pars
 void DevDriver::receivedServoControl(Parsers::Type type, Parsers::Version ver, Parsers::Resp resp) {
     Q_UNUSED(type);
 
-    if (ver == v1) {   // the PWM frequency
+    if (ver == v1 || ver == v2) {   // the PWM frequency, the step source
         if (resp == respNone) {
-            qInfo().noquote() << wifiTag() << QStringLiteral("servo: PWM %1 Hz").arg(idServoControl->pwmHz());
+            if (ver == v1) {
+                qInfo().noquote() << wifiTag() << QStringLiteral("servo: PWM %1 Hz").arg(idServoControl->pwmHz());
+            } else {
+                qInfo().noquote() << wifiTag() << QStringLiteral("servo: steps on kind %1, function %2, address %3")
+                                                      .arg(idServoControl->trigKind()).arg(idServoControl->trigFunction())
+                                                      .arg(idServoControl->trigAddress());
+            }
             emit servoControlChanged();
         } else if (resp != respOk) {
-            qInfo().noquote() << wifiTag() << QStringLiteral("servo: ID_SERVO_CONTROL v1 (PWM frequency) answered %1").arg(int(resp));
+            qInfo().noquote() << wifiTag() << QStringLiteral("servo: ID_SERVO_CONTROL v%1 (%2) answered %3")
+                                                  .arg(int(ver)).arg(ver == v1 ? QStringLiteral("PWM frequency")
+                                                                               : QStringLiteral("step source"))
+                                                  .arg(int(resp));
         }
         return;
     }
