@@ -3365,4 +3365,24 @@ logger; it answers ID_VERSION at 0 and 250.
   first frame + 2 s); the real logger on COM5 with the sonar streaming: found 0.6 s after connecting.
 - Seen, not touched: the logger's driver sends RECORDER_STATUS (0x26) and ID_STREAM (0x40) to route 0
   (`getDevAddress()`), as in the morning's log. One start of the test build crashed in
-  `GraphicsScene3dView::refreshSceneContentVisible` (0xc0000005, 16:05:11); five later starts did not.
+  `GraphicsScene3dView::refreshSceneContentVisible` (0xc0000005, 16:05:11): see the next section.
+
+## A start crashing in the 3D view: the camera called back into an unbuilt view (2026-10-28, branch `recorder-search`)
+
+The owner asked to look into the crash above here. **[verified]** from its dump (LOCALAPPDATA\CrashDumps
+KoggerApp.exe.11436.dmp, main thread): `QQmlPrivate::createInto<GraphicsScene3dView>` -> the view's constructor ->
+`Camera::Camera(view)` -> `reset()` -> `updateCameraParams()` -> `view->refreshSceneContentVisible()`, which read the
+view's `m_camera` (this+0x20) = 0x17 and faulted at `[rax+0xF0]`. The view builds `m_camera(make_shared<Camera>(this))`
+in its initializer list; at the first reset the camera turns perspective and tells the view, whose `m_camera` does not
+exist yet. Every start reads that slot; the heap's leftovers decide whether it crashes. Upstream code: the call came in
+with e05c0053 (2026-09-11, "rework isobaths display"), the emit beside it with 0c1432a1 (2026-01-19).
+
+- `Camera::notifyView_`: false until `Camera(GraphicsScene3dView*)` returns; the perspective notification
+  (cameraPerspectiveChanged + refreshSceneContentVisible) waits for it. Nothing is lost: no one is connected yet, and
+  `sceneContentVisible_` gets its initializer (true) after `m_camera` anyway. `viewPtr_` now defaults to nullptr (the
+  unused `Camera(pitch, yaw, ...)` left it unset).
+- **[verified]** `tools/qml_check/scene3d_ctor_check.ps1` (new): cdb starts the app on the test desktop, breaks at the
+  view's constructor and writes 0x17 into the m_camera slot. Without the fix (a677a54f and the installed 8a088699) the
+  access violation comes at KoggerApp+0x3a6ca6, the dump's address, every time; with it PASS, the app runs and quits.
+  Full check suite green; recordersearch_live PASS on the same build.
+- Not done: the official KoggerApp has the same lines; telling its programmer is the owner's call.

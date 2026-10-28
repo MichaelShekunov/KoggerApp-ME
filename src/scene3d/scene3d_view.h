@@ -169,7 +169,10 @@ public:
         float highDistThreshold_ = 5000.0f;
         float lowDistThreshold_ = highDistThreshold_ * 0.9f;
         QVector2D m_rotAngle;
-        GraphicsScene3dView* viewPtr_;
+        GraphicsScene3dView* viewPtr_ = nullptr;
+        // False while the constructor runs: the view builds its camera in its initializer list, so its m_camera
+        // and the members after it do not exist yet (a start read m_camera's garbage and crashed, 2026-10-28).
+        bool notifyView_ = false;
         LLARef datasetLlaRef_;
         LLA yerevanLla = LLA(40.1852f, 44.5149f, 0.0f);
         LLARef viewLlaRef_ = LLARef(yerevanLla);

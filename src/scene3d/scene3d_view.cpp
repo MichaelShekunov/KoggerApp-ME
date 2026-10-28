@@ -4592,6 +4592,7 @@ GraphicsScene3dView::Camera::Camera(GraphicsScene3dView* viewPtr) :
     viewPtr_(viewPtr)
 {
     setMapView();
+    notifyView_ = true;
 }
 
 GraphicsScene3dView::Camera::Camera(qreal pitch,
@@ -4919,7 +4920,7 @@ void GraphicsScene3dView::Camera::updateCameraParams()
 
     const bool prevPerspective = isPerspective_;
     isPerspective_ = resolvePerspectiveByGround(distToGround_, perspEdge, prevPerspective);
-    if (viewPtr_ && prevPerspective != isPerspective_) {
+    if (viewPtr_ && notifyView_ && prevPerspective != isPerspective_) {
         emit viewPtr_->cameraPerspectiveChanged(isPerspective_);
         viewPtr_->refreshSceneContentVisible();
     }
