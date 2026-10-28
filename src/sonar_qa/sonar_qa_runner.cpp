@@ -239,6 +239,10 @@ void SonarQaRunner::useDemo(int serial, const QString& fault)
     }
     auto* demo = new SonarQaDemoDevice(qEnvironmentVariable("KOGGER_SONARQA_DEMO") != QLatin1String("fast"), this);
     demo->m.serial = quint32(serial);
+    if (serial != 1001) {   // no two sonars alike: a little weaker, the resonance a little off
+        demo->m.gainDb = -0.8;
+        demo->m.f0 += 5;
+    }
     if (fault == QLatin1String("weak")) {
         demo->m.gainDb = -8;
     } else if (fault == QLatin1String("resonance")) {

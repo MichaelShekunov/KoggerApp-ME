@@ -185,7 +185,7 @@
     </message>
     <message>
         <location filename="../qml/app/AppSettingsPage.qml" line="298"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1822"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1824"/>
         <source>Export to CSV</source>
         <translation>CSV में निर्यात करें</translation>
     </message>
@@ -310,8 +310,8 @@
         <location filename="../qml/app/AppSettingsPage.qml" line="469"/>
         <location filename="../qml/app/AppSettingsPage.qml" line="1624"/>
         <location filename="../qml/app/AppSettingsPage.qml" line="1629"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1946"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1949"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1948"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1951"/>
         <source>Theme:</source>
         <translation>थीम:</translation>
     </message>
@@ -516,7 +516,7 @@
     </message>
     <message>
         <location filename="../qml/app/AppSettingsPage.qml" line="850"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2388"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2390"/>
         <source>USBL</source>
         <translation>USBL</translation>
     </message>
@@ -610,13 +610,13 @@
     </message>
     <message>
         <location filename="../qml/app/AppSettingsPage.qml" line="1167"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2245"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2247"/>
         <source>TGC</source>
         <translation>TGC</translation>
     </message>
     <message>
         <location filename="../qml/app/AppSettingsPage.qml" line="1168"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2239"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2241"/>
         <source>Open TGC settings</source>
         <translation>TGC सेटिंग्स खोलें</translation>
     </message>
@@ -662,7 +662,7 @@
     </message>
     <message>
         <location filename="../qml/app/AppSettingsPage.qml" line="1275"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2245"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2247"/>
         <source>Side-Scan</source>
         <translation>साइड-स्कैन</translation>
     </message>
@@ -768,7 +768,7 @@
     </message>
     <message>
         <location filename="../qml/app/AppSettingsPage.qml" line="1638"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1957"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1959"/>
         <source>Midnight</source>
         <translation>आधी रात</translation>
     </message>
@@ -779,31 +779,31 @@
     </message>
     <message>
         <location filename="../qml/app/AppSettingsPage.qml" line="1638"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1957"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1959"/>
         <source>Blue</source>
         <translation>नीला</translation>
     </message>
     <message>
         <location filename="../qml/app/AppSettingsPage.qml" line="1638"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1957"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1959"/>
         <source>Sepia</source>
         <translation>सेपिया</translation>
     </message>
     <message>
         <location filename="../qml/app/AppSettingsPage.qml" line="1638"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1957"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1959"/>
         <source>Sepia New</source>
         <translation>नया सेपिया</translation>
     </message>
     <message>
         <location filename="../qml/app/AppSettingsPage.qml" line="1638"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1957"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1959"/>
         <source>WRGBD</source>
         <translation>WRGBD</translation>
     </message>
     <message>
         <location filename="../qml/app/AppSettingsPage.qml" line="1638"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1957"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1959"/>
         <source>WhiteBlack</source>
         <translation>सफ़ेद-काला</translation>
     </message>
@@ -814,888 +814,889 @@
     </message>
     <message>
         <location filename="../qml/app/AppSettingsPage.qml" line="1638"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1957"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1959"/>
         <source>DeepBlue</source>
         <translation>गहरा नीला</translation>
     </message>
     <message>
         <location filename="../qml/app/AppSettingsPage.qml" line="1638"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1957"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1959"/>
         <source>Ice</source>
         <translation>बर्फ़</translation>
     </message>
     <message>
         <location filename="../qml/app/AppSettingsPage.qml" line="1638"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1957"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1959"/>
         <source>Green</source>
         <translation>हरा</translation>
     </message>
     <message>
         <location filename="../qml/app/AppSettingsPage.qml" line="1656"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1659"/>
         <source>Surface colouring:</source>
         <translation>सतह का रंग:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1663"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1664"/>
         <source>Gradient</source>
         <translation>ग्रेडिएंट</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1664"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1665"/>
         <source>Bands</source>
         <translation>पट्टियाँ</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1676"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1678"/>
         <source>Depth legend</source>
         <translation>गहराई लेजेंड</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1677"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1679"/>
         <source>Show the depth colour scale over the 3D scene</source>
         <translation>3D दृश्य के ऊपर गहराई का रंग स्केल दिखाएँ</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1684"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1689"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1686"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1691"/>
         <source>Edge limit, m:</source>
         <translation>भुजा सीमा, m:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1696"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1698"/>
         <source>Max triangulation edge length</source>
         <translation>त्रिभुजन की अधिकतम भुजा लंबाई</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1707"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1712"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1709"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1714"/>
         <source>Step, m:</source>
         <translation>अंतराल, m:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1719"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1721"/>
         <source>Isobath interval — spacing between depth lines</source>
         <translation>आइसोबाथ अंतराल — गहराई रेखाओं के बीच की दूरी</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1732"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1737"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1734"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1739"/>
         <source>Extra width, m:</source>
         <translation>अतिरिक्त चौड़ाई, m:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1744"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1746"/>
         <source>Surface extrapolation radius around the track</source>
         <translation>ट्रैक के चारों ओर सतह के एक्सट्रपलेशन की त्रिज्या</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1780"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1782"/>
         <source>Enter path</source>
         <translation>पथ दर्ज करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1790"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1792"/>
         <source>Choose the surface .csv file</source>
         <translation>सतह की .csv फ़ाइल चुनें</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1805"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1807"/>
         <source>Select folder and set .csv file name</source>
         <translation>फ़ोल्डर चुनें और .csv फ़ाइल का नाम सेट करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1823"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1825"/>
         <source>Export the surface to CSV</source>
         <translation>सतह को CSV में निर्यात करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1833"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1835"/>
         <source>Invalid characters in file name</source>
         <translation>फ़ाइल नाम में अमान्य वर्ण</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1838"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1840"/>
         <source>Surface exported to %1</source>
         <translation>सतह %1 में निर्यात की गई</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1839"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1841"/>
         <source>Surface export failed</source>
         <translation>सतह का निर्यात विफल रहा</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1873"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1875"/>
         <source>Mosaic</source>
         <translation>मोज़ेक</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1874"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1876"/>
         <source>Side-scan mosaic visualisation.</source>
         <translation>साइड-स्कैन मोज़ेक का प्रदर्शन।</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1957"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1959"/>
         <source>BlackWhite</source>
         <translation>काला-सफ़ेद</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1972"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1975"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1974"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1977"/>
         <source>Channels:</source>
         <translation>चैनल:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2084"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2087"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2086"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2089"/>
         <source>Angle, °:</source>
         <translation>कोण, °:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2099"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2101"/>
         <source>Left-side beam angle offset for the mosaic, °</source>
         <translation>मोज़ेक के लिए बाईं ओर की बीम के कोण का ऑफ़सेट, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2115"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2117"/>
         <source>Right-side beam angle offset for the mosaic, °</source>
         <translation>मोज़ेक के लिए दाईं ओर की बीम के कोण का ऑफ़सेट, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2134"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2136"/>
         <source>Trace line</source>
         <translation>ट्रेस रेखा</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2135"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2137"/>
         <source>Show the current mosaic trace line</source>
         <translation>मोज़ेक की वर्तमान ट्रेस रेखा दिखाएँ</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2148"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2150"/>
         <source>Track smoothing</source>
         <translation>ट्रैक स्मूदिंग</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2149"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2151"/>
         <source>Pings and the boat track on a line fitted through the GNSS fixes around them. Off: straight between neighbouring fixes and drawn at once, as before. Raw fixes are never changed.</source>
         <translation>पिंग और नाव का ट्रैक आसपास के GNSS फ़िक्सों से फ़िट की गई रेखा पर रखे जाते हैं। बंद: पहले की तरह, पड़ोसी फ़िक्सों के बीच सीधी रेखा पर और तुरंत बनाए जाते हैं। मूल फ़िक्स कभी नहीं बदले जाते।</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2158"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2163"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2160"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2165"/>
         <source>Smoothing:</source>
         <translation>स्मूदिंग:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2172"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2174"/>
         <source>Responsive</source>
         <translation>त्वरित</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2172"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2174"/>
         <source>Normal</source>
         <translation>सामान्य</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2172"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2174"/>
         <source>Smooth</source>
         <translation>स्मूद</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2174"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2176"/>
         <source>Accuracy against delay: a longer window averages more fixes and colours the mosaic later</source>
         <translation>सटीकता बनाम देरी: लंबी विंडो अधिक फ़िक्सों का औसत लेती है और मोज़ेक को बाद में रंगती है</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2189"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2191"/>
         <source>Reprocessing the recording…</source>
         <translation>रिकॉर्डिंग फिर से प्रोसेस हो रही है…</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2193"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2195"/>
         <source>Off: the mosaic is coloured at once</source>
         <translation>बंद: मोज़ेक तुरंत रंगा जाता है</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2195"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2197"/>
         <source>Waiting for timed GNSS fixes</source>
         <translation>समय-चिह्नित GNSS फ़िक्सों की प्रतीक्षा</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2197"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2199"/>
         <source>Smoothing inactive: too few fixes (N=%1 in a %2 s window, 12 needed)</source>
         <translation>स्मूदिंग निष्क्रिय: बहुत कम फ़िक्स (%2 s की विंडो में N=%1, 12 चाहिए)</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2200"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2202"/>
         <source>Window %1 s, mosaic delay %2 s (%3 fixes)</source>
         <translation>विंडो %1 s, मोज़ेक देरी %2 s (%3 फ़िक्स)</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2213"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2215"/>
         <source>Live data: a change applies to what comes next. To compare, open a recording.</source>
         <translation>लाइव डेटा: बदलाव आगे आने वाले डेटा पर लागू होता है। तुलना के लिए कोई रिकॉर्डिंग खोलें।</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2217"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2220"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2219"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2222"/>
         <source>Data source:</source>
         <translation>डेटा स्रोत:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2245"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2247"/>
         <source>Raw</source>
         <translation>रॉ</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2306"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2308"/>
         <source>Dataset: with position zeroing on</source>
         <translation>डेटासेट: स्थिति शून्यीकरण चालू होने पर</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2315"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2323"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2317"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2325"/>
         <source>Calc last N epochs:</source>
         <translation>अंतिम N एपॉक की गणना:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2345"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2347"/>
         <source>All</source>
         <translation>सभी</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2352"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2354"/>
         <source>Clear old data (*)</source>
         <translation>पुराना डेटा साफ़ करें (*)</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2389"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2391"/>
         <source>Acoustic nodes and their tracks displayed in the 3D scene.</source>
         <translation>3D दृश्य में दिखाए जाने वाले ध्वनिक नोड और उनके ट्रैक।</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2403"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2405"/>
         <source>Beacon tracks</source>
         <translation>बीकन ट्रैक</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2404"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2406"/>
         <source>Draw each beacon&apos;s track as a continuous line, or as a dot at every fix</source>
         <translation>हर बीकन का ट्रैक एक निरंतर रेखा के रूप में, या हर फ़िक्स पर एक बिंदु के रूप में बनाएँ</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2412"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2430"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2415"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2434"/>
         <source>Line</source>
         <translation>रेखा</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2413"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2431"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2416"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2435"/>
         <source>Dots</source>
         <translation>बिंदु</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2421"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2424"/>
         <source>USBL track</source>
         <translation>USBL ट्रैक</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2422"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2425"/>
         <source>Draw the acoustic head&apos;s own track as a continuous line, or as a dot at every fix</source>
         <translation>ध्वनिक हेड का अपना ट्रैक एक निरंतर रेखा के रूप में, या हर फ़िक्स पर एक बिंदु के रूप में बनाएँ</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2439"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2443"/>
         <source>Signal quality details</source>
         <translation>सिग्नल गुणवत्ता का विवरण</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2440"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2444"/>
         <source>Show the sync peak readings under each node&apos;s RSRQ in the USBL panel</source>
         <translation>USBL पैनल में हर नोड के RSRQ के नीचे सिंक शिखर के मान दिखाएँ</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2453"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2458"/>
         <source>Received message bytes</source>
         <translation>प्राप्त संदेश के बाइट्स</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2454"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2459"/>
         <source>Show the payload last received from each node in the USBL panel</source>
         <translation>USBL पैनल में हर नोड से अंतिम बार प्राप्त पेलोड दिखाएँ</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2467"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2473"/>
         <source>Antenna diagnostics</source>
         <translation>एंटीना निदान</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2468"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2474"/>
         <source>Show the array fit and the channel levels under each node in the USBL panel; click the line for the per-channel view</source>
         <translation>USBL पैनल में हर नोड के नीचे ऐरे फ़िट और चैनल स्तर दिखाएँ; प्रति-चैनल दृश्य के लिए पंक्ति पर क्लिक करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2481"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2488"/>
         <source>Fit misfit above</source>
         <translation>फ़िट विचलन इससे अधिक</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2482"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2489"/>
         <source>Antenna diagnostics: a misfit above this marks the antenna for a check</source>
         <translation>एंटीना निदान: इससे अधिक विचलन होने पर एंटीना को जाँच के लिए चिह्नित किया जाता है</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2500"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2508"/>
         <source>Amplitude part above</source>
         <translation>आयाम हिस्सा इससे अधिक</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2501"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2509"/>
         <source>Antenna diagnostics: the share of the misfit from unequal channel amplitudes</source>
         <translation>एंटीना निदान: असमान चैनल आयामों से आने वाला विचलन का हिस्सा</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2519"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2528"/>
         <source>Phase part above</source>
         <translation>फ़ेज़ हिस्सा इससे अधिक</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2520"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2529"/>
         <source>Antenna diagnostics: the share of the misfit from channel phases off a plane wave</source>
         <translation>एंटीना निदान: समतल तरंग से हटे चैनल फ़ेज़ से आने वाला विचलन का हिस्सा</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2538"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2548"/>
         <source>Alt. margin below, dB</source>
         <translation>वैक. मार्जिन इससे कम, dB</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2539"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2549"/>
         <source>Antenna diagnostics: how much worse the best other direction must fit than the reported one</source>
         <translation>एंटीना निदान: सबसे अच्छी दूसरी दिशा का फ़िट बताई गई दिशा से कितना ख़राब होना चाहिए</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2557"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2568"/>
         <source>Channel level below, dB</source>
         <translation>चैनल स्तर इससे कम, dB</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2558"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2569"/>
         <source>Antenna diagnostics: a channel this far below the strongest is marked low, and 10 dB further down, dead</source>
         <translation>एंटीना निदान: सबसे मज़बूत चैनल से इतना नीचे वाला चैनल कमज़ोर चिह्नित होता है, और 10 dB और नीचे होने पर निष्क्रिय</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2576"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2588"/>
         <source>Antenna thresholds</source>
         <translation>एंटीना थ्रेशोल्ड</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2577"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2589"/>
         <source>Restore the default antenna diagnostics thresholds</source>
         <translation>एंटीना निदान के डिफ़ॉल्ट थ्रेशोल्ड पुनर्स्थापित करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2596"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2608"/>
         <source>No acoustic nodes yet. Open a file containing beacon fixes, or add an address below.</source>
         <translation>अभी कोई ध्वनिक नोड नहीं है। बीकन फ़िक्स वाली फ़ाइल खोलें, या नीचे एक पता जोड़ें।</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2608"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2620"/>
         <source>Address %1</source>
         <translation>पता %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2610"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2622"/>
         <source>detected in the opened file</source>
         <translation>खोली गई फ़ाइल में मिला</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2611"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2623"/>
         <source>from the interrogation plan</source>
         <translation>पूछताछ योजना से</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2635"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2647"/>
         <source>Add an address the plan does not name yet</source>
         <translation>ऐसा पता जोड़ें जो योजना में अभी नहीं है</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2657"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2669"/>
         <source>Add a node at address %1</source>
         <translation>पता %1 पर एक नोड जोड़ें</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2672"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2684"/>
         <source>Video</source>
         <translation>वीडियो</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2673"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2685"/>
         <source>Per-window video settings.</source>
         <translation>प्रत्येक विंडो की वीडियो सेटिंग्स।</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2692"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2704"/>
         <source>No video windows displayed. You can add one while editing the workspace.</source>
         <translation>कोई वीडियो विंडो प्रदर्शित नहीं है। कार्यक्षेत्र संपादित करते समय आप एक जोड़ सकते हैं।</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2723"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2735"/>
         <source>Echograms</source>
         <translation>इकोग्राम</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2724"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2736"/>
         <source>Per-echogram display settings.</source>
         <translation>प्रत्येक इकोग्राम की प्रदर्शन सेटिंग्स।</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2740"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2752"/>
         <source>No echograms displayed</source>
         <translation>कोई इकोग्राम प्रदर्शित नहीं</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2770"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3253"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2782"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3265"/>
         <source>Loupe</source>
         <translation>आवर्धक लेंस</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2784"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3271"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2796"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3283"/>
         <source>Loupe size</source>
         <translation>आवर्धक लेंस का आकार</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2785"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3275"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3445"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3563"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3622"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2797"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3287"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3457"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3575"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3634"/>
         <source>Size</source>
         <translation>आकार</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2801"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3291"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2813"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3303"/>
         <source>Loupe zoom</source>
         <translation>आवर्धक लेंस ज़ूम</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2803"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2815"/>
         <source>Zoom</source>
         <translation>ज़ूम</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2847"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2859"/>
         <source>Sync echograms</source>
         <translation>इकोग्राम सिंक करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2849"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2861"/>
         <source>Sync the cursor position across all echograms</source>
         <translation>सभी इकोग्राम में कर्सर की स्थिति सिंक करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2863"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2875"/>
         <source>Sync view</source>
         <translation>दृश्य सिंक करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2867"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2879"/>
         <source>Sync scroll and zoom across echograms</source>
         <translation>इकोग्राम के बीच स्क्रॉल और ज़ूम सिंक करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2881"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2893"/>
         <source>Information panel</source>
         <translation>सूचना पैनल</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2883"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2895"/>
         <source>Configure the information panel</source>
         <translation>सूचना पैनल कॉन्फ़िगर करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2896"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2908"/>
         <source>Vehicle mission</source>
         <translation>वाहन का मिशन</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2897"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2909"/>
         <source>The mission read from the autopilot, followed in the 3D scene while it runs.</source>
         <translation>ऑटोपायलट से पढ़ा गया मिशन, जिसकी प्रगति चलने के दौरान 3D दृश्य में दिखाई जाती है।</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2912"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2924"/>
         <source>In the 3D scene</source>
         <translation>3D दृश्य में</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2921"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2933"/>
         <source>Geofence</source>
         <translation>जियोफ़ेंस</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2935"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2947"/>
         <source>Rally points</source>
         <translation>रैली पॉइंट</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2949"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2961"/>
         <source>Vehicle home (H)</source>
         <translation>वाहन का होम (H)</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2963"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2975"/>
         <source>Line from the boat to the target</source>
         <translation>नाव से लक्ष्य तक की रेखा</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2977"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2989"/>
         <source>Point numbers</source>
         <translation>बिंदुओं के क्रमांक</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2993"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3005"/>
         <source>Route lines</source>
         <translation>मार्ग की रेखाएँ</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3001"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3013"/>
         <source>Ahead</source>
         <translation>आगे का भाग</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3011"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3023"/>
         <source>Current leg</source>
         <translation>वर्तमान खंड</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3021"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3033"/>
         <source>Flown</source>
         <translation>तय किया गया भाग</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3033"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3045"/>
         <source>Line width</source>
         <translation>रेखा की मोटाई</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3055"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3089"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3067"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3101"/>
         <source>%1 px</source>
         <translation>%1 px</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3067"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3079"/>
         <source>Current leg width</source>
         <translation>वर्तमान खंड की मोटाई</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2583"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3102"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2595"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3114"/>
         <source>Defaults</source>
         <translation>डिफ़ॉल्ट</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3110"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3122"/>
         <source>Behaviour</source>
         <translation>व्यवहार</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3119"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3131"/>
         <source>Read the mission automatically</source>
         <translation>मिशन स्वचालित रूप से पढ़ें</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3120"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3132"/>
         <source>When the vehicle connects and when its mission changes. Off: read it by hand from the editor or the autopilot card</source>
         <translation>जब वाहन कनेक्ट होता है और जब उसका मिशन बदलता है। बंद: इसे संपादक या ऑटोपायलट कार्ड से हाथ से पढ़ें</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3134"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3146"/>
         <source>Start an uploaded mission from its beginning</source>
         <translation>अपलोड किया गया मिशन शुरुआत से शुरू करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3135"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3147"/>
         <source>After an upload outside Auto the vehicle&apos;s current item is reset, so Auto starts at the first point instead of the item number left from an earlier run</source>
         <translation>AUTO के बाहर अपलोड करने पर वाहन का वर्तमान आइटम रीसेट हो जाता है, ताकि AUTO पिछली बार से बचे आइटम क्रमांक के बजाय पहले बिंदु से शुरू हो</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3152"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3164"/>
         <source>Mission editor</source>
         <translation>मिशन संपादक</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3192"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3204"/>
         <source>3D scene</source>
         <translation>3D दृश्य</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3193"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3205"/>
         <source>3D scene settings, map provider switching.</source>
         <translation>3D दृश्य की सेटिंग्स, नक्शा प्रदाता बदलना।</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3208"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3220"/>
         <source>Rendering</source>
         <translation>रेंडरिंग</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3217"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3229"/>
         <source>Show surface quality</source>
         <translation>सतह की गुणवत्ता दिखाएँ</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3219"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3231"/>
         <source>Show the surface quality label in the 3D scene</source>
         <translation>3D दृश्य में सतह गुणवत्ता का लेबल दिखाएँ</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3234"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3246"/>
         <source>Force zoom</source>
         <translation>निश्चित ज़ूम</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3296"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3308"/>
         <source>Zoom, %:</source>
         <translation>ज़ूम, %:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3339"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3351"/>
         <source>North mode</source>
         <translation>उत्तर मोड</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3341"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3353"/>
         <source>Orient the 3D view to north (north stays up)</source>
         <translation>3D दृश्य को उत्तर की ओर उन्मुख करें (उत्तर ऊपर रहता है)</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3359"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3371"/>
         <source>Sync echogram</source>
         <translation>इकोग्राम सिंक करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3361"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3373"/>
         <source>Sync the cursor between the 2D echogram and the 3D scene</source>
         <translation>2D इकोग्राम और 3D दृश्य के बीच कर्सर सिंक करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3379"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3391"/>
         <source>Grid</source>
         <translation>ग्रिड</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3401"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3413"/>
         <source>Circle</source>
         <translation>वृत्ताकार</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3423"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3435"/>
         <source>Labels</source>
         <translation>लेबल</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3441"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3453"/>
         <source>Circle grid size</source>
         <translation>वृत्ताकार ग्रिड का आकार</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3461"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3473"/>
         <source>Circle grid step</source>
         <translation>वृत्ताकार ग्रिड का अंतराल</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3465"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3477"/>
         <source>Step</source>
         <translation>अंतराल</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3481"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3493"/>
         <source>Circle grid angle</source>
         <translation>वृत्ताकार ग्रिड का कोण</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3485"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3497"/>
         <source>Angle</source>
         <translation>कोण</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3502"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3514"/>
         <source>Shadows</source>
         <translation>छायाएँ</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3521"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3533"/>
         <source>Navigation arrow</source>
         <translation>नेविगेशन तीर</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3539"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3551"/>
         <source>Arrow shape</source>
         <translation>तीर की आकृति</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3543"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3555"/>
         <source>Shape</source>
         <translation>आकृति</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3549"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3561"/>
         <source>Arrow</source>
         <translation>तीर</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3549"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3561"/>
         <source>Boat</source>
         <translation>नाव</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3559"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3571"/>
         <source>Arrow size</source>
         <translation>तीर का आकार</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3580"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3592"/>
         <source>Compass</source>
         <translation>कंपास</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3598"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3610"/>
         <source>Compass position</source>
         <translation>कंपास की स्थिति</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3602"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3614"/>
         <source>Position</source>
         <translation>स्थिति</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3618"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3630"/>
         <source>Compass size</source>
         <translation>कंपास का आकार</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3639"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3651"/>
         <source>Scale bar</source>
         <translation>स्केल बार</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3641"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3653"/>
         <source>Show the scale bar in the 3D scene</source>
         <translation>3D दृश्य में स्केल बार दिखाएँ</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3685"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3697"/>
         <source>Map</source>
         <translation>नक्शा</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3694"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3706"/>
         <source>Show map tiles</source>
         <translation>नक्शे की टाइलें दिखाएँ</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3714"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3726"/>
         <source>Limit downloads on metered networks</source>
         <translation>मीटर्ड नेटवर्क पर डाउनलोड सीमित करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3758"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3770"/>
         <source>Metered network (limited)</source>
         <translation>मीटर्ड नेटवर्क (सीमित)</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3781"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3793"/>
         <source>Internet available</source>
         <translation>इंटरनेट उपलब्ध</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3782"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3794"/>
         <source>Internet unavailable</source>
         <translation>इंटरनेट उपलब्ध नहीं</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3790"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3802"/>
         <source>Providers</source>
         <translation>प्रदाता</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3815"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3827"/>
         <source>Cache: empty</source>
         <translation>कैश: खाली</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3822"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3834"/>
         <source>Cache since %1  •  %2 MB</source>
         <translation>कैश %1 से  •  %2 MB</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3851"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3863"/>
         <source>Navigator</source>
         <translation>नेविगेटर</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3860"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3872"/>
         <source>Use angle</source>
         <translation>दिशा कोण का उपयोग करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3879"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3891"/>
         <source>Navigator view</source>
         <translation>नेविगेटर दृश्य</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3899"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3911"/>
         <source>Data</source>
         <translation>डेटा</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3915"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3927"/>
         <source>Reset surface</source>
         <translation>सतह रीसेट करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3931"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3943"/>
         <source>Clear?</source>
         <translation>साफ़ करें?</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3942"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3954"/>
         <source>Cancel</source>
         <translation>रद्द करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="4007"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="4019"/>
         <source>Test</source>
         <translation>परीक्षण</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="4008"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="4020"/>
         <source>Developer knobs — visible only in MANUAL_TESTING builds.</source>
         <translation>डेवलपर नियंत्रण — केवल MANUAL_TESTING बिल्ड में दिखते हैं।</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="4022"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="4034"/>
         <source>Double-tap tolerance, px:</source>
         <translation>डबल-टैप टॉलरेंस, px:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="4052"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="4064"/>
         <source>Split grab thickness, px:</source>
         <translation>विभाजक पकड़ने की मोटाई, px:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="4081"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="4093"/>
         <source>Sidebar slide, ms:</source>
         <translation>साइडबार स्लाइड, ms:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="4110"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="4122"/>
         <source>Workspace adjust, ms:</source>
         <translation>कार्यक्षेत्र समायोजन, ms:</translation>
     </message>
@@ -4292,54 +4293,69 @@ udp://@:1234
 <context>
     <name>DeveloperSettingsTab</name>
     <message>
-        <location filename="../qml/app/DeveloperSettingsTab.qml" line="30"/>
+        <location filename="../qml/app/DeveloperSettingsTab.qml" line="43"/>
         <source>Developer mode</source>
         <translation>डेवलपर मोड</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeveloperSettingsTab.qml" line="31"/>
+        <location filename="../qml/app/DeveloperSettingsTab.qml" line="44"/>
         <source>Unlocks panels and controls meant for development. Turning it off hides this page.</source>
         <translation>डेवलपमेंट के लिए बने पैनल और नियंत्रण अनलॉक करता है। इसे बंद करने पर यह पेज छिप जाता है।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeveloperSettingsTab.qml" line="50"/>
+        <location filename="../qml/app/DeveloperSettingsTab.qml" line="63"/>
         <source>Isobaths pipeline status</source>
         <translation>आइसोबाथ पाइपलाइन की स्थिति</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeveloperSettingsTab.qml" line="51"/>
+        <location filename="../qml/app/DeveloperSettingsTab.qml" line="64"/>
         <source>Shows the bathymetry pipeline state in the Isobaths group. Polling adds load to the pipeline — keep it off unless diagnosing.</source>
         <translation>आइसोबाथ समूह में बैथीमेट्री पाइपलाइन की स्थिति दिखाता है। पोलिंग से पाइपलाइन पर लोड बढ़ता है — जब तक निदान न कर रहे हों, इसे बंद रखें।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeveloperSettingsTab.qml" line="68"/>
+        <location filename="../qml/app/DeveloperSettingsTab.qml" line="81"/>
         <source>Mosaic pipeline status</source>
         <translation>मोज़ेक पाइपलाइन की स्थिति</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeveloperSettingsTab.qml" line="69"/>
+        <location filename="../qml/app/DeveloperSettingsTab.qml" line="82"/>
         <source>Shows the mosaic pipeline state in the Mosaic group. Polling adds load to the pipeline — keep it off unless diagnosing.</source>
         <translation>मोज़ेक समूह में मोज़ेक पाइपलाइन की स्थिति दिखाता है। पोलिंग से पाइपलाइन पर लोड बढ़ता है — जब तक निदान न कर रहे हों, इसे बंद रखें।</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeveloperSettingsTab.qml" line="88"/>
+        <location filename="../qml/app/DeveloperSettingsTab.qml" line="101"/>
         <source>Application log</source>
         <translation>ऐप्लिकेशन लॉग</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeveloperSettingsTab.qml" line="89"/>
+        <location filename="../qml/app/DeveloperSettingsTab.qml" line="102"/>
         <source>Log file is not active</source>
         <translation>लॉग फ़ाइल सक्रिय नहीं है</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeveloperSettingsTab.qml" line="97"/>
+        <location filename="../qml/app/DeveloperSettingsTab.qml" line="110"/>
         <source>Open folder</source>
         <translation>फ़ोल्डर खोलें</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeveloperSettingsTab.qml" line="104"/>
+        <location filename="../qml/app/DeveloperSettingsTab.qml" line="117"/>
         <source>Copy path</source>
         <translation>पथ कॉपी करें</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeveloperSettingsTab.qml" line="127"/>
+        <source>Sonar acceptance</source>
+        <translation>सोनार जाँच</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeveloperSettingsTab.qml" line="128"/>
+        <source>nanoSSS on the water stand: the reference sonar and the sonars under test compared over a frequency sweep</source>
+        <translation>पानी वाले स्टैंड पर nanoSSS: संदर्भ सोनार और जाँच वाले सोनारों की आवृत्ति स्वीप पर तुलना</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeveloperSettingsTab.qml" line="134"/>
+        <source>Open</source>
+        <translation>खोलें</translation>
     </message>
 </context>
 <context>
@@ -15783,32 +15799,32 @@ udp://@:1234
 <context>
     <name>Pane3DWindow</name>
     <message>
-        <location filename="../qml/app/Pane3DWindow.qml" line="167"/>
+        <location filename="../qml/app/Pane3DWindow.qml" line="166"/>
         <source>Viewing a past moment</source>
         <translation>पिछला क्षण देखा जा रहा है</translation>
     </message>
     <message>
-        <location filename="../qml/app/Pane3DWindow.qml" line="174"/>
+        <location filename="../qml/app/Pane3DWindow.qml" line="173"/>
         <source>Back to live</source>
         <translation>लाइव पर लौटें</translation>
     </message>
     <message>
-        <location filename="../qml/app/Pane3DWindow.qml" line="257"/>
+        <location filename="../qml/app/Pane3DWindow.qml" line="256"/>
         <source>Surface: </source>
         <translation>सतह: </translation>
     </message>
     <message>
-        <location filename="../qml/app/Pane3DWindow.qml" line="257"/>
+        <location filename="../qml/app/Pane3DWindow.qml" line="256"/>
         <source> cm/cell</source>
         <translation> cm/सेल</translation>
     </message>
     <message>
-        <location filename="../qml/app/Pane3DWindow.qml" line="259"/>
+        <location filename="../qml/app/Pane3DWindow.qml" line="258"/>
         <source>Mosaic: </source>
         <translation>मोज़ेक: </translation>
     </message>
     <message>
-        <location filename="../qml/app/Pane3DWindow.qml" line="259"/>
+        <location filename="../qml/app/Pane3DWindow.qml" line="258"/>
         <source> cm/pix</source>
         <translation> cm/pix</translation>
     </message>
@@ -18031,6 +18047,602 @@ udp://@:1234
         <location filename="../qml/legacy_qml/devices/SonarBox.qml" line="149"/>
         <source>Export</source>
         <translation>निर्यात करें</translation>
+    </message>
+</context>
+<context>
+    <name>SonarQaRunner</name>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="52"/>
+        <source>No echogram from the sonar for %1 s</source>
+        <translation>%1 सेकंड से सोनार से इकोग्राम नहीं आया</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="104"/>
+        <source>The sonar went away</source>
+        <translation>सोनार डिस्कनेक्ट हो गया</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="264"/>
+        <source>A run is going on</source>
+        <translation>जाँच चल रही है</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="267"/>
+        <source>No sonar selected</source>
+        <translation>कोई सोनार चुना नहीं गया</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="273"/>
+        <source>The sonar has not answered yet</source>
+        <translation>सोनार ने अभी तक उत्तर नहीं दिया</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="273"/>
+        <source>Not a nanoSSS (board %1)</source>
+        <translation>यह nanoSSS नहीं है (बोर्ड %1)</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="276"/>
+        <source>The sonar has not reported its serial number</source>
+        <translation>सोनार ने अपना सीरियल नंबर नहीं बताया</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="282"/>
+        <source>No reference yet: make the baseline on the reference sonar first</source>
+        <translation>अभी संदर्भ नहीं है: पहले संदर्भ सोनार पर आधार बनाएँ</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="286"/>
+        <source>This is not the reference sonar (that is serial %1)</source>
+        <translation>यह संदर्भ सोनार नहीं है (संदर्भ का सीरियल %1 है)</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="290"/>
+        <source>Unknown run</source>
+        <translation>अज्ञात जाँच</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="293"/>
+        <source>This is the reference sonar: run its check instead</source>
+        <translation>यह संदर्भ सोनार है: इसकी जाँच चलाएँ</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="296"/>
+        <source>The reference&apos;s last check moved away from its baseline: look at the stand, check the reference again or accept the check</source>
+        <translation>संदर्भ की पिछली जाँच उसके आधार से हट गई: स्टैंड देखें, संदर्भ फिर से जाँचें या जाँच स्वीकार करें</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="300"/>
+        <source>%1 sonars tested since the reference&apos;s check: check the reference again</source>
+        <translation>संदर्भ की जाँच के बाद %1 सोनार जाँचे गए: संदर्भ फिर से जाँचें</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="306"/>
+        <source>The reference&apos;s check cannot be read: %1</source>
+        <translation>संदर्भ की जाँच पढ़ी नहीं जा सकती: %1</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="310"/>
+        <source>Firmware %1, the reference has %2: load the same firmware</source>
+        <translation>फ़र्मवेयर %1, संदर्भ में %2 है: वही फ़र्मवेयर डालें</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="345"/>
+        <source>The reference run cannot be read: %1</source>
+        <translation>संदर्भ की जाँच पढ़ी नहीं जा सकती: %1</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="373"/>
+        <source>Setting the sonar up</source>
+        <translation>सोनार सेट किया जा रहा है</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="382"/>
+        <source>Stopped</source>
+        <translation>रोक दिया गया</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="414"/>
+        <source>The sonar gives %1 samples a side, the reference %2</source>
+        <translation>सोनार हर तरफ़ %1 सैंपल देता है, संदर्भ %2</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="489"/>
+        <source>%1 kHz, %2 pulses</source>
+        <translation>%1 kHz, %2 पल्स</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="490"/>
+        <source>%1 kHz, transmitter off</source>
+        <translation>%1 kHz, ट्रांसमीटर बंद</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="569"/>
+        <source>Saved: %1</source>
+        <translation>सहेजा गया: %1</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="569"/>
+        <source>Not saved: %1</source>
+        <translation>सहेजा नहीं गया: %1</translation>
+    </message>
+</context>
+<context>
+    <name>SonarQaWindow</name>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="11"/>
+        <source>Sonar acceptance: nanoSSS</source>
+        <translation>सोनार जाँच: nanoSSS</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="40"/>
+        <source>%1 min %2 s</source>
+        <translation>%1 मिनट %2 सेकंड</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="40"/>
+        <source>%1 s</source>
+        <translation>%1 सेकंड</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="43"/>
+        <source>Same sweep as the reference</source>
+        <translation>संदर्भ जैसा ही स्वीप</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="44"/>
+        <source>Reflection in the band, mean</source>
+        <translation>बैंड में परावर्तन, औसत</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="45"/>
+        <source>Reflection in the band, worst</source>
+        <translation>बैंड में परावर्तन, सबसे खराब</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="46"/>
+        <source>Resonance</source>
+        <translation>अनुनाद</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="47"/>
+        <source>Bandwidth</source>
+        <translation>बैंडविड्थ</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="48"/>
+        <source>Noise, transmitter off</source>
+        <translation>शोर, ट्रांसमीटर बंद</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="49"/>
+        <source>Ringing after the burst</source>
+        <translation>पल्स के बाद की गूँज</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="50"/>
+        <source>Target position (placement)</source>
+        <translation>लक्ष्य की स्थिति (स्थापना)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="51"/>
+        <source>Saturation</source>
+        <translation>संतृप्ति</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="52"/>
+        <source>Balance of the sides</source>
+        <translation>दोनों तरफ़ का संतुलन</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="53"/>
+        <source>Supply</source>
+        <translation>बिजली आपूर्ति</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="54"/>
+        <source>Temperature</source>
+        <translation>तापमान</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="55"/>
+        <source>Temperature against the reference</source>
+        <translation>संदर्भ की तुलना में तापमान</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="61"/>
+        <source>PASSED</source>
+        <translation>पास</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="62"/>
+        <source>FAILED</source>
+        <translation>फ़ेल</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="63"/>
+        <source>REFERENCE SET</source>
+        <translation>संदर्भ तय हुआ</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="64"/>
+        <source>REFERENCE CHECKED</source>
+        <translation>संदर्भ जाँचा गया</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="65"/>
+        <source>REFERENCE MOVED AWAY FROM ITS BASELINE</source>
+        <translation>संदर्भ अपने आधार से हट गया</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="131"/>
+        <source>Sonar on the stand</source>
+        <translation>स्टैंड पर सोनार</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="133"/>
+        <source>Sonar</source>
+        <translation>सोनार</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="135"/>
+        <source>serial %1 · firmware %2 · board %3</source>
+        <translation>सीरियल %1 · फ़र्मवेयर %2 · बोर्ड %3</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="136"/>
+        <source> · the reference</source>
+        <translation> · संदर्भ</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="137"/>
+        <source>No nanoSSS connected</source>
+        <translation>कोई nanoSSS जुड़ा नहीं है</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="150"/>
+        <source>Simulated sonar</source>
+        <translation>नकली सोनार</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="151"/>
+        <source>KOGGER_SONARQA_DEMO: a sonar in a tank, to try the window without a stand</source>
+        <translation>KOGGER_SONARQA_DEMO: टैंक में सोनार, स्टैंड के बिना विंडो आज़माने के लिए</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="155"/>
+        <source>Reference 1001</source>
+        <translation>संदर्भ 1001</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="156"/>
+        <source>Good 2001</source>
+        <translation>ठीक 2001</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="157"/>
+        <source>Weak 2002</source>
+        <translation>कमज़ोर 2002</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="164"/>
+        <source>Test</source>
+        <translation>जाँच</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="166"/>
+        <source>Sonar under test</source>
+        <translation>जाँच वाला सोनार</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="168"/>
+        <source>The same sweep and settings as the reference&apos;s check; the result is saved by serial number</source>
+        <translation>संदर्भ की जाँच जैसा ही स्वीप और सेटिंग्स; परिणाम सीरियल नंबर के अनुसार सहेजा जाता है</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="173"/>
+        <source>Test this sonar</source>
+        <translation>इस सोनार को जाँचें</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="183"/>
+        <source>Run in progress</source>
+        <translation>जाँच चल रही है</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="183"/>
+        <source>Last run</source>
+        <translation>पिछली जाँच</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="199"/>
+        <source>about %1 left</source>
+        <translation>लगभग %1 बाकी</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="203"/>
+        <source>Stop</source>
+        <translation>रोकें</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="217"/>
+        <source>Supply %1 V · temperature %2 °C</source>
+        <translation>आपूर्ति %1 V · तापमान %2 °C</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="261"/>
+        <source>Result</source>
+        <translation>परिणाम</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="279"/>
+        <source>warnings: %1</source>
+        <translation>चेतावनियाँ: %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="285"/>
+        <source>Serial %1 · firmware %2 · %3</source>
+        <translation>सीरियल %1 · फ़र्मवेयर %2 · %3</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="286"/>
+        <source>Saved: %1</source>
+        <translation>सहेजा गया: %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="286"/>
+        <source>Not saved: %1</source>
+        <translation>सहेजा नहीं गया: %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="308"/>
+        <source>, side %1</source>
+        <translation>, तरफ़ %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="329"/>
+        <source>Side 1</source>
+        <translation>तरफ़ 1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="330"/>
+        <source>Side 2</source>
+        <translation>तरफ़ 2</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="333"/>
+        <source>First reflection, codes (2.5 a dB)</source>
+        <translation>पहला परावर्तन, कोड (प्रति dB 2.5)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="334"/>
+        <source>Noise with the transmitter off, codes</source>
+        <translation>ट्रांसमीटर बंद होने पर शोर, कोड</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="335"/>
+        <source>Ringing after the burst, samples</source>
+        <translation>पल्स के बाद की गूँज, सैंपल</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="340"/>
+        <source>this sonar</source>
+        <translation>यह सोनार</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="340"/>
+        <source>reference (dashed)</source>
+        <translation>संदर्भ (डैश रेखा)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="405"/>
+        <source>Reference sonar</source>
+        <translation>संदर्भ सोनार</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="407"/>
+        <source>Reference</source>
+        <translation>संदर्भ</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="409"/>
+        <source>serial %1 · baseline %2</source>
+        <translation>सीरियल %1 · आधार %2</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="410"/>
+        <source>Not set: connect the reference sonar and make its baseline</source>
+        <translation>तय नहीं: संदर्भ सोनार जोड़ें और उसका आधार बनाएँ</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="415"/>
+        <source>Last check</source>
+        <translation>पिछली जाँच</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="417"/>
+        <source>agrees with the baseline</source>
+        <translation>आधार से मेल खाती है</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="417"/>
+        <source>moved away from the baseline</source>
+        <translation>आधार से हट गई</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="423"/>
+        <source>Sonars left until the next check</source>
+        <translation>अगली जाँच तक बचे सोनार</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="424"/>
+        <source>%1 of %2</source>
+        <translation>%2 में से %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="428"/>
+        <source>Runs of the reference</source>
+        <translation>संदर्भ की जाँचें</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="437"/>
+        <source>Check the reference</source>
+        <translation>संदर्भ जाँचें</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="443"/>
+        <source>Make the baseline</source>
+        <translation>आधार बनाएँ</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="455"/>
+        <source>Accept the check</source>
+        <translation>जाँच स्वीकार करें</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="464"/>
+        <source>Replace the reference (serial %1) and its baseline with this sonar?</source>
+        <translation>संदर्भ (सीरियल %1) और उसका आधार इस सोनार से बदलें?</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="467"/>
+        <source>Replace</source>
+        <translation>बदलें</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="469"/>
+        <source>Cancel</source>
+        <translation>रद्द करें</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="478"/>
+        <source>Sweep and limits</source>
+        <translation>स्वीप और सीमाएँ</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="481"/>
+        <source>Sweep</source>
+        <translation>स्वीप</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="482"/>
+        <source>Used by the next baseline; checks and tests take the baseline&apos;s. Samples count both sides of a nanoSSS (2000 = 1000 a side). Above 30 pulses the firmware switches to chirp.</source>
+        <translation>अगले आधार में उपयोग होता है; जाँचें आधार का स्वीप लेती हैं। सैंपल nanoSSS की दोनों तरफ़ गिनते हैं (2000 = हर तरफ़ 1000)। 30 से अधिक पल्स पर फ़र्मवेयर चर्प पर चला जाता है।</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="488"/>
+        <source>From, kHz</source>
+        <translation>से, kHz</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="489"/>
+        <source>To, kHz</source>
+        <translation>तक, kHz</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="490"/>
+        <source>Step, kHz</source>
+        <translation>चरण, kHz</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="491"/>
+        <source>Pings a step</source>
+        <translation>प्रति चरण पिंग</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="492"/>
+        <source>Dropped after a change</source>
+        <translation>बदलाव के बाद छोड़ें</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="493"/>
+        <source>Period, ms</source>
+        <translation>अवधि, ms</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="494"/>
+        <source>Samples</source>
+        <translation>सैंपल</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="495"/>
+        <source>Pulses</source>
+        <translation>पल्स</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="496"/>
+        <source>Sonars a check</source>
+        <translation>प्रति जाँच सोनार</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="517"/>
+        <source>Limits</source>
+        <translation>सीमाएँ</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="518"/>
+        <source>Starting values: set them from the spread of the reference and of known-good sonars on this stand.</source>
+        <translation>शुरुआती मान: इन्हें इस स्टैंड पर संदर्भ और ज्ञात ठीक सोनारों के फैलाव से तय करें।</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="524"/>
+        <source>Reflection mean, dB</source>
+        <translation>परावर्तन औसत, dB</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="525"/>
+        <source>Reflection worst, dB</source>
+        <translation>परावर्तन सबसे खराब, dB</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="526"/>
+        <source>Resonance shift, kHz</source>
+        <translation>अनुनाद खिसकाव, kHz</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="527"/>
+        <source>Noise above, dB</source>
+        <translation>शोर अधिक, dB</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="528"/>
+        <source>Ringing, times</source>
+        <translation>गूँज, गुना</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="529"/>
+        <source>Balance, dB</source>
+        <translation>संतुलन, dB</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="530"/>
+        <source>Supply, V</source>
+        <translation>आपूर्ति, V</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="552"/>
+        <source>The owner&apos;s sweep and the starting limits</source>
+        <translation>मालिक का स्वीप और शुरुआती सीमाएँ</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="553"/>
+        <source>Reset</source>
+        <translation>रीसेट</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="559"/>
+        <source>Journal</source>
+        <translation>जर्नल</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="561"/>
+        <source>Results folder</source>
+        <translation>परिणाम फ़ोल्डर</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="564"/>
+        <source>Open folder</source>
+        <translation>फ़ोल्डर खोलें</translation>
     </message>
 </context>
 <context>

@@ -465,9 +465,11 @@ Comparison compare(const Run& unit, const Run& ref, const Tolerances& t)
         add(make("ringdown", s, ringU, ringLimit, "samples", ringU <= ringLimit, false,
                  QStringLiteral("%1 / %2 samples over the band").arg(ringU).arg(ringR)));
         const double pos = posDiff.isEmpty() ? 0 : medianOf(posDiff);
-        add(make("position", s, pos, t.positionSamples, "samples", !posDiff.isEmpty() && pos <= t.positionSamples,
-                 true, posDiff.isEmpty() ? QStringLiteral("no first reflection on both")
-                                         : QStringLiteral("first reflection moved: placement on the stand")));
+        const bool placed = !posDiff.isEmpty() && pos <= t.positionSamples;
+        add(make("position", s, pos, t.positionSamples, "samples", placed, true,
+                 posDiff.isEmpty() ? QStringLiteral("no first reflection on both")
+                 : placed          ? QStringLiteral("first reflection where the reference's is")
+                                   : QStringLiteral("first reflection moved: the sonar sits otherwise on the stand")));
         const double satShare = band.isEmpty() ? 0 : double(saturatedSteps) / band.size();
         add(make("saturation", s, satShare, t.saturationShare, "", satShare <= t.saturationShare, true,
                  QStringLiteral("%1 of %2 band steps at 255").arg(saturatedSteps).arg(band.size())));

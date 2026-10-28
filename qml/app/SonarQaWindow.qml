@@ -68,6 +68,8 @@ Window {
     }
     function fmtValue(c) {
         var v = Number(c.value)
+        if (c.id === "sweep")
+            return ""
         if (c.unit === "x")
             return v.toFixed(2) + "×"
         if (c.id === "saturation")
@@ -153,78 +155,6 @@ Window {
                         QaButton { objectName: "qaDemoRef"; text: qsTr("Reference 1001"); enabled: !SonarQa.busy; onClicked: SonarQa.useDemo(1001, "") }
                         QaButton { objectName: "qaDemoGood"; text: qsTr("Good 2001"); enabled: !SonarQa.busy; onClicked: SonarQa.useDemo(2001, "") }
                         QaButton { objectName: "qaDemoWeak"; text: qsTr("Weak 2002"); enabled: !SonarQa.busy; onClicked: SonarQa.useDemo(2002, "weak") }
-                    }
-                }
-            }
-
-            // ── the reference ──
-            KIsland {
-                title: qsTr("Reference sonar")
-                KIslandRow {
-                    label: qsTr("Reference")
-                    caption: win.ref.serial > 0
-                             ? qsTr("serial %1 · baseline %2").arg(win.ref.serial).arg(win.fmtTime(win.ref.baselineTime))
-                             : qsTr("Not set: connect the reference sonar and make its baseline")
-                    stacked: true
-                }
-                KIslandRow {
-                    visible: win.ref.serial > 0
-                    label: qsTr("Last check")
-                    caption: win.fmtTime(win.ref.checkTime) + " · "
-                             + (win.ref.checkPassed ? qsTr("agrees with the baseline") : qsTr("moved away from the baseline"))
-                    captionColor: win.ref.checkPassed ? AppPalette.textSecond : AppPalette.dangerText
-                    stacked: true
-                }
-                KIslandRow {
-                    visible: win.ref.serial > 0
-                    label: qsTr("Sonars left until the next check")
-                    caption: qsTr("%1 of %2").arg(win.ref.unitsLeft).arg(win.ref.unitsPerCheck)
-                    stacked: true
-                }
-                KIslandRow {
-                    label: qsTr("Runs of the reference")
-                    caption: win.ref.serial > 0 ? win.reasons.check : win.reasons.baseline
-                    stacked: true
-                    Column {
-                        spacing: Tokens.spaceSm
-                        Row {
-                            spacing: Tokens.spaceSm
-                            QaButton {
-                                objectName: "qaStartCheck"
-                                text: qsTr("Check the reference")
-                                enabled: !SonarQa.busy && win.reasons.check === ""
-                                onClicked: SonarQa.start("check")
-                            }
-                            QaButton {
-                                objectName: "qaStartBaseline"
-                                text: qsTr("Make the baseline")
-                                enabled: !SonarQa.busy && win.reasons.baseline === ""
-                                onClicked: {
-                                    if (win.ref.serial > 0)
-                                        win.confirmBaseline = true
-                                    else
-                                        SonarQa.start("baseline")
-                                }
-                            }
-                            QaButton {
-                                objectName: "qaAcceptCheck"
-                                visible: win.ref.serial > 0 && !win.ref.checkPassed
-                                text: qsTr("Accept the check")
-                                onClicked: SonarQa.acceptCheck()
-                            }
-                        }
-                        Row {
-                            visible: win.confirmBaseline
-                            spacing: Tokens.spaceSm
-                            Text {
-                                anchors.verticalCenter: parent.verticalCenter
-                                text: qsTr("Replace the reference (serial %1) and its baseline with this sonar?").arg(win.ref.serial)
-                                color: AppPalette.dangerText; font.pixelSize: Tokens.fontMd
-                            }
-                            QaButton { objectName: "qaConfirmYes"; text: qsTr("Replace"); danger: true
-                                       onClicked: { win.confirmBaseline = false; SonarQa.start("baseline") } }
-                            QaButton { text: qsTr("Cancel"); onClicked: win.confirmBaseline = false }
-                        }
                     }
                 }
             }
@@ -465,6 +395,78 @@ Window {
                                     }
                                 }
                             }
+                        }
+                    }
+                }
+            }
+
+            // ── the reference ──
+            KIsland {
+                title: qsTr("Reference sonar")
+                KIslandRow {
+                    label: qsTr("Reference")
+                    caption: win.ref.serial > 0
+                             ? qsTr("serial %1 · baseline %2").arg(win.ref.serial).arg(win.fmtTime(win.ref.baselineTime))
+                             : qsTr("Not set: connect the reference sonar and make its baseline")
+                    stacked: true
+                }
+                KIslandRow {
+                    visible: win.ref.serial > 0
+                    label: qsTr("Last check")
+                    caption: win.fmtTime(win.ref.checkTime) + " · "
+                             + (win.ref.checkPassed ? qsTr("agrees with the baseline") : qsTr("moved away from the baseline"))
+                    captionColor: win.ref.checkPassed ? AppPalette.textSecond : AppPalette.dangerText
+                    stacked: true
+                }
+                KIslandRow {
+                    visible: win.ref.serial > 0
+                    label: qsTr("Sonars left until the next check")
+                    caption: qsTr("%1 of %2").arg(win.ref.unitsLeft).arg(win.ref.unitsPerCheck)
+                    stacked: true
+                }
+                KIslandRow {
+                    label: qsTr("Runs of the reference")
+                    caption: win.ref.serial > 0 ? win.reasons.check : win.reasons.baseline
+                    stacked: true
+                    Column {
+                        spacing: Tokens.spaceSm
+                        Row {
+                            spacing: Tokens.spaceSm
+                            QaButton {
+                                objectName: "qaStartCheck"
+                                text: qsTr("Check the reference")
+                                enabled: !SonarQa.busy && win.reasons.check === ""
+                                onClicked: SonarQa.start("check")
+                            }
+                            QaButton {
+                                objectName: "qaStartBaseline"
+                                text: qsTr("Make the baseline")
+                                enabled: !SonarQa.busy && win.reasons.baseline === ""
+                                onClicked: {
+                                    if (win.ref.serial > 0)
+                                        win.confirmBaseline = true
+                                    else
+                                        SonarQa.start("baseline")
+                                }
+                            }
+                            QaButton {
+                                objectName: "qaAcceptCheck"
+                                visible: win.ref.serial > 0 && !win.ref.checkPassed
+                                text: qsTr("Accept the check")
+                                onClicked: SonarQa.acceptCheck()
+                            }
+                        }
+                        Row {
+                            visible: win.confirmBaseline
+                            spacing: Tokens.spaceSm
+                            Text {
+                                anchors.verticalCenter: parent.verticalCenter
+                                text: qsTr("Replace the reference (serial %1) and its baseline with this sonar?").arg(win.ref.serial)
+                                color: AppPalette.dangerText; font.pixelSize: Tokens.fontMd
+                            }
+                            QaButton { objectName: "qaConfirmYes"; text: qsTr("Replace"); danger: true
+                                       onClicked: { win.confirmBaseline = false; SonarQa.start("baseline") } }
+                            QaButton { text: qsTr("Cancel"); onClicked: win.confirmBaseline = false }
                         }
                     }
                 }

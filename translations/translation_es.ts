@@ -185,7 +185,7 @@
     </message>
     <message>
         <location filename="../qml/app/AppSettingsPage.qml" line="298"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1822"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1824"/>
         <source>Export to CSV</source>
         <translation>Exportar a CSV</translation>
     </message>
@@ -310,8 +310,8 @@
         <location filename="../qml/app/AppSettingsPage.qml" line="469"/>
         <location filename="../qml/app/AppSettingsPage.qml" line="1624"/>
         <location filename="../qml/app/AppSettingsPage.qml" line="1629"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1946"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1949"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1948"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1951"/>
         <source>Theme:</source>
         <translation>Tema:</translation>
     </message>
@@ -516,7 +516,7 @@
     </message>
     <message>
         <location filename="../qml/app/AppSettingsPage.qml" line="850"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2388"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2390"/>
         <source>USBL</source>
         <translation>USBL</translation>
     </message>
@@ -610,13 +610,13 @@
     </message>
     <message>
         <location filename="../qml/app/AppSettingsPage.qml" line="1167"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2245"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2247"/>
         <source>TGC</source>
         <translation>TGC</translation>
     </message>
     <message>
         <location filename="../qml/app/AppSettingsPage.qml" line="1168"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2239"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2241"/>
         <source>Open TGC settings</source>
         <translation>Abrir configuración de TGC</translation>
     </message>
@@ -662,7 +662,7 @@
     </message>
     <message>
         <location filename="../qml/app/AppSettingsPage.qml" line="1275"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2245"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2247"/>
         <source>Side-Scan</source>
         <translation>Barrido lateral</translation>
     </message>
@@ -768,7 +768,7 @@
     </message>
     <message>
         <location filename="../qml/app/AppSettingsPage.qml" line="1638"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1957"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1959"/>
         <source>Midnight</source>
         <translation>Medianoche</translation>
     </message>
@@ -779,31 +779,31 @@
     </message>
     <message>
         <location filename="../qml/app/AppSettingsPage.qml" line="1638"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1957"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1959"/>
         <source>Blue</source>
         <translation>Azul</translation>
     </message>
     <message>
         <location filename="../qml/app/AppSettingsPage.qml" line="1638"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1957"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1959"/>
         <source>Sepia</source>
         <translation>Sepia</translation>
     </message>
     <message>
         <location filename="../qml/app/AppSettingsPage.qml" line="1638"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1957"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1959"/>
         <source>Sepia New</source>
         <translation>Sepia nueva</translation>
     </message>
     <message>
         <location filename="../qml/app/AppSettingsPage.qml" line="1638"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1957"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1959"/>
         <source>WRGBD</source>
         <translation>WRGBD</translation>
     </message>
     <message>
         <location filename="../qml/app/AppSettingsPage.qml" line="1638"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1957"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1959"/>
         <source>WhiteBlack</source>
         <translation>Blanco-negro</translation>
     </message>
@@ -814,888 +814,889 @@
     </message>
     <message>
         <location filename="../qml/app/AppSettingsPage.qml" line="1638"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1957"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1959"/>
         <source>DeepBlue</source>
         <translation>Azul profundo</translation>
     </message>
     <message>
         <location filename="../qml/app/AppSettingsPage.qml" line="1638"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1957"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1959"/>
         <source>Ice</source>
         <translation>Hielo</translation>
     </message>
     <message>
         <location filename="../qml/app/AppSettingsPage.qml" line="1638"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1957"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1959"/>
         <source>Green</source>
         <translation>Verde</translation>
     </message>
     <message>
         <location filename="../qml/app/AppSettingsPage.qml" line="1656"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1659"/>
         <source>Surface colouring:</source>
         <translation>Coloreado de la superficie:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1663"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1664"/>
         <source>Gradient</source>
         <translation>Degradado</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1664"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1665"/>
         <source>Bands</source>
         <translation>Bandas</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1676"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1678"/>
         <source>Depth legend</source>
         <translation>Leyenda de profundidad</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1677"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1679"/>
         <source>Show the depth colour scale over the 3D scene</source>
         <translation>Mostrar la escala de colores de profundidad sobre la escena 3D</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1684"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1689"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1686"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1691"/>
         <source>Edge limit, m:</source>
         <translation>Límite de arista, m:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1696"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1698"/>
         <source>Max triangulation edge length</source>
         <translation>Longitud máxima de arista de la triangulación</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1707"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1712"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1709"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1714"/>
         <source>Step, m:</source>
         <translation>Paso, m:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1719"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1721"/>
         <source>Isobath interval — spacing between depth lines</source>
         <translation>Intervalo de isóbatas — separación entre las líneas de profundidad</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1732"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1737"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1734"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1739"/>
         <source>Extra width, m:</source>
         <translation>Ancho adicional, m:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1744"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1746"/>
         <source>Surface extrapolation radius around the track</source>
         <translation>Radio de extrapolación de la superficie alrededor de la trayectoria</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1780"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1782"/>
         <source>Enter path</source>
         <translation>Introduzca la ruta</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1790"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1792"/>
         <source>Choose the surface .csv file</source>
         <translation>Elegir el archivo .csv de la superficie</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1805"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1807"/>
         <source>Select folder and set .csv file name</source>
         <translation>Seleccionar carpeta y definir el nombre del archivo .csv</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1823"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1825"/>
         <source>Export the surface to CSV</source>
         <translation>Exportar la superficie a CSV</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1833"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1835"/>
         <source>Invalid characters in file name</source>
         <translation>Caracteres no válidos en el nombre del archivo</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1838"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1840"/>
         <source>Surface exported to %1</source>
         <translation>Superficie exportada a %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1839"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1841"/>
         <source>Surface export failed</source>
         <translation>Error al exportar la superficie</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1873"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1875"/>
         <source>Mosaic</source>
         <translation>Mosaico</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1874"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1876"/>
         <source>Side-scan mosaic visualisation.</source>
         <translation>Visualización del mosaico de barrido lateral.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1957"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1959"/>
         <source>BlackWhite</source>
         <translation>Negro-blanco</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1972"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1975"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1974"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1977"/>
         <source>Channels:</source>
         <translation>Canales:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2084"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2087"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2086"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2089"/>
         <source>Angle, °:</source>
         <translation>Ángulo, °:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2099"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2101"/>
         <source>Left-side beam angle offset for the mosaic, °</source>
         <translation>Desplazamiento angular del haz izquierdo para el mosaico, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2115"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2117"/>
         <source>Right-side beam angle offset for the mosaic, °</source>
         <translation>Desplazamiento angular del haz derecho para el mosaico, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2134"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2136"/>
         <source>Trace line</source>
         <translation>Línea de trazado</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2135"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2137"/>
         <source>Show the current mosaic trace line</source>
         <translation>Mostrar la línea de trazado actual del mosaico</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2148"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2150"/>
         <source>Track smoothing</source>
         <translation>Suavizado de la trayectoria</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2149"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2151"/>
         <source>Pings and the boat track on a line fitted through the GNSS fixes around them. Off: straight between neighbouring fixes and drawn at once, as before. Raw fixes are never changed.</source>
         <translation>Los pings y la trayectoria del barco se sitúan sobre una línea ajustada a las posiciones GNSS cercanas. Desactivado: en línea recta entre posiciones vecinas y dibujados al instante, como antes. Las posiciones sin procesar nunca se modifican.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2158"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2163"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2160"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2165"/>
         <source>Smoothing:</source>
         <translation>Suavizado:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2172"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2174"/>
         <source>Responsive</source>
         <translation>Ágil</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2172"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2174"/>
         <source>Normal</source>
         <translation>Normal</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2172"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2174"/>
         <source>Smooth</source>
         <translation>Suave</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2174"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2176"/>
         <source>Accuracy against delay: a longer window averages more fixes and colours the mosaic later</source>
         <translation>Precisión frente a retraso: una ventana más larga promedia más posiciones y colorea el mosaico más tarde</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2189"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2191"/>
         <source>Reprocessing the recording…</source>
         <translation>Reprocesando la grabación…</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2193"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2195"/>
         <source>Off: the mosaic is coloured at once</source>
         <translation>Desactivado: el mosaico se colorea al instante</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2195"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2197"/>
         <source>Waiting for timed GNSS fixes</source>
         <translation>Esperando posiciones GNSS con marca de tiempo</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2197"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2199"/>
         <source>Smoothing inactive: too few fixes (N=%1 in a %2 s window, 12 needed)</source>
         <translation>Suavizado inactivo: muy pocas posiciones (N=%1 en una ventana de %2 s, se necesitan 12)</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2200"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2202"/>
         <source>Window %1 s, mosaic delay %2 s (%3 fixes)</source>
         <translation>Ventana %1 s, retraso del mosaico %2 s (%3 posiciones)</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2213"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2215"/>
         <source>Live data: a change applies to what comes next. To compare, open a recording.</source>
         <translation>Datos en vivo: un cambio se aplica a lo que llegue después. Para comparar, abra una grabación.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2217"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2220"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2219"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2222"/>
         <source>Data source:</source>
         <translation>Fuente de datos:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2245"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2247"/>
         <source>Raw</source>
         <translation>Sin procesar</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2306"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2308"/>
         <source>Dataset: with position zeroing on</source>
         <translation>Conjunto de datos: con puesta a cero de posición activada</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2315"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2323"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2317"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2325"/>
         <source>Calc last N epochs:</source>
         <translation>Calcular últimas N épocas:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2345"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2347"/>
         <source>All</source>
         <translation>Todas</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2352"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2354"/>
         <source>Clear old data (*)</source>
         <translation>Borrar datos antiguos (*)</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2389"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2391"/>
         <source>Acoustic nodes and their tracks displayed in the 3D scene.</source>
         <translation>Nodos acústicos y sus trayectorias mostrados en la escena 3D.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2403"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2405"/>
         <source>Beacon tracks</source>
         <translation>Trayectorias de balizas</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2404"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2406"/>
         <source>Draw each beacon&apos;s track as a continuous line, or as a dot at every fix</source>
         <translation>Dibujar la trayectoria de cada baliza como una línea continua o como un punto en cada posición</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2412"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2430"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2415"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2434"/>
         <source>Line</source>
         <translation>Línea</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2413"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2431"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2416"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2435"/>
         <source>Dots</source>
         <translation>Puntos</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2421"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2424"/>
         <source>USBL track</source>
         <translation>Trayectoria USBL</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2422"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2425"/>
         <source>Draw the acoustic head&apos;s own track as a continuous line, or as a dot at every fix</source>
         <translation>Dibujar la trayectoria propia del cabezal acústico como una línea continua o como un punto en cada posición</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2439"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2443"/>
         <source>Signal quality details</source>
         <translation>Detalles de calidad de señal</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2440"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2444"/>
         <source>Show the sync peak readings under each node&apos;s RSRQ in the USBL panel</source>
         <translation>Mostrar las lecturas del pico de sincronización bajo el RSRQ de cada nodo en el panel USBL</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2453"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2458"/>
         <source>Received message bytes</source>
         <translation>Bytes del mensaje recibido</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2454"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2459"/>
         <source>Show the payload last received from each node in the USBL panel</source>
         <translation>Mostrar la última carga útil recibida de cada nodo en el panel USBL</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2467"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2473"/>
         <source>Antenna diagnostics</source>
         <translation>Diagnóstico de la antena</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2468"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2474"/>
         <source>Show the array fit and the channel levels under each node in the USBL panel; click the line for the per-channel view</source>
         <translation>Mostrar el ajuste del arreglo y los niveles de canal bajo cada nodo en el panel USBL; haga clic en la línea para ver cada canal</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2481"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2488"/>
         <source>Fit misfit above</source>
         <translation>Error de ajuste mayor que</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2482"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2489"/>
         <source>Antenna diagnostics: a misfit above this marks the antenna for a check</source>
         <translation>Diagnóstico de la antena: un error de ajuste mayor que este valor marca la antena para revisión</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2500"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2508"/>
         <source>Amplitude part above</source>
         <translation>Parte de amplitud mayor que</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2501"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2509"/>
         <source>Antenna diagnostics: the share of the misfit from unequal channel amplitudes</source>
         <translation>Diagnóstico de la antena: la parte del error de ajuste debida a amplitudes desiguales entre canales</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2519"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2528"/>
         <source>Phase part above</source>
         <translation>Parte de fase mayor que</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2520"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2529"/>
         <source>Antenna diagnostics: the share of the misfit from channel phases off a plane wave</source>
         <translation>Diagnóstico de la antena: la parte del error de ajuste debida a fases de canal que se apartan de una onda plana</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2538"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2548"/>
         <source>Alt. margin below, dB</source>
         <translation>Margen alt. menor que, dB</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2539"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2549"/>
         <source>Antenna diagnostics: how much worse the best other direction must fit than the reported one</source>
         <translation>Diagnóstico de la antena: cuánto peor que la informada debe ajustarse la mejor dirección alternativa</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2557"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2568"/>
         <source>Channel level below, dB</source>
         <translation>Nivel de canal menor que, dB</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2558"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2569"/>
         <source>Antenna diagnostics: a channel this far below the strongest is marked low, and 10 dB further down, dead</source>
         <translation>Diagnóstico de la antena: un canal que queda esta cantidad por debajo del más fuerte se marca como bajo, y 10 dB más abajo, como muerto</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2576"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2588"/>
         <source>Antenna thresholds</source>
         <translation>Umbrales de la antena</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2577"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2589"/>
         <source>Restore the default antenna diagnostics thresholds</source>
         <translation>Restaurar los umbrales predeterminados del diagnóstico de la antena</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2596"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2608"/>
         <source>No acoustic nodes yet. Open a file containing beacon fixes, or add an address below.</source>
         <translation>Aún no hay nodos acústicos. Abra un archivo con posiciones de balizas o agregue una dirección abajo.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2608"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2620"/>
         <source>Address %1</source>
         <translation>Dirección %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2610"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2622"/>
         <source>detected in the opened file</source>
         <translation>detectado en el archivo abierto</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2611"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2623"/>
         <source>from the interrogation plan</source>
         <translation>del plan de interrogación</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2635"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2647"/>
         <source>Add an address the plan does not name yet</source>
         <translation>Agregar una dirección que el plan aún no incluye</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2657"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2669"/>
         <source>Add a node at address %1</source>
         <translation>Agregar un nodo en la dirección %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2672"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2684"/>
         <source>Video</source>
         <translation>Video</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2673"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2685"/>
         <source>Per-window video settings.</source>
         <translation>Configuración de video por ventana.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2692"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2704"/>
         <source>No video windows displayed. You can add one while editing the workspace.</source>
         <translation>No se muestran ventanas de video. Puede agregar una al editar el área de trabajo.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2723"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2735"/>
         <source>Echograms</source>
         <translation>Ecogramas</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2724"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2736"/>
         <source>Per-echogram display settings.</source>
         <translation>Configuración de visualización de cada ecograma.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2740"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2752"/>
         <source>No echograms displayed</source>
         <translation>No se muestran ecogramas</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2770"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3253"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2782"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3265"/>
         <source>Loupe</source>
         <translation>Lupa</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2784"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3271"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2796"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3283"/>
         <source>Loupe size</source>
         <translation>Tamaño de la lupa</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2785"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3275"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3445"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3563"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3622"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2797"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3287"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3457"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3575"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3634"/>
         <source>Size</source>
         <translation>Tamaño</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2801"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3291"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2813"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3303"/>
         <source>Loupe zoom</source>
         <translation>Aumento de la lupa</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2803"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2815"/>
         <source>Zoom</source>
         <translation>Zoom</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2847"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2859"/>
         <source>Sync echograms</source>
         <translation>Sincronizar ecogramas</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2849"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2861"/>
         <source>Sync the cursor position across all echograms</source>
         <translation>Sincronizar la posición del cursor en todos los ecogramas</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2863"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2875"/>
         <source>Sync view</source>
         <translation>Sincronizar vista</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2867"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2879"/>
         <source>Sync scroll and zoom across echograms</source>
         <translation>Sincronizar el desplazamiento y el zoom entre ecogramas</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2881"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2893"/>
         <source>Information panel</source>
         <translation>Panel de información</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2883"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2895"/>
         <source>Configure the information panel</source>
         <translation>Configurar el panel de información</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2896"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2908"/>
         <source>Vehicle mission</source>
         <translation>Misión del vehículo</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2897"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2909"/>
         <source>The mission read from the autopilot, followed in the 3D scene while it runs.</source>
         <translation>La misión leída del piloto automático, que se sigue en la escena 3D mientras se ejecuta.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2912"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2924"/>
         <source>In the 3D scene</source>
         <translation>En la escena 3D</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2921"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2933"/>
         <source>Geofence</source>
         <translation>Geocerca</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2935"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2947"/>
         <source>Rally points</source>
         <translation>Puntos de reunión</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2949"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2961"/>
         <source>Vehicle home (H)</source>
         <translation>Punto de origen del vehículo (H)</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2963"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2975"/>
         <source>Line from the boat to the target</source>
         <translation>Línea del barco al objetivo</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2977"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2989"/>
         <source>Point numbers</source>
         <translation>Números de los puntos</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2993"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3005"/>
         <source>Route lines</source>
         <translation>Líneas de la ruta</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3001"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3013"/>
         <source>Ahead</source>
         <translation>Por recorrer</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3011"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3023"/>
         <source>Current leg</source>
         <translation>Tramo actual</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3021"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3033"/>
         <source>Flown</source>
         <translation>Recorrido</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3033"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3045"/>
         <source>Line width</source>
         <translation>Grosor de línea</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3055"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3089"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3067"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3101"/>
         <source>%1 px</source>
         <translation>%1 px</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3067"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3079"/>
         <source>Current leg width</source>
         <translation>Grosor del tramo actual</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2583"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3102"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2595"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3114"/>
         <source>Defaults</source>
         <translation>Predeterminados</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3110"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3122"/>
         <source>Behaviour</source>
         <translation>Comportamiento</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3119"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3131"/>
         <source>Read the mission automatically</source>
         <translation>Leer la misión automáticamente</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3120"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3132"/>
         <source>When the vehicle connects and when its mission changes. Off: read it by hand from the editor or the autopilot card</source>
         <translation>Al conectarse el vehículo y cuando cambia su misión. Desactivado: léala manualmente desde el editor o desde la tarjeta del piloto automático</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3134"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3146"/>
         <source>Start an uploaded mission from its beginning</source>
         <translation>Iniciar desde el principio una misión enviada</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3135"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3147"/>
         <source>After an upload outside Auto the vehicle&apos;s current item is reset, so Auto starts at the first point instead of the item number left from an earlier run</source>
         <translation>Tras un envío fuera del modo Auto, se restablece el elemento actual del vehículo, por lo que Auto empieza en el primer punto y no en el número de elemento que quedó de una ejecución anterior</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3152"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3164"/>
         <source>Mission editor</source>
         <translation>Editor de misiones</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3192"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3204"/>
         <source>3D scene</source>
         <translation>Escena 3D</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3193"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3205"/>
         <source>3D scene settings, map provider switching.</source>
         <translation>Configuración de la escena 3D, cambio de proveedor de mapas.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3208"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3220"/>
         <source>Rendering</source>
         <translation>Renderizado</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3217"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3229"/>
         <source>Show surface quality</source>
         <translation>Mostrar calidad de la superficie</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3219"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3231"/>
         <source>Show the surface quality label in the 3D scene</source>
         <translation>Mostrar la etiqueta de calidad de la superficie en la escena 3D</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3234"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3246"/>
         <source>Force zoom</source>
         <translation>Zoom fijo</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3296"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3308"/>
         <source>Zoom, %:</source>
         <translation>Zoom, %:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3339"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3351"/>
         <source>North mode</source>
         <translation>Modo norte</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3341"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3353"/>
         <source>Orient the 3D view to north (north stays up)</source>
         <translation>Orientar la vista 3D al norte (el norte queda arriba)</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3359"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3371"/>
         <source>Sync echogram</source>
         <translation>Sincronizar ecograma</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3361"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3373"/>
         <source>Sync the cursor between the 2D echogram and the 3D scene</source>
         <translation>Sincronizar el cursor entre el ecograma 2D y la escena 3D</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3379"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3391"/>
         <source>Grid</source>
         <translation>Cuadrícula</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3401"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3413"/>
         <source>Circle</source>
         <translation>Circular</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3423"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3435"/>
         <source>Labels</source>
         <translation>Etiquetas</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3441"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3453"/>
         <source>Circle grid size</source>
         <translation>Tamaño de la cuadrícula circular</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3461"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3473"/>
         <source>Circle grid step</source>
         <translation>Paso de la cuadrícula circular</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3465"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3477"/>
         <source>Step</source>
         <translation>Paso</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3481"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3493"/>
         <source>Circle grid angle</source>
         <translation>Ángulo de la cuadrícula circular</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3485"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3497"/>
         <source>Angle</source>
         <translation>Ángulo</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3502"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3514"/>
         <source>Shadows</source>
         <translation>Sombras</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3521"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3533"/>
         <source>Navigation arrow</source>
         <translation>Flecha de navegación</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3539"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3551"/>
         <source>Arrow shape</source>
         <translation>Forma de la flecha</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3543"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3555"/>
         <source>Shape</source>
         <translation>Forma</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3549"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3561"/>
         <source>Arrow</source>
         <translation>Flecha</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3549"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3561"/>
         <source>Boat</source>
         <translation>Barco</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3559"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3571"/>
         <source>Arrow size</source>
         <translation>Tamaño de la flecha</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3580"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3592"/>
         <source>Compass</source>
         <translation>Brújula</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3598"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3610"/>
         <source>Compass position</source>
         <translation>Posición de la brújula</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3602"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3614"/>
         <source>Position</source>
         <translation>Posición</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3618"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3630"/>
         <source>Compass size</source>
         <translation>Tamaño de la brújula</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3639"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3651"/>
         <source>Scale bar</source>
         <translation>Barra de escala</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3641"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3653"/>
         <source>Show the scale bar in the 3D scene</source>
         <translation>Mostrar la barra de escala en la escena 3D</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3685"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3697"/>
         <source>Map</source>
         <translation>Mapa</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3694"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3706"/>
         <source>Show map tiles</source>
         <translation>Mostrar teselas del mapa</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3714"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3726"/>
         <source>Limit downloads on metered networks</source>
         <translation>Limitar las descargas en redes de uso medido</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3758"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3770"/>
         <source>Metered network (limited)</source>
         <translation>Red de uso medido (limitada)</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3781"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3793"/>
         <source>Internet available</source>
         <translation>Internet disponible</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3782"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3794"/>
         <source>Internet unavailable</source>
         <translation>Internet no disponible</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3790"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3802"/>
         <source>Providers</source>
         <translation>Proveedores</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3815"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3827"/>
         <source>Cache: empty</source>
         <translation>Caché: vacía</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3822"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3834"/>
         <source>Cache since %1  •  %2 MB</source>
         <translation>Caché desde %1  •  %2 MB</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3851"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3863"/>
         <source>Navigator</source>
         <translation>Navegación</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3860"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3872"/>
         <source>Use angle</source>
         <translation>Usar ángulo de orientación</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3879"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3891"/>
         <source>Navigator view</source>
         <translation>Vista de navegación</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3899"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3911"/>
         <source>Data</source>
         <translation>Datos</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3915"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3927"/>
         <source>Reset surface</source>
         <translation>Restablecer superficie</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3931"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3943"/>
         <source>Clear?</source>
         <translation>¿Borrar?</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3942"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3954"/>
         <source>Cancel</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="4007"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="4019"/>
         <source>Test</source>
         <translation>Prueba</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="4008"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="4020"/>
         <source>Developer knobs — visible only in MANUAL_TESTING builds.</source>
         <translation>Ajustes de desarrollador — visibles solo en compilaciones MANUAL_TESTING.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="4022"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="4034"/>
         <source>Double-tap tolerance, px:</source>
         <translation>Tolerancia de doble toque, px:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="4052"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="4064"/>
         <source>Split grab thickness, px:</source>
         <translation>Grosor de agarre del divisor, px:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="4081"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="4093"/>
         <source>Sidebar slide, ms:</source>
         <translation>Deslizamiento de la barra lateral, ms:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="4110"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="4122"/>
         <source>Workspace adjust, ms:</source>
         <translation>Ajuste del área de trabajo, ms:</translation>
     </message>
@@ -4292,54 +4293,69 @@ udp://@:1234
 <context>
     <name>DeveloperSettingsTab</name>
     <message>
-        <location filename="../qml/app/DeveloperSettingsTab.qml" line="30"/>
+        <location filename="../qml/app/DeveloperSettingsTab.qml" line="43"/>
         <source>Developer mode</source>
         <translation>Modo de desarrollador</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeveloperSettingsTab.qml" line="31"/>
+        <location filename="../qml/app/DeveloperSettingsTab.qml" line="44"/>
         <source>Unlocks panels and controls meant for development. Turning it off hides this page.</source>
         <translation>Desbloquea paneles y controles destinados al desarrollo. Al desactivarlo, esta página se oculta.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeveloperSettingsTab.qml" line="50"/>
+        <location filename="../qml/app/DeveloperSettingsTab.qml" line="63"/>
         <source>Isobaths pipeline status</source>
         <translation>Estado del flujo de procesamiento de isóbatas</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeveloperSettingsTab.qml" line="51"/>
+        <location filename="../qml/app/DeveloperSettingsTab.qml" line="64"/>
         <source>Shows the bathymetry pipeline state in the Isobaths group. Polling adds load to the pipeline — keep it off unless diagnosing.</source>
         <translation>Muestra el estado del flujo de procesamiento batimétrico en el grupo Isóbatas. La consulta periódica añade carga al flujo — mantenga esta opción desactivada salvo para diagnóstico.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeveloperSettingsTab.qml" line="68"/>
+        <location filename="../qml/app/DeveloperSettingsTab.qml" line="81"/>
         <source>Mosaic pipeline status</source>
         <translation>Estado del flujo de procesamiento del mosaico</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeveloperSettingsTab.qml" line="69"/>
+        <location filename="../qml/app/DeveloperSettingsTab.qml" line="82"/>
         <source>Shows the mosaic pipeline state in the Mosaic group. Polling adds load to the pipeline — keep it off unless diagnosing.</source>
         <translation>Muestra el estado del flujo de procesamiento del mosaico en el grupo Mosaico. La consulta periódica añade carga al flujo — mantenga esta opción desactivada salvo para diagnóstico.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeveloperSettingsTab.qml" line="88"/>
+        <location filename="../qml/app/DeveloperSettingsTab.qml" line="101"/>
         <source>Application log</source>
         <translation>Registro de la aplicación</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeveloperSettingsTab.qml" line="89"/>
+        <location filename="../qml/app/DeveloperSettingsTab.qml" line="102"/>
         <source>Log file is not active</source>
         <translation>El archivo de registro no está activo</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeveloperSettingsTab.qml" line="97"/>
+        <location filename="../qml/app/DeveloperSettingsTab.qml" line="110"/>
         <source>Open folder</source>
         <translation>Abrir carpeta</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeveloperSettingsTab.qml" line="104"/>
+        <location filename="../qml/app/DeveloperSettingsTab.qml" line="117"/>
         <source>Copy path</source>
         <translation>Copiar ruta</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeveloperSettingsTab.qml" line="127"/>
+        <source>Sonar acceptance</source>
+        <translation>Verificación de sonares</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeveloperSettingsTab.qml" line="128"/>
+        <source>nanoSSS on the water stand: the reference sonar and the sonars under test compared over a frequency sweep</source>
+        <translation>nanoSSS en el banco de agua: el sonar de referencia y los sonares en prueba se comparan en un barrido de frecuencia</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeveloperSettingsTab.qml" line="134"/>
+        <source>Open</source>
+        <translation>Abrir</translation>
     </message>
 </context>
 <context>
@@ -15783,32 +15799,32 @@ udp://@:1234
 <context>
     <name>Pane3DWindow</name>
     <message>
-        <location filename="../qml/app/Pane3DWindow.qml" line="167"/>
+        <location filename="../qml/app/Pane3DWindow.qml" line="166"/>
         <source>Viewing a past moment</source>
         <translation>Viendo un momento pasado</translation>
     </message>
     <message>
-        <location filename="../qml/app/Pane3DWindow.qml" line="174"/>
+        <location filename="../qml/app/Pane3DWindow.qml" line="173"/>
         <source>Back to live</source>
         <translation>Volver a tiempo real</translation>
     </message>
     <message>
-        <location filename="../qml/app/Pane3DWindow.qml" line="257"/>
+        <location filename="../qml/app/Pane3DWindow.qml" line="256"/>
         <source>Surface: </source>
         <translation>Superficie: </translation>
     </message>
     <message>
-        <location filename="../qml/app/Pane3DWindow.qml" line="257"/>
+        <location filename="../qml/app/Pane3DWindow.qml" line="256"/>
         <source> cm/cell</source>
         <translation> cm/celda</translation>
     </message>
     <message>
-        <location filename="../qml/app/Pane3DWindow.qml" line="259"/>
+        <location filename="../qml/app/Pane3DWindow.qml" line="258"/>
         <source>Mosaic: </source>
         <translation>Mosaico: </translation>
     </message>
     <message>
-        <location filename="../qml/app/Pane3DWindow.qml" line="259"/>
+        <location filename="../qml/app/Pane3DWindow.qml" line="258"/>
         <source> cm/pix</source>
         <translation> cm/pix</translation>
     </message>
@@ -18031,6 +18047,602 @@ udp://@:1234
         <location filename="../qml/legacy_qml/devices/SonarBox.qml" line="149"/>
         <source>Export</source>
         <translation>Exportar</translation>
+    </message>
+</context>
+<context>
+    <name>SonarQaRunner</name>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="52"/>
+        <source>No echogram from the sonar for %1 s</source>
+        <translation>No llega ecograma del sonar desde hace %1 s</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="104"/>
+        <source>The sonar went away</source>
+        <translation>El sonar se desconectó</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="264"/>
+        <source>A run is going on</source>
+        <translation>Hay una prueba en curso</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="267"/>
+        <source>No sonar selected</source>
+        <translation>No hay sonar seleccionado</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="273"/>
+        <source>The sonar has not answered yet</source>
+        <translation>El sonar aún no ha respondido</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="273"/>
+        <source>Not a nanoSSS (board %1)</source>
+        <translation>No es un nanoSSS (placa %1)</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="276"/>
+        <source>The sonar has not reported its serial number</source>
+        <translation>El sonar no ha informado su número de serie</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="282"/>
+        <source>No reference yet: make the baseline on the reference sonar first</source>
+        <translation>Aún no hay referencia: primero haga la base con el sonar de referencia</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="286"/>
+        <source>This is not the reference sonar (that is serial %1)</source>
+        <translation>Este no es el sonar de referencia (la referencia es el número de serie %1)</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="290"/>
+        <source>Unknown run</source>
+        <translation>Prueba desconocida</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="293"/>
+        <source>This is the reference sonar: run its check instead</source>
+        <translation>Este es el sonar de referencia: ejecute su verificación</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="296"/>
+        <source>The reference&apos;s last check moved away from its baseline: look at the stand, check the reference again or accept the check</source>
+        <translation>La última verificación de la referencia se alejó de su base: revise el banco, verifique la referencia de nuevo o acepte la verificación</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="300"/>
+        <source>%1 sonars tested since the reference&apos;s check: check the reference again</source>
+        <translation>%1 sonares probados desde la verificación de la referencia: verifique la referencia de nuevo</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="306"/>
+        <source>The reference&apos;s check cannot be read: %1</source>
+        <translation>No se puede leer la verificación de la referencia: %1</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="310"/>
+        <source>Firmware %1, the reference has %2: load the same firmware</source>
+        <translation>Firmware %1, la referencia tiene %2: cargue el mismo firmware</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="345"/>
+        <source>The reference run cannot be read: %1</source>
+        <translation>No se puede leer la prueba de referencia: %1</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="373"/>
+        <source>Setting the sonar up</source>
+        <translation>Configurando el sonar</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="382"/>
+        <source>Stopped</source>
+        <translation>Detenido</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="414"/>
+        <source>The sonar gives %1 samples a side, the reference %2</source>
+        <translation>El sonar da %1 muestras por lado, la referencia %2</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="489"/>
+        <source>%1 kHz, %2 pulses</source>
+        <translation>%1 kHz, %2 pulsos</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="490"/>
+        <source>%1 kHz, transmitter off</source>
+        <translation>%1 kHz, transmisor apagado</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="569"/>
+        <source>Saved: %1</source>
+        <translation>Guardado: %1</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="569"/>
+        <source>Not saved: %1</source>
+        <translation>No guardado: %1</translation>
+    </message>
+</context>
+<context>
+    <name>SonarQaWindow</name>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="11"/>
+        <source>Sonar acceptance: nanoSSS</source>
+        <translation>Verificación de sonares: nanoSSS</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="40"/>
+        <source>%1 min %2 s</source>
+        <translation>%1 min %2 s</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="40"/>
+        <source>%1 s</source>
+        <translation>%1 s</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="43"/>
+        <source>Same sweep as the reference</source>
+        <translation>El mismo barrido que la referencia</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="44"/>
+        <source>Reflection in the band, mean</source>
+        <translation>Reflexión en la banda, media</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="45"/>
+        <source>Reflection in the band, worst</source>
+        <translation>Reflexión en la banda, peor</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="46"/>
+        <source>Resonance</source>
+        <translation>Resonancia</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="47"/>
+        <source>Bandwidth</source>
+        <translation>Ancho de banda</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="48"/>
+        <source>Noise, transmitter off</source>
+        <translation>Ruido, transmisor apagado</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="49"/>
+        <source>Ringing after the burst</source>
+        <translation>Resonancia residual tras el pulso</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="50"/>
+        <source>Target position (placement)</source>
+        <translation>Posición del blanco (montaje)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="51"/>
+        <source>Saturation</source>
+        <translation>Saturación</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="52"/>
+        <source>Balance of the sides</source>
+        <translation>Equilibrio de los lados</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="53"/>
+        <source>Supply</source>
+        <translation>Alimentación</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="54"/>
+        <source>Temperature</source>
+        <translation>Temperatura</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="55"/>
+        <source>Temperature against the reference</source>
+        <translation>Temperatura frente a la referencia</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="61"/>
+        <source>PASSED</source>
+        <translation>APTO</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="62"/>
+        <source>FAILED</source>
+        <translation>NO APTO</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="63"/>
+        <source>REFERENCE SET</source>
+        <translation>REFERENCIA ESTABLECIDA</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="64"/>
+        <source>REFERENCE CHECKED</source>
+        <translation>REFERENCIA VERIFICADA</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="65"/>
+        <source>REFERENCE MOVED AWAY FROM ITS BASELINE</source>
+        <translation>LA REFERENCIA SE ALEJÓ DE SU BASE</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="131"/>
+        <source>Sonar on the stand</source>
+        <translation>Sonar en el banco</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="133"/>
+        <source>Sonar</source>
+        <translation>Sonar</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="135"/>
+        <source>serial %1 · firmware %2 · board %3</source>
+        <translation>número de serie %1 · firmware %2 · placa %3</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="136"/>
+        <source> · the reference</source>
+        <translation> · la referencia</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="137"/>
+        <source>No nanoSSS connected</source>
+        <translation>No hay nanoSSS conectado</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="150"/>
+        <source>Simulated sonar</source>
+        <translation>Sonar simulado</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="151"/>
+        <source>KOGGER_SONARQA_DEMO: a sonar in a tank, to try the window without a stand</source>
+        <translation>KOGGER_SONARQA_DEMO: un sonar en un tanque, para probar la ventana sin banco</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="155"/>
+        <source>Reference 1001</source>
+        <translation>Referencia 1001</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="156"/>
+        <source>Good 2001</source>
+        <translation>Bueno 2001</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="157"/>
+        <source>Weak 2002</source>
+        <translation>Débil 2002</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="164"/>
+        <source>Test</source>
+        <translation>Prueba</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="166"/>
+        <source>Sonar under test</source>
+        <translation>Sonar en prueba</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="168"/>
+        <source>The same sweep and settings as the reference&apos;s check; the result is saved by serial number</source>
+        <translation>El mismo barrido y ajustes que la verificación de la referencia; el resultado se guarda por número de serie</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="173"/>
+        <source>Test this sonar</source>
+        <translation>Probar este sonar</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="183"/>
+        <source>Run in progress</source>
+        <translation>Prueba en curso</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="183"/>
+        <source>Last run</source>
+        <translation>Última prueba</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="199"/>
+        <source>about %1 left</source>
+        <translation>quedan unos %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="203"/>
+        <source>Stop</source>
+        <translation>Detener</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="217"/>
+        <source>Supply %1 V · temperature %2 °C</source>
+        <translation>Alimentación %1 V · temperatura %2 °C</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="261"/>
+        <source>Result</source>
+        <translation>Resultado</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="279"/>
+        <source>warnings: %1</source>
+        <translation>advertencias: %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="285"/>
+        <source>Serial %1 · firmware %2 · %3</source>
+        <translation>Número de serie %1 · firmware %2 · %3</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="286"/>
+        <source>Saved: %1</source>
+        <translation>Guardado: %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="286"/>
+        <source>Not saved: %1</source>
+        <translation>No guardado: %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="308"/>
+        <source>, side %1</source>
+        <translation>, lado %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="329"/>
+        <source>Side 1</source>
+        <translation>Lado 1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="330"/>
+        <source>Side 2</source>
+        <translation>Lado 2</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="333"/>
+        <source>First reflection, codes (2.5 a dB)</source>
+        <translation>Primera reflexión, códigos (2,5 por dB)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="334"/>
+        <source>Noise with the transmitter off, codes</source>
+        <translation>Ruido con el transmisor apagado, códigos</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="335"/>
+        <source>Ringing after the burst, samples</source>
+        <translation>Resonancia residual tras el pulso, muestras</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="340"/>
+        <source>this sonar</source>
+        <translation>este sonar</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="340"/>
+        <source>reference (dashed)</source>
+        <translation>referencia (discontinua)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="405"/>
+        <source>Reference sonar</source>
+        <translation>Sonar de referencia</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="407"/>
+        <source>Reference</source>
+        <translation>Referencia</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="409"/>
+        <source>serial %1 · baseline %2</source>
+        <translation>número de serie %1 · base %2</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="410"/>
+        <source>Not set: connect the reference sonar and make its baseline</source>
+        <translation>No establecida: conecte el sonar de referencia y haga su base</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="415"/>
+        <source>Last check</source>
+        <translation>Última verificación</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="417"/>
+        <source>agrees with the baseline</source>
+        <translation>coincide con la base</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="417"/>
+        <source>moved away from the baseline</source>
+        <translation>se alejó de la base</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="423"/>
+        <source>Sonars left until the next check</source>
+        <translation>Sonares hasta la próxima verificación</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="424"/>
+        <source>%1 of %2</source>
+        <translation>%1 de %2</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="428"/>
+        <source>Runs of the reference</source>
+        <translation>Pruebas de la referencia</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="437"/>
+        <source>Check the reference</source>
+        <translation>Verificar la referencia</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="443"/>
+        <source>Make the baseline</source>
+        <translation>Hacer la base</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="455"/>
+        <source>Accept the check</source>
+        <translation>Aceptar la verificación</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="464"/>
+        <source>Replace the reference (serial %1) and its baseline with this sonar?</source>
+        <translation>¿Reemplazar la referencia (número de serie %1) y su base por este sonar?</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="467"/>
+        <source>Replace</source>
+        <translation>Reemplazar</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="469"/>
+        <source>Cancel</source>
+        <translation>Cancelar</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="478"/>
+        <source>Sweep and limits</source>
+        <translation>Barrido y tolerancias</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="481"/>
+        <source>Sweep</source>
+        <translation>Barrido</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="482"/>
+        <source>Used by the next baseline; checks and tests take the baseline&apos;s. Samples count both sides of a nanoSSS (2000 = 1000 a side). Above 30 pulses the firmware switches to chirp.</source>
+        <translation>Se usa en la próxima base; las verificaciones y pruebas toman el barrido de la base. Las muestras cuentan ambos lados de un nanoSSS (2000 = 1000 por lado). Por encima de 30 pulsos el firmware pasa a chirp.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="488"/>
+        <source>From, kHz</source>
+        <translation>Desde, kHz</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="489"/>
+        <source>To, kHz</source>
+        <translation>Hasta, kHz</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="490"/>
+        <source>Step, kHz</source>
+        <translation>Paso, kHz</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="491"/>
+        <source>Pings a step</source>
+        <translation>Pings por paso</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="492"/>
+        <source>Dropped after a change</source>
+        <translation>Descartados tras un cambio</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="493"/>
+        <source>Period, ms</source>
+        <translation>Período, ms</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="494"/>
+        <source>Samples</source>
+        <translation>Muestras</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="495"/>
+        <source>Pulses</source>
+        <translation>Pulsos</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="496"/>
+        <source>Sonars a check</source>
+        <translation>Sonares por verificación</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="517"/>
+        <source>Limits</source>
+        <translation>Tolerancias</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="518"/>
+        <source>Starting values: set them from the spread of the reference and of known-good sonars on this stand.</source>
+        <translation>Valores iniciales: fíjelos a partir de la dispersión de la referencia y de sonares buenos conocidos en este banco.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="524"/>
+        <source>Reflection mean, dB</source>
+        <translation>Reflexión media, dB</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="525"/>
+        <source>Reflection worst, dB</source>
+        <translation>Reflexión peor, dB</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="526"/>
+        <source>Resonance shift, kHz</source>
+        <translation>Desplazamiento de la resonancia, kHz</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="527"/>
+        <source>Noise above, dB</source>
+        <translation>Ruido por encima, dB</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="528"/>
+        <source>Ringing, times</source>
+        <translation>Resonancia residual, veces</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="529"/>
+        <source>Balance, dB</source>
+        <translation>Equilibrio, dB</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="530"/>
+        <source>Supply, V</source>
+        <translation>Alimentación, V</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="552"/>
+        <source>The owner&apos;s sweep and the starting limits</source>
+        <translation>El barrido del propietario y las tolerancias iniciales</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="553"/>
+        <source>Reset</source>
+        <translation>Restablecer</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="559"/>
+        <source>Journal</source>
+        <translation>Registro</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="561"/>
+        <source>Results folder</source>
+        <translation>Carpeta de resultados</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="564"/>
+        <source>Open folder</source>
+        <translation>Abrir carpeta</translation>
     </message>
 </context>
 <context>
