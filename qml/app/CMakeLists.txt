@@ -76,6 +76,7 @@ qt_add_qml_module(kogger_app
         ServoPanelBody.qml
         ServoPanelPopup.qml
         ServoPanelSettingsPage.qml
+        SonarQaWindow.qml
         StandPanelSettingsPage.qml
         ServoPanelScroll.qml
         SettingsGearButton.qml

@@ -1034,6 +1034,29 @@ void EchoEditScript::runStep(const QJsonObject& s)
                              .arg(!target ? QStringLiteral("no such item") : moved ? QStringLiteral("scrolled")
                                                                                   : QStringLiteral("no Flickable"));
     }
+    else if (op == QLatin1String("storeCall")) {
+        // A method of the workspace store without arguments, as a menu does: "openDeveloperSettings".
+        QObject* store = findObjectWithProperty("settingsPinTarget");
+        const QByteArray method = s.value(QStringLiteral("method")).toString().toUtf8();
+        const bool called = store && QMetaObject::invokeMethod(store, method.constData());
+        qInfo().noquote() << QStringLiteral("echoedit script: storeCall %1 %2")
+                             .arg(QString::fromUtf8(method), called ? QStringLiteral("called") : QStringLiteral("failed"));
+    }
+    else if (op == QLatin1String("grabWindow")) {
+        // Another top-level window than the main one (the sonar acceptance window), found by its objectName.
+        const QString name = s.value(QStringLiteral("name")).toString();
+        const QString path = s.value(QStringLiteral("path")).toString();
+        bool written = false;
+        for (QWindow* w : QGuiApplication::topLevelWindows()) {
+            auto* qw = qobject_cast<QQuickWindow*>(w);
+            if (qw && qw->objectName() == name && qw->isVisible()) {
+                written = qw->grabWindow().save(path);
+                break;
+            }
+        }
+        qInfo().noquote() << QStringLiteral("echoedit script: grabWindow %1 %2").arg(name, written ? QStringLiteral("written")
+                                                                                               : QStringLiteral("failed"));
+    }
     else if (op == QLatin1String("clickItem")) {
         // A tap on the "index"-th item (window order) whose objectName is "name": its clicked() as its MouseArea
         // emits it -- a device badge (devBadgeButton) opens its pill.

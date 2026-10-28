@@ -129,6 +129,8 @@
 //   {"op": "recorderState"}          every recorder's status, one line each
 //   {"op": "scrollTo", "name": objectName}   the first item of that objectName brought to the top of the Flickable
 //                                    holding it (for a grab of a page longer than the window)
+//   {"op": "storeCall", "method": name}   a store method without arguments, as a menu does ("openDeveloperSettings")
+//   {"op": "grabWindow", "name": objectName, "path": file}   a picture of another top-level window
 //   {"op": "clickItem", "name": objectName, "index": n}   a tap on that item (its clicked()): "devBadgeButton" opens a
 //                                    device's pill
 //   {"op": "waitUpgrade", "timeoutMs": 180000}   until that update ends (flashed / failed), the progress every 10 %

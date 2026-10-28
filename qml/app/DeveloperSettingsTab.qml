@@ -1,5 +1,7 @@
 import QtQuick 2.15
+import QtQuick.Window 2.15
 import kqml_types 1.0
+import KoggerSonarQa 1.0
 
 Column {
     id: page
@@ -16,6 +18,17 @@ Column {
 
     width: parent ? parent.width : implicitWidth
     spacing: Tokens.spaceLg
+
+    // One window for the application's one acceptance runner (SonarQa): a second "Open" raises it.
+    function openSonarQa() {
+        var w = SonarQa.window
+        if (!w)
+            w = sonarQaComponent.createObject(page.Window.window)
+        w.show()
+        w.raise()
+        w.requestActivate()
+    }
+    Component { id: sonarQaComponent; SonarQaWindow {} }
 
     component LogButton: KButton {
         width: Math.round(124 * AppPalette.scale)
@@ -105,6 +118,21 @@ Column {
                     enabled: page.appLogPath.length > 0
                     onClicked: core.copyToClipboard(page.appLogPath)
                 }
+            }
+        }
+    }
+
+    KIsland {
+        KIslandRow {
+            label: qsTr("Sonar acceptance")
+            caption: qsTr("nanoSSS on the water stand: the reference sonar and the sonars under test compared over a frequency sweep")
+            stacked: true
+            verticalPadding: Tokens.spaceMd
+
+            LogButton {
+                objectName: "openSonarQa"
+                text: qsTr("Open")
+                onClicked: page.openSonarQa()
             }
         }
     }
