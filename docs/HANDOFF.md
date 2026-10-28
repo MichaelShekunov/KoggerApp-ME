@@ -3322,3 +3322,30 @@ Compatibility notes and what must not go public: docs/upstream-compat-2026-10-28
   on this PC, not the merge. Not looked into.
 - Installed on the first PC 2026-10-28 11:28 (the owner: "когда закончишь — установи"), both installs, exe B7C74C1D…
   This build is the merge before it was committed; its build_info says commit 56d1fe52, dirty.
+
+## After the develop merge: sonar acceptance, servo PWM frequency and step source (2026-10-28, first PC)
+
+me = 8a088699 on GitHub (mine), pushed 2026-10-28 on the owner's word ("сохрани и отправь на гитхаб").
+Over d2efd346:
+- 0156d40e..2168c36c: the sonar acceptance check (developer mode), by the session KoggerApp_ME_SONAR_TEST,
+  fast-forwarded into me on the owner's word. docs/SONAR_QA.md. Checked against a simulated sonar only.
+- 7d485e61: the servo's PWM frequency, 50..1000 Hz (ID_SERVO_CONTROL v1). docs/SERVO_MANUAL.md.
+- 8a088699: the servo's step source, "Steps on" (ID_SERVO_CONTROL v2): any sonar on Sonar A or B, or one sonar
+  by its address. docs/SERVO_MANUAL.md.
+
+The Recorder firmware for both, and for the compressed echogram stepping the servo (the cause of red S1/S2 and a
+servo standing still while ID_CHART_Z pings came), is in the Recorder fork's clone on the first PC only:
+D:\AI_Workspace\GitLab\recorder, branches feat/port-functions (the 2026-10-27 port functions, recorded as they were),
+feat/chart-z, feat/servo-pwm-hz, feat/servo-trigger (head 3c70e0d). Not pushed to GitLab: no push token on that PC,
+and the owner asked for nothing to go there. The clone under Yandex.Disk (Claude\GitLab\recorder) is broken (a
+missing commit, submodules without HEAD): do not work there.
+
+**[verified]** On the device (Recorder on COM5), 2026-10-28:
+- the firmware feat/servo-trigger flashed (kptool upgrade, 410 messages), the application runs;
+- ID_SERVO_CONTROL v2: 1/1/0 by default; [1, 2, 9] taken and read back; kind 2, function 0 or 3, a 2-byte payload
+  refused with 3; set back to 1/1/0. v1 answers the owner's 350 Hz, which survived the update;
+- S1 Active with the sonar's compressed echogram (status_flags 1). The storage is absent (critical_flags 1).
+Not checked on the device: the servo stepping on one chosen sonar among several (only one sonar is connected).
+
+Installed on the first PC 2026-10-28 13:40, both installs, exe 5D580DF6…, build_info commit 8a088699, dirty: no.
+The laptop is still at 8e825206: update it as in the transfer folder's README, then from GitHub me = 8a088699.
