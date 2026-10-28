@@ -1238,34 +1238,54 @@ void unansweredRules()
 }
 
 // The line's search (address 0's driver while it has never had a frame) waits while another device of the line has
-// been heard within kStaleMs; a device at address 0 is not held; a quiet line is searched again.
+// been heard within kStaleMs, after its first kSearchFirstAsks asks of the connection; a device at address 0 is not
+// held; a quiet line is searched again.
 void searchHoldRules()
 {
     using L = DeviceLiveness;
     const int64_t t0 = 100000;
-    check("search: held while another device was heard 1 s ago", L::searchHeld(0, t0, t0 + 1000));
-    check("search: asks again after 3 s of a quiet line", !L::searchHeld(0, t0, t0 + L::kStaleMs));
-    check("search: asks while no other device was ever heard", !L::searchHeld(0, 0, t0));
-    check("search: a device at address 0 (it had frames) is never held", !L::searchHeld(t0, t0 + 900, t0 + 1000));
-    {
-        // A ring: its two boards send a frame each every 50 ms from t0 + 100 ms; the search ticks every 200 ms.
+    const int first = L::kSearchFirstAsks;
+    check("search: held while another device was heard 1 s ago", L::searchHeld(0, t0, first, t0 + 1000));
+    check("search: asks again after 3 s of a quiet line", !L::searchHeld(0, t0, first, t0 + L::kStaleMs));
+    check("search: asks while no other device was ever heard", !L::searchHeld(0, 0, first, t0));
+    check("search: a device at address 0 (it had frames) is never held", !L::searchHeld(t0, t0 + 900, first, t0 + 1000));
+    check("search: the first asks of a connection are not held", !L::searchHeld(0, t0, 0, t0 + 100)
+                                                                    && !L::searchHeld(0, t0, first - 1, t0 + 100));
+    // The search's ticks every 200 ms from t0 against a line whose other devices send a frame every 50 ms from
+    // lineFrom until lineTo; asks counted in the first second, while the line answers, and after it went quiet.
+    struct Asks { int first = 0, during = 0, after = 0; };
+    auto run = [&](int64_t lineFrom, int64_t lineTo) {
         DeviceLiveness::Unanswered u;
-        int before = 0, during = 0, after = 0;
+        Asks a;
+        int made = 0;
         int64_t other = 0;
-        for (int64_t now = t0; now < t0 + 60000; now += 50) {
-            if (now >= t0 + 100 && now < t0 + 40000) {
-                other = now;                                   // frames from routes 1 and 2
+        for (int64_t now = t0 - 1000; now < t0 + 60000; now += 50) {
+            if (now >= lineFrom && now < lineTo) {
+                other = now;
             }
-            if ((now - t0) % 200 != 0 || L::searchHeld(u.lastFrameMs, other, now) || !u.askDue(now)) {
+            if (now < t0 || (now - t0) % 200 != 0 || L::searchHeld(u.lastFrameMs, other, made, now) || !u.askDue(now)) {
                 continue;
             }
-            (now < t0 + 100 ? before : now < t0 + 40000 ? during : after) += 1;
+            ++made;
+            (now < t0 + 1000 ? a.first : now < lineTo ? a.during : a.after) += 1;
         }
-        // one ask before the boards are heard; none while they answer; the line quiet from t0 + 40 s: asked again
-        // from t0 + 43 s, every 5 s by then (its first ask was 43 s ago): 43000, 48000, 53000, 58000
-        check("search: a ring heard: no broadcast while it answers, asked again when it is gone",
-              before == 1 && during == 0 && after == 4,
-              QStringLiteral("before %1, while answering %2, after %3").arg(before).arg(during).arg(after));
+        return a;
+    };
+    {
+        // A GODIO ring: its two boards answer from t0 + 100 ms. The first asks; none while it answers; the line quiet
+        // from t0 + 40 s: asked again from t0 + 43 s, every 5 s by then (its first ask was 43 s ago): 43, 48, 53, 58 s.
+        const Asks a = run(t0 + 100, t0 + 40000);
+        check("search: a ring heard: the first asks, no broadcast while it answers, asked again when it is gone",
+              a.first == first && a.during == 0 && a.after == 4,
+              QStringLiteral("first second %1, while answering %2, after %3").arg(a.first).arg(a.during).arg(a.after));
+    }
+    {
+        // The logger (it answers, sends nothing by itself) with a sonar streaming through it before the search's first
+        // tick (2026-10-28): the search still asks on connecting, so the logger answers and is found.
+        const Asks a = run(t0 - 150, t0 + 40000);
+        check("search: a sonar streaming through the logger before the first tick: the logger is still asked",
+              a.first == first && a.during == 0,
+              QStringLiteral("first second %1, while the sonar streams %2").arg(a.first).arg(a.during));
     }
 }
 

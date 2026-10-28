@@ -4764,7 +4764,8 @@ void DevDriver::process() {
             }
         } else {
             const bool held = m_busAddress == 0
-                              && DeviceLiveness::searchHeld(unanswered_.lastFrameMs, otherDeviceHeardMs_, curr_time);
+                              && DeviceLiveness::searchHeld(unanswered_.lastFrameMs, otherDeviceHeardMs_, searchAsks_,
+                                                            curr_time);
             if(held != searchHeldLogged_) {
                 searchHeldLogged_ = held;
                 qInfo().noquote() << wifiTag() << (held ? "search: another device of the line answers, the search waits"
@@ -4775,6 +4776,8 @@ void DevDriver::process() {
             // Without the mark: asked each tick at first, then every DeviceLiveness::kUnansweredSlowMs.
             if(!unanswered_.askDue(curr_time))
                 return;
+            if(searchAsks_ < DeviceLiveness::kSearchFirstAsks)
+                ++searchAsks_;
             restartState();
             streamListRequested_ = false;
             standProbeSent_ = false;

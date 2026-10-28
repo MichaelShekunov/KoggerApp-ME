@@ -1311,6 +1311,7 @@ private:
     int64_t lastQuietProbe_ = 0;
     DeviceLiveness::Unanswered unanswered_;   // asked less while it is without the mark (process())
     int64_t otherDeviceHeardMs_ = 0;          // another device of this line, last heard (holdSearch), 0: never
+    int searchAsks_ = 0;                      // asks made on this connection, up to DeviceLiveness::kSearchFirstAsks
     bool searchHeldLogged_ = false;
     void updateDataStale(int64_t now);
 };

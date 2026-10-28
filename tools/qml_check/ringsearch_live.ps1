@@ -11,7 +11,8 @@
     send a marked ID_VERSION frame each every 50 ms for 15 s, nothing for 10 s, then again for 10 s. It counts the
     app's frames to route 0 (the search: restart, ID_MARK, ID_VERSION) in each phase.
     Checked:
-      answering  after the first 2 s of the boards' frames, no frame to route 0 until they stop
+      answering  from 2 s after the app's first frame (the search's first asks, kSearchFirstAsks, come before),
+                 no frame to route 0 until the boards stop
       quiet      the line is searched while it is quiet (the link's own ask-all within ~0.3 s, the search at
                  address 0 from ~3 s after the last frame)
       again      no frame to route 0 from 2 s after the boards come back until they stop at 35 s
@@ -76,6 +77,7 @@ $to0 = New-Object System.Collections.Generic.List[object]   # the app's frames t
 $clock = [System.Diagnostics.Stopwatch]::StartNew()
 $next = 0.0
 $firstSend = -1.0
+$firstApp = -1.0                                            # the app's first frame of any route
 try {
     while (-not $proc.HasExited) {
         $t = $clock.Elapsed.TotalMilliseconds
@@ -98,6 +100,7 @@ try {
             if ($d[$i] -ne 0xBB -or $d[$i + 1] -ne 0x55) { $i++; continue }
             $len = $d[$i + 5]; $total = 6 + $len + 2
             if ($i + $total -gt $d.Length) { break }
+            if ($firstApp -lt 0) { $firstApp = $at }
             if ($d[$i + 2] -eq 0) { $to0.Add([pscustomobject]@{ S = $at; Id = $d[$i + 4] }) }
             $i += $total
         }
@@ -118,11 +121,12 @@ function Expect([bool] $ok, [string] $what, [string] $detail) {
     "{0} {1}: {2}" -f ($(if ($ok) { 'ok  ' } else { 'FAIL' })), $what, $detail
 }
 $all = $to0.ToArray()
-$answering = @($all | Where-Object { $_.S -ge 2 -and $_.S -lt 15 })
+$from = [Math]::Max(2.0, $firstApp + 2.0)
+$answering = @($all | Where-Object { $_.S -ge $from -and $_.S -lt 15 })
 $quiet = @($all | Where-Object { $_.S -ge 15 -and $_.S -lt 25 })
 $again = @($all | Where-Object { $_.S -ge 27 -and $_.S -lt 35 })
-$start = @($all | Where-Object { $_.S -lt 2 })
-Expect ($answering.Count -eq 0) 'answering' ("{0} frames to route 0 between 2 and 15 s ({1} in the first 2 s)" -f $answering.Count, $start.Count)
+$start = @($all | Where-Object { $_.S -lt $from })
+Expect ($answering.Count -eq 0) 'answering' ("{0} frames to route 0 between {1:F2} and 15 s ({2} before, the app's first frame at {3:F2} s)" -f $answering.Count, $from, $start.Count, $firstApp)
 Expect ($quiet.Count -ge 1) 'quiet' (
     "{0} frames to route 0 while the line was quiet, the first at {1}" -f $quiet.Count, $(if ($quiet.Count) { '{0:F2} s' -f $quiet[0].S } else { '-' }))
 Expect ($again.Count -eq 0) 'again' ("{0} frames to route 0 between 27 and 35 s" -f $again.Count)

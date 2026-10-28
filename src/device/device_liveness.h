@@ -41,17 +41,25 @@ struct DeviceLiveness
     static constexpr int64_t kStableMarkMs = 2000;
     static constexpr int64_t kSilenceMs = 1000;
 
+    /** The search's first asks on a connection, made whatever the line does (searchHeld). */
+    static constexpr int kSearchFirstAsks = 3;
+
     /** Whether the link's search waits. Address 0's driver is only the search while it has never had a frame
      *  (ownLastFrameMs 0); a device at address 0 answers it and is asked as any other. While another device of the
      *  line has been heard within kStaleMs (otherLastFrameMs), the search asks nothing: every device answers it under
      *  its own address, so it finds nothing new, and the broadcast restart, mark (a SETTING) and VERSION only
      *  disturb -- the following board of a GODIO ring answers them instead of waiting for the leader's BREAK and
      *  drops a ping each time (L412_GODIO docs/RING_HOLES_2026-10-23.md; 6 asks, 6 pings of [2] missing). When the
-     *  line goes quiet (a cable out, a rate change), it asks again. A device joined to a line that answers already
-     *  and sends nothing by itself is found then, or on reconnecting. */
-    static bool searchHeld(int64_t ownLastFrameMs, int64_t otherLastFrameMs, int64_t nowMs)
+     *  line goes quiet (a cable out, a rate change), it asks again.
+     *  The first kSearchFirstAsks asks of a connection (asksMade) are never held: the logger (Recorder) sends
+     *  nothing by itself, and a sonar streaming through it reaches the app before the search's first tick, so the
+     *  logger was never found (2026-10-28, COM5: the logger answers VERSION at 0 and 250, the line carried only the
+     *  sonar's frames). A ring loses at most that many pings on connecting. A device joined later to a line that
+     *  answers already and sends nothing by itself is found when the line goes quiet, or on reconnecting. */
+    static bool searchHeld(int64_t ownLastFrameMs, int64_t otherLastFrameMs, int asksMade, int64_t nowMs)
     {
-        return ownLastFrameMs == 0 && otherLastFrameMs > 0 && nowMs - otherLastFrameMs < kStaleMs;
+        return asksMade >= kSearchFirstAsks && ownLastFrameMs == 0 && otherLastFrameMs > 0
+               && nowMs - otherLastFrameMs < kStaleMs;
     }
 
     /** The back-off of one device: frames from protoComplete, ticks from process(). */

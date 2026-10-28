@@ -3349,3 +3349,20 @@ Not checked on the device: the servo stepping on one chosen sonar among several 
 
 Installed on the first PC 2026-10-28 13:40, both installs, exe 5D580DF6…, build_info commit 8a088699, dirty: no.
 The laptop is still at 8e825206: update it as in the transfer folder's README, then from GitHub me = 8a088699.
+
+## The logger missing from the device list: the search's first asks (2026-10-28, branch `recorder-search`)
+
+The owner: "the sonar is connected through the logger, but the logger is not in the device list". The cause was the
+2026-10-24 search hold: the logger (Recorder) sends nothing by itself, the sonar streaming through it reaches the
+app before the search's first tick, so the search was held before it asked once (log: connected 15:53:58.526,
+"the search waits" .704). **[verified]** on COM5: unasked, 136 KB of the sonar's stream in 2 s and no frame of the
+logger; it answers ID_VERSION at 0 and 250.
+
+- `DeviceLiveness::kSearchFirstAsks` = 3: the first asks of a connection are never held (`searchAsks_` in DevDriver,
+  the driver is new on each connection). A ring loses at most three pings on connecting.
+- **[verified]** mission_check offline 244 of 244; `tools/qml_check/recordersearch_live.ps1` (new) PASS, the installed
+  8a088699 fails it (no ask, logger not found); `ringsearch_live.ps1` PASS (its "answering" window now from the app's
+  first frame + 2 s); the real logger on COM5 with the sonar streaming: found 0.6 s after connecting.
+- Seen, not touched: the logger's driver sends RECORDER_STATUS (0x26) and ID_STREAM (0x40) to route 0
+  (`getDevAddress()`), as in the morning's log. One start of the test build crashed in
+  `GraphicsScene3dView::refreshSceneContentVisible` (0xc0000005, 16:05:11); five later starts did not.
