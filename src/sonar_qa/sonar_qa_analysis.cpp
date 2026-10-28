@@ -1,5 +1,6 @@
 #include "sonar_qa_analysis.h"
 
+#include <QCoreApplication>
 #include <QJsonArray>
 
 #include <algorithm>
@@ -9,7 +10,18 @@ namespace sonarqa {
 
 namespace {
 
-const char* const kRunFormat = "kogger-sonar-qa/2";   // 2: the reflection read at the baseline's place, serial text
+// 2: the reflection read at the baseline's place, serial text; 3: compared only from reflectionMinDb over the floor
+const char* const kRunFormat = "kogger-sonar-qa/3";
+
+// The checks' words (lupdate's context SonarQaCheck). The figures of a check are this run's against the one it is
+// compared with: a sonar against the reference, or the reference now against its baseline.
+struct SonarQaCheck {
+    Q_DECLARE_TR_FUNCTIONS(SonarQaCheck)
+};
+QString num(double v, int decimals = 1)
+{
+    return QString::number(v, 'f', decimals);
+}
 
 float medianOf(QVector<float> v)
 {
@@ -123,7 +135,8 @@ QJsonObject Params::toJson() const
              { "pingsPerStep", pingsPerStep }, { "discardPings", discardPings }, { "periodMs", periodMs },
              { "samples", samples }, { "txPulses", txPulses }, { "ringMarginCodes", ringMarginCodes },
              { "ringHoldSamples", ringHoldSamples }, { "echoMarginCodes", echoMarginCodes },
-             { "echoMinGap", echoMinGap }, { "maxEchoes", maxEchoes }, { "echoWindow", echoWindow } };
+             { "echoMinGap", echoMinGap }, { "maxEchoes", maxEchoes }, { "echoWindow", echoWindow },
+             { "reflectionMinDb", reflectionMinDb } };
 }
 
 Params Params::fromJson(const QJsonObject& o)
@@ -143,6 +156,7 @@ Params Params::fromJson(const QJsonObject& o)
     p.echoMinGap = o.value("echoMinGap").toInt(p.echoMinGap);
     p.maxEchoes = o.value("maxEchoes").toInt(p.maxEchoes);
     p.echoWindow = o.value("echoWindow").toInt(p.echoWindow);
+    p.reflectionMinDb = o.value("reflectionMinDb").toInt(p.reflectionMinDb);
     return p;
 }
 
@@ -296,7 +310,8 @@ int reflectionAt(const QVector<uint8_t>& profile, const Params& p)
             best = i;
         }
     }
-    return best >= 0 && profile[best] >= floor + p.echoMarginCodes ? best : -1;
+    const double margin = qMax(double(p.echoMarginCodes), p.reflectionMinDb * kCodesPerDb);
+    return best >= 0 && profile[best] >= floor + margin ? best : -1;
 }
 
 void measureReflections(Run& run, const QVector<QVector<QVector<uint8_t>>>& profiles, const Run* ref)
@@ -361,29 +376,35 @@ QVector<Check> selfChecks(const Run& run, const Tolerances& t)
     for (int s = 0; s < sides; ++s) {
         const double off = txOffDb(run, s);
         if (!std::isnan(off)) {
-            out.append(make("tx_off", s, off, t.txOffDb, "dB", off >= t.txOffDb, true,
-                            off >= t.txOffDb ? QStringLiteral("0 pulses: the ringing goes, the noise is measured")
-                                             : QStringLiteral("0 pulses: the echogram stays, the sonar keeps "
-                                                              "transmitting (firmware?): noise not measured")));
+            const bool quiet = off >= t.txOffDb;
+            out.append(make("tx_off", s, off, t.txOffDb, "dB", quiet, true,
+                            SonarQaCheck::tr("with 0 pulses the ringing drops by %1 dB (it must drop by %2 dB or more)")
+                                    .arg(num(off), num(t.txOffDb, 0))
+                                + (quiet ? QString() : SonarQaCheck::tr(": the transmitter keeps sending, the noise is not measured"))));
         }
         int found = 0;
         for (const Step& st : run.steps) {
             found += st.sides[s].echoFound ? 1 : 0;
         }
         out.append(make("reflection", s, found, run.steps.size(), "", found > 0, true,
-                        found > 0 ? QStringLiteral("%1 of %2 steps").arg(found).arg(run.steps.size())
-                                  : QStringLiteral("none after the ringing: the target is not seen")));
+                        found > 0 ? SonarQaCheck::tr("a clear reflection (%1 dB over the floor) at %2 of %3 frequencies: only these "
+                                        "are compared")
+                                        .arg(run.params.reflectionMinDb).arg(found).arg(run.steps.size())
+                                  : SonarQaCheck::tr("no reflection %1 dB over the floor at any frequency: the target is not seen, "
+                                        "reflections will not be compared")
+                                        .arg(run.params.reflectionMinDb)));
     }
     out.append(make("supply", -1, run.supply.median, t.supplyV, "V", run.supply.valid(), true,
-                    run.supply.valid() ? QStringLiteral("%1..%2 V").arg(run.supply.min, 0, 'f', 2)
-                                             .arg(run.supply.max, 0, 'f', 2)
-                                       : QStringLiteral("no supply readings")));
+                    run.supply.valid() ? SonarQaCheck::tr("%1 V (from %2 to %3 V during the run)").arg(num(run.supply.median, 2),
+                                             num(run.supply.min, 2), num(run.supply.max, 2))
+                                       : SonarQaCheck::tr("the sonar sent no supply readings")));
     const bool tempOk = run.temperature.valid() && run.temperature.median >= t.tempMinC
                         && run.temperature.median <= t.tempMaxC;
     out.append(make("temperature", -1, run.temperature.median, t.tempMaxC, "C", tempOk, true,
-                    run.temperature.valid() ? QStringLiteral("%1..%2 C").arg(run.temperature.min, 0, 'f', 1)
-                                                  .arg(run.temperature.max, 0, 'f', 1)
-                                            : QStringLiteral("no temperature readings")));
+                    run.temperature.valid() ? SonarQaCheck::tr("%1 °C (from %2 to %3 °C during the run)")
+                                                  .arg(num(run.temperature.median), num(run.temperature.min),
+                                                       num(run.temperature.max))
+                                            : SonarQaCheck::tr("the sonar sent no temperature readings")));
     return out;
 }
 
@@ -526,6 +547,11 @@ Run Run::fromJson(const QJsonObject& o)
     return r;
 }
 
+bool Run::needsRebuild() const
+{
+    return format != QLatin1String(kRunFormat);
+}
+
 QJsonObject Comparison::toJson() const
 {
     QJsonArray a;
@@ -576,6 +602,56 @@ Resonance resonance(const Run& run, int side, double bandDb, const QVector<int>&
     return r;
 }
 
+double responseShiftKhz(const Run& unit, const Run& ref, int side, const QVector<int>& steps)
+{
+    const int stepKhz = qMax(1, ref.params.freqStepKhz);
+    const int maxShift = qMax(4, 100 / stepKhz);
+    const QVector<float> u = echoCurve(unit, side), r = echoCurve(ref, side);
+    const int need = qMax(3, int(std::ceil(0.6 * steps.size())));
+    double best = std::nan(""), bestRms = 0;
+    for (int k = 0; k <= 2 * maxShift; ++k) {
+        const int d = (k % 2 ? 1 : -1) * ((k + 1) / 2);   // 0, 1, -1, 2, -2 ...: a tie keeps the smaller shift
+        QVector<double> diff;
+        for (int i : steps) {
+            if (steps.contains(i - d)) {
+                diff.append(double(u.value(i)) - double(r.value(i - d)));
+            }
+        }
+        if (diff.size() < need) {
+            continue;
+        }
+        double mean = 0, sq = 0;
+        for (double x : diff) {
+            mean += x;
+        }
+        mean /= diff.size();
+        for (double x : diff) {
+            sq += (x - mean) * (x - mean);
+        }
+        const double rms = std::sqrt(sq / diff.size());
+        if (std::isnan(best) || rms < bestRms - 1e-9) {
+            best = double(d) * stepKhz;
+            bestRms = rms;
+        }
+    }
+    return best;
+}
+
+double bandWidthKhz(const Run& run, int side, const QVector<int>& steps, double bandDb)
+{
+    const QVector<float> v = echoCurve(run, side);
+    float top = 0;
+    for (int i : steps) {
+        top = qMax(top, v.value(i));
+    }
+    const double edge = top - bandDb * kCodesPerDb;
+    double n = 0;
+    for (int i : steps) {
+        n += qBound(0.0, (v.value(i) - edge) / kCodesPerDb + 0.5, 1.0);   // 1 dB soft edge
+    }
+    return n * run.params.freqStepKhz;
+}
+
 Comparison compare(const Run& unit, const Run& ref, const Tolerances& t)
 {
     Comparison cmp;
@@ -583,6 +659,13 @@ Comparison compare(const Run& unit, const Run& ref, const Tolerances& t)
         cmp.checks.append(c);
         cmp.pass = cmp.pass && c.level != QLatin1String("fail");
         cmp.warnings += c.level == QLatin1String("warn") ? 1 : 0;
+    };
+    // whose each figure is: "this sonar ... reference ..." or, for the reference's check, "now ... baseline ..."
+    const bool check = unit.kind == QLatin1String("check");
+    const QString me = check ? SonarQaCheck::tr("now") : SonarQaCheck::tr("this sonar");
+    const QString them = check ? SonarQaCheck::tr("baseline") : SonarQaCheck::tr("reference");
+    auto pair = [&me, &them](const QString& mine, const QString& theirs) {
+        return SonarQaCheck::tr("%1 %2, %3 %4").arg(me, mine, them, theirs);
     };
 
     const bool sameSweep = unit.params.freqFromKhz == ref.params.freqFromKhz
@@ -594,7 +677,9 @@ Comparison compare(const Run& unit, const Run& ref, const Tolerances& t)
         sides = qMin(unit.steps.first().sides.size(), ref.steps.first().sides.size());
     }
     add(make("sweep", -1, sides, 0, "", sameSweep && sides > 0, false,
-             QStringLiteral("steps %1 / %2, sides %3").arg(unit.steps.size()).arg(ref.steps.size()).arg(sides)));
+             SonarQaCheck::tr("frequencies: %1; sides: %2").arg(pair(QString::number(unit.steps.size()),
+                                                         QString::number(ref.steps.size())))
+                 .arg(sides)));
     if (!sameSweep || sides == 0) {
         return cmp;
     }
@@ -610,9 +695,11 @@ Comparison compare(const Run& unit, const Run& ref, const Tolerances& t)
         const bool quietU = std::isnan(offU) || offU >= t.txOffDb, quietR = std::isnan(offR) || offR >= t.txOffDb;
         if (!std::isnan(offU)) {
             add(make("tx_off", s, offU, t.txOffDb, "dB", quietU, !quietR,
-                     quietU   ? QStringLiteral("0 pulses: the ringing goes (reference %1 dB)").arg(offR, 0, 'f', 1)
-                     : quietR ? QStringLiteral("0 pulses: this sonar keeps transmitting, the reference goes quiet")
-                              : QStringLiteral("0 pulses: neither goes quiet (firmware?), the noise is not measured")));
+                     SonarQaCheck::tr("with 0 pulses the ringing drops by: %1 (it must drop by %2 dB or more)")
+                             .arg(pair(SonarQaCheck::tr("%1 dB").arg(num(offU)), SonarQaCheck::tr("%1 dB").arg(num(offR))), num(t.txOffDb, 0))
+                         + (quietU   ? QString()
+                            : quietR ? SonarQaCheck::tr(": this sonar keeps transmitting at 0 pulses")
+                                     : SonarQaCheck::tr(": the transmitter keeps sending, the noise is not measured"))));
         }
 
         const QVector<int> found = foundSteps(ref, s);
@@ -640,23 +727,41 @@ Comparison compare(const Run& unit, const Run& ref, const Tolerances& t)
             }
             const double meanAbs = band.isEmpty() ? 0 : sumAbs / band.size();
             add(make("echo_band_mean", s, meanAbs, t.echoBandMeanDb, "dB", meanAbs <= t.echoBandMeanDb, false,
-                     QStringLiteral("band %1 steps, %2..%3 kHz").arg(band.size())
-                         .arg(ref.params.freqAt(band.value(0))).arg(ref.params.freqAt(band.isEmpty() ? 0 : band.last()))));
+                     SonarQaCheck::tr("how much the reflection differs on average over %1 frequencies, %2 to %3 kHz (where the "
+                         "reflection is strongest); allowed %4 dB")
+                         .arg(band.size()).arg(ref.params.freqAt(band.value(0)))
+                         .arg(ref.params.freqAt(band.isEmpty() ? 0 : band.last())).arg(num(t.echoBandMeanDb))));
             add(make("echo_band_max", s, maxAbs, t.echoBandMaxDb, "dB", maxAbs <= t.echoBandMaxDb, false,
-                     QStringLiteral("at %1 kHz: %2 / %3 codes").arg(ref.params.freqAt(maxAt))
-                         .arg(uc.value(maxAt)).arg(rraw.value(maxAt))));
+                     SonarQaCheck::tr("the largest difference, at %1 kHz: %2 (2.5 codes = 1 dB); allowed %3 dB")
+                         .arg(ref.params.freqAt(maxAt))
+                         .arg(pair(SonarQaCheck::tr("%1 codes").arg(num(uc.value(maxAt), 0)),
+                                   SonarQaCheck::tr("%1 codes").arg(num(rraw.value(maxAt), 0))),
+                              num(t.echoBandMaxDb))));
 
+            // the whole curve against the reference's, not its strongest step: two near-equal peaks swap places
+            // from run to run, and the step decides
             const Resonance ru = resonance(unit, s, t.bandDb, found), rr = resonance(ref, s, t.bandDb, found);
-            const double shift = ru.freqKhz - rr.freqKhz;
-            add(make("resonance", s, shift, t.resonanceKhz, "kHz", std::fabs(shift) <= t.resonanceKhz, false,
-                     QStringLiteral("%1 / %2 kHz").arg(ru.freqKhz).arg(rr.freqKhz)));
-            const double ratio = rr.bandwidthKhz > 0 ? ru.bandwidthKhz / rr.bandwidthKhz : (ru.bandwidthKhz > 0 ? 99 : 1);
+            const double shift = responseShiftKhz(unit, ref, s, found);
+            if (!std::isnan(shift)) {
+                add(make("resonance", s, shift, t.resonanceKhz, "kHz", std::fabs(shift) <= t.resonanceKhz, false,
+                         SonarQaCheck::tr("the response (reflection against frequency) matches the %1's best when shifted by %2 kHz; "
+                             "allowed ±%3 kHz. Strongest reflection: %4")
+                             .arg(them, num(shift, 0), num(t.resonanceKhz, 0),
+                                  pair(SonarQaCheck::tr("%1 kHz").arg(num(ru.freqKhz, 0)), SonarQaCheck::tr("%1 kHz").arg(num(rr.freqKhz, 0))))));
+            }
+            const double wu = bandWidthKhz(unit, s, found, t.bandDb), wr = bandWidthKhz(ref, s, found, t.bandDb);
+            const double ratio = wr > 0 ? wu / wr : (wu > 0 ? 99 : 1);
             add(make("bandwidth", s, ratio, t.bandwidthRatioMax, "x",
                      ratio >= t.bandwidthRatioMin && ratio <= t.bandwidthRatioMax, false,
-                     QStringLiteral("%1 / %2 kHz").arg(ru.bandwidthKhz).arg(rr.bandwidthKhz)));
+                     SonarQaCheck::tr("frequencies within %1 dB of the strongest reflection: %2; allowed %3 to %4 times the %5's")
+                         .arg(num(t.bandDb, 0),
+                              pair(SonarQaCheck::tr("%1 kHz").arg(num(wu, 0)), SonarQaCheck::tr("%1 kHz").arg(num(wr, 0))),
+                              num(t.bandwidthRatioMin, 2), num(t.bandwidthRatioMax, 2), them)));
         } else {
             add(make("reflection", s, 0, 0, "", false, true,
-                     QStringLiteral("the reference shows none after the ringing: reflections are not compared")));
+                     SonarQaCheck::tr("the %1 shows no reflection %2 dB over the floor: reflections are not compared (the target "
+                         "is not seen: too close, too small or inside the ringing)")
+                         .arg(them).arg(ref.params.reflectionMinDb)));
         }
 
         if (quietU && quietR) {
@@ -666,10 +771,12 @@ Comparison compare(const Run& unit, const Run& ref, const Tolerances& t)
             }
             const double noise = noiseSum / ref.steps.size();
             add(make("noise", s, noise, t.noiseDb, "dB", noise <= t.noiseDb, false,
-                     QStringLiteral("mean over %1 steps, transmitter off").arg(ref.steps.size())));
+                     SonarQaCheck::tr("noise with the transmitter off, mean over %1 frequencies: %2 louder than the %3 by %4 dB "
+                         "(minus: quieter); allowed up to %5 dB louder")
+                         .arg(ref.steps.size()).arg(me, them, num(noise), num(t.noiseDb))));
         } else {
             add(make("noise", s, 0, t.noiseDb, "dB", false, true,
-                     QStringLiteral("not measured: the transmitter did not go off at 0 pulses")));
+                     SonarQaCheck::tr("not measured: with 0 pulses the transmitter keeps sending")));
         }
 
         // the ringing over the reflection's band, or over the whole sweep when there is no reflection
@@ -694,17 +801,21 @@ Comparison compare(const Run& unit, const Run& ref, const Tolerances& t)
         const double ringU = medianOf(ru_ring), ringR = medianOf(rr_ring);
         const double ringLimit = ringR * t.ringdownRatio + t.ringdownSlack;
         add(make("ringdown", s, ringU, ringLimit, "samples", ringU <= ringLimit, false,
-                 QStringLiteral("%1 / %2 samples over the %3").arg(ringU).arg(ringR)
-                     .arg(seen[s] ? QStringLiteral("band") : QStringLiteral("sweep"))));
+                 SonarQaCheck::tr("length of the ringing after the burst: %1; allowed up to %2 samples")
+                     .arg(pair(SonarQaCheck::tr("%1 samples").arg(num(ringU, 0)), SonarQaCheck::tr("%1 samples").arg(num(ringR, 0))),
+                          num(ringLimit, 0))));
         if (seen[s]) {
             const double pos = shifts.isEmpty() ? 0 : medianOf(shifts);
             const bool placed = pos <= t.positionSamples;
             add(make("position", s, pos, t.positionSamples, "samples", placed, true,
-                     placed ? QStringLiteral("the reflection where the reference's is")
-                            : QStringLiteral("the reflection moved: the sonar sits otherwise on the stand")));
+                     placed ? SonarQaCheck::tr("the reflection is where the %1's is (off by %2 samples, allowed %3)")
+                                  .arg(them, num(pos, 0), num(t.positionSamples, 0))
+                            : SonarQaCheck::tr("the reflection is %1 samples off the %2's: the sonar sits otherwise on the stand")
+                                  .arg(num(pos, 0), them)));
             const double satShare = span.isEmpty() ? 0 : double(saturatedSteps) / span.size();
             add(make("saturation", s, satShare, t.saturationShare, "", satShare <= t.saturationShare, true,
-                     QStringLiteral("%1 of %2 band steps at 255").arg(saturatedSteps).arg(span.size())));
+                     SonarQaCheck::tr("the reflection at full scale (255) at %1 of %2 frequencies").arg(saturatedSteps)
+                         .arg(span.size())));
         }
     }
 
@@ -725,33 +836,39 @@ Comparison compare(const Run& unit, const Run& ref, const Tolerances& t)
         }
         const double bal = band.isEmpty() ? 0 : sum / band.size();
         add(make("balance", -1, bal, t.balanceDb, "dB", bal <= t.balanceDb, false,
-                 QStringLiteral("difference between the sides against the reference's, %1 steps").arg(band.size())));
+                 SonarQaCheck::tr("side 1 against side 2: the difference between them changed by %1 dB against the %2's, over %3 "
+                     "frequencies; allowed %4 dB")
+                     .arg(num(bal), them).arg(band.size()).arg(num(t.balanceDb))));
     }
 
     if (unit.supply.valid() && ref.supply.valid()) {
         const double d = unit.supply.median - ref.supply.median;
         add(make("supply", -1, d, t.supplyV, "V", std::fabs(d) <= t.supplyV, false,
-                 QStringLiteral("%1 / %2 V (min %3, max %4)").arg(unit.supply.median, 0, 'f', 2)
-                     .arg(ref.supply.median, 0, 'f', 2).arg(unit.supply.min, 0, 'f', 2).arg(unit.supply.max, 0, 'f', 2)));
+                 SonarQaCheck::tr("supply: %1 (from %2 to %3 V during the run); allowed ±%4 V")
+                     .arg(pair(SonarQaCheck::tr("%1 V").arg(num(unit.supply.median, 2)), SonarQaCheck::tr("%1 V").arg(num(ref.supply.median, 2))),
+                          num(unit.supply.min, 2), num(unit.supply.max, 2), num(t.supplyV, 2))));
     } else {
         add(make("supply", -1, 0, t.supplyV, "V", false, true,
-                 unit.supply.valid() ? QStringLiteral("%1 V, the reference has no supply readings")
-                                           .arg(unit.supply.median, 0, 'f', 2)
-                                     : QStringLiteral("no supply readings from the sonar")));
+                 unit.supply.valid() ? SonarQaCheck::tr("%1 V; the %2 has no supply readings to compare with")
+                                           .arg(num(unit.supply.median, 2), them)
+                                     : SonarQaCheck::tr("the sonar sent no supply readings")));
     }
     if (unit.temperature.valid()) {
         const bool inRange = unit.temperature.median >= t.tempMinC && unit.temperature.median <= t.tempMaxC;
         add(make("temperature", -1, unit.temperature.median, t.tempMaxC, "C", inRange, false,
-                 QStringLiteral("%1..%2 C").arg(unit.temperature.min, 0, 'f', 1).arg(unit.temperature.max, 0, 'f', 1)));
+                 SonarQaCheck::tr("%1 °C (from %2 to %3 °C during the run); allowed %4 to %5 °C")
+                     .arg(num(unit.temperature.median), num(unit.temperature.min), num(unit.temperature.max),
+                          num(t.tempMinC, 0), num(t.tempMaxC, 0))));
         if (ref.temperature.valid()) {
             const double d = unit.temperature.median - ref.temperature.median;
             add(make("temperature_delta", -1, d, t.tempDeltaC, "C", std::fabs(d) <= t.tempDeltaC, true,
-                     QStringLiteral("%1 / %2 C").arg(unit.temperature.median, 0, 'f', 1)
-                         .arg(ref.temperature.median, 0, 'f', 1)));
+                     SonarQaCheck::tr("%1; more than %2 °C apart is a warning")
+                         .arg(pair(SonarQaCheck::tr("%1 °C").arg(num(unit.temperature.median)),
+                                   SonarQaCheck::tr("%1 °C").arg(num(ref.temperature.median))),
+                              num(t.tempDeltaC, 0))));
         }
     } else {
-        add(make("temperature", -1, 0, t.tempMaxC, "C", false, true,
-                 QStringLiteral("no temperature readings from the sonar")));
+        add(make("temperature", -1, 0, t.tempMaxC, "C", false, true, SonarQaCheck::tr("the sonar sent no temperature readings")));
     }
     return cmp;
 }

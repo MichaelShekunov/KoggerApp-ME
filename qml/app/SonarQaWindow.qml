@@ -304,6 +304,24 @@ Window {
                             text: qsTr("Serial %1 · firmware %2 · %3").arg(win.res.serial).arg(win.res.firmware).arg(win.fmtTime(win.res.time))
                                   + "\n" + (win.res.saved ? qsTr("Saved: %1").arg(win.res.file) : qsTr("Not saved: %1").arg(win.res.error))
                         }
+                        Note {
+                            visible: (win.res.checks || []).length > 0
+                            text: win.res.kind === "check"
+                                  ? qsTr("Each line: what is checked · the figure (how far from the baseline) · the numbers behind it: \"now\" is this run of the reference, \"baseline\" its first run.")
+                                  : win.res.kind === "baseline"
+                                  ? qsTr("Each line: what the reference's own run shows. Warnings here do not stop anything, but say what will not be compared.")
+                                  : qsTr("Each line: what is checked · the figure (how far from the reference) · the numbers behind it: \"this sonar\" against \"reference\" (its latest check).")
+                        }
+                        Item {
+                            visible: (win.res.checks || []).length > 0 && win.res.kind !== "baseline"
+                            width: parent.width; height: Math.round(24 * AppPalette.scale)
+                            Text { x: Math.round(10 * AppPalette.scale) + Tokens.spaceSm; anchors.verticalCenter: parent.verticalCenter
+                                   text: qsTr("Check"); color: AppPalette.textSecond; font.pixelSize: Tokens.fontSm; font.bold: true }
+                            Text { x: parent.width * 0.5; anchors.verticalCenter: parent.verticalCenter
+                                   text: qsTr("Difference"); color: AppPalette.textSecond; font.pixelSize: Tokens.fontSm; font.bold: true }
+                            Text { x: parent.width * 0.62; anchors.verticalCenter: parent.verticalCenter
+                                   text: qsTr("What the numbers are"); color: AppPalette.textSecond; font.pixelSize: Tokens.fontSm; font.bold: true }
+                        }
                         Column {
                             objectName: "qaChecks"
                             width: parent.width
@@ -312,7 +330,8 @@ Window {
                                 model: win.res.checks || []
                                 delegate: Item {
                                     required property var modelData
-                                    width: resCol.width; height: Math.round(30 * AppPalette.scale)
+                                    width: resCol.width
+                                    height: Math.max(Math.round(30 * AppPalette.scale), detailText.implicitHeight + Tokens.spaceSm * 2)
                                     Rectangle { anchors.bottom: parent.bottom; width: parent.width; height: 1; color: AppPalette.separator }
                                     Rectangle {
                                         id: dot
@@ -323,21 +342,22 @@ Window {
                                     }
                                     Text {
                                         x: dot.width + Tokens.spaceSm; anchors.verticalCenter: parent.verticalCenter
-                                        width: parent.width * 0.45
+                                        width: parent.width * 0.48 - x
                                         text: win.checkTitle(modelData.id) + (modelData.side >= 0 ? qsTr(", side %1").arg(modelData.side + 1) : "")
                                         color: AppPalette.textStrong; font.pixelSize: Tokens.fontMd; elide: Text.ElideRight
                                     }
                                     Text {
                                         x: parent.width * 0.5; anchors.verticalCenter: parent.verticalCenter
-                                        width: parent.width * 0.2
+                                        width: parent.width * 0.11
                                         text: win.fmtValue(modelData)
                                         color: AppPalette.textStrong; font.pixelSize: Tokens.fontMd; font.bold: modelData.level !== "ok"
                                     }
                                     Text {
-                                        x: parent.width * 0.7; anchors.verticalCenter: parent.verticalCenter
-                                        width: parent.width * 0.3
+                                        id: detailText
+                                        x: parent.width * 0.62; anchors.verticalCenter: parent.verticalCenter
+                                        width: parent.width * 0.38
                                         text: modelData.detail
-                                        color: AppPalette.textSecond; font.pixelSize: Tokens.fontSm; elide: Text.ElideRight
+                                        color: AppPalette.textSecond; font.pixelSize: Tokens.fontSm; wrapMode: Text.WordWrap
                                     }
                                 }
                             }
@@ -515,6 +535,7 @@ Window {
                                      { key: "periodMs", title: qsTr("Period, ms"), from: 10, to: 1000 },
                                      { key: "samples", title: qsTr("Samples"), from: 100, to: 5000 },
                                      { key: "txPulses", title: qsTr("Pulses"), from: 1, to: 120 },
+                                     { key: "reflectionMinDb", title: qsTr("Reflection over the floor, dB"), from: 6, to: 60 },
                                      { key: "unitsPerCheck", title: qsTr("Sonars a check"), from: 1, to: 100 } ]
                             delegate: Column {
                                 required property var modelData

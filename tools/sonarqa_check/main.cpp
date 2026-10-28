@@ -239,6 +239,31 @@ void checkOwnersStand()
     r.setSerialEntry(QStringLiteral("S/0002"));
     runOnce(r, "unit");
     ok("a number with a character a folder cannot have", QDir(dir.filePath("units/S_0002")).exists());
+
+    // the owner's 17:40 runs: the "reflections" a few ADC units over a zero floor, moving 4-5 dB from run to run
+    QTemporaryDir dirWeak;
+    SonarQaRunner w(dirWeak.path());
+    w.setParams(p);
+    stand();
+    s.m.tagPings = false;             // the tags (up to 180 codes at the end of a ping) would pass for a reflection
+    s.m.echoTop = s.m.floorOn + 30;   // 12 dB over the floor: under reflectionMinDb
+    w.setAdapter(&s);
+    runOnce(w, "baseline");
+    ok("a weak target: the baseline says no reflection to compare", levels(w, "warn").contains("reflection0"),
+       levels(w, "warn").join(','));
+    agreed = 0;
+    for (int i = 0; i < 3; ++i) {
+        s.m.echoTop = s.m.floorOn + 30 + (i - 1) * 10;   // +-4 dB from run to run, as on the stand
+        w.refreshDevice();
+        agreed += runOnce(w, "check") && verdict(w) == QLatin1String("check_ok") ? 1 : 0;
+    }
+    QStringList ids;
+    for (const QVariant& v : w.result().value("checks").toList()) {
+        ids.append(v.toMap().value("id").toString());
+    }
+    ok("... and its checks agree, reflections told as not compared, no resonance judged from noise",
+       agreed == 3 && ids.contains("reflection") && !ids.contains("resonance"),
+       QStringLiteral("%1 of 3; %2").arg(agreed).arg(ids.join(',')));
 }
 
 int reanalyse(const QString& root, const QString& refJson, const QString& unitJson)
@@ -259,6 +284,16 @@ int reanalyse(const QString& root, const QString& refJson, const QString& unitJs
         return 2;
     }
     buildSteps(unit, pings, &ref);
+    if (qEnvironmentVariableIsSet("SONARQA_DUMP")) {   // the reflection read at each step: kHz reference/unit codes
+        for (int s = 0; s < (ref.steps.isEmpty() ? 0 : ref.steps.first().sides.size()); ++s) {
+            QStringList row;
+            for (int i : foundSteps(ref, s)) {
+                row.append(QStringLiteral("%1:%2/%3").arg(ref.steps[i].freqKhz).arg(ref.steps[i].sides[s].echoLevel)
+                               .arg(unit.steps[i].sides[s].echoLevel));
+            }
+            std::printf("side %d: %s\n", s + 1, row.join(' ').toUtf8().constData());
+        }
+    }
     const Comparison cmp = compare(unit, ref, store.loadState().tolerances);
     for (const Check& c : cmp.checks) {
         std::printf("%-5s %-18s %2s %9.2f %-8s %s\n", c.level.toUtf8().constData(), c.id.toUtf8().constData(),

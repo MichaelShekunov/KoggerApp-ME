@@ -34,6 +34,8 @@ struct Params {
     int echoMinGap = 10;        ///< samples between two reflections
     int maxEchoes = 4;          ///< reflection and its repeats, nearest first
     int echoWindow = 5;         ///< a reflection's level: the highest byte within this many samples of its position
+    int reflectionMinDb = 20;   ///< a reflection is compared only where it stands this far over the floor: weaker
+                                ///< ones are a few ADC units and move 4-5 dB from run to run (the owner's stand)
 
     int stepCount() const;
     int freqAt(int step) const { return freqFromKhz + step * freqStepKhz; }
@@ -108,7 +110,8 @@ QVector<uint8_t> medianProfile(const QVector<QVector<uint8_t>>& pings);
 QVector<uint8_t> measureProfiles(SideStep& s, const QVector<QVector<uint8_t>>& off, const QVector<QVector<uint8_t>>& on,
                                  const Params& p);
 
-/// The strongest peak after the ringing of an echogram, if it stands echoMarginCodes over the floor; else -1.
+/// The strongest peak after the ringing of an echogram, if it stands reflectionMinDb (and echoMarginCodes) over the
+/// floor; else -1.
 int reflectionAt(const QVector<uint8_t>& profile, const Params& p);
 
 /// A reading series (supply, temperature): what the run saw.
@@ -145,7 +148,7 @@ struct Tolerances {
 
 /// A whole run: identity, settings, the sweep's results, supply and temperature.
 struct Run {
-    QString format;                  ///< as read: "kogger-sonar-qa/1" runs lack the reflection read at one place
+    QString format;                  ///< as read: runs before "kogger-sonar-qa/3" are measured again
     QString kind;                    ///< "baseline", "check" or "unit"
     QString time;                    ///< ISO 8601, local
     QString serial;                  ///< the number the run is filed under: typed from the sticker, or as reported
@@ -159,8 +162,9 @@ struct Run {
     Series supply, temperature;
     QJsonObject toJson() const;
     static Run fromJson(const QJsonObject& o);
-    /// Made before the reflection was read at the baseline's place: to be measured again from its raw pings.
-    bool needsRebuild() const { return format.isEmpty() || format.endsWith(QLatin1String("/1")); }
+    /// Made by an older version (reflection searched in each run, or compared from 10 dB over the floor): to be
+    /// measured again from its raw pings.
+    bool needsRebuild() const;
 };
 
 /// One check of a comparison.
@@ -171,7 +175,7 @@ struct Check {
     double limit = 0;
     QString unit;        ///< dB, kHz, x, samples, V, C
     QString level;       ///< "ok", "warn", "fail"
-    QString detail;      ///< the figures behind it, for the report
+    QString detail;      ///< the figures behind it in words: whose each number is and what is allowed (translated)
 };
 
 struct Comparison {
@@ -205,5 +209,16 @@ Resonance resonance(const Run& run, int side, double bandDb, const QVector<int>&
 
 /// The steps of one side where the baseline had a reflection.
 QVector<int> foundSteps(const Run& run, int side);
+
+/// How far the unit's reflection-against-frequency curve is shifted from the reference's, kHz: the shift (a whole
+/// number of sweep steps, up to 100 kHz or 4 steps) at which the two curves match best, a level offset allowed.
+/// Over the given steps; a shift is tried only where the curves overlap on at least 60 % of them (and 3). Unlike the
+/// strongest reflection's frequency it does not jump between two near-equal peaks. NaN when nothing overlaps.
+double responseShiftKhz(const Run& unit, const Run& ref, int side, const QVector<int>& steps);
+
+/// The width of the band, kHz: how many of the given steps lie within bandDb of the run's own strongest reflection
+/// there, each counted with a 1 dB soft edge, times the step. A step a hair over or under the edge moves it by a
+/// fraction of a step, not across a gap between the steps.
+double bandWidthKhz(const Run& run, int side, const QVector<int>& steps, double bandDb);
 
 } // namespace sonarqa
