@@ -24,6 +24,7 @@ class SonarQaRunner : public QObject
     Q_OBJECT
     Q_PROPERTY(QObject* device READ device WRITE setDevice NOTIFY deviceChanged)
     Q_PROPERTY(QVariantMap deviceInfo READ deviceInfo NOTIFY deviceChanged)
+    Q_PROPERTY(QString serialEntry READ serialEntry WRITE setSerialEntry NOTIFY serialEntryChanged)
     Q_PROPERTY(bool busy READ busy NOTIFY busyChanged)
     Q_PROPERTY(QString mode READ mode NOTIFY busyChanged)
     Q_PROPERTY(double progress READ progress NOTIFY progressChanged)
@@ -50,15 +51,20 @@ public:
     void setDevice(QObject* device);
     /// Another sonar than a DevDriver (a simulated one); the runner does not own it.
     void setAdapter(SonarQaDevice* adapter);
-    /// serial, name, firmware, board, supported (a nanoSSS), isReference; connected false without a sonar.
+    /// serial (as reported), name, firmware, board, supported (a nanoSSS), isReference; connected false without a
+    /// sonar.
     QVariantMap deviceInfo() const { return deviceInfo_; }
+    /// The number from the sonar's sticker, typed in the window; empty: the one the sonar reports. l412_adc reports
+    /// the same number for every board, so with it only the typed number tells sonars apart. Cleared after a test.
+    QString serialEntry() const { return serialEntry_; }
+    void setSerialEntry(const QString& s);
 
     bool busy() const { return phase_ != Phase::Idle; }
     QString mode() const { return run_.kind; }
     double progress() const;
     QString status() const { return status_; }
     int etaSec() const;
-    /// serial, baselineTime, checkTime, checkPassed, unitsSinceCheck, unitsPerCheck, unitsLeft.
+    /// set, serial, reported, baselineTime, checkTime, checkPassed, unitsSinceCheck, unitsPerCheck, unitsLeft.
     QVariantMap reference() const;
     QVariantMap params() const;
     void setParams(const QVariantMap& p);
@@ -93,6 +99,7 @@ public:
 
 signals:
     void deviceChanged();
+    void serialEntryChanged();
     void busyChanged();
     void progressChanged();
     void stateChanged();
@@ -115,6 +122,8 @@ private:
     void endRun();
     void setStatus(const QString& s);
     QVariantMap curvesOf(const sonarqa::Run& unit, const sonarqa::Run* ref) const;
+    /// The number a run of this kind is filed under: typed, the reference's for its check, or as reported.
+    QString serialFor(const QString& kind) const;
 
     sonarqa::Store store_;
     sonarqa::State state_;
@@ -123,6 +132,8 @@ private:
     QPointer<SonarQaDevice> adapter_;
     bool ownsAdapter_ = false;
     QVariantMap deviceInfo_;
+    quint32 reported_ = 0;
+    QString serialEntry_;
 
     Phase phase_ = Phase::Idle;
     sonarqa::Run run_;
@@ -132,6 +143,8 @@ private:
     int step_ = 0, txState_ = 0, discard_ = 0, collected_ = 0, warm_ = 0, warmSize_ = -1;
     int pingsDone_ = 0, pingIndex_ = 0;
     QVector<QVector<sonarqa::PingMetrics>> off_, on_;
+    QVector<QVector<QVector<uint8_t>>> offRaw_, onRaw_;   ///< this step's pings, transmitter off and on, per side
+    QVector<QVector<QVector<uint8_t>>> profiles_;         ///< the median echogram of each step done, per side
     QVector<float> supply_, temperature_;
     sonarqa::RawWriter raw_;
     QString rawPath_;

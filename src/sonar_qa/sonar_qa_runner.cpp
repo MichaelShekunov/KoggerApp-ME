@@ -130,18 +130,40 @@ void SonarQaRunner::setAdapter(SonarQaDevice* adapter)
     refreshDevice();
 }
 
+void SonarQaRunner::setSerialEntry(const QString& s)
+{
+    if (s != serialEntry_ && !busy()) {
+        serialEntry_ = s;
+        emit serialEntryChanged();
+    }
+}
+
+QString SonarQaRunner::serialFor(const QString& kind) const
+{
+    const QString typed = serialEntry_.trimmed();
+    if (!typed.isEmpty()) {
+        return typed;
+    }
+    if (kind == QLatin1String("check") && reported_ != 0 && reported_ == state_.referenceReported) {
+        return state_.referenceSerial;
+    }
+    return reported_ ? QString::number(reported_) : QString();
+}
+
 void SonarQaRunner::refreshDevice()
 {
     QVariantMap m;
     m[QStringLiteral("connected")] = adapter_ != nullptr;
+    reported_ = 0;
     if (adapter_) {
         const SonarQaDevice::Identity id = adapter_->identity();
-        m[QStringLiteral("serial")] = double(id.serial);
+        reported_ = id.serial;
+        m[QStringLiteral("serial")] = id.serial ? QString::number(id.serial) : QString();
         m[QStringLiteral("name")] = id.name;
         m[QStringLiteral("firmware")] = id.firmware;
         m[QStringLiteral("board")] = id.board;
         m[QStringLiteral("supported")] = isNanoSss(id.board);
-        m[QStringLiteral("isReference")] = state_.referenceSerial != 0 && id.serial == state_.referenceSerial;
+        m[QStringLiteral("isReference")] = id.serial != 0 && id.serial == state_.referenceReported;
     }
     if (m != deviceInfo_) {
         deviceInfo_ = m;
@@ -170,7 +192,9 @@ int SonarQaRunner::etaSec() const
 QVariantMap SonarQaRunner::reference() const
 {
     QVariantMap m;
-    m[QStringLiteral("serial")] = double(state_.referenceSerial);
+    m[QStringLiteral("set")] = !state_.referenceSerial.isEmpty() && !state_.baselineFile.isEmpty();
+    m[QStringLiteral("serial")] = state_.referenceSerial;
+    m[QStringLiteral("reported")] = state_.referenceReported ? QString::number(state_.referenceReported) : QString();
     m[QStringLiteral("baselineFile")] = state_.baselineFile;
     m[QStringLiteral("baselineTime")] = state_.baselineTime;
     m[QStringLiteral("checkFile")] = state_.checkFile;
@@ -271,18 +295,18 @@ QString SonarQaRunner::canStart(const QString& kind)
         return tr("No sonar selected");
     }
     refreshDevice();
-    const quint32 serial = quint32(deviceInfo_.value(QStringLiteral("serial")).toDouble());
     const int board = deviceInfo_.value(QStringLiteral("board")).toInt();
     if (!isNanoSss(board)) {
         return board == 0 ? tr("The sonar has not answered yet") : tr("Not a nanoSSS (board %1)").arg(board);
     }
-    if (serial == 0) {
-        return tr("The sonar has not reported its serial number");
+    const QString serial = serialFor(kind);
+    if (serial.isEmpty()) {
+        return tr("The sonar has not reported its serial number: type the one from its sticker");
     }
     if (kind == QLatin1String("baseline")) {
         return QString();
     }
-    if (state_.referenceSerial == 0 || state_.baselineFile.isEmpty()) {
+    if (state_.referenceSerial.isEmpty() || state_.baselineFile.isEmpty()) {
         return tr("No reference yet: make the baseline on the reference sonar first");
     }
     if (kind == QLatin1String("check")) {
@@ -294,7 +318,11 @@ QString SonarQaRunner::canStart(const QString& kind)
         return tr("Unknown run");
     }
     if (serial == state_.referenceSerial) {
-        return tr("This is the reference sonar: run its check instead");
+        return tr("This is the reference sonar's number: run its check, or type this sonar's number from its sticker");
+    }
+    if (serialEntry_.trimmed().isEmpty() && reported_ == state_.referenceReported) {
+        return tr("The sonar reports the same number as the reference (%1): type the number from its sticker")
+            .arg(reported_);
     }
     if (!state_.checkPassed) {
         return tr("The reference's last check moved away from its baseline: look at the stand, check the reference "
@@ -329,7 +357,8 @@ bool SonarQaRunner::start(const QString& kind)
     run_ = Run();
     run_.kind = kind;
     run_.time = QDateTime::currentDateTime().toString(Qt::ISODate);
-    run_.serial = id.serial;
+    run_.serial = serialFor(kind);
+    run_.reportedSerial = id.serial;
     run_.deviceName = id.name;
     run_.firmware = id.firmware;
     run_.board = id.board;
@@ -345,7 +374,8 @@ bool SonarQaRunner::start(const QString& kind)
     } else {
         referenceFile_ = kind == QLatin1String("check") ? state_.baselineFile : state_.checkFile;
         QString err;
-        if (!store_.loadRun(referenceFile_, &reference_, &err)) {
+        if (!store_.loadRun(referenceFile_, &reference_, &err)
+            || (reference_.needsRebuild() && !store_.rebuildRun(referenceFile_, &reference_, &err))) {
             setStatus(tr("The reference run cannot be read: %1").arg(err));
             return false;
         }
@@ -359,6 +389,9 @@ bool SonarQaRunner::start(const QString& kind)
     const int sides = 2;
     off_ = QVector<QVector<PingMetrics>>(sides);
     on_ = QVector<QVector<PingMetrics>>(sides);
+    offRaw_ = QVector<QVector<QVector<uint8_t>>>(sides);
+    onRaw_ = QVector<QVector<QVector<uint8_t>>>(sides);
+    profiles_.clear();
     supply_.clear();
     temperature_.clear();
     step_ = txState_ = discard_ = collected_ = warm_ = pingsDone_ = pingIndex_ = 0;
@@ -366,7 +399,7 @@ bool SonarQaRunner::start(const QString& kind)
 
     rawPath_ = QDir(store_.root()).filePath(QStringLiteral("running.ksqa"));
     QDir().mkpath(store_.root());
-    raw_.open(rawPath_, QJsonObject{ { "kind", kind }, { "time", run_.time }, { "serial", double(run_.serial) },
+    raw_.open(rawPath_, QJsonObject{ { "kind", kind }, { "time", run_.time }, { "serial", run_.serial },
                                       { "params", run_.params.toJson() }, { "settings", settings } });
 
     adapter_->applyRun(run_.params.samples, run_.params.periodMs, settings.value("resolution").toInt(),
@@ -438,6 +471,9 @@ void SonarQaRunner::onPing(const QVector<QVector<uint8_t>>& sides, float resolut
         for (int s = 0; s < sides.size() && s < off_.size(); ++s) {
             const PingMetrics m = analysePing(sides[s].constData(), sides[s].size(), tx, run_.params);
             (tx ? on_[s] : off_[s]).append(m);
+            if (s < onRaw_.size()) {
+                (tx ? onRaw_[s] : offRaw_[s]).append(sides[s]);
+            }
             raw_.write(freq, pulses, collected_, s, sides[s]);
         }
         if (++collected_ >= run_.params.pingsPerStep) {
@@ -479,6 +515,12 @@ void SonarQaRunner::beginStep()
     for (auto& v : on_) {
         v.clear();
     }
+    for (auto& v : offRaw_) {
+        v.clear();
+    }
+    for (auto& v : onRaw_) {
+        v.clear();
+    }
     setTransmitterState(0);
 }
 
@@ -498,10 +540,14 @@ void SonarQaRunner::finishStep()
 {
     Step st;
     st.freqKhz = run_.params.freqAt(step_);
+    QVector<QVector<uint8_t>> stepProfiles;
     for (int s = 0; s < off_.size(); ++s) {
-        st.sides.append(aggregate(off_[s], on_[s], run_.params.maxEchoes));
+        SideStep side = aggregate(off_[s], on_[s], run_.params.maxEchoes);
+        stepProfiles.append(measureProfiles(side, offRaw_.value(s), onRaw_.value(s), run_.params));
+        st.sides.append(side);
     }
     run_.steps.append(st);
+    profiles_.append(stepProfiles);
     if (++step_ >= run_.params.stepCount()) {
         finish();
     } else {
@@ -516,11 +562,18 @@ void SonarQaRunner::finish()
     raw_.close();
     run_.supply = Series::of(supply_);
     run_.temperature = Series::of(temperature_);
+    const bool baseline = run_.kind == QLatin1String("baseline");
+    measureReflections(run_, profiles_, baseline ? nullptr : &reference_);
+    profiles_.clear();
 
     Comparison cmp;
     QString verdict;
-    if (run_.kind == QLatin1String("baseline")) {
+    if (baseline) {
         verdict = QStringLiteral("baseline");
+        cmp.checks = selfChecks(run_, state_.tolerances);   // what the baseline itself shows: all warnings
+        for (const Check& c : cmp.checks) {
+            cmp.warnings += c.level == QLatin1String("warn") ? 1 : 0;
+        }
     } else {
         cmp = compare(run_, reference_, state_.tolerances);
         verdict = run_.kind == QLatin1String("check") ? (cmp.pass ? QStringLiteral("check_ok")
@@ -530,10 +583,8 @@ void SonarQaRunner::finish()
 
     const QString base = store_.newRunPath(run_, cmp.pass ? QStringLiteral("pass") : QStringLiteral("fail"));
     QString err;
-    const bool saved = store_.saveRun(base, run_, run_.kind == QLatin1String("baseline") ? QJsonObject() : cmp.toJson(),
-                                      run_.kind == QLatin1String("baseline") ? QString()
-                                                                            : QDir(store_.root()).filePath(referenceFile_),
-                                      &err);
+    const bool saved = store_.saveRun(base, run_, cmp.toJson(),
+                                      baseline ? QString() : QDir(store_.root()).filePath(referenceFile_), &err);
     QFile::remove(base + QStringLiteral(".ksqa"));
     QFile::rename(rawPath_, base + QStringLiteral(".ksqa"));
     rawPath_.clear();
@@ -541,6 +592,7 @@ void SonarQaRunner::finish()
 
     if (run_.kind == QLatin1String("baseline")) {
         state_.referenceSerial = run_.serial;
+        state_.referenceReported = run_.reportedSerial;
         state_.baselineFile = rel;
         state_.baselineTime = run_.time;
         state_.checkFile = rel;   // the baseline is also the first check
@@ -554,6 +606,8 @@ void SonarQaRunner::finish()
         state_.unitsSinceCheck = 0;
     } else {
         ++state_.unitsSinceCheck;
+        serialEntry_.clear();   // the next sonar has another sticker
+        emit serialEntryChanged();
     }
     store_.saveState(state_);
     store_.appendJournal(run_, verdict, cmp, base + QStringLiteral(".json"));
@@ -564,12 +618,12 @@ void SonarQaRunner::finish()
                                    { "unit", c.unit }, { "level", c.level }, { "detail", c.detail } });
     }
     result_ = QVariantMap{
-        { "kind", run_.kind }, { "verdict", verdict }, { "serial", double(run_.serial) }, { "time", run_.time },
+        { "kind", run_.kind }, { "verdict", verdict }, { "serial", run_.serial }, { "time", run_.time },
         { "firmware", run_.firmware }, { "file", rel }, { "saved", saved }, { "error", err }, { "checks", checks },
         { "warnings", cmp.warnings },
         { "supply", run_.supply.valid() ? QVariant(run_.supply.toJson().toVariantMap()) : QVariant() },
         { "temperature", run_.temperature.valid() ? QVariant(run_.temperature.toJson().toVariantMap()) : QVariant() },
-        { "curves", curvesOf(run_, run_.kind == QLatin1String("baseline") ? nullptr : &reference_) } };
+        { "curves", curvesOf(run_, baseline ? nullptr : &reference_) } };
     setStatus(saved ? tr("Saved: %1").arg(rel) : tr("Not saved: %1").arg(err));
     endRun();
     emit stateChanged();
@@ -621,12 +675,12 @@ QVariantMap SonarQaRunner::curvesOf(const Run& unit, const Run* ref) const
         QVector<float> ue, un, ur, re, rn, rr;
         for (int i = 0; i < unit.steps.size(); ++i) {
             const SideStep& u = unit.steps[i].sides[s];
-            ue.append(u.echo1Amp());
+            ue.append(u.echoFound ? u.echoLevel : std::nanf(""));   // a gap in the plot where nothing is read
             un.append(u.noiseP50);
             ur.append(u.ringdown);
             if (ref && i < ref->steps.size() && s < ref->steps[i].sides.size()) {
                 const SideStep& r = ref->steps[i].sides[s];
-                re.append(r.echo1Amp());
+                re.append(r.echoFound ? r.echoLevel : std::nanf(""));
                 rn.append(r.noiseP50);
                 rr.append(r.ringdown);
             }

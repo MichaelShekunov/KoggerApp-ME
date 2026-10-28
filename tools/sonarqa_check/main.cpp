@@ -8,7 +8,13 @@
 //     that very ping, so a ping taken before a change took effect is caught), the journal, the state.
 //  4. The reference: a check that agrees resets the count, a drifted one blocks units until accepted; ten units per
 //     check, the eleventh refused. A stopped run and a silent sonar leave no file and put the settings back.
+//  5. The owner's stand (2026-10-28): the reflection in the ringing's tail, firmware that keeps transmitting at
+//     0 pulses and sends no supply or temperature, one serial number for every board. The same sonar checked again
+//     agrees with its baseline; a sonar under test needs the number from its sticker.
 // Exit 0 = pass, 1 = fail.
+//
+// sonarqa_check --reanalyse <root> <reference.json> <unit.json>: measures both runs again from their raw pings with
+// this build (the unit at the reference's places) and prints the comparison; exit 0 when it passes.
 #include <QCoreApplication>
 #include <QDataStream>
 #include <QDir>
@@ -155,11 +161,122 @@ void checkPings()
     ok("transmitter off: no ringing, no reflections measured", off.ringdown == 0 && off.echoes.isEmpty());
 }
 
+QStringList levels(const SonarQaRunner& r, const QString& level)
+{
+    QStringList f;
+    for (const QVariant& v : r.result().value("checks").toList()) {
+        const QVariantMap c = v.toMap();
+        if (c.value("level").toString() == level) {
+            f.append(c.value("id").toString() + (c.value("side").toInt() >= 0 ? QString::number(c.value("side").toInt())
+                                                                              : QString()));
+        }
+    }
+    return f;
+}
+
+void checkOwnersStand()
+{
+    std::printf("\nthe owner's stand\n");
+    QTemporaryDir dir;
+    SonarQaDemoDevice s(false);
+    auto stand = [&s]() {
+        s.m = tagged();
+        s.m.serial = 842085452;   // l412_adc reports this one for every board
+        s.m.zeroPulses = 25;      // and keeps transmitting at 0 pulses
+        s.m.sensors = false;      // no supply, no temperature
+        s.m.ringLen = 40;
+        s.m.tailCodes = 14;       // the tail sits on the ringing's margin (15)
+        s.m.tailLen = 30;
+        s.m.targetPos = 55;       // and the reflection in it
+    };
+    stand();
+    SonarQaRunner r(dir.path());
+    QVariantMap p = r.params();
+    p["freqFromKhz"] = 400;
+    p["freqToKhz"] = 800;
+    p["freqStepKhz"] = 20;
+    p["pingsPerStep"] = 8;
+    p["discardPings"] = 1;
+    r.setParams(p);
+    r.setAdapter(&s);
+    ok("baseline made", runOnce(r, "baseline") && verdict(r) == QLatin1String("baseline"), r.status());
+    const QStringList warn = levels(r, "warn");
+    ok("the baseline warns: the transmitter keeps sending at 0 pulses, no supply, no temperature",
+       warn.contains("tx_off0") && warn.contains("tx_off1") && warn.contains("supply") && warn.contains("temperature")
+           && !warn.contains("reflection0"),
+       warn.join(','));
+    int agreed = 0;
+    QString why;
+    for (int i = 0; i < 4; ++i) {
+        stand();
+        r.refreshDevice();
+        why = r.canStart("check");
+        agreed += why.isEmpty() && runOnce(r, "check") && verdict(r) == QLatin1String("check_ok") ? 1 : 0;
+        if (verdict(r) != QLatin1String("check_ok")) {
+            why += QStringLiteral(" failed: ") + failedChecks(r);
+        }
+    }
+    ok("the same sonar checked 4 times agrees with its baseline each time", agreed == 4,
+       QStringLiteral("%1 of 4 %2").arg(agreed).arg(why));
+    const QStringList cw = levels(r, "warn");
+    ok("... the noise told as not measured, not compared", cw.contains("noise0") && cw.contains("tx_off0"),
+       cw.join(','));
+
+    stand();
+    r.refreshDevice();
+    why = r.canStart("unit");
+    ok("a sonar reporting the reference's number is refused without its sticker's", why.contains("sticker"), why);
+    r.setSerialEntry(QStringLiteral("842085452"));
+    why = r.canStart("unit");
+    ok("the reference's number typed for a unit is refused", why.contains("reference"), why);
+    r.setSerialEntry(QStringLiteral("S-0001"));
+    ok("with the sticker's number the test starts and passes",
+       r.canStart("unit").isEmpty() && runOnce(r, "unit") && verdict(r) == QLatin1String("pass"),
+       r.canStart("unit") + failedChecks(r));
+    ok("filed under units/S-0001, the reported number kept, the entry cleared",
+       !QDir(dir.filePath("units/S-0001")).entryList({ "*_pass.json" }).isEmpty()
+           && r.result().value("serial").toString() == QLatin1String("S-0001") && r.serialEntry().isEmpty());
+    r.setSerialEntry(QStringLiteral("S/0002"));
+    runOnce(r, "unit");
+    ok("a number with a character a folder cannot have", QDir(dir.filePath("units/S_0002")).exists());
+}
+
+int reanalyse(const QString& root, const QString& refJson, const QString& unitJson)
+{
+    Store store(root);
+    Run ref, unit;
+    QString err;
+    if (!store.rebuildRun(refJson, &ref, &err)) {
+        std::printf("reference: %s\n", err.toUtf8().constData());
+        return 2;
+    }
+    QJsonObject header;
+    QVector<RawPing> pings;
+    QString raw = QDir(root).filePath(unitJson);
+    raw.chop(5);
+    if (!store.loadRun(unitJson, &unit, &err) || !readRaw(raw + QStringLiteral(".ksqa"), &header, &pings, &err)) {
+        std::printf("unit: %s\n", err.toUtf8().constData());
+        return 2;
+    }
+    buildSteps(unit, pings, &ref);
+    const Comparison cmp = compare(unit, ref, store.loadState().tolerances);
+    for (const Check& c : cmp.checks) {
+        std::printf("%-5s %-18s %2s %9.2f %-8s %s\n", c.level.toUtf8().constData(), c.id.toUtf8().constData(),
+                    c.side >= 0 ? QByteArray::number(c.side + 1).constData() : "", c.value, c.unit.toUtf8().constData(),
+                    c.detail.toUtf8().constData());
+    }
+    std::printf("%s, %d warnings\n", cmp.pass ? "PASS" : "FAIL", cmp.warnings);
+    return cmp.pass ? 0 : 1;
+}
+
 } // namespace
 
 int main(int argc, char** argv)
 {
     QCoreApplication app(argc, argv);
+    if (argc == 5 && QByteArray(argv[1]) == "--reanalyse") {
+        return reanalyse(QString::fromLocal8Bit(argv[2]), QString::fromLocal8Bit(argv[3]), QString::fromLocal8Bit(argv[4]));
+    }
     checkPings();
 
     std::printf("\nruns with the owner's sweep\n");
@@ -190,8 +307,11 @@ int main(int argc, char** argv)
     raw.replace(".json", ".ksqa");
     ok("raw pings: 151 steps x 2 states x 10 pings x 2 sides, none from another transmitter state",
        rawConsistent(raw, &records, &detail) && records == 151 * 2 * 10 * 2, detail);
-    ok("reference serial 1001, 10 units allowed", r.reference().value("serial").toDouble() == 1001
+    ok("reference serial 1001, 10 units allowed", r.reference().value("serial").toString() == QLatin1String("1001")
                                                       && r.reference().value("unitsLeft").toInt() == 10);
+    ok("the baseline's own checks: 0 pulses silence it, reflections seen, supply and temperature came",
+       r.result().value("warnings").toInt() == 0 && !r.result().value("checks").toList().isEmpty(),
+       QStringLiteral("%1 warnings").arg(r.result().value("warnings").toInt()));
     QFile bf(baseFile);
     bf.open(QIODevice::ReadOnly);
     const Run base = Run::fromJson(QJsonDocument::fromJson(bf.readAll()).object());
@@ -215,6 +335,7 @@ int main(int argc, char** argv)
         { 2004, "ringing 2.5 times longer", [](Model& m) { m.ringScale = 2.5; }, "ringdown" },
         { 2005, "noisy receiver (+12 codes, ~5 dB)", [](Model& m) { m.floorOff += 12; }, "noise" },
         { 2007, "supply 1.5 V low", [](Model& m) { m.supply -= 1.5; }, "supply" },
+        { 2008, "transmitter stays on at 0 pulses", [](Model& m) { m.zeroPulses = 25; }, "tx_off" },
     };
     for (const Case& c : cases) {
         sonar.m = tagged();
@@ -240,8 +361,8 @@ int main(int argc, char** argv)
     why = r.canStart("unit");
     ok("another firmware refused", why.contains("11.20"), why);
 
-    ok("6 units tested, 4 left", r.reference().value("unitsSinceCheck").toInt() == 6
-                                     && r.reference().value("unitsLeft").toInt() == 4);
+    ok("7 units tested, 3 left", r.reference().value("unitsSinceCheck").toInt() == 7
+                                     && r.reference().value("unitsLeft").toInt() == 3);
     sonar.m = tagged();
     r.refreshDevice();
     ok("the reference's check agrees with its baseline", runOnce(r, "check") && verdict(r) == QLatin1String("check_ok"),
@@ -316,6 +437,8 @@ int main(int argc, char** argv)
     ok("journal: a line a run, newest first", r2.journal().size() == 12
                                                   && r2.journal().first().toMap().value("kind").toString() == "check",
        QString::number(r2.journal().size()));
+
+    checkOwnersStand();
 
     std::printf("\nsonarqa_check: %s\n", fails ? "FAILED" : "PASS");
     return fails ? 1 : 0;

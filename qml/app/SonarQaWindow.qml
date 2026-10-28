@@ -53,6 +53,8 @@ Window {
         case "supply": return qsTr("Supply")
         case "temperature": return qsTr("Temperature")
         case "temperature_delta": return qsTr("Temperature against the reference")
+        case "tx_off": return qsTr("Transmitter off at 0 pulses")
+        case "reflection": return qsTr("Reflection seen")
         }
         return id
     }
@@ -68,8 +70,12 @@ Window {
     }
     function fmtValue(c) {
         var v = Number(c.value)
-        if (c.id === "sweep")
+        if (c.id === "sweep" || (c.id === "reflection" && v === 0))
             return ""
+        if (c.id === "reflection")
+            return Math.round(v) + " / " + Math.round(c.limit)
+        if ((c.id === "supply" || c.id === "temperature") && c.level !== "ok" && v === 0)
+            return "—"
         if (c.unit === "x")
             return v.toFixed(2) + "×"
         if (c.id === "saturation")
@@ -143,6 +149,19 @@ Window {
                         model: win.nanoDevs.map(function(d) { return d.devName + " · " + d.devSN })
                         currentIndex: Math.max(0, win.nanoDevs.indexOf(SonarQa.device))
                         onActivated: function(i) { SonarQa.device = win.nanoDevs[i] }
+                    }
+                }
+                KIslandRow {
+                    label: qsTr("Number from the sticker")
+                    caption: qsTr("Empty: the number the sonar reports. Some firmware reports one number for every sonar: then type each sonar's own.")
+                    stacked: true
+                    NodesTextField {
+                        objectName: "qaSerial"
+                        width: Math.round(320 * AppPalette.scale)
+                        fontPixelSize: Tokens.fontMd
+                        value: SonarQa.serialEntry
+                        placeholder: win.info.serial || ""
+                        onCommitted: function(v) { SonarQa.serialEntry = v.trim(); win.refreshReasons() }
                     }
                 }
                 KIslandRow {
@@ -330,7 +349,7 @@ Window {
                             QaButton { text: qsTr("Side 2"); checkable: true; checked: win.chartSide === 1; onClicked: win.chartSide = 1 }
                         }
                         Repeater {
-                            model: [ { key: "echo", ref: "refEcho", title: qsTr("First reflection, codes (2.5 a dB)"), max: 255 },
+                            model: [ { key: "echo", ref: "refEcho", title: qsTr("Reflection where the reference has it, codes (2.5 a dB)"), max: 255 },
                                      { key: "noise", ref: "refNoise", title: qsTr("Noise with the transmitter off, codes"), max: 255 },
                                      { key: "ringdown", ref: "refRingdown", title: qsTr("Ringing after the burst, samples"), max: -1 } ]
                             delegate: Column {
@@ -384,8 +403,11 @@ Window {
                                             ctx.strokeStyle = color; ctx.lineWidth = dash ? 1 : 2
                                             ctx.setLineDash(dash ? [4, 3] : [])
                                             ctx.beginPath()
+                                            var pen = false   // a step not read (no reflection there) breaks the line
                                             for (var k = 0; k < v.length; ++k) {
-                                                if (k === 0) ctx.moveTo(X(k), Y(v[k])); else ctx.lineTo(X(k), Y(v[k]))
+                                                if (isNaN(v[k])) { pen = false; continue }
+                                                if (!pen) ctx.moveTo(X(k), Y(v[k])); else ctx.lineTo(X(k), Y(v[k]))
+                                                pen = true
                                             }
                                             ctx.stroke()
                                             ctx.setLineDash([])
@@ -405,13 +427,13 @@ Window {
                 title: qsTr("Reference sonar")
                 KIslandRow {
                     label: qsTr("Reference")
-                    caption: win.ref.serial > 0
+                    caption: win.ref.set
                              ? qsTr("serial %1 · baseline %2").arg(win.ref.serial).arg(win.fmtTime(win.ref.baselineTime))
                              : qsTr("Not set: connect the reference sonar and make its baseline")
                     stacked: true
                 }
                 KIslandRow {
-                    visible: win.ref.serial > 0
+                    visible: win.ref.set
                     label: qsTr("Last check")
                     caption: win.fmtTime(win.ref.checkTime) + " · "
                              + (win.ref.checkPassed ? qsTr("agrees with the baseline") : qsTr("moved away from the baseline"))
@@ -419,14 +441,14 @@ Window {
                     stacked: true
                 }
                 KIslandRow {
-                    visible: win.ref.serial > 0
+                    visible: win.ref.set
                     label: qsTr("Sonars left until the next check")
                     caption: qsTr("%1 of %2").arg(win.ref.unitsLeft).arg(win.ref.unitsPerCheck)
                     stacked: true
                 }
                 KIslandRow {
                     label: qsTr("Runs of the reference")
-                    caption: win.ref.serial > 0 ? win.reasons.check : win.reasons.baseline
+                    caption: win.ref.set ? win.reasons.check : win.reasons.baseline
                     stacked: true
                     Column {
                         spacing: Tokens.spaceSm
@@ -443,7 +465,7 @@ Window {
                                 text: qsTr("Make the baseline")
                                 enabled: !SonarQa.busy && win.reasons.baseline === ""
                                 onClicked: {
-                                    if (win.ref.serial > 0)
+                                    if (win.ref.set)
                                         win.confirmBaseline = true
                                     else
                                         SonarQa.start("baseline")
@@ -451,7 +473,7 @@ Window {
                             }
                             QaButton {
                                 objectName: "qaAcceptCheck"
-                                visible: win.ref.serial > 0 && !win.ref.checkPassed
+                                visible: win.ref.set && !win.ref.checkPassed
                                 text: qsTr("Accept the check")
                                 onClicked: SonarQa.acceptCheck()
                             }

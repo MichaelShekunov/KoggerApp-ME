@@ -5,6 +5,7 @@
 #include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QRegularExpression>
 #include <QSaveFile>
 #include <QStandardPaths>
 #include <QTextStream>
@@ -43,7 +44,8 @@ double worst(const Comparison& cmp, const QString& id)
 
 QJsonObject State::toJson() const
 {
-    return { { "referenceSerial", double(referenceSerial) }, { "baselineFile", baselineFile }, { "baselineTime", baselineTime },
+    return { { "referenceSerial", referenceSerial }, { "referenceReported", double(referenceReported) },
+             { "baselineFile", baselineFile }, { "baselineTime", baselineTime },
              { "checkFile", checkFile }, { "checkTime", checkTime }, { "checkPassed", checkPassed },
              { "unitsSinceCheck", unitsSinceCheck }, { "unitsPerCheck", unitsPerCheck },
              { "params", params.toJson() }, { "tolerances", tolerances.toJson() } };
@@ -52,7 +54,10 @@ QJsonObject State::toJson() const
 State State::fromJson(const QJsonObject& o)
 {
     State s;
-    s.referenceSerial = quint32(o.value("referenceSerial").toDouble());
+    const QJsonValue rs = o.value("referenceSerial");   // a number before the sticker's could be typed
+    s.referenceSerial = rs.isDouble() ? QString::number(qint64(rs.toDouble())) : rs.toString();
+    s.referenceReported = quint32(o.contains("referenceReported") ? o.value("referenceReported").toDouble()
+                                                                  : (rs.isDouble() ? rs.toDouble() : 0));
     s.baselineFile = o.value("baselineFile").toString();
     s.baselineTime = o.value("baselineTime").toString();
     s.checkFile = o.value("checkFile").toString();
@@ -100,8 +105,8 @@ bool Store::saveState(const State& s) const
 QString Store::newRunPath(const Run& run, const QString& verdict) const
 {
     const bool reference = run.kind != QLatin1String("unit");
-    const QString dir = QDir(root_).filePath(QStringLiteral("%1/%2").arg(reference ? "reference" : "units")
-                                                 .arg(run.serial));
+    const QString dir = QDir(root_).filePath(QStringLiteral("%1/%2").arg(reference ? "reference" : "units",
+                                                                         folderName(run.serial)));
     QDir().mkpath(dir);
     const QString stamp = QDateTime::fromString(run.time, Qt::ISODate).toString(QStringLiteral("yyyyMMdd-HHmmss"));
     QString base = QDir(dir).filePath(QStringLiteral("%1_%2").arg(stamp, reference ? run.kind : verdict));
@@ -159,6 +164,33 @@ bool Store::loadRun(const QString& jsonPath, Run* run, QString* error) const
     return true;
 }
 
+bool Store::rebuildRun(const QString& jsonPath, Run* run, QString* error) const
+{
+    if (!loadRun(jsonPath, run, error)) {
+        return false;
+    }
+    QString raw = QDir(root_).filePath(jsonPath);
+    raw.replace(QRegularExpression(QStringLiteral("\\.json$")), QStringLiteral(".ksqa"));
+    QJsonObject header;
+    QVector<RawPing> pings;
+    if (!readRaw(raw, &header, &pings, error)) {
+        return false;
+    }
+    buildSteps(*run, pings, nullptr);
+    return true;
+}
+
+QString Store::folderName(const QString& serial)
+{
+    QString out = serial.trimmed();
+    for (QChar& ch : out) {
+        if (!ch.isLetterOrNumber() && ch != QLatin1Char('-') && ch != QLatin1Char('_')) {
+            ch = QLatin1Char('_');
+        }
+    }
+    return out.isEmpty() ? QStringLiteral("_") : out;
+}
+
 void Store::appendJournal(const Run& run, const QString& verdict, const Comparison& cmp, const QString& file) const
 {
     QDir().mkpath(root_);
@@ -201,6 +233,92 @@ QVariantList Store::journal(int last) const
         out.append(m);
     }
     return out;
+}
+
+bool readRaw(const QString& path, QJsonObject* header, QVector<RawPing>* pings, QString* error)
+{
+    QFile f(path);
+    if (!f.open(QIODevice::ReadOnly)) {
+        if (error) {
+            *error = f.errorString();
+        }
+        return false;
+    }
+    const QByteArray b = f.readAll();
+    auto le = [&b](int at, int bytes) {
+        quint32 v = 0;
+        for (int i = bytes - 1; i >= 0; --i) {
+            v = (v << 8) | quint8(b[at + i]);
+        }
+        return v;
+    };
+    if (b.size() < 12 || !b.startsWith("KSQA")) {
+        if (error) {
+            *error = QStringLiteral("not a .ksqa file");
+        }
+        return false;
+    }
+    const int hl = int(le(8, 4));
+    if (12 + hl > b.size()) {
+        if (error) {
+            *error = QStringLiteral("cut short");
+        }
+        return false;
+    }
+    if (header) {
+        *header = QJsonDocument::fromJson(b.mid(12, hl)).object();
+    }
+    for (int at = 12 + hl; at + 7 <= b.size();) {
+        RawPing p;
+        p.freqKhz = int(le(at, 2));
+        p.pulses = quint8(b[at + 2]);
+        p.ping = quint8(b[at + 3]);
+        p.side = quint8(b[at + 4]);
+        const int n = int(le(at + 5, 2));
+        at += 7;
+        if (at + n > b.size()) {
+            break;   // the last record cut short: a run that was stopped while writing
+        }
+        p.samples = QVector<uint8_t>(reinterpret_cast<const uint8_t*>(b.constData() + at),
+                                     reinterpret_cast<const uint8_t*>(b.constData() + at + n));
+        at += n;
+        pings->append(p);
+    }
+    return true;
+}
+
+void buildSteps(Run& run, const QVector<RawPing>& pings, const Run* ref)
+{
+    int sides = 0;
+    for (const RawPing& p : pings) {
+        sides = qMax(sides, p.side + 1);
+    }
+    run.steps.clear();
+    QVector<QVector<QVector<uint8_t>>> profiles;
+    for (int i = 0; i < run.params.stepCount(); ++i) {
+        const int freq = run.params.freqAt(i);
+        Step st;
+        st.freqKhz = freq;
+        QVector<QVector<uint8_t>> stepProfiles;
+        for (int s = 0; s < sides; ++s) {
+            QVector<PingMetrics> off, on;
+            QVector<QVector<uint8_t>> offRaw, onRaw;
+            for (const RawPing& p : pings) {
+                if (p.freqKhz != freq || p.side != s) {
+                    continue;
+                }
+                const bool tx = p.pulses != 0;
+                (tx ? on : off).append(analysePing(p.samples.constData(), p.samples.size(), tx, run.params));
+                (tx ? onRaw : offRaw).append(p.samples);
+            }
+            SideStep side = aggregate(off, on, run.params.maxEchoes);
+            stepProfiles.append(measureProfiles(side, offRaw, onRaw, run.params));
+            st.sides.append(side);
+        }
+        run.steps.append(st);
+        profiles.append(stepProfiles);
+    }
+    measureReflections(run, profiles, ref);
 }
 
 bool RawWriter::open(const QString& path, const QJsonObject& header)

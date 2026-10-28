@@ -66,17 +66,21 @@ void SonarQaDemoDevice::emitPing()
     }
     const int n = qMax(4, settings.value("samples").toInt() / 2);
     QVector<QVector<uint8_t>> sides(2, QVector<uint8_t>(n));
+    const int pulses = pulses_ > 0 ? pulses_ : m.zeroPulses;
     const double x = 2.0 * (freq_ - m.f0) / m.bw;
     const double respCodes = 20.0 * std::log10(1.0 / std::sqrt(1.0 + x * x)) * sonarqa::kCodesPerDb;
     for (int s = 0; s < 2; ++s) {
         QVector<double> a(n);
         for (int i = 0; i < n; ++i) {
-            a[i] = (pulses_ > 0 ? m.floorOn : m.floorOff) + noise();
+            a[i] = (pulses > 0 ? m.floorOn : m.floorOff) + noise();
         }
-        if (pulses_ > 0) {
+        if (pulses > 0) {
             const double len = m.ringLen * m.ringScale;
             for (int i = 0; i < n && i < len; ++i) {
                 a[i] = std::max(a[i], m.ringTop - (m.ringTop - m.floorOn) * i / len);
+            }
+            for (int i = int(len); i < n && i < len + m.tailLen; ++i) {
+                a[i] = m.floorOn + m.tailCodes + noise();
             }
             const double top = m.echoTop + m.gainDb * sonarqa::kCodesPerDb + respCodes - (s ? 3 : 0);
             for (int k = 0; k < 3; ++k) {
@@ -97,7 +101,7 @@ void SonarQaDemoDevice::emitPing()
         }
     }
     emit ping(sides, settings.value("resolution").toInt() * 0.001f);
-    if (++count_ % 5 == 0) {
+    if (++count_ % 5 == 0 && m.sensors) {
         emit supply(float(m.supply + 0.01 * noise()));
         emit temperature(float(m.temp + 0.02 * noise()));
     }

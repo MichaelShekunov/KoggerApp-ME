@@ -9,6 +9,8 @@ namespace sonarqa {
 
 namespace {
 
+const char* const kRunFormat = "kogger-sonar-qa/2";   // 2: the reflection read at the baseline's place, serial text
+
 float medianOf(QVector<float> v)
 {
     if (v.isEmpty()) {
@@ -49,14 +51,46 @@ QVector<float> smooth3(const QVector<float>& v)
     return out;
 }
 
-QVector<float> echo1Curve(const Run& r, int side)
+QVector<float> echoCurve(const Run& r, int side)
 {
     QVector<float> v;
     v.reserve(r.steps.size());
     for (const Step& s : r.steps) {
-        v.append(side < s.sides.size() ? s.sides[side].echo1Amp() : 0.0f);
+        v.append(side < s.sides.size() ? s.sides[side].echoLevel : 0.0f);
     }
     return v;
+}
+
+// The curve over the given steps only, in their order.
+QVector<float> pick(const QVector<float>& v, const QVector<int>& steps)
+{
+    QVector<float> out;
+    out.reserve(steps.size());
+    for (int i : steps) {
+        out.append(v.value(i));
+    }
+    return out;
+}
+
+// Where the ringing ends: the first sample after which the bytes stay under level for hold samples.
+int ringEnd(const uint8_t* a, int n, int level, int hold)
+{
+    for (int i = 0, quiet = 0; i < n; ++i) {
+        quiet = a[i] < level ? quiet + 1 : 0;
+        if (quiet >= hold) {
+            return i - hold + 1;
+        }
+    }
+    return n;
+}
+
+float percentile(QVector<uint8_t> s, double q)
+{
+    if (s.isEmpty()) {
+        return 0;
+    }
+    std::sort(s.begin(), s.end());
+    return float(s[qMin(s.size() - 1, int(q * (s.size() - 1) + 0.5))]);
 }
 
 Check make(const QString& id, int side, double value, double limit, const QString& unit, bool ok, bool warnOnly,
@@ -89,7 +123,7 @@ QJsonObject Params::toJson() const
              { "pingsPerStep", pingsPerStep }, { "discardPings", discardPings }, { "periodMs", periodMs },
              { "samples", samples }, { "txPulses", txPulses }, { "ringMarginCodes", ringMarginCodes },
              { "ringHoldSamples", ringHoldSamples }, { "echoMarginCodes", echoMarginCodes },
-             { "echoMinGap", echoMinGap }, { "maxEchoes", maxEchoes } };
+             { "echoMinGap", echoMinGap }, { "maxEchoes", maxEchoes }, { "echoWindow", echoWindow } };
 }
 
 Params Params::fromJson(const QJsonObject& o)
@@ -108,6 +142,7 @@ Params Params::fromJson(const QJsonObject& o)
     p.echoMarginCodes = o.value("echoMarginCodes").toInt(p.echoMarginCodes);
     p.echoMinGap = o.value("echoMinGap").toInt(p.echoMinGap);
     p.maxEchoes = o.value("maxEchoes").toInt(p.maxEchoes);
+    p.echoWindow = o.value("echoWindow").toInt(p.echoWindow);
     return p;
 }
 
@@ -133,16 +168,7 @@ PingMetrics analysePing(const uint8_t* a, int n, bool tx, const Params& p)
     }
 
     // Ringing: from the first sample until the bytes stay under the floor plus the margin for ringHoldSamples.
-    const int ringLevel = int(m.floor) + p.ringMarginCodes;
-    const int hold = qMax(1, p.ringHoldSamples);
-    m.ringdown = n;
-    for (int i = 0, quiet = 0; i < n; ++i) {
-        quiet = a[i] < ringLevel ? quiet + 1 : 0;
-        if (quiet >= hold) {
-            m.ringdown = i - hold + 1;
-            break;
-        }
-    }
+    m.ringdown = ringEnd(a, n, int(m.floor) + p.ringMarginCodes, qMax(1, p.ringHoldSamples));
     for (int i = 0; i < m.ringdown; ++i) {
         m.ringPeak = qMax(m.ringPeak, int(a[i]));
     }
@@ -215,6 +241,152 @@ SideStep aggregate(const QVector<PingMetrics>& off, const QVector<PingMetrics>& 
     return s;
 }
 
+QVector<uint8_t> medianProfile(const QVector<QVector<uint8_t>>& pings)
+{
+    int n = 0;
+    for (const auto& p : pings) {
+        n = qMax(n, p.size());
+    }
+    QVector<uint8_t> out(n);
+    QVector<uint8_t> col;
+    for (int i = 0; i < n; ++i) {
+        col.clear();
+        for (const auto& p : pings) {
+            if (i < p.size()) {
+                col.append(p[i]);
+            }
+        }
+        std::sort(col.begin(), col.end());
+        out[i] = col.isEmpty() ? 0 : col[(col.size() - 1) / 2];   // the lower middle of an even count: a byte
+    }
+    return out;
+}
+
+QVector<uint8_t> measureProfiles(SideStep& s, const QVector<QVector<uint8_t>>& off, const QVector<QVector<uint8_t>>& on,
+                                 const Params& p)
+{
+    const QVector<uint8_t> pOn = medianProfile(on), pOff = medianProfile(off);
+    const int n = qMin(pOn.size(), pOff.size());
+    const int ring = n > 0 ? ringEnd(pOn.constData(), n, int(percentile(pOn, 0.25)) + p.ringMarginCodes,
+                                     qMax(1, p.ringHoldSamples))
+                           : 0;
+    s.txOffKnown = ring >= qMax(1, p.ringHoldSamples);
+    s.txOffDb = 0;
+    if (s.txOffKnown) {
+        double sum = 0;
+        for (int i = 0; i < ring; ++i) {
+            sum += double(pOn[i]) - double(pOff[i]);
+        }
+        s.txOffDb = float(sum / ring / kCodesPerDb);
+    }
+    return pOn;
+}
+
+int reflectionAt(const QVector<uint8_t>& profile, const Params& p)
+{
+    const int n = profile.size();
+    if (n == 0) {
+        return -1;
+    }
+    const float floor = percentile(profile, 0.25);
+    const int start = ringEnd(profile.constData(), n, int(floor) + p.ringMarginCodes, qMax(1, p.ringHoldSamples));
+    int best = -1;
+    for (int i = start; i < n; ++i) {
+        if (best < 0 || profile[i] > profile[best]) {
+            best = i;
+        }
+    }
+    return best >= 0 && profile[best] >= floor + p.echoMarginCodes ? best : -1;
+}
+
+void measureReflections(Run& run, const QVector<QVector<QVector<uint8_t>>>& profiles, const Run* ref)
+{
+    const int w = qMax(0, run.params.echoWindow);
+    const int search = 4 * qMax(1, w);   // how far the placement looks for this run's own peak
+    for (int i = 0; i < run.steps.size(); ++i) {
+        for (int s = 0; s < run.steps[i].sides.size(); ++s) {
+            SideStep& x = run.steps[i].sides[s];
+            if (ref) {
+                const bool has = i < ref->steps.size() && s < ref->steps[i].sides.size();
+                x.echoRefPos = has ? ref->steps[i].sides[s].echoRefPos : -1;
+                x.echoFound = has && ref->steps[i].sides[s].echoFound;
+            } else {
+                x.echoRefPos = i < profiles.size() && s < profiles[i].size() ? reflectionAt(profiles[i][s], run.params)
+                                                                            : -1;
+                x.echoFound = x.echoRefPos >= 0;
+            }
+        }
+    }
+    // A step without the baseline's reflection is not read at all: read where the others are, at a low frequency
+    // it lies inside the longer ringing, which then passes for the strongest reflection of the sweep.
+    for (int i = 0; i < run.steps.size(); ++i) {
+        for (int s = 0; s < run.steps[i].sides.size(); ++s) {
+            SideStep& x = run.steps[i].sides[s];
+            x.echoLevel = 0;
+            x.echoShift = 0;
+            const QVector<uint8_t>* prof = i < profiles.size() && s < profiles[i].size() ? &profiles[i][s] : nullptr;
+            if (!prof || prof->isEmpty() || x.echoRefPos < 0) {
+                continue;
+            }
+            const int n = prof->size(), c = qMin(x.echoRefPos, n - 1);
+            for (int k = qMax(0, c - w); k <= qMin(n - 1, c + w); ++k) {
+                x.echoLevel = qMax(x.echoLevel, float((*prof)[k]));
+            }
+            int best = c;
+            for (int k = qMax(0, c - search); k <= qMin(n - 1, c + search); ++k) {
+                if ((*prof)[k] > (*prof)[best]) {
+                    best = k;
+                }
+            }
+            x.echoShift = float(best - c);
+        }
+    }
+}
+
+double txOffDb(const Run& run, int side)
+{
+    QVector<float> d;
+    for (const Step& st : run.steps) {
+        if (side < st.sides.size() && st.sides[side].txOffKnown) {
+            d.append(st.sides[side].txOffDb);
+        }
+    }
+    return d.isEmpty() ? std::nan("") : double(medianOf(d));
+}
+
+QVector<Check> selfChecks(const Run& run, const Tolerances& t)
+{
+    QVector<Check> out;
+    const int sides = run.steps.isEmpty() ? 0 : run.steps.first().sides.size();
+    for (int s = 0; s < sides; ++s) {
+        const double off = txOffDb(run, s);
+        if (!std::isnan(off)) {
+            out.append(make("tx_off", s, off, t.txOffDb, "dB", off >= t.txOffDb, true,
+                            off >= t.txOffDb ? QStringLiteral("0 pulses: the ringing goes, the noise is measured")
+                                             : QStringLiteral("0 pulses: the echogram stays, the sonar keeps "
+                                                              "transmitting (firmware?): noise not measured")));
+        }
+        int found = 0;
+        for (const Step& st : run.steps) {
+            found += st.sides[s].echoFound ? 1 : 0;
+        }
+        out.append(make("reflection", s, found, run.steps.size(), "", found > 0, true,
+                        found > 0 ? QStringLiteral("%1 of %2 steps").arg(found).arg(run.steps.size())
+                                  : QStringLiteral("none after the ringing: the target is not seen")));
+    }
+    out.append(make("supply", -1, run.supply.median, t.supplyV, "V", run.supply.valid(), true,
+                    run.supply.valid() ? QStringLiteral("%1..%2 V").arg(run.supply.min, 0, 'f', 2)
+                                             .arg(run.supply.max, 0, 'f', 2)
+                                       : QStringLiteral("no supply readings")));
+    const bool tempOk = run.temperature.valid() && run.temperature.median >= t.tempMinC
+                        && run.temperature.median <= t.tempMaxC;
+    out.append(make("temperature", -1, run.temperature.median, t.tempMaxC, "C", tempOk, true,
+                    run.temperature.valid() ? QStringLiteral("%1..%2 C").arg(run.temperature.min, 0, 'f', 1)
+                                                  .arg(run.temperature.max, 0, 'f', 1)
+                                            : QStringLiteral("no temperature readings")));
+    return out;
+}
+
 Series Series::of(QVector<float> values)
 {
     Series s;
@@ -250,7 +422,7 @@ QJsonObject Tolerances::toJson() const
              { "bandwidthRatioMax", bandwidthRatioMax }, { "noiseDb", noiseDb }, { "ringdownRatio", ringdownRatio },
              { "ringdownSlack", ringdownSlack }, { "balanceDb", balanceDb }, { "positionSamples", positionSamples },
              { "supplyV", supplyV }, { "tempDeltaC", tempDeltaC }, { "tempMinC", tempMinC },
-             { "tempMaxC", tempMaxC }, { "saturationShare", saturationShare } };
+             { "tempMaxC", tempMaxC }, { "saturationShare", saturationShare }, { "txOffDb", txOffDb } };
 }
 
 Tolerances Tolerances::fromJson(const QJsonObject& o)
@@ -273,6 +445,7 @@ Tolerances Tolerances::fromJson(const QJsonObject& o)
     get("tempMinC", t.tempMinC);
     get("tempMaxC", t.tempMaxC);
     get("saturationShare", t.saturationShare);
+    get("txOffDb", t.txOffDb);
     return t;
 }
 
@@ -287,13 +460,16 @@ QJsonObject Run::toJson() const
                 { "floor", s.floor }, { "ringdown", s.ringdown }, { "ringPeak", s.ringPeak },
                 { "saturated", s.saturated }, { "echoPos", toArray(s.echoPos) }, { "echoAmp", toArray(s.echoAmp) },
                 { "echoPresence", toArray(s.echoPresence) }, { "echo1Spread", s.echo1Spread },
-                { "pingsOff", s.pingsOff }, { "pingsOn", s.pingsOn } });
+                { "pingsOff", s.pingsOff }, { "pingsOn", s.pingsOn }, { "txOffDb", s.txOffDb },
+                { "txOffKnown", s.txOffKnown },
+                { "echoRefPos", s.echoRefPos }, { "echoFound", s.echoFound }, { "echoLevel", s.echoLevel },
+                { "echoShift", s.echoShift } });
         }
         stepsJ.append(QJsonObject{ { "freqKhz", st.freqKhz }, { "sides", sidesJ } });
     }
-    return { { "format", "kogger-sonar-qa/1" }, { "kind", kind }, { "time", time },
-             { "device", QJsonObject{ { "serial", double(serial) }, { "name", deviceName },
-                                      { "firmware", firmware }, { "board", board } } },
+    return { { "format", kRunFormat }, { "kind", kind }, { "time", time },
+             { "device", QJsonObject{ { "serial", serial }, { "reportedSerial", double(reportedSerial) },
+                                      { "name", deviceName }, { "firmware", firmware }, { "board", board } } },
              { "params", params.toJson() }, { "settings", settings }, { "resolutionM", resolutionM },
              { "supply", supply.toJson() }, { "temperature", temperature.toJson() }, { "steps", stepsJ } };
 }
@@ -301,10 +477,14 @@ QJsonObject Run::toJson() const
 Run Run::fromJson(const QJsonObject& o)
 {
     Run r;
+    r.format = o.value("format").toString();
     r.kind = o.value("kind").toString();
     r.time = o.value("time").toString();
     const QJsonObject d = o.value("device").toObject();
-    r.serial = quint32(d.value("serial").toDouble());
+    const QJsonValue sv = d.value("serial");   // format 1 kept the reported number, as a number
+    r.serial = sv.isDouble() ? QString::number(qint64(sv.toDouble())) : sv.toString();
+    r.reportedSerial = quint32(d.value(d.contains("reportedSerial") ? "reportedSerial" : "serial").toVariant()
+                                   .toLongLong());
     r.deviceName = d.value("name").toString();
     r.firmware = d.value("firmware").toString();
     r.board = d.value("board").toInt();
@@ -333,6 +513,12 @@ Run Run::fromJson(const QJsonObject& o)
             s.echo1Spread = float(x.value("echo1Spread").toDouble());
             s.pingsOff = x.value("pingsOff").toInt();
             s.pingsOn = x.value("pingsOn").toInt();
+            s.txOffDb = float(x.value("txOffDb").toDouble());
+            s.txOffKnown = x.value("txOffKnown").toBool();
+            s.echoRefPos = x.value("echoRefPos").toInt(-1);
+            s.echoFound = x.value("echoFound").toBool();
+            s.echoLevel = float(x.value("echoLevel").toDouble());
+            s.echoShift = float(x.value("echoShift").toDouble());
             st.sides.append(s);
         }
         r.steps.append(st);
@@ -350,10 +536,22 @@ QJsonObject Comparison::toJson() const
     return { { "pass", pass }, { "warnings", warnings }, { "checks", a } };
 }
 
-Resonance resonance(const Run& run, int side, double bandDb)
+QVector<int> foundSteps(const Run& run, int side)
+{
+    QVector<int> out;
+    for (int i = 0; i < run.steps.size(); ++i) {
+        if (side < run.steps[i].sides.size() && run.steps[i].sides[side].echoFound) {
+            out.append(i);
+        }
+    }
+    return out;
+}
+
+Resonance resonance(const Run& run, int side, double bandDb, const QVector<int>& stepsIn)
 {
     Resonance r;
-    const QVector<float> c = smooth3(echo1Curve(run, side));
+    const QVector<int> steps = stepsIn.isEmpty() ? foundSteps(run, side) : stepsIn;
+    const QVector<float> c = smooth3(pick(echoCurve(run, side), steps));
     if (c.isEmpty()) {
         return r;
     }
@@ -372,8 +570,8 @@ Resonance resonance(const Run& run, int side, double bandDb)
     int topLo, topHi, lo, hi;
     around(c[peak] - float(kCodesPerDb), &topLo, &topHi);
     around(c[peak] - float(bandDb * kCodesPerDb), &lo, &hi);
-    r.freqKhz = 0.5 * (run.params.freqAt(topLo) + run.params.freqAt(topHi));
-    r.bandwidthKhz = double(hi - lo) * run.params.freqStepKhz;
+    r.freqKhz = 0.5 * (run.params.freqAt(steps[topLo]) + run.params.freqAt(steps[topHi]));
+    r.bandwidthKhz = double(run.params.freqAt(steps[hi]) - run.params.freqAt(steps[lo]));
     r.peakCodes = c[peak];
     return r;
 }
@@ -403,94 +601,131 @@ Comparison compare(const Run& unit, const Run& ref, const Tolerances& t)
 
     const float bandCodes = float(t.bandDb * kCodesPerDb);
     QVector<QVector<int>> bands(sides);
+    QVector<bool> seen(sides, false);
     for (int s = 0; s < sides; ++s) {
-        const QVector<float> rc = smooth3(echo1Curve(ref, s)), uc = echo1Curve(unit, s);
-        const float top = rc.isEmpty() ? 0 : *std::max_element(rc.begin(), rc.end());
-        QVector<int>& band = bands[s];
-        for (int i = 0; i < rc.size(); ++i) {
-            if (rc[i] >= top - bandCodes) {
-                band.append(i);
+        // 0 pulses must silence the transmitter: a sonar that keeps sending where the reference went quiet is
+        // faulty; when neither goes quiet the firmware does not mute it and the noise cannot be measured.
+        // NaN (no ringing to compare over) counts as quiet: a dead transmitter fails on its reflections instead
+        const double offU = txOffDb(unit, s), offR = txOffDb(ref, s);
+        const bool quietU = std::isnan(offU) || offU >= t.txOffDb, quietR = std::isnan(offR) || offR >= t.txOffDb;
+        if (!std::isnan(offU)) {
+            add(make("tx_off", s, offU, t.txOffDb, "dB", quietU, !quietR,
+                     quietU   ? QStringLiteral("0 pulses: the ringing goes (reference %1 dB)").arg(offR, 0, 'f', 1)
+                     : quietR ? QStringLiteral("0 pulses: this sonar keeps transmitting, the reference goes quiet")
+                              : QStringLiteral("0 pulses: neither goes quiet (firmware?), the noise is not measured")));
+        }
+
+        const QVector<int> found = foundSteps(ref, s);
+        seen[s] = !found.isEmpty();
+        if (seen[s]) {
+            // over the steps where the baseline had a reflection, in their order
+            const QVector<float> rc = smooth3(pick(echoCurve(ref, s), found));
+            const QVector<float> uc = echoCurve(unit, s), rraw = echoCurve(ref, s);
+            const float top = *std::max_element(rc.begin(), rc.end());
+            QVector<int>& band = bands[s];
+            for (int k = 0; k < rc.size(); ++k) {
+                if (rc[k] >= top - bandCodes) {
+                    band.append(found[k]);
+                }
+            }
+            double sumAbs = 0, maxAbs = 0;
+            int maxAt = band.value(0);
+            for (int i : band) {
+                const double d = (uc[i] - rraw[i]) / kCodesPerDb;
+                sumAbs += std::fabs(d);
+                if (std::fabs(d) > maxAbs) {
+                    maxAbs = std::fabs(d);
+                    maxAt = i;
+                }
+            }
+            const double meanAbs = band.isEmpty() ? 0 : sumAbs / band.size();
+            add(make("echo_band_mean", s, meanAbs, t.echoBandMeanDb, "dB", meanAbs <= t.echoBandMeanDb, false,
+                     QStringLiteral("band %1 steps, %2..%3 kHz").arg(band.size())
+                         .arg(ref.params.freqAt(band.value(0))).arg(ref.params.freqAt(band.isEmpty() ? 0 : band.last()))));
+            add(make("echo_band_max", s, maxAbs, t.echoBandMaxDb, "dB", maxAbs <= t.echoBandMaxDb, false,
+                     QStringLiteral("at %1 kHz: %2 / %3 codes").arg(ref.params.freqAt(maxAt))
+                         .arg(uc.value(maxAt)).arg(rraw.value(maxAt))));
+
+            const Resonance ru = resonance(unit, s, t.bandDb, found), rr = resonance(ref, s, t.bandDb, found);
+            const double shift = ru.freqKhz - rr.freqKhz;
+            add(make("resonance", s, shift, t.resonanceKhz, "kHz", std::fabs(shift) <= t.resonanceKhz, false,
+                     QStringLiteral("%1 / %2 kHz").arg(ru.freqKhz).arg(rr.freqKhz)));
+            const double ratio = rr.bandwidthKhz > 0 ? ru.bandwidthKhz / rr.bandwidthKhz : (ru.bandwidthKhz > 0 ? 99 : 1);
+            add(make("bandwidth", s, ratio, t.bandwidthRatioMax, "x",
+                     ratio >= t.bandwidthRatioMin && ratio <= t.bandwidthRatioMax, false,
+                     QStringLiteral("%1 / %2 kHz").arg(ru.bandwidthKhz).arg(rr.bandwidthKhz)));
+        } else {
+            add(make("reflection", s, 0, 0, "", false, true,
+                     QStringLiteral("the reference shows none after the ringing: reflections are not compared")));
+        }
+
+        if (quietU && quietR) {
+            double noiseSum = 0;
+            for (int i = 0; i < ref.steps.size(); ++i) {
+                noiseSum += (unit.steps[i].sides[s].noiseP50 - ref.steps[i].sides[s].noiseP50) / kCodesPerDb;
+            }
+            const double noise = noiseSum / ref.steps.size();
+            add(make("noise", s, noise, t.noiseDb, "dB", noise <= t.noiseDb, false,
+                     QStringLiteral("mean over %1 steps, transmitter off").arg(ref.steps.size())));
+        } else {
+            add(make("noise", s, 0, t.noiseDb, "dB", false, true,
+                     QStringLiteral("not measured: the transmitter did not go off at 0 pulses")));
+        }
+
+        // the ringing over the reflection's band, or over the whole sweep when there is no reflection
+        QVector<int> span = bands[s];
+        if (span.isEmpty()) {
+            for (int i = 0; i < ref.steps.size(); ++i) {
+                span.append(i);
             }
         }
-        const QVector<float> rraw = echo1Curve(ref, s);
-        double sumAbs = 0, maxAbs = 0;
-        int maxAt = band.value(0);
-        for (int i : band) {
-            const double d = (uc[i] - rraw[i]) / kCodesPerDb;
-            sumAbs += std::fabs(d);
-            if (std::fabs(d) > maxAbs) {
-                maxAbs = std::fabs(d);
-                maxAt = i;
-            }
-        }
-        const double meanAbs = band.isEmpty() ? 0 : sumAbs / band.size();
-        add(make("echo_band_mean", s, meanAbs, t.echoBandMeanDb, "dB", meanAbs <= t.echoBandMeanDb, false,
-                 QStringLiteral("band %1 steps, %2..%3 kHz").arg(band.size())
-                     .arg(ref.params.freqAt(band.value(0))).arg(ref.params.freqAt(band.isEmpty() ? 0 : band.last()))));
-        add(make("echo_band_max", s, maxAbs, t.echoBandMaxDb, "dB", maxAbs <= t.echoBandMaxDb, false,
-                 QStringLiteral("at %1 kHz: %2 / %3 codes").arg(ref.params.freqAt(maxAt))
-                     .arg(uc.value(maxAt)).arg(rraw.value(maxAt))));
-
-        const Resonance ru = resonance(unit, s, t.bandDb), rr = resonance(ref, s, t.bandDb);
-        const double shift = ru.freqKhz - rr.freqKhz;
-        add(make("resonance", s, shift, t.resonanceKhz, "kHz", std::fabs(shift) <= t.resonanceKhz, false,
-                 QStringLiteral("%1 / %2 kHz").arg(ru.freqKhz).arg(rr.freqKhz)));
-        const double ratio = rr.bandwidthKhz > 0 ? ru.bandwidthKhz / rr.bandwidthKhz : (ru.bandwidthKhz > 0 ? 99 : 1);
-        add(make("bandwidth", s, ratio, t.bandwidthRatioMax, "x",
-                 ratio >= t.bandwidthRatioMin && ratio <= t.bandwidthRatioMax, false,
-                 QStringLiteral("%1 / %2 kHz").arg(ru.bandwidthKhz).arg(rr.bandwidthKhz)));
-
-        double noiseSum = 0;
-        for (int i = 0; i < ref.steps.size(); ++i) {
-            noiseSum += (unit.steps[i].sides[s].noiseP50 - ref.steps[i].sides[s].noiseP50) / kCodesPerDb;
-        }
-        const double noise = noiseSum / ref.steps.size();
-        add(make("noise", s, noise, t.noiseDb, "dB", noise <= t.noiseDb, false,
-                 QStringLiteral("mean over %1 steps, transmitter off").arg(ref.steps.size())));
-
-        QVector<float> ru_ring, rr_ring, posDiff;
+        QVector<float> ru_ring, rr_ring, shifts;
         int saturatedSteps = 0;
-        for (int i : band) {
+        for (int i : span) {
             const SideStep& us = unit.steps[i].sides[s];
             const SideStep& rs = ref.steps[i].sides[s];
             ru_ring.append(us.ringdown);
             rr_ring.append(rs.ringdown);
-            if (us.echo1Pos() >= 0 && rs.echo1Pos() >= 0) {
-                posDiff.append(std::fabs(us.echo1Pos() - rs.echo1Pos()));
+            if (rs.echoFound) {
+                shifts.append(std::fabs(us.echoShift - rs.echoShift));
             }
-            saturatedSteps += us.echo1Amp() >= 255 ? 1 : 0;
+            saturatedSteps += seen[s] && us.echoLevel >= 255 ? 1 : 0;
         }
         const double ringU = medianOf(ru_ring), ringR = medianOf(rr_ring);
         const double ringLimit = ringR * t.ringdownRatio + t.ringdownSlack;
         add(make("ringdown", s, ringU, ringLimit, "samples", ringU <= ringLimit, false,
-                 QStringLiteral("%1 / %2 samples over the band").arg(ringU).arg(ringR)));
-        const double pos = posDiff.isEmpty() ? 0 : medianOf(posDiff);
-        const bool placed = !posDiff.isEmpty() && pos <= t.positionSamples;
-        add(make("position", s, pos, t.positionSamples, "samples", placed, true,
-                 posDiff.isEmpty() ? QStringLiteral("no first reflection on both")
-                 : placed          ? QStringLiteral("first reflection where the reference's is")
-                                   : QStringLiteral("first reflection moved: the sonar sits otherwise on the stand")));
-        const double satShare = band.isEmpty() ? 0 : double(saturatedSteps) / band.size();
-        add(make("saturation", s, satShare, t.saturationShare, "", satShare <= t.saturationShare, true,
-                 QStringLiteral("%1 of %2 band steps at 255").arg(saturatedSteps).arg(band.size())));
+                 QStringLiteral("%1 / %2 samples over the %3").arg(ringU).arg(ringR)
+                     .arg(seen[s] ? QStringLiteral("band") : QStringLiteral("sweep"))));
+        if (seen[s]) {
+            const double pos = shifts.isEmpty() ? 0 : medianOf(shifts);
+            const bool placed = pos <= t.positionSamples;
+            add(make("position", s, pos, t.positionSamples, "samples", placed, true,
+                     placed ? QStringLiteral("the reflection where the reference's is")
+                            : QStringLiteral("the reflection moved: the sonar sits otherwise on the stand")));
+            const double satShare = span.isEmpty() ? 0 : double(saturatedSteps) / span.size();
+            add(make("saturation", s, satShare, t.saturationShare, "", satShare <= t.saturationShare, true,
+                     QStringLiteral("%1 of %2 band steps at 255").arg(saturatedSteps).arg(span.size())));
+        }
     }
 
-    if (sides >= 2) {
-        QVector<int> band = bands[0];
-        for (int i : bands[1]) {
-            if (!band.contains(i)) {
+    if (sides >= 2 && seen[0] && seen[1]) {
+        // the steps of either side's band where both sides had a reflection
+        QVector<int> band;
+        for (int i = 0; i < ref.steps.size(); ++i) {
+            const bool inBand = bands[0].contains(i) || bands[1].contains(i);
+            if (inBand && ref.steps[i].sides[0].echoFound && ref.steps[i].sides[1].echoFound) {
                 band.append(i);
             }
         }
-        const QVector<float> u0 = echo1Curve(unit, 0), u1 = echo1Curve(unit, 1);
-        const QVector<float> r0 = echo1Curve(ref, 0), r1 = echo1Curve(ref, 1);
+        const QVector<float> u0 = echoCurve(unit, 0), u1 = echoCurve(unit, 1);
+        const QVector<float> r0 = echoCurve(ref, 0), r1 = echoCurve(ref, 1);
         double sum = 0;
         for (int i : band) {
             sum += std::fabs(((u0[i] - u1[i]) - (r0[i] - r1[i])) / kCodesPerDb);
         }
         const double bal = band.isEmpty() ? 0 : sum / band.size();
         add(make("balance", -1, bal, t.balanceDb, "dB", bal <= t.balanceDb, false,
-                 QStringLiteral("difference between the sides against the reference's")));
+                 QStringLiteral("difference between the sides against the reference's, %1 steps").arg(band.size())));
     }
 
     if (unit.supply.valid() && ref.supply.valid()) {
@@ -499,7 +734,10 @@ Comparison compare(const Run& unit, const Run& ref, const Tolerances& t)
                  QStringLiteral("%1 / %2 V (min %3, max %4)").arg(unit.supply.median, 0, 'f', 2)
                      .arg(ref.supply.median, 0, 'f', 2).arg(unit.supply.min, 0, 'f', 2).arg(unit.supply.max, 0, 'f', 2)));
     } else {
-        add(make("supply", -1, 0, t.supplyV, "V", false, true, QStringLiteral("no supply readings")));
+        add(make("supply", -1, 0, t.supplyV, "V", false, true,
+                 unit.supply.valid() ? QStringLiteral("%1 V, the reference has no supply readings")
+                                           .arg(unit.supply.median, 0, 'f', 2)
+                                     : QStringLiteral("no supply readings from the sonar")));
     }
     if (unit.temperature.valid()) {
         const bool inRange = unit.temperature.median >= t.tempMinC && unit.temperature.median <= t.tempMaxC;
@@ -512,7 +750,8 @@ Comparison compare(const Run& unit, const Run& ref, const Tolerances& t)
                          .arg(ref.temperature.median, 0, 'f', 1)));
         }
     } else {
-        add(make("temperature", -1, 0, t.tempMaxC, "C", false, true, QStringLiteral("no temperature readings")));
+        add(make("temperature", -1, 0, t.tempMaxC, "C", false, true,
+                 QStringLiteral("no temperature readings from the sonar")));
     }
     return cmp;
 }

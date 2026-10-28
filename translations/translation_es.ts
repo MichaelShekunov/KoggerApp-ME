@@ -18107,107 +18107,120 @@ udp://@:1234
         <translation>El sonar se desconectó</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="268"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="292"/>
         <source>A run is going on</source>
         <translation>Hay una prueba en curso</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="271"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="295"/>
         <source>No sonar selected</source>
         <translation>No hay sonar seleccionado</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="277"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="300"/>
         <source>The sonar has not answered yet</source>
         <translation>El sonar aún no ha respondido</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="277"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="300"/>
         <source>Not a nanoSSS (board %1)</source>
         <translation>No es un nanoSSS (placa %1)</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="280"/>
         <source>The sonar has not reported its serial number</source>
-        <translation>El sonar no ha informado su número de serie</translation>
+        <translation type="vanished">El sonar no ha informado su número de serie</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="286"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="310"/>
         <source>No reference yet: make the baseline on the reference sonar first</source>
         <translation>Aún no hay referencia: primero haga la base con el sonar de referencia</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="290"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="314"/>
         <source>This is not the reference sonar (that is serial %1)</source>
         <translation>Este no es el sonar de referencia (la referencia es el número de serie %1)</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="294"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="318"/>
         <source>Unknown run</source>
         <translation>Prueba desconocida</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="297"/>
         <source>This is the reference sonar: run its check instead</source>
-        <translation>Este es el sonar de referencia: ejecute su verificación</translation>
+        <translation type="vanished">Este es el sonar de referencia: ejecute su verificación</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="300"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="304"/>
+        <source>The sonar has not reported its serial number: type the one from its sticker</source>
+        <translation>El sonar no ha informado su número de serie: escriba el de su etiqueta</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="321"/>
+        <source>This is the reference sonar&apos;s number: run its check, or type this sonar&apos;s number from its sticker</source>
+        <translation>Este es el número del sonar de referencia: ejecute su verificación o escriba el número de este sonar de su etiqueta</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="324"/>
+        <source>The sonar reports the same number as the reference (%1): type the number from its sticker</source>
+        <translation>El sonar informa el mismo número que la referencia (%1): escriba el número de su etiqueta</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="328"/>
         <source>The reference&apos;s last check moved away from its baseline: look at the stand, check the reference again or accept the check</source>
         <translation>La última verificación de la referencia se alejó de su base: revise el banco, verifique la referencia de nuevo o acepte la verificación</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="304"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="332"/>
         <source>%1 sonars tested since the reference&apos;s check: check the reference again</source>
         <translation>%1 sonares probados desde la verificación de la referencia: verifique la referencia de nuevo</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="310"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="338"/>
         <source>The reference&apos;s check cannot be read: %1</source>
         <translation>No se puede leer la verificación de la referencia: %1</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="314"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="342"/>
         <source>Firmware %1, the reference has %2: load the same firmware</source>
         <translation>Firmware %1, la referencia tiene %2: cargue el mismo firmware</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="349"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="379"/>
         <source>The reference run cannot be read: %1</source>
         <translation>No se puede leer la prueba de referencia: %1</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="377"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="410"/>
         <source>Setting the sonar up</source>
         <translation>Configurando el sonar</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="386"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="419"/>
         <source>Stopped</source>
         <translation>Detenido</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="418"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="451"/>
         <source>The sonar gives %1 samples a side, the reference %2</source>
         <translation>El sonar da %1 muestras por lado, la referencia %2</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="493"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="535"/>
         <source>%1 kHz, %2 pulses</source>
         <translation>%1 kHz, %2 pulsos</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="494"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="536"/>
         <source>%1 kHz, transmitter off</source>
         <translation>%1 kHz, transmisor apagado</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="573"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="627"/>
         <source>Saved: %1</source>
         <translation>Guardado: %1</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="573"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="627"/>
         <source>Not saved: %1</source>
         <translation>No guardado: %1</translation>
     </message>
@@ -18295,397 +18308,421 @@ udp://@:1234
         <translation>Temperatura frente a la referencia</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="61"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="56"/>
+        <source>Transmitter off at 0 pulses</source>
+        <translation>Transmisor apagado con 0 pulsos</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="57"/>
+        <source>Reflection seen</source>
+        <translation>Reflexión visible</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="63"/>
         <source>PASSED</source>
         <translation>APTO</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="62"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="64"/>
         <source>FAILED</source>
         <translation>NO APTO</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="63"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="65"/>
         <source>REFERENCE SET</source>
         <translation>REFERENCIA ESTABLECIDA</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="64"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="66"/>
         <source>REFERENCE CHECKED</source>
         <translation>REFERENCIA VERIFICADA</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="65"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="67"/>
         <source>REFERENCE MOVED AWAY FROM ITS BASELINE</source>
         <translation>LA REFERENCIA SE ALEJÓ DE SU BASE</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="131"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="137"/>
         <source>Sonar on the stand</source>
         <translation>Sonar en el banco</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="133"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="139"/>
         <source>Sonar</source>
         <translation>Sonar</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="135"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="141"/>
         <source>serial %1 · firmware %2 · board %3</source>
         <translation>número de serie %1 · firmware %2 · placa %3</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="136"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="142"/>
         <source> · the reference</source>
         <translation> · la referencia</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="137"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="143"/>
         <source>No nanoSSS connected</source>
         <translation>No hay nanoSSS conectado</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="150"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="155"/>
+        <source>Number from the sticker</source>
+        <translation>Número de la etiqueta</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="156"/>
+        <source>Empty: the number the sonar reports. Some firmware reports one number for every sonar: then type each sonar&apos;s own.</source>
+        <translation>Vacío: el número que informa el sonar. Algunos firmwares informan el mismo número para todos los sonares: entonces escriba el propio de cada uno.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="169"/>
         <source>Simulated sonar</source>
         <translation>Sonar simulado</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="151"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="170"/>
         <source>KOGGER_SONARQA_DEMO: a sonar in a tank, to try the window without a stand</source>
         <translation>KOGGER_SONARQA_DEMO: un sonar en un tanque, para probar la ventana sin banco</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="155"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="174"/>
         <source>Reference 1001</source>
         <translation>Referencia 1001</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="156"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="175"/>
         <source>Good 2001</source>
         <translation>Bueno 2001</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="157"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="176"/>
         <source>Weak 2002</source>
         <translation>Débil 2002</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="164"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="183"/>
         <source>Test</source>
         <translation>Prueba</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="166"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="185"/>
         <source>Sonar under test</source>
         <translation>Sonar en prueba</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="168"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="187"/>
         <source>The same sweep and settings as the reference&apos;s check; the result is saved by serial number</source>
         <translation>El mismo barrido y ajustes que la verificación de la referencia; el resultado se guarda por número de serie</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="173"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="192"/>
         <source>Test this sonar</source>
         <translation>Probar este sonar</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="183"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="202"/>
         <source>Run in progress</source>
         <translation>Prueba en curso</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="183"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="202"/>
         <source>Last run</source>
         <translation>Última prueba</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="199"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="218"/>
         <source>about %1 left</source>
         <translation>quedan unos %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="203"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="222"/>
         <source>Stop</source>
         <translation>Detener</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="217"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="236"/>
         <source>Supply %1 V · temperature %2 °C</source>
         <translation>Alimentación %1 V · temperatura %2 °C</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="261"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="280"/>
         <source>Result</source>
         <translation>Resultado</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="279"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="298"/>
         <source>warnings: %1</source>
         <translation>advertencias: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="285"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="304"/>
         <source>Serial %1 · firmware %2 · %3</source>
         <translation>Número de serie %1 · firmware %2 · %3</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="286"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="305"/>
         <source>Saved: %1</source>
         <translation>Guardado: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="286"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="305"/>
         <source>Not saved: %1</source>
         <translation>No guardado: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="308"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="327"/>
         <source>, side %1</source>
         <translation>, lado %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="329"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="348"/>
         <source>Side 1</source>
         <translation>Lado 1</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="330"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="349"/>
         <source>Side 2</source>
         <translation>Lado 2</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="333"/>
-        <source>First reflection, codes (2.5 a dB)</source>
-        <translation>Primera reflexión, códigos (2,5 por dB)</translation>
+        <location filename="../qml/app/SonarQaWindow.qml" line="352"/>
+        <source>Reflection where the reference has it, codes (2.5 a dB)</source>
+        <translation>Reflexión donde la tiene la referencia, códigos (2,5 por dB)</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="334"/>
+        <source>First reflection, codes (2.5 a dB)</source>
+        <translation type="vanished">Primera reflexión, códigos (2,5 por dB)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="353"/>
         <source>Noise with the transmitter off, codes</source>
         <translation>Ruido con el transmisor apagado, códigos</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="335"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="354"/>
         <source>Ringing after the burst, samples</source>
         <translation>Resonancia residual tras el pulso, muestras</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="340"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="359"/>
         <source>this sonar</source>
         <translation>este sonar</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="340"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="359"/>
         <source>reference (dashed)</source>
         <translation>referencia (discontinua)</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="405"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="427"/>
         <source>Reference sonar</source>
         <translation>Sonar de referencia</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="407"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="429"/>
         <source>Reference</source>
         <translation>Referencia</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="409"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="431"/>
         <source>serial %1 · baseline %2</source>
         <translation>número de serie %1 · base %2</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="410"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="432"/>
         <source>Not set: connect the reference sonar and make its baseline</source>
         <translation>No establecida: conecte el sonar de referencia y haga su base</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="415"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="437"/>
         <source>Last check</source>
         <translation>Última verificación</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="417"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="439"/>
         <source>agrees with the baseline</source>
         <translation>coincide con la base</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="417"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="439"/>
         <source>moved away from the baseline</source>
         <translation>se alejó de la base</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="423"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="445"/>
         <source>Sonars left until the next check</source>
         <translation>Sonares hasta la próxima verificación</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="424"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="446"/>
         <source>%1 of %2</source>
         <translation>%1 de %2</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="428"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="450"/>
         <source>Runs of the reference</source>
         <translation>Pruebas de la referencia</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="437"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="459"/>
         <source>Check the reference</source>
         <translation>Verificar la referencia</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="443"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="465"/>
         <source>Make the baseline</source>
         <translation>Hacer la base</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="455"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="477"/>
         <source>Accept the check</source>
         <translation>Aceptar la verificación</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="464"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="486"/>
         <source>Replace the reference (serial %1) and its baseline with this sonar?</source>
         <translation>¿Reemplazar la referencia (número de serie %1) y su base por este sonar?</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="467"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="489"/>
         <source>Replace</source>
         <translation>Reemplazar</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="469"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="491"/>
         <source>Cancel</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="478"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="500"/>
         <source>Sweep and limits</source>
         <translation>Barrido y tolerancias</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="481"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="503"/>
         <source>Sweep</source>
         <translation>Barrido</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="482"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="504"/>
         <source>Used by the next baseline; checks and tests take the baseline&apos;s. Samples count both sides of a nanoSSS (2000 = 1000 a side). Above 30 pulses the firmware switches to chirp.</source>
         <translation>Se usa en la próxima base; las verificaciones y pruebas toman el barrido de la base. Las muestras cuentan ambos lados de un nanoSSS (2000 = 1000 por lado). Por encima de 30 pulsos el firmware pasa a chirp.</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="488"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="510"/>
         <source>From, kHz</source>
         <translation>Desde, kHz</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="489"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="511"/>
         <source>To, kHz</source>
         <translation>Hasta, kHz</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="490"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="512"/>
         <source>Step, kHz</source>
         <translation>Paso, kHz</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="491"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="513"/>
         <source>Pings a step</source>
         <translation>Pings por paso</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="492"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="514"/>
         <source>Dropped after a change</source>
         <translation>Descartados tras un cambio</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="493"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="515"/>
         <source>Period, ms</source>
         <translation>Período, ms</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="494"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="516"/>
         <source>Samples</source>
         <translation>Muestras</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="495"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="517"/>
         <source>Pulses</source>
         <translation>Pulsos</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="496"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="518"/>
         <source>Sonars a check</source>
         <translation>Sonares por verificación</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="517"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="539"/>
         <source>Limits</source>
         <translation>Tolerancias</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="518"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="540"/>
         <source>Starting values: set them from the spread of the reference and of known-good sonars on this stand.</source>
         <translation>Valores iniciales: fíjelos a partir de la dispersión de la referencia y de sonares buenos conocidos en este banco.</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="524"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="546"/>
         <source>Reflection mean, dB</source>
         <translation>Reflexión media, dB</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="525"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="547"/>
         <source>Reflection worst, dB</source>
         <translation>Reflexión peor, dB</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="526"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="548"/>
         <source>Resonance shift, kHz</source>
         <translation>Desplazamiento de la resonancia, kHz</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="527"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="549"/>
         <source>Noise above, dB</source>
         <translation>Ruido por encima, dB</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="528"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="550"/>
         <source>Ringing, times</source>
         <translation>Resonancia residual, veces</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="529"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="551"/>
         <source>Balance, dB</source>
         <translation>Equilibrio, dB</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="530"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="552"/>
         <source>Supply, V</source>
         <translation>Alimentación, V</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="552"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="574"/>
         <source>The owner&apos;s sweep and the starting limits</source>
         <translation>El barrido del propietario y las tolerancias iniciales</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="553"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="575"/>
         <source>Reset</source>
         <translation>Restablecer</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="559"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="581"/>
         <source>Journal</source>
         <translation>Registro</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="561"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="583"/>
         <source>Results folder</source>
         <translation>Carpeta de resultados</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="564"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="586"/>
         <source>Open folder</source>
         <translation>Abrir carpeta</translation>
     </message>

@@ -18,9 +18,13 @@ public:
         double gainDb = 0;
         double floorOn = 30, floorOff = 36; ///< codes; with the transmitter off the firmware's filter is short
         double ringTop = 230, ringLen = 40, ringScale = 1;
+        double tailCodes = 0, tailLen = 0;  ///< a tail after the ringing at the floor plus this, in and out of the
+                                            ///< ringing's margin from ping to ping (the owner's stand, 2026-10-28)
         int targetPos = 180;
         double echoTop = 205, multiLoss = 25;
         double supply = 12.0, temp = 22.0;
+        bool sensors = true;                ///< false: no supply and no temperature (older firmware)
+        int zeroPulses = 0;                 ///< > 0: 0 pulses still sends this many (firmware before the mute)
         bool tagPings = false;              ///< the last two bytes carry frequency / 5 and pulses (the raw-file check)
     };
 

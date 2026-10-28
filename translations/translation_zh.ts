@@ -18106,107 +18106,120 @@ udp://@:1234
         <translation>声呐已断开</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="268"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="292"/>
         <source>A run is going on</source>
         <translation>正在运行</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="271"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="295"/>
         <source>No sonar selected</source>
         <translation>未选择声呐</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="277"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="300"/>
         <source>The sonar has not answered yet</source>
         <translation>声呐尚未应答</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="277"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="300"/>
         <source>Not a nanoSSS (board %1)</source>
         <translation>不是 nanoSSS（板卡 %1）</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="280"/>
         <source>The sonar has not reported its serial number</source>
-        <translation>声呐未报告序列号</translation>
+        <translation type="vanished">声呐未报告序列号</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="286"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="310"/>
         <source>No reference yet: make the baseline on the reference sonar first</source>
         <translation>尚无基准：请先在基准声呐上建立基线</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="290"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="314"/>
         <source>This is not the reference sonar (that is serial %1)</source>
         <translation>这不是基准声呐（基准为序列号 %1）</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="294"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="318"/>
         <source>Unknown run</source>
         <translation>未知的运行类型</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="297"/>
         <source>This is the reference sonar: run its check instead</source>
-        <translation>这是基准声呐：请运行它的校验</translation>
+        <translation type="vanished">这是基准声呐：请运行它的校验</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="300"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="304"/>
+        <source>The sonar has not reported its serial number: type the one from its sticker</source>
+        <translation>声呐未报告序列号：请输入其铭牌上的编号</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="321"/>
+        <source>This is the reference sonar&apos;s number: run its check, or type this sonar&apos;s number from its sticker</source>
+        <translation>这是基准声呐的编号：请运行其校验，或输入本声呐铭牌上的编号</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="324"/>
+        <source>The sonar reports the same number as the reference (%1): type the number from its sticker</source>
+        <translation>声呐报告的编号与基准相同（%1）：请输入其铭牌上的编号</translation>
+    </message>
+    <message>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="328"/>
         <source>The reference&apos;s last check moved away from its baseline: look at the stand, check the reference again or accept the check</source>
         <translation>基准的最近一次校验偏离了其基线：请检查台架、重新校验基准或接受该校验</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="304"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="332"/>
         <source>%1 sonars tested since the reference&apos;s check: check the reference again</source>
         <translation>自基准校验以来已测试 %1 台声呐：请重新校验基准</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="310"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="338"/>
         <source>The reference&apos;s check cannot be read: %1</source>
         <translation>无法读取基准校验：%1</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="314"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="342"/>
         <source>Firmware %1, the reference has %2: load the same firmware</source>
         <translation>固件 %1，基准为 %2：请刷入相同固件</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="349"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="379"/>
         <source>The reference run cannot be read: %1</source>
         <translation>无法读取基准运行：%1</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="377"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="410"/>
         <source>Setting the sonar up</source>
         <translation>正在设置声呐</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="386"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="419"/>
         <source>Stopped</source>
         <translation>已停止</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="418"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="451"/>
         <source>The sonar gives %1 samples a side, the reference %2</source>
         <translation>声呐每侧 %1 个采样，基准为 %2</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="493"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="535"/>
         <source>%1 kHz, %2 pulses</source>
         <translation>%1 kHz，%2 个脉冲</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="494"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="536"/>
         <source>%1 kHz, transmitter off</source>
         <translation>%1 kHz，发射机关闭</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="573"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="627"/>
         <source>Saved: %1</source>
         <translation>已保存：%1</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="573"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="627"/>
         <source>Not saved: %1</source>
         <translation>未保存：%1</translation>
     </message>
@@ -18294,397 +18307,421 @@ udp://@:1234
         <translation>温度与基准对比</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="61"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="56"/>
+        <source>Transmitter off at 0 pulses</source>
+        <translation>0 个脉冲时发射机关闭</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="57"/>
+        <source>Reflection seen</source>
+        <translation>可见反射</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="63"/>
         <source>PASSED</source>
         <translation>合格</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="62"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="64"/>
         <source>FAILED</source>
         <translation>不合格</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="63"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="65"/>
         <source>REFERENCE SET</source>
         <translation>基准已设定</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="64"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="66"/>
         <source>REFERENCE CHECKED</source>
         <translation>基准已校验</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="65"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="67"/>
         <source>REFERENCE MOVED AWAY FROM ITS BASELINE</source>
         <translation>基准偏离了其基线</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="131"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="137"/>
         <source>Sonar on the stand</source>
         <translation>台架上的声呐</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="133"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="139"/>
         <source>Sonar</source>
         <translation>声呐</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="135"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="141"/>
         <source>serial %1 · firmware %2 · board %3</source>
         <translation>序列号 %1 · 固件 %2 · 板卡 %3</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="136"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="142"/>
         <source> · the reference</source>
         <translation> · 基准</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="137"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="143"/>
         <source>No nanoSSS connected</source>
         <translation>未连接 nanoSSS</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="150"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="155"/>
+        <source>Number from the sticker</source>
+        <translation>铭牌上的编号</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="156"/>
+        <source>Empty: the number the sonar reports. Some firmware reports one number for every sonar: then type each sonar&apos;s own.</source>
+        <translation>留空则使用声呐报告的编号。有些固件对所有声呐报告同一个编号：此时请输入每台声呐自己的编号。</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="169"/>
         <source>Simulated sonar</source>
         <translation>模拟声呐</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="151"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="170"/>
         <source>KOGGER_SONARQA_DEMO: a sonar in a tank, to try the window without a stand</source>
         <translation>KOGGER_SONARQA_DEMO：水箱中的声呐，无需台架即可试用此窗口</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="155"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="174"/>
         <source>Reference 1001</source>
         <translation>基准 1001</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="156"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="175"/>
         <source>Good 2001</source>
         <translation>合格 2001</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="157"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="176"/>
         <source>Weak 2002</source>
         <translation>偏弱 2002</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="164"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="183"/>
         <source>Test</source>
         <translation>测试</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="166"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="185"/>
         <source>Sonar under test</source>
         <translation>被测声呐</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="168"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="187"/>
         <source>The same sweep and settings as the reference&apos;s check; the result is saved by serial number</source>
         <translation>与基准校验相同的扫描和设置；结果按序列号保存</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="173"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="192"/>
         <source>Test this sonar</source>
         <translation>测试此声呐</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="183"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="202"/>
         <source>Run in progress</source>
         <translation>正在运行</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="183"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="202"/>
         <source>Last run</source>
         <translation>上次运行</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="199"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="218"/>
         <source>about %1 left</source>
         <translation>约剩 %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="203"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="222"/>
         <source>Stop</source>
         <translation>停止</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="217"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="236"/>
         <source>Supply %1 V · temperature %2 °C</source>
         <translation>供电 %1 V · 温度 %2 °C</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="261"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="280"/>
         <source>Result</source>
         <translation>结果</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="279"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="298"/>
         <source>warnings: %1</source>
         <translation>警告：%1</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="285"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="304"/>
         <source>Serial %1 · firmware %2 · %3</source>
         <translation>序列号 %1 · 固件 %2 · %3</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="286"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="305"/>
         <source>Saved: %1</source>
         <translation>已保存：%1</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="286"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="305"/>
         <source>Not saved: %1</source>
         <translation>未保存：%1</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="308"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="327"/>
         <source>, side %1</source>
         <translation>，第 %1 侧</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="329"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="348"/>
         <source>Side 1</source>
         <translation>第 1 侧</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="330"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="349"/>
         <source>Side 2</source>
         <translation>第 2 侧</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="333"/>
-        <source>First reflection, codes (2.5 a dB)</source>
-        <translation>第一次反射，代码（每 dB 2.5）</translation>
+        <location filename="../qml/app/SonarQaWindow.qml" line="352"/>
+        <source>Reflection where the reference has it, codes (2.5 a dB)</source>
+        <translation>基准反射位置处的反射，码值（每 dB 2.5）</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="334"/>
+        <source>First reflection, codes (2.5 a dB)</source>
+        <translation type="vanished">第一次反射，代码（每 dB 2.5）</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/SonarQaWindow.qml" line="353"/>
         <source>Noise with the transmitter off, codes</source>
         <translation>发射机关闭时的噪声，代码</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="335"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="354"/>
         <source>Ringing after the burst, samples</source>
         <translation>发射后的振铃，采样</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="340"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="359"/>
         <source>this sonar</source>
         <translation>此声呐</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="340"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="359"/>
         <source>reference (dashed)</source>
         <translation>基准（虚线）</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="405"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="427"/>
         <source>Reference sonar</source>
         <translation>基准声呐</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="407"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="429"/>
         <source>Reference</source>
         <translation>基准</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="409"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="431"/>
         <source>serial %1 · baseline %2</source>
         <translation>序列号 %1 · 基线 %2</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="410"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="432"/>
         <source>Not set: connect the reference sonar and make its baseline</source>
         <translation>未设定：请连接基准声呐并建立其基线</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="415"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="437"/>
         <source>Last check</source>
         <translation>最近一次校验</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="417"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="439"/>
         <source>agrees with the baseline</source>
         <translation>与基线一致</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="417"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="439"/>
         <source>moved away from the baseline</source>
         <translation>偏离了基线</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="423"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="445"/>
         <source>Sonars left until the next check</source>
         <translation>下次校验前剩余的声呐</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="424"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="446"/>
         <source>%1 of %2</source>
         <translation>%1 / %2</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="428"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="450"/>
         <source>Runs of the reference</source>
         <translation>基准运行</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="437"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="459"/>
         <source>Check the reference</source>
         <translation>校验基准</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="443"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="465"/>
         <source>Make the baseline</source>
         <translation>建立基线</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="455"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="477"/>
         <source>Accept the check</source>
         <translation>接受校验</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="464"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="486"/>
         <source>Replace the reference (serial %1) and its baseline with this sonar?</source>
         <translation>用此声呐替换基准（序列号 %1）及其基线？</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="467"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="489"/>
         <source>Replace</source>
         <translation>替换</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="469"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="491"/>
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="478"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="500"/>
         <source>Sweep and limits</source>
         <translation>扫描与容差</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="481"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="503"/>
         <source>Sweep</source>
         <translation>扫描</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="482"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="504"/>
         <source>Used by the next baseline; checks and tests take the baseline&apos;s. Samples count both sides of a nanoSSS (2000 = 1000 a side). Above 30 pulses the firmware switches to chirp.</source>
         <translation>用于下一次基线；校验和测试采用基线的扫描。采样数包括 nanoSSS 的两侧（2000 = 每侧 1000）。超过 30 个脉冲时固件切换为线性调频。</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="488"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="510"/>
         <source>From, kHz</source>
         <translation>起始，kHz</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="489"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="511"/>
         <source>To, kHz</source>
         <translation>终止，kHz</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="490"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="512"/>
         <source>Step, kHz</source>
         <translation>步长，kHz</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="491"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="513"/>
         <source>Pings a step</source>
         <translation>每步脉冲数</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="492"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="514"/>
         <source>Dropped after a change</source>
         <translation>更改后丢弃</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="493"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="515"/>
         <source>Period, ms</source>
         <translation>周期，ms</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="494"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="516"/>
         <source>Samples</source>
         <translation>采样</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="495"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="517"/>
         <source>Pulses</source>
         <translation>脉冲</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="496"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="518"/>
         <source>Sonars a check</source>
         <translation>每次校验的声呐数</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="517"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="539"/>
         <source>Limits</source>
         <translation>容差</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="518"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="540"/>
         <source>Starting values: set them from the spread of the reference and of known-good sonars on this stand.</source>
         <translation>初始值：请根据此台架上基准和已知合格声呐的离散度设定。</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="524"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="546"/>
         <source>Reflection mean, dB</source>
         <translation>反射平均，dB</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="525"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="547"/>
         <source>Reflection worst, dB</source>
         <translation>反射最差，dB</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="526"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="548"/>
         <source>Resonance shift, kHz</source>
         <translation>谐振偏移，kHz</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="527"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="549"/>
         <source>Noise above, dB</source>
         <translation>噪声高出，dB</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="528"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="550"/>
         <source>Ringing, times</source>
         <translation>振铃，倍</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="529"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="551"/>
         <source>Balance, dB</source>
         <translation>平衡，dB</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="530"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="552"/>
         <source>Supply, V</source>
         <translation>供电，V</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="552"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="574"/>
         <source>The owner&apos;s sweep and the starting limits</source>
         <translation>负责人的扫描与初始容差</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="553"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="575"/>
         <source>Reset</source>
         <translation>重置</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="559"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="581"/>
         <source>Journal</source>
         <translation>日志</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="561"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="583"/>
         <source>Results folder</source>
         <translation>结果文件夹</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="564"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="586"/>
         <source>Open folder</source>
         <translation>打开文件夹</translation>
     </message>

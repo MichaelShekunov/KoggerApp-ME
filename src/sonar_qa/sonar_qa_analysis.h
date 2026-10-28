@@ -33,6 +33,7 @@ struct Params {
     int echoMarginCodes = 25;   ///< a reflection is a peak at least this over the floor (10 dB)
     int echoMinGap = 10;        ///< samples between two reflections
     int maxEchoes = 4;          ///< reflection and its repeats, nearest first
+    int echoWindow = 5;         ///< a reflection's level: the highest byte within this many samples of its position
 
     int stepCount() const;
     int freqAt(int step) const { return freqFromKhz + step * freqStepKhz; }
@@ -72,6 +73,19 @@ struct SideStep {
     QVector<float> echoPos, echoAmp, echoPresence;     ///< per reflection index; presence = share of pings with it
     float echo1Spread = 0;                             ///< max - min of the first reflection over the pings
     int pingsOff = 0, pingsOn = 0;
+    // Did 0 pulses silence the transmitter? The step's median echograms with it on and off, compared over the
+    // ringing (the whole ping would not do: with 0 pulses the firmware's filter is short and the noise higher).
+    float txOffDb = 0;         ///< how much lower the echogram is over the ringing with 0 pulses, dB
+    bool txOffKnown = false;   ///< false: no ringing at this step to compare over
+
+    // The reflection compared between sonars (measureReflections). It is read at one place for every run: where
+    // the baseline's echogram, the median of the step's pings, has its strongest peak after the ringing. Looking
+    // for it again in each run picked the reflection in one run and the ringing's tail beside it in the next.
+    int echoRefPos = -1;       ///< the sample read; -1 when the baseline saw no reflection at this step
+    bool echoFound = false;    ///< the baseline had a reflection at this step: only such steps are compared
+    float echoLevel = 0;       ///< this run's median echogram, the highest byte within echoWindow of echoRefPos
+    float echoShift = 0;       ///< this run's highest byte near echoRefPos, its offset from it; against the
+                               ///< reference's own (the ringing's tail may be the highest there): the placement
 
     /// The first reflection's byte, or the floor when it was not seen.
     float echo1Amp() const { return echoAmp.isEmpty() || echoPresence.value(0) < 0.5f ? floor : echoAmp[0]; }
@@ -85,6 +99,17 @@ struct Step {
 
 /// Medians over the pings of one frequency, per side.
 SideStep aggregate(const QVector<PingMetrics>& off, const QVector<PingMetrics>& on, int maxEchoes);
+
+/// The step's echogram: the median of its pings, sample by sample.
+QVector<uint8_t> medianProfile(const QVector<QVector<uint8_t>>& pings);
+
+/// The step's median echograms of one side from its pings with the transmitter off and on: fills txOffDb and
+/// txOffKnown of s and returns the one with the transmitter on (for measureReflections).
+QVector<uint8_t> measureProfiles(SideStep& s, const QVector<QVector<uint8_t>>& off, const QVector<QVector<uint8_t>>& on,
+                                 const Params& p);
+
+/// The strongest peak after the ringing of an echogram, if it stands echoMarginCodes over the floor; else -1.
+int reflectionAt(const QVector<uint8_t>& profile, const Params& p);
 
 /// A reading series (supply, temperature): what the run saw.
 struct Series {
@@ -113,15 +138,18 @@ struct Tolerances {
     double tempDeltaC = 10.0;        ///< a warning
     double tempMinC = -5.0, tempMaxC = 70.0;
     double saturationShare = 0.1;    ///< a warning
+    double txOffDb = 6.0;            ///< 0 pulses must lower the ringing by this much, or the noise is not measured
     QJsonObject toJson() const;
     static Tolerances fromJson(const QJsonObject& o);
 };
 
 /// A whole run: identity, settings, the sweep's results, supply and temperature.
 struct Run {
+    QString format;                  ///< as read: "kogger-sonar-qa/1" runs lack the reflection read at one place
     QString kind;                    ///< "baseline", "check" or "unit"
     QString time;                    ///< ISO 8601, local
-    quint32 serial = 0;
+    QString serial;                  ///< the number the run is filed under: typed from the sticker, or as reported
+    quint32 reportedSerial = 0;      ///< what the sonar reported (l412_adc reports one number for every board)
     QString deviceName, firmware;
     int board = 0;
     Params params;
@@ -131,6 +159,8 @@ struct Run {
     Series supply, temperature;
     QJsonObject toJson() const;
     static Run fromJson(const QJsonObject& o);
+    /// Made before the reflection was read at the baseline's place: to be measured again from its raw pings.
+    bool needsRebuild() const { return format.isEmpty() || format.endsWith(QLatin1String("/1")); }
 };
 
 /// One check of a comparison.
@@ -151,13 +181,29 @@ struct Comparison {
     QJsonObject toJson() const;
 };
 
+/// Fills echoRefPos, echoFound, echoLevel and echoShift of every step from the steps' median echograms
+/// (profiles[step][side]): at the reference's positions, or, for a baseline (ref null), at its own.
+void measureReflections(Run& run, const QVector<QVector<QVector<uint8_t>>>& profiles, const Run* ref);
+
+/// How much the echogram drops over the ringing at 0 pulses, in dB, the median over the steps of one side;
+/// NaN when no step had ringing to compare over.
+double txOffDb(const Run& run, int side);
+
+/// What a run shows on its own, a baseline included: the transmitter went off at 0 pulses, a reflection was seen,
+/// supply and temperature came. All warnings.
+QVector<Check> selfChecks(const Run& run, const Tolerances& t);
+
 /// Compares a run with the reference run (same sweep). Fails when the sweeps differ.
 Comparison compare(const Run& unit, const Run& ref, const Tolerances& t);
 
-/// Strongest first reflection: its frequency and the -bandDb bandwidth, both in kHz; -1 when nothing was seen.
+/// Strongest reflection over the sweep: its frequency and the -bandDb bandwidth, both in kHz; -1 when nothing was
+/// seen. Read over the steps where the baseline had a reflection (steps; empty: the run's own such steps).
 struct Resonance {
     double freqKhz = -1, bandwidthKhz = -1, peakCodes = 0;
 };
-Resonance resonance(const Run& run, int side, double bandDb);
+Resonance resonance(const Run& run, int side, double bandDb, const QVector<int>& steps = {});
+
+/// The steps of one side where the baseline had a reflection.
+QVector<int> foundSteps(const Run& run, int side);
 
 } // namespace sonarqa
