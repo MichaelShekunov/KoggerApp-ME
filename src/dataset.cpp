@@ -1867,7 +1867,7 @@ Epoch *Dataset::getFirstEpochByValidPosition() {
     return nullptr;
 }
 
-QStringList Dataset::channelsNameList()
+QStringList Dataset::channelsNameList(bool withDownViews)
 {
     channelsNames_.clear();
     channelsIds_.clear();
@@ -1895,6 +1895,17 @@ QStringList Dataset::channelsNameList()
         channelsNames_ << name;
         channelsIds_   << chId;
         subChannelIds_ << sub;
+
+        if (withDownViews && sub == 1) {
+            for (uint8_t down : { DownView::kSubEnergy, DownView::kSubMean, DownView::kSubMin }) {
+                const QString downName = QString("%1|%2|%3").arg(channel.portName_, QString::number(chId.address),
+                                                                 QLatin1String(DownView::nameOf(down)));
+                result << downName;
+                channelsNames_ << downName;
+                channelsIds_   << chId;
+                subChannelIds_ << down;
+            }
+        }
     }
 
     return result;
@@ -2645,6 +2656,18 @@ std::tuple<ChannelId, uint8_t, QString>  Dataset::channelIdFromName(const QStrin
 
         if (chName == name) {
             return std::make_tuple(channel.channelId_, channel.subChannelId_, chName);
+        }
+    }
+
+    // A down view: "<port>|<address>|down-..." of a channel that has side 1.
+    const int bar = name.lastIndexOf(QLatin1Char('|'));
+    const uint8_t down = bar > 0 ? DownView::subOf(name.mid(bar + 1).toLatin1().constData()) : 0;
+    if (down != 0) {
+        for (const auto& channel : chList) {
+            if (channel.subChannelId_ == 1
+                && name.left(bar) == QString("%1|%2").arg(channel.portName_, QString::number(channel.channelId_.address))) {
+                return std::make_tuple(channel.channelId_, down, name);
+            }
         }
     }
 

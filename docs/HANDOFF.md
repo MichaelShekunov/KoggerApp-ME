@@ -3386,3 +3386,16 @@ with e05c0053 (2026-09-11, "rework isobaths display"), the emit beside it with 0
   access violation comes at KoggerApp+0x3a6ca6, the dump's address, every time; with it PASS, the app runs and quits.
   Full check suite green; recordersearch_live PASS on the same build.
 - Not done: the official KoggerApp has the same lines; telling its programmer is the owner's call.
+
+## A down view from the two sides (2026-10-28, branch `down-view`)
+
+The owner asked for a down view made from the side-scan's two sides; after pictures of three ways from 00014: all three,
+chosen in the echogram's channel lists. docs/down-view.ru.md has it all.
+
+- `src/down_view.h`: energy (root mean square of the amplitudes, bytes 15 a doubling), mean of the bytes, min; sub-channels
+  0xF1-0xF3 named `down-energy`, `down-mean`, `down-min`. Nothing stored: `Epoch::chartTo` combines sides 0 and 1 when
+  drawing; every other accessor reads side 0 for them (`Epoch::storedSub`). Only the echogram's lists show them
+  (`channelsNameList(true)`); bottom tracking with one shown runs on its two sides.
+- **[verified]** downview_check 14/14, 9 of 9 mutants caught; downview_live PASS on 00014 (ping 24600, 2500 of 2500 samples of
+  each as worked out from the sides; four different pictures); full check suite green; the echogram's two lists offer the three, the mosaic's none.
+  Not with a live sonar; no mouse in the lists (the check reads them and sets the channel through the same slot).

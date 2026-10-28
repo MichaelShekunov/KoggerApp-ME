@@ -317,6 +317,7 @@ int Epoch::chartSize(const ChannelId &channelId, uint8_t subChannelId)
     }
 
     const auto& v = it.value();
+    subChannelId = storedSub(subChannelId);
     return hasIndex(v, subChannelId) ? v.at(subChannelId).amplitude.size() : -1;
 }
 
@@ -333,6 +334,9 @@ bool Epoch::chartAvail(const ChannelId &channelId, uint8_t subChannelId) const
     }
 
     const auto& echograms = it.value();
+    if (DownView::isSub(subChannelId)) {   // made of both sides
+        return echograms.size() > 1 && !echograms.at(0).amplitude.isEmpty() && !echograms.at(1).amplitude.isEmpty();
+    }
     return hasIndex(echograms, subChannelId) && !echograms.at(subChannelId).amplitude.isEmpty();
 }
 
@@ -344,6 +348,7 @@ float Epoch::chartBottomDistance(const ChannelId &channelId, uint8_t subChannelI
     }
 
     const auto& echograms = it.value();
+    subChannelId = storedSub(subChannelId);
     if (!hasIndex(echograms, subChannelId)) {
         return NAN;
     }
@@ -359,7 +364,7 @@ QList<ChannelId> Epoch::chartChannels() const
 Epoch::Echogram *Epoch::chart(const ChannelId &channelId, uint8_t subChannelId)
 {
     if (chartAvail(channelId, subChannelId)) {
-        return &charts_[channelId][subChannelId];
+        return &charts_[channelId][storedSub(subChannelId)];
     }
 
     return nullptr;
@@ -373,6 +378,7 @@ Epoch::Echogram Epoch::chartCopy(const ChannelId &channelId, uint8_t subChannelI
     }
 
     const auto& v = it.value();
+    subChannelId = storedSub(subChannelId);
     return hasIndex(v, subChannelId) ? v.at(subChannelId) : Epoch::Echogram{};
 }
 

@@ -16,6 +16,7 @@
 #include "compute_worker.h"
 #include "mosaic_precomputer.h"
 #include "dataset.h"
+#include "down_view.h"
 #include "data_processor_defs.h"
 
 
@@ -1325,10 +1326,25 @@ void DataProcessor::onMosaicCanCalc(uint64_t indx)
     }
 }
 
-void DataProcessor::bottomTrackProcessing(const DatasetChannel &ch1, const DatasetChannel &ch2, const BottomTrackParam &p, bool manual, bool redrawAll)
+void DataProcessor::bottomTrackProcessing(const DatasetChannel &shown1, const DatasetChannel &shown2, const BottomTrackParam &p, bool manual, bool redrawAll)
 {
     if (resetInProgress_.load()) {
         return;
+    }
+
+    // A down view (DownView) shown is made of its channel's sides 0 and 1, and its bottom is theirs: they are tracked.
+    auto side = [](DatasetChannel ch, uint8_t sub) { ch.subChannelId_ = sub; return ch; };
+    DatasetChannel ch1 = shown1;
+    DatasetChannel ch2 = shown2;
+    if (DownView::isSub(ch1.subChannelId_)) {
+        const bool pairOfItsOwn = !ch2.channelId_.isValid() || ch2.channelId_ == ch1.channelId_;
+        ch1 = side(ch1, 0);
+        if (pairOfItsOwn) {
+            ch2 = side(ch1, 1);
+        }
+    }
+    if (DownView::isSub(ch2.subChannelId_)) {
+        ch2 = side(ch2, ch2.channelId_ == ch1.channelId_ && ch1.subChannelId_ == 0 ? 1 : 0);
     }
 
     PendingBtRun run;

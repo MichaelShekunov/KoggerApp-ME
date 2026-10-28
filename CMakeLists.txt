@@ -81,6 +81,7 @@ qt_add_executable(KoggerApp
     src/data_horizon.h             src/data_horizon.cpp
     src/dsp_defs.h
     src/epoch.h                    src/epoch.cpp
+    src/down_view.h
     src/hotkeys_manager.h          src/hotkeys_manager.cpp
     src/hotkeys_controller.h       src/hotkeys_controller.cpp
     src/id_binnary.h               src/id_binnary.cpp

@@ -546,7 +546,8 @@ public:
     Epoch* getFirstEpochByValidPosition();
 
 public slots:
-    QStringList channelsNameList();
+    // withDownViews: each two-sided channel's down views after its sides (DownView), for an echogram's lists only.
+    QStringList channelsNameList(bool withDownViews = false);
 
     void onDistCompleted(int epIndx, const ChannelId& channelId, float dist);
     void onDistCompletedBatch(const QVector<BottomTrackUpdate>& updates);

@@ -1314,7 +1314,7 @@ WaterFall {
                             }
 
                             Component.onCompleted: {
-                                model = dataset.channelsNameList()
+                                model = dataset.channelsNameList(true)
 
                                 let index = model.indexOf(core.ch1Name)
                                 if (index >= 0) {
@@ -1325,7 +1325,7 @@ WaterFall {
                             Connections {
                                 target: core
                                 function onChannelListUpdated() {
-                                    let list = dataset.channelsNameList()
+                                    let list = dataset.channelsNameList(true)
 
                                     channel1Combo.suppressTextSignal = true
 
@@ -1364,7 +1364,7 @@ WaterFall {
 
 
                             Component.onCompleted: {
-                                model = dataset.channelsNameList()
+                                model = dataset.channelsNameList(true)
 
                                 let index = model.indexOf(core.ch2Name)
                                 if (index >= 0) {
@@ -1375,7 +1375,7 @@ WaterFall {
                             Connections {
                                 target: core
                                 function onChannelListUpdated() {
-                                    let list = dataset.channelsNameList()
+                                    let list = dataset.channelsNameList(true)
 
                                     channel2Combo.suppressTextSignal = true
 

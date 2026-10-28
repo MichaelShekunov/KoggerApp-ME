@@ -1,10 +1,12 @@
 #pragma once
 
+#include <algorithm>
 #include <atomic>
 #include <math.h>
 #include <memory>
 #include <stdint.h>
 #include <time.h>
+#include <vector>
 #include <QMap>
 #include <QPixmap>
 #include <QRectF>
@@ -13,6 +15,7 @@
 
 #include "data_processor_defs.h"
 #include "dataset_defs.h"
+#include "down_view.h"
 #include "id_binnary.h"
 
 
@@ -373,11 +376,14 @@ public:
     // read lock).
     const Echogram* chartOf(const ChannelId& channelId, uint8_t subChannelId = 0) const {
         const auto it = charts_.constFind(channelId);
+        subChannelId = storedSub(subChannelId);
         if (it == charts_.cend() || subChannelId >= it.value().size()) {
             return nullptr;
         }
         return &it.value().at(subChannelId);
     }
+    // A down view's sub-channel (DownView) is side 0 for everything but its picture (chartTo).
+    static uint8_t storedSub(uint8_t subChannelId) { return DownView::isSub(subChannelId) ? 0 : subChannelId; }
     const DistProcessing* bottomProcessingOf(const ChannelId& channelId, uint8_t subChannelId = 0) const {
         const Echogram* e = chartOf(channelId, subChannelId);
         return e ? &e->bottomProcessing : nullptr;
@@ -578,7 +584,7 @@ public:
         }
 
         QVector<Echogram>& subs = it.value();
-        const int sub = int(subChannelId);
+        const int sub = int(storedSub(subChannelId));
         if (sub < 0 || sub >= subs.size()) {
             return zeroOut();
         }
@@ -589,34 +595,50 @@ public:
             return zeroOut();
         }
 
-        const int rawSize = eg.amplitude.size();
+        int rawSize = eg.amplitude.size();
         if (rawSize <= 0) {
             return zeroOut();
         }
 
-        const float rawRangeF = eg.range();
-        if (!(rawRangeF > 0.0f)) {
+        // The bytes drawn: the amplitude, or its compensated or TGC copy, made when first asked for.
+        auto sourceOf = [imageType](Echogram& e) -> const uint8_t* {
+            if (imageType == 1) {
+                if (e.compensated.isEmpty()) {
+                    e.updateCompesated();
+                }
+                return e.compensated.isEmpty() ? nullptr : e.compensated.constData();
+            }
+            if (imageType == 2) {
+                if (e.tgc.isEmpty()) {
+                    e.updateTgc();
+                }
+                return e.tgc.isEmpty() ? nullptr : e.tgc.constData();
+            }
+            return e.amplitude.constData();
+        };
+
+        const uint8_t* src = sourceOf(eg);
+        if (!src) {
             return zeroOut();
         }
 
-        const uint8_t* src = eg.amplitude.constData();
+        // A down view: both sides at the same range where their geometry is the same, side 0 alone otherwise.
+        if (DownView::isSub(subChannelId) && subs.size() > 1) {
+            Echogram& eg1 = subs[1];
+            const bool sameGeometry = eg1.resolution == eg.resolution && eg1.offset == eg.offset && !eg1.amplitude.isEmpty();
+            const uint8_t* src1 = sameGeometry ? sourceOf(eg1) : nullptr;
+            if (src1) {
+                rawSize = std::min(rawSize, int(eg1.amplitude.size()));
+                thread_local std::vector<uint8_t> down;
+                down.resize(size_t(rawSize));
+                DownView::combineRow(DownView::modeOf(subChannelId), src, src1, rawSize, down.data());
+                src = down.data();
+            }
+        }
 
-        if (imageType == 1) {
-            if (eg.compensated.isEmpty()) {
-                eg.updateCompesated();
-            }
-            if (eg.compensated.isEmpty()) {
-                return zeroOut();
-            }
-            src = eg.compensated.constData();
-        } else if (imageType == 2) {
-            if (eg.tgc.isEmpty()) {
-                eg.updateTgc();
-            }
-            if (eg.tgc.isEmpty()) {
-                return zeroOut();
-            }
-            src = eg.tgc.constData();
+        const float rawRangeF = float(rawSize) * eg.resolution;
+        if (!(rawRangeF > 0.0f)) {
+            return zeroOut();
         }
 
         start -= eg.offset;

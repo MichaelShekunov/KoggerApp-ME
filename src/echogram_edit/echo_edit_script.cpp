@@ -719,6 +719,75 @@ void EchoEditScript::runStep(const QJsonObject& s)
     else if (op == QLatin1String("dump")) {
         dump(s.value(QStringLiteral("path")).toString());
     }
+    else if (op == QLatin1String("downView")) {
+        // The echograms on the first two-sided channel's down view (DownView; "mode": energy, mean or min) or back
+        // on its two sides ("mode" absent). With "epoch" and "path": that ping's sides and its three down views as
+        // chartTo draws them, a value a sample, to <path> (JSON).
+        const QVector<DatasetChannel> channels = ds->channelsList();
+        const DatasetChannel* two = nullptr;
+        for (const DatasetChannel& ch : channels) {
+            if (ch.subChannelId_ == 1) {
+                two = &ch;
+                break;
+            }
+        }
+        if (!two) {
+            qInfo().noquote() << QStringLiteral("echoedit script: downView: no two-sided channel");
+        }
+        else {
+            const QString base = QStringLiteral("%1|%2|").arg(two->portName_, QString::number(two->channelId_.address));
+            const QString mode = s.value(QStringLiteral("mode")).toString();
+            const QString ch1 = base + (mode.isEmpty() ? QStringLiteral("0") : QStringLiteral("down-") + mode);
+            const QString ch2 = mode.isEmpty() ? base + QStringLiteral("1") : QString();
+            forEachPlot(false, [&](QQuickItem* plot) {
+                QMetaObject::invokeMethod(plot, "plotDatasetChannelFromStrings", Q_ARG(QString, ch1), Q_ARG(QString, ch2));
+            });
+            qInfo().noquote() << QStringLiteral("echoedit script: downView %1, %2").arg(ch1, ch2.isEmpty() ? QStringLiteral("none") : ch2);
+            // The channel lists as the panels hold them (the combo boxes that keep a suppressTextSignal): how many
+            // down views each offers.
+            QStringList lists;
+            for (QWindow* w : QGuiApplication::topLevelWindows()) {
+                for (QObject* o : w->findChildren<QObject*>()) {
+                    if (!o->property("suppressTextSignal").isValid()) {
+                        continue;
+                    }
+                    QVariant model = o->property("model");
+                    if (model.canConvert<QJSValue>()) {
+                        model = model.value<QJSValue>().toVariant();
+                    }
+                    const QStringList items = model.toStringList();
+                    lists << QStringLiteral("%1 %2 of %3").arg(QString::fromLatin1(o->metaObject()->className()).section(QLatin1Char('_'), 0, 0))
+                                 .arg(items.filter(QStringLiteral("|down-")).size()).arg(items.size());
+                }
+            }
+            qInfo().noquote() << QStringLiteral("echoedit script: downView lists: %1").arg(lists.isEmpty() ? QStringLiteral("none") : lists.join(QStringLiteral("; ")));
+            const QString path = s.value(QStringLiteral("path")).toString();
+            const int e = epochOf("epoch", 0);
+            Epoch* ep = path.isEmpty() ? nullptr : ds->fromIndex(e);
+            const Epoch::Echogram* g0 = ep ? ep->chartOf(two->channelId_, 0) : nullptr;
+            if (g0 && g0->resolution > 0.0f && !g0->amplitude.isEmpty()) {
+                const int len = g0->amplitude.size();
+                QJsonObject o{ { QStringLiteral("epoch"), e }, { QStringLiteral("resolution"), g0->resolution },
+                               { QStringLiteral("offset"), g0->offset } };
+                for (uint8_t sub : { uint8_t(0), uint8_t(1), DownView::kSubEnergy, DownView::kSubMean, DownView::kSubMin }) {
+                    std::vector<int16_t> col(size_t(len), int16_t(0));
+                    const bool ok = ep->chartTo(two->channelId_, sub, g0->offset, g0->offset + float(len) * g0->resolution,
+                                                col.data(), len, 0);
+                    QJsonArray a;
+                    for (int16_t v : col) {
+                        a.append(int(v));
+                    }
+                    o.insert(sub < 2 ? QStringLiteral("side%1").arg(sub) : QString::fromLatin1(DownView::nameOf(sub)),
+                             ok ? QJsonValue(a) : QJsonValue());
+                }
+                QSaveFile out(path);
+                const bool written = out.open(QIODevice::WriteOnly) && out.write(QJsonDocument(o).toJson(QJsonDocument::Compact)) > 0
+                                     && out.commit();
+                qInfo().noquote() << QStringLiteral("echoedit script: downView ping %1, %2 samples, %3").arg(e).arg(len)
+                                     .arg(written ? path : QStringLiteral("not written"));
+            }
+        }
+    }
     else if (op == QLatin1String("columns")) {
         // Echo columns around the bottom track's bottom, for working out the magnet offline: "count"
         // pings spread over [from, to), each channel's samples within "halfM" of the bottom.
