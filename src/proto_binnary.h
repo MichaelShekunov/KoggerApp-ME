@@ -149,6 +149,8 @@ enum ID : uint16_t {
 
     ID_MODEM_SOLUTION = 0x66, // 102
     ID_USBL_CONTROL = 0x68, // 104
+    ID_NAV_SENSOR_STATUS = 0x6C, // 108
+    ID_USBL_DIAG = 0x6D, // 109
 
     ID_GFW = 200,
     ID_BOAT_STATUS = 0xC9,
@@ -1185,17 +1187,26 @@ public:
         int16_t s_h = _frame[_readPosition++] - '0';
         int16_t s_l = _frame[_readPosition++] - '0';
 
-        if(_frame[_readPosition++] != '.') { return false; }
+        uint16_t subs = 0;
+        if(_frame[_readPosition] == '.') {
+            _readPosition++;
+            uint16_t weight = 100;
+            while(_readPosition < _readMaxPosition && _frame[_readPosition] != ',') {
+                subs += (_frame[_readPosition++] - '0') * weight;
+                weight /= 10;
+            }
+        }
 
-        int16_t subs_h = _frame[_readPosition++] - '0';
-        int16_t subs_l = _frame[_readPosition++] - '0';
-
+        if(_frame[_readPosition] != ',') {
+            skip();
+            return false;
+        }
         _readPosition++;
 
         *hh = h_h*10 + h_l;
         *mm = m_h*10 + m_l;
         *ss = s_h*10 + s_l;
-        *mss = subs_h*100 + subs_l*10;
+        *mss = subs;
 
         return true;
     }

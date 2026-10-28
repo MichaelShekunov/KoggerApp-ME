@@ -15,6 +15,7 @@ Column {
     required property var store
     property var targetPlot: null
     property var echograms: []
+    property var usblPlan: null
 
     readonly property int instruments: theme ? theme.instrumentsGrade : 0
     readonly property real groupWidth: Math.max(0, width)
@@ -212,6 +213,18 @@ Column {
             return root.store ? root.store.exportFolderSource : ""
         }
 
+        readonly property int klfEpochCount: (typeof core !== "undefined" && core) ? core.klfEpochIndexSize : 0
+        readonly property real klfSpinWidth: Math.round(104 * AppPalette.scale)
+        readonly property real klfSlotWidth: Math.round(120 * AppPalette.scale)
+
+        onKlfEpochCountChanged: Qt.callLater(exportGroup.resetKlfFragmentBounds)
+        Component.onCompleted: if (klfEpochCount > 0) Qt.callLater(exportGroup.resetKlfFragmentBounds)
+        readonly property bool klfRangeValid: klfFragmentFrom.value <= klfFragmentTo.value
+        function resetKlfFragmentBounds() {
+            klfFragmentFrom.value = 0
+            klfFragmentTo.value = Math.max(0, exportGroup.klfEpochCount - 1)
+        }
+
         // Path row
         Row {
             width: parent.width; height: Tokens.controlHMd; spacing: Tokens.spaceSm
@@ -313,6 +326,78 @@ Column {
                 label: qsTr("USBL to CSV")
                 interactive: true
                 onClicked: core.exportUSBLToCSV(exportGroup.currentExportPath())
+            }
+
+            KIslandRow {
+                visible: !!(root.store && root.store.developerMode)
+                label: qsTr("USBL diagnostics to CSV")
+                toolTipText: qsTr("Only the antenna diagnostics reports, one row per report")
+                interactive: true
+                onClicked: core.exportUsblDiagToCSV(exportGroup.currentExportPath())
+            }
+        }
+
+        KIsland {
+            visible: exportGroup.klfEpochCount > 0
+
+            KIslandRow {
+                label: qsTr("Fragment: first epoch")
+                slotWidth: exportGroup.klfSlotWidth
+
+                KSpinBox {
+                    id: klfFragmentFrom
+                    width: exportGroup.klfSpinWidth
+                    height: Tokens.controlHMd
+                    from: 0
+                    to: Math.max(0, exportGroup.klfEpochCount - 1)
+                    stepSize: 1
+                }
+            }
+
+            KIslandRow {
+                label: qsTr("Fragment: last epoch")
+                slotWidth: exportGroup.klfSlotWidth
+
+                KSpinBox {
+                    id: klfFragmentTo
+                    width: exportGroup.klfSpinWidth
+                    height: Tokens.controlHMd
+                    from: 0
+                    to: Math.max(0, exportGroup.klfEpochCount - 1)
+                    stepSize: 1
+                }
+            }
+
+            KIslandRow {
+                label: qsTr("Take the echogram's visible range")
+                toolTipText: qsTr("Fill the bounds with the first and last epoch the echogram is showing")
+                interactive: true
+                enabled: !!root.targetPlot
+                onClicked: {
+                    if (!root.targetPlot)
+                        return
+                    var a = root.targetPlot.firstVisibleEpochIndex()
+                    var b = root.targetPlot.lastVisibleEpochIndex()
+                    if (a < 0 || b < 0)
+                        return
+                    klfFragmentFrom.value = Math.min(a, b)
+                    klfFragmentTo.value = Math.max(a, b)
+                }
+            }
+
+            KIslandRow {
+                label: qsTr("Save KLF fragment")
+                caption: exportGroup.klfRangeValid
+                         ? qsTr("%1 of %2 epochs")
+                            .arg(klfFragmentTo.value - klfFragmentFrom.value + 1)
+                            .arg(exportGroup.klfEpochCount)
+                         : qsTr("The first epoch is after the last one")
+                captionColor: exportGroup.klfRangeValid ? AppPalette.textSecond : AppPalette.linkIdleText
+                interactive: exportGroup.klfRangeValid
+                enabled: exportGroup.klfRangeValid
+                onClicked: if (exportGroup.klfRangeValid)
+                               core.exportKlfFragment(klfFragmentFrom.value, klfFragmentTo.value,
+                                                      exportGroup.currentExportPath())
             }
         }
     }
@@ -583,6 +668,25 @@ Column {
                     onToggled: if (root.store) root.store.rotateLayoutEnabled = checked
                 }
             }
+
+            KIslandRow {
+                label: qsTr("Controls")
+                chevron: true
+                interactive: true
+                toolTipText: qsTr("Navigation hints for the application")
+                onClicked: if (root.store) root.store.openControlsHelp()
+            }
+
+            KIslandRow {
+                id: tutorialsRow
+                label: qsTr("Tutorials")
+                chevron: true
+                interactive: true
+                toolTipText: qsTr("Step-by-step guides through the application")
+                onClicked: if (root.store) root.store.openTutorialsSettings()
+            }
+
+            KTutorialAnchor { key: "settings.tutorials"; target: tutorialsRow }
 
             KIslandRow {
                 visible: Qt.platform.os !== "android"
@@ -949,7 +1053,7 @@ Column {
                             width: Math.round(93 * AppPalette.scale)
                             height: Tokens.controlHMd
                             from: 0; to: 100; stepSize: 1; value: 5
-                            onValueModified: function(v) { core.setFixBlackStripesForwardSteps(v) }
+                            onValueChanged: core.setFixBlackStripesForwardSteps(value)
                         }
 
                         KSpinBox {
@@ -959,13 +1063,13 @@ Column {
                             width: Math.round(93 * AppPalette.scale)
                             height: Tokens.controlHMd
                             from: 0; to: 100; stepSize: 1; value: 5
-                            onValueModified: function(v) { core.setFixBlackStripesBackwardSteps(v) }
+                            onValueChanged: core.setFixBlackStripesBackwardSteps(value)
                         }
 
                         KSwitch {
                             id: fixBlackStripesCheckButton
                             flat: true
-                            onToggled: core.setFixBlackStripesState(checked)
+                            onCheckedChanged: core.setFixBlackStripesState(checked)
                         }
                     }
                 }
@@ -996,9 +1100,9 @@ Column {
                             width: Math.round(93 * AppPalette.scale)
                             height: Tokens.controlHMd
                             from: -9999; to: 9999; stepSize: 50; value: 0
-                            onValueModified: function(v) {
+                            onValueChanged: {
                                 if (sonarOffsetCheckButton.checked)
-                                    dataset.setSonarOffset(v * 0.001, sonarOffsetValueY.value * 0.001, 0)
+                                    dataset.setSonarOffset(value * 0.001, sonarOffsetValueY.value * 0.001, 0)
                             }
                         }
 
@@ -1009,16 +1113,16 @@ Column {
                             width: Math.round(93 * AppPalette.scale)
                             height: Tokens.controlHMd
                             from: -9999; to: 9999; stepSize: 50; value: 0
-                            onValueModified: function(v) {
+                            onValueChanged: {
                                 if (sonarOffsetCheckButton.checked)
-                                    dataset.setSonarOffset(sonarOffsetValueX.value * 0.001, v * 0.001, 0)
+                                    dataset.setSonarOffset(sonarOffsetValueX.value * 0.001, value * 0.001, 0)
                             }
                         }
 
                         KSwitch {
                             id: sonarOffsetCheckButton
                             flat: true
-                            onToggled: {
+                            onCheckedChanged: {
                                 if (checked) dataset.setSonarOffset(sonarOffsetValueX.value * 0.001, sonarOffsetValueY.value * 0.001, 0)
                                 else         dataset.setSonarOffset(0, 0, 0)
                                 core.setIsAttitudeExpected(checked)
@@ -1039,7 +1143,7 @@ Column {
                 KSwitch {
                     id: zeroingPosButton
                     flat: true
-                    onToggled: core.setPosZeroing(checked)
+                    onCheckedChanged: core.setPosZeroing(checked)
                 }
             }
 
@@ -1054,7 +1158,7 @@ Column {
                 KSwitch {
                     id: zeroingBottomTrackButton
                     flat: true
-                    onToggled: core.setBottomTrackZeroing(checked)
+                    onCheckedChanged: core.setBottomTrackZeroing(checked)
                 }
             }
 
@@ -1146,6 +1250,11 @@ Column {
 
         Component.onCompleted: refreshParams()
 
+        Connections {
+            target: root
+            function onTargetPlotChanged() { btGroup.refreshParams() }
+        }
+
         Item {
             KPinTag { key: "app:bottomtrack.preset"; label: qsTr("Bottom-track preset") }
             id: btPresetHolder
@@ -1199,14 +1308,14 @@ Column {
                             width: btGroup.spinW
                             height: Tokens.controlHMd
                             from: 0; to: 300; stepSize: 10; value: 100; divisor: 100; decimals: 2
-                            onValueModified: function(v) { if (bottomTrackGainSlope.checked && root.targetPlot) root.targetPlot.setGainSlope(v / 100) }
+                            onValueChanged: btGroup.refreshParams()
                         }
 
                         KSwitch {
                             id: bottomTrackGainSlope
                             flat: true
                             checked: true
-                            onToggled: if (checked && root.targetPlot) root.targetPlot.setGainSlope(bottomTrackGainSlopeValue.value / 100)
+                            onCheckedChanged: btGroup.refreshParams()
                         }
                     }
                 }
@@ -1235,13 +1344,13 @@ Column {
                             width: btGroup.spinW
                             height: Tokens.controlHMd
                             from: 0; to: 200; stepSize: 5; value: 0; divisor: 100; decimals: 2
-                            onValueModified: function(v) { if (bottomTrackThreshold.checked && root.targetPlot) root.targetPlot.setThreshold(v / 100) }
+                            onValueChanged: btGroup.refreshParams()
                         }
 
                         KSwitch {
                             id: bottomTrackThreshold
                             flat: true
-                            onToggled: if (checked && root.targetPlot) root.targetPlot.setThreshold(bottomTrackThresholdValue.value / 100)
+                            onCheckedChanged: btGroup.refreshParams()
                         }
                     }
                 }
@@ -1270,13 +1379,13 @@ Column {
                             width: btGroup.spinW
                             height: Tokens.controlHMd
                             from: 1; to: 100; stepSize: 2; value: 1
-                            onValueModified: function(v) { if (bottomTrackWindow.checked && root.targetPlot) root.targetPlot.setWindowSize(v) }
+                            onValueChanged: btGroup.refreshParams()
                         }
 
                         KSwitch {
                             id: bottomTrackWindow
                             flat: true
-                            onToggled: if (checked && root.targetPlot) root.targetPlot.setWindowSize(bottomTrackWindowValue.value)
+                            onCheckedChanged: btGroup.refreshParams()
                         }
                     }
                 }
@@ -1305,13 +1414,13 @@ Column {
                             width: btGroup.spinW
                             height: Tokens.controlHMd
                             from: 0; to: 100; stepSize: 2; value: 10
-                            onValueModified: function(v) { if (bottomTrackVerticalGap.checked && root.targetPlot) root.targetPlot.setVerticalGap(v * 0.01) }
+                            onValueChanged: btGroup.refreshParams()
                         }
 
                         KSwitch {
                             id: bottomTrackVerticalGap
                             flat: true
-                            onToggled: if (checked && root.targetPlot) root.targetPlot.setVerticalGap(bottomTrackVerticalGapValue.value * 0.01)
+                            onCheckedChanged: btGroup.refreshParams()
                         }
                     }
                 }
@@ -1340,13 +1449,13 @@ Column {
                             width: btGroup.spinW
                             height: Tokens.controlHMd
                             from: 0; to: 200000; stepSize: 10; value: 0; divisor: 1000; decimals: 2
-                            onValueModified: function(v) { if (bottomTrackMinRange.checked && root.targetPlot) root.targetPlot.setRangeMin(v / 1000) }
+                            onValueChanged: btGroup.refreshParams()
                         }
 
                         KSwitch {
                             id: bottomTrackMinRange
                             flat: true
-                            onToggled: if (checked && root.targetPlot) root.targetPlot.setRangeMin(bottomTrackMinRangeValue.value / 1000)
+                            onCheckedChanged: btGroup.refreshParams()
                         }
                     }
                 }
@@ -1375,13 +1484,13 @@ Column {
                             width: btGroup.spinW
                             height: Tokens.controlHMd
                             from: 0; to: 200000; stepSize: 1000; value: 100000; divisor: 1000; decimals: 2
-                            onValueModified: function(v) { if (bottomTrackMaxRange.checked && root.targetPlot) root.targetPlot.setRangeMax(v / 1000) }
+                            onValueChanged: btGroup.refreshParams()
                         }
 
                         KSwitch {
                             id: bottomTrackMaxRange
                             flat: true
-                            onToggled: if (checked && root.targetPlot) root.targetPlot.setRangeMax(bottomTrackMaxRangeValue.value / 1000)
+                            onCheckedChanged: btGroup.refreshParams()
                         }
                     }
                 }
@@ -1540,6 +1649,39 @@ Column {
             }
         }
 
+        Column {
+            width: parent.width
+            spacing: Tokens.spaceMd
+
+            Text { text: qsTr("Surface colouring:"); color: AppPalette.textSecond; font.pixelSize: Tokens.fontBase }
+            KTabBar {
+                id: isobathsColorModeTabBar
+                KPinTag { key: "app:isobaths.colorMode"; label: qsTr("Surface colouring:") }
+                width: parent.width
+                fontPixelSize: Tokens.fontLg
+                property int mode: 0
+                options: [
+                    { label: qsTr("Gradient"), value: 0 },
+                    { label: qsTr("Bands"),    value: 1 }
+                ]
+                currentValue: mode
+                onValueSelected: function(v) { mode = v }
+                onModeChanged: IsobathsViewControlMenuController.setBandedColors(mode === 1)
+                Component.onCompleted: IsobathsViewControlMenuController.setBandedColors(mode === 1)
+                Settings { category: "scene3d/isobaths"; property alias isobathsColorMode: isobathsColorModeTabBar.mode }
+            }
+        }
+
+        KSwitch {
+            id: isobathsLegendSwitch
+            KPinTag { key: "app:isobaths.legend" }
+            text: qsTr("Depth legend")
+            toolTipText: qsTr("Show the depth colour scale over the 3D scene")
+            width: parent.width
+            checked: root.store ? root.store.isobathsLegendVisible : true
+            onToggled: if (root.store) root.store.isobathsLegendVisible = checked
+        }
+
         RowLayout {
             KPinTag { key: "app:isobaths.edgeLimit"; label: qsTr("Edge limit, m:") }
             width: parent.width
@@ -1557,7 +1699,7 @@ Column {
                 Layout.preferredWidth: isobathsGroup.ctrlW
                 from: 10; to: 1000; stepSize: 5; value: 100
                 editable: false
-                onValueModified: function(v) { IsobathsViewControlMenuController.onEdgeLimitChanged(v) }
+                onValueChanged: IsobathsViewControlMenuController.onEdgeLimitChanged(value)
                 Component.onCompleted: IsobathsViewControlMenuController.onEdgeLimitChanged(value)
                 Settings { category: "scene3d/isobaths"; property alias isobathsEdgeLimitSpinBox: isobathsEdgeLimitSpinBox.value }
             }
@@ -1578,11 +1720,11 @@ Column {
                 id: isobathsSurfaceLineStepSizeSpinBox
                 toolTipText: qsTr("Isobath interval — spacing between depth lines")
                 Layout.preferredWidth: isobathsGroup.ctrlW
-                from: 1; to: 200; stepSize: 1; value: 10
+                from: 2; to: 200; stepSize: 1; value: 10
                 divisor: 10; decimals: 1
                 editable: false
                 readonly property real realValue: value / 10
-                onValueModified: function(v) { IsobathsViewControlMenuController.onSetSurfaceLineStepSize(v / 10) }
+                onValueChanged: IsobathsViewControlMenuController.onSetSurfaceLineStepSize(value / 10)
                 Component.onCompleted: IsobathsViewControlMenuController.onSetSurfaceLineStepSize(realValue)
                 Settings { category: "scene3d/isobaths"; property alias isobathsSurfaceLineStepSizeSpinBox: isobathsSurfaceLineStepSizeSpinBox.value }
             }
@@ -1605,7 +1747,7 @@ Column {
                 Layout.preferredWidth: isobathsGroup.ctrlW
                 from: 5; to: 100; stepSize: 5; value: 10
                 editable: false
-                onValueModified: function(v) { IsobathsViewControlMenuController.onSetExtraWidth(v) }
+                onValueChanged: IsobathsViewControlMenuController.onSetExtraWidth(value)
                 Component.onCompleted: IsobathsViewControlMenuController.onSetExtraWidth(value)
                 Settings { category: "scene3d/isobaths"; property alias extraWidthSpinBox: extraWidthSpinBox.value }
             }
@@ -1959,9 +2101,9 @@ Column {
                             toolTipText: qsTr("Left-side beam angle offset for the mosaic, °")
                             Layout.preferredWidth: mosaicGroup.ctrlW
                             from: -90; to: 90; stepSize: 1; value: 0
-                            onValueModified: function(v) {
-                                MosaicViewControlMenuController.onSetLAngleOffset(v)
-                                dataset.onSetLAngleOffset(v)
+                            onValueChanged: {
+                                MosaicViewControlMenuController.onSetLAngleOffset(value)
+                                dataset.onSetLAngleOffset(value)
                             }
                             Component.onCompleted: {
                                 MosaicViewControlMenuController.onSetLAngleOffset(value)
@@ -1975,9 +2117,9 @@ Column {
                             toolTipText: qsTr("Right-side beam angle offset for the mosaic, °")
                             Layout.preferredWidth: mosaicGroup.ctrlW
                             from: -90; to: 90; stepSize: 1; value: 0
-                            onValueModified: function(v) {
-                                MosaicViewControlMenuController.onSetRAngleOffset(v)
-                                dataset.onSetRAngleOffset(v)
+                            onValueChanged: {
+                                MosaicViewControlMenuController.onSetRAngleOffset(value)
+                                dataset.onSetRAngleOffset(value)
                             }
                             Component.onCompleted: {
                                 MosaicViewControlMenuController.onSetRAngleOffset(value)
@@ -1995,7 +2137,7 @@ Column {
                     toolTipText: qsTr("Show the current mosaic trace line")
                     checked: true
                     Layout.fillWidth: true
-                    onToggled: MosaicViewControlMenuController.onMeasLineVisibleChanged(checked)
+                    onCheckedChanged: MosaicViewControlMenuController.onMeasLineVisibleChanged(checked)
                     Component.onCompleted: MosaicViewControlMenuController.onMeasLineVisibleChanged(checked)
                     Settings { category: "scene3d/mosaic"; property alias mosaicTraceLine: mosaicTraceLine.checked }
                 }
@@ -2239,6 +2381,299 @@ Column {
         }
     }
 
+
+    SettingsGroup {
+        id: usblLayerGroup
+        visible: !!(root.store && root.store.developerMode)
+        width: root.groupWidth
+        preferredWidth: root.groupWidth
+        title: qsTr("USBL")
+        description: qsTr("Acoustic nodes and their tracks displayed in the 3D scene.")
+        stateStore: root.store
+        stateKey: "app.usbl"
+        headerActions: ShowIn3DAction {
+            active: root.store ? root.store.usblVisible : false
+            onClicked: if (root.store) root.store.usblVisible = !root.store.usblVisible
+        }
+        collapsedByDefault: true
+
+        Column {
+            width: parent.width
+            spacing: Tokens.spaceSm
+
+            KIslandRow {
+                label: qsTr("Beacon tracks")
+                toolTipText: qsTr("Draw each beacon's track as a continuous line, or as a dot at every fix")
+                slotWidth: Math.round(190 * AppPalette.scale)
+
+                KTabBar {
+                    KPinTag { key: "app:usbl.beaconTracks" }
+                    buttonHeight: Tokens.controlHSm
+                    fontPixelSize: Tokens.fontSm
+                    trackColor: AppPalette.bgDeep
+                    options: [
+                        { label: qsTr("Line"), value: false },
+                        { label: qsTr("Dots"), value: true }
+                    ]
+                    currentValue: !!(root.store && root.store.usblBeaconTrackDots)
+                    onValueSelected: function(v) { if (root.store) root.store.usblBeaconTrackDots = v }
+                }
+            }
+
+            KIslandRow {
+                label: qsTr("USBL track")
+                toolTipText: qsTr("Draw the acoustic head's own track as a continuous line, or as a dot at every fix")
+                slotWidth: Math.round(190 * AppPalette.scale)
+
+                KTabBar {
+                    KPinTag { key: "app:usbl.ownTrack" }
+                    buttonHeight: Tokens.controlHSm
+                    fontPixelSize: Tokens.fontSm
+                    trackColor: AppPalette.bgDeep
+                    options: [
+                        { label: qsTr("Line"), value: false },
+                        { label: qsTr("Dots"), value: true }
+                    ]
+                    currentValue: !!(root.store && root.store.usblHeadTrackDots)
+                    onValueSelected: function(v) { if (root.store) root.store.usblHeadTrackDots = v }
+                }
+            }
+
+            KIslandRow {
+                label: qsTr("Signal quality details")
+                toolTipText: qsTr("Show the sync peak readings under each node's RSRQ in the USBL panel")
+                interactive: true
+                onClicked: usblSignalDetailsSwitch.click()
+
+                KSwitch {
+                    id: usblSignalDetailsSwitch
+                    KPinTag { key: "app:usbl.signalDetails" }
+                    flat: true
+                    checked: root.store ? root.store.usblSignalDetails : true
+                    onToggled: if (root.store) root.store.usblSignalDetails = checked
+                }
+            }
+
+            KIslandRow {
+                label: qsTr("Received message bytes")
+                toolTipText: qsTr("Show the payload last received from each node in the USBL panel")
+                interactive: true
+                onClicked: usblMessageBytesSwitch.click()
+
+                KSwitch {
+                    id: usblMessageBytesSwitch
+                    KPinTag { key: "app:usbl.messageBytes" }
+                    flat: true
+                    checked: root.store ? root.store.usblMessageBytes : true
+                    onToggled: if (root.store) root.store.usblMessageBytes = checked
+                }
+            }
+
+            KIslandRow {
+                label: qsTr("Antenna diagnostics")
+                toolTipText: qsTr("Show the array fit and the channel levels under each node in the USBL panel; click the line for the per-channel view")
+                interactive: true
+                onClicked: usblAntennaDiagSwitch.click()
+
+                KSwitch {
+                    id: usblAntennaDiagSwitch
+                    KPinTag { key: "app:usbl.antennaDiag" }
+                    flat: true
+                    checked: root.store ? root.store.usblAntennaDiag : true
+                    onToggled: if (root.store) root.store.usblAntennaDiag = checked
+                }
+            }
+
+            KIslandRow {
+                label: qsTr("Fit misfit above")
+                toolTipText: qsTr("Antenna diagnostics: a misfit above this marks the antenna for a check")
+                slotWidth: Math.round(130 * AppPalette.scale)
+
+                KSpinBox {
+                    id: usblDiagMisfitSpin
+                    KPinTag { key: "app:usbl.diagMisfit" }
+                    width: Math.round(130 * AppPalette.scale)
+                    height: Tokens.controlHMd
+                    from: 1; to: 500; stepSize: 1; divisor: 1000; decimals: 3
+                    onValueModified: function(v) { if (root.store) root.store.usblDiagMisfitMax = v / 1000 }
+                    Binding {
+                        target: usblDiagMisfitSpin
+                        property: "value"
+                        value: Math.round((root.store ? root.store.usblDiagMisfitMax : DataFieldCatalog.usblDiagDefaults().misfit) * 1000)
+                    }
+                }
+            }
+
+            KIslandRow {
+                label: qsTr("Amplitude part above")
+                toolTipText: qsTr("Antenna diagnostics: the share of the misfit from unequal channel amplitudes")
+                slotWidth: Math.round(130 * AppPalette.scale)
+
+                KSpinBox {
+                    id: usblDiagAmpSpin
+                    KPinTag { key: "app:usbl.diagAmp" }
+                    width: Math.round(130 * AppPalette.scale)
+                    height: Tokens.controlHMd
+                    from: 1; to: 500; stepSize: 1; divisor: 1000; decimals: 3
+                    onValueModified: function(v) { if (root.store) root.store.usblDiagAmpMax = v / 1000 }
+                    Binding {
+                        target: usblDiagAmpSpin
+                        property: "value"
+                        value: Math.round((root.store ? root.store.usblDiagAmpMax : DataFieldCatalog.usblDiagDefaults().amp) * 1000)
+                    }
+                }
+            }
+
+            KIslandRow {
+                label: qsTr("Phase part above")
+                toolTipText: qsTr("Antenna diagnostics: the share of the misfit from channel phases off a plane wave")
+                slotWidth: Math.round(130 * AppPalette.scale)
+
+                KSpinBox {
+                    id: usblDiagPhaseSpin
+                    KPinTag { key: "app:usbl.diagPhase" }
+                    width: Math.round(130 * AppPalette.scale)
+                    height: Tokens.controlHMd
+                    from: 1; to: 500; stepSize: 1; divisor: 1000; decimals: 3
+                    onValueModified: function(v) { if (root.store) root.store.usblDiagPhaseMax = v / 1000 }
+                    Binding {
+                        target: usblDiagPhaseSpin
+                        property: "value"
+                        value: Math.round((root.store ? root.store.usblDiagPhaseMax : DataFieldCatalog.usblDiagDefaults().phase) * 1000)
+                    }
+                }
+            }
+
+            KIslandRow {
+                label: qsTr("Alt. margin below, dB")
+                toolTipText: qsTr("Antenna diagnostics: how much worse the best other direction must fit than the reported one")
+                slotWidth: Math.round(130 * AppPalette.scale)
+
+                KSpinBox {
+                    id: usblDiagAltSpin
+                    KPinTag { key: "app:usbl.diagAlt" }
+                    width: Math.round(130 * AppPalette.scale)
+                    height: Tokens.controlHMd
+                    from: 0; to: 200; stepSize: 1; divisor: 10; decimals: 1
+                    onValueModified: function(v) { if (root.store) root.store.usblDiagAltMinDb = v / 10 }
+                    Binding {
+                        target: usblDiagAltSpin
+                        property: "value"
+                        value: Math.round((root.store ? root.store.usblDiagAltMinDb : DataFieldCatalog.usblDiagDefaults().altDb) * 10)
+                    }
+                }
+            }
+
+            KIslandRow {
+                label: qsTr("Channel level below, dB")
+                toolTipText: qsTr("Antenna diagnostics: a channel this far below the strongest is marked low, and 10 dB further down, dead")
+                slotWidth: Math.round(130 * AppPalette.scale)
+
+                KSpinBox {
+                    id: usblDiagLevelSpin
+                    KPinTag { key: "app:usbl.diagLevel" }
+                    width: Math.round(130 * AppPalette.scale)
+                    height: Tokens.controlHMd
+                    from: -300; to: 0; stepSize: 5; divisor: 10; decimals: 1
+                    onValueModified: function(v) { if (root.store) root.store.usblDiagLevelMinDb = v / 10 }
+                    Binding {
+                        target: usblDiagLevelSpin
+                        property: "value"
+                        value: Math.round((root.store ? root.store.usblDiagLevelMinDb : DataFieldCatalog.usblDiagDefaults().levelDb) * 10)
+                    }
+                }
+            }
+
+            KIslandRow {
+                label: qsTr("Antenna thresholds")
+                toolTipText: qsTr("Restore the default antenna diagnostics thresholds")
+                slotWidth: Math.round(130 * AppPalette.scale)
+
+                KButton {
+                    width: Math.round(130 * AppPalette.scale)
+                    height: Tokens.controlHMd
+                    text: qsTr("Defaults")
+                    onClicked: if (root.store) root.store.resetUsblDiagThresholds()
+                }
+            }
+        }
+
+        Column {
+            width: parent.width
+            spacing: Tokens.spaceSm
+
+            Text {
+                width: parent.width
+                visible: usblNodeRows.count === 0
+                text: qsTr("No acoustic nodes yet. Open a file containing beacon fixes, or add an address below.")
+                color: AppPalette.textMuted
+                font.pixelSize: Tokens.fontSm
+                wrapMode: Text.WordWrap
+            }
+
+            Repeater {
+                id: usblNodeRows
+                model: root.usblPlan ? root.usblPlan.nodes : []
+
+                KIslandRow {
+                    required property var modelData
+                    label: qsTr("Address %1").arg(modelData.addr)
+                    labelColor: DataFieldCatalog.usblAddressColor(modelData.addr)
+                    caption: modelData.fromFile ? qsTr("detected in the opened file")
+                                                : qsTr("from the interrogation plan")
+                    interactive: true
+                    onClicked: usblNodeSwitch.click()
+
+                    KSwitch {
+                        id: usblNodeSwitch
+                        flat: true
+                        checked: modelData.active !== false
+                        onToggled: {
+                            if (root.usblPlan)
+                                root.usblPlan.toggleNode(modelData.id)
+                            checked = Qt.binding(function() { return modelData.active !== false })
+                        }
+                    }
+                }
+            }
+
+            Column {
+                width: parent.width
+                spacing: Tokens.spaceXs
+                visible: usblAddableChips.count > 0
+
+                Text {
+                    width: parent.width
+                    text: qsTr("Add an address the plan does not name yet")
+                    color: AppPalette.textMuted
+                    font.pixelSize: Tokens.fontXs
+                    wrapMode: Text.WordWrap
+                }
+
+                Flow {
+                    width: parent.width
+                    spacing: Tokens.spaceSm
+
+                    Repeater {
+                        id: usblAddableChips
+                        model: root.usblPlan ? root.usblPlan.addableAddresses : []
+
+                        KButton {
+                            required property var modelData
+
+                            width: Math.max(Tokens.controlHMd, implicitWidth)
+                            height: Tokens.controlHMd
+                            text: "+ " + modelData
+                            textColor: DataFieldCatalog.usblAddressColor(modelData)
+                            fontPixelSize: Tokens.fontSm
+                            toolTipText: qsTr("Add a node at address %1").arg(modelData)
+                            onClicked: if (root.usblPlan) root.usblPlan.addNodeAt(modelData)
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     // ── 3D scene (map provider) ──────────────────────────────────────────────
 
@@ -3230,32 +3665,11 @@ Column {
                         }
                     }
                 }
-
-                KIslandRow {
-                    KPinTag { key: "app:scene3d.usblBeacons" }
-                    label: qsTr("USBL beacons")
-                    labelColor: root._bright
-                    toolTipText: qsTr("Show the acoustic nodes and their tracks in the 3D scene")
-                    interactive: true
-                    onClicked: usblLayerSwitch.click()
-
-                    KSwitch {
-                        id: usblLayerSwitch
-                        flat: true
-                        checked: render3dSettings.usblLayerCheckButton
-                        onToggled: {
-                            render3dSettings.usblLayerCheckButton = checked
-                            if (typeof Scene3dToolBarController !== "undefined")
-                                Scene3dToolBarController.onUsblLayerVisibilityChanged(checked)
-                        }
-                    }
-                }
             }
 
             Settings {
                 id: render3dSettings
                 category: "scene3d/view"
-                property bool usblLayerCheckButton: true
                 property bool forceSingleZoomCheckButton: false
                 property bool syncLoupeCheckButton: false
                 property bool isNorthViewButton: false
@@ -3578,7 +3992,7 @@ Column {
                     Scene3dToolBarController.onCompassPosChanged(compassPosSpinBox.value)
                     Scene3dToolBarController.onCompassSizeChanged(compassSizeSpinBox.value)
                     Scene3dToolBarController.onScaleBarButtonChanged(render3dSettings.scaleBarCheckButton)
-                    Scene3dToolBarController.onUsblLayerVisibilityChanged(render3dSettings.usblLayerCheckButton)
+                    Scene3dToolBarController.onUsblLayerVisibilityChanged(root.store ? root.store.usblLayerActive : false)
                 }
                 if (typeof NavigationArrowControlMenuController !== "undefined") {
                     NavigationArrowControlMenuController.onVisibilityCheckBoxCheckedChanged(render3dSettings.navigationArrowCheckButton)

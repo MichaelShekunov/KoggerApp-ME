@@ -1,10 +1,11 @@
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
+import Qt5Compat.GraphicalEffects
 import WaterFall 1.0
+import kqml_types 1.0
 import scene3d
 import scene2d
 import controls
-import kqml_types 1.0
 
 Item {
     id: root
@@ -127,6 +128,57 @@ Item {
             store: root.workspaceRoot ? root.workspaceRoot.store : null
         }
 
+        Rectangle {
+            id: livePill
+
+            readonly property var v: root.scene3dView
+            readonly property bool pinned: !!(v && v.syncEpochIndex >= 0)
+
+            visible: opacity > 0.01
+            opacity: pinned ? 1 : 0
+            Behavior on opacity { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
+
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.top: parent.top
+            anchors.topMargin: Tokens.spaceLg
+
+            width: pillRow.implicitWidth + Tokens.spaceLg * 2
+            height: Tokens.controlHMd
+            radius: height / 2
+            color: pillHover.hovered ? AppPalette.accentBgHover : AppPalette.accentBgStrong
+            border.width: Math.max(1, Math.round(1 * AppPalette.scale))
+            border.color: AppPalette.accentBorder
+
+            HoverHandler { id: pillHover; cursorShape: Qt.PointingHandCursor }
+
+            TapHandler {
+                gesturePolicy: TapHandler.WithinBounds
+                onTapped: if (livePill.v) livePill.v.clearEpochSync()
+            }
+
+            Row {
+                id: pillRow
+                anchors.centerIn: parent
+                spacing: Tokens.spaceSm
+
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: qsTr("Viewing a past moment")
+                    color: AppPalette.accentText
+                    font.pixelSize: Tokens.fontSm
+                }
+
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: qsTr("Back to live")
+                    color: AppPalette.accentText
+                    font.pixelSize: Tokens.fontSm
+                    font.bold: true
+                    font.underline: pillHover.hovered
+                }
+            }
+        }
+
         MissionRunPointCard {
             anchors.fill: parent
             view: root.scene3dView
@@ -147,6 +199,24 @@ Item {
             // Opening or closing the panel leaves "Add points" off: a stray tap on the map must not add a point
             // (field test 2026-09-29); the operator turns it on with the button.
             onVisibleChanged: addMode = false
+        }
+
+        Scene3DDepthLegend {
+            id: depthLegend
+            readonly property var v: root.scene3dView
+            readonly property var store: root.workspaceRoot ? root.workspaceRoot.store : null
+
+            controller: (typeof IsobathsViewControlMenuController !== "undefined") ? IsobathsViewControlMenuController : null
+            maxTotalHeight: toolbarLayer.height * 0.7
+
+            visible: v !== null && v.visible && hasData
+                     && store && store.isobathsVisible && !store.mosaicVisible && store.isobathsLegendVisible
+                     && v.updateSurface && v.sceneContentVisible
+                     && root.workspaceRoot.active3DPane === root
+
+            anchors.left: parent.left
+            anchors.leftMargin: 12 + AppPalette.splitHitSizePx / 2
+            anchors.verticalCenter: parent.verticalCenter
         }
 
         // Surface-quality label: right of the dataset toolbar, left of the scale bar.
@@ -180,19 +250,43 @@ Item {
                 width: qualityText.implicitWidth + Math.round(16 * theme.resCoeff)
                 height: qualityText.implicitHeight + Math.round(8 * theme.resCoeff)
 
+                readonly property string labelText: {
+                    var parts = []
+                    if (surfaceQualityBadge.heightMatrixOn)
+                        parts.push(qsTr("Surface: ") + surfaceQualityBadge.surfaceCmPerCell + qsTr(" cm/cell"))
+                    if (surfaceQualityBadge.mosaicOn)
+                        parts.push(qsTr("Mosaic: ") + surfaceQualityBadge.mosaicCmPerPix + qsTr(" cm/pix"))
+                    return parts.join("\n")
+                }
+                readonly property real casingOffset: Math.max(1, Math.round(theme.resCoeff))
+
+                Repeater {
+                    model: [Qt.point( 1.000,  0.000), Qt.point(-1.000,  0.000),
+                            Qt.point( 0.000,  1.000), Qt.point( 0.000, -1.000),
+                            Qt.point( 0.707,  0.707), Qt.point( 0.707, -0.707),
+                            Qt.point(-0.707,  0.707), Qt.point(-0.707, -0.707)]
+
+                    delegate: Text {
+                        required property point modelData
+
+                        anchors.centerIn: parent
+                        anchors.horizontalCenterOffset: modelData.x * qualityRect.casingOffset
+                        anchors.verticalCenterOffset: modelData.y * qualityRect.casingOffset
+                        text: qualityRect.labelText
+                        color: "#000000"
+                        font.family: theme.textFont.family
+                        font.pixelSize: Tokens.fontXl
+                        horizontalAlignment: Text.AlignLeft
+                    }
+                }
+
                 Text {
                     id: qualityText
                     anchors.centerIn: parent
-                    text: {
-                        var parts = []
-                        if (surfaceQualityBadge.heightMatrixOn)
-                            parts.push(qsTr("Surface: ") + surfaceQualityBadge.surfaceCmPerCell + qsTr(" cm/cell"))
-                        if (surfaceQualityBadge.mosaicOn)
-                            parts.push(qsTr("Mosaic: ") + surfaceQualityBadge.mosaicCmPerPix + qsTr(" cm/pix"))
-                        return parts.join("\n")
-                    }
+                    text: qualityRect.labelText
                     color: "#ffffff"
-                    font: theme.textFont
+                    font.family: theme.textFont.family
+                    font.pixelSize: Tokens.fontXl
                     horizontalAlignment: Text.AlignLeft
                 }
             }
@@ -212,6 +306,11 @@ Item {
                 }
                 info = ""
                 inputFieldText = ""
+                if (indx === -1) {
+                    contacts.cancelPlacement()
+                    if (typeof core !== "undefined" && core && core.contactPlacementArmed)
+                        core.setContactPlacementArmed(false)
+                }
             }
         }
         onDeleteButtonClicked: contacts.deleteContact(indx)
@@ -334,8 +433,7 @@ Item {
             color: "black"
             border.color: "#545E84"
             border.width: Math.max(1, Math.round(2 * theme.resCoeff))
-            radius: Math.max(1, Math.round(2 * theme.resCoeff))
-            clip: true
+            radius: Math.max(2, Math.round(8 * theme.resCoeff))
 
             WaterFall {
                 id: syncLoupePlot3D
@@ -344,6 +442,19 @@ Item {
                 anchors.margins: syncLoupeFrame.border.width
                 horizontal: true
                 enabled: false
+
+                layer.enabled: true
+                layer.smooth: true
+                layer.effect: OpacityMask {
+                    maskSource: ShaderEffectSource {
+                        hideSource: true
+                        sourceItem: Rectangle {
+                            width: syncLoupePlot3D.width
+                            height: syncLoupePlot3D.height
+                            radius: Math.max(1, syncLoupeFrame.radius - syncLoupeFrame.border.width)
+                        }
+                    }
+                }
 
                 Component.onCompleted: {
                     setZoomPreviewMode(true)
@@ -367,6 +478,7 @@ Item {
 
     readonly property bool hasTransientUi: contextMenu3D.visible
                                          || rightToolbar.missionOpen
+                                         || contact3dPopup.visible
                                          || (root.scene3dView !== null && root.scene3dView.ruler
                                              && (root.scene3dView.ruler.drawing || root.scene3dView.ruler.enabled))
                                          || rightToolbar.geometryOpen
@@ -375,6 +487,10 @@ Item {
         // Context menu wins alone — ephemeral right-click popup.
         if (contextMenu3D.visible) {
             contextMenu3D.visible = false
+            return true
+        }
+        if (contact3dPopup.visible) {
+            contact3dPopup.visible = false
             return true
         }
         // Tools/panels — ruler reset + geometry collapse together. The

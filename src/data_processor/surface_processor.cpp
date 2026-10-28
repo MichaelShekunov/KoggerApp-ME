@@ -740,7 +740,7 @@ void SurfaceProcessor::onUpdatedBottomTrackData(const QVector<QPair<char, int>> 
     };
 
     // --- добавление/обновление центральных точек (по клеткам) ---
-    auto processOneCenter = [&](const QVector3D& pnt, bool queueTriangleWrites) -> void {
+    auto processOneCenter = [&](const QVector3D& pnt, bool requeueUnchangedTriangles) -> void {
         if (!originSet_) {
             origin_    = { pnt.x(), pnt.y() };
             originSet_ = true;
@@ -753,22 +753,14 @@ void SurfaceProcessor::onUpdatedBottomTrackData(const QVector<QPair<char, int>> 
         if (auto it = cellPointsInTri_.find(cid); it != cellPointsInTri_.end()) { // обновление Z координаты у центральной точки
             const int pIdx = it.value();
             auto& dp = delaunayProc_.getPointsRef()[pIdx];
-            if (!qFuzzyCompare(static_cast<float>(dp.z), pnt.z())) {
+            const bool zChanged = !qFuzzyCompare(static_cast<float>(dp.z), pnt.z());
+            if (zChanged) {
                 dp.z = pnt.z();
                 beenManualChanged = true;
-                if (queueTriangleWrites) {
-                    const auto triIt = pointToTris_.constFind(pIdx);
-                    if (triIt != pointToTris_.cend()) {
-                        const auto& triIndices = triIt.value();
-                        for (int triIdx : triIndices) {
-                            updsTrIndx.insert(triIdx);
-                        }
-                    }
-                }
             }
-            else if (queueTriangleWrites) {
-                // Point already exists with same Z. Re-queue adjacent triangles so newly visible tiles
-                // can be painted without rebuilding triangulation.
+            // Unchanged points are re-queued only for '0'/'1' seeds: that path exists to paint
+            // tiles that just became visible, not to carry new data.
+            if (zChanged || requeueUnchangedTriangles) {
                 const auto triIt = pointToTris_.constFind(pIdx);
                 if (triIt != pointToTris_.cend()) {
                     const auto& triIndices = triIt.value();
@@ -782,9 +774,7 @@ void SurfaceProcessor::onUpdatedBottomTrackData(const QVector<QPair<char, int>> 
             const auto res = delaunayProc_.addPoint({ pnt.x(), pnt.y(), pnt.z() });
             for (int triIdx : res.newTriIdx) {
                 registerTriangle(triIdx);
-                if (queueTriangleWrites) {
-                    updsTrIndx.insert(triIdx);
-                }
+                updsTrIndx.insert(triIdx);
             }
             cellPointsInTri_[cid] = res.pointIdx;
         }
@@ -1221,17 +1211,13 @@ void SurfaceProcessor::setEdgeLimit(float val)
 
 void SurfaceProcessor::rebuildColorIntervals()
 {
-    int levelCount = static_cast<int>(((maxZ_ - minZ_) / surfaceStepSize_) + 1);
-    if (levelCount <= 0) {
-        return;
-    }
+    const QVector<QVector3D> palette = IsobathUtils::surfacePalette(themeId_);
 
     colorIntervals_.clear();
-    QVector<QVector3D> palette = generateExpandedPalette(levelCount);
-    colorIntervals_.reserve(levelCount);
+    colorIntervals_.reserve(palette.size());
 
-    for (int i = 0; i < levelCount; ++i) {
-        colorIntervals_.append({ minZ_ + i * surfaceStepSize_, palette[i] });
+    for (int i = 0; i < palette.size(); ++i) {
+        colorIntervals_.append({ static_cast<float>(i) / static_cast<float>(palette.size() - 1), palette[i] });
     }
 
     QMetaObject::invokeMethod(dataProcessor_, "postSurfaceColorIntervalsSize", Qt::QueuedConnection, Q_ARG(int, static_cast<int>(colorIntervals_.size())));
@@ -1240,14 +1226,25 @@ void SurfaceProcessor::rebuildColorIntervals()
     updateTexture();
 }
 
+void SurfaceProcessor::ensureColorIntervals()
+{
+    if (colorIntervals_.isEmpty()) {
+        rebuildColorIntervals();
+    }
+}
+
 void SurfaceProcessor::setSurfaceStepSize(float val)
 {
     surfaceStepSize_ = val;
+
+    QMetaObject::invokeMethod(dataProcessor_, "postSurfaceStepSize", Qt::QueuedConnection, Q_ARG(float, surfaceStepSize_));
 }
 
 void SurfaceProcessor::setThemeId(int val)
 {
     themeId_ = val;
+
+    rebuildColorIntervals();
 }
 
 void SurfaceProcessor::setExtraWidth(int val)
@@ -1436,32 +1433,6 @@ void SurfaceProcessor::writeTriangleToMesh(const QVector3D &A, const QVector3D &
             updatedTiles.insert(tile);
         }
     }
-}
-
-QVector<QVector3D> SurfaceProcessor::generateExpandedPalette(int totalColors) const
-{
-    const auto &palette = colorPalette(themeId_);
-    const int paletteSize = palette.size();
-
-    QVector<QVector3D> retVal;
-
-    if (totalColors <= 1 || paletteSize == 0) {
-        retVal.append(paletteSize > 0 ? palette.first() : QVector3D(1.0f, 1.0f, 1.0f)); // fallback: white
-        return retVal;
-    }
-
-    retVal.reserve(totalColors);
-
-    for (int i = 0; i < totalColors; ++i) {
-        float t = static_cast<float>(i) / static_cast<float>(totalColors - 1);
-        float ft = t * (paletteSize - 1);
-        int i0 = static_cast<int>(ft);
-        int i1 = std::min(i0 + 1, paletteSize - 1);
-        float l = ft - static_cast<float>(i0);
-        retVal.append((1.f - l) * palette[i0] + l * palette[i1]);
-    }
-
-    return retVal;
 }
 
 void SurfaceProcessor::updateTexture() const

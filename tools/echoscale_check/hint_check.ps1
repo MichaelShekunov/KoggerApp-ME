@@ -10,12 +10,12 @@
     step), vzoom (Ctrl + wheel), hint (what each echogram's hint says, logged with the numbers behind it), grab.
     Checked from the log:
       restore   after hscale 1 the hint is hidden
-      across    after hzoom -2 (x1/4): shown, the scale row bright, it says x1/4 and the pings the screen holds
-                (the canvas' columns times 4, less a partial group)
+      across    after hzoom -2 (x1/5 since the develop merge): shown, the scale row bright, it says x1/5 and the
+                pings the screen holds (the canvas' columns times 5, less up to a column's worth)
       range     after vzoom (two notches in): shown, the range row bright, it says the range shown (two channels:
                 +-half of it)
       gone      2 s later: hidden
-      end       hzoom past the end: x8, and the hint shown although the scale did not change
+      end       hzoom past the end: x10, and the hint shown although the scale did not change
     Exit code 0 when every check holds. The grabs (across.png, range.png) are kept in -Out to be looked at.
 
 .EXAMPLE
@@ -105,9 +105,9 @@ $h = $hints[0]
 Expect ($h.Opacity -eq 0) 'restore' ("hidden after a restore of the scale: opacity {0}" -f $h.Opacity)
 
 $h = $hints[1]
-$full = 4 * $h.Columns
-$pingsOk = $h.Pings -le $full -and $h.Pings -ge $full - 3
-Expect ($h.Across -and $h.Opacity -ge 0.99 -and $h.Scale -eq 0.25 -and $h.Text1.Contains($times + '1/4') -and
+$full = 5 * $h.Columns
+$pingsOk = $h.Pings -le $full -and $h.Pings -ge $full - 6
+Expect ($h.Across -and $h.Opacity -ge 0.99 -and [Math]::Abs($h.Scale - 0.2) -lt 1e-4 -and $h.Text1.Contains($times + '1/5') -and
         $h.Text1.Contains([string]$h.Pings) -and $pingsOk) 'across' (
     "[{0}] / [{1}]; opacity {2}, scale {3}, {4} pings for {5} columns" -f $h.Text1, $h.Text2, $h.Opacity,
     $h.Scale, $h.Pings, $h.Columns)
@@ -123,8 +123,8 @@ $h = $hints[3]
 Expect ($h.Opacity -eq 0) 'gone' ("hidden 2 s after the last zoom: opacity {0}" -f $h.Opacity)
 
 $h = $hints[4]
-Expect ($h.Across -and $h.Opacity -ge 0.99 -and $h.Scale -eq 8 -and $h.Text1.Contains($times + '8') -and
-        -not $h.Text1.Contains($times + '8' + '0')) 'end' ("a step past the end shows x8: [{0}], opacity {1}" -f $h.Text1, $h.Opacity)
+Expect ($h.Across -and $h.Opacity -ge 0.99 -and $h.Scale -eq 10 -and $h.Text1.Contains($times + '10') -and
+        -not $h.Text1.Contains($times + '10' + '0')) 'end' ("a step past the end shows x10: [{0}], opacity {1}" -f $h.Text1, $h.Opacity)
 
 "echoscale hint: {0}" -f ($(if ($failed -eq 0) { 'PASS' } else { "$failed FAIL" }))
 "grabs: {0}, {1}" -f (Join-Path $Out 'across.png'), (Join-Path $Out 'range.png')

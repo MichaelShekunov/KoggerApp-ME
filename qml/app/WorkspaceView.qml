@@ -13,6 +13,8 @@ Item {
     // The USBL plan, for the map layer only. The 3D scene draws the plan's beacons, and this is
     // the only route from the plan (owned in MainWindow, for the session) to the scene object.
     property var usblPlan: null
+    // The Nodes-Configurator network: its beacons are drawn first, the plan's after them.
+    property var usblNetwork: null
 
     property alias inputState: inputStateObject
     property bool sizeReportPending: false
@@ -29,6 +31,7 @@ Item {
     readonly property alias scene3dViewItem: scene3dView
 
     property var primaryPlotItem: null
+    property rect controlsAvoidRect: Qt.rect(0, 0, 0, 0)
     property var secondaryPlotItem: null
     readonly property int secondaryEchogramKey: workspace.store ? workspace.store.secondaryEchogramKey : 10000
     readonly property var leafRects: workspace.store ? workspace.store.leafRects : []
@@ -198,16 +201,16 @@ Item {
 
         switch (fn) {
         case "horScrollLeft":
-            applyToVisiblePlots(function(item) { item.horScrollEvent(-delta) })
+            applyToVisiblePlots(function(item) { item.smoothHorScroll(-delta, false) })
             break
         case "horScrollRight":
-            applyToVisiblePlots(function(item) { item.horScrollEvent(delta) })
+            applyToVisiblePlots(function(item) { item.smoothHorScroll(delta, false) })
             break
         case "verScrollUp":
-            applyToVisiblePlots(function(item) { item.verScrollEvent(-delta) })
+            applyToVisiblePlots(function(item) { item.smoothVerScroll(-delta, false) })
             break
         case "verScrollDown":
-            applyToVisiblePlots(function(item) { item.verScrollEvent(delta) })
+            applyToVisiblePlots(function(item) { item.smoothVerScroll(delta, false) })
             break
         case "verZoomOut":
             applyToVisiblePlots(function(item) { item.verZoomEvent(-delta) })
@@ -681,7 +684,9 @@ Item {
             function _pushUsblNodes() {
                 if (!usblLayer)
                     return
-                var spec = UsblNode.mapSpec(workspace.usblPlan ? workspace.usblPlan.nodes : [])
+                var netNodes = workspace.usblNetwork ? workspace.usblNetwork.mapNodes : []
+                var planNodes = workspace.usblPlan ? workspace.usblPlan.nodes : []
+                var spec = UsblNode.mapSpec(netNodes.concat(planNodes))
                 var out = []
                 for (var i = 0; i < spec.length; ++i) {
                     out.push({ "addr":   spec[i].addr,
@@ -698,6 +703,31 @@ Item {
             Connections {
                 target: workspace.usblPlan
                 function onNodesChanged() { scene3dView._pushUsblNodes() }
+            }
+
+            Connections {
+                target: workspace.usblNetwork
+                function onMapNodesChanged() { scene3dView._pushUsblNodes() }
+            }
+
+            function _adoptUsblFileAddresses() {
+                if (!workspace.usblPlan) return
+                if (typeof core === "undefined" || !core || !core.fileOpened) return
+                if (typeof dataset === "undefined" || !dataset) return
+                workspace.usblPlan.adoptAddresses(DataFieldCatalog.knownUsblAddresses(dataset))
+            }
+
+            Connections {
+                target: (typeof dataset !== "undefined") ? dataset : null
+                function onLastUsblSolutionChanged() { scene3dView._adoptUsblFileAddresses() }
+            }
+
+            Connections {
+                target: (typeof core !== "undefined") ? core : null
+                function onFileOpenedChanged() {
+                    if (workspace.usblPlan) workspace.usblPlan.dropAdopted()
+                    scene3dView._adoptUsblFileAddresses()
+                }
             }
 
             // verticalScale persistence (перенесено с develop, где было в qml/main.qml)
@@ -750,6 +780,7 @@ Item {
                 focus: false
                 indx: slotIndex + 1
                 is3dVisible: workspace.active3DHostItem !== null
+                controlsAvoidRect: workspace.controlsAvoidRect
 
                 Component.onCompleted: {
                     setIndx(indx)
@@ -819,6 +850,7 @@ Item {
             focus: false
             indx: 5
             is3dVisible: workspace.active3DHostItem !== null
+            controlsAvoidRect: workspace.controlsAvoidRect
 
             Component.onCompleted: {
                 setIndx(5)

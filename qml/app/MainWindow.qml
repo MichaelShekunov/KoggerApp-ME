@@ -22,13 +22,15 @@ ApplicationWindow {
     visible: true
     visibility: isMobilePlatform ? Window.FullScreen : Window.Windowed
     // "<file> — KoggerApp ME 1.0.3 18.10.2026 10:23": ends with the build's version, Qt's display name
-    // (on Windows Qt appends that to a title that does not end with it).
+    // (on Windows Qt appends that to a title that does not end with it). develop: the control server's port.
     title: (core.fileTitle !== "" ? core.fileTitle + " — " : "") + "KoggerApp" + appUtils.instanceSuffix
            + " " + appUtils.versionFull
+           + (controlServer.listening ? " · control :" + controlServer.port : "")
     onActiveChanged: if (active) root.lastActiveWindow = root
 
     WorkspaceStore {
         id: workspaceStore
+        objectName: "workspaceStore"
 
         usblDeviceAvailable: appUsblEngine.hasDevice
         windowWidth: root.width
@@ -54,7 +56,25 @@ ApplicationWindow {
         id: appUsblEngine
         plan: appUsblPlan
         preferredDev: workspaceStore.activeDevice
+        exclusiveWith: appNodesEngine
     }
+    NodesStore {
+        id: appNodesStore
+        Component.onCompleted: load()
+    }
+    NodesWriter {
+        id: appNodesWriter
+        store: appNodesStore
+    }
+    NodesEngine {
+        id: appNodesEngine
+        store: appNodesStore
+        exclusiveWith: appUsblEngine
+    }
+    property string _nodesMode: "design"
+    readonly property var activeUsblEngine: appNodesEngine.running
+                                            || (!appUsblEngine.running && appNodesStore.hasSteps)
+                                            ? appNodesEngine : appUsblEngine
 
     // Читаем глобальные настройки при запуске (те же ключи, что сохраняет AppSettingsPage)
     Settings {
@@ -305,6 +325,11 @@ ApplicationWindow {
     // ESC priority — one layer per call, innermost first. Reorder to repriortize.
     // Layers 1–3 are gated by _activeLeafMode() so the focused pane's UI always wins.
     readonly property var _transientUiLayers: [
+        function() {
+            if (root._transientSweep)
+                return false
+            return tutorialOverlay.handleEscape()
+        },
         function() {  // HotkeysDialog (and other registered modal dialogs) — always wins.
             if (workspaceStore.activeHotkeysDialog
                     && typeof workspaceStore.activeHotkeysDialog.close === "function") {
@@ -313,7 +338,7 @@ ApplicationWindow {
             }
             return false
         },
-        function() {  // 2D-only: Plot2D right-click menu + contact dialog
+        function() {  // 2D-only: Plot2D contact dialog
             if (root._activeLeafMode() !== "2D") return false
             var p = root._activePlot2D()
             if (!p || !p.hasTransientUi) return false
@@ -347,6 +372,11 @@ ApplicationWindow {
         function() {  // mission planner scenario owns Esc while active
             if (typeof core === "undefined" || !core || !core.missionEditorActive) return false
             return missionEditorOverlay.handleEscape(root._transientSweep)
+        },
+        function() {  // armed "set contact" mode — Esc disarms it
+            if (typeof core === "undefined" || !core || !core.contactPlacementArmed) return false
+            core.setContactPlacementArmed(false)
+            return true
         },
         function() {  // bottom-track edit palette — Esc closes it (resets tool)
             var toolActive = typeof core !== "undefined" && core && core.bottomTrackEditTool !== 0
@@ -872,7 +902,7 @@ ApplicationWindow {
             // shift so the area being uncovered during sidebar close
             // doesn't flash the ApplicationWindow default background.
             anchors.fill: parent
-            color: "#0B1220"
+            color: AppPalette.headerBg
         }
 
         DropArea {
@@ -1002,9 +1032,12 @@ ApplicationWindow {
             secondWindowButtonEnabled: workspaceStore.quickActionSecondWindowEnabled
             layoutEditing: root.hotkeysPreviewSticky
             bottomTrackEditorEnabled: workspaceStore.quickActionBottomTrackEnabled
+            contactEnabled: workspaceStore.quickActionContactEnabled
             missionEnabled: workspaceStore.quickActionMissionEnabled
             autopilotEnabled: workspaceStore.quickActionAutopilotEnabled
             profilesEnabled: workspaceStore.quickActionProfilesEnabled
+            nodesEnabled: workspaceStore.quickActionNodesEnabled
+            nodesRunning: appNodesEngine.running
             widgetsEnabled: workspaceStore.quickActionWidgetsEnabled
             consoleButtonEnabled: workspaceStore.quickActionConsoleEnabled
             powerOffEnabled: workspaceStore.quickActionPowerOffEnabled
@@ -1188,6 +1221,8 @@ ApplicationWindow {
                      : workspaceStore.settingsSubPageKind === "aimPanel"     ? qsTr("Information panel")
                      : workspaceStore.settingsSubPageKind === "console"      ? qsTr("Console")
                      : workspaceStore.settingsSubPageKind === "about"        ? qsTr("About")
+                     : workspaceStore.settingsSubPageKind === "controls"     ? qsTr("Controls")
+                     : workspaceStore.settingsSubPageKind === "tutorials"    ? qsTr("Tutorials")
                      : workspaceStore.settingsSubPageKind === "developer"    ? qsTr("Developer mode")
                      : workspaceStore.settingsSubPageKind === "license"      ? workspaceStore.licenseViewTitle
                      : workspaceStore.settingsSubPageKind === "createLayout" ? qsTr("Create layout")
@@ -1223,6 +1258,8 @@ ApplicationWindow {
                      : workspaceStore.settingsSubPageKind === "aimPanel"   ? aimPanelSettingsTabComponent
                      : workspaceStore.settingsSubPageKind === "console"    ? consoleSettingsTabComponent
                      : workspaceStore.settingsSubPageKind === "about"      ? aboutPageComponent
+                     : workspaceStore.settingsSubPageKind === "controls"   ? controlsHelpPageComponent
+                     : workspaceStore.settingsSubPageKind === "tutorials"  ? tutorialsPageComponent
                      : workspaceStore.settingsSubPageKind === "developer"  ? developerSettingsTabComponent
                      : workspaceStore.settingsSubPageKind === "license"    ? licensePageComponent
                      : workspaceStore.settingsSubPageKind === "createLayout" ? layoutCreateTabComponent
@@ -1426,7 +1463,9 @@ ApplicationWindow {
             anchors.fill: parent
             z: ZOrder.widgetPopup + workspaceStore.widgetStackRank(workspaceStore.usblPanelId)
             store: workspaceStore
-            engine: appUsblEngine
+            engine: root.activeUsblEngine
+            network: appNodesStore
+            networkEngine: appNodesEngine
             def: workspaceStore.usblPanelDef
             popupVisible: workspaceStore.usblPanelShown
             popupId: "widget:" + workspaceStore.usblPanelId
@@ -1434,6 +1473,45 @@ ApplicationWindow {
             areaTop: workspaceStore.dockInsetTop; areaBottom: workspaceStore.dockInsetBottom
             siblingBoundsList: [root.btEditPopupEffectiveBounds, root.profilesPopupEffectiveBounds, root.autopilotPopupEffectiveBounds]
             siblingIdList: ["btEdit", "profiles", "autopilot"]
+            onAntennaDiagRequested: function(address) { usblAntennaDiagPopup.openFor(address) }
+            onConfiguratorRequested: workspaceStore.nodesConfiguratorOpen = true
+        }
+
+        NodesFloatingWindow {
+            id: nodesWindow
+            anchors.fill: parent
+            z: maximized ? ZOrder.nodesConfiguratorMaximized : ZOrder.nodesConfigurator
+            maxInsetTop: hotActions.visible ? hotActions.y + hotActions.barHeight + Tokens.spaceSm : 0
+            maxInsetLeft: workspaceStore.settingsSide === "left" && root._workspaceShouldShift ? workspaceStore.settingsPanelSizePx : 0
+            maxInsetRight: workspaceStore.settingsSide === "right" && root._workspaceShouldShift ? workspaceStore.settingsPanelSizePx : 0
+            maxInsetBottom: consoleDrawer.height
+            open: workspaceStore.nodesConfiguratorOpen
+            title: qsTr("Nodes-Configurator")
+            subtitle: appNodesStore.displayName + (appNodesStore.dirty ? " ●" : "")
+                      + (appNodesEngine.running ? "  ·  " + qsTr("running") : "")
+            onCloseRequested: workspaceStore.nodesConfiguratorOpen = false
+            onInteracted: appNodesStore.checkExternalChange()
+
+            Loader {
+                anchors.fill: parent
+                active: nodesWindow.open
+                asynchronous: true
+                sourceComponent: NodesConfigurator {
+                    active: nodesWindow.open && !nodesWindow.collapsed
+                    keysEnabled: nodesWindow.keysInside
+                    mode: root._nodesMode
+                    onModeChanged: root._nodesMode = mode
+                    store: appNodesStore
+                    engine: appNodesEngine
+                    writer: appNodesWriter
+                    workspaceStore: workspaceStore
+                }
+            }
+        }
+
+        UsblAntennaDiagPopup {
+            id: usblAntennaDiagPopup
+            store: workspaceStore
         }
 
         ServoPanelPopup {
@@ -1574,6 +1652,22 @@ ApplicationWindow {
         }
 
         Component {
+            id: controlsHelpPageComponent
+
+            ControlsHelpPage {
+                store: workspaceStore
+            }
+        }
+
+        Component {
+            id: tutorialsPageComponent
+
+            TutorialsSettingsPage {
+                store: workspaceStore
+            }
+        }
+
+        Component {
             id: developerSettingsTabComponent
 
             DeveloperSettingsTab {
@@ -1694,6 +1788,8 @@ ApplicationWindow {
                 // on the ids.
                 usblPlan: appUsblPlan
                 usblEngine: appUsblEngine
+                nodesStore: appNodesStore
+                nodesEngine: appNodesEngine
             }
         }
 
@@ -1702,6 +1798,7 @@ ApplicationWindow {
 
             AppSettingsPage {
                 store: workspaceStore
+                usblPlan: appUsblPlan
                 targetPlot: workspaceView.primaryPlotItem
                 echograms: workspaceView.visibleEchograms
             }
@@ -1722,7 +1819,10 @@ ApplicationWindow {
             anchors.topMargin: workspaceStore.dockInsetTop
             anchors.bottomMargin: consoleDrawer.height + workspaceStore.dockInsetBottom
             store: workspaceStore
+            controlsAvoidRect: hotActions.visible ? Qt.rect(hotActions.x, hotActions.y, hotActions.width, hotActions.barHeight)
+                                                  : Qt.rect(0, 0, 0, 0)
             usblPlan: appUsblPlan
+            usblNetwork: appNodesStore
             secondaryPlotItem: secondaryContent ? secondaryContent.plot2DInstance : null
         }
 
@@ -1743,7 +1843,15 @@ ApplicationWindow {
             hotActionsRight: hotActions.visible ? hotActions.x + hotActions.width : 0
         }
 
-        NotificationsOverlay { }
+        NotificationsOverlay {
+            suppressed: tutorialOverlay.active
+        }
+
+        TutorialOverlay {
+            id: tutorialOverlay
+            store: workspaceStore
+            onCloseTransientUiRequested: root.closeAllTransientUi()
+        }
 
         FileOpeningOverlay { }
 

@@ -154,1309 +154,1548 @@
 <context>
     <name>AppSettingsPage</name>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="41"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="42"/>
         <source>Show in 3D</source>
         <translation>Mostrar en 3D</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="204"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="205"/>
         <source>Export</source>
         <translation>Exportar</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="205"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="206"/>
         <source>Export plot data as XTF, CSV (regular or complex) or USBL.</source>
         <translation>Exportar los datos del gráfico como XTF, CSV (normal o complejo) o USBL.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="253"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="266"/>
         <source>Export path...</source>
         <translation>Ruta de exportación...</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="264"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="277"/>
         <source>Choose export folder</source>
         <translation>Elegir carpeta de exportación</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="274"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="287"/>
         <source>Export folder</source>
         <translation>Carpeta de exportación</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="285"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1682"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="298"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1822"/>
         <source>Export to CSV</source>
         <translation>Exportar a CSV</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="288"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="301"/>
         <source>Open the CSV export tab</source>
         <translation>Abrir la pestaña de exportación CSV</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="293"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="306"/>
         <source>Map for sharing (.kmap)</source>
         <translation>Mapa para compartir (.kmap)</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="296"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="309"/>
         <source>Save the depth map and the mosaic as a KOGGER map that others open in KoggerApp</source>
         <translation>Guardar el mapa de profundidades y el mosaico como un mapa KOGGER que otros pueden abrir en KoggerApp</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="301"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="314"/>
         <source>Export to XTF</source>
         <translation>Exportar a XTF</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="307"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="320"/>
         <source>Complex signal to CSV</source>
         <translation>Señal compleja a CSV</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="313"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="326"/>
         <source>USBL to CSV</source>
         <translation>USBL a CSV</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="326"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="333"/>
+        <source>USBL diagnostics to CSV</source>
+        <translation>Diagnóstico USBL a CSV</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="334"/>
+        <source>Only the antenna diagnostics reports, one row per report</source>
+        <translation>Solo los informes de diagnóstico de la antena, una fila por informe</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="344"/>
+        <source>Fragment: first epoch</source>
+        <translation>Fragmento: primera época</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="358"/>
+        <source>Fragment: last epoch</source>
+        <translation>Fragmento: última época</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="372"/>
+        <source>Take the echogram&apos;s visible range</source>
+        <translation>Tomar el rango visible del ecograma</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="373"/>
+        <source>Fill the bounds with the first and last epoch the echogram is showing</source>
+        <translation>Rellenar los límites con la primera y la última época que muestra el ecograma</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="389"/>
+        <source>Save KLF fragment</source>
+        <translation>Guardar fragmento KLF</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="391"/>
+        <source>%1 of %2 epochs</source>
+        <translation>%1 de %2 épocas</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="394"/>
+        <source>The first epoch is after the last one</source>
+        <translation>La primera época es posterior a la última</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="411"/>
         <source>Interface</source>
         <translation>Interfaz</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="327"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="412"/>
         <source>Language, theme, UI scale and panel visibility.</source>
         <translation>Idioma, tema, escala de la UI y visibilidad de los paneles.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="333"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="337"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="418"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="422"/>
         <source>Language:</source>
         <translation>Idioma:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="351"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="358"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="436"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="443"/>
         <source>On-screen keyboard:</source>
         <translation>Teclado en pantalla:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="364"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="449"/>
         <source>Auto</source>
         <translation>Auto</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="365"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="450"/>
         <source>On</source>
         <translation>Activado</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="366"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="451"/>
         <source>Off</source>
         <translation>Desactivado</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="374"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="459"/>
         <source>Auto shows the keyboard when a text field is tapped on a touchscreen.</source>
         <translation>En modo Auto, el teclado aparece al tocar un campo de texto en una pantalla táctil.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="384"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1515"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1520"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1806"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1809"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="469"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1624"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1629"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1946"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1949"/>
         <source>Theme:</source>
         <translation>Tema:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="453"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="457"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="538"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="542"/>
         <source>Toolset:</source>
         <translation>Conjunto de herramientas:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="469"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="554"/>
         <source>Fish Finders</source>
         <translation>Sondas de pesca</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="470"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1108"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="555"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1212"/>
         <source>Bottom Track</source>
         <translation>Seguim. del fondo</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="471"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="556"/>
         <source>Maximum</source>
         <translation>Máximo</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="481"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="486"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="566"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="571"/>
         <source>UI scale:</source>
         <translation>Escala de la UI:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="509"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="513"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="594"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="598"/>
         <source>Sidebar position:</source>
         <translation>Posición de la barra lateral:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="519"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="604"/>
         <source>Left</source>
         <translation>Izquierda</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="520"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="605"/>
         <source>Right</source>
         <translation>Derecha</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="532"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="617"/>
         <source>Hide UI elements for missing data</source>
         <translation>Ocultar elementos de la UI sin datos</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="533"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="618"/>
         <source>Hide echogram controls when there is no matching data; off shows everything</source>
         <translation>Ocultar los controles del ecograma cuando no hay datos correspondientes; si está desactivado, se muestra todo</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="546"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="631"/>
         <source>Workspace shift</source>
         <translation>Desplazamiento del área de trabajo</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="547"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="632"/>
         <source>Shift the workspace aside when the settings panel opens, instead of overlaying on top</source>
         <translation>Desplazar el área de trabajo a un lado al abrir el panel de configuración, en lugar de superponer el panel encima</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="561"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="646"/>
         <source>Bring window to front</source>
         <translation>Traer la ventana al frente</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="562"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="647"/>
         <source>Raise and focus the app window on key events</source>
         <translation>Traer al frente y enfocar la ventana de la aplicación ante eventos importantes</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="576"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="661"/>
         <source>Rotate layout with device</source>
         <translation>Girar el diseño con el dispositivo</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="589"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="673"/>
+        <source>Controls</source>
+        <translation>Controles</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="676"/>
+        <source>Navigation hints for the application</source>
+        <translation>Sugerencias de navegación en la aplicación</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="682"/>
+        <source>Tutorials</source>
+        <translation>Tutoriales</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="685"/>
+        <source>Step-by-step guides through the application</source>
+        <translation>Guías paso a paso por la aplicación</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="693"/>
         <source>Key bindings</source>
         <translation>Asignación de teclas</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="596"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="700"/>
         <source>Quick action menu</source>
         <translation>Menú de acciones rápidas</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="603"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="707"/>
         <source>UI Saving</source>
         <translation>Guardado de la UI</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="610"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="714"/>
         <source>Console</source>
         <translation>Consola</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="613"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="717"/>
         <source>Colour marking and log buffer size</source>
         <translation>Marcado por colores y tamaño del búfer de registro</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="618"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="722"/>
         <source>About</source>
         <translation>Acerca de</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="626"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="730"/>
         <source>Developer mode</source>
         <translation>Modo de desarrollador</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="629"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="733"/>
         <source>Developer switches and diagnostics. Turning the mode off hides this row again.</source>
         <translation>Interruptores y diagnóstico para desarrolladores. Al desactivar el modo, esta fila vuelve a ocultarse.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="648"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="752"/>
         <source>Workspace</source>
         <translation>Área de trabajo</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="649"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="753"/>
         <source>Workspace layouts and pane editing.</source>
         <translation>Diseños del área de trabajo y edición de paneles.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="656"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="760"/>
         <source>Edit</source>
         <translation>Editar</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="657"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="761"/>
         <source>Edit workspace panes</source>
         <translation>Editar los paneles del área de trabajo</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="670"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="774"/>
         <source>Global pop-up</source>
         <translation>Ventana emergente global</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="671"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="775"/>
         <source>Floating window over the workspace, independent of the layout</source>
         <translation>Ventana flotante sobre el área de trabajo, independiente del diseño</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="694"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="798"/>
         <source>Layout %1</source>
         <translation>Diseño %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="696"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="800"/>
         <source>Active</source>
         <translation>Activo</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="716"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="820"/>
         <source>Delete layout</source>
         <translation>Eliminar diseño</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="725"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="829"/>
         <source>Create layout</source>
         <translation>Crear diseño</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="735"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="839"/>
         <source>Widget panels</source>
         <translation>Paneles de widgets</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="736"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="840"/>
         <source>On-scene data panels: grid size and drag-in widgets.</source>
         <translation>Paneles de datos sobre la escena: tamaño de la cuadrícula y widgets que se agregan arrastrando.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="746"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="850"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2388"/>
         <source>USBL</source>
         <translation>USBL</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="767"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="798"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="829"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="875"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="871"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="902"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="933"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="979"/>
         <source>Edit panel</source>
         <translation>Editar panel</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="777"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="881"/>
         <source>Stand</source>
         <translation>Banco de calibración</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="808"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="912"/>
         <source>Servo</source>
         <translation>Servo</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="845"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="949"/>
         <source>Panel %1</source>
         <translation>Panel %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="848"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="952"/>
         <source>Settings</source>
         <translation>Configuración</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="884"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="988"/>
         <source>Delete panel</source>
         <translation>Eliminar panel</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="894"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="998"/>
         <source>Create panel</source>
         <translation>Crear panel</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="907"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1011"/>
         <source>Dataset</source>
         <translation>Conjunto de datos</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="908"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1012"/>
         <source>Black-stripe filtering and sonar mount-point offset.</source>
         <translation>Filtrado de franjas negras y desplazamiento del punto de montaje del sonar.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="927"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1031"/>
         <source>FBS forward / backward:</source>
         <translation>FBS adelante / atrás:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="929"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1033"/>
         <source>Fills black stripes in the echogram by interpolating the given number of steps forward / backward.</source>
         <translation>Rellena las franjas negras del ecograma interpolando el número indicado de pasos hacia adelante / hacia atrás.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="976"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1080"/>
         <source>S.offset XY, mm:</source>
         <translation>Despl. XY, mm:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="978"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1082"/>
         <source>Sonar mount-point offset along the X / Y axes, in millimeters.</source>
         <translation>Desplazamiento del punto de montaje del sonar en los ejes X / Y, en milímetros.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1033"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1137"/>
         <source>Pos zeroing</source>
         <translation>Puesta a cero de la posición</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1035"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1139"/>
         <source>Zeroes position coordinates relative to the start point.</source>
         <translation>Pone a cero las coordenadas de posición respecto al punto de inicio.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1048"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1152"/>
         <source>Bottom track zeroing</source>
         <translation>Puesta a cero del seguimiento del fondo</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1050"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1154"/>
         <source>Zeroes the bottom-track depth reference.</source>
         <translation>Pone a cero la referencia de profundidad del seguimiento del fondo.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1063"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2105"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1167"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2245"/>
         <source>TGC</source>
         <translation>TGC</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1064"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2099"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1168"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2239"/>
         <source>Open TGC settings</source>
         <translation>Abrir configuración de TGC</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1089"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1193"/>
         <source>Boat track</source>
         <translation>Trayectoria del barco</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1090"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1194"/>
         <source>Vessel track displayed in the 3D scene.</source>
         <translation>Trayectoria de la embarcación mostrada en la escena 3D.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1109"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1213"/>
         <source>Bottom detection presets, thresholds and search window.</source>
         <translation>Preajustes de detección del fondo, umbrales y ventana de búsqueda.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1150"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1259"/>
         <source>Bottom-track preset</source>
         <translation>Preajuste de seguimiento del fondo</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1162"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1271"/>
         <source>Normal 2D</source>
         <translation>2D normal</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1163"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1272"/>
         <source>Bottom search settings for an ordinary sounder with one beam pointing down.</source>
         <translation>Ajustes de búsqueda del fondo para una ecosonda común con un solo haz hacia abajo.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1164"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1273"/>
         <source>Narrow 2D</source>
         <translation>2D estrecho</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1165"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1274"/>
         <source>For a sounder with a narrow beam: the bottom echo is shorter, so the search is finer.</source>
         <translation>Para una ecosonda de haz estrecho: el eco del fondo es más corto, por lo que la búsqueda es más fina.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1166"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2105"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1275"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2245"/>
         <source>Side-Scan</source>
         <translation>Barrido lateral</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1167"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1276"/>
         <source>For a side-scan sonar: the beam looks sideways, not down.</source>
         <translation>Para un sonar de barrido lateral: el haz apunta hacia los lados, no hacia abajo.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1179"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1288"/>
         <source>Gain slope</source>
         <translation>Pendiente de ganancia</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1180"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1289"/>
         <source>Lifts the weak echo at long range so the bottom is found far out too.</source>
         <translation>Realza el eco débil a gran distancia para que el fondo también se detecte lejos.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1217"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1326"/>
         <source>Threshold</source>
         <translation>Umbral</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1218"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1327"/>
         <source>How clear the echo must be to count as bottom. Where it is weaker, the bottom line breaks.</source>
         <translation>Claridad que debe tener el eco para considerarse fondo. Donde es más débil, la línea de fondo se interrumpe.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1252"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1361"/>
         <source>Horizontal window</source>
         <translation>Ventana horizontal</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1253"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1362"/>
         <source>Smooths the bottom line over neighbouring pings. Wider is smoother but lags more.</source>
         <translation>Suaviza la línea de fondo entre pings vecinos. Cuanto más ancha, más suave, pero con más retraso.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1287"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1396"/>
         <source>Vertical gap, %</source>
         <translation>Margen vertical, %</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1288"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1397"/>
         <source>Refines the depth near the one already found and rejects false bottoms from re-reflections. 0 is off.</source>
         <translation>Afina la profundidad cerca de la ya encontrada y descarta fondos falsos por reflexiones múltiples. El valor 0 lo desactiva.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1322"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1431"/>
         <source>Min range, m</source>
         <translation>Alcance mín., m</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1323"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1432"/>
         <source>The bottom is not searched for closer than this.</source>
         <translation>No se busca el fondo a menos de esta distancia.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1357"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1466"/>
         <source>Max range, m</source>
         <translation>Alcance máx., m</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1358"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1467"/>
         <source>The bottom is not searched for further than this.</source>
         <translation>No se busca el fondo más allá de esta distancia.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1413"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1522"/>
         <source>Processing</source>
         <translation>Procesar</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1414"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1523"/>
         <source>Recompute the bottom over the whole open file. Manual edits are left alone.</source>
         <translation>Recalcular el fondo en todo el archivo abierto. Las ediciones manuales no se modifican.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1427"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1536"/>
         <source>Relief cloud</source>
         <translation>Nube de relieve</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1428"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1537"/>
         <source>Seabed relief inferred from side-scan brightness, as a point cloud. An estimate, not a survey.</source>
         <translation>Relieve del fondo inferido a partir del brillo del barrido lateral, como nube de puntos. Es una estimación, no un levantamiento.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1444"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1553"/>
         <source>Isobaths</source>
         <translation>Isóbatas</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1445"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1554"/>
         <source>Equal-depth contour lines on the surface.</source>
         <translation>Líneas de contorno de igual profundidad sobre la superficie.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1527"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1636"/>
         <source>Colour theme for isobaths (palette by depth)</source>
         <translation>Tema de color de las isóbatas (paleta por profundidad)</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1529"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1817"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1638"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1957"/>
         <source>Midnight</source>
         <translation>Medianoche</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1529"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1638"/>
         <source>Default</source>
         <translation>Predeterminado</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1529"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1817"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1638"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1957"/>
         <source>Blue</source>
         <translation>Azul</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1529"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1817"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1638"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1957"/>
         <source>Sepia</source>
         <translation>Sepia</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1529"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1817"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1638"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1957"/>
         <source>Sepia New</source>
         <translation>Sepia nueva</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1529"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1817"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1638"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1957"/>
         <source>WRGBD</source>
         <translation>WRGBD</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1529"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1817"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1638"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1957"/>
         <source>WhiteBlack</source>
         <translation>Blanco-negro</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1529"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1638"/>
         <source>Standard</source>
         <translation>Estándar</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1529"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1817"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1638"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1957"/>
         <source>DeepBlue</source>
         <translation>Azul profundo</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1529"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1817"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1638"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1957"/>
         <source>Ice</source>
         <translation>Hielo</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1529"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1817"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1638"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1957"/>
         <source>Green</source>
         <translation>Verde</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1544"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1549"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1656"/>
+        <source>Surface colouring:</source>
+        <translation>Coloreado de la superficie:</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1663"/>
+        <source>Gradient</source>
+        <translation>Degradado</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1664"/>
+        <source>Bands</source>
+        <translation>Bandas</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1676"/>
+        <source>Depth legend</source>
+        <translation>Leyenda de profundidad</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1677"/>
+        <source>Show the depth colour scale over the 3D scene</source>
+        <translation>Mostrar la escala de colores de profundidad sobre la escena 3D</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1684"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1689"/>
         <source>Edge limit, m:</source>
         <translation>Límite de arista, m:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1556"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1696"/>
         <source>Max triangulation edge length</source>
         <translation>Longitud máxima de arista de la triangulación</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1567"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1572"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1707"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1712"/>
         <source>Step, m:</source>
         <translation>Paso, m:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1579"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1719"/>
         <source>Isobath interval — spacing between depth lines</source>
         <translation>Intervalo de isóbatas — separación entre las líneas de profundidad</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1592"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1597"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1732"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1737"/>
         <source>Extra width, m:</source>
         <translation>Ancho adicional, m:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1604"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1744"/>
         <source>Surface extrapolation radius around the track</source>
         <translation>Radio de extrapolación de la superficie alrededor de la trayectoria</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1640"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1780"/>
         <source>Enter path</source>
         <translation>Introduzca la ruta</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1650"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1790"/>
         <source>Choose the surface .csv file</source>
         <translation>Elegir el archivo .csv de la superficie</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1665"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1805"/>
         <source>Select folder and set .csv file name</source>
         <translation>Seleccionar carpeta y definir el nombre del archivo .csv</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1683"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1823"/>
         <source>Export the surface to CSV</source>
         <translation>Exportar la superficie a CSV</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1693"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1833"/>
         <source>Invalid characters in file name</source>
         <translation>Caracteres no válidos en el nombre del archivo</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1698"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1838"/>
         <source>Surface exported to %1</source>
         <translation>Superficie exportada a %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1699"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1839"/>
         <source>Surface export failed</source>
         <translation>Error al exportar la superficie</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1733"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1873"/>
         <source>Mosaic</source>
         <translation>Mosaico</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1734"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1874"/>
         <source>Side-scan mosaic visualisation.</source>
         <translation>Visualización del mosaico de barrido lateral.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1817"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1957"/>
         <source>BlackWhite</source>
         <translation>Negro-blanco</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1832"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1835"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1972"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="1975"/>
         <source>Channels:</source>
         <translation>Canales:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1944"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1947"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2084"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2087"/>
         <source>Angle, °:</source>
         <translation>Ángulo, °:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1959"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2099"/>
         <source>Left-side beam angle offset for the mosaic, °</source>
         <translation>Desplazamiento angular del haz izquierdo para el mosaico, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1975"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2115"/>
         <source>Right-side beam angle offset for the mosaic, °</source>
         <translation>Desplazamiento angular del haz derecho para el mosaico, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1994"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2134"/>
         <source>Trace line</source>
         <translation>Línea de trazado</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="1995"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2135"/>
         <source>Show the current mosaic trace line</source>
         <translation>Mostrar la línea de trazado actual del mosaico</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2008"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2148"/>
         <source>Track smoothing</source>
         <translation>Suavizado de la trayectoria</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2009"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2149"/>
         <source>Pings and the boat track on a line fitted through the GNSS fixes around them. Off: straight between neighbouring fixes and drawn at once, as before. Raw fixes are never changed.</source>
         <translation>Los pings y la trayectoria del barco se sitúan sobre una línea ajustada a las posiciones GNSS cercanas. Desactivado: en línea recta entre posiciones vecinas y dibujados al instante, como antes. Las posiciones sin procesar nunca se modifican.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2018"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2023"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2158"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2163"/>
         <source>Smoothing:</source>
         <translation>Suavizado:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2032"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2172"/>
         <source>Responsive</source>
         <translation>Ágil</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2032"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2172"/>
         <source>Normal</source>
         <translation>Normal</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2032"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2172"/>
         <source>Smooth</source>
         <translation>Suave</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2034"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2174"/>
         <source>Accuracy against delay: a longer window averages more fixes and colours the mosaic later</source>
         <translation>Precisión frente a retraso: una ventana más larga promedia más posiciones y colorea el mosaico más tarde</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2049"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2189"/>
         <source>Reprocessing the recording…</source>
         <translation>Reprocesando la grabación…</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2053"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2193"/>
         <source>Off: the mosaic is coloured at once</source>
         <translation>Desactivado: el mosaico se colorea al instante</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2055"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2195"/>
         <source>Waiting for timed GNSS fixes</source>
         <translation>Esperando posiciones GNSS con marca de tiempo</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2057"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2197"/>
         <source>Smoothing inactive: too few fixes (N=%1 in a %2 s window, 12 needed)</source>
         <translation>Suavizado inactivo: muy pocas posiciones (N=%1 en una ventana de %2 s, se necesitan 12)</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2060"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2200"/>
         <source>Window %1 s, mosaic delay %2 s (%3 fixes)</source>
         <translation>Ventana %1 s, retraso del mosaico %2 s (%3 posiciones)</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2073"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2213"/>
         <source>Live data: a change applies to what comes next. To compare, open a recording.</source>
         <translation>Datos en vivo: un cambio se aplica a lo que llegue después. Para comparar, abra una grabación.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2077"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2080"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2217"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2220"/>
         <source>Data source:</source>
         <translation>Fuente de datos:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2105"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2245"/>
         <source>Raw</source>
         <translation>Sin procesar</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2166"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2306"/>
         <source>Dataset: with position zeroing on</source>
         <translation>Conjunto de datos: con puesta a cero de posición activada</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2175"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2183"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2315"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2323"/>
         <source>Calc last N epochs:</source>
         <translation>Calcular últimas N épocas:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2205"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2345"/>
         <source>All</source>
         <translation>Todas</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2212"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2352"/>
         <source>Clear old data (*)</source>
         <translation>Borrar datos antiguos (*)</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2249"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2389"/>
+        <source>Acoustic nodes and their tracks displayed in the 3D scene.</source>
+        <translation>Nodos acústicos y sus trayectorias mostrados en la escena 3D.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2403"/>
+        <source>Beacon tracks</source>
+        <translation>Trayectorias de balizas</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2404"/>
+        <source>Draw each beacon&apos;s track as a continuous line, or as a dot at every fix</source>
+        <translation>Dibujar la trayectoria de cada baliza como una línea continua o como un punto en cada posición</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2412"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2430"/>
+        <source>Line</source>
+        <translation>Línea</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2413"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2431"/>
+        <source>Dots</source>
+        <translation>Puntos</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2421"/>
+        <source>USBL track</source>
+        <translation>Trayectoria USBL</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2422"/>
+        <source>Draw the acoustic head&apos;s own track as a continuous line, or as a dot at every fix</source>
+        <translation>Dibujar la trayectoria propia del cabezal acústico como una línea continua o como un punto en cada posición</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2439"/>
+        <source>Signal quality details</source>
+        <translation>Detalles de calidad de señal</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2440"/>
+        <source>Show the sync peak readings under each node&apos;s RSRQ in the USBL panel</source>
+        <translation>Mostrar las lecturas del pico de sincronización bajo el RSRQ de cada nodo en el panel USBL</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2453"/>
+        <source>Received message bytes</source>
+        <translation>Bytes del mensaje recibido</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2454"/>
+        <source>Show the payload last received from each node in the USBL panel</source>
+        <translation>Mostrar la última carga útil recibida de cada nodo en el panel USBL</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2467"/>
+        <source>Antenna diagnostics</source>
+        <translation>Diagnóstico de la antena</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2468"/>
+        <source>Show the array fit and the channel levels under each node in the USBL panel; click the line for the per-channel view</source>
+        <translation>Mostrar el ajuste del arreglo y los niveles de canal bajo cada nodo en el panel USBL; haga clic en la línea para ver cada canal</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2481"/>
+        <source>Fit misfit above</source>
+        <translation>Error de ajuste mayor que</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2482"/>
+        <source>Antenna diagnostics: a misfit above this marks the antenna for a check</source>
+        <translation>Diagnóstico de la antena: un error de ajuste mayor que este valor marca la antena para revisión</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2500"/>
+        <source>Amplitude part above</source>
+        <translation>Parte de amplitud mayor que</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2501"/>
+        <source>Antenna diagnostics: the share of the misfit from unequal channel amplitudes</source>
+        <translation>Diagnóstico de la antena: la parte del error de ajuste debida a amplitudes desiguales entre canales</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2519"/>
+        <source>Phase part above</source>
+        <translation>Parte de fase mayor que</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2520"/>
+        <source>Antenna diagnostics: the share of the misfit from channel phases off a plane wave</source>
+        <translation>Diagnóstico de la antena: la parte del error de ajuste debida a fases de canal que se apartan de una onda plana</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2538"/>
+        <source>Alt. margin below, dB</source>
+        <translation>Margen alt. menor que, dB</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2539"/>
+        <source>Antenna diagnostics: how much worse the best other direction must fit than the reported one</source>
+        <translation>Diagnóstico de la antena: cuánto peor que la informada debe ajustarse la mejor dirección alternativa</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2557"/>
+        <source>Channel level below, dB</source>
+        <translation>Nivel de canal menor que, dB</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2558"/>
+        <source>Antenna diagnostics: a channel this far below the strongest is marked low, and 10 dB further down, dead</source>
+        <translation>Diagnóstico de la antena: un canal que queda esta cantidad por debajo del más fuerte se marca como bajo, y 10 dB más abajo, como muerto</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2576"/>
+        <source>Antenna thresholds</source>
+        <translation>Umbrales de la antena</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2577"/>
+        <source>Restore the default antenna diagnostics thresholds</source>
+        <translation>Restaurar los umbrales predeterminados del diagnóstico de la antena</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2596"/>
+        <source>No acoustic nodes yet. Open a file containing beacon fixes, or add an address below.</source>
+        <translation>Aún no hay nodos acústicos. Abra un archivo con posiciones de balizas o agregue una dirección abajo.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2608"/>
+        <source>Address %1</source>
+        <translation>Dirección %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2610"/>
+        <source>detected in the opened file</source>
+        <translation>detectado en el archivo abierto</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2611"/>
+        <source>from the interrogation plan</source>
+        <translation>del plan de interrogación</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2635"/>
+        <source>Add an address the plan does not name yet</source>
+        <translation>Agregar una dirección que el plan aún no incluye</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2657"/>
+        <source>Add a node at address %1</source>
+        <translation>Agregar un nodo en la dirección %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2672"/>
         <source>Video</source>
         <translation>Video</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2250"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2673"/>
         <source>Per-window video settings.</source>
         <translation>Configuración de video por ventana.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2269"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2692"/>
         <source>No video windows displayed. You can add one while editing the workspace.</source>
         <translation>No se muestran ventanas de video. Puede agregar una al editar el área de trabajo.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2300"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2723"/>
         <source>Echograms</source>
         <translation>Ecogramas</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2301"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2724"/>
         <source>Per-echogram display settings.</source>
         <translation>Configuración de visualización de cada ecograma.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2317"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2740"/>
         <source>No echograms displayed</source>
         <translation>No se muestran ecogramas</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2347"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2830"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2770"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3253"/>
         <source>Loupe</source>
         <translation>Lupa</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2361"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2848"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2784"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3271"/>
         <source>Loupe size</source>
         <translation>Tamaño de la lupa</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2362"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2852"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3022"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3140"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3199"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2785"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3275"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3445"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3563"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3622"/>
         <source>Size</source>
         <translation>Tamaño</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2378"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2868"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2801"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3291"/>
         <source>Loupe zoom</source>
         <translation>Aumento de la lupa</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2380"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2803"/>
         <source>Zoom</source>
         <translation>Zoom</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2424"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2847"/>
         <source>Sync echograms</source>
         <translation>Sincronizar ecogramas</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2426"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2849"/>
         <source>Sync the cursor position across all echograms</source>
         <translation>Sincronizar la posición del cursor en todos los ecogramas</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2440"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2863"/>
         <source>Sync view</source>
         <translation>Sincronizar vista</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2444"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2867"/>
         <source>Sync scroll and zoom across echograms</source>
         <translation>Sincronizar el desplazamiento y el zoom entre ecogramas</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2458"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2881"/>
         <source>Information panel</source>
         <translation>Panel de información</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2460"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2883"/>
         <source>Configure the information panel</source>
         <translation>Configurar el panel de información</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2473"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2896"/>
         <source>Vehicle mission</source>
         <translation>Misión del vehículo</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2474"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2897"/>
         <source>The mission read from the autopilot, followed in the 3D scene while it runs.</source>
         <translation>La misión leída del piloto automático, que se sigue en la escena 3D mientras se ejecuta.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2489"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2912"/>
         <source>In the 3D scene</source>
         <translation>En la escena 3D</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2498"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2921"/>
         <source>Geofence</source>
         <translation>Geocerca</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2512"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2935"/>
         <source>Rally points</source>
         <translation>Puntos de reunión</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2526"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2949"/>
         <source>Vehicle home (H)</source>
         <translation>Punto de origen del vehículo (H)</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2540"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2963"/>
         <source>Line from the boat to the target</source>
         <translation>Línea del barco al objetivo</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2554"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2977"/>
         <source>Point numbers</source>
         <translation>Números de los puntos</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2570"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2993"/>
         <source>Route lines</source>
         <translation>Líneas de la ruta</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2578"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3001"/>
         <source>Ahead</source>
         <translation>Por recorrer</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2588"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3011"/>
         <source>Current leg</source>
         <translation>Tramo actual</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2598"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3021"/>
         <source>Flown</source>
         <translation>Recorrido</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2610"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3033"/>
         <source>Line width</source>
         <translation>Grosor de línea</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2632"/>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2666"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3055"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3089"/>
         <source>%1 px</source>
         <translation>%1 px</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2644"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3067"/>
         <source>Current leg width</source>
         <translation>Grosor del tramo actual</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2679"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="2583"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3102"/>
         <source>Defaults</source>
         <translation>Predeterminados</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2687"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3110"/>
         <source>Behaviour</source>
         <translation>Comportamiento</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2696"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3119"/>
         <source>Read the mission automatically</source>
         <translation>Leer la misión automáticamente</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2697"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3120"/>
         <source>When the vehicle connects and when its mission changes. Off: read it by hand from the editor or the autopilot card</source>
         <translation>Al conectarse el vehículo y cuando cambia su misión. Desactivado: léala manualmente desde el editor o desde la tarjeta del piloto automático</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2711"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3134"/>
         <source>Start an uploaded mission from its beginning</source>
         <translation>Iniciar desde el principio una misión enviada</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2712"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3135"/>
         <source>After an upload outside Auto the vehicle&apos;s current item is reset, so Auto starts at the first point instead of the item number left from an earlier run</source>
         <translation>Tras un envío fuera del modo Auto, se restablece el elemento actual del vehículo, por lo que Auto empieza en el primer punto y no en el número de elemento que quedó de una ejecución anterior</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2729"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3152"/>
         <source>Mission editor</source>
         <translation>Editor de misiones</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2769"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3192"/>
         <source>3D scene</source>
         <translation>Escena 3D</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2770"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3193"/>
         <source>3D scene settings, map provider switching.</source>
         <translation>Configuración de la escena 3D, cambio de proveedor de mapas.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2785"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3208"/>
         <source>Rendering</source>
         <translation>Renderizado</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2794"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3217"/>
         <source>Show surface quality</source>
         <translation>Mostrar calidad de la superficie</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2796"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3219"/>
         <source>Show the surface quality label in the 3D scene</source>
         <translation>Mostrar la etiqueta de calidad de la superficie en la escena 3D</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2811"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3234"/>
         <source>Force zoom</source>
         <translation>Zoom fijo</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2873"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3296"/>
         <source>Zoom, %:</source>
         <translation>Zoom, %:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2916"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3339"/>
         <source>North mode</source>
         <translation>Modo norte</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2918"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3341"/>
         <source>Orient the 3D view to north (north stays up)</source>
         <translation>Orientar la vista 3D al norte (el norte queda arriba)</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2936"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3359"/>
         <source>Sync echogram</source>
         <translation>Sincronizar ecograma</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2938"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3361"/>
         <source>Sync the cursor between the 2D echogram and the 3D scene</source>
         <translation>Sincronizar el cursor entre el ecograma 2D y la escena 3D</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2956"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3379"/>
         <source>Grid</source>
         <translation>Cuadrícula</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="2978"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3401"/>
         <source>Circle</source>
         <translation>Circular</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3000"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3423"/>
         <source>Labels</source>
         <translation>Etiquetas</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3018"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3441"/>
         <source>Circle grid size</source>
         <translation>Tamaño de la cuadrícula circular</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3038"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3461"/>
         <source>Circle grid step</source>
         <translation>Paso de la cuadrícula circular</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3042"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3465"/>
         <source>Step</source>
         <translation>Paso</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3058"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3481"/>
         <source>Circle grid angle</source>
         <translation>Ángulo de la cuadrícula circular</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3062"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3485"/>
         <source>Angle</source>
         <translation>Ángulo</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3079"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3502"/>
         <source>Shadows</source>
         <translation>Sombras</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3098"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3521"/>
         <source>Navigation arrow</source>
         <translation>Flecha de navegación</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3116"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3539"/>
         <source>Arrow shape</source>
         <translation>Forma de la flecha</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3120"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3543"/>
         <source>Shape</source>
         <translation>Forma</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3126"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3549"/>
         <source>Arrow</source>
         <translation>Flecha</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3126"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3549"/>
         <source>Boat</source>
         <translation>Barco</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3136"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3559"/>
         <source>Arrow size</source>
         <translation>Tamaño de la flecha</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3157"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3580"/>
         <source>Compass</source>
         <translation>Brújula</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3175"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3598"/>
         <source>Compass position</source>
         <translation>Posición de la brújula</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3179"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3602"/>
         <source>Position</source>
         <translation>Posición</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3195"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3618"/>
         <source>Compass size</source>
         <translation>Tamaño de la brújula</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3216"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3639"/>
         <source>Scale bar</source>
         <translation>Barra de escala</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3218"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3641"/>
         <source>Show the scale bar in the 3D scene</source>
         <translation>Mostrar la barra de escala en la escena 3D</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3236"/>
-        <source>USBL beacons</source>
-        <translation>Balizas USBL</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3238"/>
-        <source>Show the acoustic nodes and their tracks in the 3D scene</source>
-        <translation>Mostrar los nodos acústicos y sus trayectorias en la escena 3D</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3283"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3685"/>
         <source>Map</source>
         <translation>Mapa</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3292"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3694"/>
         <source>Show map tiles</source>
         <translation>Mostrar teselas del mapa</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3312"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3714"/>
         <source>Limit downloads on metered networks</source>
         <translation>Limitar las descargas en redes de uso medido</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3356"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3758"/>
         <source>Metered network (limited)</source>
         <translation>Red de uso medido (limitada)</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3379"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3781"/>
         <source>Internet available</source>
         <translation>Internet disponible</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3380"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3782"/>
         <source>Internet unavailable</source>
         <translation>Internet no disponible</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3388"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3790"/>
         <source>Providers</source>
         <translation>Proveedores</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3413"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3815"/>
         <source>Cache: empty</source>
         <translation>Caché: vacía</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3420"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3822"/>
         <source>Cache since %1  •  %2 MB</source>
         <translation>Caché desde %1  •  %2 MB</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3449"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3851"/>
         <source>Navigator</source>
         <translation>Navegación</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3458"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3860"/>
         <source>Use angle</source>
         <translation>Usar ángulo de orientación</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3477"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3879"/>
         <source>Navigator view</source>
         <translation>Vista de navegación</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3497"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3899"/>
         <source>Data</source>
         <translation>Datos</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3513"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3915"/>
         <source>Reset surface</source>
         <translation>Restablecer superficie</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3529"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3931"/>
         <source>Clear?</source>
         <translation>¿Borrar?</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3540"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="3942"/>
         <source>Cancel</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3605"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="4007"/>
         <source>Test</source>
         <translation>Prueba</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3606"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="4008"/>
         <source>Developer knobs — visible only in MANUAL_TESTING builds.</source>
         <translation>Ajustes de desarrollador — visibles solo en compilaciones MANUAL_TESTING.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3620"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="4022"/>
         <source>Double-tap tolerance, px:</source>
         <translation>Tolerancia de doble toque, px:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3650"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="4052"/>
         <source>Split grab thickness, px:</source>
         <translation>Grosor de agarre del divisor, px:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3679"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="4081"/>
         <source>Sidebar slide, ms:</source>
         <translation>Deslizamiento de la barra lateral, ms:</translation>
     </message>
     <message>
-        <location filename="../qml/app/AppSettingsPage.qml" line="3708"/>
+        <location filename="../qml/app/AppSettingsPage.qml" line="4110"/>
         <source>Workspace adjust, ms:</source>
         <translation>Ajuste del área de trabajo, ms:</translation>
     </message>
@@ -1535,7 +1774,7 @@
     </message>
     <message>
         <location filename="../qml/app/AutopilotPopup.qml" line="106"/>
-        <location filename="../qml/app/AutopilotPopup.qml" line="706"/>
+        <location filename="../qml/app/AutopilotPopup.qml" line="727"/>
         <source>%1 m</source>
         <translation>%1 m</translation>
     </message>
@@ -1705,47 +1944,52 @@
         <translation>Armar (dos toques)</translation>
     </message>
     <message>
-        <location filename="../qml/app/AutopilotPopup.qml" line="699"/>
+        <location filename="../qml/app/AutopilotPopup.qml" line="604"/>
+        <source>Mission editor</source>
+        <translation>Editor de misiones</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/AutopilotPopup.qml" line="720"/>
         <source>To point</source>
         <translation>Hasta el punto</translation>
     </message>
     <message>
-        <location filename="../qml/app/AutopilotPopup.qml" line="704"/>
+        <location filename="../qml/app/AutopilotPopup.qml" line="725"/>
         <source>Cross-track</source>
         <translation>Desvío lateral</translation>
     </message>
     <message>
-        <location filename="../qml/app/AutopilotPopup.qml" line="709"/>
+        <location filename="../qml/app/AutopilotPopup.qml" line="730"/>
         <source>GPS</source>
         <translation>GPS</translation>
     </message>
     <message>
-        <location filename="../qml/app/AutopilotPopup.qml" line="714"/>
+        <location filename="../qml/app/AutopilotPopup.qml" line="735"/>
         <source>%1 sat.</source>
         <translation>%1 sat.</translation>
     </message>
     <message>
-        <location filename="../qml/app/AutopilotPopup.qml" line="720"/>
+        <location filename="../qml/app/AutopilotPopup.qml" line="741"/>
         <source>To home</source>
         <translation>Hasta el origen</translation>
     </message>
     <message>
-        <location filename="../qml/app/AutopilotPopup.qml" line="741"/>
+        <location filename="../qml/app/AutopilotPopup.qml" line="762"/>
         <source>Tap again to skip</source>
         <translation>Toque de nuevo para saltar</translation>
     </message>
     <message>
-        <location filename="../qml/app/AutopilotPopup.qml" line="741"/>
+        <location filename="../qml/app/AutopilotPopup.qml" line="762"/>
         <source>Next point</source>
         <translation>Siguiente punto</translation>
     </message>
     <message>
-        <location filename="../qml/app/AutopilotPopup.qml" line="747"/>
+        <location filename="../qml/app/AutopilotPopup.qml" line="768"/>
         <source>Read again</source>
         <translation>Volver a leer</translation>
     </message>
     <message>
-        <location filename="../qml/app/AutopilotPopup.qml" line="748"/>
+        <location filename="../qml/app/AutopilotPopup.qml" line="769"/>
         <source>Read the mission from the vehicle again</source>
         <translation>Volver a leer la misión del vehículo</translation>
     </message>
@@ -2411,229 +2655,259 @@
         <translation>Conexiones:</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="383"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="385"/>
         <source>Connection settings</source>
         <translation>Configuración de conexión</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="454"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="494"/>
         <source>Unpin</source>
         <translation>Desanclar</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="454"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="494"/>
         <source>Pin</source>
         <translation>Anclar</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="463"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="503"/>
         <source>Auto reconnect</source>
         <translation>Reconexión automática</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="470"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="510"/>
         <source>Remove from recent</source>
         <translation>Quitar de recientes</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="476"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="516"/>
         <source>Delete</source>
         <translation>Eliminar</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="491"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="531"/>
         <source>Close</source>
         <translation>Cerrar</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="491"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="531"/>
         <source>Open</source>
         <translation>Abrir</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="535"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="574"/>
+        <source>Name</source>
+        <translation>Nombre</translation>
+    </message>
+    <message>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="611"/>
+        <source>Clear name</source>
+        <translation>Borrar nombre</translation>
+    </message>
+    <message>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="625"/>
         <source>IP</source>
         <translation>IP</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="613"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="672"/>
+        <source>URL</source>
+        <translation>URL</translation>
+    </message>
+    <message>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="690"/>
+        <source>Any URL that FFmpeg can open:
+rtsp://192.168.1.10:554/stream
+http://camera.local/video.cgi  (MJPEG, HLS, DASH)
+rtmp://server/live/key
+udp://@:1234
+%1  (a local file)</source>
+        <translation>Cualquier URL que FFmpeg pueda abrir:
+rtsp://192.168.1.10:554/stream
+http://camera.local/video.cgi  (MJPEG, HLS, DASH)
+rtmp://server/live/key
+udp://@:1234
+%1  (un archivo local)</translation>
+    </message>
+    <message>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="723"/>
         <source>src</source>
         <translation>src</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="636"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="746"/>
         <source>dst</source>
         <translation>dst</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="666"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="776"/>
         <source>srv</source>
         <translation>srv</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="697"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="807"/>
         <source>baudrate</source>
         <translation>baudios</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="716"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="826"/>
         <source>Auto search baudrate</source>
         <translation>Búsqueda automática de baudios</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="739"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="849"/>
         <source>Add connection:</source>
         <translation>Agregar conexión:</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="756"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="866"/>
         <source>+UDP</source>
         <translation>+UDP</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="762"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="872"/>
         <source>+TCP</source>
         <translation>+TCP</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="768"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="878"/>
         <source>Searching…</source>
         <translation>Buscando…</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="768"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="878"/>
         <source>Discover</source>
         <translation>Descubrir</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="770"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="880"/>
         <source>Ask Kogger devices on the network to answer, and open a connection to each one found. Works even if the device address is in another subnet.</source>
         <translation>Pedir a los dispositivos Kogger de la red que respondan y abrir una conexión con cada uno que se encuentre. Funciona aunque la dirección del dispositivo esté en otra subred.</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="780"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="890"/>
         <source>Found device %1 (%2)</source>
         <translation>Se encontró el dispositivo %1 (%2)</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="784"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="894"/>
         <source>No devices answered on the network</source>
         <translation>Ningún dispositivo de la red respondió</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="790"/>
-        <source>+RTSP</source>
-        <translation>+RTSP</translation>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="900"/>
+        <source>+Video</source>
+        <translation>+Video</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="797"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="907"/>
         <source>MAVProxy</source>
         <translation>MAVProxy</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="798"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="908"/>
         <source>Proxy MAVLink telemetry to 127.0.0.1:14550</source>
         <translation>Reenviar la telemetría MAVLink a 127.0.0.1:14550</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="809"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="919"/>
         <source>Import</source>
         <translation>Importar</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="817"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="927"/>
         <source>Recording:</source>
         <translation>Grabación:</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="880"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="990"/>
         <source>Recording settings</source>
         <translation>Configuración de grabación</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="896"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="1006"/>
         <source>Press REC to record KLF and CSV logs</source>
         <translation>Pulse REC para grabar registros KLF y CSV</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="897"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="1007"/>
         <source>Press REC to record CSV log</source>
         <translation>Pulse REC para grabar el registro CSV</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="898"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="1008"/>
         <source>Press REC to record KLF log</source>
         <translation>Pulse REC para grabar el registro KLF</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="959"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="1069"/>
         <source>■ STOP</source>
         <translation>■ DETENER</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="959"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="1069"/>
         <source>● REC</source>
         <translation>● REC</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="988"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="1098"/>
         <source>Log folder:</source>
         <translation>Carpeta de registros:</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="1036"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="1146"/>
         <source>Choose recording folder</source>
         <translation>Elegir carpeta de grabación</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="1062"/>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="1064"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="1172"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="1174"/>
         <source>KLF</source>
         <translation>KLF</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="1063"/>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="1064"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="1173"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="1174"/>
         <source>CSV</source>
         <translation>CSV</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="1095"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="1205"/>
         <source>Select log folder</source>
         <translation>Seleccionar carpeta de registros</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="1117"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="1227"/>
         <source>Separator:</source>
         <translation>Separador:</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="1129"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="1239"/>
         <source>Row:</source>
         <translation>Fila:</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="1139"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="1249"/>
         <source>Time col:</source>
         <translation>Col. de tiempo:</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="1160"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="1270"/>
         <source>Lat/Lon/Alt:</source>
         <translation>Lat/Lon/Alt:</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="1172"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="1282"/>
         <source>NEU:</source>
         <translation>NEU:</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="1192"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="1302"/>
         <source>CSV path...</source>
         <translation>Ruta CSV...</translation>
     </message>
     <message>
-        <location filename="../qml/devices/ConnectionViewer.qml" line="1209"/>
+        <location filename="../qml/devices/ConnectionViewer.qml" line="1319"/>
         <source>Please choose a file</source>
         <translation>Seleccione un archivo</translation>
     </message>
@@ -2651,22 +2925,32 @@
         <translation>Conexiones y registro.</translation>
     </message>
     <message>
-        <location filename="../qml/app/ConnectionsSettingsPage.qml" line="70"/>
+        <location filename="../qml/app/ConnectionsSettingsPage.qml" line="74"/>
+        <source>Searching the local network…</source>
+        <translation>Buscando en la red local…</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ConnectionsSettingsPage.qml" line="74"/>
+        <source>Find KOGGER devices in the local network (UDP)</source>
+        <translation>Buscar dispositivos KOGGER en la red local (UDP)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ConnectionsSettingsPage.qml" line="98"/>
         <source>Stop recording</source>
         <translation>Detener grabación</translation>
     </message>
     <message>
-        <location filename="../qml/app/ConnectionsSettingsPage.qml" line="70"/>
+        <location filename="../qml/app/ConnectionsSettingsPage.qml" line="98"/>
         <source>Start recording</source>
         <translation>Iniciar grabación</translation>
     </message>
     <message>
-        <location filename="../qml/app/ConnectionsSettingsPage.qml" line="96"/>
+        <location filename="../qml/app/ConnectionsSettingsPage.qml" line="124"/>
         <source>Disconnect</source>
         <translation>Desconectar</translation>
     </message>
     <message>
-        <location filename="../qml/app/ConnectionsSettingsPage.qml" line="96"/>
+        <location filename="../qml/app/ConnectionsSettingsPage.qml" line="124"/>
         <source>Open last link</source>
         <translation>Abrir la última conexión</translation>
     </message>
@@ -2727,27 +3011,37 @@
         <translation>NMEA</translation>
     </message>
     <message>
-        <location filename="../qml/app/ConsolePanelDrawer.qml" line="497"/>
+        <location filename="../qml/app/ConsolePanelDrawer.qml" line="486"/>
+        <source>MAVLink</source>
+        <translation>MAVLink</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ConsolePanelDrawer.qml" line="498"/>
+        <source>USBL</source>
+        <translation>USBL</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ConsolePanelDrawer.qml" line="521"/>
         <source>Copy selected lines</source>
         <translation>Copiar líneas seleccionadas</translation>
     </message>
     <message>
-        <location filename="../qml/app/ConsolePanelDrawer.qml" line="498"/>
+        <location filename="../qml/app/ConsolePanelDrawer.qml" line="522"/>
         <source>Copy the whole log</source>
         <translation>Copiar todo el registro</translation>
     </message>
     <message>
-        <location filename="../qml/app/ConsolePanelDrawer.qml" line="515"/>
+        <location filename="../qml/app/ConsolePanelDrawer.qml" line="539"/>
         <source>Restore</source>
         <translation>Restaurar</translation>
     </message>
     <message>
-        <location filename="../qml/app/ConsolePanelDrawer.qml" line="515"/>
+        <location filename="../qml/app/ConsolePanelDrawer.qml" line="539"/>
         <source>Maximize</source>
         <translation>Maximizar</translation>
     </message>
     <message>
-        <location filename="../qml/app/ConsolePanelDrawer.qml" line="530"/>
+        <location filename="../qml/app/ConsolePanelDrawer.qml" line="554"/>
         <source>Settings</source>
         <translation>Configuración</translation>
     </message>
@@ -2800,194 +3094,407 @@
         <translation>Registrar las sentencias NMEA recibidas del dispositivo</translation>
     </message>
     <message>
-        <location filename="../qml/app/ConsoleSettingsTab.qml" line="106"/>
+        <location filename="../qml/app/ConsoleSettingsTab.qml" line="92"/>
+        <source>MAVLink frames</source>
+        <translation>Tramas MAVLink</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ConsoleSettingsTab.qml" line="93"/>
+        <source>Log MAVLink frames received from the device</source>
+        <translation>Registrar las tramas MAVLink recibidas del dispositivo</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ConsoleSettingsTab.qml" line="110"/>
+        <source>USBL solutions</source>
+        <translation>Soluciones USBL</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ConsoleSettingsTab.qml" line="111"/>
+        <source>Log one line per USBL solution received from the device</source>
+        <translation>Registrar una línea por cada solución USBL recibida del dispositivo</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ConsoleSettingsTab.qml" line="142"/>
         <source>Log text size:</source>
         <translation>Tamaño del texto del registro:</translation>
     </message>
     <message>
-        <location filename="../qml/app/ConsoleSettingsTab.qml" line="116"/>
+        <location filename="../qml/app/ConsoleSettingsTab.qml" line="152"/>
         <source>%1 px</source>
         <translation>%1 px</translation>
     </message>
     <message>
-        <location filename="../qml/app/ConsoleSettingsTab.qml" line="155"/>
+        <location filename="../qml/app/ConsoleSettingsTab.qml" line="191"/>
         <source>Keep last lines:</source>
         <translation>Conservar las últimas líneas:</translation>
     </message>
 </context>
 <context>
+    <name>ControlsHelpPage</name>
+    <message>
+        <location filename="../qml/app/ControlsHelpPage.qml" line="16"/>
+        <source>Workspace</source>
+        <translation>Área de trabajo</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ControlsHelpPage.qml" line="19"/>
+        <source>Maximise or restore a pane</source>
+        <translation>Maximizar o restaurar un panel</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ControlsHelpPage.qml" line="20"/>
+        <source>Double-tap the pane — 2D, 3D, video, popups</source>
+        <translation>Doble toque en el panel — 2D, 3D, video, ventanas emergentes</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ControlsHelpPage.qml" line="21"/>
+        <source>Double-click the pane — 2D, 3D, video, popups</source>
+        <translation>Doble clic en el panel — 2D, 3D, video, ventanas emergentes</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ControlsHelpPage.qml" line="25"/>
+        <source>Reset a splitter to the middle</source>
+        <translation>Centrar un divisor</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ControlsHelpPage.qml" line="26"/>
+        <source>Double-tap the splitter between panes</source>
+        <translation>Doble toque en el divisor entre paneles</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ControlsHelpPage.qml" line="27"/>
+        <source>Double-click the splitter between panes</source>
+        <translation>Doble clic en el divisor entre paneles</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ControlsHelpPage.qml" line="32"/>
+        <source>2D echogram</source>
+        <translation>Ecograma 2D</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ControlsHelpPage.qml" line="35"/>
+        <source>Pick a sounding</source>
+        <translation>Elegir un sondeo</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ControlsHelpPage.qml" line="36"/>
+        <source>Drag one finger — shows the loupe and the sounding details</source>
+        <translation>Arrastrar un dedo — muestra la lupa y los datos del sondeo</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ControlsHelpPage.qml" line="37"/>
+        <source>Drag with the left button — shows the loupe and the sounding details</source>
+        <translation>Arrastrar con el botón izquierdo — muestra la lupa y los datos del sondeo</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ControlsHelpPage.qml" line="41"/>
+        <source>Place a contact</source>
+        <translation>Colocar un contacto</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ControlsHelpPage.qml" line="42"/>
+        <source>Contact quick action, then tap the echogram or the 3D scene</source>
+        <translation>Acción rápida «Contacto», luego tocar el ecograma o la escena 3D</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ControlsHelpPage.qml" line="43"/>
+        <source>Contact quick action, then left-click the echogram or the 3D scene</source>
+        <translation>Acción rápida «Contacto», luego clic izquierdo en el ecograma o la escena 3D</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ControlsHelpPage.qml" line="47"/>
+        <source>Scroll the echogram</source>
+        <translation>Desplazar el ecograma</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ControlsHelpPage.qml" line="48"/>
+        <source>Horizontal pinch</source>
+        <translation>Pellizco horizontal</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ControlsHelpPage.qml" line="48"/>
+        <source>Wheel</source>
+        <translation>Rueda</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ControlsHelpPage.qml" line="52"/>
+        <source>Move the echogram up and down</source>
+        <translation>Mover el ecograma arriba y abajo</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ControlsHelpPage.qml" line="53"/>
+        <location filename="../qml/app/ControlsHelpPage.qml" line="77"/>
+        <source>Vertical pinch</source>
+        <translation>Pellizco vertical</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ControlsHelpPage.qml" line="53"/>
+        <source>Shift + wheel</source>
+        <translation>Shift + rueda</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ControlsHelpPage.qml" line="57"/>
+        <source>Change the vertical scale</source>
+        <translation>Cambiar la escala vertical</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ControlsHelpPage.qml" line="58"/>
+        <source>Stretch the pinch vertically</source>
+        <translation>Estirar el pellizco en vertical</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ControlsHelpPage.qml" line="58"/>
+        <source>Ctrl + wheel</source>
+        <translation>Ctrl + rueda</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ControlsHelpPage.qml" line="63"/>
+        <source>3D scene</source>
+        <translation>Escena 3D</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ControlsHelpPage.qml" line="66"/>
+        <source>Move the camera</source>
+        <translation>Mover la cámara</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ControlsHelpPage.qml" line="67"/>
+        <source>Drag one finger</source>
+        <translation>Arrastrar un dedo</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ControlsHelpPage.qml" line="67"/>
+        <source>Drag with the left button</source>
+        <translation>Arrastrar con el botón izquierdo</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ControlsHelpPage.qml" line="71"/>
+        <source>Rotate the camera</source>
+        <translation>Girar la cámara</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ControlsHelpPage.qml" line="72"/>
+        <source>Rotate the pinch</source>
+        <translation>Girar el pellizco</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ControlsHelpPage.qml" line="72"/>
+        <source>Ctrl + drag sideways</source>
+        <translation>Ctrl + arrastrar de lado</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ControlsHelpPage.qml" line="76"/>
+        <source>Tilt the camera</source>
+        <translation>Inclinar la cámara</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ControlsHelpPage.qml" line="77"/>
+        <source>Ctrl + drag up or down</source>
+        <translation>Ctrl + arrastrar arriba o abajo</translation>
+    </message>
+</context>
+<context>
     <name>Core</name>
     <message>
-        <location filename="../src/core.cpp" line="698"/>
-        <location filename="../src/core.cpp" line="970"/>
+        <location filename="../src/core.cpp" line="796"/>
         <source>File closed</source>
         <translation>Archivo cerrado</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="699"/>
-        <location filename="../src/core.cpp" line="971"/>
+        <location filename="../src/core.cpp" line="797"/>
         <source>File closed: %1</source>
         <translation>Archivo cerrado: %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1262"/>
+        <location filename="../src/core.cpp" line="1078"/>
         <source>KLF logging started:
 %1</source>
         <translation>Registro KLF iniciado:
 %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1265"/>
+        <location filename="../src/core.cpp" line="1081"/>
         <source>KLF logging not started</source>
         <translation>No se inició el registro KLF</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1271"/>
+        <location filename="../src/core.cpp" line="1087"/>
         <source>KLF log saved:
 %1</source>
         <translation>Registro KLF guardado:
 %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1273"/>
+        <location filename="../src/core.cpp" line="1089"/>
         <source>KLF logging disabled</source>
         <translation>Registro KLF desactivado</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1356"/>
+        <location filename="../src/core.cpp" line="1172"/>
         <source>Cannot share %1</source>
         <translation>No se puede compartir %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1504"/>
+        <location filename="../src/core.cpp" line="1320"/>
         <source>Invalid log folder:
 %1</source>
         <translation>Carpeta de registros no válida:
 %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1510"/>
+        <location filename="../src/core.cpp" line="1326"/>
         <source>Log folder is not writable:
 %1</source>
         <translation>No se puede escribir en la carpeta de registros:
 %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1653"/>
+        <location filename="../src/core.cpp" line="1469"/>
         <source>CSV logging started:
 %1</source>
         <translation>Registro CSV iniciado:
 %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1656"/>
+        <location filename="../src/core.cpp" line="1472"/>
         <source>CSV logging not started</source>
         <translation>No se inició el registro CSV</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1662"/>
+        <location filename="../src/core.cpp" line="1478"/>
         <source>CSV log saved:
 %1</source>
         <translation>Registro CSV guardado:
 %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1664"/>
+        <location filename="../src/core.cpp" line="1480"/>
         <source>CSV logging disabled</source>
         <translation>Registro CSV desactivado</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1700"/>
-        <location filename="../src/core.cpp" line="1749"/>
-        <location filename="../src/core.cpp" line="1763"/>
-        <location filename="../src/core.cpp" line="1793"/>
-        <location filename="../src/core.cpp" line="1886"/>
-        <location filename="../src/core.cpp" line="2150"/>
-        <location filename="../src/core.cpp" line="2169"/>
-        <location filename="../src/core.cpp" line="2181"/>
+        <location filename="../src/core.cpp" line="1516"/>
+        <location filename="../src/core.cpp" line="1565"/>
+        <location filename="../src/core.cpp" line="1660"/>
+        <location filename="../src/core.cpp" line="1681"/>
+        <location filename="../src/core.cpp" line="1695"/>
+        <location filename="../src/core.cpp" line="1728"/>
+        <location filename="../src/core.cpp" line="1823"/>
+        <location filename="../src/core.cpp" line="2099"/>
+        <location filename="../src/core.cpp" line="2246"/>
+        <location filename="../src/core.cpp" line="2267"/>
+        <location filename="../src/core.cpp" line="2291"/>
+        <location filename="../src/core.cpp" line="2303"/>
         <source>Export failed: %1</source>
         <translation>Error al exportar: %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1752"/>
+        <location filename="../src/core.cpp" line="1568"/>
         <source>Complex signals exported to CSV: %1</source>
         <translation>Señales complejas exportadas a CSV: %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="1796"/>
+        <location filename="../src/core.cpp" line="1684"/>
+        <source>USBL diagnostics exported to CSV (%1 reports): %2</source>
+        <translation>Diagnóstico USBL exportado a CSV (%1 informes): %2</translation>
+    </message>
+    <message>
+        <location filename="../src/core.cpp" line="1731"/>
         <source>USBL exported to CSV: %1</source>
         <translation>USBL exportado a CSV: %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2153"/>
+        <location filename="../src/core.cpp" line="2102"/>
         <source>Exported to CSV: %1</source>
         <translation>Exportado a CSV: %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2161"/>
+        <location filename="../src/core.cpp" line="2197"/>
+        <source>Export failed: no log file is open</source>
+        <translation>Error al exportar: no hay ningún archivo de registro abierto</translation>
+    </message>
+    <message>
+        <location filename="../src/core.cpp" line="2204"/>
+        <location filename="../src/core.cpp" line="2283"/>
         <source>Export failed</source>
         <translation>Error al exportar</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2184"/>
+        <location filename="../src/core.cpp" line="2210"/>
+        <source>Export failed: this file has no epoch index</source>
+        <translation>Error al exportar: este archivo no tiene índice de épocas</translation>
+    </message>
+    <message>
+        <location filename="../src/core.cpp" line="2224"/>
+        <location filename="../src/core.cpp" line="2235"/>
+        <source>Export failed: cannot read %1</source>
+        <translation>Error al exportar: no se puede leer %1</translation>
+    </message>
+    <message>
+        <location filename="../src/core.cpp" line="2271"/>
+        <source>KLF fragment saved: %1 (%2 epochs, %3 MB)</source>
+        <translation>Fragmento KLF guardado: %1 (%2 épocas, %3 MB)</translation>
+    </message>
+    <message>
+        <location filename="../src/core.cpp" line="2306"/>
         <source>Exported to XTF: %1</source>
         <translation>Exportado a XTF: %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2814"/>
-        <location filename="../src/core.cpp" line="2838"/>
+        <location filename="../src/core.cpp" line="2992"/>
+        <location filename="../src/core.cpp" line="3016"/>
         <source>street</source>
         <translation>calles</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="2820"/>
-        <location filename="../src/core.cpp" line="2826"/>
-        <location filename="../src/core.cpp" line="2832"/>
+        <location filename="../src/core.cpp" line="2998"/>
+        <location filename="../src/core.cpp" line="3004"/>
+        <location filename="../src/core.cpp" line="3010"/>
         <source>satellite</source>
         <translation>satélite</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3001"/>
+        <location filename="../src/core.cpp" line="3185"/>
         <source>File opened</source>
         <translation>Archivo abierto</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3002"/>
+        <location filename="../src/core.cpp" line="3186"/>
         <source>File opened: %1</source>
         <translation>Archivo abierto: %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3284"/>
+        <location filename="../src/core.cpp" line="3448"/>
         <source>Connected</source>
         <translation>Conectado</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3284"/>
+        <location filename="../src/core.cpp" line="3448"/>
         <source>Connected: %1</source>
         <translation>Conectado: %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3298"/>
+        <location filename="../src/core.cpp" line="3462"/>
         <source>Disconnected</source>
         <translation>Desconectado</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3298"/>
+        <location filename="../src/core.cpp" line="3462"/>
         <source>Disconnected: %1</source>
         <translation>Desconectado: %1</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3737"/>
+        <location filename="../src/core.cpp" line="3934"/>
         <source>Internet connection restored</source>
         <translation>Conexión a Internet restablecida</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3738"/>
+        <location filename="../src/core.cpp" line="3935"/>
         <source>Internet connection lost</source>
         <translation>Se perdió la conexión a Internet</translation>
     </message>
     <message>
-        <location filename="../src/core.cpp" line="3750"/>
+        <location filename="../src/core.cpp" line="3947"/>
         <source>Metered network detected</source>
         <translation>Se detectó una red de uso medido</translation>
     </message>
@@ -3086,71 +3593,91 @@
     </message>
     <message>
         <location filename="../qml/app/CsvExportSettingsTab.qml" line="37"/>
-        <source>Contact title</source>
-        <translation>Título del contacto</translation>
+        <source>Contact</source>
+        <translation>Contacto</translation>
     </message>
     <message>
         <location filename="../qml/app/CsvExportSettingsTab.qml" line="37"/>
-        <source>Title of the marked contact</source>
-        <translation>Título del contacto marcado</translation>
+        <source>Title, coordinates, depth and origin (2D/3D) of the marked contact</source>
+        <translation>Título, coordenadas, profundidad y origen (2D/3D) del contacto marcado</translation>
     </message>
     <message>
         <location filename="../qml/app/CsvExportSettingsTab.qml" line="38"/>
-        <source>Contact distance</source>
-        <translation>Distancia del contacto</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/CsvExportSettingsTab.qml" line="38"/>
-        <source>Distance to the marked contact</source>
-        <translation>Distancia al contacto marcado</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/CsvExportSettingsTab.qml" line="39"/>
         <source>Rangefinder</source>
         <translation>Telémetro</translation>
     </message>
     <message>
-        <location filename="../qml/app/CsvExportSettingsTab.qml" line="39"/>
+        <location filename="../qml/app/CsvExportSettingsTab.qml" line="38"/>
         <source>Rangefinder distance (red line)</source>
         <translation>Distancia del telémetro (línea roja)</translation>
     </message>
     <message>
-        <location filename="../qml/app/CsvExportSettingsTab.qml" line="57"/>
+        <location filename="../qml/app/CsvExportSettingsTab.qml" line="39"/>
+        <source>GNSS altitude (above sea level)</source>
+        <translation>Altitud GNSS (sobre el nivel del mar)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/CsvExportSettingsTab.qml" line="39"/>
+        <source>Antenna altitude above mean sea level, RTK fixed only (MAVLink, UBX, NMEA GGA)</source>
+        <translation>Altitud de la antena sobre el nivel medio del mar, solo RTK fixed (MAVLink, UBX, NMEA GGA)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/CsvExportSettingsTab.qml" line="40"/>
+        <source>GNSS position date/time (UTC)</source>
+        <translation>Fecha/hora de la posición GNSS (UTC)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/CsvExportSettingsTab.qml" line="40"/>
+        <source>UTC date and time carried by the GNSS position message (NMEA RMC, UBX, MAVLink)</source>
+        <translation>Fecha y hora UTC contenidas en el mensaje de posición GNSS (NMEA RMC, UBX, MAVLink)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/CsvExportSettingsTab.qml" line="41"/>
+        <source>GNSS altitude (above ellipsoid)</source>
+        <translation>Altitud GNSS (sobre el elipsoide)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/CsvExportSettingsTab.qml" line="41"/>
+        <source>Antenna altitude above the WGS84 ellipsoid, RTK fixed only (MAVLink 2, UBX, NMEA GGA)</source>
+        <translation>Altitud de la antena sobre el elipsoide WGS84, solo RTK fixed (MAVLink 2, UBX, NMEA GGA)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/CsvExportSettingsTab.qml" line="59"/>
         <source>Export the dataset to CSV. Pick which columns to include below — the defaults match the built-in export. The destination folder is set in the Export group.</source>
         <translation>Exporte el conjunto de datos a CSV. Elija abajo qué columnas incluir — los valores predeterminados coinciden con la exportación integrada. La carpeta de destino se define en el grupo Exportar.</translation>
     </message>
     <message>
-        <location filename="../qml/app/CsvExportSettingsTab.qml" line="68"/>
+        <location filename="../qml/app/CsvExportSettingsTab.qml" line="70"/>
         <source>Export to CSV</source>
         <translation>Exportar a CSV</translation>
     </message>
     <message>
-        <location filename="../qml/app/CsvExportSettingsTab.qml" line="76"/>
+        <location filename="../qml/app/CsvExportSettingsTab.qml" line="78"/>
         <source>Decimation, m:</source>
         <translation>Diezmado, m:</translation>
     </message>
     <message>
-        <location filename="../qml/app/CsvExportSettingsTab.qml" line="77"/>
+        <location filename="../qml/app/CsvExportSettingsTab.qml" line="79"/>
         <source>Thin out points: keep one per given distance interval (m); off exports every point</source>
         <translation>Reducir puntos: conservar uno por cada intervalo de distancia indicado (m); si está desactivado, se exportan todos los puntos</translation>
     </message>
     <message>
-        <location filename="../qml/app/CsvExportSettingsTab.qml" line="113"/>
+        <location filename="../qml/app/CsvExportSettingsTab.qml" line="115"/>
         <source>Sonar offset XYZ, mm</source>
         <translation>Desplazamiento del sonar XYZ, mm</translation>
     </message>
     <message>
-        <location filename="../qml/app/CsvExportSettingsTab.qml" line="114"/>
+        <location filename="../qml/app/CsvExportSettingsTab.qml" line="116"/>
         <source>Mount offset of the transducer, applied to the exported coordinates only.</source>
         <translation>Desplazamiento de montaje del transductor, aplicado solo a las coordenadas exportadas.</translation>
     </message>
     <message>
-        <location filename="../qml/app/CsvExportSettingsTab.qml" line="165"/>
+        <location filename="../qml/app/CsvExportSettingsTab.qml" line="167"/>
         <source>Columns to export</source>
         <translation>Columnas a exportar</translation>
     </message>
     <message>
-        <location filename="../qml/app/CsvExportSettingsTab.qml" line="176"/>
+        <location filename="../qml/app/CsvExportSettingsTab.qml" line="178"/>
         <source>Reset</source>
         <translation>Restablecer</translation>
     </message>
@@ -3176,21 +3703,21 @@
         <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="36"/>
         <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="84"/>
         <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="89"/>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="169"/>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="312"/>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="314"/>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="316"/>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="318"/>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="324"/>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="400"/>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="404"/>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="420"/>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="421"/>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="422"/>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="423"/>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="427"/>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="449"/>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="454"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="215"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="360"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="362"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="364"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="366"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="372"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="451"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="455"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="486"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="487"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="488"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="489"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="493"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="515"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="520"/>
         <source>m</source>
         <translation>m</translation>
     </message>
@@ -3216,8 +3743,8 @@
     </message>
     <message>
         <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="19"/>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="320"/>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="424"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="368"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="490"/>
         <source>km/h</source>
         <translation>km/h</translation>
     </message>
@@ -3228,8 +3755,8 @@
     </message>
     <message>
         <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="20"/>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="330"/>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="425"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="378"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="491"/>
         <source>m/s</source>
         <translation>m/s</translation>
     </message>
@@ -3295,9 +3822,9 @@
     </message>
     <message>
         <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="37"/>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="190"/>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="206"/>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="436"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="236"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="252"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="502"/>
         <source>min</source>
         <translation>min</translation>
     </message>
@@ -3313,8 +3840,8 @@
     </message>
     <message>
         <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="41"/>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="349"/>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="438"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="397"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="504"/>
         <source>KB/s</source>
         <translation>KB/s</translation>
     </message>
@@ -3325,15 +3852,15 @@
     </message>
     <message>
         <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="42"/>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="351"/>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="439"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="399"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="505"/>
         <source>dBm</source>
         <translation>dBm</translation>
     </message>
     <message>
         <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="45"/>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="353"/>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="440"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="401"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="506"/>
         <source>System</source>
         <translation>Sistema</translation>
     </message>
@@ -3344,8 +3871,8 @@
     </message>
     <message>
         <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="46"/>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="356"/>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="441"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="404"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="507"/>
         <source>GHz</source>
         <translation>GHz</translation>
     </message>
@@ -3367,7 +3894,7 @@
     <message>
         <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="49"/>
         <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="50"/>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="193"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="239"/>
         <source>GB</source>
         <translation>GB</translation>
     </message>
@@ -3413,8 +3940,12 @@
     </message>
     <message>
         <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="87"/>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="403"/>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="452"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="97"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="98"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="454"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="478"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="518"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="529"/>
         <source>dB</source>
         <translation>dB</translation>
     </message>
@@ -3435,9 +3966,9 @@
     </message>
     <message>
         <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="90"/>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="206"/>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="406"/>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="455"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="252"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="457"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="521"/>
         <source>s</source>
         <translation>s</translation>
     </message>
@@ -3457,60 +3988,122 @@
         <translation>Datos USBL</translation>
     </message>
     <message>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="94"/>
+        <source>Antenna</source>
+        <translation>Antena</translation>
+    </message>
+    <message>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="95"/>
+        <source>Array fit misfit</source>
+        <translation>Error de ajuste del arreglo</translation>
+    </message>
+    <message>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="96"/>
+        <source>Direction width</source>
+        <translation>Ancho de dirección</translation>
+    </message>
+    <message>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="97"/>
+        <source>Weakest channel</source>
+        <translation>Canal más débil</translation>
+    </message>
+    <message>
         <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="98"/>
+        <source>Alt. direction margin</source>
+        <translation>Margen de dirección alt.</translation>
+    </message>
+    <message>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="102"/>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="103"/>
+        <source>CHECK</source>
+        <translation>REVISAR</translation>
+    </message>
+    <message>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="104"/>
+        <source>FAULT</source>
+        <translation>FALLA</translation>
+    </message>
+    <message>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="110"/>
         <source>TRACKING</source>
         <translation>SEGUIMIENTO</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="99"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="111"/>
         <source>STALE</source>
         <translation>DESACTUALIZADO</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="100"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="112"/>
         <source>NO SOLUTION</source>
         <translation>SIN SOLUCIÓN</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="169"/>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="435"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="163"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="164"/>
+        <source> s</source>
+        <translation> s</translation>
+    </message>
+    <message>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="166"/>
+        <source> m</source>
+        <translation> min</translation>
+    </message>
+    <message>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="167"/>
+        <source> h</source>
+        <translation> h</translation>
+    </message>
+    <message>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="215"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="501"/>
         <source>km</source>
         <translation>km</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="189"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="235"/>
         <source>d</source>
         <translation>d</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="189"/>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="190"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="235"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="236"/>
         <source>h</source>
         <translation>h</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="364"/>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="443"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="412"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="509"/>
         <source>MHz</source>
         <translation>MHz</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="387"/>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="458"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="435"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="524"/>
         <source>yes</source>
         <translation>sí</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="387"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="435"/>
         <source>no</source>
         <translation>no</translation>
+    </message>
+    <message>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="477"/>
+        <location filename="../qml/kqml_types/DataFieldCatalog.qml" line="528"/>
+        <source>ch%1 %2 dB</source>
+        <translation>can%1 %2 dB</translation>
     </message>
 </context>
 <context>
     <name>Dataset</name>
     <message>
-        <location filename="../src/dataset.cpp" line="1524"/>
-        <location filename="../src/dataset.cpp" line="1526"/>
+        <location filename="../src/dataset.cpp" line="1878"/>
+        <location filename="../src/dataset.cpp" line="1880"/>
         <source>None</source>
         <translation>Ninguno</translation>
     </message>
@@ -3518,180 +4111,180 @@
 <context>
     <name>DevDriver</name>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="140"/>
+        <location filename="../src/device/dev_driver.cpp" line="142"/>
         <source>Port speed %1 set, the module saved it</source>
         <translation>Velocidad del puerto %1 establecida, el módulo la guardó</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="143"/>
+        <location filename="../src/device/dev_driver.cpp" line="145"/>
         <source>The module refused %1 bit/s: nothing changed, the port stays at %2</source>
         <translation>El módulo rechazó %1 bit/s: no cambió nada, el puerto sigue en %2</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="146"/>
+        <location filename="../src/device/dev_driver.cpp" line="148"/>
         <source>No answer from the module at %1. It keeps that rate (firmware 0.15 saves it at once), so the link stays at %1. If this device cannot do %1, hold the module&apos;s BOOT button 5 s: both ports go back to 921600, then set this link to 921600.</source>
         <translation>Sin respuesta del módulo a %1. Mantiene esa velocidad (el firmware 0.15 la guarda de inmediato), así que la conexión sigue en %1. Si este dispositivo no admite %1, mantenga presionado el botón BOOT del módulo 5 s: ambos puertos vuelven a 921600; después configure esta conexión a 921600.</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="151"/>
+        <location filename="../src/device/dev_driver.cpp" line="153"/>
         <source>No answer from the module at %1: the link is back at %2. An unsaved speed is gone after the module&apos;s next reboot.</source>
         <translation>Sin respuesta del módulo a %1: la conexión volvió a %2. Una velocidad no guardada se pierde con el siguiente reinicio del módulo.</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="183"/>
+        <location filename="../src/device/dev_driver.cpp" line="185"/>
         <source>Port %1: %2 bit/s set, the module saved it</source>
         <translation>Puerto %1: %2 bit/s establecidos, el módulo los guardó</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="184"/>
+        <location filename="../src/device/dev_driver.cpp" line="186"/>
         <source>Port %1: line settings applied</source>
         <translation>Puerto %1: ajustes de línea aplicados</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="188"/>
+        <location filename="../src/device/dev_driver.cpp" line="190"/>
         <source>Port %1: the module did not send the line&apos;s settings, nothing changed</source>
         <translation>Puerto %1: el módulo no envió los ajustes de la línea, no cambió nada</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="192"/>
+        <location filename="../src/device/dev_driver.cpp" line="194"/>
         <source>Port %1: the line&apos;s settings are not known, nothing changed</source>
         <translation>Puerto %1: los ajustes de la línea son desconocidos, no cambió nada</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="196"/>
+        <location filename="../src/device/dev_driver.cpp" line="198"/>
         <source>Port %1: the module refused %2 bit/s (code %3)</source>
         <translation>Puerto %1: el módulo rechazó %2 bit/s (código %3)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="197"/>
+        <location filename="../src/device/dev_driver.cpp" line="199"/>
         <source>Port %1: the module refused the line settings (code %2)</source>
         <translation>Puerto %1: el módulo rechazó los ajustes de línea (código %2)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="201"/>
+        <location filename="../src/device/dev_driver.cpp" line="203"/>
         <source>Port %1: no answer from the module; what is shown is what it reports</source>
         <translation>Puerto %1: sin respuesta del módulo; se muestra lo que este informa</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="218"/>
         <location filename="../src/device/dev_driver.cpp" line="220"/>
+        <location filename="../src/device/dev_driver.cpp" line="222"/>
         <source>Radio: %1</source>
         <translation>Radio: %1</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="264"/>
+        <location filename="../src/device/dev_driver.cpp" line="266"/>
         <source>No answer from the board</source>
         <translation>La placa no responde</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2050"/>
+        <location filename="../src/device/dev_driver.cpp" line="1994"/>
         <source>the radio is switched off</source>
         <translation>la radio está apagada</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2068"/>
+        <location filename="../src/device/dev_driver.cpp" line="2012"/>
         <source>the module is busy (a window, a survey, a scan or joining runs, or the last window was under 1 s ago)</source>
         <translation>el módulo está ocupado (hay en curso una ventana, un sondeo, un escaneo o una conexión a la red, o la última ventana fue hace menos de 1 s)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2069"/>
+        <location filename="../src/device/dev_driver.cpp" line="2013"/>
         <source>the module refused the report (code %1)</source>
         <translation>el módulo rechazó el informe (código %1)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2106"/>
+        <location filename="../src/device/dev_driver.cpp" line="2050"/>
         <source>the module is busy (a survey, a scan or joining a network runs)</source>
         <translation>el módulo está ocupado (hay en curso un sondeo, un escaneo o una conexión a una red)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2107"/>
-        <location filename="../src/device/dev_driver.cpp" line="2202"/>
+        <location filename="../src/device/dev_driver.cpp" line="2051"/>
+        <location filename="../src/device/dev_driver.cpp" line="2146"/>
         <source>the module refused the key</source>
         <translation>el módulo rechazó la clave</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2108"/>
+        <location filename="../src/device/dev_driver.cpp" line="2052"/>
         <source>the module refused the survey (code %1)</source>
         <translation>el módulo rechazó el sondeo (código %1)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2198"/>
+        <location filename="../src/device/dev_driver.cpp" line="2142"/>
         <source>the radio is busy: a channel survey or a link speed window, a scan, or a firmware update (or the first minute after one) runs; try again in a moment</source>
         <translation>la radio está ocupada: hay en curso un sondeo de canales, una ventana de velocidad del enlace, un escaneo o una actualización de firmware (o su primer minuto); inténtelo de nuevo en un momento</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2200"/>
+        <location filename="../src/device/dev_driver.cpp" line="2144"/>
         <source>the module refused the request (ERR_PAYLOAD)</source>
         <translation>el módulo rechazó la solicitud (ERR_PAYLOAD)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2201"/>
+        <location filename="../src/device/dev_driver.cpp" line="2145"/>
         <source>over the network the module switches its radio off only for 1 s to 10 min</source>
         <translation>a través de la red el módulo solo apaga su radio de 1 s a 10 min</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2204"/>
+        <location filename="../src/device/dev_driver.cpp" line="2148"/>
         <source>this firmware cannot switch the radio off (that came with 0.20)</source>
         <translation>este firmware no puede apagar la radio (eso llegó con la 0.20)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2205"/>
+        <location filename="../src/device/dev_driver.cpp" line="2149"/>
         <source>the module refused the request (code %1)</source>
         <translation>el módulo rechazó la solicitud (código %1)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3318"/>
+        <location filename="../src/device/dev_driver.cpp" line="3262"/>
         <source>The preset was not saved</source>
         <translation>El preajuste no se guardó</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3319"/>
+        <location filename="../src/device/dev_driver.cpp" line="3263"/>
         <source>The preset was not deleted</source>
         <translation>El preajuste no se eliminó</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3320"/>
+        <location filename="../src/device/dev_driver.cpp" line="3264"/>
         <source>The preset was not applied</source>
         <translation>El preajuste no se aplicó</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3321"/>
+        <location filename="../src/device/dev_driver.cpp" line="3265"/>
         <source>the sonar&apos;s flash did not take it</source>
         <translation>la memoria flash del sonar no lo aceptó</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3322"/>
+        <location filename="../src/device/dev_driver.cpp" line="3266"/>
         <source>there is no such preset in the sonar</source>
         <translation>no existe ese preajuste en el sonar</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3323"/>
+        <location filename="../src/device/dev_driver.cpp" line="3267"/>
         <source>the sonar asked for the key</source>
         <translation>el sonar pidió la clave</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3324"/>
+        <location filename="../src/device/dev_driver.cpp" line="3268"/>
         <source>code %1</source>
         <translation>código %1</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3938"/>
+        <location filename="../src/device/dev_driver.cpp" line="3880"/>
         <source>This firmware has no ring counters</source>
         <translation>Este firmware no tiene contadores de anillo</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3939"/>
+        <location filename="../src/device/dev_driver.cpp" line="3881"/>
         <source>Refused by the board (code %1)</source>
         <translation>La placa lo rechazó (código %1)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="4044"/>
+        <location filename="../src/device/dev_driver.cpp" line="3986"/>
         <source>Sync config rejected by device</source>
         <translation>El dispositivo rechazó la configuración de sincronización</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="4633"/>
-        <location filename="../src/device/dev_driver.cpp" line="4646"/>
+        <location filename="../src/device/dev_driver.cpp" line="4700"/>
+        <location filename="../src/device/dev_driver.cpp" line="4713"/>
         <source>no answer from the module</source>
         <translation>sin respuesta del módulo</translation>
     </message>
@@ -4067,3175 +4660,3154 @@
 <context>
     <name>DeviceSettingsPage</name>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="64"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3076"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="67"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2992"/>
         <source>Boat link</source>
         <translation>Enlace con el barco</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="65"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4677"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="68"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4593"/>
         <source>Lines</source>
         <translation>Líneas</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="66"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4334"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4337"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5670"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="69"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4250"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4253"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5534"/>
         <source>Role</source>
         <translation>Rol</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="67"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2236"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4342"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="70"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2152"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4258"/>
         <source>Access point</source>
         <translation>Punto de acceso</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="68"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="71"/>
         <source>Address and DHCP</source>
         <translation>Dirección y DHCP</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="69"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5079"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="72"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4995"/>
         <source>Network (USB)</source>
         <translation>Red (USB)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="74"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="77"/>
         <source>%1 line</source>
         <translation>Línea %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="76"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="79"/>
         <source>%1 rate</source>
         <translation>Velocidad de %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="79"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3604"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="82"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3520"/>
         <source>Port speed</source>
         <translation>Velocidad del puerto</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="80"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3331"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="83"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3247"/>
         <source>Radio</source>
         <translation>Radio</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="81"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="82"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4245"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4516"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="84"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="85"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4161"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4432"/>
         <source>Module address</source>
         <translation>Dirección del módulo</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="104"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="107"/>
         <source>Apply and save stopped: another device was opened. Applied before: %1</source>
         <translation>Se detuvo «Aplicar y guardar»: se abrió otro dispositivo. Aplicado antes: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="105"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3727"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="108"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3643"/>
         <source>nothing</source>
         <translation>nada</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="173"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="176"/>
         <source>the rest (a port change did not finish)</source>
         <translation>el resto (no terminó un cambio de puerto)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="200"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="203"/>
         <source>Applying %1 of %2…</source>
         <translation>Aplicando %1 de %2…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="201"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="204"/>
         <source>Saving…</source>
         <translation>Guardando…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="210"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="213"/>
         <source>Not applied: %1; see those islands.</source>
         <translation>No aplicado: %1; revise esas secciones.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="211"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="214"/>
         <source>Applied: %1.</source>
         <translation>Aplicado: %1.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="212"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="216"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="827"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="215"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="219"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="856"/>
         <source>Settings written to device: %1</source>
         <translation>Ajustes escritos en el dispositivo: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="214"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="217"/>
         <source>Applied: %1. Settings written to device: %2</source>
         <translation>Aplicado: %1. Ajustes escritos en el dispositivo: %2</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="263"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="286"/>
         <source>Baudrate set: %1</source>
         <translation>Velocidad en baudios establecida: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="344"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="367"/>
         <source>Favourites are full: up to %1 settings</source>
         <translation>Favoritos llenos: hasta %1 ajustes</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="511"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="540"/>
         <source>Group &quot;%1&quot; settings were not applied</source>
         <translation>No se aplicaron los ajustes del grupo &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="512"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1738"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4947"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5003"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="541"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1641"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4863"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4919"/>
         <source>Echogram</source>
         <translation>Ecograma</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="513"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1795"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4960"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="542"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1698"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4876"/>
         <source>Rangefinder</source>
         <translation>Telémetro</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="514"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4973"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="543"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4889"/>
         <source>Transducer</source>
         <translation>Transductor</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="515"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4986"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="544"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4902"/>
         <source>DSP</source>
         <translation>DSP</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="516"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4998"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="545"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4914"/>
         <source>Dataset</source>
         <translation>Conjunto de datos</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="517"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5049"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="546"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4965"/>
         <source>Actions</source>
         <translation>Acciones</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="789"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="818"/>
         <source>Hide password</source>
         <translation>Ocultar contraseña</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="789"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="818"/>
         <source>Show password</source>
         <translation>Mostrar contraseña</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="802"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="831"/>
         <source>Tap again</source>
         <translation>Toque de nuevo</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="821"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="850"/>
         <source>Flash settings</source>
         <translation>Guardar en flash</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="822"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="851"/>
         <source>Write current settings to device memory</source>
         <translation>Escribir los ajustes actuales en la memoria del dispositivo</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="856"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="885"/>
         <source>Recorder</source>
         <translation>Registrador</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="911"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="917"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="918"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="940"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="946"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="947"/>
         <source>s</source>
         <translation>s</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="916"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="945"/>
         <source>h</source>
         <translation>h</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="916"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="917"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="945"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="946"/>
         <source>m</source>
         <translation>m</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="946"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1004"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1040"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="975"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1020"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1056"/>
         <source>Sonar 1</source>
         <translation>Sonar 1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="947"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1004"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1041"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="976"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1020"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1057"/>
         <source>Sonar 2</source>
         <translation>Sonar 2</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="948"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1004"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1042"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="977"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1020"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1058"/>
         <source>Nav</source>
         <translation>Nav</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="950"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="979"/>
         <source> &amp; </source>
         <translation> y </translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="977"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2238"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2401"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="993"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2154"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2317"/>
         <source>Connecting…</source>
         <translation>Conectando…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="977"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="993"/>
         <source>Waiting for the recorder.</source>
         <translation>Esperando al registrador.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="979"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="995"/>
         <source>No response</source>
         <translation>Sin respuesta</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="980"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="996"/>
         <source>No update for %1 — showing last known.</source>
         <translation>Sin actualizaciones desde hace %1 — se muestran los últimos datos conocidos.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="984"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1000"/>
         <source>Storage lost</source>
         <translation>Almacenamiento perdido</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="984"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1000"/>
         <source>Recording failed</source>
         <translation>Error de grabación</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="985"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1001"/>
         <source>Recording stopped — check the recorder.</source>
         <translation>Grabación detenida — revise el registrador.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="987"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1003"/>
         <source>Recording off</source>
         <translation>Grabación desactivada</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="987"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1003"/>
         <source>Recording is disabled.</source>
         <translation>La grabación está deshabilitada.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="996"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1012"/>
         <source>Recording stopped</source>
         <translation>Grabación detenida</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="997"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1013"/>
         <source>No data from %1 · nothing recorded for %2</source>
         <translation>Sin datos de %1 · nada grabado durante %2</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="998"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1014"/>
         <source>Nothing recorded for %1 — source silent.</source>
         <translation>Nada grabado durante %1 — la fuente está en silencio.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1008"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1024"/>
         <source>%1 connected</source>
         <translation>%1 conectado</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1008"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1024"/>
         <source>%1 disconnected</source>
         <translation>%1 desconectado</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1011"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1028"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1027"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1044"/>
         <source>Recording</source>
         <translation>Grabando</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1012"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1028"/>
         <source>Saving to log #%1 — %2</source>
         <translation>Guardando en el registro #%1 — %2</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1013"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1029"/>
         <source>Saving — %1</source>
         <translation>Guardando — %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1021"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1037"/>
         <source>Saving to log #%1 — %2 are connected.</source>
         <translation>Guardando en el registro #%1 — %2 están conectados.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1022"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1038"/>
         <source>Saving to log #%1 — %2 connected.</source>
         <translation>Guardando en el registro #%1 — %2 conectado.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1023"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1039"/>
         <source>Saving to log #%1.</source>
         <translation>Guardando en el registro #%1.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1025"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1041"/>
         <source>Saving — %1 are connected.</source>
         <translation>Guardando — %1 están conectados.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1026"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1042"/>
         <source>Saving — %1 connected.</source>
         <translation>Guardando — %1 conectado.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1027"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1043"/>
         <source>Saving.</source>
         <translation>Guardando.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1031"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1047"/>
         <source>Idle</source>
         <translation>Inactivo</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1031"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1047"/>
         <source>Armed — waiting for data.</source>
         <translation>Preparado — esperando datos.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1032"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1048"/>
         <source>Starting…</source>
         <translation>Iniciando…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1032"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1048"/>
         <source>Recorder is coming up.</source>
         <translation>El registrador se está iniciando.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1040"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1056"/>
         <source>S1</source>
         <translation>S1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1041"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1057"/>
         <source>S2</source>
         <translation>S2</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1210"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1114"/>
         <source>Free space</source>
         <translation>Espacio libre</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1241"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1145"/>
         <source>⚠ Dropping frames</source>
         <translation>⚠ Pérdida de tramas</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1251"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1154"/>
         <source>Values may be outdated.</source>
         <translation>Los valores pueden estar desactualizados.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1282"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1185"/>
         <source>Logs (%1)</source>
         <translation>Registros (%1)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1290"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1193"/>
         <source>Refresh</source>
         <translation>Actualizar</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1298"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1201"/>
         <source>No logs listed yet — tap Refresh to enumerate the recorder&apos;s archive.</source>
         <translation>Aún no hay registros en la lista — toque «Actualizar» para listar el historial del registrador.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1340"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1475"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1243"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1378"/>
         <source>Saved &quot;%1&quot; to &quot;%2&quot;</source>
         <translation>Se guardó &quot;%1&quot; en &quot;%2&quot;</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1353"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1489"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2598"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1256"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1392"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2514"/>
         <source>Cancel</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1353"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1489"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1256"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1392"/>
         <source>Re-download</source>
         <translation>Volver a descargar</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1353"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1489"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1256"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1392"/>
         <source>Download</source>
         <translation>Descargar</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1385"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1522"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1288"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1425"/>
         <source>Downloading… %1%</source>
         <translation>Descargando… %1%</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1386"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1523"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4008"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1289"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1426"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3924"/>
         <source>Saved</source>
         <translation>Guardado</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1571"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1474"/>
         <source>Downloads are saved to &quot;%1&quot;</source>
         <translation>Las descargas se guardan en &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1649"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1552"/>
         <source>Not applied to the device</source>
         <translation>No aplicado en el dispositivo</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1671"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1574"/>
         <source>Period, ms</source>
         <translation>Período, ms</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1718"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1621"/>
         <source>Distance, m</source>
         <translation>Distancia, m</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1732"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1635"/>
         <source>Frequency, kHz</source>
         <translation>Frecuencia, kHz</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1752"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1801"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3004"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3012"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3119"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3405"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4109"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4694"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5014"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1655"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1704"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2920"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2928"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3035"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3321"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4025"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4610"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4930"/>
         <source>Off</source>
         <translation>Desactivado</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1583"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1486"/>
         <source>Connectors</source>
         <translation>Conectores</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1752"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5014"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1655"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4930"/>
         <source>8-bit</source>
         <translation>8 bits</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1752"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5014"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1655"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4930"/>
         <source>Compressed</source>
         <translation>Comprimido</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1752"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5014"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1655"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4930"/>
         <source>IQ</source>
         <translation>IQ</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1752"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5014"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1655"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4930"/>
         <source>RAW</source>
         <translation>RAW</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1779"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1682"/>
         <source>Resolution, cm</source>
         <translation>Resolución, cm</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1801"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3013"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1704"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2929"/>
         <source>On</source>
         <translation>Activado</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1801"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1704"/>
         <source>NMEA</source>
         <translation>NMEA</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1816"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1719"/>
         <source>Confidence threshold, %</source>
         <translation>Umbral de confianza, %</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1859"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1775"/>
         <source>Favourites:</source>
         <translation>Favoritos:</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1876"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1792"/>
         <source>Tap a star next to a setting to pin it here</source>
         <translation>Toque la estrella junto a un ajuste para fijarlo aquí</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1985"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1901"/>
         <source>Wi‑Fi airtime: others %1 (mean %2)</source>
         <translation>Ocupación Wi‑Fi: otros %1 (media %2)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1987"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1903"/>
         <source>, ours %1</source>
         <translation>, nuestro %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1988"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1904"/>
         <source>%1 frames/s</source>
         <translation>%1 tramas/s</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1989"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2765"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1905"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2681"/>
         <source>%1 transmitters</source>
         <translation>%1 transmisores</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1990"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1906"/>
         <source>the strongest %1 dBm</source>
         <translation>el más fuerte %1 dBm</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1990"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2212"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1906"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2128"/>
         <source>nothing heard</source>
         <translation>sin señal</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1995"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1911"/>
         <source>No network heard on it or up to 3 channels away (last scan).</source>
         <translation>No se detectó ninguna red en este canal ni a una distancia de hasta 3 canales (último escaneo).</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2000"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1916"/>
         <source>Networks heard (last scan): %1 on it, %2 up to 3 channels away</source>
         <translation>Redes detectadas (último escaneo): %1 en este canal, %2 a una distancia de hasta 3 canales</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2036"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1952"/>
         <source>no data frames in the window</source>
         <translation>no hay tramas de datos en la ventana</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2037"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1953"/>
         <source>(and %1 more)</source>
         <translation>(y %1 más)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2044"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1960"/>
         <source>%1 % (%2 of %3)</source>
         <translation>%1 % (%2 de %3)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2052"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1968"/>
         <source>%1 of %2 frames</source>
         <translation>%1 de %2 tramas</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2054"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1970"/>
         <source>%1 at %2</source>
         <translation>%1 a %2</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2056"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2397"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2620"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2814"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4454"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1972"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2313"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2536"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2730"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4370"/>
         <source>dBm</source>
         <translation>dBm</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2084"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3459"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2000"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3375"/>
         <source>%1 s</source>
         <translation>%1 s</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2086"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2281"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3461"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2002"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2197"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3377"/>
         <source>%1 min</source>
         <translation>%1 min</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2087"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2281"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2003"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2197"/>
         <source>%1 h %2 min</source>
         <translation>%1 h %2 min</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2092"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2008"/>
         <source>the access point&apos;s beacons stopped: it went off or out of reach</source>
         <translation>las balizas del punto de acceso cesaron: se apagó o quedó fuera de alcance</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2093"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2009"/>
         <source>the network is not heard</source>
         <translation>no se detecta la red</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2094"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2010"/>
         <source>authentication failed</source>
         <translation>error de autenticación</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2095"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2261"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2011"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2177"/>
         <source>association failed</source>
         <translation>error de asociación</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2097"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2013"/>
         <source>the key handshake timed out: a wrong password?</source>
         <translation>se agotó el tiempo del intercambio de claves: ¿contraseña incorrecta?</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2101"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2017"/>
         <source>the access point let this module go</source>
         <translation>el punto de acceso desconectó este módulo</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2109"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3737"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4666"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2025"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3653"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4582"/>
         <source>code %1</source>
         <translation>código %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2114"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2030"/>
         <source>The module restarted</source>
         <translation>El módulo se reinició</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2116"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2032"/>
         <source>A client joined</source>
         <translation>Se conectó un cliente</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2117"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2033"/>
         <source>The last client left</source>
         <translation>Se desconectó el último cliente</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2117"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2033"/>
         <source>A client left</source>
         <translation>Se desconectó un cliente</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2119"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2035"/>
         <source>Connected to %1</source>
         <translation>Conectado a %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2120"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2036"/>
         <source>Access point %1 up</source>
         <translation>Punto de acceso %1 activo</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2121"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2122"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2037"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2038"/>
         <source>Link lost</source>
         <translation>Enlace perdido</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2121"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2037"/>
         <source>Connecting to %1</source>
         <translation>Conectando a %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2122"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2038"/>
         <source>Looking for the network</source>
         <translation>Buscando la red</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2123"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2039"/>
         <source>Stopped</source>
         <translation>Detenido</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2125"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2041"/>
         <source>State %1</source>
         <translation>Estado %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2135"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2051"/>
         <source>%1 now, the weakest %2 dBm</source>
         <translation>%1 ahora, el más débil %2 dBm</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2137"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2053"/>
         <source>ch %1 · %2 dBm</source>
         <translation>can. %1 · %2 dBm</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2139"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2055"/>
         <source>ch %1 · clients: %2</source>
         <translation>can. %1 · clientes: %2</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2149"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2065"/>
         <source>%1 ago</source>
         <translation>hace %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2151"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2067"/>
         <source>as the app found it</source>
         <translation>tal como lo encontró la aplicación</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2153"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2069"/>
         <source>the link had held %1</source>
         <translation>el enlace había durado %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2155"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2071"/>
         <source>%1 after the previous</source>
         <translation>%1 después del anterior</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2179"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2095"/>
         <source>updating…</source>
         <translation>actualizando…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2181"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2097"/>
         <source>From an earlier measurement.</source>
         <translation>De una medición anterior.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2184"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2100"/>
         <source>updated just now</source>
         <translation>actualizado hace un momento</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2186"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2102"/>
         <source>updated %1 s ago</source>
         <translation>actualizado hace %1 s</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2187"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2103"/>
         <source>updated %1 min ago</source>
         <translation>actualizado hace %1 min</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2212"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2128"/>
         <source>%1 dBm</source>
         <translation>%1 dBm</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2237"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4012"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2153"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3928"/>
         <source>Connected</source>
         <translation>Conectado</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2239"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2155"/>
         <source>Searching…</source>
         <translation>Buscando…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2241"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2385"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2157"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2301"/>
         <source>Not connected</source>
         <translation>No conectado</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2245"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4402"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2161"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4318"/>
         <source>Open</source>
         <translation>Abierta</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2252"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2168"/>
         <source>Enterprise</source>
         <translation>Enterprise</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2255"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2171"/>
         <source>Secured</source>
         <translation>Protegida</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2259"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2175"/>
         <source>network not found</source>
         <translation>red no encontrada</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2260"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2176"/>
         <source>wrong password</source>
         <translation>contraseña incorrecta</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2262"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2178"/>
         <source>connection lost</source>
         <translation>conexión perdida</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2263"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2179"/>
         <source>disconnected</source>
         <translation>desconectado</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2268"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2184"/>
         <source>MB/s</source>
         <translation>MB/s</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2269"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2185"/>
         <source>KB/s</source>
         <translation>KB/s</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2270"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2186"/>
         <source>B/s</source>
         <translation>B/s</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2273"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2189"/>
         <source>GB</source>
         <translation>GB</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2274"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2190"/>
         <source>MB</source>
         <translation>MB</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2275"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2191"/>
         <source>KB</source>
         <translation>KB</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2276"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2192"/>
         <source>B</source>
         <translation>B</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2307"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2223"/>
         <source>Enter the network name</source>
         <translation>Escriba el nombre de la red</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2313"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2229"/>
         <source>Connecting to %1…</source>
         <translation>Conectando a %1…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2316"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2232"/>
         <source>Network name or password is too long</source>
         <translation>El nombre de la red o la contraseña es demasiado largo</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2329"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2245"/>
         <source>Wi‑Fi connected: %1</source>
         <translation>Wi‑Fi conectado: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2332"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2248"/>
         <source>Wi‑Fi: %1 (%2)</source>
         <translation>Wi‑Fi: %1 (%2)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2342"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2258"/>
         <source>the module is busy, try again in a moment</source>
         <translation>el módulo está ocupado, inténtelo de nuevo en un momento</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2343"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2259"/>
         <source>the module rejected the request</source>
         <translation>el módulo rechazó la solicitud</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2344"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2260"/>
         <source>response code %1</source>
         <translation>código de respuesta %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2345"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2261"/>
         <source>Wi‑Fi command failed: %1</source>
         <translation>Error del comando Wi‑Fi: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2374"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3010"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2290"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2926"/>
         <source>No data</source>
         <translation>Sin datos</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2375"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3500"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2291"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3416"/>
         <source>Radio off</source>
         <translation>Radio apagada</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2389"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2305"/>
         <source>Waiting for the module…</source>
         <translation>Esperando al módulo…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2391"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2307"/>
         <source>The radio is switched off to swap the antenna (Antenna swap below)</source>
         <translation>La radio está apagada para cambiar la antena (sección «Cambio de antena» más abajo)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2393"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2309"/>
         <source>Own access point · ch %1 · %2 · clients: %3</source>
         <translation>Punto de acceso propio · can. %1 · %2 · clientes: %3</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2397"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2616"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2814"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2313"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2532"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2730"/>
         <source>ch %1</source>
         <translation>can. %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2403"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2319"/>
         <source>Looking for a saved network…</source>
         <translation>Buscando una red guardada…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2406"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2322"/>
         <source>Last attempt: %1</source>
         <translation>Último intento: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2407"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2323"/>
         <source>Auto-connect is off</source>
         <translation>La conexión automática está desactivada</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2407"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2323"/>
         <source>No saved networks yet</source>
         <translation>Aún no hay redes guardadas</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2432"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4019"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2348"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3935"/>
         <source>Traffic</source>
         <translation>Tráfico</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2434"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2350"/>
         <source>%1 received, %2 sent</source>
         <translation>%1 recibidos, %2 enviados</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2436"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2352"/>
         <source>Module up %1</source>
         <translation>Módulo activo desde hace %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2437"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2353"/>
         <source> · last restart: %1</source>
         <translation> · último reinicio: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2438"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2354"/>
         <source> · requests lost: %1</source>
         <translation> · solicitudes perdidas: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2443"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2359"/>
         <source>Both ends</source>
         <translation>Ambos extremos</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2445"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2361"/>
         <source>%1 dBm here · %2 dBm there · %3 dB apart</source>
         <translation>%1 dBm aquí · %2 dBm allí · %3 dB de diferencia</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2449"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2365"/>
         <source>Here: how this access point hears its weakest client; there: how the client&apos;s module hears this access point. A big gap points to one end: its antenna, its transmit power or the module.</source>
         <translation>Aquí: cómo recibe este punto de acceso a su cliente más débil; allí: cómo recibe el módulo del cliente a este punto de acceso. Una diferencia grande apunta a uno de los extremos: su antena, su potencia de transmisión o el módulo.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2450"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2366"/>
         <source>Here: how this module hears its access point; there: how the access point hears it (its weakest client). A big gap points to one end: its antenna, its transmit power or the module.</source>
         <translation>Aquí: cómo recibe este módulo a su punto de acceso; allí: cómo lo recibe el punto de acceso (su cliente más débil). Una diferencia grande apunta a uno de los extremos: su antena, su potencia de transmisión o el módulo.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2454"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2370"/>
         <source>Link speed</source>
         <translation>Velocidad del enlace</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2462"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2378"/>
         <source>not measured: %1</source>
         <translation>no medido: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2462"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2378"/>
         <source>measuring…</source>
         <translation>midiendo…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2463"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2485"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2379"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2401"/>
         <source>in: %1</source>
         <translation>entrada: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2464"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2486"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2380"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2402"/>
         <source>out: %1</source>
         <translation>salida: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2471"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2387"/>
         <source>In: %1.</source>
         <translation>Entrada: %1.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2472"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2388"/>
         <source>Out, as the other end hears it: %1.</source>
         <translation>Salida, tal como la recibe el otro extremo: %1.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2478"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2394"/>
         <source>Retransmissions</source>
         <translation>Retransmisiones</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2488"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2404"/>
         <source>Of the other end&apos;s data frames, the share that came again: its earlier try or the acknowledgement was lost. Summed over the last 10 measurements (about 30 s). In: the other end&apos;s frames as this module hears them; out: this module&apos;s, as the other end hears them. A lower bound: a frame none of whose tries arrived is not seen.</source>
         <translation>De las tramas de datos del otro extremo, la parte que llegó de nuevo: se perdió su intento anterior o la confirmación. Suma de las últimas 10 mediciones (unos 30 s). Entrada: las tramas del otro extremo tal como las recibe este módulo; salida: las de este módulo, tal como las recibe el otro extremo. Es un límite inferior: una trama de la que no llegó ningún intento no se ve.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2493"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2409"/>
         <source>Auto-connect</source>
         <translation>Conexión automática</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2494"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2410"/>
         <source>Join the strongest saved network at power-up and after a loss</source>
         <translation>Conectarse a la red guardada con mejor señal al encender y tras perder la conexión</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2507"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2423"/>
         <source>Auto-connect off: the module leaves the network</source>
         <translation>Conexión automática desactivada: el módulo sale de la red</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2520"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2436"/>
         <source>Scanning…</source>
         <translation>Escaneando…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2520"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2436"/>
         <source>Scan</source>
         <translation>Escanear</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2522"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2438"/>
         <source>Look for networks nearby (takes a few seconds)</source>
         <translation>Buscar redes cercanas (tarda unos segundos)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2527"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2443"/>
         <source>Disconnect</source>
         <translation>Desconectar</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2529"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2445"/>
         <source>Leave the network and switch auto-connect off</source>
         <translation>Salir de la red y desactivar la conexión automática</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2534"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2450"/>
         <source>Wi‑Fi disconnected, auto-connect off</source>
         <translation>Wi‑Fi desconectado, conexión automática desactivada</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2539"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2455"/>
         <source>Other…</source>
         <translation>Otra…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2540"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2456"/>
         <source>Join a network that hides its name</source>
         <translation>Conectarse a una red que oculta su nombre</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2549"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2465"/>
         <source>Join a hidden network</source>
         <translation>Conectarse a una red oculta</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2549"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2465"/>
         <source>Join %1</source>
         <translation>Conectarse a %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2553"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4387"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2469"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4303"/>
         <source>Network name (SSID)</source>
         <translation>Nombre de la red (SSID)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2557"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2473"/>
         <source>SSID</source>
         <translation>SSID</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2563"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2570"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4392"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2479"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2486"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4308"/>
         <source>Password</source>
         <translation>Contraseña</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2564"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2480"/>
         <source>Saved network: the module keeps its password to itself, type it once more</source>
         <translation>Red guardada: el módulo no revela su contraseña, escríbala otra vez</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2565"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2481"/>
         <source>Leave empty for an open network</source>
         <translation>Déjelo vacío para una red abierta</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2576"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2492"/>
         <source>Remember this network</source>
         <translation>Recordar esta red</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2577"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2493"/>
         <source>Stored in the module once an address is obtained</source>
         <translation>Se guarda en el módulo una vez obtenida una dirección</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2588"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2504"/>
         <source>Connect</source>
         <translation>Conectar</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2607"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2523"/>
         <source>Networks nearby (searching…)</source>
         <translation>Redes cercanas (buscando…)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2607"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2523"/>
         <source>Networks nearby</source>
         <translation>Redes cercanas</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2614"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2530"/>
         <source>(hidden network)</source>
         <translation>(red oculta)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2617"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2946"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2533"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2862"/>
         <source>connected</source>
         <translation>conectada</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2617"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2533"/>
         <source>saved</source>
         <translation>guardada</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2632"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2548"/>
         <source>Nothing found yet. Tap Scan.</source>
         <translation>Aún no se ha encontrado nada. Toque «Escanear».</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2642"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2558"/>
         <source>Channels</source>
         <translation>Canales</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2646"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2562"/>
         <source>Live</source>
         <translation>En vivo</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2648"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2564"/>
         <source>Measuring again and again while this page is open; each measurement takes about 4 s and pauses the boat link.</source>
         <translation>Midiendo una y otra vez mientras esta página esté abierta; cada medición tarda unos 4 s y pausa el enlace con el barco.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2649"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2565"/>
         <source>Scanning again and again while this page is open; each scan takes 2–4 s and may stall the boat link.</source>
         <translation>Escaneando una y otra vez mientras esta página esté abierta; cada escaneo tarda 2–4 s y puede atascar el enlace con el barco.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2650"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2566"/>
         <source>Off: the picture is of one measurement.</source>
         <translation>Desactivado: la imagen corresponde a una sola medición.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2650"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2566"/>
         <source>Off: the picture is of one scan.</source>
         <translation>Desactivado: la imagen corresponde a un solo escaneo.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2664"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2580"/>
         <source>Wi‑Fi airtime</source>
         <translation>Ocupación Wi‑Fi</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2665"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2581"/>
         <source>Measured by the module: the share of the time the air carried Wi‑Fi frames on each channel, 0.3 s a channel (a lower bound: interference that is not Wi‑Fi is not seen). A bar is the other networks&apos; share in the last measurement, with our own link&apos;s on top in a lighter tone (it moves with us; neighbours of our channel • hear it too); the figure and the tick, the mean of the last measurements, are the others&apos; share, which the pick goes by. A measurement takes about 4 s and pauses the boat link. Tap a channel for its details.</source>
         <translation>Medido por el módulo: la fracción del tiempo en que hubo tramas Wi‑Fi en el aire en cada canal, 0.3 s por canal (es una cota inferior: no se ven las interferencias que no son Wi‑Fi). Cada barra es la fracción de las otras redes en la última medición, con la de nuestro propio enlace encima en un tono más claro (se desplaza con nosotros; los vecinos de nuestro canal • también lo reciben); la cifra y la marca, la media de las últimas mediciones, son la fracción de las otras redes, en la que se basa la recomendación. Una medición tarda unos 4 s y pausa el enlace con el barco. Toque un canal para ver sus detalles.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2671"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2587"/>
         <source>Measuring…</source>
         <translation>Midiendo…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2671"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2587"/>
         <source>Measure</source>
         <translation>Medir</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2673"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2589"/>
         <source>Measure the Wi‑Fi airtime of every channel now (about 4 s)</source>
         <translation>Medir ahora la ocupación Wi‑Fi de cada canal (unos 4 s)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2760"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2676"/>
         <source>Least busy (mean of %1)</source>
         <translation>Más libre (media de %1)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2761"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2677"/>
         <source>Least busy (Wi‑Fi airtime)</source>
         <translation>Más libre (ocupación Wi‑Fi)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2764"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2773"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2894"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2900"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2680"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2689"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2810"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2816"/>
         <source>channel %1</source>
         <translation>canal %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2770"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2686"/>
         <source>Our channel now (•)</source>
         <translation>Nuestro canal actual (•)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2773"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2689"/>
         <source>others %1</source>
         <translation>otros %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2774"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2690"/>
         <source>ours %1</source>
         <translation>nuestro %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2781"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2697"/>
         <source>Not measured: %1</source>
         <translation>No medido: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2794"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2710"/>
         <source>Channel %1</source>
         <translation>Canal %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2794"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2710"/>
         <source>the pick</source>
         <translation>recomendado</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2795"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2711"/>
         <source>ours now</source>
         <translation>el nuestro ahora</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2813"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2729"/>
         <source>(hidden)</source>
         <translation>(oculta)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2815"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2731"/>
         <source>our link</source>
         <translation>nuestro enlace</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2826"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2742"/>
         <source>Networks heard (scan)</source>
         <translation>Redes detectadas (escaneo)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2828"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2744"/>
         <source>By the last scan: the power of the other networks on and next to each channel, with how 2.4 GHz channels overlap; our own network is left out. Tap a channel for its details.</source>
         <translation>Según el último escaneo: la potencia de las otras redes en cada canal y junto a él, teniendo en cuenta cómo se superponen los canales de 2.4 GHz; nuestra propia red no se incluye. Toque un canal para ver sus detalles.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2829"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2745"/>
         <source>By the networks heard: their power, counted with how 2.4 GHz channels overlap; our own network is left out. The traffic on a channel is not measured: that needs the module&apos;s firmware 0.16. Tap a channel for its details.</source>
         <translation>Según las redes detectadas: su potencia, contada teniendo en cuenta cómo se superponen los canales de 2.4 GHz; nuestra propia red no se incluye. El tráfico de un canal no se mide: para eso hace falta el firmware 0.16 del módulo. Toque un canal para ver sus detalles.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2893"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2809"/>
         <source>Least busy</source>
         <translation>Más libre</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2899"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2815"/>
         <source>The boat link now (•)</source>
         <translation>Enlace actual con el barco (•)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2910"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2826"/>
         <source>To move the link there, set channel %1 in Role and access point → Channel below, then Apply; the head unit&apos;s module follows by itself.</source>
         <translation>Para mover el enlace allí, configure el canal %1 en «Rol y punto de acceso → Canal» más abajo y luego «Aplicar»; el módulo de la unidad principal lo seguirá por sí solo.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2911"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2827"/>
         <source>To move the link there, set channel %1 on the boat&apos;s module: Role and access point → Channel, then Apply; this module follows by itself.</source>
         <translation>Para mover el enlace allí, configure el canal %1 en el módulo del barco: «Rol y punto de acceso → Canal» y luego «Aplicar»; este módulo lo seguirá por sí solo.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2919"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2835"/>
         <source>Link events</source>
         <translation>Eventos del enlace</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2939"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2855"/>
         <source>Saved networks</source>
         <translation>Redes guardadas</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2960"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2876"/>
         <source>Forget</source>
         <translation>Olvidar</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2965"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2881"/>
         <source>Forgotten: %1</source>
         <translation>Olvidada: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3000"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2916"/>
         <source>Ready</source>
         <translation>Listo</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3001"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2917"/>
         <source>Waiting for the boat</source>
         <translation>Esperando al barco</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3002"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2918"/>
         <source>No Wi‑Fi</source>
         <translation>Sin Wi‑Fi</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3008"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2924"/>
         <source>No relay in firmware</source>
         <translation>Firmware sin retransmisión</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3032"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2948"/>
         <source>Module address must be 0…255</source>
         <translation>La dirección del módulo debe ser 0…255</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3036"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2952"/>
         <source>Boat port must be 1…65535</source>
         <translation>El puerto del barco debe ser 1…65535</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3047"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2963"/>
         <source>Boat IP address must be four numbers 0…255</source>
         <translation>La dirección IP del barco debe tener cuatro números 0…255</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3053"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2969"/>
         <source>Relay switched off; the module answers at address %1</source>
         <translation>Retransmisión desactivada; el módulo responde en la dirección %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3055"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2971"/>
         <source>Relay settings sent; the module now answers at address %1 and shows up as a new device</source>
         <translation>Ajustes de retransmisión enviados; el módulo ahora responde en la dirección %1 y aparece como un dispositivo nuevo</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3107"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3023"/>
         <source>Module firmware %1 has no relay. Update it to 0.6 or newer with Upgrade below.</source>
         <translation>El firmware %1 del módulo no tiene retransmisión. Actualícelo a 0.6 o posterior con «Actualización» más abajo.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3114"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4105"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4690"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3030"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4021"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4606"/>
         <source>Mode</source>
         <translation>Modo</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3129"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3045"/>
         <source>Module address on this port</source>
         <translation>Dirección del módulo en este puerto</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3130"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3046"/>
         <source>Must differ from the boat device&apos;s address, which is usually 0</source>
         <translation>Debe ser distinta de la dirección del dispositivo del barco, que suele ser 0</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3141"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3057"/>
         <source>Boat IP address</source>
         <translation>Dirección IP del barco</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3142"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3058"/>
         <source>0.0.0.0 with UDP: the module answers whoever sends to it first</source>
         <translation>0.0.0.0 con UDP: el módulo responde a quien primero le envíe datos</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3152"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3068"/>
         <source>Boat port</source>
         <translation>Puerto del barco</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3153"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3069"/>
         <source>UDP or TCP port of the boat device</source>
         <translation>Puerto UDP o TCP del dispositivo del barco</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3164"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4140"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4725"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3080"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4056"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4641"/>
         <source>Own UDP port</source>
         <translation>Puerto UDP propio</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3165"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3081"/>
         <source>The port the boat sends to; 0 = same as the boat port</source>
         <translation>El puerto al que envía el barco; 0 = el mismo que el puerto del barco</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3182"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3420"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4165"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4224"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4433"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4563"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4755"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5229"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3098"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3336"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4081"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4140"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4349"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4479"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4671"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5145"/>
         <source>Apply</source>
         <translation>Aplicar</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3189"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3105"/>
         <source>Send the settings to the module; it stores and applies them at once</source>
         <translation>Enviar los ajustes al módulo; este los guarda y los aplica de inmediato</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3194"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3426"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4171"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4439"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4569"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4761"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3110"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3342"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4087"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4355"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4485"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4677"/>
         <source>Read back</source>
         <translation>Volver a leer</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3195"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3111"/>
         <source>Discard edits and show what the module has</source>
         <translation>Descartar los cambios y mostrar lo que tiene el módulo</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3208"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3124"/>
         <source>Relay counters</source>
         <translation>Contadores de retransmisión</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3211"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3127"/>
         <source>Peer</source>
         <translation>Nodo remoto</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3216"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3132"/>
         <source>To the boat</source>
         <translation>Hacia el barco</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3218"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4096"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4778"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3134"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4012"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4694"/>
         <source>%1 frames · %2 packets · %3 dropped</source>
         <translation>%1 tramas · %2 paquetes · %3 descartados</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3222"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3138"/>
         <source>From the boat</source>
         <translation>Desde el barco</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3224"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4101"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4783"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3140"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4017"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4699"/>
         <source>%1 packets · %2 frames · %3 dropped</source>
         <translation>%1 paquetes · %2 tramas · %3 descartados</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3228"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3144"/>
         <source>For the module</source>
         <translation>Para el módulo</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3229"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4061"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3145"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3977"/>
         <source>%1 frames</source>
         <translation>%1 tramas</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3265"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3466"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3474"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3181"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3382"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3390"/>
         <source>Not sent: no connection to the module</source>
         <translation>No enviado: sin conexión con el módulo</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3271"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3187"/>
         <source>Radio settings sent to the module</source>
         <translation>Ajustes de radio enviados al módulo</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3280"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3196"/>
         <source>Firmware 0.11 refuses LR only for an access point; update the module to 0.12.</source>
         <translation>El firmware 0.11 rechaza «solo LR» en un punto de acceso; actualice el módulo a 0.12.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3281"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3197"/>
         <source>The module refused these radio settings (ERR_PAYLOAD).</source>
         <translation>El módulo rechazó estos ajustes de radio (ERR_PAYLOAD).</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3283"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3199"/>
         <source>The module refused these radio settings: not possible now (ERR_RUNTIME).</source>
         <translation>El módulo rechazó estos ajustes de radio: no es posible ahora (ERR_RUNTIME).</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3284"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3200"/>
         <source>The module refused these radio settings (code %1).</source>
         <translation>El módulo rechazó estos ajustes de radio (código %1).</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3311"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3227"/>
         <source>no link</source>
         <translation>sin enlace</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3327"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3487"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3243"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3403"/>
         <source>Radio: %1</source>
         <translation>Radio: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3334"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3250"/>
         <source>Transmit power limit, dBm</source>
         <translation>Límite de potencia de transmisión, dBm</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3338"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3254"/>
         <source>In use: %1 dBm</source>
         <translation>En uso: %1 dBm</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3340"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3256"/>
         <source> (saved %1 dBm; the driver works in steps)</source>
         <translation> (guardado %1 dBm; el controlador funciona por escalones)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3352"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3268"/>
         <source>Protocols</source>
         <translation>Protocolos</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3354"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3270"/>
         <source>Access point: each client negotiates its own mode.</source>
         <translation>Punto de acceso: cada cliente negocia su propio modo.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3355"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3271"/>
         <source>Link now: %1</source>
         <translation>Enlace actual: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3356"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3272"/>
         <source>. LR needs an LR-capable access point: another Kogger module (Espressif) with LR or b/g/n+LR.</source>
         <translation>. LR requiere un punto de acceso compatible con LR: otro módulo Kogger (Espressif) con LR o b/g/n+LR.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3371"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3287"/>
         <source>LR only: phones and laptops cannot join; only Espressif stations with LR (another Kogger module set to LR or b/g/n+LR) can.</source>
         <translation>Solo LR: los teléfonos y portátiles no pueden conectarse; solo pueden hacerlo las estaciones Espressif con LR (otro módulo Kogger configurado en LR o b/g/n+LR).</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3382"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3298"/>
         <source>Channel width</source>
         <translation>Ancho de canal</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3383"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3299"/>
         <source>20 MHz only: 40 MHz needs 802.11n (b/g/n or b/g/n+LR); LR, b and b/g run at 20 MHz.</source>
         <translation>Solo 20 MHz: 40 MHz requiere 802.11n (b/g/n o b/g/n+LR); LR, b y b/g funcionan a 20 MHz.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3385"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3301"/>
         <source>No link: the saved width is shown</source>
         <translation>Sin enlace: se muestra el ancho guardado</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3386"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3302"/>
         <source>In use: %1 MHz</source>
         <translation>En uso: %1 MHz</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3388"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3304"/>
         <source> (saved %1 MHz)</source>
         <translation> (guardado %1 MHz)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3389"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3305"/>
         <source> (saved %1 MHz; the access point gives no 40 MHz)</source>
         <translation> (guardado %1 MHz; el punto de acceso no ofrece 40 MHz)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3393"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3309"/>
         <source>20 MHz</source>
         <translation>20 MHz</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3394"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3310"/>
         <source>40 MHz</source>
         <translation>40 MHz</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3395"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3311"/>
         <source>40 MHz needs 802.11n</source>
         <translation>40 MHz requiere 802.11n</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3401"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3317"/>
         <source>Power save</source>
         <translation>Ahorro de energía</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3405"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3321"/>
         <source>Min</source>
         <translation>Mín.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3405"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3321"/>
         <source>Max</source>
         <translation>Máx.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3411"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3327"/>
         <source>Checking what the module uses now… </source>
         <translation>Comprobando qué usa ahora el módulo… </translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3412"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3328"/>
         <source>Not applied yet: the menu differs from what the module uses. </source>
         <translation>Aún no aplicado: el menú difiere de lo que usa el módulo. </translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3413"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3329"/>
         <source>Protocol and width changes make the module reconnect: the boat link drops for a few seconds. 40 MHz needs 802.11n and an access point that gives it.</source>
         <translation>Cambiar el protocolo o el ancho de canal hace que el módulo se reconecte: el enlace con el barco se corta durante unos segundos. 40 MHz requiere 802.11n y un punto de acceso que lo ofrezca.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3462"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3378"/>
         <source>%1 min %2 s</source>
         <translation>%1 min %2 s</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3469"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3385"/>
         <source>Switching the module&apos;s radio off for %1</source>
         <translation>Apagando la radio del módulo durante %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3470"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3386"/>
         <source>Switching the module&apos;s radio off until you switch it on</source>
         <translation>Apagando la radio del módulo hasta que usted la encienda</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3493"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3409"/>
         <source>Antenna swap</source>
         <translation>Cambio de antena</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3500"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3416"/>
         <source>Radio off · %1</source>
         <translation>Radio apagada · %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3507"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3423"/>
         <source>Switch the radio off for</source>
         <translation>Apagar la radio durante</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3509"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3425"/>
         <source>Over the cable: the module stays in reach and may stay off until you switch it on (or it restarts).</source>
         <translation>Por cable: el módulo sigue al alcance y puede quedar apagado hasta que usted encienda la radio (o hasta que se reinicie).</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3510"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3426"/>
         <source>Over the network: the module is reached through this very radio, so it goes off only for a time (up to 10 min) and comes back by itself.</source>
         <translation>Por la red: al módulo se llega a través de esta misma radio, así que solo se apaga por un tiempo (hasta 10 min) y vuelve por sí sola.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3516"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3432"/>
         <source>Until on</source>
         <translation>Hasta encender</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3525"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3441"/>
         <source>The boat link drops for %1, and about 20 s more while the modules find each other again.</source>
         <translation>El enlace con el barco se corta durante %1, y unos 20 s más mientras los módulos vuelven a encontrarse.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3527"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3443"/>
         <source>The boat link drops until you switch the radio on, and about 20 s more while the modules find each other again.</source>
         <translation>El enlace con el barco se corta hasta que usted encienda la radio, y unos 20 s más mientras los módulos vuelven a encontrarse.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3531"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3447"/>
         <source>Switch the radio off</source>
         <translation>Apagar la radio</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5690"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5554"/>
         <source>A sync came later than usual: the board skipped a ping, or the leader sent the sync late</source>
         <translation>La sincronía llegó más tarde de lo habitual: la placa omitió un ping o la principal la envió con retraso</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5693"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5557"/>
         <source>Frames lost passing on</source>
         <translation>Tramas perdidas al reenviar</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5695"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5559"/>
         <source>A frame of the board before it was lost on its way through this one</source>
         <translation>Una trama de la placa anterior se perdió al pasar por esta</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3337"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3540"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3253"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3456"/>
         <source>The radio is off</source>
         <translation>La radio está apagada</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2473"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2389"/>
         <source>The PHY rate of the other end&apos;s data frames in a 0.2 s window, every 3 s while this section is open.</source>
         <translation>La velocidad PHY de las tramas de datos del otro extremo en una ventana de 0.2 s, cada 3 s mientras esta sección está abierta.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3544"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3460"/>
         <source>On again in %1, by the module&apos;s timer.</source>
         <translation>Se vuelve a encender en %1, por el temporizador del módulo.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3545"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3461"/>
         <source>The time is up: the module switches its radio on; the boat link comes back in about 20 s.</source>
         <translation>Se acabó el tiempo: el módulo enciende su radio; el enlace con el barco vuelve en unos 20 s.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3546"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3462"/>
         <source>Until you switch it on, or until the module restarts.</source>
         <translation>Hasta que usted la encienda, o hasta que el módulo se reinicie.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3547"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3463"/>
         <source>Asking the module for how long…</source>
         <translation>Preguntando al módulo por cuánto tiempo…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3556"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3472"/>
         <source>Switch the radio on</source>
         <translation>Encender la radio</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3565"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3481"/>
         <source>This module is reached through its radio, so it cannot be switched on from here: it comes back by itself when its time is up.</source>
         <translation>A este módulo se llega a través de su radio, así que no se puede encender desde aquí: vuelve por sí sola cuando se acabe su tiempo.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3596"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3512"/>
         <source>The port speed could not be changed now: nothing changed</source>
         <translation>No se pudo cambiar la velocidad del puerto ahora: no se cambió nada</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3607"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3523"/>
         <source>Module port to this device, bit/s</source>
         <translation>Puerto del módulo hacia este dispositivo, bit/s</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3609"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3525"/>
         <source>Now %1. The module keeps the speed it is given here; this device&apos;s port follows.</source>
         <translation>Ahora %1. El módulo mantiene la velocidad que se le asigna aquí; el puerto de este dispositivo la sigue.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3610"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4195"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3526"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4111"/>
         <source>Changing to %1… (it finishes even if this page is closed)</source>
         <translation>Cambiando a %1… (termina aunque se cierre esta página)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3622"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3538"/>
         <source>The boat stream is about 92 KB/s: 921k is full, 2M leaves half free. Both ends must do the speed (the head unit&apos;s UART6: up to 4M).</source>
         <translation>El flujo del barco es de unos 92 KB/s: 921k queda saturado, 2M deja la mitad libre. Ambos extremos deben admitir la velocidad (UART6 de la unidad principal: hasta 4M).</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3625"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3541"/>
         <source>Apply %1</source>
         <translation>Aplicar %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3671"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3587"/>
         <source>Module address must be 1…254: 0 is where devices sit, 255 is refused</source>
         <translation>La dirección del módulo debe ser 1…254: 0 es la de los dispositivos y 255 se rechaza</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3679"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3595"/>
         <source>line off</source>
         <translation>línea desactivada</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3684"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3600"/>
         <source>senders</source>
         <translation>remitentes</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3684"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3600"/>
         <source>broadcast :%1</source>
         <translation>difusión :%1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3689"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4645"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3605"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4561"/>
         <source>ready</source>
         <translation>listo</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3690"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4646"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3606"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4562"/>
         <source>no peer</source>
         <translation>sin nodo remoto</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3691"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4647"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3607"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4563"/>
         <source>no Wi‑Fi</source>
         <translation>sin Wi‑Fi</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3693"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4081"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4649"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3609"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3997"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4565"/>
         <source>off</source>
         <translation>desactivado</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3696"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3612"/>
         <source>Two UDP lines cannot share a local port: to swap the ports of X1 and X2, first move one line to a free port, then give the other line the freed one.</source>
         <translation>Dos líneas UDP no pueden compartir un puerto local: para intercambiar los puertos de X1 y X2, primero mueva una línea a un puerto libre y luego asigne el puerto liberado a la otra línea.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3701"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3617"/>
         <source>The module did not send the line&apos;s settings: nothing changed.</source>
         <translation>El módulo no envió los ajustes de la línea: no se cambió nada.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3702"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3618"/>
         <source>The line&apos;s settings are not known yet: nothing changed. Read back and try again.</source>
         <translation>Los ajustes de la línea aún no se conocen: no se cambió nada. Vuelva a leerlos e inténtelo de nuevo.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3705"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3621"/>
         <source>The module refused the rate: invalid value.</source>
         <translation>El módulo rechazó la velocidad: valor no válido.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3706"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3622"/>
         <source>The module refused these settings: invalid values.</source>
         <translation>El módulo rechazó estos ajustes: valores no válidos.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3707"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3623"/>
         <source>The module refused: wrong key.</source>
         <translation>El módulo lo rechazó: clave incorrecta.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3708"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3624"/>
         <source>The module refused: not possible now or in this role.</source>
         <translation>El módulo lo rechazó: no es posible ahora o en este rol.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3709"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3625"/>
         <source>The module refused (code %1).</source>
         <translation>El módulo lo rechazó (código %1).</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3710"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3626"/>
         <source>No answer from the module: the fields show what it reports now.</source>
         <translation>Sin respuesta del módulo: los campos muestran lo que informa ahora.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3728"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3644"/>
         <source>unreadable bytes (wrong rate?)</source>
         <translation>bytes ilegibles (¿velocidad incorrecta?)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3729"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3645"/>
         <source>SBP host</source>
         <translation>host SBP</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3730"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3646"/>
         <source>SBP device(s)</source>
         <translation>dispositivo(s) SBP</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3731"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3647"/>
         <source>SBP host and devices</source>
         <translation>host y dispositivos SBP</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3734"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3650"/>
         <source>IP bridge (SLIP)</source>
         <translation>puente IP (SLIP)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3735"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3651"/>
         <source>other framed traffic</source>
         <translation>otro tráfico en tramas</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3740"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3656"/>
         <source>never</source>
         <translation>nunca</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3741"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3657"/>
         <source>%1 s ago</source>
         <translation>hace %1 s</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3742"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3658"/>
         <source>%1 min ago</source>
         <translation>hace %1 min</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3743"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3659"/>
         <source>%1 h ago</source>
         <translation>hace %1 h</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3748"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3664"/>
         <source>generic</source>
         <translation>genérico</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3749"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3665"/>
         <source>fixed wing</source>
         <translation>ala fija</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3750"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3666"/>
         <source>quadrotor</source>
         <translation>cuadricóptero</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3751"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3667"/>
         <source>helicopter</source>
         <translation>helicóptero</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3752"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3668"/>
         <source>ground station</source>
         <translation>estación de tierra</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3753"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3669"/>
         <source>rover</source>
         <translation>vehículo terrestre</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3754"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3670"/>
         <source>boat</source>
         <translation>barco</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3755"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3671"/>
         <source>submarine</source>
         <translation>submarino</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3756"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3672"/>
         <source>hexarotor</source>
         <translation>hexacóptero</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3757"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3673"/>
         <source>octorotor</source>
         <translation>octocóptero</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3758"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3674"/>
         <source>onboard computer</source>
         <translation>computadora de a bordo</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3759"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3675"/>
         <source>gimbal</source>
         <translation>gimbal</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3761"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3677"/>
         <source>camera</source>
         <translation>cámara</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3763"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3679"/>
         <source>type %1</source>
         <translation>tipo %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3767"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3683"/>
         <source>generic autopilot</source>
         <translation>piloto automático genérico</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3769"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3685"/>
         <source>no autopilot</source>
         <translation>sin piloto automático</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3772"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3688"/>
         <source>autopilot %1</source>
         <translation>piloto automático %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3792"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3708"/>
         <source>Ports</source>
         <translation>Puertos</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3797"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3713"/>
         <source>This device is connected through %1</source>
         <translation>Este dispositivo está conectado a través de %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3798"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3714"/>
         <source>This device reaches the module over the network</source>
         <translation>Este dispositivo accede al módulo por la red</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3799"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3715"/>
         <source>X1 and X2 are equal: the module answers on either, and each port has its own rate.</source>
         <translation>X1 y X2 son equivalentes: el módulo responde en cualquiera de ellos y cada puerto tiene su propia velocidad.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3911"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3827"/>
         <source>%1 already listens on UDP %2.</source>
         <translation>%1 ya escucha en UDP %2.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3916"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3832"/>
         <source>Not sent: check the fields (IP a.b.c.d, ports 0–65535, pins −1…127), or wait for the running change.</source>
         <translation>No enviado: compruebe los campos (IP a.b.c.d, puertos 0–65535, pines −1…127) o espere a que termine el cambio en curso.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3924"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3840"/>
         <source>The rate of %1 could not be changed now: nothing changed</source>
         <translation>No se pudo cambiar ahora la velocidad de %1: no se cambió nada</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3993"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3909"/>
         <source>this device</source>
         <translation>este dispositivo</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3994"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3910"/>
         <source>provisional</source>
         <translation>provisional</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3997"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4003"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3913"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3919"/>
         <source>UART off</source>
         <translation>UART desactivado</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3998"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3914"/>
         <source>no data</source>
         <translation>sin datos</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4002"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3918"/>
         <source>Rate</source>
         <translation>Velocidad</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4003"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3919"/>
         <source>%1 bit/s</source>
         <translation>%1 bit/s</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4006"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3922"/>
         <source>Provisional: kept once a request for the module comes through this port, otherwise back to %1 in 10 s</source>
         <translation>Provisional: se conserva cuando llegue por este puerto una solicitud para el módulo; si no, vuelve a %1 en 10 s</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4007"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3923"/>
         <source>Saved: %1 (in effect after a reboot)</source>
         <translation>Guardado: %1 (se aplica tras un reinicio)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4015"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3931"/>
         <source>Gets the module&apos;s reports</source>
         <translation>Recibe los informes del módulo</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4015"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3931"/>
         <source>Gets no reports from the module</source>
         <translation>No recibe informes del módulo</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4020"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3936"/>
         <source>RX %1 · TX %2</source>
         <translation>RX %1 · TX %2</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4022"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3938"/>
         <source>%1 received, %2 sent · last RX %3</source>
         <translation>%1 recibidos, %2 enviados · última RX %3</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4028"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3944"/>
         <source>Frames RX/TX</source>
         <translation>Tramas RX/TX</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4035"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3951"/>
         <source>From the port: %1 requests, %2 content · to it: %3 requests, %4 content</source>
         <translation>Desde el puerto: %1 solicitudes, %2 tramas de contenido · hacia él: %3 solicitudes, %4 tramas de contenido</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4038"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3954"/>
         <source>for the module %1, its own frames %2</source>
         <translation>para el módulo %1, tramas propias %2</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4041"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3957"/>
         <source>Losses</source>
         <translation>Pérdidas</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4043"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3959"/>
         <source>%1 RX overflows · %2 TX drops</source>
         <translation>%1 desbordamientos RX · %2 descartes TX</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4048"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3964"/>
         <source>Devices on this port</source>
         <translation>Dispositivos en este puerto</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4054"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3970"/>
         <source>MAVLink %1/%2 · %3</source>
         <translation>MAVLink %1/%2 · %3</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4055"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3971"/>
         <source>no heartbeat yet</source>
         <translation>aún sin heartbeat</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4056"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3972"/>
         <source>SBP %1</source>
         <translation>SBP %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4058"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3974"/>
         <source>board %1</source>
         <translation>placa %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4062"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3978"/>
         <source>fw %1</source>
         <translation>fw %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4063"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3979"/>
         <source>SN %1</source>
         <translation>SN %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4064"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3980"/>
         <source>heard %1</source>
         <translation>escuchado %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4071"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3987"/>
         <source>None heard</source>
         <translation>No se escuchó ninguno</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4077"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3993"/>
         <source>Network side (line %1)</source>
         <translation>Lado de red (línea %1)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4079"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4769"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3995"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4685"/>
         <source>State</source>
         <translation>Estado</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4090"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4006"/>
         <source>last data %1</source>
         <translation>últimos datos %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4094"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4776"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4010"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4692"/>
         <source>To the network</source>
         <translation>Hacia la red</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4099"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4781"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4015"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4697"/>
         <source>From the network</source>
         <translation>Desde la red</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4116"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4701"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4032"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4617"/>
         <source>Send to</source>
         <translation>Enviar a</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4117"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4702"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4033"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4618"/>
         <source>The peer below</source>
         <translation>El nodo remoto de abajo</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4118"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4034"/>
         <source>Whoever sent to this UDP port (up to 4, forgotten after 60 s of silence)</source>
         <translation>A quienes hayan enviado a este puerto UDP (hasta 4, se olvidan tras 60 s de silencio)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4119"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4704"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4035"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4620"/>
         <source>Broadcast in the subnet to the peer port</source>
         <translation>Difusión en la subred al puerto del nodo remoto</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4123"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4708"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4039"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4624"/>
         <source>Fixed</source>
         <translation>Fijo</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4123"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4708"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4039"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4624"/>
         <source>Senders</source>
         <translation>Remitentes</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4123"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4708"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4039"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4624"/>
         <source>Broadcast</source>
         <translation>Difusión</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4130"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4715"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4046"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4631"/>
         <source>Peer IP address</source>
         <translation>Dirección IP del nodo remoto</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4135"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4720"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4051"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4636"/>
         <source>Peer port</source>
         <translation>Puerto del nodo remoto</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4141"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4057"/>
         <source>0 = the peer port. Each UDP line needs a port of its own: to swap the ports of X1 and X2, move one line to a free port first.</source>
         <translation>0 = el puerto del nodo remoto. Cada línea UDP necesita su propio puerto: para intercambiar los puertos de X1 y X2, mueva primero una línea a un puerto libre.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4146"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4737"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4062"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4653"/>
         <source>TX / RX pins</source>
         <translation>Pines TX / RX</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4147"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4063"/>
         <source>Allowed 0, 1, 3, 4, 5, 6, 7, 10; −1 switches the UART off; new pins start after a reboot</source>
         <translation>Permitidos 0, 1, 3, 4, 5, 6, 7, 10; −1 desactiva el UART; los pines nuevos se aplican tras un reinicio</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4156"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4072"/>
         <source>Applying… (it finishes even if this page is closed)</source>
         <translation>Aplicando… (termina aunque se cierre esta página)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4157"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4073"/>
         <source>This device&apos;s port: switching its line off ends the network (boat) link through it; the module keeps answering here.</source>
         <translation>Puerto de este dispositivo: desactivar su línea corta el enlace de red (con el barco) a través de él; el módulo sigue respondiendo aquí.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4158"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4074"/>
         <source>Only the fields changed here are sent; the module keeps the rest as it has them.</source>
         <translation>Solo se envían los campos cambiados aquí; el módulo conserva el resto tal como lo tiene.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4194"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4110"/>
         <source>Set the rate</source>
         <translation>Establecer la velocidad</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4197"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4113"/>
         <source>This device&apos;s port: the module keeps the new rate at once (firmware 0.15) and the link here follows. If this device cannot do the rate, the link is lost until the module&apos;s BOOT button is held 5 s (both ports back to 921600).</source>
         <translation>Puerto de este dispositivo: el módulo guarda la nueva velocidad de inmediato (firmware 0.15) y la conexión de aquí la sigue. Si este dispositivo no admite esa velocidad, la conexión se pierde hasta que se mantenga presionado 5 s el botón BOOT del módulo (ambos puertos vuelven a 921600).</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4198"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4114"/>
         <source>This device&apos;s port: the link here follows, the module has to answer at the new rate, then it is saved.</source>
         <translation>Puerto de este dispositivo: la conexión de aquí la sigue, el módulo tiene que responder a la nueva velocidad y luego se guarda.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4199"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4115"/>
         <source>Not this device&apos;s port: saved in the module at once.</source>
         <translation>No es el puerto de este dispositivo: se guarda en el módulo de inmediato.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4202"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4118"/>
         <source> 5M: both ends must do it (the head unit&apos;s UART6 was tried up to 4M only; a USB adapter needs 5M in its data sheet).</source>
         <translation> 5M: ambos extremos deben admitirla (el UART6 de la unidad principal solo se probó hasta 4M; un adaptador USB debe indicar 5M en su hoja de datos).</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4203"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4119"/>
         <source> 5M: both ends must do it (the head unit&apos;s UART6 was tried up to 4M; a USB adapter needs 5M in its data sheet). Without an answer at 5M the link goes back by itself.</source>
         <translation> 5M: ambos extremos deben admitirla (el UART6 de la unidad principal se probó hasta 4M; un adaptador USB debe indicar 5M en su hoja de datos). Sin respuesta a 5M, la conexión se revierte sola.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4204"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4120"/>
         <source> 5M: the device on this port must do it too. The module keeps the rate: set it back here if that device stops answering.</source>
         <translation> 5M: el dispositivo de este puerto también debe admitirla. El módulo conserva la velocidad: restáurela aquí si ese dispositivo deja de responder.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4246"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4162"/>
         <source>Must differ from the devices behind the ports (a sonar is usually 0); 1…254. The module then reappears as a new device.</source>
         <translation>Debe ser distinta de la de los dispositivos detrás de los puertos (un sonar suele tener 0); 1…254. Después, el módulo reaparece como un dispositivo nuevo.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4253"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4801"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4169"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4717"/>
         <source>Set</source>
         <translation>Establecer</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4295"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4211"/>
         <source>Role saved: %1 after the next reboot</source>
         <translation>Rol guardado: %1 tras el próximo reinicio</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4302"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4218"/>
         <source>Check the fields: name 1–32 bytes, password 8–63 characters (none for an open network), channel 1–11, clients 1–10</source>
         <translation>Compruebe los campos: nombre 1–32 bytes, contraseña 8–63 caracteres (ninguna para una red abierta), canal 1–11, clientes 1–10</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4311"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4227"/>
         <source>access point</source>
         <translation>punto de acceso</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4311"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4227"/>
         <source>station</source>
         <translation>estación</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4334"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4250"/>
         <source>Role and access point</source>
         <translation>Rol y punto de acceso</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4338"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4254"/>
         <source>Running: %1</source>
         <translation>En ejecución: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4342"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4258"/>
         <source>Station</source>
         <translation>Estación</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4351"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4267"/>
         <source>Saved role: %1 — takes effect after a reboot</source>
         <translation>Rol guardado: %1 — se aplica tras un reinicio</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4358"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4274"/>
         <source>As an access point the module stops joining the boat&apos;s network, so this head unit loses the boat link until the role is switched back. It then answers at address 88 unless an own address is set.</source>
         <translation>Como punto de acceso, el módulo deja de unirse a la red del barco, así que esta unidad principal pierde el enlace con el barco hasta que se vuelva a cambiar el rol. Entonces responde en la dirección 88, salvo que se haya establecido una dirección propia.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4359"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4275"/>
         <source>As an access point the module stops joining the boat&apos;s network, so this head unit loses the boat link until the role is switched back. With a relaying line it answers at its relay address (88 by default).</source>
         <translation>Como punto de acceso, el módulo deja de unirse a la red del barco, así que esta unidad principal pierde el enlace con el barco hasta que se vuelva a cambiar el rol. Con una línea de retransmisión, responde en su dirección de retransmisión (88 por defecto).</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4360"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4276"/>
         <source>As a station the module joins saved networks, as before.</source>
         <translation>Como estación, el módulo se une a las redes guardadas, como antes.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4367"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4283"/>
         <source>Apply and reboot</source>
         <translation>Aplicar y reiniciar</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4372"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4288"/>
         <source>Role sent; the module restarts</source>
         <translation>Rol enviado; el módulo se reinicia</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4377"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4293"/>
         <source>Save for next boot</source>
         <translation>Guardar para el próximo arranque</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4384"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4300"/>
         <source>Access point network</source>
         <translation>Red del punto de acceso</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4393"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4309"/>
         <source>8–63 characters. Leave it empty to keep the current password.</source>
         <translation>8–63 caracteres. Déjelo vacío para conservar la contraseña actual.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4394"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4310"/>
         <source>unchanged</source>
         <translation>sin cambios</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4398"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4314"/>
         <source>Security</source>
         <translation>Seguridad</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4409"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4325"/>
         <source>Channel (1–11)</source>
         <translation>Canal (1–11)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4414"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4330"/>
         <source>Clients at most (1–10)</source>
         <translation>Máximo de clientes (1–10)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4419"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4335"/>
         <source>Hidden network</source>
         <translation>Red oculta</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4425"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4341"/>
         <source>The access point restarts with the new settings; its clients reconnect.</source>
         <translation>El punto de acceso se reinicia con los nuevos ajustes; sus clientes se reconectan.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4426"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4342"/>
         <source>Stored now, used once the module runs as an access point.</source>
         <translation>Se guarda ahora y se usa cuando el módulo funcione como punto de acceso.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4447"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4363"/>
         <source>Clients: %1</source>
         <translation>Clientes: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4461"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4377"/>
         <source>Refresh clients</source>
         <translation>Actualizar clientes</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4487"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4403"/>
         <source>Addresses must be four numbers a.b.c.d, the lease 1–2880 minutes</source>
         <translation>Las direcciones deben ser cuatro números a.b.c.d y la concesión, 1–2880 minutos</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4514"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4430"/>
         <source>Access point address and DHCP</source>
         <translation>Dirección del punto de acceso y DHCP</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4520"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4436"/>
         <source>Mask</source>
         <translation>Máscara</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4524"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4440"/>
         <source>DHCP server</source>
         <translation>Servidor DHCP</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4529"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4445"/>
         <source>Address pool</source>
         <translation>Rango de direcciones</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4530"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4446"/>
         <source>Inside the subnet, without the module&apos;s own address, at most 100 addresses</source>
         <translation>Dentro de la subred, sin la dirección propia del módulo, como máximo 100 direcciones</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4541"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4457"/>
         <source>Lease, minutes (1–2880)</source>
         <translation>Concesión, minutos (1–2880)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4546"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4462"/>
         <source>Offer a gateway</source>
         <translation>Ofrecer puerta de enlace</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4547"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4463"/>
         <source>Off by default: the module has no internet, a phone would route all traffic to it</source>
         <translation>Desactivado por defecto: el módulo no tiene internet y un teléfono enrutaría todo el tráfico hacia él</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4552"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4468"/>
         <source>Offer DNS</source>
         <translation>Ofrecer DNS</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4556"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4472"/>
         <source>Used by the access point. In that role a change applies at once and every client takes a new lease.</source>
         <translation>Lo usa el punto de acceso. En ese rol, un cambio se aplica de inmediato y cada cliente obtiene una concesión nueva.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4609"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4525"/>
         <source>Check the fields: IP a.b.c.d, ports 0–65535, line 1 speed 9600–4000000</source>
         <translation>Compruebe los campos: IP a.b.c.d, puertos 0–65535, velocidad de la línea 1: 9600–4000000</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4624"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4540"/>
         <source>Module address must be 1…255: 0 is where devices sit</source>
         <translation>La dirección del módulo debe ser 1…255: 0 es la de los dispositivos</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4660"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4576"/>
         <source>Wi‑Fi module: settings applied</source>
         <translation>Módulo Wi‑Fi: ajustes aplicados</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4662"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4578"/>
         <source>Wi‑Fi module refused the settings: %1</source>
         <translation>El módulo Wi‑Fi rechazó los ajustes: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4663"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4579"/>
         <source>invalid values</source>
         <translation>valores no válidos</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4664"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4580"/>
         <source>wrong key</source>
         <translation>clave incorrecta</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4665"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4581"/>
         <source>not possible now or in this role</source>
         <translation>no es posible ahora o en este rol</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4680"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4596"/>
         <source>Line</source>
         <translation>Línea</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4684"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4600"/>
         <source>0 · X1, this port</source>
         <translation>0 · X1, este puerto</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4684"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4600"/>
         <source>1 · X2</source>
         <translation>1 · X2</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4703"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4619"/>
         <source>Whoever sent to this port (up to 4, forgotten after 60 s of silence)</source>
         <translation>A quienes hayan enviado a este puerto (hasta 4, se olvidan tras 60 s de silencio)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4726"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4642"/>
         <source>0 = the peer port</source>
         <translation>0 = el puerto del nodo remoto</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4731"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4647"/>
         <source>Baud rate</source>
         <translation>Velocidad en baudios</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4732"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4648"/>
         <source>9600–4000000; line 0 uses the device baud rate below</source>
         <translation>9600–4000000; la línea 0 usa la velocidad en baudios del dispositivo indicada abajo</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4738"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4654"/>
         <source>Allowed 0, 1, 3, 4, 5, 6, 7, 10; −1 switches UART1 off; new pins start after a reboot</source>
         <translation>Permitidos 0, 1, 3, 4, 5, 6, 7, 10; −1 desactiva UART1; los pines nuevos se aplican tras un reinicio</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4747"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4663"/>
         <source>Line 0 is this port: switching it off ends the boat link, and the module goes back to address 0.</source>
         <translation>La línea 0 es este puerto: desactivarla corta el enlace con el barco y el módulo vuelve a la dirección 0.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4767"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4683"/>
         <source>Line %1 counters</source>
         <translation>Contadores de la línea %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4772"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4688"/>
         <source>senders: %1</source>
         <translation>remitentes: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4786"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4702"/>
         <source>UART</source>
         <translation>UART</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4788"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4704"/>
         <source>%1 receive overflows · %2 transmit drops · %3 frames for the module</source>
         <translation>%1 desbordamientos de recepción · %2 descartes de transmisión · %3 tramas para el módulo</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4793"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4709"/>
         <source>Module address while relaying</source>
         <translation>Dirección del módulo al retransmitir</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4794"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4710"/>
         <source>Must differ from the devices behind the lines (a sonar is usually 0). The module then reappears as a new device.</source>
         <translation>Debe ser distinta de la de los dispositivos detrás de las líneas (un sonar suele tener 0). Después, el módulo reaparece como un dispositivo nuevo.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4877"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4793"/>
         <source>Advanced settings</source>
         <translation>Configuración avanzada</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4901"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4817"/>
         <source>Finish pinning settings</source>
         <translation>Terminar de fijar ajustes</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4902"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4818"/>
         <source>Pin settings to favourites</source>
         <translation>Fijar ajustes en favoritos</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5058"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4974"/>
         <source>Erase settings</source>
         <translation>Borrar ajustes</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5059"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4975"/>
         <source>Erase device settings (reset)</source>
         <translation>Borrar los ajustes del dispositivo (restablecer)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5060"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4976"/>
         <source>Settings erased on device: %1</source>
         <translation>Ajustes borrados en el dispositivo: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5064"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4980"/>
         <source>Reboot</source>
         <translation>Reiniciar</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5065"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4981"/>
         <source>Reboot the device</source>
         <translation>Reiniciar el dispositivo</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5066"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4982"/>
         <source>Reboot command sent: %1</source>
         <translation>Comando de reinicio enviado: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5094"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5010"/>
         <source>Address, mask or host address is not four octets</source>
         <translation>La dirección, la máscara o la dirección del host no tiene cuatro octetos</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5097"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5013"/>
         <source>Network settings sent: %1</source>
         <translation>Ajustes de red enviados: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5124"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5040"/>
         <source>Device address</source>
         <translation>Dirección del dispositivo</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5155"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5071"/>
         <source>Subnet mask</source>
         <translation>Máscara de subred</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5186"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5102"/>
         <source>Host address</source>
         <translation>Dirección del host</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5217"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5133"/>
         <source>Hand the host its address (DHCP)</source>
         <translation>Asignar su dirección al host (DHCP)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5230"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5146"/>
         <source>Send the addresses to the device. They take effect at once; write them with Flash settings to survive a reboot.</source>
         <translation>Enviar las direcciones al dispositivo. Se aplican de inmediato; para que se conserven tras un reinicio, grábelas con «Guardar en flash».</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5235"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5151"/>
         <source>Default</source>
         <translation>Predeterminado</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5236"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5152"/>
         <source>Put the factory addresses in the fields; Apply sends them</source>
         <translation>Poner las direcciones de fábrica en los campos; «Aplicar» las envía</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5245"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5161"/>
         <source>Reading the device settings...</source>
         <translation>Leyendo los ajustes del dispositivo...</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5247"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5163"/>
         <source>Adapter MAC %1.</source>
         <translation>MAC del adaptador %1.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5248"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5164"/>
         <source>The device answers a discovery request on UDP port 18020, broadcast included, so it can be found and put back even when the addresses do not match. That port is fixed.</source>
         <translation>El dispositivo responde a una solicitud de descubrimiento en el puerto UDP 18020, también por difusión, así que se puede encontrar y restablecer aunque las direcciones no coincidan. Ese puerto es fijo.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5249"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5165"/>
         <source>These settings are not in the device memory: a reboot brings back the stored ones.</source>
         <translation>Estos ajustes no están en la memoria del dispositivo: al reiniciar vuelven los guardados.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5258"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5174"/>
         <source>Settings file</source>
         <translation>Archivo de configuración</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5285"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5201"/>
         <source>Open settings file</source>
         <translation>Abrir archivo de configuración</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5298"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5214"/>
         <source>Save settings file</source>
         <translation>Guardar archivo de configuración</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5317"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5233"/>
         <source>Upgrade</source>
         <translation>Actualización</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5325"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5241"/>
         <source>Behind a recorder: the sonar is moved to 115200 first and the recorder follows it. Keep the power on until the update ends.</source>
         <translation>Detrás de un registrador: primero se pasa el sonar a 115200 y el registrador lo sigue. Mantenga la alimentación hasta que termine la actualización.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5326"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5242"/>
         <source>This sonar is behind a recorder on a bus address. To update it, connect it to a computer directly.</source>
         <translation>Este sonar está detrás de un registrador con una dirección de bus. Para actualizarlo, conéctelo directamente a una computadora.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5381"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5299"/>
         <source>Please choose a file</source>
         <translation>Seleccione un archivo</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5428"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5329"/>
         <source>Enter path</source>
         <translation>Introduzca la ruta</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5438"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5339"/>
         <source>Choose firmware</source>
         <translation>Elegir firmware</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5448"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5349"/>
         <source>UPGRADE</source>
         <translation>ACTUALIZAR</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5459"/>
-        <source>Flashing device %1 with file %2</source>
-        <translation>Flasheando el dispositivo %1 con el archivo %2</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5461"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5487"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5369"/>
         <source>Failed to open firmware file: %1</source>
         <translation>No se pudo abrir el archivo de firmware: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5473"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5363"/>
         <source>UPGRADE ALL ON THIS LINE</source>
         <translation>ACTUALIZAR TODOS EN ESTA LÍNEA</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5474"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5364"/>
         <source>Every sonar sharing this line, one after another</source>
         <translation>Todos los sonares que comparten esta línea, uno tras otro</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5485"/>
-        <source>Flashing every sonar on the line of %1 with file %2</source>
-        <translation>Flasheando todos los sonares de la línea de %1 con el archivo %2</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5500"/>
-        <source>Device %1 successfully flashed with file %2</source>
-        <translation>El dispositivo %1 se flasheó correctamente con el archivo %2</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5503"/>
-        <source>Failed to flash device %1 with file %2 (error code %3)</source>
-        <translation>No se pudo flashear el dispositivo %1 con el archivo %2 (código de error %3)</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5516"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5857"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5380"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5724"/>
         <source>Bus address</source>
         <translation>Dirección de bus</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5526"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5390"/>
         <source>The number of this sonar on a line it shares. 0: alone on its line. 1: first in the ring, its RX on the host&apos;s TX (left). 2: last, its TX on the host&apos;s RX (right). Only this board may be on the line while the address is set.</source>
         <translation>El número de este sonar en una línea compartida. 0: solo en su línea. 1: primero del anillo, su RX en el TX del host (izquierda). 2: último, su TX en el RX del host (derecha). Mientras se establece la dirección, solo esta placa puede estar en la línea.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5541"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5405"/>
         <source>Setting the address...</source>
         <translation>Estableciendo la dirección...</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5541"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5405"/>
         <source>Set and save address %1</source>
         <translation>Establecer y guardar la dirección %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5542"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5406"/>
         <source>Checks that this board is alone on the line, sets the address, writes it to the board&apos;s memory and reads it back from there</source>
         <translation>Comprueba que esta placa esté sola en la línea, establece la dirección, la escribe en la memoria de la placa y la vuelve a leer de allí</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5563"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5427"/>
         <source>Address %1 is set and saved in the board.</source>
         <translation>La dirección %1 está establecida y guardada en la placa.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5564"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5428"/>
         <source>Address not set: %1</source>
         <translation>Dirección no establecida: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5566"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5430"/>
         <source>Bus address %1 is set and saved</source>
         <translation>Dirección de bus %1 establecida y guardada</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5568"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5432"/>
         <source>Bus address not set: %1</source>
         <translation>Dirección de bus no establecida: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5578"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5442"/>
         <source>Line speed</source>
         <translation>Velocidad de la línea</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5591"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5455"/>
         <source>In a ring every board passes the other&apos;s bytes on, so both sonars and this computer&apos;s port run at one rate: pick it for the longest wire. Estimate, not measured: 921600 up to about 5 m, 460800 about 10 m, 230400 about 20 m, 115200 about 40 m. A lower rate carries less: if a sonar&apos;s echogram drops out, raise Period. The new rate is checked on both sonars, then written to their memory.</source>
         <translation>En un anillo, cada placa reenvía los bytes de la otra, así que ambos sonares y el puerto de esta computadora funcionan a una misma velocidad: elíjala según el cable más largo. Estimación, no medición: 921600 hasta unos 5 m, 460800 unos 10 m, 230400 unos 20 m, 115200 unos 40 m. Una velocidad menor transporta menos: si el ecograma de un sonar se interrumpe, aumente «Período». La nueva velocidad se comprueba en ambos sonares y luego se escribe en su memoria.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5598"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5462"/>
         <source>Now: %1</source>
         <translation>Ahora: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5615"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5479"/>
         <source>Changing the line speed...</source>
         <translation>Cambiando la velocidad de la línea...</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5615"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5479"/>
         <source>Set %1 for the whole line and save</source>
         <translation>Establecer %1 en toda la línea y guardar</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5616"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5480"/>
         <source>Moves both sonars and this port to the new rate, checks that both answer on it, writes it to their memory and reads it back from there</source>
         <translation>Pasa ambos sonares y este puerto a la nueva velocidad, comprueba que ambos respondan en ella, la escribe en su memoria y la vuelve a leer de allí</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5637"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5501"/>
         <source>The line runs at %1; both sonars keep it.</source>
         <translation>La línea funciona a %1; ambos sonares la conservan.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5638"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5645"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5502"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5509"/>
         <source>Line speed: %1</source>
         <translation>Velocidad de la línea: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5643"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5507"/>
         <source>Line speed %1 is set on both sonars and saved</source>
         <translation>Velocidad de la línea %1 establecida en ambos sonares y guardada</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5661"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5525"/>
         <source>Ring counters</source>
         <translation>Contadores del anillo</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5666"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5530"/>
         <source>How this board keeps step with the ring. Read them when a sonar&apos;s echogram has holes; reading is a request on the line, so do not keep pressing: on a ring with no time to spare it can cost the following board a ping itself.</source>
         <translation>Cómo esta placa mantiene el paso con el anillo. Léalos cuando el ecograma de un sonar tenga huecos; la lectura es una solicitud en la línea, así que no la repita: en un anillo sin margen de tiempo puede costarle un ping a la placa siguiente.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5672"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5536"/>
         <source>Follower: pings on the leader&apos;s sync</source>
         <translation>Seguidora: hace ping con la sincronía de la líder</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5673"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5537"/>
         <source>Leader: sets the pace</source>
         <translation>Líder: marca el ritmo</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5674"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5538"/>
         <source>, a board before it</source>
         <translation>, hay una placa antes</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5677"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5541"/>
         <source>Sync interval</source>
         <translation>Intervalo de sincronía</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5680"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5684"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5544"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5548"/>
         <source>%1 ms</source>
         <translation>%1 ms</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5680"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5544"/>
         <source>not measured</source>
         <translation>no se mide</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5683"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5547"/>
         <source>Guard before a sync</source>
         <translation>Margen antes de una sincronía</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5687"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5551"/>
         <source>Pings skipped</source>
         <translation>Pings omitidos</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5698"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5562"/>
         <source>Led after silence</source>
         <translation>Líder tras silencio</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5700"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5564"/>
         <source>No sync from the board before it, so this one set the pace itself</source>
         <translation>Sin sincronía de la placa anterior, así que esta marcó el ritmo por sí misma</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5703"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5567"/>
         <source>Syncs heard</source>
         <translation>Sincronías recibidas</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5707"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5571"/>
         <source>Frames passed on</source>
         <translation>Tramas reenviadas</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5715"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5579"/>
         <source>Asking the board...</source>
         <translation>Consultando la placa...</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5715"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5579"/>
         <source>Read</source>
         <translation>Leer</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5722"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5586"/>
         <source>Reset the counters</source>
         <translation>Poner los contadores a cero</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5723"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5587"/>
         <source>Zeroes the five counters on the board; it sends them back at once</source>
         <translation>Pone a cero los cinco contadores de la placa; los devuelve enseguida</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5785"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5652"/>
         <source>Information</source>
         <translation>Información</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5802"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5669"/>
         <source>Copy</source>
         <translation>Copiar</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5808"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5675"/>
         <source>Device info copied to clipboard</source>
         <translation>Información del dispositivo copiada al portapapeles</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5814"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5681"/>
         <source>Model</source>
         <translation>Modelo</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5819"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5686"/>
         <source>Board type</source>
         <translation>Tipo de placa</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5824"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5691"/>
         <source>Serial number</source>
         <translation>Número de serie</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5831"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5698"/>
         <source>not set</source>
         <translation>no definido</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5836"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5703"/>
         <source>Firmware version</source>
         <translation>Versión de firmware</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5841"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5708"/>
         <source>Bootloader version</source>
         <translation>Versión del cargador de arranque</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5846"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5713"/>
         <source>Running</source>
         <translation>En ejecución</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5851"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5718"/>
         <source>Bootloader</source>
         <translation>Cargador de arranque</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5852"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5719"/>
         <source>Firmware</source>
         <translation>Firmware</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5862"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5729"/>
         <source>Connection</source>
         <translation>Conexión</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5867"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5734"/>
         <source>Chip UID</source>
         <translation>UID del chip</translation>
     </message>
@@ -7243,7 +7815,7 @@
 <context>
     <name>DeviceSettingsTab</name>
     <message>
-        <location filename="../qml/app/DeviceSettingsTab.qml" line="69"/>
+        <location filename="../qml/app/DeviceSettingsTab.qml" line="71"/>
         <source>Settings:</source>
         <translation>Configuración:</translation>
     </message>
@@ -7251,12 +7823,12 @@
 <context>
     <name>DeviceTopologyView</name>
     <message>
-        <location filename="../qml/app/DeviceTopologyView.qml" line="109"/>
+        <location filename="../qml/app/DeviceTopologyView.qml" line="112"/>
         <source>No data</source>
         <translation>Sin datos</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceTopologyView.qml" line="111"/>
+        <location filename="../qml/app/DeviceTopologyView.qml" line="114"/>
         <source>Port %1</source>
         <translation>Puerto %1</translation>
     </message>
@@ -7929,7 +8501,7 @@
         <location filename="../qml/app/EchogramSettingsPanel.qml" line="394"/>
         <location filename="../qml/app/EchogramSettingsPanel.qml" line="397"/>
         <location filename="../qml/app/EchogramSettingsPanel.qml" line="400"/>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="702"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="721"/>
         <source>Mode</source>
         <translation>Modo</translation>
     </message>
@@ -8005,41 +8577,56 @@
     </message>
     <message>
         <location filename="../qml/app/EchogramSettingsPanel.qml" line="596"/>
+        <source>Labels</source>
+        <translation>Etiquetas</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="604"/>
+        <source>Outline</source>
+        <translation>Contorno</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="605"/>
+        <source>Plate</source>
+        <translation>Fondo</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="615"/>
         <source>Vertical lines</source>
         <translation>Líneas verticales</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="612"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="631"/>
         <source>Angle range, °</source>
         <translation>Rango de ángulos, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="651"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="670"/>
         <source>Velocity range, m/s</source>
         <translation>Rango de velocidades, m/s</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="685"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="704"/>
         <source>Distance auto range</source>
         <translation>Rango automático de distancia</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="707"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="726"/>
         <source>Last data</source>
         <translation>Últimos datos</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="707"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="726"/>
         <source>Last on screen</source>
         <translation>Último en pantalla</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="707"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="726"/>
         <source>Max on screen</source>
         <translation>Máximo en pantalla</translation>
     </message>
     <message>
-        <location filename="../qml/app/EchogramSettingsPanel.qml" line="714"/>
+        <location filename="../qml/app/EchogramSettingsPanel.qml" line="733"/>
         <source>Horizontal</source>
         <translation>Horizontal</translation>
     </message>
@@ -8258,7 +8845,7 @@
 <context>
     <name>FileOpeningOverlay</name>
     <message>
-        <location filename="../qml/app/FileOpeningOverlay.qml" line="46"/>
+        <location filename="../qml/app/FileOpeningOverlay.qml" line="45"/>
         <source>Please wait, the file is opening</source>
         <translation>Espere, se está abriendo el archivo</translation>
     </message>
@@ -8336,6 +8923,44 @@
     </message>
 </context>
 <context>
+    <name>FirmwareUpgradeSession</name>
+    <message>
+        <location filename="../src/firmware_upgrade_session.cpp" line="49"/>
+        <source>Failed to open firmware file: %1</source>
+        <translation>No se pudo abrir el archivo de firmware: %1</translation>
+    </message>
+    <message>
+        <location filename="../src/firmware_upgrade_session.cpp" line="54"/>
+        <source>No device to flash with file %1</source>
+        <translation>No hay ningún dispositivo que flashear con el archivo %1</translation>
+    </message>
+    <message>
+        <location filename="../src/firmware_upgrade_session.cpp" line="112"/>
+        <source>Flashing %1 with %2: waiting for the device</source>
+        <translation>Flasheando %1 con %2: esperando al dispositivo</translation>
+    </message>
+    <message>
+        <location filename="../src/firmware_upgrade_session.cpp" line="117"/>
+        <source>Flashing %1 with %2: %3%</source>
+        <translation>Flasheando %1 con %2: %3%</translation>
+    </message>
+    <message>
+        <location filename="../src/firmware_upgrade_session.cpp" line="135"/>
+        <source>Device %1 successfully flashed with file %2</source>
+        <translation>Dispositivo %1 flasheado correctamente con el archivo %2</translation>
+    </message>
+    <message>
+        <location filename="../src/firmware_upgrade_session.cpp" line="139"/>
+        <source>Flashing device %1 with file %2 interrupted: the device did not come back</source>
+        <translation>Flasheo del dispositivo %1 con el archivo %2 interrumpido: el dispositivo no volvió a conectarse</translation>
+    </message>
+    <message>
+        <location filename="../src/firmware_upgrade_session.cpp" line="143"/>
+        <source>Failed to flash device %1 with file %2 (error code %3)</source>
+        <translation>No se pudo flashear el dispositivo %1 con el archivo %2 (código de error %3)</translation>
+    </message>
+</context>
+<context>
     <name>FlashBox</name>
     <message>
         <location filename="../qml/legacy_qml/devices/FlashBox.qml" line="29"/>
@@ -8389,212 +9014,237 @@
 <context>
     <name>HotActionsPanel</name>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="187"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="201"/>
         <source>Device</source>
         <translation>Dispositivo</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="360"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="377"/>
         <source>Open layout settings</source>
         <translation>Abrir configuración de diseño</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="460"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="477"/>
         <source>Panel %1</source>
         <translation>Panel %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="483"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="500"/>
         <source>Open panel settings</source>
         <translation>Abrir configuración de paneles</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="629"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="648"/>
         <source>Layouts</source>
         <translation>Diseños</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="734"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="753"/>
         <source>Widget panels</source>
         <translation>Paneles de widgets</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="975"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="994"/>
         <source>Stop recording · hold for options</source>
         <translation>Detener grabación · mantenga presionado para ver opciones</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="976"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="995"/>
         <source>Start recording · hold for options</source>
         <translation>Iniciar grabación · mantenga presionado para ver opciones</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1159"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1178"/>
         <source>Stop recording · hold to collapse</source>
         <translation>Detener grabación · mantenga presionado para contraer</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1160"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1179"/>
         <source>Start recording · hold to collapse</source>
         <translation>Iniciar grabación · mantenga presionado para contraer</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1215"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1234"/>
         <source>Stop recording</source>
         <translation>Detener grabación</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1215"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1234"/>
         <source>Start recording</source>
         <translation>Iniciar grabación</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1242"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1261"/>
         <source>Recording settings</source>
         <translation>Configuración de grabación</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1403"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1422"/>
         <source>Input locked · hold to unlock</source>
         <translation>Entrada bloqueada · mantenga presionado para desbloquear</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1404"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1423"/>
         <source>Lock input</source>
         <translation>Bloquear entrada</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1441"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1460"/>
         <source>Narrow beam</source>
         <translation>Haz estrecho</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1441"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1460"/>
         <source>Wide beam</source>
         <translation>Haz ancho</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1472"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1491"/>
         <source>Save the sonar&apos;s current settings into “%1”?</source>
         <translation>¿Guardar los ajustes actuales del sonar en “%1”?</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1480"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1499"/>
         <source>Cancel</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1484"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1503"/>
         <source>Save</source>
         <translation>Guardar</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1545"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1579"/>
         <source>no data</source>
         <translation>sin datos</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1547"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1581"/>
         <source>dBm</source>
         <translation>dBm</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1550"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1584"/>
         <source>Port %1</source>
         <translation>Puerto %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1714"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1591"/>
+        <source>IMU fault</source>
+        <translation>Falla de IMU</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1750"/>
         <source>Narrow beam: 700 kHz</source>
         <translation>Haz estrecho: 700 kHz</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1714"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1750"/>
         <source>Wide beam: 450 kHz</source>
         <translation>Haz ancho: 450 kHz</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1715"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1751"/>
         <source>%1: %2 kHz. Hold to save the current settings into it</source>
         <translation>%1: %2 kHz. Mantenga presionado para guardar aquí los ajustes actuales</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1737"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1773"/>
         <source>Device settings</source>
         <translation>Configuración del dispositivo</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1789"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1825"/>
         <source>Close second window</source>
         <translation>Cerrar la segunda ventana</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1790"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1826"/>
         <source>Open second window</source>
         <translation>Abrir la segunda ventana</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1813"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1849"/>
         <source>Power off</source>
         <translation>Apagar</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1895"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1931"/>
         <source>Hide console</source>
         <translation>Ocultar consola</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1895"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1931"/>
         <source>Console</source>
         <translation>Consola</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1917"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1956"/>
+        <source>Cancel contact</source>
+        <translation>Cancelar contacto</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1956"/>
+        <source>Set contact</source>
+        <translation>Marcar contacto</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/HotActionsPanel.qml" line="1978"/>
         <source>Mission planner</source>
         <translation>Planificador de misiones</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1940"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2001"/>
         <source>Close autopilot</source>
         <translation>Cerrar piloto automático</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1940"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2001"/>
         <source>Autopilot</source>
         <translation>Piloto automático</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1964"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2025"/>
         <source>Close profiles</source>
         <translation>Cerrar perfiles</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="1964"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2025"/>
         <source>Settings profiles</source>
         <translation>Perfiles de configuración</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2007"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2049"/>
+        <source>Close Nodes-Configurator</source>
+        <translation>Cerrar Configurador de nodos</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2049"/>
+        <source>Nodes-Configurator</source>
+        <translation>Configurador de nodos</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2101"/>
         <source>Open settings</source>
         <translation>Abrir configuración</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2037"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2131"/>
         <source>Collapse hotkeys</source>
         <translation>Contraer acciones rápidas</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2037"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2131"/>
         <source>Open hotkeys</source>
         <translation>Abrir acciones rápidas</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2356"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2454"/>
         <source>Close bottom track editing</source>
         <translation>Cerrar edición de la línea de fondo</translation>
     </message>
     <message>
-        <location filename="../qml/app/HotActionsPanel.qml" line="2357"/>
+        <location filename="../qml/app/HotActionsPanel.qml" line="2455"/>
         <source>Bottom track editing</source>
         <translation>Edición de la línea de fondo</translation>
     </message>
@@ -8921,6 +9571,240 @@
     </message>
 </context>
 <context>
+    <name>ImuStatusGroup</name>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="10"/>
+        <source>IMU</source>
+        <translation>IMU</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="37"/>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="38"/>
+        <source>Not found</source>
+        <translation>No encontrada</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="39"/>
+        <source>Bus errors</source>
+        <translation>Errores de bus</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="40"/>
+        <source>No data</source>
+        <translation>Sin datos</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="41"/>
+        <source>Frozen</source>
+        <translation>Congelada</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="42"/>
+        <source>Implausible</source>
+        <translation>Inverosímil</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="43"/>
+        <source>Restarting</source>
+        <translation>Reiniciando</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="45"/>
+        <source>State %1</source>
+        <translation>Estado %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="50"/>
+        <source>identity</source>
+        <translation>identidad</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="51"/>
+        <source>bus</source>
+        <translation>bus</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="52"/>
+        <source>configuration lost</source>
+        <translation>configuración perdida</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="53"/>
+        <source>low rate</source>
+        <translation>tasa baja</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="54"/>
+        <source>no-data reads</source>
+        <translation>lecturas sin datos</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="55"/>
+        <source>frozen output</source>
+        <translation>salida congelada</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="56"/>
+        <source>acceleration</source>
+        <translation>aceleración</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="57"/>
+        <source>temperature</source>
+        <translation>temperatura</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="58"/>
+        <source>full scale</source>
+        <translation>fondo de escala</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="59"/>
+        <source>test injection</source>
+        <translation>inyección de prueba</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="71"/>
+        <source>Waiting…</source>
+        <translation>Esperando…</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="73"/>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="131"/>
+        <source>No response</source>
+        <translation>Sin respuesta</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="73"/>
+        <source>No IMU report for over 5 s — showing the last one.</source>
+        <translation>Sin informe de la IMU durante más de 5 s — se muestra el último.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="76"/>
+        <source>IMU OK</source>
+        <translation>IMU OK</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="77"/>
+        <source>%1 samples/s, all used for navigation.</source>
+        <translation>%1 muestras/s, todas usadas para la navegación.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="78"/>
+        <source>%1 samples/s, %2 used for navigation.</source>
+        <translation>%1 muestras/s, %2 usadas para la navegación.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="80"/>
+        <source>IMU not found</source>
+        <translation>IMU no encontrada</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="81"/>
+        <source>WHO_AM_I reads %1: the IMU, its wiring or the main board does not answer.</source>
+        <translation>WHO_AM_I devuelve %1: la IMU, su cableado o la placa principal no responden.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="83"/>
+        <source>IMU bus errors</source>
+        <translation>Errores de bus de la IMU</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="84"/>
+        <source>%1 failed transfers in the last second.</source>
+        <translation>%1 transferencias fallidas en el último segundo.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="86"/>
+        <source>No IMU data</source>
+        <translation>Sin datos de la IMU</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="87"/>
+        <source>The IMU reset and lost its configuration.</source>
+        <translation>La IMU se reinició y perdió su configuración.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="88"/>
+        <source>%1 samples/s — too few for navigation.</source>
+        <translation>%1 muestras/s — muy pocas para la navegación.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="90"/>
+        <source>IMU output frozen</source>
+        <translation>Salida de la IMU congelada</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="91"/>
+        <source>%1 identical samples in a row.</source>
+        <translation>%1 muestras idénticas seguidas.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="93"/>
+        <source>IMU readings implausible</source>
+        <translation>Lecturas de la IMU inverosímiles</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="94"/>
+        <source>Mean acceleration %1 g.</source>
+        <translation>Aceleración media %1 g.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="95"/>
+        <source>Temperature %1 °C.</source>
+        <translation>Temperatura %1 °C.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="98"/>
+        <source>IMU restarting</source>
+        <translation>IMU reiniciándose</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="99"/>
+        <source>Re-initialised after repeated faults: %1.</source>
+        <translation>Reinicializada tras fallas repetidas: %1.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="146"/>
+        <source>Navigation is not using the IMU.</source>
+        <translation>La navegación no está usando la IMU.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="155"/>
+        <source>Samples/s</source>
+        <translation>Muestras/s</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="157"/>
+        <source>Navigation/s</source>
+        <translation>Navegación/s</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="162"/>
+        <source>Temperature</source>
+        <translation>Temperatura</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="164"/>
+        <source>Restarts</source>
+        <translation>Reinicios</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="170"/>
+        <source>Faults: %1</source>
+        <translation>Fallas: %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ImuStatusGroup.qml" line="177"/>
+        <source>Bus errors %1 · no-data reads %2 · longest identical run %3 · report #%4</source>
+        <translation>Errores de bus %1 · lecturas sin datos %2 · racha idéntica más larga %3 · informe #%4</translation>
+    </message>
+</context>
+<context>
     <name>InputDeviceState</name>
     <message>
         <location filename="../qml/app/InputDeviceState.qml" line="11"/>
@@ -9241,34 +10125,77 @@
 <context>
     <name>KCircleIconButton</name>
     <message>
-        <location filename="../qml/kqml_types/KCircleIconButton.qml" line="68"/>
+        <location filename="../qml/kqml_types/KCircleIconButton.qml" line="72"/>
         <source>Close</source>
         <translation>Cerrar</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/KCircleIconButton.qml" line="70"/>
+        <location filename="../qml/kqml_types/KCircleIconButton.qml" line="74"/>
         <source>Menu</source>
         <translation>Menú</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/KCircleIconButton.qml" line="72"/>
+        <location filename="../qml/kqml_types/KCircleIconButton.qml" line="76"/>
         <source>Settings</source>
         <translation>Configuración</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/KCircleIconButton.qml" line="74"/>
+        <location filename="../qml/kqml_types/KCircleIconButton.qml" line="78"/>
         <source>Assign popup</source>
         <translation>Asignar ventana emergente</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/KCircleIconButton.qml" line="76"/>
+        <location filename="../qml/kqml_types/KCircleIconButton.qml" line="80"/>
         <source>Pane mode</source>
         <translation>Modo del panel</translation>
     </message>
     <message>
-        <location filename="../qml/kqml_types/KCircleIconButton.qml" line="78"/>
+        <location filename="../qml/kqml_types/KCircleIconButton.qml" line="82"/>
         <source>Move pane</source>
         <translation>Mover panel</translation>
+    </message>
+</context>
+<context>
+    <name>KCoachBubble</name>
+    <message>
+        <location filename="../qml/kqml_types/KCoachBubble.qml" line="21"/>
+        <source>Back</source>
+        <translation>Atrás</translation>
+    </message>
+    <message>
+        <location filename="../qml/kqml_types/KCoachBubble.qml" line="22"/>
+        <source>Skip</source>
+        <translation>Omitir</translation>
+    </message>
+    <message>
+        <location filename="../qml/kqml_types/KCoachBubble.qml" line="23"/>
+        <source>Next</source>
+        <translation>Siguiente</translation>
+    </message>
+    <message>
+        <location filename="../qml/kqml_types/KCoachBubble.qml" line="25"/>
+        <source>Leave the tutorial?</source>
+        <translation>¿Salir del tutorial?</translation>
+    </message>
+    <message>
+        <location filename="../qml/kqml_types/KCoachBubble.qml" line="26"/>
+        <source>You can continue it later from Settings → Tutorials.</source>
+        <translation>Puede continuarlo más tarde desde Configuración → Tutoriales.</translation>
+    </message>
+    <message>
+        <location filename="../qml/kqml_types/KCoachBubble.qml" line="198"/>
+        <source>Close tutorial</source>
+        <translation>Cerrar tutorial</translation>
+    </message>
+    <message>
+        <location filename="../qml/kqml_types/KCoachBubble.qml" line="246"/>
+        <source>Stay</source>
+        <translation>Quedarse</translation>
+    </message>
+    <message>
+        <location filename="../qml/kqml_types/KCoachBubble.qml" line="255"/>
+        <source>Leave</source>
+        <translation>Salir</translation>
     </message>
 </context>
 <context>
@@ -9374,56 +10301,74 @@
     </message>
 </context>
 <context>
+    <name>Link</name>
+    <message>
+        <location filename="../src/link/link.cpp" line="112"/>
+        <source>local UDP port (src) %1 is already in use by another link or program</source>
+        <translation>el puerto UDP local (src) %1 ya está en uso por otro enlace u otro programa</translation>
+    </message>
+    <message>
+        <location filename="../src/link/link.cpp" line="113"/>
+        <source>cannot bind local UDP port (src) %1: %2</source>
+        <translation>no se puede enlazar el puerto UDP local (src) %1: %2</translation>
+    </message>
+</context>
+<context>
     <name>LinkManager</name>
     <message>
-        <location filename="../src/link/link_manager.cpp" line="715"/>
+        <location filename="../src/link/link_manager.cpp" line="726"/>
         <source>Connected: %1</source>
         <translation>Conectado: %1</translation>
     </message>
     <message>
-        <location filename="../src/link/link_manager.cpp" line="718"/>
+        <location filename="../src/link/link_manager.cpp" line="729"/>
         <source>Disconnected: %1</source>
         <translation>Desconectado: %1</translation>
     </message>
     <message>
-        <location filename="../src/link/link_manager.cpp" line="768"/>
+        <location filename="../src/link/link_manager.cpp" line="782"/>
         <source>Receiving data from link</source>
         <translation>Recibiendo datos del enlace</translation>
     </message>
     <message>
-        <location filename="../src/link/link_manager.cpp" line="769"/>
+        <location filename="../src/link/link_manager.cpp" line="783"/>
         <source>Receiving data from link: %1</source>
         <translation>Recibiendo datos del enlace: %1</translation>
     </message>
     <message>
-        <location filename="../src/link/link_manager.cpp" line="772"/>
+        <location filename="../src/link/link_manager.cpp" line="786"/>
         <source>No data from link</source>
         <translation>Sin datos del enlace</translation>
     </message>
     <message>
-        <location filename="../src/link/link_manager.cpp" line="773"/>
+        <location filename="../src/link/link_manager.cpp" line="787"/>
         <source>No data from link: %1</source>
         <translation>Sin datos del enlace: %1</translation>
     </message>
     <message>
-        <location filename="../src/link/link_manager.cpp" line="787"/>
+        <location filename="../src/link/link_manager.cpp" line="801"/>
         <source>Link not available</source>
         <translation>Enlace no disponible</translation>
     </message>
     <message>
-        <location filename="../src/link/link_manager.cpp" line="788"/>
+        <location filename="../src/link/link_manager.cpp" line="802"/>
         <source>Link not available: %1</source>
         <translation>Enlace no disponible: %1</translation>
     </message>
     <message>
-        <location filename="../src/link/link_manager.cpp" line="793"/>
+        <location filename="../src/link/link_manager.cpp" line="807"/>
         <source>Link available</source>
         <translation>Enlace disponible</translation>
     </message>
     <message>
-        <location filename="../src/link/link_manager.cpp" line="794"/>
+        <location filename="../src/link/link_manager.cpp" line="808"/>
         <source>Link available: %1</source>
         <translation>Enlace disponible: %1</translation>
+    </message>
+    <message>
+        <location filename="../src/link/link_manager.cpp" line="824"/>
+        <source>Link &quot;%1&quot; not opened: %2</source>
+        <translation>Enlace &quot;%1&quot; no abierto: %2</translation>
     </message>
 </context>
 <context>
@@ -9470,208 +10415,228 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="80"/>
+        <location filename="../qml/app/MainWindow.qml" line="100"/>
         <source>Please choose a file</source>
         <translation>Seleccione un archivo</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="82"/>
+        <location filename="../qml/app/MainWindow.qml" line="102"/>
         <source>Logs and maps</source>
         <translation>Registros y mapas</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="82"/>
+        <location filename="../qml/app/MainWindow.qml" line="102"/>
         <source>KOGGER maps</source>
         <translation>Mapas KOGGER</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="109"/>
+        <location filename="../qml/app/MainWindow.qml" line="129"/>
         <source>Second window</source>
         <translation>Segunda ventana</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1177"/>
-        <location filename="../qml/app/MainWindow.qml" line="1196"/>
+        <location filename="../qml/app/MainWindow.qml" line="1210"/>
+        <location filename="../qml/app/MainWindow.qml" line="1231"/>
         <source>Settings</source>
         <translation>Configuración</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1178"/>
+        <location filename="../qml/app/MainWindow.qml" line="1211"/>
         <source>Quick action menu</source>
         <translation>Menú de acciones rápidas</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1179"/>
+        <location filename="../qml/app/MainWindow.qml" line="1212"/>
         <source>Edit panel</source>
         <translation>Editar panel</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1179"/>
+        <location filename="../qml/app/MainWindow.qml" line="1212"/>
         <source>Create panel</source>
         <translation>Crear panel</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1180"/>
+        <location filename="../qml/app/MainWindow.qml" line="1213"/>
         <source>Servo panel</source>
         <translation>Panel de servos</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1181"/>
+        <location filename="../qml/app/MainWindow.qml" line="1214"/>
         <source>USBL panel</source>
         <translation>Panel USBL</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1182"/>
+        <location filename="../qml/app/MainWindow.qml" line="1215"/>
         <source>Stand panel</source>
         <translation>Panel del banco de calibración</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1183"/>
+        <location filename="../qml/app/MainWindow.qml" line="1216"/>
         <source>UI Saving</source>
         <translation>Guardado de la UI</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1184"/>
+        <location filename="../qml/app/MainWindow.qml" line="1217"/>
         <source>TGC</source>
         <translation>TGC</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1185"/>
+        <location filename="../qml/app/MainWindow.qml" line="1218"/>
         <source>Export to CSV</source>
         <translation>Exportar a CSV</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1186"/>
+        <location filename="../qml/app/MainWindow.qml" line="1219"/>
         <source>Map for sharing</source>
         <translation>Mapa para compartir</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1187"/>
+        <location filename="../qml/app/MainWindow.qml" line="1220"/>
         <source>My maps</source>
         <translation>Mis mapas</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1188"/>
+        <location filename="../qml/app/MainWindow.qml" line="1221"/>
         <source>Information panel</source>
         <translation>Panel de información</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1189"/>
+        <location filename="../qml/app/MainWindow.qml" line="1222"/>
         <source>Console</source>
         <translation>Consola</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1190"/>
+        <location filename="../qml/app/MainWindow.qml" line="1223"/>
         <source>About</source>
         <translation>Acerca de</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1191"/>
+        <location filename="../qml/app/MainWindow.qml" line="1224"/>
+        <source>Controls</source>
+        <translation>Controles</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/MainWindow.qml" line="1225"/>
+        <source>Tutorials</source>
+        <translation>Tutoriales</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/MainWindow.qml" line="1226"/>
         <source>Developer mode</source>
         <translation>Modo de desarrollador</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1193"/>
+        <location filename="../qml/app/MainWindow.qml" line="1228"/>
         <source>Create layout</source>
         <translation>Crear diseño</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1194"/>
+        <location filename="../qml/app/MainWindow.qml" line="1229"/>
         <source>Devices</source>
         <translation>Dispositivos</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1642"/>
+        <location filename="../qml/app/MainWindow.qml" line="1489"/>
+        <source>Nodes-Configurator</source>
+        <translation>Configurador de nodos</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/MainWindow.qml" line="1491"/>
+        <source>running</source>
+        <translation>en marcha</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/MainWindow.qml" line="1736"/>
         <source>Tap again: apply %1 and save</source>
         <translation>Toque de nuevo: aplicar cambios (%1) y guardar</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1643"/>
+        <location filename="../qml/app/MainWindow.qml" line="1737"/>
         <source>Apply and save (%1)</source>
         <translation>Aplicar y guardar (%1)</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1644"/>
+        <location filename="../qml/app/MainWindow.qml" line="1738"/>
         <source>Save to device</source>
         <translation>Guardar en el dispositivo</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1646"/>
+        <location filename="../qml/app/MainWindow.qml" line="1740"/>
         <source>Apply every change waiting on this page, then write the settings to the device&apos;s memory</source>
         <translation>Aplicar todos los cambios pendientes de esta página y luego escribir los ajustes en la memoria del dispositivo</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1647"/>
+        <location filename="../qml/app/MainWindow.qml" line="1741"/>
         <source>Write the current settings to the device&apos;s memory</source>
         <translation>Escribir los ajustes actuales en la memoria del dispositivo</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1664"/>
+        <location filename="../qml/app/MainWindow.qml" line="1758"/>
         <source>Tap again to apply to %1: %2</source>
         <translation>Toque de nuevo para aplicar a %1: %2</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1674"/>
+        <location filename="../qml/app/MainWindow.qml" line="1768"/>
         <source>Settings written to device: %1</source>
         <translation>Ajustes escritos en el dispositivo: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1681"/>
+        <location filename="../qml/app/MainWindow.qml" line="1775"/>
         <source>Close</source>
         <translation>Cerrar</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1762"/>
+        <location filename="../qml/app/MainWindow.qml" line="1870"/>
         <source>Boat: %1 — done</source>
         <translation>Barco: %1 — completado</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1764"/>
+        <location filename="../qml/app/MainWindow.qml" line="1872"/>
         <source>Boat: %1 — %2</source>
         <translation>Barco: %1 — %2</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1768"/>
+        <location filename="../qml/app/MainWindow.qml" line="1876"/>
         <source>Boat: %1</source>
         <translation>Barco: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1853"/>
+        <location filename="../qml/app/MainWindow.qml" line="1961"/>
         <source>Welcome to KoggerApp!</source>
         <translation>¡Bienvenido a KoggerApp!</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1862"/>
+        <location filename="../qml/app/MainWindow.qml" line="1970"/>
         <source>Language:</source>
         <translation>Idioma:</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1875"/>
+        <location filename="../qml/app/MainWindow.qml" line="1983"/>
         <source>Choose which settings to show</source>
         <translation>Elija qué ajustes mostrar</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1882"/>
+        <location filename="../qml/app/MainWindow.qml" line="1990"/>
         <source>Fish Finders</source>
         <translation>Sondas de pesca</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1883"/>
+        <location filename="../qml/app/MainWindow.qml" line="1991"/>
         <source>Bottom Track</source>
         <translation>Seguimiento del fondo</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1884"/>
+        <location filename="../qml/app/MainWindow.qml" line="1992"/>
         <source>Maximum</source>
         <translation>Máximo</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1892"/>
+        <location filename="../qml/app/MainWindow.qml" line="2000"/>
         <source>You can change this later in settings.</source>
         <translation>Puede cambiarlo más tarde en la configuración.</translation>
     </message>
     <message>
-        <location filename="../qml/app/MainWindow.qml" line="1902"/>
+        <location filename="../qml/app/MainWindow.qml" line="2010"/>
         <source>Continue</source>
         <translation>Continuar</translation>
     </message>
@@ -10636,34 +11601,34 @@
     </message>
     <message>
         <location filename="../qml/app/MissionEditorOverlay.qml" line="215"/>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="963"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="962"/>
         <source>Waypoint</source>
         <translation>Punto de ruta</translation>
     </message>
     <message>
         <location filename="../qml/app/MissionEditorOverlay.qml" line="216"/>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="964"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="963"/>
         <source>Survey</source>
         <translation>Levantamiento</translation>
     </message>
     <message>
         <location filename="../qml/app/MissionEditorOverlay.qml" line="217"/>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="965"/>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1733"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="964"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1732"/>
         <source>Corridor</source>
         <translation>Corredor</translation>
     </message>
     <message>
         <location filename="../qml/app/MissionEditorOverlay.qml" line="218"/>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="966"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="965"/>
         <source>Rally point</source>
         <translation>Punto de reunión</translation>
     </message>
     <message>
         <location filename="../qml/app/MissionEditorOverlay.qml" line="219"/>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="967"/>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1613"/>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1733"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="966"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1612"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1732"/>
         <source>Geofence</source>
         <translation>Geocerca</translation>
     </message>
@@ -10815,7 +11780,7 @@
     </message>
     <message>
         <location filename="../qml/app/MissionEditorOverlay.qml" line="427"/>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="837"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="836"/>
         <source>Uploading mission to the vehicle</source>
         <translation>Enviando la misión al vehículo</translation>
     </message>
@@ -10881,7 +11846,7 @@
     </message>
     <message>
         <location filename="../qml/app/MissionEditorOverlay.qml" line="621"/>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="815"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="814"/>
         <source>Open mission</source>
         <translation>Abrir misión</translation>
     </message>
@@ -10898,7 +11863,7 @@
     </message>
     <message>
         <location filename="../qml/app/MissionEditorOverlay.qml" line="633"/>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="826"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="825"/>
         <source>Save mission</source>
         <translation>Guardar misión</translation>
     </message>
@@ -10929,7 +11894,7 @@
     </message>
     <message>
         <location filename="../qml/app/MissionEditorOverlay.qml" line="694"/>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1656"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1655"/>
         <source>Mission</source>
         <translation>Misión</translation>
     </message>
@@ -10969,356 +11934,356 @@
         <translation>El vehículo tiene otra misión · Abrir</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="798"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="797"/>
         <source>Help</source>
         <translation>Ayuda</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="807"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="806"/>
         <source>New mission</source>
         <translation>Nueva misión</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="837"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="836"/>
         <source>Upload to vehicle</source>
         <translation>Enviar al vehículo</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="847"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="846"/>
         <source>Read mission from vehicle</source>
         <translation>Leer la misión del vehículo</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="858"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="857"/>
         <source>Save as, export</source>
         <translation>Guardar como, exportar</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="876"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="875"/>
         <source>Close editor</source>
         <translation>Cerrar editor</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="962"/>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1477"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="961"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1476"/>
         <source>Start point</source>
         <translation>Punto de inicio</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="962"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="961"/>
         <source>Start</source>
         <translation>Inicio</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="963"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="962"/>
         <source>Waypoint</source>
         <comment>tool caption</comment>
         <translation>Punto</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="964"/>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1733"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="963"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1732"/>
         <source>Survey area</source>
         <translation>Área de levantamiento</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="966"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="965"/>
         <source>Rally</source>
         <translation>Reunión</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1016"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1015"/>
         <source>Finish shape</source>
         <translation>Terminar figura</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1028"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1027"/>
         <source>Cancel shape</source>
         <translation>Cancelar figura</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1039"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1038"/>
         <source>Remove last vertex</source>
         <translation>Quitar el último vértice</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1048"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1047"/>
         <source>Undo</source>
         <translation>Deshacer</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1055"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1054"/>
         <source>Redo</source>
         <translation>Rehacer</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1064"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1063"/>
         <source>Fit mission in view</source>
         <translation>Ajustar la misión a la vista</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1070"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1069"/>
         <source>Zoom in</source>
         <translation>Acercar</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1076"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1075"/>
         <source>Zoom out</source>
         <translation>Alejar</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1207"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1206"/>
         <source>Tap the map to place the start point</source>
         <translation>Toque el mapa para colocar el punto de inicio</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1208"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1207"/>
         <source>Tap the map to add waypoints</source>
         <translation>Toque el mapa para agregar puntos de ruta</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1209"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1208"/>
         <source>Tap the map to add rally points</source>
         <translation>Toque el mapa para agregar puntos de reunión</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1210"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1209"/>
         <source>Tap to add corners, ✓ finishes the area</source>
         <translation>Toque para agregar esquinas, ✓ termina el área</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1210"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1209"/>
         <source>Tap the map to outline the area (3 corners or more)</source>
         <translation>Toque el mapa para trazar el área (3 esquinas o más)</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1211"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1210"/>
         <source>Tap to extend the axis, ✓ finishes the corridor</source>
         <translation>Toque para prolongar el eje, ✓ termina el corredor</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1211"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1210"/>
         <source>Tap the map along the corridor axis (2 points or more)</source>
         <translation>Toque el mapa a lo largo del eje del corredor (2 puntos o más)</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1212"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1211"/>
         <source>Tap to add corners, ✓ finishes the zone</source>
         <translation>Toque para agregar esquinas, ✓ termina la zona</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1212"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1211"/>
         <source>Tap the map to outline the zone (3 corners or more)</source>
         <translation>Toque el mapa para trazar la zona (3 esquinas o más)</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1213"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1212"/>
         <source>Drag handles to edit, + inserts a vertex</source>
         <translation>Arrastre los marcadores para editar, + inserta un vértice</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1214"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1213"/>
         <source>Pick a tool on the left or tap an item to select it</source>
         <translation>Elija una herramienta a la izquierda o toque un elemento para seleccionarlo</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1274"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1273"/>
         <source>Back to the start point</source>
         <translation>Volver al punto de inicio</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1425"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1424"/>
         <source>Plan</source>
         <translation>Plan</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1432"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1431"/>
         <source>Cruise speed, m/s</source>
         <translation>Velocidad de crucero, m/s</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1447"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1446"/>
         <source>At the end</source>
         <translation>Al final</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1452"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1451"/>
         <source>Return to start point</source>
         <translation>Volver al punto de inicio</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1452"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1451"/>
         <source>Return to launch (RTL)</source>
         <translation>Volver al origen (RTL)</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1452"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1451"/>
         <source>Hold position</source>
         <translation>Mantener posición</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1452"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1451"/>
         <source>Nothing (autopilot setting)</source>
         <translation>Nada (ajuste del piloto automático)</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1463"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1462"/>
         <source>RTL goes to the autopilot&apos;s arming position, which may differ from the start point; the boat then holds position there</source>
         <translation>RTL va a la posición donde se armó el piloto automático, que puede no coincidir con el punto de inicio; después, el barco mantiene la posición allí</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1469"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1468"/>
         <source>No end command is added: after the last point the autopilot follows its MIS_DONE_BEHAVE parameter. By default (0) the boat cuts the throttle and drifts; 1 makes it hold position (Loiter)</source>
         <translation>No se agrega ningún comando final: después del último punto, el piloto automático actúa según su parámetro MIS_DONE_BEHAVE. De forma predeterminada (0), el barco corta el acelerador y queda a la deriva; con 1 mantiene la posición (Loiter)</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1478"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1477"/>
         <source>not set — tap the tool</source>
         <translation>no definido — toque la herramienta</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1478"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1477"/>
         <source>placed</source>
         <translation>colocado</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1508"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1507"/>
         <source>Show on map</source>
         <translation>Mostrar en el mapa</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1532"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1531"/>
         <source>Route</source>
         <translation>Ruta</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1534"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1533"/>
         <source>No items yet. Use the tools on the left.</source>
         <translation>Aún no hay elementos. Use las herramientas de la izquierda.</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1592"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1591"/>
         <source>Rally points</source>
         <translation>Puntos de reunión</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1634"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1633"/>
         <source>Summary</source>
         <translation>Resumen</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1639"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1638"/>
         <source>Length</source>
         <translation>Longitud</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1640"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1639"/>
         <source>Time</source>
         <translation>Tiempo</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1641"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1640"/>
         <source>Waypoints</source>
         <translation>Puntos de ruta</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1645"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1644"/>
         <source>Mission items</source>
         <translation>Elementos de misión</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1740"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1739"/>
         <source>Rectangle</source>
         <translation>Rectángulo</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1741"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1740"/>
         <source>Circle</source>
         <translation>Círculo</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1742"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1741"/>
         <source>Outline it point by point</source>
         <translation>Trazar por puntos</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1744"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1743"/>
         <source>Straight line</source>
         <translation>Línea recta</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1745"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1744"/>
         <source>Draw point by point</source>
         <translation>Dibujar por puntos</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1746"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1745"/>
         <source>Inclusion zone: rectangle</source>
         <translation>Zona de inclusión: rectángulo</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1747"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1746"/>
         <source>Inclusion zone: outline point by point</source>
         <translation>Zona de inclusión: trazar por puntos</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1748"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1747"/>
         <source>Exclusion zone: rectangle</source>
         <translation>Zona de exclusión: rectángulo</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1749"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1748"/>
         <source>Exclusion zone: circle</source>
         <translation>Zona de exclusión: círculo</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1750"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1749"/>
         <source>Exclusion zone: outline point by point</source>
         <translation>Zona de exclusión: trazar por puntos</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1814"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1813"/>
         <source>Save as…</source>
         <translation>Guardar como…</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1815"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1814"/>
         <source>Export for QGroundControl (.plan)</source>
         <translation>Exportar para QGroundControl (.plan)</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1816"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1815"/>
         <source>Export for Mission Planner (.waypoints)</source>
         <translation>Exportar para Mission Planner (.waypoints)</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1890"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1889"/>
         <source>Upload the mission to the vehicle?</source>
         <translation>¿Enviar la misión al vehículo?</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1912"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1911"/>
         <source>Upload</source>
         <translation>Enviar</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1917"/>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1987"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1916"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1986"/>
         <source>Cancel</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1952"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1951"/>
         <source>The mission has unsaved changes.</source>
         <translation>La misión tiene cambios sin guardar.</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1961"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1960"/>
         <source>Save</source>
         <translation>Guardar</translation>
     </message>
     <message>
-        <location filename="../qml/app/MissionEditorOverlay.qml" line="1977"/>
+        <location filename="../qml/app/MissionEditorOverlay.qml" line="1976"/>
         <source>Discard</source>
         <translation>Descartar</translation>
     </message>
@@ -12352,6 +13317,2454 @@
     </message>
 </context>
 <context>
+    <name>NodesBottomPanel</name>
+    <message>
+        <location filename="../qml/app/NodesBottomPanel.qml" line="28"/>
+        <source>Problems %1</source>
+        <translation>Problemas %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesBottomPanel.qml" line="28"/>
+        <source>Problems</source>
+        <translation>Problemas</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesBottomPanel.qml" line="29"/>
+        <location filename="../qml/app/NodesBottomPanel.qml" line="168"/>
+        <source>Write</source>
+        <translation>Escritura</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesBottomPanel.qml" line="30"/>
+        <source>Frames</source>
+        <translation>Tramas</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesBottomPanel.qml" line="31"/>
+        <source>Slots</source>
+        <translation>Ranuras</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesBottomPanel.qml" line="38"/>
+        <source>writing %1/%2</source>
+        <translation>escribiendo %1/%2</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesBottomPanel.qml" line="120"/>
+        <source>No problems: every device will understand the others.</source>
+        <translation>Sin problemas: cada dispositivo entenderá a los demás.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesBottomPanel.qml" line="129"/>
+        <source>Write changed</source>
+        <translation>Escribir cambios</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesBottomPanel.qml" line="130"/>
+        <source>Write all connected</source>
+        <translation>Escribir todos los conectados</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesBottomPanel.qml" line="131"/>
+        <source>Cancel</source>
+        <translation>Cancelar</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesBottomPanel.qml" line="150"/>
+        <source>%1 slots configured</source>
+        <translation>%1 ranuras configuradas</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesBottomPanel.qml" line="169"/>
+        <source>Baseline</source>
+        <translation>Estado base</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesBottomPanel.qml" line="176"/>
+        <source>Last write: </source>
+        <translation>Última escritura: </translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesBottomPanel.qml" line="188"/>
+        <source>Frames written to %1, in order:</source>
+        <translation>Tramas escritas en %1, en orden:</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesBottomPanel.qml" line="189"/>
+        <source>Select a lifeline to see the exact frames it is written with.</source>
+        <translation>Seleccione una línea de vida para ver las tramas exactas con que se escribe.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesBottomPanel.qml" line="262"/>
+        <source>r = receives bits, s = sends bits, LL = position + azimuth, → = reply cmd, @ = reply address. Empty slots are written with defaults.</source>
+        <translation>r = recibe bits, s = envía bits, LL = posición + acimut, → = cmd de respuesta, @ = dirección de respuesta. Las ranuras vacías se escriben con valores predeterminados.</translation>
+    </message>
+</context>
+<context>
+    <name>NodesConfigurator</name>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="99"/>
+        <source>Drag to resize · double-click for the default size</source>
+        <translation>Arrastre para cambiar el tamaño · doble clic para el tamaño predeterminado</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="182"/>
+        <source>File ▾</source>
+        <translation>Archivo ▾</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="193"/>
+        <source>New</source>
+        <translation>Nuevo</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="195"/>
+        <source>Empty network</source>
+        <translation>Red vacía</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="197"/>
+        <source>Ranging: head + beacons…</source>
+        <translation>Medición de distancia: cabezal + balizas…</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="198"/>
+        <source>Telemetry from beacons…</source>
+        <translation>Telemetría de las balizas…</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="199"/>
+        <source>Command with acknowledge…</source>
+        <translation>Comando con confirmación…</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="200"/>
+        <source>Position transfer…</source>
+        <translation>Transferencia de posición…</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="201"/>
+        <source>Pinger and listeners…</source>
+        <translation>Pinger y oyentes…</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="202"/>
+        <source>Swarm: interrogators, one transponder…</source>
+        <translation>Enjambre: interrogadores, un transpondedor…</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="203"/>
+        <source>Bench pair…</source>
+        <translation>Par de banco de pruebas…</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="204"/>
+        <source>Bench pair, delayed beacon…</source>
+        <translation>Par de banco de pruebas, baliza retardada…</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="205"/>
+        <source>From the current command plan</source>
+        <translation>Desde el plan de comandos actual</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="208"/>
+        <source>Open…</source>
+        <translation>Abrir…</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="210"/>
+        <source>Open recent</source>
+        <translation>Abrir reciente</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="217"/>
+        <location filename="../qml/app/NodesConfigurator.qml" line="626"/>
+        <source>Save</source>
+        <translation>Guardar</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="218"/>
+        <source>Save as…</source>
+        <translation>Guardar como…</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="220"/>
+        <source>Save a copy without bindings…</source>
+        <translation>Guardar una copia sin vinculaciones…</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="222"/>
+        <source>Revert to saved</source>
+        <translation>Volver a lo guardado</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="224"/>
+        <source>Export frames (JSON)…</source>
+        <translation>Exportar tramas (JSON)…</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="226"/>
+        <source>Export per-node files…</source>
+        <translation>Exportar archivos por nodo…</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="233"/>
+        <source>Undo (Ctrl+Z)</source>
+        <translation>Deshacer (Ctrl+Z)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="239"/>
+        <source>Redo (Ctrl+Y)</source>
+        <translation>Rehacer (Ctrl+Y)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="246"/>
+        <source>Design</source>
+        <translation>Diseño</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="246"/>
+        <source>Live</source>
+        <translation>En vivo</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="246"/>
+        <source>overlay what really happens on the diagram</source>
+        <translation>superponer en el diagrama lo que ocurre realmente</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="252"/>
+        <source>■ Stop</source>
+        <translation>■ Detener</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="252"/>
+        <location filename="../qml/app/NodesConfigurator.qml" line="720"/>
+        <source>▶ Start</source>
+        <translation>▶ Iniciar</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="255"/>
+        <source>Run the whole cycle on the bound heads</source>
+        <translation>Ejecutar el ciclo completo en los cabezales vinculados</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="255"/>
+        <source>No step can run: bind and connect a head first</source>
+        <translation>Ningún paso puede ejecutarse: primero vincule y conecte un cabezal</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="259"/>
+        <source>Step</source>
+        <translation>Un paso</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="266"/>
+        <location filename="../qml/app/NodesConfigurator.qml" line="671"/>
+        <location filename="../qml/app/NodesConfigurator.qml" line="713"/>
+        <source>Max range</source>
+        <translation>Alcance máx.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="275"/>
+        <location filename="../qml/app/NodesConfigurator.qml" line="673"/>
+        <location filename="../qml/app/NodesConfigurator.qml" line="715"/>
+        <source>m</source>
+        <translation>m</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="280"/>
+        <source>Period</source>
+        <translation>Período</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="290"/>
+        <source>Interval between steps, as Dwell was in the device settings. At least %1 s, the longest step of the cycle. Setting it switches the cycle to this period.</source>
+        <translation>Intervalo entre pasos, como era «Permanencia» en la configuración del dispositivo. Al menos %1 s, el paso más largo del ciclo. Al ajustarlo, el ciclo pasa a este período.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="294"/>
+        <source>s</source>
+        <translation>s</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="296"/>
+        <source>Auto</source>
+        <translation>Auto</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="299"/>
+        <source>Each step as long as its own exchange needs; the period is not used</source>
+        <translation>Cada paso dura lo que necesita su intercambio; el período no se usa</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="306"/>
+        <source>Now</source>
+        <translation>Ahora</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="306"/>
+        <source>transmit on command</source>
+        <translation>transmitir al dar la orden</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="306"/>
+        <source>PPS</source>
+        <translation>PPS</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="306"/>
+        <source>transmit on the next PPS pulse</source>
+        <translation>transmitir en el siguiente pulso PPS</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="311"/>
+        <source>cycle %1 s</source>
+        <translation>ciclo %1 s</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="335"/>
+        <location filename="../qml/app/NodesConfigurator.qml" line="386"/>
+        <source>Write changed</source>
+        <translation>Escribir cambios</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="337"/>
+        <source>Write every connected device whose state differs from the network</source>
+        <translation>Escribir en cada dispositivo conectado cuyo estado difiere de la red</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="341"/>
+        <source>■ Silence all</source>
+        <translation>■ Silenciar todo</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="343"/>
+        <source>Stop the cycle and make every connected device stop answering</source>
+        <translation>Detener el ciclo y hacer que todos los dispositivos conectados dejen de responder</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="350"/>
+        <source>Devices panel</source>
+        <translation>Panel de dispositivos</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="356"/>
+        <source>Inspector</source>
+        <translation>Inspector</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="362"/>
+        <source>Problems and writing</source>
+        <translation>Problemas y escritura</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="381"/>
+        <source>Not written to the devices</source>
+        <translation>No escrito en los dispositivos</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="382"/>
+        <source>%1 still run their previous settings. Changes on the diagram — data, addresses, answers, slots — take effect only after a write.</source>
+        <translation>%1 siguen con su configuración anterior. Los cambios en el diagrama — datos, direcciones, respuestas, ranuras — solo surten efecto tras una escritura.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="401"/>
+        <source>The file changed on disk.</source>
+        <translation>El archivo cambió en el disco.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="402"/>
+        <source>Reload</source>
+        <translation>Recargar</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="403"/>
+        <source>Keep mine</source>
+        <translation>Conservar mi versión</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="436"/>
+        <source>Open read-only: written by a newer version. Use Save as to keep a copy you can edit.</source>
+        <translation>Abierto en solo lectura: escrito por una versión más reciente. Use «Guardar como» para conservar una copia editable.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="449"/>
+        <source>Loaded with notes: %1</source>
+        <translation>Cargado con observaciones: %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="561"/>
+        <source>Open network</source>
+        <translation>Abrir red</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="563"/>
+        <location filename="../qml/app/NodesConfigurator.qml" line="572"/>
+        <location filename="../qml/app/NodesConfigurator.qml" line="581"/>
+        <source>Nodes networks (*.knodes)</source>
+        <translation>Redes de nodos (*.knodes)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="563"/>
+        <source>All files (*)</source>
+        <translation>Todos los archivos (*)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="569"/>
+        <source>Save network as</source>
+        <translation>Guardar red como</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="578"/>
+        <source>Save a copy without device bindings</source>
+        <translation>Guardar una copia sin vinculaciones de dispositivos</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="586"/>
+        <source>Export frames</source>
+        <translation>Exportar tramas</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="589"/>
+        <source>JSON (*.json)</source>
+        <translation>JSON (*.json)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="594"/>
+        <source>Folder for per-node files</source>
+        <translation>Carpeta para los archivos por nodo</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="621"/>
+        <source>%1 has unsaved changes.</source>
+        <translation>%1 tiene cambios sin guardar.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="627"/>
+        <source>Discard</source>
+        <translation>Descartar</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="628"/>
+        <location filename="../qml/app/NodesConfigurator.qml" line="689"/>
+        <location filename="../qml/app/NodesConfigurator.qml" line="728"/>
+        <location filename="../qml/app/NodesConfigurator.qml" line="760"/>
+        <source>Cancel</source>
+        <translation>Cancelar</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="665"/>
+        <source>New network</source>
+        <translation>Nueva red</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="666"/>
+        <source>Interrogator addresses</source>
+        <translation>Direcciones de interrogadores</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="666"/>
+        <source>Beacon addresses</source>
+        <translation>Direcciones de balizas</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="671"/>
+        <source>Extra range of the delayed beacon</source>
+        <translation>Distancia adicional de la baliza retardada</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="678"/>
+        <source>Create</source>
+        <translation>Crear</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="701"/>
+        <source>Interrogate from %1 SN %2</source>
+        <translation>Interrogar desde %1 SN %2</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="706"/>
+        <source>Plain ranging needs no write: each request carries the address, the command and Max range. The device becomes a head lifeline of the current network (or of a new quick network).</source>
+        <translation>La medición de distancia simple no requiere escritura: cada solicitud lleva la dirección, el comando y el alcance máx. El dispositivo pasa a ser una línea de vida de cabezal de la red actual (o de una nueva red rápida).</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="709"/>
+        <source>Addresses</source>
+        <translation>Direcciones</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="740"/>
+        <source>Send once with this request data</source>
+        <translation>Enviar una vez con estos datos de solicitud</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="744"/>
+        <source>Data</source>
+        <translation>Datos</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesConfigurator.qml" line="752"/>
+        <source>Send</source>
+        <translation>Enviar</translation>
+    </message>
+</context>
+<context>
+    <name>NodesDevicesPanel</name>
+    <message>
+        <location filename="../qml/app/NodesDevicesPanel.qml" line="40"/>
+        <source>LIFELINES</source>
+        <translation>LÍNEAS DE VIDA</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesDevicesPanel.qml" line="80"/>
+        <source>SN %1 · not connected</source>
+        <translation>SN %1 · no conectado</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesDevicesPanel.qml" line="81"/>
+        <source>external</source>
+        <translation>externo</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesDevicesPanel.qml" line="81"/>
+        <source>unbound</source>
+        <translation>sin vincular</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesDevicesPanel.qml" line="98"/>
+        <source>+ Head</source>
+        <translation>+ Cabezal</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesDevicesPanel.qml" line="99"/>
+        <source>+ Beacon</source>
+        <translation>+ Baliza</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesDevicesPanel.qml" line="100"/>
+        <source>+ External</source>
+        <translation>+ Externo</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesDevicesPanel.qml" line="100"/>
+        <source>A party this app does not configure, e.g. another vessel&apos;s interrogator</source>
+        <translation>Un participante que esta aplicación no configura, p. ej., el interrogador de otra embarcación</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesDevicesPanel.qml" line="103"/>
+        <source>CONNECTED, NOT IN THIS NETWORK</source>
+        <translation>CONECTADOS, FUERA DE ESTA RED</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesDevicesPanel.qml" line="107"/>
+        <source>Every connected USBL device is bound.</source>
+        <translation>Todos los dispositivos USBL conectados están vinculados.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesDevicesPanel.qml" line="108"/>
+        <source>No USBL device connected. Connect one below — or design now and bind later.</source>
+        <translation>No hay ningún dispositivo USBL conectado. Conecte uno abajo — o diseñe ahora y vincule después.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesDevicesPanel.qml" line="133"/>
+        <source>fw %1 · %2</source>
+        <translation>fw %1 · %2</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesDevicesPanel.qml" line="143"/>
+        <source>Bind to %1</source>
+        <translation>Vincular a %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesDevicesPanel.qml" line="147"/>
+        <source>Add as head</source>
+        <translation>Agregar como cabezal</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesDevicesPanel.qml" line="151"/>
+        <source>Add as beacon</source>
+        <translation>Agregar como baliza</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesDevicesPanel.qml" line="154"/>
+        <source>Quick…</source>
+        <translation>Rápida…</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesDevicesPanel.qml" line="154"/>
+        <source>Interrogate addresses from this device now</source>
+        <translation>Interrogar direcciones desde este dispositivo ahora</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesDevicesPanel.qml" line="160"/>
+        <source>LINKS</source>
+        <translation>CONEXIONES</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesDevicesPanel.qml" line="166"/>
+        <source>Disconnect links</source>
+        <translation>Cerrar conexiones</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesDevicesPanel.qml" line="166"/>
+        <source>Connect recent links</source>
+        <translation>Abrir conexiones recientes</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesDevicesPanel.qml" line="167"/>
+        <source>%1 recently used links, %2 open</source>
+        <translation>%1 conexiones usadas recientemente, %2 abiertas</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesDevicesPanel.qml" line="171"/>
+        <source>%1 / %2 open</source>
+        <translation>%1 / %2 abiertas</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesDevicesPanel.qml" line="178"/>
+        <source>A device plugged in on a known port connects here; a new port is added once in the connections settings.</source>
+        <translation>Un dispositivo enchufado en un puerto conocido se conecta aquí; un puerto nuevo se agrega una sola vez en la configuración de conexiones.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesDevicesPanel.qml" line="182"/>
+        <source>UPLOAD QUEUE</source>
+        <translation>COLA DE CARGA</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesDevicesPanel.qml" line="206"/>
+        <source>Write</source>
+        <translation>Escribir</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesDevicesPanel.qml" line="215"/>
+        <source>Written beacons keep their settings only while powered.</source>
+        <translation>Las balizas escritas conservan su configuración solo mientras están alimentadas.</translation>
+    </message>
+</context>
+<context>
+    <name>NodesFloatingWindow</name>
+    <message>
+        <location filename="../qml/app/NodesFloatingWindow.qml" line="267"/>
+        <source>Transparency</source>
+        <translation>Transparencia</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesFloatingWindow.qml" line="278"/>
+        <source>Expand</source>
+        <translation>Expandir</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesFloatingWindow.qml" line="278"/>
+        <source>Collapse to the title bar</source>
+        <translation>Contraer a la barra de título</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesFloatingWindow.qml" line="286"/>
+        <source>Restore the floating window (double-click the title)</source>
+        <translation>Restaurar la ventana flotante (doble clic en el título)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesFloatingWindow.qml" line="287"/>
+        <source>Fill the whole window (double-click the title)</source>
+        <translation>Ocupar toda la ventana (doble clic en el título)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesFloatingWindow.qml" line="301"/>
+        <source>Close — the cycle keeps running</source>
+        <translation>Cerrar — el ciclo sigue en marcha</translation>
+    </message>
+</context>
+<context>
+    <name>NodesInspector</name>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="133"/>
+        <source>Network, cycle, payload formats</source>
+        <translation>Red, ciclo, formatos de carga útil</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="135"/>
+        <source>Or click an empty part of the diagram</source>
+        <translation>O haga clic en una parte vacía del diagrama</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="147"/>
+        <source>Network</source>
+        <translation>Red</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="151"/>
+        <source>Name</source>
+        <translation>Nombre</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="153"/>
+        <source>network name</source>
+        <translation>nombre de la red</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="157"/>
+        <source>Notes</source>
+        <translation>Notas</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="162"/>
+        <source>Max range, m</source>
+        <translation>Alcance máx., m</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="163"/>
+        <source>a step needs at least %1 s</source>
+        <translation>un paso necesita al menos %1 s</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="172"/>
+        <source>Fit to measured</source>
+        <translation>Ajustar a lo medido</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="173"/>
+        <source>Max range = the farthest measured beacon × 1.2</source>
+        <translation>Alcance máx. = la baliza medida más lejana × 1.2</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="174"/>
+        <source>Use measured ranges</source>
+        <translation>Usar distancias medidas</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="175"/>
+        <source>Copy each beacon&apos;s last measured range into its planned range</source>
+        <translation>Copiar la última distancia medida de cada baliza en su distancia prevista</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="178"/>
+        <source>Transmit</source>
+        <translation>Transmitir</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="180"/>
+        <source>Each step only arms the request; the head transmits on its next PPS pulse. Without a PPS signal nothing is sent.</source>
+        <translation>Cada paso solo prepara la solicitud; el cabezal transmite en su siguiente pulso PPS. Sin señal PPS no se envía nada.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="181"/>
+        <source>Immediately</source>
+        <translation>De inmediato</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="181"/>
+        <source>On PPS</source>
+        <translation>Con PPS</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="189"/>
+        <source>Cycle</source>
+        <translation>Ciclo</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="192"/>
+        <source>%1 steps · cycle %2 s</source>
+        <translation>%1 pasos · ciclo %2 s</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="195"/>
+        <source>Steps</source>
+        <translation>Pasos</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="196"/>
+        <location filename="../qml/app/NodesInspector.qml" line="441"/>
+        <location filename="../qml/app/NodesInspector.qml" line="953"/>
+        <source>Auto</source>
+        <translation>Auto</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="196"/>
+        <source>each step as long as its own exchange needs</source>
+        <translation>cada paso dura lo que necesita su intercambio</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="197"/>
+        <source>Uniform</source>
+        <translation>Uniforme</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="197"/>
+        <source>every step as long as the longest one</source>
+        <translation>todos los pasos duran lo que el más largo</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="198"/>
+        <source>Period</source>
+        <translation>Período</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="198"/>
+        <source>a fixed interval between steps, as Dwell was</source>
+        <translation>un intervalo fijo entre pasos, como era «Permanencia»</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="204"/>
+        <source>Period, s</source>
+        <translation>Período, s</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="205"/>
+        <source>between steps, at least %1 s</source>
+        <translation>entre pasos, al menos %1 s</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="217"/>
+        <source>Extra margin, ms</source>
+        <translation>Margen adicional, ms</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="218"/>
+        <source>added to every step</source>
+        <translation>se suma a cada paso</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="227"/>
+        <source>Repeat</source>
+        <translation>Repetir</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="235"/>
+        <source>Payload formats</source>
+        <translation>Formatos de carga útil</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="238"/>
+        <source>A format packs named fields into bits, first field first, least significant bit first. Exchanges use it for request and reply data.</source>
+        <translation>Un formato empaqueta campos con nombre en bits: primero el primer campo, primero el bit menos significativo. Los intercambios lo usan para los datos de solicitud y de respuesta.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="261"/>
+        <source>%1 bit</source>
+        <translation>%1 bit</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="265"/>
+        <source>Close</source>
+        <translation>Cerrar</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="265"/>
+        <source>Fields</source>
+        <translation>Campos</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="266"/>
+        <source>Delete format</source>
+        <translation>Eliminar formato</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="287"/>
+        <source>scale</source>
+        <translation>escala</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="289"/>
+        <source>unit</source>
+        <translation>unidad</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="292"/>
+        <source>Remove field</source>
+        <translation>Quitar campo</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="299"/>
+        <source>+ Field</source>
+        <translation>+ Campo</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="306"/>
+        <source>+ Format</source>
+        <translation>+ Formato</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="328"/>
+        <source>Lifeline</source>
+        <translation>Línea de vida</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="340"/>
+        <location filename="../qml/app/NodesInspector.qml" line="638"/>
+        <source>Label</source>
+        <translation>Etiqueta</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="345"/>
+        <location filename="../qml/app/NodesInspector.qml" line="673"/>
+        <source>Kind</source>
+        <translation>Tipo</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="346"/>
+        <source>Head</source>
+        <translation>Cabezal</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="346"/>
+        <source>Beacon</source>
+        <translation>Baliza</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="347"/>
+        <source>External</source>
+        <translation>Externo</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="347"/>
+        <source>a party this app does not configure or bind</source>
+        <translation>un participante que esta aplicación no configura ni vincula</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="352"/>
+        <source>Address</source>
+        <translation>Dirección</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="353"/>
+        <source>0 is an ordinary address</source>
+        <translation>0 es una dirección normal</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="355"/>
+        <source>none</source>
+        <translation>ninguna</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="362"/>
+        <location filename="../qml/app/NodesInspector.qml" line="937"/>
+        <source>In the cycle</source>
+        <translation>En el ciclo</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="363"/>
+        <source>off removes every step to or from it</source>
+        <translation>desactivado quita todos los pasos hacia él o desde él</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="368"/>
+        <source>Planned range, m</source>
+        <translation>Distancia prevista, m</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="371"/>
+        <source>measured %1 m</source>
+        <translation>medida %1 m</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="382"/>
+        <source>Last fix: %1 m · %2° · RSRQ %3 dB</source>
+        <translation>Última posición: %1 m · %2° · RSRQ %3 dB</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="389"/>
+        <source>Last data received: %1 · %2 ago</source>
+        <translation>Últimos datos recibidos: %1 · hace %2</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="397"/>
+        <source>Move left</source>
+        <translation>Mover a la izquierda</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="401"/>
+        <source>Move right</source>
+        <translation>Mover a la derecha</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="408"/>
+        <source>Delete lifeline</source>
+        <translation>Eliminar línea de vida</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="414"/>
+        <source>Answering and hearing</source>
+        <translation>Respuesta y escucha</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="418"/>
+        <source>The window counts from the moment it is written, not from each request.</source>
+        <translation>La ventana cuenta desde el momento en que se escribe, no desde cada solicitud.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="420"/>
+        <source>Answers</source>
+        <translation>Responde</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="421"/>
+        <source>Off</source>
+        <translation>No</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="421"/>
+        <source>Always</source>
+        <translation>Siempre</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="421"/>
+        <source>Window</source>
+        <translation>Ventana</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="427"/>
+        <source>Window, s</source>
+        <translation>Ventana, s</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="436"/>
+        <source>Hears</source>
+        <translation>Oye</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="439"/>
+        <source>addresses %1</source>
+        <translation>direcciones %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="439"/>
+        <source>nothing</source>
+        <translation>nada</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="441"/>
+        <source>Explicit</source>
+        <translation>Explícito</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="450"/>
+        <source>Addresses</source>
+        <translation>Direcciones</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="479"/>
+        <source>Blind after request, ms</source>
+        <translation>Ciego tras solicitud, ms</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="488"/>
+        <source>Blind after reply, ms</source>
+        <translation>Ciego tras respuesta, ms</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="497"/>
+        <source>Idle listening</source>
+        <translation>Escucha en reposo</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="498"/>
+        <source>hear replies outside its own window</source>
+        <translation>oír respuestas fuera de su propia ventana</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="507"/>
+        <source>Interrogation</source>
+        <translation>Interrogación</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="511"/>
+        <source>Keeps time</source>
+        <translation>Temporiza</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="512"/>
+        <source>App</source>
+        <translation>App</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="512"/>
+        <source>PPS</source>
+        <translation>PPS</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="513"/>
+        <location filename="../qml/app/NodesInspector.qml" line="547"/>
+        <source>Device</source>
+        <translation>Dispositivo</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="513"/>
+        <source>device-timed transmission, not available yet</source>
+        <translation>transmisión temporizada por el dispositivo, aún no disponible</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="520"/>
+        <source>■ Stop</source>
+        <translation>■ Detener</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="520"/>
+        <source>▶ Run this head</source>
+        <translation>▶ Ejecutar este cabezal</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="523"/>
+        <source>Interrogate only this head&apos;s steps</source>
+        <translation>Interrogar solo los pasos de este cabezal</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="523"/>
+        <source>Bind and connect this head first</source>
+        <translation>Primero vincule y conecte este cabezal</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="527"/>
+        <location filename="../qml/app/NodesInspector.qml" line="933"/>
+        <source>Step</source>
+        <translation>Un paso</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="533"/>
+        <source>Add exchange</source>
+        <translation>Agregar intercambio</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="536"/>
+        <source>to…</source>
+        <translation>a…</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="551"/>
+        <source>Settings live in the device&apos;s RAM: it must stay powered until deployment. After a power cycle it does not answer and accepts only address 0.</source>
+        <translation>La configuración reside en la RAM del dispositivo: debe permanecer alimentado hasta el despliegue. Tras un ciclo de apagado y encendido no responde y solo acepta la dirección 0.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="557"/>
+        <source>Bound to %1 SN %2 · fw %3 · %4</source>
+        <translation>Vinculado a %1 SN %2 · fw %3 · %4</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="558"/>
+        <source>Bound to SN %1 — not connected now</source>
+        <translation>Vinculado a SN %1 — no conectado ahora</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="559"/>
+        <source>Not bound. Pick a connected device below, or bind later: the network can be designed without devices.</source>
+        <translation>Sin vincular. Elija abajo un dispositivo conectado o vincule después: la red puede diseñarse sin dispositivos.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="563"/>
+        <source>Bind to</source>
+        <translation>Vincular a</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="567"/>
+        <source>choose a device…</source>
+        <translation>elija un dispositivo…</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="580"/>
+        <source>State: %1%2 · fingerprint %3</source>
+        <translation>Estado: %1%2 · huella %3</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="593"/>
+        <source>Write</source>
+        <translation>Escribir</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="595"/>
+        <source>Send this lifeline&apos;s whole configuration to its device, frame by frame, with confirmation</source>
+        <translation>Enviar toda la configuración de esta línea de vida a su dispositivo, trama por trama, con confirmación</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="599"/>
+        <source>Reset to baseline</source>
+        <translation>Restablecer al estado base</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="601"/>
+        <source>Silent, hears no address, every slot at defaults</source>
+        <translation>Silencioso, no oye ninguna dirección, todas las ranuras con valores predeterminados</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="606"/>
+        <source>Quick interrogate…</source>
+        <translation>Interrogación rápida…</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="611"/>
+        <source>Unbind</source>
+        <translation>Desvincular</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="640"/>
+        <source>optional name</source>
+        <translation>nombre opcional</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="644"/>
+        <source>From</source>
+        <translation>Desde</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="654"/>
+        <source>To</source>
+        <translation>Hacia</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="658"/>
+        <source>address %1 (no lifeline)</source>
+        <translation>dirección %1 (sin línea de vida)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="674"/>
+        <source>Ranging</source>
+        <translation>Medición</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="674"/>
+        <source>ask and wait for the reply: range + direction</source>
+        <translation>preguntar y esperar la respuesta: distancia + dirección</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="675"/>
+        <source>Ping</source>
+        <translation>Ping</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="675"/>
+        <source>send only; listeners hear it, nobody is ranged</source>
+        <translation>solo enviar; los oyentes lo oyen, no se mide ninguna distancia</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="681"/>
+        <source>Max range</source>
+        <translation>Alcance máx.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="686"/>
+        <source> · target planned %1 m</source>
+        <translation> · destino previsto %1 m</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="687"/>
+        <source>Answer window %1 s after the reply hold%2</source>
+        <translation>Ventana de respuesta %1 s tras la espera de respuesta%2</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="689"/>
+        <source>Network · %1 m</source>
+        <translation>Red · %1 m</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="690"/>
+        <source>Own</source>
+        <translation>Propio</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="696"/>
+        <source>Own max range, m</source>
+        <translation>Alcance máx. propio, m</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="705"/>
+        <source>Command id</source>
+        <translation>ID de comando</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="706"/>
+        <source>allocated so slots never clash</source>
+        <translation>asignado para que las ranuras nunca choquen</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="708"/>
+        <location filename="../qml/app/NodesInspector.qml" line="795"/>
+        <source>auto (%1)</source>
+        <translation>auto (%1)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="717"/>
+        <source>+ Step running it</source>
+        <translation>+ Paso que lo ejecuta</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="720"/>
+        <source>Delete exchange</source>
+        <translation>Eliminar intercambio</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="726"/>
+        <source>Data</source>
+        <translation>Datos</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="729"/>
+        <source>Reply data is fixed: the target answers with these bytes, which are written into its slot. The head decodes them with the same format.</source>
+        <translation>Los datos de respuesta son fijos: el destino responde con estos bytes, que se escriben en su ranura. El cabezal los decodifica con el mismo formato.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="737"/>
+        <source>Request data</source>
+        <translation>Datos de solicitud</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="751"/>
+        <source>Reply data</source>
+        <translation>Datos de respuesta</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="758"/>
+        <source>Follow-up</source>
+        <translation>Continuación</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="759"/>
+        <source>after the reply the head sends again, and the target replies again</source>
+        <translation>tras la respuesta, el cabezal vuelve a enviar y el destino vuelve a responder</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="771"/>
+        <source>Follow-up data</source>
+        <translation>Datos de continuación</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="786"/>
+        <source>Second reply</source>
+        <translation>Segunda respuesta</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="793"/>
+        <source>Follow-up cmd</source>
+        <translation>Cmd de continuación</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="806"/>
+        <source>Reply rewrite (advanced)</source>
+        <translation>Reescritura de respuesta (avanzado)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="810"/>
+        <source>Reply address</source>
+        <translation>Dirección de respuesta</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="812"/>
+        <location filename="../qml/app/NodesInspector.qml" line="825"/>
+        <source>keep</source>
+        <translation>mantener</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="823"/>
+        <source>Reply cmd</source>
+        <translation>Cmd de respuesta</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="836"/>
+        <source>Reply as request</source>
+        <translation>Responder como solicitud</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="837"/>
+        <source>experimental: the head does not accept it</source>
+        <translation>experimental: el cabezal no lo acepta</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="850"/>
+        <source>Listeners</source>
+        <translation>Oyentes</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="853"/>
+        <source>Lifelines that hear this exchange without answering it: they get its address in their filter and must not respond.</source>
+        <translation>Líneas de vida que oyen este intercambio sin responderlo: reciben su dirección en su filtro y no deben responder.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="867"/>
+        <source>does not listen</source>
+        <translation>no escucha</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="868"/>
+        <source>hears the request and the reply</source>
+        <translation>oye la solicitud y la respuesta</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="869"/>
+        <source>hears the request</source>
+        <translation>oye la solicitud</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="874"/>
+        <source>reply</source>
+        <translation>respuesta</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="882"/>
+        <source>Also hears the reply</source>
+        <translation>También oye la respuesta</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="891"/>
+        <source>Listens to this exchange</source>
+        <translation>Escucha este intercambio</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="906"/>
+        <source>Received data</source>
+        <translation>Datos recibidos</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="909"/>
+        <source>What each receiving device decoded, compared with the data configured here. Only devices connected to this computer report it.</source>
+        <translation>Lo que decodificó cada dispositivo receptor, comparado con los datos configurados aquí. Solo lo informan los dispositivos conectados a esta computadora.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="916"/>
+        <source>%1 at %2</source>
+        <translation>%1 en %2</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="920"/>
+        <source>%1 · %2 ago</source>
+        <translation>%1 · hace %2</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="922"/>
+        <source>not connected, its decoded data cannot be seen</source>
+        <translation>no conectado, no se pueden ver sus datos decodificados</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="923"/>
+        <source>nothing received yet</source>
+        <translation>aún no se recibió nada</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="942"/>
+        <source>Duration</source>
+        <translation>Duración</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="946"/>
+        <source>round trip</source>
+        <translation>ida y vuelta</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="946"/>
+        <source>hold + decode</source>
+        <translation>espera + decodificación</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="946"/>
+        <source>request data</source>
+        <translation>datos de solicitud</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="947"/>
+        <source>reply data</source>
+        <translation>datos de respuesta</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="947"/>
+        <source>follow-up</source>
+        <translation>continuación</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="947"/>
+        <source>on air</source>
+        <translation>en el aire</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="947"/>
+        <source>tail</source>
+        <translation>cola</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="950"/>
+        <source>Needs %1 ms: %2. Runs %3 ms.</source>
+        <translation>Necesita %1 ms: %2. Dura %3 ms.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="953"/>
+        <source>Fixed</source>
+        <translation>Fija</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="959"/>
+        <source>Fixed duration, ms</source>
+        <translation>Duración fija, ms</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="969"/>
+        <source>Live: %1 · replies %2 of %3</source>
+        <translation>En vivo: %1 · respuestas %2 de %3</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="973"/>
+        <source>Range, m</source>
+        <translation>Distancia, m</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="978"/>
+        <source>Azimuth / elevation, °</source>
+        <translation>Acimut / elevación, °</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="983"/>
+        <source>RSRQ, dB</source>
+        <translation>RSRQ, dB</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="988"/>
+        <source>Sync peak / SNR, dB</source>
+        <translation>Pico de sinc. / SNR, dB</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="993"/>
+        <source>First arrival / SNR, dB</source>
+        <translation>Primera llegada / SNR, dB</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="998"/>
+        <source>Noise RMS, dB</source>
+        <translation>RMS del ruido, dB</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="1003"/>
+        <source>First arrival → peak, ms</source>
+        <translation>Primera llegada → pico, ms</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="1008"/>
+        <source>Beacon position</source>
+        <translation>Posición de la baliza</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="1012"/>
+        <source>Send now</source>
+        <translation>Enviar ahora</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="1013"/>
+        <source>Send with payload…</source>
+        <translation>Enviar con carga útil…</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="1014"/>
+        <source>Duplicate</source>
+        <translation>Duplicar</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesInspector.qml" line="1015"/>
+        <source>Delete step</source>
+        <translation>Eliminar paso</translation>
+    </message>
+</context>
+<context>
+    <name>NodesPayloadEditor</name>
+    <message>
+        <location filename="../qml/app/NodesPayloadEditor.qml" line="21"/>
+        <source>Nothing</source>
+        <translation>Nada</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesPayloadEditor.qml" line="22"/>
+        <source>Bytes (hex)</source>
+        <translation>Bytes (hex)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesPayloadEditor.qml" line="23"/>
+        <source>Bits</source>
+        <translation>Bits</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesPayloadEditor.qml" line="24"/>
+        <source>Text</source>
+        <translation>Texto</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesPayloadEditor.qml" line="25"/>
+        <source>Fields</source>
+        <translation>Campos</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesPayloadEditor.qml" line="26"/>
+        <source>Position + azimuth</source>
+        <translation>Posición + acimut</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesPayloadEditor.qml" line="76"/>
+        <source>hex bytes</source>
+        <translation>bytes en hex</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesPayloadEditor.qml" line="85"/>
+        <source>send</source>
+        <translation>enviar</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesPayloadEditor.qml" line="101"/>
+        <source>bit (0 = all)</source>
+        <translation>bit (0 = todos)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesPayloadEditor.qml" line="113"/>
+        <source>bits, first sent first: 1011…</source>
+        <translation>bits, el primero se envía primero: 1011…</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesPayloadEditor.qml" line="123"/>
+        <source>ASCII text</source>
+        <translation>Texto ASCII</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesPayloadEditor.qml" line="184"/>
+        <source>The head&apos;s own position and geographic azimuth, 66 bit, filled from its navigation at the moment it sends. Decoded values are not checked strongly.</source>
+        <translation>La posición propia del cabezal y su acimut geográfico, 66 bit, tomados de su navegación en el momento del envío. Los valores decodificados no se verifican de forma estricta.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesPayloadEditor.qml" line="193"/>
+        <source>%1 bit · %2 ms on air · limit %3 bit</source>
+        <translation>%1 bit · %2 ms en el aire · límite %3 bit</translation>
+    </message>
+</context>
+<context>
+    <name>NodesSequenceCanvas</name>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="100"/>
+        <source>time</source>
+        <translation>tiempo</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="160"/>
+        <source>head</source>
+        <translation>cabezal</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="160"/>
+        <source>external</source>
+        <translation>externo</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="160"/>
+        <source>beacon</source>
+        <translation>baliza</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="161"/>
+        <source>silent</source>
+        <translation>silencioso</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="161"/>
+        <source>answers</source>
+        <translation>responde</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="178"/>
+        <source>SN %1 · not connected</source>
+        <translation>SN %1 · no conectado</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="179"/>
+        <source>not bindable</source>
+        <translation>no vinculable</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="179"/>
+        <source>unbound</source>
+        <translation>sin vincular</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="188"/>
+        <source>✓ written</source>
+        <translation>✓ escrito</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="188"/>
+        <source>writing…</source>
+        <translation>escribiendo…</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="189"/>
+        <source>changed — write</source>
+        <translation>cambiado — escribir</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="190"/>
+        <source>written earlier</source>
+        <translation>escrito antes</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="191"/>
+        <source>write failed</source>
+        <translation>error de escritura</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="192"/>
+        <source>baseline</source>
+        <translation>estado base</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="221"/>
+        <source>In the cycle: interrogated. Click to skip it.</source>
+        <translation>En el ciclo: se interroga. Haga clic para omitirlo.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="221"/>
+        <source>Skipped by the cycle. Click to interrogate it.</source>
+        <translation>Omitido por el ciclo. Haga clic para interrogarlo.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="243"/>
+        <source>Drag to another lifeline to add an exchange</source>
+        <translation>Arrastre a otra línea de vida para agregar un intercambio</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="329"/>
+        <source>Add a head and a beacon (toolbar or Devices panel), then drag the ⟶ handle of the head onto the beacon to add an exchange.</source>
+        <translation>Agregue un cabezal y una baliza (barra de herramientas o panel de dispositivos) y luego arrastre el marcador ⟶ del cabezal sobre la baliza para agregar un intercambio.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="330"/>
+        <source>Drag the ⟶ handle of an initiator&apos;s header onto another lifeline to add an exchange.</source>
+        <translation>Arrastre el marcador ⟶ del encabezado de un iniciador sobre otra línea de vida para agregar un intercambio.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="483"/>
+        <source>ping</source>
+        <translation>ping</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="501"/>
+        <source>reply</source>
+        <translation>respuesta</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="530"/>
+        <source>off</source>
+        <translation>desact.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="697"/>
+        <source>loop · cycle %1 s · %2</source>
+        <translation>bucle · ciclo %1 s · %2</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="698"/>
+        <source>uniform steps</source>
+        <translation>pasos uniformes</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="699"/>
+        <source>period %1 s</source>
+        <translation>período %1 s</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="700"/>
+        <source>auto steps</source>
+        <translation>pasos automáticos</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="733"/>
+        <source>Send now</source>
+        <translation>Enviar ahora</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="735"/>
+        <source>Send with payload…</source>
+        <translation>Enviar con carga útil…</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="737"/>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="802"/>
+        <source>In the cycle</source>
+        <translation>En el ciclo</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="742"/>
+        <source>Duplicate step</source>
+        <translation>Duplicar paso</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="743"/>
+        <source>Automatic duration</source>
+        <translation>Duración automática</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="744"/>
+        <source>Delete step</source>
+        <translation>Eliminar paso</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="745"/>
+        <source>Delete exchange</source>
+        <translation>Eliminar intercambio</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="770"/>
+        <source>■ Stop</source>
+        <translation>■ Detener</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="770"/>
+        <source>▶ Run this head</source>
+        <translation>▶ Ejecutar este cabezal</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="772"/>
+        <source>Step</source>
+        <translation>Un paso</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="773"/>
+        <source>Add exchange to</source>
+        <translation>Agregar intercambio a</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="780"/>
+        <source>Write</source>
+        <translation>Escribir</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="782"/>
+        <source>Reset to baseline</source>
+        <translation>Restablecer al estado base</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="784"/>
+        <source>Quick interrogate…</source>
+        <translation>Interrogación rápida…</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="786"/>
+        <source>Bind to</source>
+        <translation>Vincular a</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="793"/>
+        <source>Unbind</source>
+        <translation>Desvincular</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="795"/>
+        <source>Answers</source>
+        <translation>Responde</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="798"/>
+        <source>Off</source>
+        <translation>No</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="799"/>
+        <source>Always</source>
+        <translation>Siempre</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="800"/>
+        <source>Window</source>
+        <translation>Ventana</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="807"/>
+        <source>Move left</source>
+        <translation>Mover a la izquierda</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="809"/>
+        <source>Move right</source>
+        <translation>Mover a la derecha</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesSequenceCanvas.qml" line="811"/>
+        <source>Delete lifeline</source>
+        <translation>Eliminar línea de vida</translation>
+    </message>
+</context>
+<context>
+    <name>NodesStore</name>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="51"/>
+        <source>Untitled network</source>
+        <translation>Red sin título</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="80"/>
+        <source>This network is open read-only.</source>
+        <translation>Esta red está abierta en solo lectura.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="222"/>
+        <source>New network</source>
+        <translation>Nueva red</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="233"/>
+        <source>Cannot read %1: %2</source>
+        <translation>No se puede leer %1: %2</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="233"/>
+        <source>%1 is empty</source>
+        <translation>%1 está vacío</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="239"/>
+        <source>%1 is not a valid JSON file: %2</source>
+        <translation>%1 no es un archivo JSON válido: %2</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="240"/>
+        <source>%1 is not a Nodes-Configurator network</source>
+        <translation>%1 no es una red del Configurador de nodos</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="249"/>
+        <source>This file was written by a newer version and is open read-only.</source>
+        <translation>Este archivo fue escrito por una versión más reciente y está abierto en solo lectura.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="262"/>
+        <location filename="../qml/app/NodesStore.qml" line="328"/>
+        <source>Cannot write %1: %2</source>
+        <translation>No se puede escribir %1: %2</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="270"/>
+        <source>This network is open read-only; use Save as.</source>
+        <translation>Esta red está abierta en solo lectura; use «Guardar como».</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="346"/>
+        <source>Some per-node files could not be written: %1</source>
+        <translation>No se pudieron escribir algunos archivos por nodo: %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="541"/>
+        <source>port %1</source>
+        <translation>puerto %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="645"/>
+        <source>address %1</source>
+        <translation>dirección %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="652"/>
+        <source>V0 trigger</source>
+        <translation>V0 disparo</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="653"/>
+        <source>V3 answering</source>
+        <translation>V3 respuesta</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="654"/>
+        <source>V4 address filter</source>
+        <translation>V4 filtro de direcciones</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="655"/>
+        <source>V7 monitor</source>
+        <translation>V7 monitor</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="656"/>
+        <source>V6 cmd %1 on %2</source>
+        <translation>V6 cmd %1 en %2</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="656"/>
+        <location filename="../qml/app/NodesStore.qml" line="786"/>
+        <source>reply</source>
+        <translation>respuesta</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="656"/>
+        <location filename="../qml/app/NodesStore.qml" line="786"/>
+        <source>request</source>
+        <translation>solicitud</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="662"/>
+        <source>no answer</source>
+        <translation>sin respuesta</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="663"/>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="664"/>
+        <source>rejected: checksum</source>
+        <translation>rechazado: suma de verificación</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="665"/>
+        <source>rejected: payload</source>
+        <translation>rechazado: carga útil</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="666"/>
+        <source>rejected: unknown ID</source>
+        <translation>rechazado: ID desconocido</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="667"/>
+        <source>rejected: unknown version</source>
+        <translation>rechazado: versión desconocida</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="668"/>
+        <source>rejected: wrong type</source>
+        <translation>rechazado: tipo incorrecto</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="669"/>
+        <source>rejected: key</source>
+        <translation>rechazado: clave</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="670"/>
+        <source>rejected: runtime error</source>
+        <translation>rechazado: error de ejecución</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="672"/>
+        <source>rejected, code %1</source>
+        <translation>rechazado, código %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="680"/>
+        <source>no answer after %1 tries</source>
+        <translation>sin respuesta tras %1 intentos</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="681"/>
+        <source>Stopped at frame %1 of %2 (%3): %4. %5 of %2 confirmed.</source>
+        <translation>Detenido en la trama %1 de %2 (%3): %4. %5 de %2 confirmadas.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="687"/>
+        <source>request data</source>
+        <translation>datos de solicitud</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="688"/>
+        <source>reply data</source>
+        <translation>datos de respuesta</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="689"/>
+        <source>follow-up data</source>
+        <translation>datos de continuación</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="690"/>
+        <source>second reply data</source>
+        <translation>datos de la segunda respuesta</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="692"/>
+        <source>data</source>
+        <translation>datos</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="697"/>
+        <source>%1 · %2 bit</source>
+        <translation>%1 · %2 bit</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="698"/>
+        <source>✓ %1, as expected</source>
+        <translation>✓ %1, como se esperaba</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="700"/>
+        <source>≠ %1, expected %2 · %3 bit</source>
+        <translation>≠ %1, se esperaba %2 · %3 bit</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../qml/app/NodesStore.qml" line="701"/>
+        <source>≠ %1, expected %2 · %n bit(s) differ</source>
+        <translation>
+            <numerusform>≠ %1, se esperaba %2 · difiere %n bit</numerusform>
+            <numerusform>≠ %1, se esperaba %2 · difieren %n bits</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="728"/>
+        <source>… data</source>
+        <translation>… datos</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="729"/>
+        <source>✗ not written</source>
+        <translation>✗ no escrito</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="729"/>
+        <source>✗ no data</source>
+        <translation>✗ sin datos</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="736"/>
+        <source>%1 at %2</source>
+        <translation>%1 en %2</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="740"/>
+        <source>%1: waiting for the decoded data</source>
+        <translation>%1: esperando los datos decodificados</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="744"/>
+        <source>%1: nothing decoded — %2 not written with this configuration yet; use Write changed</source>
+        <translation>%1: nada decodificado — %2 aún sin escribir con esta configuración; use «Escribir cambios»</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="746"/>
+        <source>%1: the device reported no decoded data for this send</source>
+        <translation>%1: el dispositivo no informó datos decodificados para este envío</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="760"/>
+        <source>%1 m · az %2° · el %3° · RSRQ %4 dB</source>
+        <translation>%1 m · az %2° · elev %3° · RSRQ %4 dB</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="767"/>
+        <source>peak %1 dB · SNR %2 dB · 1st %3 dB · SNR %4 dB · RMS %5 dB · 1st→peak %6 ms</source>
+        <translation>pico %1 dB · SNR %2 dB · 1.er %3 dB · SNR %4 dB · RMS %5 dB · 1.er→pico %6 ms</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="775"/>
+        <source>%1, %2 · depth %3 m</source>
+        <translation>%1, %2 · profundidad %3 m</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="782"/>
+        <source>%1 of %2</source>
+        <translation>%1 de %2</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="783"/>
+        <source>not from any exchange of this network</source>
+        <translation>no proviene de ningún intercambio de esta red</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="784"/>
+        <source>%1 · %2 bit · address %3 · cmd %4 · on %5 — %6</source>
+        <translation>%1 · %2 bit · dirección %3 · cmd %4 · en %5 — %6</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="791"/>
+        <source>not bound to a device</source>
+        <translation>no vinculado a un dispositivo</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="792"/>
+        <source>external — not configured by this app</source>
+        <translation>externo — no lo configura esta aplicación</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="793"/>
+        <source>writing…</source>
+        <translation>escribiendo…</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="794"/>
+        <source>rejected by the device</source>
+        <translation>rechazado por el dispositivo</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="795"/>
+        <source>no answer from the device</source>
+        <translation>sin respuesta del dispositivo</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="796"/>
+        <source>partially written</source>
+        <translation>escrito parcialmente</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="797"/>
+        <source>device not ready to accept settings</source>
+        <translation>el dispositivo no está listo para aceptar la configuración</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="798"/>
+        <source>write cancelled — nothing confirmed</source>
+        <translation>escritura cancelada — nada confirmado</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="799"/>
+        <source>confirmed, matches the network</source>
+        <translation>confirmado, coincide con la red</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="800"/>
+        <source>changed since written</source>
+        <translation>cambiado desde la escritura</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="801"/>
+        <source>written earlier — not verifiable, holds only if it stayed powered</source>
+        <translation>escrito antes — no verificable, solo se mantiene si siguió alimentado</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="802"/>
+        <source>written earlier with other settings</source>
+        <translation>escrito antes con otra configuración</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="803"/>
+        <source>connected, state unknown — not written since it connected</source>
+        <translation>conectado, estado desconocido — no se escribió desde que se conectó</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="804"/>
+        <source>never written from this computer</source>
+        <translation>nunca escrito desde esta computadora</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="805"/>
+        <source>reset to baseline: silent, hears no address</source>
+        <translation>restablecido al estado base: silencioso, no oye ninguna dirección</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="815"/>
+        <source>The network is empty. Add a head and beacons, or start from a template.</source>
+        <translation>La red está vacía. Agregue un cabezal y balizas, o empiece desde una plantilla.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="816"/>
+        <source>%1 is not bound to a device.</source>
+        <translation>%1 no está vinculado a un dispositivo.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="817"/>
+        <source>%1: %2 connected devices report SN %3, and the port it was bound on matches none of them; one was picked by list order. Bind it again.</source>
+        <translation>%1: %2 dispositivos conectados informan SN %3, y el puerto en que se vinculó no coincide con ninguno; se eligió uno por orden de la lista. Vincúlelo de nuevo.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="818"/>
+        <source>%1 answers only for %2 s after each write.</source>
+        <translation>%1 responde solo durante %2 s tras cada escritura.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="819"/>
+        <source>%1 hears no address: its request filter is empty.</source>
+        <translation>%1 no oye ninguna dirección: su filtro de solicitudes está vacío.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="820"/>
+        <source>%1 has no acoustic address.</source>
+        <translation>%1 no tiene dirección acústica.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="821"/>
+        <source>%1 targets address %2; only 0–7 are received.</source>
+        <translation>%1 se dirige a la dirección %2; solo se reciben 0–7.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="822"/>
+        <source>%1 expects a reply, but %2 does not respond.</source>
+        <translation>%1 espera una respuesta, pero %2 no responde.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="823"/>
+        <source>%1: address %2 is not in %3&apos;s filter.</source>
+        <translation>%1: la dirección %2 no está en el filtro de %3.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="824"/>
+        <source>%1: no lifeline answers address %2.</source>
+        <translation>%1: ninguna línea de vida responde a la dirección %2.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="825"/>
+        <source>%1 is started by an external party, not by this app.</source>
+        <translation>%1 lo inicia un participante externo, no esta aplicación.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="826"/>
+        <source>%1: %2 bits of request data get no reply (at most %3 bits).</source>
+        <translation>%1: %2 bits de datos de solicitud no obtienen respuesta (como máximo %3 bits).</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="827"/>
+        <source>%1: %2 bits exceed the 183-bit payload limit.</source>
+        <translation>%1: %2 bits superan el límite de carga útil de 183 bits.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="828"/>
+        <source>%1 sends the head&apos;s position: it needs a fresh GNSS fix on the head.</source>
+        <translation>%1 envía la posición del cabezal: necesita una posición GNSS reciente en el cabezal.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="829"/>
+        <source>%1: position + azimuth has a weak check; decoded values are unvalidated.</source>
+        <translation>%1: posición + acimut tiene una verificación débil; los valores decodificados no están validados.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="830"/>
+        <source>%1 has a follow-up with no data.</source>
+        <translation>%1 tiene una continuación sin datos.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="831"/>
+        <source>%1 uses a payload format that no longer exists.</source>
+        <translation>%1 usa un formato de carga útil que ya no existe.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="832"/>
+        <source>%1 replies with a request; the head does not accept it.</source>
+        <translation>%1 responde con una solicitud; el cabezal no la acepta.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="833"/>
+        <source>%1 is planned at %2 m, beyond Max range %3 m: replies miss the window or fold.</source>
+        <translation>%1 está previsto a %2 m, más allá del alcance máx. de %3 m: las respuestas pierden la ventana o se pliegan.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="834"/>
+        <source>%1: Max range is only %2 m.</source>
+        <translation>%1: el alcance máx. es de solo %2 m.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="835"/>
+        <source>%1 listens to %2 but would also answer it.</source>
+        <translation>%1 escucha %2, pero también lo respondería.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="836"/>
+        <source>More than one lifeline answers address %1: two replies collide.</source>
+        <translation>Más de una línea de vida responde a la dirección %1: dos respuestas chocan.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="837"/>
+        <source>%1: its pinned command id conflicts with another exchange.</source>
+        <translation>%1: su ID de comando fijado entra en conflicto con otro intercambio.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="838"/>
+        <source>%1: no free command id is left on one of its devices.</source>
+        <translation>%1: no queda ningún ID de comando libre en uno de sus dispositivos.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="839"/>
+        <source>A step lasts %1 ms but needs %2 ms: replies will miss or fold.</source>
+        <translation>Un paso dura %1 ms pero necesita %2 ms: las respuestas se perderán o se plegarán.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="840"/>
+        <source>A step lasts %1 ms; %2 ms would do.</source>
+        <translation>Un paso dura %1 ms; bastarían %2 ms.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="841"/>
+        <source>A PPS step takes %1 pulse periods.</source>
+        <translation>Un paso PPS ocupa %1 períodos de pulso.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="842"/>
+        <source>No step is enabled; nothing will be interrogated.</source>
+        <translation>No hay ningún paso habilitado; no se interrogará nada.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="843"/>
+        <source>%1: device-periodic transmission needs exactly one step (has %2).</source>
+        <translation>%1: la transmisión periódica del dispositivo necesita exactamente un paso (tiene %2).</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="844"/>
+        <source>%1: device-periodic transmission is not available yet; the app keeps time instead.</source>
+        <translation>%1: la transmisión periódica del dispositivo aún no está disponible; en su lugar temporiza la aplicación.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="845"/>
+        <source>Several heads are bound: live replies are told apart by address only.</source>
+        <translation>Hay varios cabezales vinculados: las respuestas en vivo se distinguen solo por la dirección.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="846"/>
+        <source>%1: measured %2 m, close to Max range %3 m.</source>
+        <translation>%1: medido %2 m, cerca del alcance máx. de %3 m.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="847"/>
+        <source>%1: negative range %2 m — the head&apos;s firmware predates the range fix.</source>
+        <translation>%1: distancia negativa %2 m — el firmware del cabezal es anterior a la corrección de distancia.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="854"/>
+        <source>Respond</source>
+        <translation>Responder</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="855"/>
+        <source>Stop answering</source>
+        <translation>Dejar de responder</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="856"/>
+        <source>Auto filter</source>
+        <translation>Filtro automático</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="857"/>
+        <source>Add address</source>
+        <translation>Agregar dirección</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="859"/>
+        <source>Free address</source>
+        <translation>Dirección libre</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="860"/>
+        <source>Make it a ping</source>
+        <translation>Convertir en ping</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="861"/>
+        <source>Remove follow-up</source>
+        <translation>Quitar continuación</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="862"/>
+        <source>Remove rewrite</source>
+        <translation>Quitar reescritura</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="863"/>
+        <source>Max range %1 m</source>
+        <translation>Alcance máx. %1 m</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="864"/>
+        <source>Auto cmd</source>
+        <translation>Cmd automático</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="865"/>
+        <source>Auto duration</source>
+        <translation>Duración automática</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="866"/>
+        <source>App keeps time</source>
+        <translation>Temporiza la app</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/NodesStore.qml" line="867"/>
+        <source>Bind…</source>
+        <translation>Vincular…</translation>
+    </message>
+</context>
+<context>
     <name>Pane2DSettingsPage</name>
     <message>
         <location filename="../qml/app/Pane2DSettingsPage.qml" line="15"/>
@@ -12370,22 +15783,32 @@
 <context>
     <name>Pane3DWindow</name>
     <message>
-        <location filename="../qml/app/Pane3DWindow.qml" line="189"/>
+        <location filename="../qml/app/Pane3DWindow.qml" line="167"/>
+        <source>Viewing a past moment</source>
+        <translation>Viendo un momento pasado</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/Pane3DWindow.qml" line="174"/>
+        <source>Back to live</source>
+        <translation>Volver a tiempo real</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/Pane3DWindow.qml" line="257"/>
         <source>Surface: </source>
         <translation>Superficie: </translation>
     </message>
     <message>
-        <location filename="../qml/app/Pane3DWindow.qml" line="189"/>
+        <location filename="../qml/app/Pane3DWindow.qml" line="257"/>
         <source> cm/cell</source>
         <translation> cm/celda</translation>
     </message>
     <message>
-        <location filename="../qml/app/Pane3DWindow.qml" line="191"/>
+        <location filename="../qml/app/Pane3DWindow.qml" line="259"/>
         <source>Mosaic: </source>
         <translation>Mosaico: </translation>
     </message>
     <message>
-        <location filename="../qml/app/Pane3DWindow.qml" line="191"/>
+        <location filename="../qml/app/Pane3DWindow.qml" line="259"/>
         <source> cm/pix</source>
         <translation> cm/pix</translation>
     </message>
@@ -12549,348 +15972,373 @@
 <context>
     <name>Plot2D</name>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="671"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="687"/>
         <source>pings: %1</source>
         <translation>pings: %1</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="672"/>
         <location filename="../qml/scene2d/Plot2D.qml" line="688"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="704"/>
         <source>Width</source>
         <comment>the scale hint: the echogram&apos;s axis across</comment>
         <translation>Ancho</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="673"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="687"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="689"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="703"/>
         <source>Height</source>
         <comment>the scale hint: the echogram&apos;s axis up and down</comment>
         <translation>Alto</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="685"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="701"/>
         <source>±%1 m</source>
         <translation>±%1 m</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="686"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="702"/>
         <source>%1 … %2 m</source>
         <translation>%1 … %2 m</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="856"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="826"/>
+        <source> m</source>
+        <translation> m</translation>
+    </message>
+    <message>
+        <location filename="../qml/scene2d/Plot2D.qml" line="848"/>
+        <source>Echogram scale changed</source>
+        <translation>Escala del ecograma cambiada</translation>
+    </message>
+    <message>
+        <location filename="../qml/scene2d/Plot2D.qml" line="906"/>
+        <source>Reset vertical scale</source>
+        <translation>Restablecer escala vertical</translation>
+    </message>
+    <message>
+        <location filename="../qml/scene2d/Plot2D.qml" line="921"/>
+        <source>Reset horizontal scale</source>
+        <translation>Restablecer escala horizontal</translation>
+    </message>
+    <message>
+        <location filename="../qml/scene2d/Plot2D.qml" line="978"/>
         <source>Echogram levels</source>
         <translation>Niveles del ecograma</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="957"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1079"/>
         <source>Echogram sound: on</source>
         <translation>Sonido del ecograma: activado</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="957"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1079"/>
         <source>Echogram sound: off</source>
         <translation>Sonido del ecograma: desactivado</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="974"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1096"/>
         <source>Echogram settings</source>
         <translation>Configuración del ecograma</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1168"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1292"/>
         <source>Channels:</source>
         <translation>Canales:</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1283"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1407"/>
         <source>Echogram</source>
         <translation>Ecograma</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1292"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1416"/>
         <source>Blue</source>
         <translation>Azul</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1292"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1416"/>
         <source>Sepia</source>
         <translation>Sepia</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1292"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1416"/>
         <source>Sepia New</source>
         <translation>Sepia nueva</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1292"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1416"/>
         <source>WRGBD</source>
         <translation>WRGBD</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1292"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1416"/>
         <source>WhiteBlack</source>
         <translation>Blanco-negro</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1292"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1416"/>
         <source>BlackWhite</source>
         <translation>Negro-blanco</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1292"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1416"/>
         <source>DeepBlue</source>
         <translation>Azul profundo</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1292"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1416"/>
         <source>Ice</source>
         <translation>Hielo</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1292"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1416"/>
         <source>Green</source>
         <translation>Verde</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1292"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1416"/>
         <source>Midnight</source>
         <translation>Medianoche</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1315"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1439"/>
         <source>Raw</source>
         <translation>Sin procesar</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1315"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1439"/>
         <source>Side-Scan</source>
         <translation>Barrido lateral</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1315"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1439"/>
         <source>TGC</source>
         <translation>TGC</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1331"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1455"/>
         <source>Sound: log</source>
         <translation>Sonido: log.</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1331"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1455"/>
         <source>Sound: linear</source>
         <translation>Sonido: lineal</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1348"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1472"/>
         <source>Deconvolution</source>
         <translation>Deconvolución</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1353"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1477"/>
         <source>On</source>
         <translation>Activada</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1367"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1491"/>
         <source>Beam°</source>
         <translation>Haz°</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1401"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1525"/>
         <source>Motion</source>
         <translation>Movimiento</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1415"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1539"/>
         <source>Iter</source>
         <translation>Iter.</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1442"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1566"/>
         <source>Bottom-Track</source>
         <translation>Línea de fondo</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1447"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1487"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1571"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1611"/>
         <source>Value</source>
         <translation>Valor</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1456"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1465"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1496"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1505"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1580"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1589"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1620"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1629"/>
         <source>Line</source>
         <translation>Línea</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1465"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1505"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1589"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1629"/>
         <source>Points</source>
         <translation>Puntos</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1482"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1606"/>
         <source>Rangefinder</source>
         <translation>Telémetro</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1523"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1647"/>
         <source>Attitude</source>
         <translation>Orientación</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1531"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1655"/>
         <source>Temperature</source>
         <translation>Temperatura</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1555"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1679"/>
         <source>Doppler Beams</source>
         <translation>Haces Doppler</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1565"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1574"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1583"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1592"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1630"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1689"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1698"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1707"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1716"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1754"/>
         <source>Depth</source>
         <translation>Profundidad</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1566"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1575"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1584"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1593"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1690"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1699"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1708"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1717"/>
         <source>Velocity</source>
         <translation>Velocidad</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1567"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1576"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1585"/>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1594"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1691"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1700"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1709"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1718"/>
         <source>Mode</source>
         <translation>Modo</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1616"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1740"/>
         <source>Doppler Instrument</source>
         <translation>Instrumento Doppler</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1629"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1753"/>
         <source>Abs. Velocity</source>
         <translation>Velocidad abs.</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1641"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1765"/>
         <source>DVL Legend</source>
         <translation>Leyenda DVL</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1651"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1775"/>
         <source>Top</source>
         <translation>Arriba</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1651"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1775"/>
         <source>Center</source>
         <translation>Centro</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1651"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1775"/>
         <source>Bottom</source>
         <translation>Abajo</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1671"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1795"/>
         <source>Acoustic angle</source>
         <translation>Ángulo acústico</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1683"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1807"/>
         <source>Doppler Profiler</source>
         <translation>Perfilador Doppler</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1693"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1817"/>
         <source>GNSS data</source>
         <translation>Datos GNSS</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1712"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1836"/>
         <source>Grid</source>
         <translation>Cuadrícula</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1718"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1842"/>
         <source>fill</source>
         <translation>rellenar</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1734"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1858"/>
         <source>invert</source>
         <translation>invertir</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1772"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1912"/>
         <source>Angle range, °</source>
         <translation>Rango de ángulos, °</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1824"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="1964"/>
         <source>Velocity range, m/s</source>
         <translation>Rango de velocidades, m/s</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1881"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="2021"/>
         <source>Distance auto range</source>
         <translation>Rango automático de distancia</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1897"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="2037"/>
         <source>Last data       </source>
         <translation>Últimos datos       </translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1897"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="2037"/>
         <source>Last on screen</source>
         <translation>Último en pantalla</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1897"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="2037"/>
         <source>Max on screen</source>
         <translation>Máximo en pantalla</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1913"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="2053"/>
         <source>Horizontal</source>
         <translation>Horizontal</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1921"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="2061"/>
         <source>Loupe</source>
         <translation>Lupa</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1930"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="2070"/>
         <source>size</source>
         <translation>tamaño</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="1947"/>
+        <location filename="../qml/scene2d/Plot2D.qml" line="2087"/>
         <source>zoom</source>
         <translation>zoom</translation>
     </message>
     <message>
-        <location filename="../qml/scene2d/Plot2D.qml" line="2447"/>
-        <source>Set point of interest</source>
-        <translation>Marcar punto de interés</translation>
+        <location filename="../qml/scene2d/Plot2D.qml" line="2595"/>
+        <source>Resume scrolling now</source>
+        <translation>Reanudar el desplazamiento ahora</translation>
+    </message>
+    <message>
+        <location filename="../qml/scene2d/Plot2D.qml" line="2621"/>
+        <source>Scroll to the newest data</source>
+        <translation>Desplazarse a los datos más recientes</translation>
     </message>
 </context>
 <context>
@@ -12923,64 +16371,64 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../src/core.cpp" line="3337"/>
+        <location filename="../src/core.cpp" line="3515"/>
         <source>File</source>
         <translation>Archivo</translation>
     </message>
     <message>
-        <location filename="../src/scene2d/plot2D_aim.cpp" line="112"/>
+        <location filename="../src/scene2d/plot2D_aim.cpp" line="122"/>
         <source>%1 m</source>
         <translation>%1 m</translation>
     </message>
     <message>
-        <location filename="../src/scene2d/plot2D_aim.cpp" line="118"/>
+        <location filename="../src/scene2d/plot2D_aim.cpp" line="128"/>
         <source>Channel: </source>
         <translation>Canal: </translation>
     </message>
     <message>
-        <location filename="../src/scene2d/plot2D_aim.cpp" line="123"/>
+        <location filename="../src/scene2d/plot2D_aim.cpp" line="133"/>
         <source>Epoch: </source>
         <translation>Época: </translation>
     </message>
     <message>
-        <location filename="../src/scene2d/plot2D_aim.cpp" line="130"/>
+        <location filename="../src/scene2d/plot2D_aim.cpp" line="140"/>
         <source>Resolution, mm: </source>
         <translation>Resolución, mm: </translation>
     </message>
     <message>
-        <location filename="../src/scene2d/plot2D_aim.cpp" line="131"/>
+        <location filename="../src/scene2d/plot2D_aim.cpp" line="141"/>
         <source>Frequency, kHz: </source>
         <translation>Frecuencia, kHz: </translation>
     </message>
     <message>
-        <location filename="../src/scene2d/plot2D_aim.cpp" line="132"/>
+        <location filename="../src/scene2d/plot2D_aim.cpp" line="142"/>
         <source>Pulse count: </source>
         <translation>Número de pulsos: </translation>
     </message>
     <message>
-        <location filename="../src/scene2d/plot2D_aim.cpp" line="133"/>
+        <location filename="../src/scene2d/plot2D_aim.cpp" line="143"/>
         <source>Booster: </source>
         <translation>Amplificador: </translation>
     </message>
     <message>
-        <location filename="../src/scene2d/plot2D_aim.cpp" line="133"/>
+        <location filename="../src/scene2d/plot2D_aim.cpp" line="143"/>
         <source>ON</source>
         <translation>ACTIVADO</translation>
     </message>
     <message>
-        <location filename="../src/scene2d/plot2D_aim.cpp" line="133"/>
+        <location filename="../src/scene2d/plot2D_aim.cpp" line="143"/>
         <source>OFF</source>
         <translation>DESACTIVADO</translation>
     </message>
     <message>
-        <location filename="../src/scene2d/plot2D_aim.cpp" line="134"/>
+        <location filename="../src/scene2d/plot2D_aim.cpp" line="144"/>
         <source>Speed of sound, m/s: </source>
         <translation>Velocidad del sonido, m/s: </translation>
     </message>
     <message>
         <location filename="../src/scene2d/plot2D_bottom_processing.cpp" line="201"/>
-        <location filename="../src/scene2d/plot2D_grid.cpp" line="105"/>
-        <location filename="../src/scene2d/plot2D_grid.cpp" line="158"/>
+        <location filename="../src/scene2d/plot2D_grid.cpp" line="148"/>
+        <location filename="../src/scene2d/plot2D_grid.cpp" line="201"/>
         <location filename="../src/scene2d/plot2D_rangefinder.cpp" line="93"/>
         <source> m</source>
         <translation> m</translation>
@@ -13024,7 +16472,7 @@
         <translation>Instr. Doppler</translation>
     </message>
     <message>
-        <location filename="../src/scene2d/plot2D_grid.cpp" line="95"/>
+        <location filename="../src/scene2d/plot2D_grid.cpp" line="138"/>
         <source> m/s</source>
         <translation> m/s</translation>
     </message>
@@ -13136,46 +16584,56 @@
     </message>
     <message>
         <location filename="../qml/app/QuickActionSettingsTab.qml" line="22"/>
+        <source>Contact</source>
+        <translation>Contacto</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/QuickActionSettingsTab.qml" line="23"/>
         <source>Mission planner</source>
         <translation>Planificador de misiones</translation>
     </message>
     <message>
-        <location filename="../qml/app/QuickActionSettingsTab.qml" line="23"/>
+        <location filename="../qml/app/QuickActionSettingsTab.qml" line="24"/>
         <source>Autopilot</source>
         <translation>Piloto automático</translation>
     </message>
     <message>
-        <location filename="../qml/app/QuickActionSettingsTab.qml" line="24"/>
+        <location filename="../qml/app/QuickActionSettingsTab.qml" line="25"/>
         <source>Widget panels</source>
         <translation>Paneles de widgets</translation>
     </message>
     <message>
-        <location filename="../qml/app/QuickActionSettingsTab.qml" line="25"/>
+        <location filename="../qml/app/QuickActionSettingsTab.qml" line="26"/>
         <source>Console</source>
         <translation>Consola</translation>
     </message>
     <message>
-        <location filename="../qml/app/QuickActionSettingsTab.qml" line="26"/>
+        <location filename="../qml/app/QuickActionSettingsTab.qml" line="27"/>
         <source>Profiles</source>
         <translation>Perfiles</translation>
     </message>
     <message>
-        <location filename="../qml/app/QuickActionSettingsTab.qml" line="27"/>
+        <location filename="../qml/app/QuickActionSettingsTab.qml" line="28"/>
+        <source>Nodes-Configurator</source>
+        <translation>Configurador de nodos</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/QuickActionSettingsTab.qml" line="29"/>
         <source>Lock input</source>
         <translation>Bloquear entrada</translation>
     </message>
     <message>
-        <location filename="../qml/app/QuickActionSettingsTab.qml" line="28"/>
+        <location filename="../qml/app/QuickActionSettingsTab.qml" line="30"/>
         <source>Second window</source>
         <translation>Segunda ventana</translation>
     </message>
     <message>
-        <location filename="../qml/app/QuickActionSettingsTab.qml" line="29"/>
+        <location filename="../qml/app/QuickActionSettingsTab.qml" line="31"/>
         <source>Power off</source>
         <translation>Apagar</translation>
     </message>
     <message>
-        <location filename="../qml/app/QuickActionSettingsTab.qml" line="92"/>
+        <location filename="../qml/app/QuickActionSettingsTab.qml" line="102"/>
         <source>Toggle which items appear and drag to reorder them.</source>
         <translation>Elija qué elementos se muestran y arrástrelos para reordenarlos.</translation>
     </message>
@@ -13853,17 +17311,17 @@
 <context>
     <name>ScaleBar</name>
     <message>
-        <location filename="../src/scene3d/scene3d_renderer.cpp" line="561"/>
+        <location filename="../src/scene3d/scene3d_renderer.cpp" line="563"/>
         <source>cm</source>
         <translation>cm</translation>
     </message>
     <message>
-        <location filename="../src/scene3d/scene3d_renderer.cpp" line="563"/>
+        <location filename="../src/scene3d/scene3d_renderer.cpp" line="565"/>
         <source>m</source>
         <translation>m</translation>
     </message>
     <message>
-        <location filename="../src/scene3d/scene3d_renderer.cpp" line="565"/>
+        <location filename="../src/scene3d/scene3d_renderer.cpp" line="567"/>
         <source>km</source>
         <translation>km</translation>
     </message>
@@ -13871,17 +17329,17 @@
 <context>
     <name>Scene3DLayerControl</name>
     <message>
-        <location filename="../qml/scene3d/Scene3DLayerControl.qml" line="82"/>
+        <location filename="../qml/scene3d/Scene3DLayerControl.qml" line="103"/>
         <source>Layer settings</source>
         <translation>Configuración de la capa</translation>
     </message>
     <message>
-        <location filename="../qml/scene3d/Scene3DLayerControl.qml" line="106"/>
+        <location filename="../qml/scene3d/Scene3DLayerControl.qml" line="127"/>
         <source>Hide</source>
         <translation>Ocultar</translation>
     </message>
     <message>
-        <location filename="../qml/scene3d/Scene3DLayerControl.qml" line="106"/>
+        <location filename="../qml/scene3d/Scene3DLayerControl.qml" line="127"/>
         <source>Show</source>
         <translation>Mostrar</translation>
     </message>
@@ -13933,62 +17391,62 @@
         <translation>Alejar</translation>
     </message>
     <message>
-        <location filename="../qml/scene3d/Scene3DRightToolbar.qml" line="345"/>
+        <location filename="../qml/scene3d/Scene3DRightToolbar.qml" line="332"/>
         <source>Follow boat</source>
         <translation>Seguir al barco</translation>
     </message>
     <message>
-        <location filename="../qml/scene3d/Scene3DRightToolbar.qml" line="431"/>
+        <location filename="../qml/scene3d/Scene3DRightToolbar.qml" line="418"/>
         <source>Save ruler</source>
         <translation>Guardar regla</translation>
     </message>
     <message>
-        <location filename="../qml/scene3d/Scene3DRightToolbar.qml" line="447"/>
+        <location filename="../qml/scene3d/Scene3DRightToolbar.qml" line="434"/>
         <source>Delete ruler</source>
         <translation>Eliminar regla</translation>
     </message>
     <message>
-        <location filename="../qml/scene3d/Scene3DRightToolbar.qml" line="468"/>
+        <location filename="../qml/scene3d/Scene3DRightToolbar.qml" line="455"/>
         <source>Ruler</source>
         <translation>Regla</translation>
     </message>
     <message>
-        <location filename="../qml/scene3d/Scene3DRightToolbar.qml" line="488"/>
+        <location filename="../qml/scene3d/Scene3DRightToolbar.qml" line="475"/>
         <source>Boat mission</source>
         <translation>Misión del barco</translation>
     </message>
     <message>
-        <location filename="../qml/scene3d/Scene3DRightToolbar.qml" line="509"/>
+        <location filename="../qml/scene3d/Scene3DRightToolbar.qml" line="496"/>
         <source>3D scene settings</source>
         <translation>Configuración de la escena 3D</translation>
     </message>
     <message>
-        <location filename="../qml/scene3d/Scene3DRightToolbar.qml" line="532"/>
+        <location filename="../qml/scene3d/Scene3DRightToolbar.qml" line="521"/>
         <source>Point</source>
         <translation>Punto</translation>
     </message>
     <message>
-        <location filename="../qml/scene3d/Scene3DRightToolbar.qml" line="549"/>
+        <location filename="../qml/scene3d/Scene3DRightToolbar.qml" line="538"/>
         <source>Line</source>
         <translation>Línea</translation>
     </message>
     <message>
-        <location filename="../qml/scene3d/Scene3DRightToolbar.qml" line="566"/>
+        <location filename="../qml/scene3d/Scene3DRightToolbar.qml" line="555"/>
         <source>Polygon</source>
         <translation>Polígono</translation>
     </message>
     <message>
-        <location filename="../qml/scene3d/Scene3DRightToolbar.qml" line="588"/>
+        <location filename="../qml/scene3d/Scene3DRightToolbar.qml" line="577"/>
         <source>Finish drawing</source>
         <translation>Terminar el dibujo</translation>
     </message>
     <message>
-        <location filename="../qml/scene3d/Scene3DRightToolbar.qml" line="602"/>
+        <location filename="../qml/scene3d/Scene3DRightToolbar.qml" line="591"/>
         <source>Undo</source>
         <translation>Deshacer</translation>
     </message>
     <message>
-        <location filename="../qml/scene3d/Scene3DRightToolbar.qml" line="616"/>
+        <location filename="../qml/scene3d/Scene3DRightToolbar.qml" line="605"/>
         <source>Cancel drawing</source>
         <translation>Cancelar el dibujo</translation>
     </message>
@@ -14095,9 +17553,19 @@
         <translation>Mis mapas</translation>
     </message>
     <message>
-        <location filename="../qml/scene3d/Scene3DToolbar.qml" line="239"/>
+        <location filename="../qml/scene3d/Scene3DToolbar.qml" line="240"/>
+        <source>USBL</source>
+        <translation>USBL</translation>
+    </message>
+    <message>
+        <location filename="../qml/scene3d/Scene3DToolbar.qml" line="254"/>
         <source>Vehicle mission</source>
         <translation>Misión del vehículo</translation>
+    </message>
+    <message>
+        <location filename="../qml/scene3d/Scene3DToolbar.qml" line="259"/>
+        <source>Mission editor</source>
+        <translation>Editor de misiones</translation>
     </message>
 </context>
 <context>
@@ -14239,132 +17707,132 @@
         <translation>ServoScan</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="285"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="288"/>
         <source>No servo device</source>
         <translation>Ningún dispositivo con servo</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="287"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="290"/>
         <source>On link %1</source>
         <translation>En el enlace %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="306"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="309"/>
         <source>Device</source>
         <translation>Dispositivo</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="321"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="324"/>
         <source>Control</source>
         <translation>Control</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="324"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="327"/>
         <source>Enabled</source>
         <translation>Activado</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="341"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="344"/>
         <source>Manual</source>
         <translation>Modo manual</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="342"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="345"/>
         <source>The firmware does not support manual mode</source>
         <translation>El firmware no admite el modo manual</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="344"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="347"/>
         <source>The servo holds the angle set with the knob; the scan waits until this is off.</source>
         <translation>El servo mantiene el ángulo fijado con la perilla; el escaneo espera hasta que esto se desactive.</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="359"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="362"/>
         <source>Current angle</source>
         <translation>Ángulo actual</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="408"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="411"/>
         <source>Angle, °</source>
         <translation>Ángulo, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="432"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="435"/>
         <source>Shift while dragging: finer. Wheel: 1°, with Ctrl: 0.1°.</source>
         <translation>Shift al arrastrar: más fino. Rueda: 1°, con Ctrl: 0,1°.</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="441"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="444"/>
         <source>Reverse mapping</source>
         <translation>Mapeo inverso</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="457"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="460"/>
         <source>Scan</source>
         <translation>Escaneo</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="461"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="464"/>
         <source>Waits while the servo is in manual mode.</source>
         <translation>En espera mientras el servo está en modo manual.</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="464"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="467"/>
         <source>Step, °</source>
         <translation>Paso, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="482"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="485"/>
         <source>Scan range, °</source>
         <translation>Rango de escaneo, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="497"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="500"/>
         <source>Center, °</source>
         <translation>Centro, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="516"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="519"/>
         <source>More settings</source>
         <translation>Más ajustes</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="528"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="531"/>
         <source>Calibration</source>
         <translation>Calibración</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="534"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="537"/>
         <source>PWM min, µs</source>
         <translation>PWM mín., µs</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="550"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="553"/>
         <source>PWM max, µs</source>
         <translation>PWM máx., µs</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="566"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="569"/>
         <source>Servo angle range, °</source>
         <translation>Rango de ángulo del servo, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="581"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="584"/>
         <source>PWM routing</source>
         <translation>Enrutamiento PWM</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="587"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="590"/>
         <source>OUT1 (wired)</source>
         <translation>OUT1 (cableado)</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="603"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="606"/>
         <source>OUT2</source>
         <translation>OUT2</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="619"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="622"/>
         <source>OUT3</source>
         <translation>OUT3</translation>
     </message>
@@ -14933,6 +18401,100 @@
     </message>
 </context>
 <context>
+    <name>TutorialOverlay</name>
+    <message>
+        <location filename="../qml/app/TutorialOverlay.qml" line="423"/>
+        <source>Tutorial stopped: a step could not be shown</source>
+        <translation>Tutorial detenido: no se pudo mostrar un paso</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/TutorialOverlay.qml" line="531"/>
+        <source>%1 / %2</source>
+        <translation>%1 / %2</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/TutorialOverlay.qml" line="532"/>
+        <source>Tap anywhere to continue</source>
+        <translation>Toque en cualquier lugar para continuar</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/TutorialOverlay.qml" line="539"/>
+        <source>Back</source>
+        <translation>Atrás</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/TutorialOverlay.qml" line="540"/>
+        <source>Skip tutorial</source>
+        <translation>Omitir tutorial</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/TutorialOverlay.qml" line="541"/>
+        <source>Next</source>
+        <translation>Siguiente</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/TutorialOverlay.qml" line="562"/>
+        <source>Close tutorial</source>
+        <translation>Cerrar tutorial</translation>
+    </message>
+</context>
+<context>
+    <name>TutorialsSettingsPage</name>
+    <message>
+        <location filename="../qml/app/TutorialsSettingsPage.qml" line="36"/>
+        <source>Completed</source>
+        <translation>Completado</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/TutorialsSettingsPage.qml" line="38"/>
+        <source>Stopped at step %1 of %2</source>
+        <translation>Detenido en el paso %1 de %2</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../qml/app/TutorialsSettingsPage.qml" line="39"/>
+        <source>%n step(s)</source>
+        <translation>
+            <numerusform>%n paso</numerusform>
+            <numerusform>%n pasos</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../qml/app/TutorialsSettingsPage.qml" line="43"/>
+        <source>Tutorials</source>
+        <translation>Tutoriales</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/TutorialsSettingsPage.qml" line="44"/>
+        <source>No tutorials available yet</source>
+        <translation>Aún no hay tutoriales disponibles</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/TutorialsSettingsPage.qml" line="65"/>
+        <source>Reset</source>
+        <translation>Restablecer</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/TutorialsSettingsPage.qml" line="73"/>
+        <source>Restart</source>
+        <translation>Reiniciar</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/TutorialsSettingsPage.qml" line="80"/>
+        <source>Continue</source>
+        <translation>Continuar</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/TutorialsSettingsPage.qml" line="80"/>
+        <source>Start</source>
+        <translation>Iniciar</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/TutorialsSettingsPage.qml" line="99"/>
+        <source>Reset all tutorial progress</source>
+        <translation>Restablecer todo el progreso de los tutoriales</translation>
+    </message>
+</context>
+<context>
     <name>UIStateSerializer</name>
     <message>
         <location filename="../src/ui_state_serializer.cpp" line="353"/>
@@ -15040,34 +18602,34 @@
         <translation> Se omitieron las conexiones fijadas: %1</translation>
     </message>
     <message>
-        <location filename="../src/ui_state_serializer.cpp" line="572"/>
+        <location filename="../src/ui_state_serializer.cpp" line="573"/>
         <source>Imported %1 keys. Applied %2 in live UI. Skipped path keys: %3. Skipped serial links: %4.%5</source>
         <translation>Se importaron %1 claves. Aplicadas en la UI activa: %2. Claves de ruta omitidas: %3. Conexiones serie omitidas: %4.%5</translation>
     </message>
     <message>
-        <location filename="../src/ui_state_serializer.cpp" line="579"/>
+        <location filename="../src/ui_state_serializer.cpp" line="580"/>
         <source>UI state imported: %1</source>
         <translation>Estado de la UI importado: %1</translation>
     </message>
     <message>
-        <location filename="../src/ui_state_serializer.cpp" line="831"/>
-        <location filename="../src/ui_state_serializer.cpp" line="873"/>
+        <location filename="../src/ui_state_serializer.cpp" line="832"/>
+        <location filename="../src/ui_state_serializer.cpp" line="874"/>
         <source>link manager is not available</source>
         <translation>el gestor de conexiones no está disponible</translation>
     </message>
     <message>
-        <location filename="../src/ui_state_serializer.cpp" line="878"/>
+        <location filename="../src/ui_state_serializer.cpp" line="879"/>
         <source>payload is empty</source>
         <translation>el contenido está vacío</translation>
     </message>
     <message>
-        <location filename="../src/ui_state_serializer.cpp" line="882"/>
-        <location filename="../src/ui_state_serializer.cpp" line="886"/>
+        <location filename="../src/ui_state_serializer.cpp" line="883"/>
+        <location filename="../src/ui_state_serializer.cpp" line="887"/>
         <source>payload is not XML text</source>
         <translation>el contenido no es texto XML</translation>
     </message>
     <message>
-        <location filename="../src/ui_state_serializer.cpp" line="889"/>
+        <location filename="../src/ui_state_serializer.cpp" line="890"/>
         <source>invalid XML payload</source>
         <translation>contenido XML no válido</translation>
     </message>
@@ -15157,6 +18719,223 @@
     </message>
 </context>
 <context>
+    <name>UsblAntennaDiagPopup</name>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="29"/>
+        <source>Ch</source>
+        <translation>Can.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="30"/>
+        <source>Dir</source>
+        <translation>Dir.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="31"/>
+        <source>Level, dB</source>
+        <translation>Nivel, dB</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="32"/>
+        <source>Input, dB</source>
+        <translation>Entrada, dB</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="33"/>
+        <source>SNR, dB</source>
+        <translation>SNR, dB</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="34"/>
+        <source>Phase, °</source>
+        <translation>Fase, °</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="35"/>
+        <source>Resid., °</source>
+        <translation>Resid., °</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="36"/>
+        <source>Offset, smp</source>
+        <translation>Desfase, mues.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="82"/>
+        <source>cross A</source>
+        <translation>cruz A</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="83"/>
+        <source>cross B</source>
+        <translation>cruz B</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="84"/>
+        <source>tetrahedron</source>
+        <translation>tetraedro</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="86"/>
+        <source>unknown layout</source>
+        <translation>disposición desconocida</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="91"/>
+        <source>direction valid</source>
+        <translation>dirección válida</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="92"/>
+        <source>solver failed</source>
+        <translation>falló el solucionador</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="93"/>
+        <source>channels only</source>
+        <translation>solo canales</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="95"/>
+        <source>no analysis</source>
+        <translation>sin análisis</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="100"/>
+        <source>No diagnostics from this node yet</source>
+        <translation>Aún no hay diagnóstico de este nodo</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="102"/>
+        <source>ping %1</source>
+        <translation>ping %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="106"/>
+        <source>no matching solution</source>
+        <translation>sin solución correspondiente</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="113"/>
+        <source>yes</source>
+        <translation>sí</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="113"/>
+        <source>no</source>
+        <translation>no</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="431"/>
+        <source>Antenna diagnostics</source>
+        <translation>Diagnóstico de la antena</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="452"/>
+        <source>Close</source>
+        <translation>Cerrar</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="577"/>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="743"/>
+        <source>Fit misfit</source>
+        <translation>Error de ajuste</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="584"/>
+        <source>Amplitude part</source>
+        <translation>Parte de amplitud</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="591"/>
+        <source>Phase part</source>
+        <translation>Parte de fase</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="598"/>
+        <source>Direction width</source>
+        <translation>Ancho de dirección</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="606"/>
+        <source>Alt. direction margin</source>
+        <translation>Margen de dirección alt.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="608"/>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="638"/>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="652"/>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="807"/>
+        <source>dB</source>
+        <translation>dB</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="621"/>
+        <source>Array coherence</source>
+        <translation>Coherencia del arreglo</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="628"/>
+        <source>Direction, array frame</source>
+        <translation>Dirección, ejes del arreglo</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="636"/>
+        <source>Lowest channel SNR</source>
+        <translation>SNR mínima de canal</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="643"/>
+        <source>Largest phase residual</source>
+        <translation>Mayor residuo de fase</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="650"/>
+        <source>Centre channel / sync</source>
+        <translation>Canal central / sinc.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="722"/>
+        <source>No channel data in the last report</source>
+        <translation>No hay datos de canal en el último informe</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="730"/>
+        <source>Last %1 reports</source>
+        <translation>Últimos %1 informes</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="750"/>
+        <source>Width az, °</source>
+        <translation>Ancho az, °</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="767"/>
+        <source>Channel peak level, dB re one matched-filter unit</source>
+        <translation>Nivel de pico del canal, dB re una unidad de filtro adaptado</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="768"/>
+        <source>Channel level re the strongest, dB</source>
+        <translation>Nivel del canal re el más fuerte, dB</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="781"/>
+        <source>Relative</source>
+        <translation>Relativo</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="782"/>
+        <source>Absolute</source>
+        <translation>Absoluto</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblAntennaDiagPopup.qml" line="801"/>
+        <source>Ch %1</source>
+        <translation>Can. %1</translation>
+    </message>
+</context>
+<context>
     <name>UsblGroup</name>
     <message>
         <location filename="../qml/app/UsblGroup.qml" line="43"/>
@@ -15180,226 +18959,461 @@
         <translation> h atrás</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblGroup.qml" line="220"/>
+        <location filename="../qml/app/UsblGroup.qml" line="210"/>
         <source>no nodes</source>
         <translation>sin nodos</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblGroup.qml" line="221"/>
+        <location filename="../qml/app/UsblGroup.qml" line="211"/>
         <source>all off</source>
         <translation>todos desactivados</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblGroup.qml" line="222"/>
+        <location filename="../qml/app/UsblGroup.qml" line="212"/>
         <source>%1/%2 replying</source>
         <translation>%1/%2 responden</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblGroup.qml" line="311"/>
+        <location filename="../qml/app/UsblGroup.qml" line="301"/>
         <source>Dwell</source>
         <translation>Permanencia</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblGroup.qml" line="325"/>
-        <source>Interval between steps, and the answer window each step is allowed — a reply still counts for %1 s past it</source>
-        <translation>Intervalo entre pasos y ventana de respuesta que se concede a cada paso — una respuesta aún cuenta hasta %1 s después</translation>
+        <location filename="../qml/app/UsblGroup.qml" line="316"/>
+        <source>Interval between steps, and the answer window each step is allowed — a reply still counts for %1 s past it. It cannot go below %2 s: the round trip of the max range plus the beacon&apos;s turn-around and decoding</source>
+        <translation>Intervalo entre pasos y ventana de respuesta permitida a cada paso — una respuesta aún cuenta hasta %1 s después. No puede ser menor que %2 s: la ida y vuelta del alcance máx. más el tiempo de respuesta y la decodificación de la baliza</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblGroup.qml" line="332"/>
+        <location filename="../qml/app/UsblGroup.qml" line="326"/>
         <source>s between steps</source>
         <translation>s entre pasos</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblGroup.qml" line="341"/>
+        <location filename="../qml/app/UsblGroup.qml" line="335"/>
         <source>Step</source>
         <translation>Avanzar un paso</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblGroup.qml" line="344"/>
+        <location filename="../qml/app/UsblGroup.qml" line="338"/>
         <source>Send the next interrogation and stop there</source>
         <translation>Enviar la siguiente interrogación y detenerse ahí</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblGroup.qml" line="351"/>
+        <location filename="../qml/app/UsblGroup.qml" line="345"/>
         <source>■ Stop</source>
         <translation>■ Detener</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblGroup.qml" line="351"/>
+        <location filename="../qml/app/UsblGroup.qml" line="345"/>
         <source>▶ Start</source>
         <translation>▶ Iniciar</translation>
     </message>
     <message>
+        <location filename="../qml/app/UsblGroup.qml" line="358"/>
+        <source>Max range</source>
+        <translation>Alcance máx.</translation>
+    </message>
+    <message>
         <location filename="../qml/app/UsblGroup.qml" line="373"/>
+        <source>The farthest beacon you expect, in metres. Every request carries it as the answer window unless its command group sets its own, and Dwell is kept long enough for it</source>
+        <translation>La baliza más lejana que espera, en metros. Cada solicitud lo lleva como ventana de respuesta, salvo que su grupo de comandos fije el suyo, y «Permanencia» se mantiene lo bastante larga para ello</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblGroup.qml" line="379"/>
+        <source>m · Dwell ≥ %1 s</source>
+        <translation>m · Permanencia ≥ %1 s</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblGroup.qml" line="391"/>
+        <source>Transmit</source>
+        <translation>Transmitir</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblGroup.qml" line="400"/>
+        <source>Immediately</source>
+        <translation>De inmediato</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblGroup.qml" line="401"/>
+        <source>On PPS</source>
+        <translation>Con PPS</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblGroup.qml" line="413"/>
+        <source>Each step only arms the request; the device transmits on its next PPS pulse, and without a PPS signal nothing is sent. Keep Dwell at 1 s or more.</source>
+        <translation>Cada paso solo prepara la solicitud; el dispositivo transmite en su siguiente pulso PPS y, sin señal PPS, no se envía nada. Mantenga «Permanencia» en 1 s o más.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblGroup.qml" line="432"/>
         <source>Schedule · %1 nodes · %2 steps</source>
         <translation>Programación · %1 nodos · %2 pasos</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblGroup.qml" line="375"/>
+        <location filename="../qml/app/UsblGroup.qml" line="434"/>
         <source>Schedule · nothing to interrogate</source>
         <translation>Programación · nada que interrogar</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblGroup.qml" line="390"/>
+        <location filename="../qml/app/UsblGroup.qml" line="449"/>
         <source>No nodes yet. Add one to start interrogating.</source>
         <translation>Aún no hay nodos. Agregue uno para empezar a interrogar.</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblGroup.qml" line="550"/>
+        <location filename="../qml/app/UsblGroup.qml" line="609"/>
         <source>Last known position — copy is not wired up yet</source>
         <translation>Última posición conocida — copiar aún no está disponible</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblGroup.qml" line="552"/>
+        <location filename="../qml/app/UsblGroup.qml" line="611"/>
         <source>depth %1 %2 · elevation %3</source>
         <translation>profundidad %1 %2 · elevación %3</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblGroup.qml" line="554"/>
+        <location filename="../qml/app/UsblGroup.qml" line="613"/>
         <source>m</source>
         <translation>m</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblGroup.qml" line="565"/>
+        <location filename="../qml/app/UsblGroup.qml" line="624"/>
         <source>Remove node</source>
         <translation>Eliminar nodo</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblGroup.qml" line="580"/>
+        <location filename="../qml/app/UsblGroup.qml" line="639"/>
         <source>Distance, m</source>
         <translation>Distancia, m</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblGroup.qml" line="585"/>
+        <location filename="../qml/app/UsblGroup.qml" line="644"/>
         <source>Azimuth</source>
         <translation>Acimut</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblGroup.qml" line="590"/>
-        <source>SNR, dB</source>
-        <translation>SNR, dB</translation>
+        <location filename="../qml/app/UsblGroup.qml" line="649"/>
+        <source>RSRQ, dB</source>
+        <translation>RSRQ, dB</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblGroup.qml" line="607"/>
+        <location filename="../qml/app/UsblGroup.qml" line="819"/>
+        <source>No commands. This node is interrogated once with cmd 0, max range %1 m.</source>
+        <translation>Sin comandos. Este nodo se interroga una vez con el comando 0, alcance máx. %1 m.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblGroup.qml" line="666"/>
         <source>no commands — interrogated once with cmd 0</source>
         <translation>sin comandos — se interroga una vez con el comando 0</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblGroup.qml" line="716"/>
-        <location filename="../qml/app/UsblGroup.qml" line="873"/>
+        <location filename="../qml/app/UsblGroup.qml" line="775"/>
+        <location filename="../qml/app/UsblGroup.qml" line="941"/>
         <source>queued — goes out when the current answer window closes</source>
         <translation>en cola — se envía cuando se cierre la ventana de respuesta actual</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblGroup.qml" line="717"/>
+        <location filename="../qml/app/UsblGroup.qml" line="776"/>
         <source>Interrogate cmd %1 now</source>
         <translation>Interrogar ahora con el comando %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblGroup.qml" line="738"/>
+        <location filename="../qml/app/UsblGroup.qml" line="797"/>
         <source>Address</source>
         <translation>Dirección</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblGroup.qml" line="750"/>
+        <location filename="../qml/app/UsblGroup.qml" line="809"/>
         <source>Commands</source>
         <translation>Comandos</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblGroup.qml" line="760"/>
-        <source>No commands. This node is interrogated once with cmd 0.</source>
-        <translation>Sin comandos. Este nodo se interroga una vez con el comando 0.</translation>
-    </message>
-    <message>
-        <location filename="../qml/app/UsblGroup.qml" line="837"/>
+        <location filename="../qml/app/UsblGroup.qml" line="896"/>
         <source>In the schedule — click to mute this command</source>
         <translation>En la programación — haga clic para silenciar este comando</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblGroup.qml" line="838"/>
+        <location filename="../qml/app/UsblGroup.qml" line="897"/>
         <source>Muted — the schedule skips it. Click to include it again</source>
         <translation>Silenciado — la programación lo omite. Haga clic para volver a incluirlo</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblGroup.qml" line="874"/>
+        <location filename="../qml/app/UsblGroup.qml" line="914"/>
+        <source>%1 m</source>
+        <translation>%1 m</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblGroup.qml" line="915"/>
+        <source>no reply</source>
+        <translation>sin respuesta</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblGroup.qml" line="942"/>
         <source>Interrogate this command now</source>
         <translation>Interrogar ahora con este comando</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblGroup.qml" line="884"/>
+        <location filename="../qml/app/UsblGroup.qml" line="952"/>
         <source>Remove this command from the node</source>
         <translation>Eliminar este comando del nodo</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblGroup.qml" line="913"/>
+        <location filename="../qml/app/UsblGroup.qml" line="978"/>
         <source> · %1 bit</source>
         <translation> · %1 bit</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblGroup.qml" line="935"/>
+        <location filename="../qml/app/UsblGroup.qml" line="1000"/>
         <source>+ Command</source>
         <translation>+ Comando</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblGroup.qml" line="953"/>
+        <location filename="../qml/app/UsblGroup.qml" line="1018"/>
         <source>only the newest received payload is kept, so it shows on one command at a time</source>
         <translation>solo se conserva la última carga útil recibida, por eso se muestra en un solo comando a la vez</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblGroup.qml" line="974"/>
+        <location filename="../qml/app/UsblGroup.qml" line="1039"/>
         <source>+ Add node</source>
         <translation>+ Agregar nodo</translation>
     </message>
 </context>
 <context>
-    <name>UsblNodesPopup</name>
+    <name>UsblNetworkCard</name>
     <message>
-        <location filename="../qml/app/UsblNodesPopup.qml" line="195"/>
-        <location filename="../qml/app/UsblNodesPopup.qml" line="196"/>
-        <source> s</source>
-        <translation> s</translation>
+        <location filename="../qml/app/UsblNetworkCard.qml" line="13"/>
+        <source>Acoustic network</source>
+        <translation>Red acústica</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblNodesPopup.qml" line="198"/>
-        <source> m</source>
-        <translation> min</translation>
+        <location filename="../qml/app/UsblNetworkCard.qml" line="40"/>
+        <source>running</source>
+        <translation>en marcha</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblNodesPopup.qml" line="199"/>
-        <source> h</source>
-        <translation> h</translation>
+        <location filename="../qml/app/UsblNetworkCard.qml" line="50"/>
+        <source>%1%2 · %3 lifelines · cycle %4 s</source>
+        <translation>%1%2 · %3 líneas de vida · ciclo %4 s</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblNodesPopup.qml" line="347"/>
-        <location filename="../qml/app/UsblNodesPopup.qml" line="516"/>
+        <location filename="../qml/app/UsblNetworkCard.qml" line="60"/>
+        <source>This device is “%1” — %2</source>
+        <translation>Este dispositivo es “%1” — %2</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblNetworkCard.qml" line="61"/>
+        <source>This device is not part of the network.</source>
+        <translation>Este dispositivo no forma parte de la red.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblNetworkCard.qml" line="69"/>
+        <source>■ Stop</source>
+        <translation>■ Detener</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblNetworkCard.qml" line="69"/>
+        <source>▶ Start</source>
+        <translation>▶ Iniciar</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblNetworkCard.qml" line="75"/>
+        <source>Step</source>
+        <translation>Un paso</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblNetworkCard.qml" line="79"/>
+        <source>Max range</source>
+        <translation>Alcance máx.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblNetworkCard.qml" line="88"/>
         <source>m</source>
         <translation>m</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblNodesPopup.qml" line="349"/>
-        <location filename="../qml/app/UsblNodesPopup.qml" line="531"/>
+        <location filename="../qml/app/UsblNetworkCard.qml" line="92"/>
+        <source>Period</source>
+        <translation>Período</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblNetworkCard.qml" line="101"/>
+        <source>Interval between steps, as Dwell was. It cannot go below %1 s: the longest step of the cycle needs that long. Setting it switches the cycle to this period.</source>
+        <translation>Intervalo entre pasos, como era «Permanencia». No puede ser menor que %1 s: el paso más largo del ciclo necesita ese tiempo. Al ajustarlo, el ciclo pasa a este período.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblNetworkCard.qml" line="105"/>
+        <source>s between steps</source>
+        <translation>s entre pasos</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblNetworkCard.qml" line="107"/>
+        <source>Auto</source>
+        <translation>Auto</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblNetworkCard.qml" line="109"/>
+        <source>Each step as long as its own exchange needs; the period is not used</source>
+        <translation>Cada paso dura lo que necesita su intercambio; el período no se usa</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblNetworkCard.qml" line="147"/>
+        <source>skipped</source>
+        <translation>omitido</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblNetworkCard.qml" line="148"/>
+        <source>%1 m</source>
+        <translation>%1 m</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblNetworkCard.qml" line="155"/>
+        <source>Ask</source>
+        <translation>Preguntar</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblNetworkCard.qml" line="157"/>
+        <source>Interrogate this beacon once</source>
+        <translation>Interrogar esta baliza una vez</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblNetworkCard.qml" line="157"/>
+        <source>No connected head asks this beacon: add an exchange to it in the Nodes-Configurator</source>
+        <translation>Ningún cabezal conectado pregunta a esta baliza: agréguele un intercambio en el Configurador de nodos</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblNetworkCard.qml" line="166"/>
+        <source>Open Nodes-Configurator</source>
+        <translation>Abrir Configurador de nodos</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblNetworkCard.qml" line="171"/>
+        <source>Interrogate from this device</source>
+        <translation>Interrogar desde este dispositivo</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblNetworkCard.qml" line="172"/>
+        <source>Adds this device as a head ranging address 1 and starts it</source>
+        <translation>Agrega este dispositivo como cabezal que mide la distancia a la dirección 1 y lo inicia</translation>
+    </message>
+</context>
+<context>
+    <name>UsblNodesPopup</name>
+    <message>
+        <location filename="../qml/app/UsblNodesPopup.qml" line="632"/>
+        <location filename="../qml/app/UsblNodesPopup.qml" line="832"/>
+        <source>m</source>
+        <translation>m</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblNodesPopup.qml" line="238"/>
+        <location filename="../qml/app/UsblNodesPopup.qml" line="547"/>
+        <location filename="../qml/app/UsblNodesPopup.qml" line="604"/>
+        <location filename="../qml/app/UsblNodesPopup.qml" line="605"/>
+        <location filename="../qml/app/UsblNodesPopup.qml" line="641"/>
+        <location filename="../qml/app/UsblNodesPopup.qml" line="867"/>
+        <location filename="../qml/app/UsblNodesPopup.qml" line="902"/>
+        <location filename="../qml/app/UsblNodesPopup.qml" line="904"/>
         <source>dB</source>
         <translation>dB</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblNodesPopup.qml" line="376"/>
+        <location filename="../qml/app/UsblNodesPopup.qml" line="232"/>
+        <source> · %1 bit</source>
+        <translation> · %1 bit</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblNodesPopup.qml" line="387"/>
+        <source>Peak</source>
+        <translation>Pico</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblNodesPopup.qml" line="399"/>
+        <source>Peak SNR</source>
+        <translation>SNR pico</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblNodesPopup.qml" line="411"/>
+        <source>1st peak</source>
+        <translation>1.er pico</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblNodesPopup.qml" line="423"/>
+        <source>1st SNR</source>
+        <translation>SNR 1.er</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblNodesPopup.qml" line="435"/>
+        <source>RMS</source>
+        <translation>RMS</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblNodesPopup.qml" line="447"/>
+        <source>1st→peak</source>
+        <translation>1.er→pico</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblNodesPopup.qml" line="500"/>
+        <source>Antenna</source>
+        <translation>Antena</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblNodesPopup.qml" line="513"/>
+        <source>Fit</source>
+        <translation>Ajuste</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblNodesPopup.qml" line="525"/>
+        <source>Width</source>
+        <translation>Ancho</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblNodesPopup.qml" line="542"/>
+        <source>Alt</source>
+        <translation>Alt</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblNodesPopup.qml" line="606"/>
+        <location filename="../qml/app/UsblNodesPopup.qml" line="906"/>
+        <source>ms</source>
+        <translation>ms</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblNodesPopup.qml" line="639"/>
+        <location filename="../qml/app/UsblNodesPopup.qml" line="862"/>
+        <source>RSRQ</source>
+        <translation>RSRQ</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblNodesPopup.qml" line="689"/>
         <source>No acoustic device</source>
         <translation>Sin dispositivo acústico</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblNodesPopup.qml" line="377"/>
+        <location filename="../qml/app/UsblNodesPopup.qml" line="689"/>
+        <source>No bound head connected</source>
+        <translation>Ningún cabezal vinculado conectado</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblNodesPopup.qml" line="690"/>
         <source>No nodes in the USBL plan</source>
         <translation>No hay nodos en el plan USBL</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblNodesPopup.qml" line="544"/>
+        <location filename="../qml/app/UsblNodesPopup.qml" line="690"/>
+        <source>No beacons in the network</source>
+        <translation>No hay balizas en la red</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblNodesPopup.qml" line="938"/>
         <source>+%1 more</source>
         <translation>+%1 más</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblNodesPopup.qml" line="558"/>
+        <location filename="../qml/app/UsblNodesPopup.qml" line="952"/>
         <source>Schedule stopped</source>
         <translation>Programación detenida</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblNodesPopup.qml" line="952"/>
+        <source>Cycle stopped · double-click for the configurator</source>
+        <translation>Ciclo detenido · doble clic para el configurador</translation>
     </message>
 </context>
 <context>
@@ -15468,187 +19482,219 @@
         <translation>aplicado · transpondedor</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanGroup.qml" line="204"/>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="209"/>
         <source>Command groups</source>
         <translation>Grupos de comandos</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanGroup.qml" line="211"/>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="216"/>
         <source>%1 of %2 groups</source>
         <translation>%1 de %2 grupos</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanGroup.qml" line="254"/>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="259"/>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="851"/>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="852"/>
         <source>none</source>
         <translation>ninguno</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanGroup.qml" line="266"/>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="271"/>
         <source>add</source>
         <translation>agregar</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanGroup.qml" line="279"/>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="284"/>
         <source>Command slots</source>
         <translation>Ranuras de comandos</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanGroup.qml" line="285"/>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="290"/>
         <source>click moves into %1</source>
         <translation>un clic mueve a %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanGroup.qml" line="386"/>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="391"/>
         <source>Group %1 · slots %2 · at device defaults</source>
         <translation>Grupo %1 · ranuras %2 · predeterminados del dispositivo</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanGroup.qml" line="387"/>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="392"/>
         <source>Group %1 · slots %2</source>
         <translation>Grupo %1 · ranuras %2</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanGroup.qml" line="405"/>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="410"/>
         <source>Reset these slots to defaults and drop the group</source>
         <translation>Restablecer estas ranuras a los valores predeterminados y eliminar el grupo</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanGroup.qml" line="437"/>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="442"/>
         <source>Initiator</source>
         <translation>Iniciador</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanGroup.qml" line="475"/>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="480"/>
         <source>Send request</source>
         <translation>Envío de solicitud</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanGroup.qml" line="493"/>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="498"/>
         <source>Remove</source>
         <translation>Eliminar</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanGroup.qml" line="498"/>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="503"/>
         <source>carries</source>
         <translation>lleva</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanGroup.qml" line="517"/>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="522"/>
         <source>payload</source>
         <translation>carga útil</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanGroup.qml" line="521"/>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="526"/>
         <source>hex bytes</source>
         <translation>bytes en hex</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanGroup.qml" line="532"/>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="537"/>
         <source>%1 bit</source>
         <translation>%1 bit</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanGroup.qml" line="540"/>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="546"/>
         <source>max range</source>
         <translation>alcance máx.</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanGroup.qml" line="552"/>
-        <source>mm · expect no reply</source>
-        <translation>mm · sin esperar respuesta</translation>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="551"/>
+        <source>plan · %1 m</source>
+        <translation>plan · %1 m</translation>
     </message>
     <message>
         <location filename="../qml/app/UsblPlanGroup.qml" line="552"/>
-        <source>mm</source>
-        <translation>mm</translation>
+        <source>own</source>
+        <translation>propio</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanGroup.qml" line="573"/>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="553"/>
+        <source>no reply</source>
+        <translation>sin respuesta</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="558"/>
+        <source>plan: the Max range next to Dwell; own: this group&apos;s requests carry their own; no reply: a pinger, nothing is ranged</source>
+        <translation>plan: el alcance máx. junto a «Permanencia»; propio: las solicitudes de este grupo llevan el suyo; sin respuesta: un pinger, no se mide ninguna distancia</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="582"/>
+        <source>m</source>
+        <translation>m</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="603"/>
         <source>+ Send request</source>
         <translation>+ Envío de solicitud</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanGroup.qml" line="579"/>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="609"/>
         <source>+ Handle reply</source>
         <translation>+ Gestión de respuesta</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanGroup.qml" line="613"/>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="643"/>
         <source>Transponder</source>
         <translation>Transpondedor</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanGroup.qml" line="638"/>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="668"/>
         <source>+ Handle request</source>
         <translation>+ Gestión de solicitud</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanGroup.qml" line="646"/>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="676"/>
         <source>nothing written as transponder — slots keep device defaults</source>
         <translation>no se escribió nada como transpondedor — las ranuras conservan los valores predeterminados del dispositivo</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanGroup.qml" line="660"/>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="690"/>
         <source>Plan check</source>
         <translation>Comprobación del plan</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanGroup.qml" line="666"/>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="696"/>
         <source>%1 issue(s)</source>
         <translation>%1 problema(s)</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanGroup.qml" line="666"/>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="696"/>
         <source>both halves agree</source>
         <translation>ambas mitades coinciden</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanGroup.qml" line="682"/>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="712"/>
         <source>Every group&apos;s request and response halves line up, so the two devices will understand each other.</source>
         <translation>Las mitades de solicitud y respuesta de cada grupo coinciden, así que los dos dispositivos se entenderán.</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanGroup.qml" line="750"/>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="780"/>
         <source>Apply</source>
         <translation>Aplicar</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanGroup.qml" line="757"/>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="787"/>
         <source>Each button writes all 8 slots of one half: configured slots get their configuration, the rest are reset to defaults.</source>
         <translation>Cada botón escribe las 8 ranuras de una mitad: las ranuras configuradas reciben su configuración y el resto se restablece a los valores predeterminados.</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanGroup.qml" line="768"/>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="798"/>
         <source>Apply as initiator</source>
         <translation>Aplicar como iniciador</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanGroup.qml" line="769"/>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="799"/>
         <source>we ask · we read the answers</source>
         <translation>preguntamos · leemos las respuestas</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanGroup.qml" line="770"/>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="800"/>
         <source>Apply as transponder</source>
         <translation>Aplicar como transpondedor</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanGroup.qml" line="771"/>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="801"/>
         <source>we are asked · we answer</source>
         <translation>nos preguntan · respondemos</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanGroup.qml" line="806"/>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="836"/>
         <source>%1 frames · %2 configured</source>
         <translation>%1 tramas · %2 configuradas</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanGroup.qml" line="816"/>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="850"/>
+        <source>device answers %1 (set in USBL response); plan: %2</source>
+        <translation>el dispositivo responde a %1 (configurado en «Respuesta USBL»); plan: %2</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="854"/>
+        <source>answers addresses %1</source>
+        <translation>responde a las direcciones %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="855"/>
+        <source>no active node: will answer nothing</source>
+        <translation>ningún nodo activo: no responderá nada</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="865"/>
         <source>changed since applied</source>
         <translation>cambiado desde que se aplicó</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanGroup.qml" line="817"/>
+        <location filename="../qml/app/UsblPlanGroup.qml" line="866"/>
         <source>applied</source>
         <translation>aplicado</translation>
     </message>
@@ -15681,133 +19727,193 @@
         <translation>Llevar posición + acimut</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanStore.qml" line="140"/>
-        <location filename="../qml/app/UsblPlanStore.qml" line="223"/>
+        <location filename="../qml/app/UsblPlanStore.qml" line="147"/>
+        <location filename="../qml/app/UsblPlanStore.qml" line="267"/>
         <source>none</source>
         <translation>ninguno</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanStore.qml" line="202"/>
+        <location filename="../qml/app/UsblPlanStore.qml" line="246"/>
         <source>not an initiator</source>
         <translation>no es iniciador</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanStore.qml" line="203"/>
+        <location filename="../qml/app/UsblPlanStore.qml" line="247"/>
         <source>interrogator</source>
         <translation>interrogador</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanStore.qml" line="204"/>
+        <location filename="../qml/app/UsblPlanStore.qml" line="248"/>
         <source>pinger / beacon</source>
         <translation>pinger / baliza</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanStore.qml" line="205"/>
+        <location filename="../qml/app/UsblPlanStore.qml" line="249"/>
         <source>default transponder</source>
         <translation>transpondedor predeterminado</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanStore.qml" line="206"/>
+        <location filename="../qml/app/UsblPlanStore.qml" line="250"/>
         <source>data relay</source>
         <translation>repetidor de datos</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanStore.qml" line="207"/>
+        <location filename="../qml/app/UsblPlanStore.qml" line="251"/>
         <source>data source</source>
         <translation>fuente de datos</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanStore.qml" line="208"/>
+        <location filename="../qml/app/UsblPlanStore.qml" line="252"/>
         <source>data sink</source>
         <translation>receptor de datos</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanStore.qml" line="209"/>
+        <location filename="../qml/app/UsblPlanStore.qml" line="253"/>
         <source>transponder</source>
         <translation>transpondedor</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanStore.qml" line="226"/>
+        <location filename="../qml/app/UsblPlanStore.qml" line="270"/>
         <source>Join</source>
         <translation>Unir</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanStore.qml" line="242"/>
+        <location filename="../qml/app/UsblPlanStore.qml" line="286"/>
         <source>%1 hold identical settings, so they write the same bytes. Joining them changes nothing on the device.</source>
         <translation>%1 tienen ajustes idénticos, así que escriben los mismos bytes. Unirlos no cambia nada en el dispositivo.</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanStore.qml" line="246"/>
+        <location filename="../qml/app/UsblPlanStore.qml" line="290"/>
         <source>owns no slots, so it writes nothing and cannot be scheduled</source>
         <translation>no tiene ranuras, así que no escribe nada y no puede programarse</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanStore.qml" line="248"/>
+        <location filename="../qml/app/UsblPlanStore.qml" line="292"/>
         <source>request carries %1 bit, but the transponder half has no receive section</source>
         <translation>la solicitud lleva %1 bit, pero la mitad del transpondedor no tiene sección de recepción</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanStore.qml" line="251"/>
+        <location filename="../qml/app/UsblPlanStore.qml" line="295"/>
         <source>request sends %1 bit, transponder expects %2 bit</source>
         <translation>la solicitud envía %1 bit, el transpondedor espera %2 bit</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanStore.qml" line="254"/>
+        <location filename="../qml/app/UsblPlanStore.qml" line="298"/>
         <source>transponder answers with %1 bit, but the initiator has no reply handler to read it</source>
         <translation>el transpondedor responde con %1 bit, pero el iniciador no tiene un gestor de respuesta para leerlo</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanStore.qml" line="257"/>
+        <location filename="../qml/app/UsblPlanStore.qml" line="301"/>
         <source>transponder answers %1 bit, reply handler expects %2 bit</source>
         <translation>el transpondedor responde %1 bit, el gestor de respuesta espera %2 bit</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanStore.qml" line="260"/>
+        <location filename="../qml/app/UsblPlanStore.qml" line="304"/>
         <source>pinger expects no reply, but the transponder half is configured to answer</source>
         <translation>el pinger no espera respuesta, pero la mitad del transpondedor está configurada para responder</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblPlanStore.qml" line="262"/>
+        <location filename="../qml/app/UsblPlanStore.qml" line="306"/>
         <source>has a reply handler but never sends a request</source>
         <translation>tiene un gestor de respuesta pero nunca envía una solicitud</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblPlanStore.qml" line="308"/>
+        <source>max range is %1 m — set it in metres</source>
+        <translation>el alcance máx. es %1 m — indíquelo en metros</translation>
     </message>
 </context>
 <context>
     <name>UsblResponseGroup</name>
     <message>
-        <location filename="../qml/app/UsblResponseGroup.qml" line="15"/>
+        <location filename="../qml/app/UsblResponseGroup.qml" line="9"/>
         <source>USBL response</source>
         <translation>Respuesta USBL</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblResponseGroup.qml" line="43"/>
+        <location filename="../qml/app/UsblResponseGroup.qml" line="75"/>
+        <source>Changed here, not sent yet — press Apply.</source>
+        <translation>Cambiado aquí, aún no enviado — pulse «Aplicar».</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblResponseGroup.qml" line="77"/>
+        <source>Waiting for the device to connect; sent as soon as it does.</source>
+        <translation>Esperando a que el dispositivo se conecte; se enviará en cuanto lo haga.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblResponseGroup.qml" line="78"/>
+        <source>Sending…</source>
+        <translation>Enviando…</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblResponseGroup.qml" line="79"/>
+        <source>Confirmed by the device. Sent again automatically when the device restarts or reconnects.</source>
+        <translation>Confirmado por el dispositivo. Se reenvía automáticamente cuando el dispositivo se reinicia o se reconecta.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblResponseGroup.qml" line="80"/>
+        <source>The device rejected these settings.</source>
+        <translation>El dispositivo rechazó esta configuración.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblResponseGroup.qml" line="81"/>
+        <source>No confirmation from the device. Check the connection and press Apply again.</source>
+        <translation>Sin confirmación del dispositivo. Revise la conexión y pulse «Aplicar» de nuevo.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblResponseGroup.qml" line="83"/>
+        <source>Nothing sent from the app since this device connected, so its settings are unknown. After power-up a device does not answer and accepts only address 0.</source>
+        <translation>La aplicación no ha enviado nada desde que se conectó este dispositivo, así que su configuración es desconocida. Tras encenderse, un dispositivo no responde y solo acepta la dirección 0.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblResponseGroup.qml" line="90"/>
         <source>Respond to interrogation</source>
         <translation>Responder a la interrogación</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblResponseGroup.qml" line="49"/>
+        <location filename="../qml/app/UsblResponseGroup.qml" line="100"/>
         <source>Accept addresses</source>
         <translation>Aceptar direcciones</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblResponseGroup.qml" line="97"/>
+        <location filename="../qml/app/UsblResponseGroup.qml" line="149"/>
+        <source>No address selected: the device will not hear any request.</source>
+        <translation>Ninguna dirección seleccionada: el dispositivo no oirá ninguna solicitud.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblResponseGroup.qml" line="157"/>
         <source>Suppress self-response, µs</source>
         <translation>Suprimir respuesta propia, µs</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblResponseGroup.qml" line="115"/>
+        <location filename="../qml/app/UsblResponseGroup.qml" line="175"/>
         <source>Suppress self-request, µs</source>
         <translation>Suprimir solicitud propia, µs</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblResponseGroup.qml" line="132"/>
+        <location filename="../qml/app/UsblResponseGroup.qml" line="193"/>
         <source>Receive while idle</source>
         <translation>Recibir en reposo</translation>
     </message>
     <message>
-        <location filename="../qml/app/UsblResponseGroup.qml" line="142"/>
-        <source>The device cannot report these back, so this shows what was last sent — not necessarily what the device holds.</source>
-        <translation>El dispositivo no puede informar de estos valores, así que aquí se muestra lo último enviado — no necesariamente lo que guarda el dispositivo.</translation>
+        <location filename="../qml/app/UsblResponseGroup.qml" line="211"/>
+        <source>Apply</source>
+        <translation>Aplicar</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblResponseGroup.qml" line="212"/>
+        <source>Send all settings of this group to the device</source>
+        <translation>Enviar toda la configuración de este grupo al dispositivo</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblResponseGroup.qml" line="222"/>
+        <source>Revert</source>
+        <translation>Revertir</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/UsblResponseGroup.qml" line="223"/>
+        <source>Discard the changes made here</source>
+        <translation>Descartar los cambios hechos aquí</translation>
     </message>
 </context>
 <context>
@@ -16039,38 +20145,38 @@
 <context>
     <name>VideoStream</name>
     <message>
-        <location filename="../src/video/video_stream.cpp" line="232"/>
+        <location filename="../src/video/video_stream.cpp" line="236"/>
         <source>Connecting...</source>
         <translation>Conectando...</translation>
     </message>
     <message>
-        <location filename="../src/video/video_stream.cpp" line="243"/>
-        <location filename="../src/video/video_stream.cpp" line="646"/>
+        <location filename="../src/video/video_stream.cpp" line="247"/>
+        <location filename="../src/video/video_stream.cpp" line="709"/>
         <source>Connection failed</source>
         <translation>Error de conexión</translation>
     </message>
     <message>
-        <location filename="../src/video/video_stream.cpp" line="287"/>
+        <location filename="../src/video/video_stream.cpp" line="291"/>
         <source>out of memory</source>
         <translation>memoria insuficiente</translation>
     </message>
     <message>
-        <location filename="../src/video/video_stream.cpp" line="327"/>
+        <location filename="../src/video/video_stream.cpp" line="331"/>
         <source>no video stream</source>
         <translation>no hay flujo de video</translation>
     </message>
     <message>
-        <location filename="../src/video/video_stream.cpp" line="356"/>
+        <location filename="../src/video/video_stream.cpp" line="360"/>
         <source>no decoder for this stream</source>
         <translation>no hay decodificador para este flujo</translation>
     </message>
     <message>
-        <location filename="../src/video/video_stream.cpp" line="590"/>
+        <location filename="../src/video/video_stream.cpp" line="653"/>
         <source>Stream ended</source>
         <translation>Flujo finalizado</translation>
     </message>
     <message>
-        <location filename="../src/video/video_stream.cpp" line="659"/>
+        <location filename="../src/video/video_stream.cpp" line="722"/>
         <source>Reconnecting (%1/%2)...</source>
         <translation>Reconectando (%1/%2)...</translation>
     </message>
@@ -16078,12 +20184,12 @@
 <context>
     <name>VideoSurface</name>
     <message>
-        <location filename="../qml/app/VideoSurface.qml" line="117"/>
+        <location filename="../qml/app/VideoSurface.qml" line="118"/>
         <source>No video source</source>
         <translation>Sin fuente de video</translation>
     </message>
     <message>
-        <location filename="../qml/app/VideoSurface.qml" line="157"/>
+        <location filename="../qml/app/VideoSurface.qml" line="158"/>
         <source>Video window settings</source>
         <translation>Configuración de la ventana de video</translation>
     </message>
@@ -16299,43 +20405,53 @@
 <context>
     <name>WorkspaceStore</name>
     <message>
-        <location filename="../qml/app/WorkspaceStore.qml" line="940"/>
+        <location filename="../qml/app/WorkspaceStore.qml" line="334"/>
+        <source>No KOGGER devices found in the local network</source>
+        <translation>No se encontraron dispositivos KOGGER en la red local</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/WorkspaceStore.qml" line="342"/>
+        <source>Found %1: %2</source>
+        <translation>Encontrados %1: %2</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/WorkspaceStore.qml" line="972"/>
         <source>Settings %1</source>
         <translation>Configuración %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/WorkspaceStore.qml" line="944"/>
+        <location filename="../qml/app/WorkspaceStore.qml" line="976"/>
         <source>Settings</source>
         <translation>Configuración</translation>
     </message>
     <message>
-        <location filename="../qml/app/WorkspaceStore.qml" line="967"/>
+        <location filename="../qml/app/WorkspaceStore.qml" line="999"/>
         <source>A settings widget holds up to %1 settings</source>
         <translation>Un widget de configuración admite hasta %1 ajustes</translation>
     </message>
     <message>
-        <location filename="../qml/app/WorkspaceStore.qml" line="976"/>
+        <location filename="../qml/app/WorkspaceStore.qml" line="1008"/>
         <source>There can be up to %1 widget panels</source>
         <translation>Puede haber hasta %1 paneles de widgets</translation>
     </message>
     <message>
-        <location filename="../qml/app/WorkspaceStore.qml" line="1707"/>
-        <location filename="../qml/app/WorkspaceStore.qml" line="5308"/>
+        <location filename="../qml/app/WorkspaceStore.qml" line="1790"/>
+        <location filename="../qml/app/WorkspaceStore.qml" line="5526"/>
         <source>Video</source>
         <translation>Video</translation>
     </message>
     <message>
-        <location filename="../qml/app/WorkspaceStore.qml" line="1712"/>
+        <location filename="../qml/app/WorkspaceStore.qml" line="1795"/>
         <source>Global pop-up</source>
         <translation>Ventana emergente global</translation>
     </message>
     <message>
-        <location filename="../qml/app/WorkspaceStore.qml" line="1716"/>
+        <location filename="../qml/app/WorkspaceStore.qml" line="1799"/>
         <source>Second window</source>
         <translation>Segunda ventana</translation>
     </message>
     <message>
-        <location filename="../qml/app/WorkspaceStore.qml" line="2377"/>
+        <location filename="../qml/app/WorkspaceStore.qml" line="2485"/>
         <source>Echogram</source>
         <translation>Ecograma</translation>
     </message>
@@ -16343,19 +20459,19 @@
 <context>
     <name>WorkspaceView</name>
     <message>
-        <location filename="../qml/app/WorkspaceView.qml" line="69"/>
-        <location filename="../qml/app/WorkspaceView.qml" line="839"/>
+        <location filename="../qml/app/WorkspaceView.qml" line="72"/>
+        <location filename="../qml/app/WorkspaceView.qml" line="871"/>
         <source>Global pop-up</source>
         <translation>Ventana emergente global</translation>
     </message>
     <message>
-        <location filename="../qml/app/WorkspaceView.qml" line="70"/>
-        <location filename="../qml/app/WorkspaceView.qml" line="776"/>
+        <location filename="../qml/app/WorkspaceView.qml" line="73"/>
+        <location filename="../qml/app/WorkspaceView.qml" line="807"/>
         <source>Echogram</source>
         <translation>Ecograma</translation>
     </message>
     <message>
-        <location filename="../qml/app/WorkspaceView.qml" line="76"/>
+        <location filename="../qml/app/WorkspaceView.qml" line="79"/>
         <source>Second window</source>
         <translation>Segunda ventana</translation>
     </message>

@@ -334,8 +334,10 @@ Column {
             readonly property int vPad: Tokens.spaceXs   // fixed — no inward shift on expand (matches recRow)
             readonly property string typeLabel: LinkType === 1 ? PortName
                                              : LinkType === 2 ? "UDP"
-                                             : LinkType === 4 ? "RTSP"
+                                             : LinkType === 4 ? "VIDEO"
                                                               : "TCP"
+            readonly property string customName: (CustomName && String(CustomName).length) ? String(CustomName) : ""
+            readonly property string headLabel: connRow.customName.length ? connRow.customName : connRow.typeLabel
 
             height: content.implicitHeight + 2 * vPad
 
@@ -387,37 +389,68 @@ Column {
                         }
 
                         Text {
-                            text: connectionViewer.escapeHtml(connRow.typeLabel)
+                            text: connectionViewer.escapeHtml(connRow.headLabel)
                             color: AppPalette.text
                             font.pixelSize: Tokens.fontXl; font.bold: true
                             textFormat: Text.StyledText
-                            elide: Text.ElideRight
+                            elide: (LinkType === 1 || connRow.customName.length) ? Text.ElideRight : Text.ElideNone
                             Layout.fillHeight: true
                             verticalAlignment: Text.AlignVCenter
-                            Layout.maximumWidth: Math.round((LinkType === 1 ? 80 : 44) * AppPalette.scale)
+                            Layout.maximumWidth: connRow.customName.length ? Math.round(150 * AppPalette.scale)
+                                               : LinkType === 1 ? Math.round(80 * AppPalette.scale)
+                                                                : -1
                         }
 
-                        Item {
-                            visible: !!IsPinned && !connRow.editing
-                            Layout.preferredWidth: Math.round(13 * AppPalette.scale)
-                            Layout.preferredHeight: Math.round(13 * AppPalette.scale)
+                        Row {
+                            readonly property int dotSize: Math.round(13 * AppPalette.scale)
+                            visible: (!!IsPinned || connRow.isRemembered) && !connRow.editing
+                            spacing: Math.round(2 * AppPalette.scale)
                             Layout.alignment: Qt.AlignVCenter
-                            Image {
-                                id: pinInfoIcon
-                                anchors.fill: parent
-                                source: "qrc:/icons/ui/pin.svg"
-                                sourceSize.width: Math.max(1, Math.round(width * Screen.devicePixelRatio))
-                                sourceSize.height: Math.max(1, Math.round(height * Screen.devicePixelRatio))
-                                fillMode: Image.PreserveAspectFit
-                                smooth: true
-                                visible: false
-                                layer.enabled: true
+
+                            Item {
+                                visible: !!IsPinned
+                                width: parent.dotSize
+                                height: parent.dotSize
+                                Image {
+                                    id: pinInfoIcon
+                                    anchors.fill: parent
+                                    source: "qrc:/icons/ui/pin.svg"
+                                    sourceSize.width: Math.max(1, Math.round(width * Screen.devicePixelRatio))
+                                    sourceSize.height: Math.max(1, Math.round(height * Screen.devicePixelRatio))
+                                    fillMode: Image.PreserveAspectFit
+                                    smooth: true
+                                    visible: false
+                                    layer.enabled: true
+                                }
+                                ColorOverlay {
+                                    anchors.fill: pinInfoIcon
+                                    source: pinInfoIcon
+                                    color: AppPalette.textMuted
+                                    smooth: true
+                                }
                             }
-                            ColorOverlay {
-                                anchors.fill: pinInfoIcon
-                                source: pinInfoIcon
-                                color: AppPalette.textMuted
-                                smooth: true
+
+                            Item {
+                                visible: connRow.isRemembered
+                                width: parent.dotSize
+                                height: parent.dotSize
+                                Image {
+                                    id: recentInfoIcon
+                                    anchors.fill: parent
+                                    source: "qrc:/icons/ui/plug.svg"
+                                    sourceSize.width: Math.max(1, Math.round(width * Screen.devicePixelRatio))
+                                    sourceSize.height: Math.max(1, Math.round(height * Screen.devicePixelRatio))
+                                    fillMode: Image.PreserveAspectFit
+                                    smooth: true
+                                    visible: false
+                                    layer.enabled: true
+                                }
+                                ColorOverlay {
+                                    anchors.fill: recentInfoIcon
+                                    source: recentInfoIcon
+                                    color: AppPalette.textMuted
+                                    smooth: true
+                                }
                             }
                         }
 
@@ -428,20 +461,27 @@ Column {
                             Layout.fillHeight: true
                             verticalAlignment: Text.AlignVCenter
                             elide: Text.ElideRight
-                            color: AppPalette.text
+                            color: connRow.customName.length ? AppPalette.textMuted : AppPalette.text
                             font.pixelSize: Tokens.fontLg
                             textFormat: Text.StyledText
                             text: {
                                 var muted = AppPalette.textMuted
                                 var esc = connectionViewer.escapeHtml
-                                if (LinkType === 1)
-                                    return '<font color="' + muted + '">' + esc(Baudrate) + '</font>'
-                                var a = esc((Address && Address.length) ? Address : "—")
-                                if (LinkType === 4)
-                                    return a
-                                if (LinkType === 2)
-                                    return a + '  <font color="' + muted + '">·  ' + esc(SourcePort) + ' → ' + esc(DestinationPort) + '</font>'
-                                return a + '  <font color="' + muted + '">·  ' + esc(DestinationPort) + '</font>'
+                                var body
+                                if (LinkType === 1) {
+                                    body = '<font color="' + muted + '">' + esc(Baudrate) + '</font>'
+                                } else {
+                                    var a = esc((Address && Address.length) ? Address : "—")
+                                    if (LinkType === 4)
+                                        body = a
+                                    else if (LinkType === 2)
+                                        body = a + '  <font color="' + muted + '">·  ' + esc(SourcePort) + ' → ' + esc(DestinationPort) + '</font>'
+                                    else
+                                        body = a + '  <font color="' + muted + '">·  ' + esc(DestinationPort) + '</font>'
+                                }
+                                if (!connRow.customName.length)
+                                    return body
+                                return '<font color="' + muted + '">' + esc(connRow.typeLabel) + '  ·  </font>' + body
                             }
                         }
 
@@ -503,7 +543,7 @@ Column {
                                     case 1: core.closeLogFile(); linkManagerWrapper.openAsSerial(Uuid); break
                                     case 2: core.closeLogFile(); linkManagerWrapper.openAsUdp(Uuid, Address, Number(SourcePort), Number(DestinationPort)); break
                                     case 3: core.closeLogFile(); linkManagerWrapper.openAsTcp(Uuid, Address, 0, Number(DestinationPort)); break
-                                    case 4: linkManagerWrapper.openAsRtsp(Uuid, Address); break
+                                    case 4: linkManagerWrapper.openAsVideo(Uuid, Address); break
                                     }
                                 }
                             }
@@ -526,6 +566,56 @@ Column {
                             y: connRow.vPad
                             width: parent.width
                             spacing: Tokens.spaceXs
+
+                            RowLayout {
+                                Layout.fillWidth: true
+                                spacing: Tokens.spaceXs
+                                Text {
+                                    text: qsTr("Name")
+                                    color: AppPalette.textMuted
+                                    font.pixelSize: Tokens.fontBase
+                                    Layout.preferredWidth: LinkType === 1 ? Math.round(70 * AppPalette.scale) : Math.round(34 * AppPalette.scale)
+                                }
+                                Rectangle {
+                                    Layout.fillWidth: true
+                                    Layout.preferredHeight: Tokens.controlHMd
+                                    radius: Tokens.radiusMd; color: AppPalette.bg
+                                    border.width: nameField.activeFocus ? 1 : Tokens.cardBorderWidth
+                                    border.color: nameField.activeFocus ? AppPalette.accentBorder : AppPalette.border
+                                    TextInput {
+                                        id: nameField
+                                        activeFocusOnTab: true
+                                        anchors.fill: parent
+                                        anchors.leftMargin: Tokens.spaceSm; anchors.rightMargin: Tokens.spaceXs
+                                        anchors.topMargin: Tokens.spaceXxs; anchors.bottomMargin: Tokens.spaceXxs
+                                        verticalAlignment: TextInput.AlignVCenter
+                                        color: AppPalette.text; font.pixelSize: Tokens.fontBase; clip: true
+                                        maximumLength: 32
+                                        inputMethodHints: Qt.ImhNoPredictiveText
+                                        text: connRow.customName
+                                        TapHandler { acceptedButtons: Qt.LeftButton; onDoubleTapped: nameField.selectAll() }
+                                        onEditingFinished: linkManagerWrapper.sendUpdateCustomName(Uuid, text)
+
+                                        Text {
+                                            visible: !nameField.text.length && !nameField.activeFocus
+                                            anchors.verticalCenter: parent.verticalCenter
+                                            text: connRow.typeLabel
+                                            color: AppPalette.textMuted
+                                            font: nameField.font
+                                        }
+                                    }
+                                }
+                                IconBtn {
+                                    visible: connRow.customName.length > 0
+                                    iconSource: "qrc:/icons/ui/eraser.svg"; iconFillRatio: 0.8
+                                    toolTipText: qsTr("Clear name")
+                                    Layout.alignment: Qt.AlignVCenter; Layout.preferredWidth: Tokens.controlHMd; Layout.preferredHeight: Tokens.controlHMd
+                                    onClicked: {
+                                        nameField.text = ""
+                                        linkManagerWrapper.sendUpdateCustomName(Uuid, "")
+                                    }
+                                }
+                            }
 
                             // UDP/TCP — адрес
                             RowLayout {
@@ -578,19 +668,39 @@ Column {
                                 Layout.fillWidth: true
                                 spacing: Tokens.spaceXs
                                 Text {
-                                    text: "rtsp://"
-                                    color: AppPalette.text
+                                    id: urlLabel
+                                    text: qsTr("URL")
+                                    color: AppPalette.textMuted
                                     font.pixelSize: Tokens.fontBase
                                     horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: true
+                                    verticalAlignment: Text.AlignVCenter
+
+                                    MouseArea {
+                                        id: urlLabelMa
+                                        anchors.fill: parent
+                                        acceptedButtons: Qt.NoButton
+                                        hoverEnabled: true
+                                    }
+
+                                    KToolTip {
+                                        readonly property string fileExample: Qt.platform.os === "windows" ? "C:\\clip.mp4"
+                                                                            : Qt.platform.os === "android" ? "/storage/emulated/0/Movies/clip.mp4"
+                                                                                                           : "/home/user/clip.mp4"
+                                        text: qsTr("Any URL that FFmpeg can open:\nrtsp://192.168.1.10:554/stream\nhttp://camera.local/video.cgi  (MJPEG, HLS, DASH)\nrtmp://server/live/key\nudp://@:1234\n%1  (a local file)").arg(fileExample)
+                                        targetItem: urlLabel
+                                        shown: urlLabelMa.containsMouse
+                                        x: 0
+                                    }
                                 }
                                 Rectangle {
                                     Layout.fillWidth: true
                                     Layout.preferredHeight: Tokens.controlHMd
                                     radius: Tokens.radiusMd; color: AppPalette.bg
-                                    border.width: rtspField.activeFocus ? 1 : Tokens.cardBorderWidth
-                                    border.color: rtspField.activeFocus ? AppPalette.accentBorder : AppPalette.border
+                                    border.width: urlField.activeFocus ? 1 : Tokens.cardBorderWidth
+                                    border.color: urlField.activeFocus ? AppPalette.accentBorder : AppPalette.border
                                     TextInput {
-                                        id: rtspField
+                                        id: urlField
                                         activeFocusOnTab: true
                                         anchors.fill: parent
                                         anchors.leftMargin: Tokens.spaceSm; anchors.rightMargin: Tokens.spaceXs
@@ -599,7 +709,7 @@ Column {
                                         color: AppPalette.text; font.pixelSize: Tokens.fontBase; clip: true
                                         inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhNoAutoUppercase
                                         text: Address
-                                        TapHandler { acceptedButtons: Qt.LeftButton; onDoubleTapped: rtspField.selectAll() }
+                                        TapHandler { acceptedButtons: Qt.LeftButton; onDoubleTapped: urlField.selectAll() }
                                         onEditingFinished: linkManagerWrapper.sendUpdateAddress(Uuid, text)
                                     }
                                 }
@@ -787,8 +897,8 @@ Column {
 
         KButton {
             width: actionsGrid.cellW; height: Tokens.controlHMd; fontPixelSize: Tokens.fontBase; horizontalPadding: Math.round(8 * AppPalette.scale)
-            text: qsTr("+RTSP")
-            onClicked: linkManagerWrapper.createAsRtsp("")
+            text: qsTr("+Video")
+            onClicked: linkManagerWrapper.createAsVideo("")
         }
 
         KButton {

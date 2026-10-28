@@ -66,6 +66,7 @@ public slots:
     void setUpdateSurface(bool state);
     void setUpdateIsobaths (bool state);
     void setUpdateMosaic (bool state);
+    void setRealtimePaused(bool paused);
 
     void setIsOpeningFile (bool state);
     //
@@ -163,6 +164,8 @@ signals:
 
     // this
     void sendState(DataProcessorType state);
+    void idleChanged(bool idle);
+    void activityChanged(const QVariantMap& activity);
     void bottomTrackProcessingCleared();
     void isobathsProcessingCleared();
     void mosaicProcessingCleared();
@@ -223,6 +226,7 @@ private slots:
     void postSurfaceColorTable(const std::vector<uint8_t>& t);
     void postSurfaceColorIntervalsSize(int size);
     void postSurfaceStepSize(float lineStepSize);
+    void resendSurfaceColorTable();
     // Mosaic
     void postMosaicColorTable(const std::vector<uint8_t>& t);
     // Isobaths
@@ -286,6 +290,7 @@ private:
     QSet<int> collectSurfaceEpochsForTilesSet(int zoom, const QSet<TileKey>& tiles) const;
     QSet<int> collectVisibleSurfaceEpochsSet(int zoom) const;
     void updateDataProcType();
+    void updateIdle();
     void emitMosaicColorTable();
     void updateDatasetSpatialIndexingState();
     void setUpdateBottomTrackSourceState(bool state, bool fromSettings);
@@ -296,6 +301,10 @@ private:
     void latencyFirstPaint(const QVector<int>& indxs);
     void latencyReport();
     void latencyReset();
+    void applyUpdateBottomTrackSourceState(bool state, bool fromSettings);
+    void applyUpdateSurface(bool state);
+    void applyUpdateIsobaths(bool state);
+    void applyUpdateMosaic(bool state);
 
 private:
     friend class SurfaceProcessor;
@@ -389,6 +398,12 @@ private:
     bool updateSurface_;
     bool updateIsobaths_;
     bool updateMosaic_;
+    bool realtimePaused_ = false;
+    bool wantedBottomTrackScene3d_ = false;
+    bool wantedBottomTrackSettings_ = false;
+    bool wantedSurface_ = false;
+    bool wantedIsobaths_ = false;
+    bool wantedMosaic_ = false;
     bool isOpeningFile_;
     // BottomTrackProcessor
     int bottomTrackWindowCounter_;
@@ -411,6 +426,9 @@ private:
     MapExportConfig exportConfig_;   // what the setters below passed on (mapExportConfig)
     // Surface
     float tileResolution_;
+    std::vector<uint8_t> lastSurfaceColorTable_;
+    int lastSurfaceColorIntervalsSize_ = -1;
+    float lastSurfaceStepSize_ = -1.0f;
 
     // processing (scheduling/interrupt)
     QSet<int>              epIndxsFromBottomTrack_;
@@ -453,6 +471,8 @@ private:
     std::atomic_bool       nextRunPending_;
     std::atomic<uint32_t>  requestedMask_;
     bool                   btBusy_;
+    bool                   lastIdle_ = true;
+    QVariantMap            lastActivity_;
     bool                   forceVisibleRefreshAfterBottomTrack_ = false;
     // hot cache/db
     HotTileCache           hotCache_; // LRU

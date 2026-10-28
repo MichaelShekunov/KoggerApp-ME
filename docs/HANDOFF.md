@@ -3279,3 +3279,46 @@ rate in use) was replaced by this: V3 is now the telemetry function's setting, w
   - The font is 18 units (about 14 px on a 540 px panel, was about 10). The side blocks are 220 units, the top ones
     200; the side rows are at 114/218/322.
   - **[verified]** recorderboard_check all PASS (the block texts compared whole); ports_live PASS; grab looked at.
+
+## develop merged into me (2026-10-28, first PC)
+
+The owner: take develop's horizontal echogram zoom and put ours on top. develop's zoom stands on its echogram work
+since September (contacts, USBL sync, live hold, smooth scroll), so the whole of develop 4c099916 was merged. The
+merge was made on branch upstream-sync-2026-10-28 in the D:\Temp\kogger_merge_test worktree, outside Yandex.Disk.
+Compatibility notes and what must not go public: docs/upstream-compat-2026-10-28.ru.md.
+
+- Conflicts: 60 files.
+  - translation_ru.ts: ours, then lupdate.
+  - Mission files: develop's, with three ME edits put back: koggerAppName in QSettings, enum Kind without uint8_t
+    for lupdate, the arm prompt's width.
+  - SEPARATE_READING: develop removed it; it was OFF in both builds. Our live path was kept without the #ifdef.
+  - Two network discoveries are both live: ours (udp_discovery, the Discover button) and develop's link_discovery.
+    Choosing one is open.
+- Echogram horizontal scale: develop's timeline zoom (cursor_.horZoom, 0.1 .. 10; wheel and pinch smooth,
+  settled to tenths, the H/V reset).
+  - ME on top: the settings row, now plot2D_columns.h steps 0.1/0.2/0.5/1/2/3/4/6/8/10; the scale hint, also on
+    vertical zoom; setHorizontalScaleProp for a restored layout and the edit script; epochSpanOfColumn and
+    columnOfEpoch on develop's indexes.
+  - Our column engine (fillColumns, virtual columns) and echoscale live_check.ps1 are gone. echoscale_check now
+    tests the steps (6 of 6 mutants).
+- After the merge:
+  - a doubled getID in mav_link_conf.h;
+  - a doubled `import kqml_types` in Pane3DWindow.qml (the main window did not load);
+  - a doubled LanguageController::reloadFromSettings (ours kept);
+  - serialUuids lost when develop replaced pinnedUuids with rememberableUuids (put back).
+  - develop removed the echogram's menuBlock: our references dropped.
+- Pins: develop's new settings rows got 12 KPinTags. The KLF fragment epochs and the per-node USBL switches are
+  on pin_coverage_check's left-out list.
+- Translations: develop's 711 ru (its own ru.ts had 109) and 820 zh/es/hi strings, machine-translated by four
+  agents and not proofread by native speakers. ts_check clean; lang_check and lang_fit_check PASS.
+- **[verified]** Checks on the merged build:
+  - tools/*/run.ps1: 12 of 12;
+  - qml_check standalone: 24 of 24;
+  - ports_live, echoscale hint_check (00014), echostate_persist, pin_live, dock_e2e, mymaps_start,
+    ringsearch_live, precompute_check, ring_bench: PASS;
+  - servomanual_check failed once under load and passed on two reruns.
+- tools/perf/echoedit_e2e.ps1 times out: the 'echoedit' profile's bottom track has 0 finite depths, so settle never
+  ends. **[verified]** The same happens on the build from before the merge (8e825206 + ME, installed). It is the check
+  on this PC, not the merge. Not looked into.
+- Installed on the first PC 2026-10-28 11:28 (the owner: "когда закончишь — установи"), both installs, exe B7C74C1D…
+  This build is the merge before it was committed; its build_info says commit 56d1fe52, dirty.

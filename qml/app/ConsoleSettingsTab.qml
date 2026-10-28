@@ -87,6 +87,42 @@ Column {
                 }
             }
         }
+
+        KIslandRow {
+            label: qsTr("MAVLink frames")
+            toolTipText: qsTr("Log MAVLink frames received from the device")
+            interactive: true
+            onClicked: mavlinkSwitch.click()
+
+            KSwitch {
+                id: mavlinkSwitch
+                flat: true
+                checked: page.store ? page.store.consoleMavlink : false
+                onToggled: {
+                    if (page.store)
+                        page.store.consoleMavlink = checked
+                    checked = Qt.binding(function() { return page.store ? page.store.consoleMavlink : false })
+                }
+            }
+        }
+
+        KIslandRow {
+            label: qsTr("USBL solutions")
+            toolTipText: qsTr("Log one line per USBL solution received from the device")
+            interactive: true
+            onClicked: usblSwitch.click()
+
+            KSwitch {
+                id: usblSwitch
+                flat: true
+                checked: page.store ? page.store.consoleUsbl : false
+                onToggled: {
+                    if (page.store)
+                        page.store.consoleUsbl = checked
+                    checked = Qt.binding(function() { return page.store ? page.store.consoleUsbl : false })
+                }
+            }
+        }
     }
 
     Column {

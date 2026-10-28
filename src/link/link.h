@@ -43,8 +43,9 @@ public:
     void createAsTcp(const QString& address, int sourcePort, int destinationPort);
     void updateTcpParameters(const QString& address, int sourcePort, int destinationPort);
     void openAsTcp();
-    void createAsRtsp(const QString& address);
-    void openAsRtsp();
+    void createAsVideo(const QString& address);
+    void openAsVideo();
+    void setVideoStreaming(bool streaming);
     bool isOpen() const;
     void close();
     bool parse();
@@ -54,6 +55,7 @@ public:
     void setConnectionStatus(bool connectionStatus);
     void setControlType(ControlType controlType);
     void setPortName(const QString& portName);
+    void setCustomName(const QString& customName);
     void setBaudrate(int baudrate);
     void setRequestToSend(bool rts);
     void setDataTerminalReady(bool dtr);
@@ -85,6 +87,7 @@ public:
     bool        getIsRecievesData() const;
     ControlType getControlType() const;
     QString     getPortName() const;
+    QString     getCustomName() const;
     int         getBaudrate() const;
     bool        getParity() const;
     LinkType    getLinkType() const;
@@ -113,6 +116,7 @@ signals:
     void connectionStatusChanged(QUuid uuid);
     void frameReady(QUuid uuid, Link* link, Parsers::FrameParser frame);
     void opened(QUuid uuid, Link* linkPtr);
+    void openFailed(QUuid uuid, QString reason);
     void closed(QUuid uuid, Link* link);
     void baudrateChanged(QUuid uuid);
     void isReceivesDataChanged(QUuid uuid);
@@ -157,6 +161,7 @@ private:
     ControlType controlType_;
     LinkType linkType_;
     QString portName_;
+    QString customName_;
     int baudrate_;
     bool parity_;
     QString address_;
@@ -172,6 +177,7 @@ private:
     std::unique_ptr<QTimer> checkTimer_;
     int timeoutCnt_;
     uint32_t lastTotalCnt_;
+    uint32_t acceptedFrameCnt_;
     bool isReceivesData_;
     QList<uint32_t> baudrateSearchList_;
     int lastSearchIndx_;          // the search during a firmware update: the list in its own order, asking
@@ -184,7 +190,7 @@ private:
     LinkAskAll askAll_;   // when every device on the link is asked for its version
     bool autoConnOnce_;
     qint64 autoConnUntilMsecs_;
-    std::atomic<bool> rtspRequested_;
+    std::atomic<bool> videoRequested_;
 
 private slots:
     void readyRead();

@@ -109,9 +109,11 @@ property bool quickActionLayoutsEnabled: true
 property bool quickActionConnectionStatusEnabled: true
 property bool quickActionLoggingEnabled: true
 property bool quickActionBottomTrackEnabled: true
+property bool quickActionContactEnabled: true
 property bool quickActionMissionEnabled: true
 property bool quickActionAutopilotEnabled: true
 property bool quickActionProfilesEnabled: true
+property bool quickActionNodesEnabled: true
 property bool quickActionWidgetsEnabled: true
 property bool quickActionConsoleEnabled: true
 property bool quickActionSecondWindowEnabled: true
@@ -131,7 +133,7 @@ function toggleInputLock() { setInputLocked(!inputLocked) }
 property string quickActionDraggingKey: ""
 
 readonly property var quickActionKeys: {
-    var base = ["connections", "logging", "layouts", "widgets", "console", "bottomTrack", "mission", "autopilot", "profiles", "inputLock"]
+    var base = ["connections", "logging", "layouts", "widgets", "console", "bottomTrack", "contact", "mission", "autopilot", "profiles", "nodes", "inputLock"]
     if (Qt.platform.os !== "android" && Qt.platform.os !== "ios")
         base.push("secondWindow")   // desktop-only; mobile drops it on normalize
     if (Qt.platform.os === "linux" || (typeof manualTesting !== "undefined" && manualTesting === true))
@@ -146,9 +148,11 @@ property var quickActionOrderModel: ListModel {
     ListElement { key: "widgets" }
     ListElement { key: "console" }
     ListElement { key: "bottomTrack" }
+    ListElement { key: "contact" }
     ListElement { key: "mission" }
     ListElement { key: "autopilot" }
     ListElement { key: "profiles" }
+    ListElement { key: "nodes" }
     ListElement { key: "inputLock" }
     ListElement { key: "secondWindow" }
     ListElement { key: "powerOff" }
@@ -169,10 +173,14 @@ function normalizeQuickActionOrder(list) {
                 out.splice(out.indexOf("connections") + 1, 0, "logging")   // keep logging right after devices
             else if (quickActionKeys[j] === "console" && out.indexOf("widgets") !== -1)
                 out.splice(out.indexOf("widgets") + 1, 0, "console")   // keep console right after widgets
-            else if (quickActionKeys[j] === "mission" && out.indexOf("bottomTrack") !== -1)
-                out.splice(out.indexOf("bottomTrack") + 1, 0, "mission")   // the mission planner right after bottom-track editing
+            else if (quickActionKeys[j] === "contact" && out.indexOf("bottomTrack") !== -1)
+                out.splice(out.indexOf("bottomTrack") + 1, 0, "contact")   // keep the contact pin right after bottom-track editing
+            else if (quickActionKeys[j] === "mission" && out.indexOf("contact") !== -1)
+                out.splice(out.indexOf("contact") + 1, 0, "mission")
             else if (quickActionKeys[j] === "autopilot" && out.indexOf("mission") !== -1)
                 out.splice(out.indexOf("mission") + 1, 0, "autopilot")
+            else if (quickActionKeys[j] === "nodes" && out.indexOf("profiles") !== -1)
+                out.splice(out.indexOf("profiles") + 1, 0, "nodes")
             else if (quickActionKeys[j] === "inputLock" && out.indexOf("secondWindow") !== -1)
                 out.splice(out.indexOf("secondWindow"), 0, "inputLock") // keep the lock right before the second window
             else
@@ -229,7 +237,7 @@ property Connections _reconnectLinkConn: Connections {
     target: (typeof linkManagerWrapper !== "undefined") ? linkManagerWrapper : null
     ignoreUnknownSignals: true
     function onLinkOpened(uuid) { store.addRememberedLink(uuid) }
-    function onLinkRemoved(uuid) { store.removeRememberedLink(uuid) }
+    function onLinkRemoved(uuid) { store.removeRememberedLink(uuid); store.forgetVideoSource(uuid) }
 }
 
 property Connections _reconnectModelConn: Connections {
@@ -267,10 +275,8 @@ function saveRememberedLinks() {
     var arr = rememberedLinks || []
     var keepSet = {}
     if (typeof linkManagerWrapper !== "undefined" && linkManagerWrapper) {
-        var pinned = linkManagerWrapper.pinnedUuids()
-        for (var i = 0; i < pinned.length; ++i) keepSet[pinned[i]] = true
-        var serial = linkManagerWrapper.serialUuids()
-        for (var k = 0; k < serial.length; ++k) keepSet[serial[k]] = true
+        var rememberable = linkManagerWrapper.rememberableUuids()
+        for (var i = 0; i < rememberable.length; ++i) keepSet[rememberable[i]] = true
     }
     var keep = []
     for (var j = 0; j < arr.length; ++j)
@@ -290,26 +296,53 @@ function toggleRememberedLinks() {
     if (typeof linkManagerWrapper === "undefined" || !linkManagerWrapper) return
     var arr = rememberedLinks || []
 
-    var closed = [], open = []
+    var closedDevices = [], closedVideo = [], open = []
     for (var i = 0; i < arr.length; ++i) {
         var s = linkManagerWrapper.linkState(arr[i])
-        if (s === 0) closed.push(arr[i])
+        if (s === 0) {
+            if (linkManagerWrapper.linkTypeOf(arr[i]) === 4) closedVideo.push(arr[i])
+            else closedDevices.push(arr[i])
+        }
         else if (s === 1 || s === 2) open.push(arr[i])
     }
-    if (!closed.length && !open.length) return
+    if (!closedDevices.length && !closedVideo.length && !open.length) return
 
-    if (closed.length) {
+    if (closedDevices.length || closedVideo.length) {
         var hadFile = typeof core !== "undefined" && core && core.openedFilePath && core.openedFilePath.length > 0
-        if (!open.length && typeof core !== "undefined" && core && typeof core.closeLogFile === "function")
+        if (closedDevices.length && !open.length && typeof core !== "undefined" && core && typeof core.closeLogFile === "function")
             core.closeLogFile()
         if (!hadFile)
-            for (var j = 0; j < closed.length; ++j)
-                linkManagerWrapper.reopenLink(closed[j])
+            for (var j = 0; j < closedDevices.length; ++j)
+                linkManagerWrapper.reopenLink(closedDevices[j])
+        for (var v = 0; v < closedVideo.length; ++v)
+            linkManagerWrapper.reopenLink(closedVideo[v])
     } else {
         for (var k = 0; k < open.length; ++k)
             linkManagerWrapper.closeLink(open[k])
     }
 }
+function discoverLanDevices() {
+    if (typeof linkDiscovery === "undefined" || !linkDiscovery || linkDiscovery.running) return
+    linkDiscovery.start()
+}
+
+property Connections _lanDiscoveryConn: Connections {
+    target: (typeof linkDiscovery !== "undefined") ? linkDiscovery : null
+    ignoreUnknownSignals: true
+    function onFinished(deviceCount) {
+        if (deviceCount <= 0) {
+            notifications.info(qsTr("No KOGGER devices found in the local network"))
+            return
+        }
+        linkDiscovery.adoptAll(false)
+        var names = []
+        var found = linkDiscovery.found || []
+        for (var i = 0; i < found.length; ++i)
+            names.push(found[i].label + " @ " + found[i].address)
+        notifications.info(qsTr("Found %1: %2").arg(names.length).arg(names.join(", ")))
+    }
+}
+
 property string hotkeysRevealKey: ""
 property int hotkeysRevealNonce: 0
 // Live reference to the HotkeysDialog while it's open (set by the dialog
@@ -467,13 +500,12 @@ onAutopilotOnlineChanged: {
         _autopilotAutoOpening = true
         autopilotPopupOpen = true
         _autopilotAutoOpening = false
-    } else if (!autopilotOnline && _autopilotWasOnline && autopilotPopupOpen) {
-        autopilotPopupOpen = false
     }
     _autopilotWasOnline = autopilotOnline
 }
 
 property bool profilesPopupOpen: false
+property bool nodesConfiguratorOpen: false
 property var settingsProfiles: []
 property var profilesPopupState: ({ x: -1, y: -1 })
 
@@ -1213,7 +1245,7 @@ function widgetStackIds() {
 }
 
 function widgetStackRank(id) {
-    return Math.max(0, Math.min(widgetStackSlots - 1, widgetInstance(id).z))
+    return Math.max(0, Math.min(Math.min(widgetStackSlots, ZOrder.widgetBandLevels) - 1, widgetInstance(id).z))
 }
 
 function widgetBringToFront(id) {
@@ -1578,6 +1610,7 @@ onAutopilotPopupOpenChanged: {
     layoutStore.autopilotPopupOpenStored = autopilotPopupOpen
 }
 onProfilesPopupOpenChanged: layoutStore.profilesPopupOpenStored = profilesPopupOpen
+onNodesConfiguratorOpenChanged: layoutStore.nodesConfiguratorOpenStored = nodesConfiguratorOpen
 
 readonly property real splitterThickness: 0
 readonly property real minPaneSize: 120
@@ -1612,6 +1645,11 @@ property Settings scene3dLayerVisibility: Settings {
     property bool isobathsCheckButton: false
     property bool mosaicViewCheckButton: false
     property bool reliefCloudCheckButton: false
+    property bool usblCheckButton: false
+    property bool usblBeaconTrackDots: false
+    property bool usblHeadTrackDots: false
+    property bool usblSignalDetails: true
+    property bool usblMessageBytes: true
     property bool missionRunCheckButton: true
 }
 property alias boatTrackVisible:   scene3dLayerVisibility.boatTrackCheckButton
@@ -1619,6 +1657,51 @@ property alias bottomTrackVisible: scene3dLayerVisibility.bottomTrackCheckButton
 property alias isobathsVisible:    scene3dLayerVisibility.isobathsCheckButton
 property alias mosaicVisible:      scene3dLayerVisibility.mosaicViewCheckButton
 property alias reliefCloudVisible: scene3dLayerVisibility.reliefCloudCheckButton
+property alias usblVisible:        scene3dLayerVisibility.usblCheckButton
+property alias usblBeaconTrackDots: scene3dLayerVisibility.usblBeaconTrackDots
+property alias usblHeadTrackDots:   scene3dLayerVisibility.usblHeadTrackDots
+property alias usblSignalDetails:   scene3dLayerVisibility.usblSignalDetails
+property alias usblMessageBytes:    scene3dLayerVisibility.usblMessageBytes
+
+readonly property bool usblLayerActive: developerMode && usblVisible
+
+property Settings usblDiagSettings: Settings {
+    id: usblDiagSettings
+    category: "main/usblDiag"
+    property bool antennaLine: true
+    property real misfitMax: 0.065
+    property real ampMax: 0.051
+    property real phaseMax: 0.019
+    property real altMinDb: 1.4
+    property real levelMinDb: -6.0
+    property bool levelAbsolute: false
+}
+property alias usblAntennaDiag:     usblDiagSettings.antennaLine
+property alias usblDiagMisfitMax:   usblDiagSettings.misfitMax
+property alias usblDiagAmpMax:      usblDiagSettings.ampMax
+property alias usblDiagPhaseMax:    usblDiagSettings.phaseMax
+property alias usblDiagAltMinDb:    usblDiagSettings.altMinDb
+property alias usblDiagLevelMinDb:  usblDiagSettings.levelMinDb
+property alias usblDiagLevelAbsolute: usblDiagSettings.levelAbsolute
+
+readonly property bool usblAntennaDiagActive: developerMode && usblAntennaDiag
+readonly property var usblDiagThresholds: ({
+    misfit:  usblDiagMisfitMax,
+    amp:     usblDiagAmpMax,
+    phase:   usblDiagPhaseMax,
+    altDb:   usblDiagAltMinDb,
+    levelDb: usblDiagLevelMinDb
+})
+
+function resetUsblDiagThresholds() {
+    var t = DataFieldCatalog.usblDiagDefaults()
+    usblDiagMisfitMax  = t.misfit
+    usblDiagAmpMax     = t.amp
+    usblDiagPhaseMax   = t.phase
+    usblDiagAltMinDb   = t.altDb
+    usblDiagLevelMinDb = t.levelDb
+}
+
 property alias missionRunVisible:  scene3dLayerVisibility.missionRunCheckButton
 
 property Settings missionRunPrefs: Settings {
@@ -1950,6 +2033,8 @@ property Settings consolePersist: Settings {
     property int consFontSize: 13
     property bool protoBinConsoled: false
     property bool nmeaConsoled: true
+    property bool mavlinkConsoled: false
+    property bool usblConsoled: false
 }
 
 property alias consoleColorize: consolePersist.consColorize
@@ -1963,6 +2048,8 @@ readonly property int consoleMaxRowsMax: 4000
 readonly property int consoleMaxRowsDefault: 1500
 property alias consoleProtoBin: consolePersist.protoBinConsoled
 property alias consoleNmea: consolePersist.nmeaConsoled
+property alias consoleMavlink: consolePersist.mavlinkConsoled
+property alias consoleUsbl: consolePersist.usblConsoled
 
 function applyConsoleMaxRows() {
     if (typeof core !== "undefined" && core)
@@ -1974,11 +2061,15 @@ function applyConsoleProtoToggles() {
         return
     deviceManagerWrapper.setProtoBinConsoled(consoleProtoBin)
     deviceManagerWrapper.setNmeaConsoled(consoleNmea)
+    deviceManagerWrapper.setMavlinkConsoled(consoleMavlink)
+    deviceManagerWrapper.setUsblConsoled(consoleUsbl)
 }
 
 onConsoleMaxRowsChanged: applyConsoleMaxRows()
 onConsoleProtoBinChanged: applyConsoleProtoToggles()
 onConsoleNmeaChanged: applyConsoleProtoToggles()
+onConsoleMavlinkChanged: applyConsoleProtoToggles()
+onConsoleUsblChanged: applyConsoleProtoToggles()
 
 property Settings exportPersist: Settings {
     id: exportPersist
@@ -2008,8 +2099,14 @@ property Settings mosaicThemePersist: Settings {
     category: "scene3d/mosaic"
     property int mosaicTheme: 0
 }
+property Settings isobathsLegendPersist: Settings {
+    id: isobathsLegendPersist
+    category: "scene3d/isobaths"
+    property bool isobathsLegendVisible: true
+}
 property alias isobathsThemeIndex: isobathsThemePersist.isobathsTheme
 property alias mosaicThemeIndex: mosaicThemePersist.mosaicTheme
+property alias isobathsLegendVisible: isobathsLegendPersist.isobathsLegendVisible
 
 function applyLayerThemesToControllers() {
     if (typeof IsobathsViewControlMenuController !== "undefined" && IsobathsViewControlMenuController)
@@ -2052,6 +2149,11 @@ onMosaicVisibleChanged: {
     MosaicViewControlMenuController.onUpdateStateChanged(mosaicVisible)
     MosaicViewControlMenuController.onVisibilityChanged(mosaicVisible)
 }
+onUsblLayerActiveChanged: {
+    Scene3dToolBarController.onUsblLayerVisibilityChanged(usblLayerActive)
+}
+onUsblBeaconTrackDotsChanged: Scene3dToolBarController.onUsblBeaconTrackDotsChanged(usblBeaconTrackDots)
+onUsblHeadTrackDotsChanged:   Scene3dToolBarController.onUsblHeadTrackDotsChanged(usblHeadTrackDots)
 
 function initLayerVisibilityControllers() {
     BoatTrackControlMenuController.onVisibilityCheckBoxCheckedChanged(boatTrackVisible)
@@ -2064,6 +2166,9 @@ function initLayerVisibilityControllers() {
     // Restored like the others. Without this the saved state of the relief
     // layer was remembered by the checkbox and ignored by the scene.
     core.setReliefCloudVisible(reliefCloudVisible)
+    Scene3dToolBarController.onUsblLayerVisibilityChanged(usblLayerActive)
+    Scene3dToolBarController.onUsblBeaconTrackDotsChanged(usblBeaconTrackDots)
+    Scene3dToolBarController.onUsblHeadTrackDotsChanged(usblHeadTrackDots)
     pushMosaicChannelsFromCore()
 }
 
@@ -2143,10 +2248,12 @@ property Settings layoutStore: Settings {
     property bool quickActionConnectionStatusEnabledStored: true
     property bool quickActionLoggingEnabledStored: true
     property bool quickActionBottomTrackEnabledStored: true
+    property bool quickActionContactEnabledStored: true
     property bool quickActionMissionEnabledStored: true
     property bool quickActionAutopilotEnabledStored: true
     property bool quickActionProfilesEnabledStored: true
-    property string quickActionOrderStored: "connections,logging,layouts,bottomTrack,widgets,console,profiles,inputLock,secondWindow,powerOff"
+    property bool quickActionNodesEnabledStored: true
+    property string quickActionOrderStored: "connections,logging,layouts,bottomTrack,contact,widgets,console,profiles,inputLock,secondWindow,powerOff"
     property string rememberedLinksJson: "[]"
     property string selectedConnectionFilePathStored: ""
     property string layoutsJson: "[]"
@@ -2163,6 +2270,7 @@ property Settings layoutStore: Settings {
     property string settingsProfilesJson: "[]"
     property string profilesPopupStateJson: "{\"x\":-1,\"y\":-1}"
     property bool profilesPopupOpenStored: false
+    property bool nodesConfiguratorOpenStored: false
     property bool bottomTrackEditorOpenStored: false
     property bool autopilotPopupOpenStored: false
     property string autopilotPopupStateJson: "{\"x\":-1,\"y\":-1}"
@@ -2668,6 +2776,8 @@ function openMapExportSettings()    { _openSettingsSubPage("mapExport") }
 function openMyMaps()               { _openSettingsSubPage("myMaps") }
 function openConsoleSettings()      { _openSettingsSubPage("console") }
 function openAboutSettings()        { _openSettingsSubPage("about") }
+function openControlsHelp()         { _openSettingsSubPage("controls") }
+function openTutorialsSettings()    { _openSettingsSubPage("tutorials") }
 function openDeveloperSettings()    { _openSettingsSubPage("developer") }
 function openLicenseView(title, file) {
     licenseViewTitle = title
@@ -3642,10 +3752,13 @@ function favoriteLayoutSnapshotFromNode(node, state) {
         if (leafId !== -1)
             snapshotState.leafIdToPaneId[String(leafId)] = paneId
 
+        var snapshotContentId = node.pane && node.pane.contentId ? String(node.pane.contentId) : ""
+
         return {
             type: "leaf",
             mode: normalizedPaneMode(node.pane ? node.pane.mode : node.mode),
-            paneId: paneId
+            paneId: paneId,
+            contentId: snapshotContentId
         }
     }
 
@@ -3691,7 +3804,8 @@ function normalizeFavoriteLayoutSnapshot(node, state) {
         return {
             type: "leaf",
             mode: normalizedPaneMode(node.mode),
-            paneId: snapshotState.nextPaneId
+            paneId: snapshotState.nextPaneId,
+            contentId: node.contentId ? String(node.contentId) : ""
         }
     }
 
@@ -3834,11 +3948,22 @@ function normalizeFavoriteLayoutEntry(rawEntry) {
                 normalizedStates[String(pk)] = v
         }
     }
+    var normalizedVideo = {}
+    if (rawEntry.videoOptions && typeof rawEntry.videoOptions === "object") {
+        for (var vk in rawEntry.videoOptions) {
+            if (!rawEntry.videoOptions.hasOwnProperty(vk))
+                continue
+            var opts = normalizedVideoOptions(rawEntry.videoOptions[vk])
+            if (opts)
+                normalizedVideo[String(vk)] = opts
+        }
+    }
     return {
         layout: normalizedLayout,
         popupLinks: normalizedLinks,
         echogramStates: normalizedStates,
-        docks: DockLayout.normalize(rawEntry.docks)
+        docks: DockLayout.normalize(rawEntry.docks),
+        videoOptions: normalizedVideo
     }
 }
 
@@ -3858,7 +3983,8 @@ function favoriteLayoutEntryFromCurrent() {
         layout: layoutSnapshot,
         popupLinks: favoritePopupLinksFromLeafMapping(snapshotState.leafIdToPaneId, fullscreenPopupSourceByHost),
         echogramStates: echogramStatesForCurrentTree(snapshotState.leafIdToPaneId),
-        docks: DockLayout.normalize(docks)
+        docks: DockLayout.normalize(docks),
+        videoOptions: videoOptionsForCurrentTree(snapshotState.leafIdToPaneId)
     }
 }
 
@@ -3904,6 +4030,67 @@ function writeActiveFavoriteEchogramState(paneId, s) {
     next[idx] = e
     layouts = next
     favoriteStateSaveTimer.restart()
+}
+
+function normalizedVideoOptions(raw) {
+    if (!raw || typeof raw !== "object")
+        return null
+
+    var out = {}
+    if (raw.fill !== undefined) {
+        var fill = Number(raw.fill)
+        out.fill = (fill === 1 || fill === 2) ? fill : 0
+    }
+    if (raw.resolution !== undefined)
+        out.resolution = raw.resolution === true
+
+    return Object.keys(out).length > 0 ? out : null
+}
+
+function videoOptionsForCurrentTree(leafIdToPaneId) {
+    var out = {}
+    if (!leafIdToPaneId)
+        return out
+    for (var leafKey in leafIdToPaneId) {
+        if (!leafIdToPaneId.hasOwnProperty(leafKey))
+            continue
+        var pane = paneByLeafId(layoutTree, parseInt(leafKey))
+        if (!pane || !pane.contentId)
+            continue
+        var opts = normalizedVideoOptions(videoOptionsByContent[pane.contentId])
+        if (opts)
+            out[String(leafIdToPaneId[leafKey])] = opts
+    }
+    return out
+}
+
+function seedVideoOptionsFromFavorite(entry, tree) {
+    if (!entry || !entry.videoOptions || !tree)
+        return
+
+    var panes = []
+    allLeafPanes(tree, panes)
+
+    var next = {}
+    for (var key in videoOptionsByContent)
+        next[key] = videoOptionsByContent[key]
+
+    var changed = false
+    for (var i = 0; i < panes.length; ++i) {
+        var pane = panes[i]
+        if (!pane || !pane.contentId)
+            continue
+        var opts = normalizedVideoOptions(entry.videoOptions[String(pane.paneId)])
+        if (!opts)
+            continue
+        next[pane.contentId] = opts
+        changed = true
+    }
+
+    if (changed) {
+        videoOptionsByContent = next
+        videoStore.optionsJson = JSON.stringify(next)
+    }
 }
 
 function captureEchogramState(plot, leafId, includeFavorite) {
@@ -4376,9 +4563,11 @@ function saveLayoutState() {
     layoutStore.quickActionConnectionStatusEnabledStored = quickActionConnectionStatusEnabled
     layoutStore.quickActionLoggingEnabledStored = quickActionLoggingEnabled
     layoutStore.quickActionBottomTrackEnabledStored = quickActionBottomTrackEnabled
+    layoutStore.quickActionContactEnabledStored = quickActionContactEnabled
     layoutStore.quickActionMissionEnabledStored = quickActionMissionEnabled
     layoutStore.quickActionAutopilotEnabledStored = quickActionAutopilotEnabled
     layoutStore.quickActionProfilesEnabledStored = quickActionProfilesEnabled
+    layoutStore.quickActionNodesEnabledStored = quickActionNodesEnabled
     layoutStore.quickActionWidgetsEnabledStored = quickActionWidgetsEnabled
     layoutStore.quickActionConsoleEnabledStored = quickActionConsoleEnabled
     layoutStore.quickActionSecondWindowEnabledStored = quickActionSecondWindowEnabled
@@ -4398,9 +4587,11 @@ function restoreLayoutState() {
     quickActionConnectionStatusEnabled = layoutStore.quickActionConnectionStatusEnabledStored
     quickActionLoggingEnabled = layoutStore.quickActionLoggingEnabledStored
     quickActionBottomTrackEnabled = layoutStore.quickActionBottomTrackEnabledStored
+    quickActionContactEnabled = layoutStore.quickActionContactEnabledStored
     quickActionMissionEnabled = layoutStore.quickActionMissionEnabledStored
     quickActionAutopilotEnabled = layoutStore.quickActionAutopilotEnabledStored
     quickActionProfilesEnabled = layoutStore.quickActionProfilesEnabledStored
+    quickActionNodesEnabled = layoutStore.quickActionNodesEnabledStored
     quickActionWidgetsEnabled = layoutStore.quickActionWidgetsEnabledStored
     quickActionConsoleEnabled = layoutStore.quickActionConsoleEnabledStored
     quickActionSecondWindowEnabled = layoutStore.quickActionSecondWindowEnabledStored
@@ -4461,7 +4652,16 @@ function buildTreeFromFavoriteSnapshot(snapshot, state) {
 
     if (snapshot.type === "leaf") {
         state.paneNumber += 1
-        return makeLeaf(makePane(state.paneNumber, normalizedPaneMode(snapshot.mode)))
+        if (!state.usedContentIds)
+            state.usedContentIds = {}
+
+        var pane = makePane(state.paneNumber, normalizedPaneMode(snapshot.mode))
+        var reused = snapshot.contentId ? String(snapshot.contentId) : ""
+        if (reused.length && !state.usedContentIds[reused]) {
+            state.usedContentIds[reused] = true
+            pane.contentId = reused
+        }
+        return makeLeaf(pane)
     }
 
     if (snapshot.type === "split") {
@@ -4550,6 +4750,7 @@ function applyLayout(favoriteIndex) {
     }
     layoutTree = normalizedTree
     seedLiveEchogramStatesFromFavorite(entry, normalizedTree)
+    seedVideoOptionsFromFavorite(entry, normalizedTree)
     fullscreenPopupSourceByHost = popupSourceMapFromFavoriteEntry(entry, normalizedTree)
     fullscreenPopupStateByHost = ({})
     sanitizeFullscreenPopupConfig()
@@ -4610,7 +4811,7 @@ function createLayoutFromPreset(presetId) {
     var snapshot = favoriteLayoutSnapshotFromNode(tree, snapState)
     if (!snapshot)
         return
-    _appendLayoutAndEdit({ layout: snapshot, popupLinks: [], echogramStates: {} })
+    _appendLayoutAndEdit({ layout: snapshot, popupLinks: [], echogramStates: {}, videoOptions: {} })
 }
 
 function _appendLayoutAndEdit(entry) {
@@ -4642,7 +4843,7 @@ function seedDefaultLayouts() {
             first:  { type: "leaf", mode: "3D", paneId: 1 },
             second: { type: "leaf", mode: "2D", paneId: 2 }
         },
-        popupLinks: [], echogramStates: {}
+        popupLinks: [], echogramStates: {}, videoOptions: {}
     }
     var l2 = {
         layout: {
@@ -4654,7 +4855,7 @@ function seedDefaultLayouts() {
             },
             second: { type: "leaf", mode: "2D", paneId: 3 }
         },
-        popupLinks: [], echogramStates: {}
+        popupLinks: [], echogramStates: {}, videoOptions: {}
     }
     layouts = [l1, l2]
     saveFavoriteLayoutsState()
@@ -5199,6 +5400,21 @@ function toggleLeafMaximize(leafId) {
     maximizedLeafId = maximizedLeafId === leafId ? -1 : leafId
 }
 
+function maximizePaneOfMode(mode) {
+    var wanted = normalizedPaneMode(mode)
+    var leafId = firstLeafIdByMode(layoutTree, wanted)
+    if (leafId === -1) {
+        leafId = firstLeafId()
+        if (leafId === -1)
+            return -1
+        applyPaneModeSelection(leafId, wanted)
+        if (firstLeafIdByMode(layoutTree, wanted) !== leafId)
+            return -1
+    }
+    maximizedLeafId = leafId
+    return leafId
+}
+
 function handleLeafTap(leafId) {
     activeLeafId = leafId
 }
@@ -5280,6 +5496,8 @@ function setVideoOptionForContent(contentId, key, value) {
 
     videoOptionsByContent = next
     videoStore.optionsJson = JSON.stringify(next)
+
+    syncActiveLayout()
 }
 
 function videoFillForContent(contentId) {
@@ -5357,6 +5575,78 @@ function setVideoSourceForContent(contentId, uuid) {
     videoStore.sourcesJson = JSON.stringify(next)
 }
 
+function collectContentIds(node, out) {
+    if (!node)
+        return
+    if (node.type === "leaf") {
+        var id = node.pane ? node.pane.contentId : node.contentId
+        if (id)
+            out[String(id)] = true
+        return
+    }
+    collectContentIds(node.first, out)
+    collectContentIds(node.second, out)
+}
+
+function pruneVideoMaps() {
+    if (!layouts.length)
+        return
+
+    var live = {}
+    live[globalPopupVideoContentId] = true
+    live[secondaryVideoContentId] = true
+    collectContentIds(layoutTree, live)
+    for (var i = 0; i < layouts.length; ++i)
+        collectContentIds(favoriteLayoutSnapshotFromEntry(layouts[i]), live)
+
+    var sources = {}
+    var sourcesDropped = false
+    for (var s in videoSourceByContent) {
+        if (live[s])
+            sources[s] = videoSourceByContent[s]
+        else
+            sourcesDropped = true
+    }
+    if (sourcesDropped) {
+        videoSourceByContent = sources
+        videoStore.sourcesJson = JSON.stringify(sources)
+    }
+
+    var options = {}
+    var optionsDropped = false
+    for (var o in videoOptionsByContent) {
+        if (live[o])
+            options[o] = videoOptionsByContent[o]
+        else
+            optionsDropped = true
+    }
+    if (optionsDropped) {
+        videoOptionsByContent = options
+        videoStore.optionsJson = JSON.stringify(options)
+    }
+}
+
+function forgetVideoSource(uuid) {
+    var target = uuid ? String(uuid) : ""
+    if (!target.length)
+        return
+
+    var next = {}
+    var dropped = false
+    for (var key in videoSourceByContent) {
+        if (String(videoSourceByContent[key]) === target) {
+            dropped = true
+            continue
+        }
+        next[key] = videoSourceByContent[key]
+    }
+    if (!dropped)
+        return
+
+    videoSourceByContent = next
+    videoStore.sourcesJson = JSON.stringify(next)
+}
+
 function autoAssignVideoSources() {
     if (typeof videoStreams === "undefined" || !videoStreams)
         return
@@ -5397,12 +5687,8 @@ function autoAssignVideoSources() {
         if (assigned.length === 0)
             continue
 
-        if (known[assigned]) {
+        if (known[assigned])
             taken[assigned] = true
-            continue
-        }
-
-        delete next[cid]
     }
 
     var reuseIndex = 0
@@ -5798,6 +6084,7 @@ function loadPersistedUiState() {
     loadUsblPanelPreferences()
     loadStandPanelPreferences()
     profilesPopupOpen = layoutStore.profilesPopupOpenStored
+    nodesConfiguratorOpen = layoutStore.nodesConfiguratorOpenStored
     autopilotPopupOpen = layoutStore.autopilotPopupOpenStored
     bottomTrackEditorOpen = layoutStore.bottomTrackEditorOpenStored
     loadPopupDocks()
@@ -5819,6 +6106,7 @@ function reapplyImportedUiState() {
     if (!loadPersistedUiState())
         seedDefaultLayouts()
     sanitizeFullscreenPopupConfig()
+    pruneVideoMaps()
     uiStateReapplied()
 }
 
@@ -5828,6 +6116,7 @@ Component.onCompleted: {
     if (!loadPersistedUiState())
         seedDefaultLayouts()
     sanitizeFullscreenPopupConfig()
+    pruneVideoMaps()
     applyTgcToCore()
     applyPerformanceToCore()
     applyConsoleProtoToggles()

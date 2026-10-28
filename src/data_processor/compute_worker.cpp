@@ -136,8 +136,6 @@ void ComputeWorker::setBottomTrackPtr(BottomTrack* bt)
 void ComputeWorker::setSurfaceThemeId(int id)
 {
     surface_.setThemeId(id);
-
-    surface_.rebuildColorIntervals(); // перестройка интервалов цвета
 }
 
 void ComputeWorker::setSurfaceEdgeLimit(float v)
@@ -256,7 +254,7 @@ void ComputeWorker::processBundle(const WorkBundle& wb)
     if (!wb.surfaceVec.isEmpty()) { // && !isCanceled()
         surface_.onUpdatedBottomTrackData(wb.surfaceVec);
         surfaceWaitMs = surface_.getLastBottomTrackWaitMs();
-        surface_.rebuildColorIntervals();
+        surface_.ensureColorIntervals();
         surfaceMs = int(partClock.restart());
     }
 

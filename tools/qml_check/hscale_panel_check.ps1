@@ -5,7 +5,7 @@
 .DESCRIPTION
   The real EchogramSettingsPanel.qml (and ParamCard.qml) runs offscreen in qmltestrunner over a mock echogram
   that steps its scale as qPlot2D does (the steps of src/scene2d/plot2D_columns.h). Checked: the row and its
-  caption are there; the box shows x1 and steps up and down through the plot (x2, x1, x1/2, x1/4), held at the
+  caption are there; the box shows x1 and steps up and down through the plot (x2, x1, x1/2, x1/5), held at the
   ends; a change of the plot's scale from elsewhere (Alt + wheel) shows in the box, after the box was clicked
   too; "1:1" sets 1 and is off at 1. -Picture saves the panel. Exit code 0 when all pass, 1 when a check
   fails, 2 when qmltestrunner is not found.
@@ -73,7 +73,8 @@ Item {
         id: plot
         readonly property var steps: %STEPS%
         property real horizontalScale: 1
-        readonly property int horizontalScaleIndex: steps.indexOf(horizontalScale)
+        // as plot2d_columns::scaleIndex: the nearest step in proportion (develop's wheel leaves any tenth)
+        readonly property int horizontalScaleIndex: { var b = 0; for (var i = 1; i < steps.length; ++i) if (Math.abs(Math.log(horizontalScale / steps[i])) < Math.abs(Math.log(horizontalScale / steps[b]))) b = i; return b }
         property int stepCalls: 0
         function horizontalScaleSteps() { return steps }
         function stepHorizontalScaleBy(n) {
@@ -130,7 +131,7 @@ Item {
             box().increment(); compare(plot.horizontalScale, 2); compare(shown(), "x2")
             box().decrement(); compare(plot.horizontalScale, 1); compare(shown(), "x1")
             box().decrement(); compare(shown(), "x1/2")
-            box().decrement(); compare(plot.horizontalScale, 0.25); compare(shown(), "x1/4")
+            box().decrement(); compare(plot.horizontalScale, 0.2); compare(shown(), "x1/5")
             for (var i = 0; i < 6; ++i) box().decrement()
             compare(plot.horizontalScale, plot.steps[0], "held at the most compressed")
             compare(shown(), "x1/" + Math.round(1 / plot.steps[0]))
@@ -143,8 +144,10 @@ Item {
             plot.horizontalScale = 1
             box().increment()                 // the box set by a click first: the plot's change must still show
             compare(shown(), "x2")
-            plot.horizontalScale = 0.125      // as Alt + wheel sets it
-            compare(shown(), "x1/8")
+            plot.horizontalScale = 0.2        // as Alt + wheel sets it
+            compare(shown(), "x1/5")
+            plot.horizontalScale = 0.7        // a tenth between the steps: the nearest one shown
+            compare(shown(), "x1/2")
             plot.horizontalScale = 6
             compare(shown(), "x6")
         }
@@ -161,7 +164,7 @@ Item {
         function test_5_picture() {
             if (!"%PICTURE%".length)
                 return
-            plot.horizontalScale = 0.25
+            plot.horizontalScale = 0.2
             wait(100)
             grabImage(root).save("%PICTURE%")
         }

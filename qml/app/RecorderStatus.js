@@ -36,6 +36,10 @@ function linkState(dev) {
     return ""
 }
 
+function imuDegraded(dev) {
+    return !!(dev && dev.navSensorStatusValid && !dev.navSensorStatusStale && dev.imuState !== 0)
+}
+
 function pillState(dev, master, port) {
     // Silent on a live link (DevDriver dataStale): the link may still carry other devices' frames.
     if (dev && dev.linkConnected && dev.dataStale)
@@ -48,9 +52,8 @@ function pillState(dev, master, port) {
     // ports as lost; that is its own trouble, shown on it. A device behind it is shown by its own frames then
     // (owner 2026-09-30: the logger without its flash drive turned the working sonar red).
     var src = (master && severity(master) === "crit") ? "" : sourceState(master, port)
-    if (src === "good") return "ok"
-    if (src === "crit") return "down"
-    return linkState(dev)
+    var base = src === "good" ? "ok" : src === "crit" ? "down" : linkState(dev)
+    return (base === "ok" && imuDegraded(dev)) ? "warn" : base
 }
 
 function fmtSize(b) {

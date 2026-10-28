@@ -105,6 +105,8 @@ public:
     QList<DevQProperty*> getDevList(BoardVersion ver);
     int calcAverageChartLosses();
 
+    const QVector<qint64>& epochFileOffsets() const { return epochFileOffsets_; }
+
 public slots:
     /** Writes MAVLink bytes into the link the autopilot was last heard on; dropped when there is none. */
     void sendMavlinkBytes(const QByteArray& data) { emit writeMavlinkBytes(data); }
@@ -117,17 +119,15 @@ public slots:
     void initStreamList();
     void frameInput(QUuid uuid, Link* link, Parsers::FrameParser frame);
     void openFile(QString filePath);
-#ifdef SEPARATE_READING
-    void closeFile(bool onOpen = false);
-#else
     void closeFile();
-#endif
     void onLinkOpened(QUuid uuid, Link *link);
     void onLinkClosed(QUuid uuid, Link* link);
     void onLinkDeleted(QUuid uuid, Link* link);
     void binFrameOut(Parsers::ProtoBinOut protoOut);
     void setProtoBinConsoled(bool isConsoled);
     void setNmeaConsoled(bool isConsoled);
+    void setMavlinkConsoled(bool isConsoled);
+    void setUsblConsoled(bool isConsoled);
     void upgradeLastDev(QByteArray data);
 
     void beaconActivationReceive(uint8_t id);
@@ -158,6 +158,8 @@ public slots:
     void autopilotArm(bool arm, bool force);
     void autopilotSetMode(int customMode);
     void autopilotStartMission();
+    /** Sets the ground speed of the running mode in m/s (MAV_CMD_DO_CHANGE_SPEED, throttle unchanged); ignored unless positive. */
+    void autopilotSetSpeed(float speed);
     /**
      * Makes mission item @p seq (vehicle list index, 0 = home slot) the current one: the vehicle
      * goes to it on the shortest path, skipping the items in between. Sends
@@ -191,6 +193,7 @@ signals:
     void rawDataRecieved(const ChannelId& channelId, RawData rawData);
     void distComplete(const ChannelId& channelId, int dist);
     void usblSolutionComplete(IDBinUsblSolution::UsblSolution data);
+    void usblDiagComplete(IDBinUsblDiag::UsblSignalDiag data);
     void dopplerBeamComlete(IDBinDVL::BeamSolution* beams, uint16_t cnt);
     void dvlSolutionComplete(IDBinDVL::DVLSolution dvlSolution);
     void chartSetupChanged();
@@ -219,6 +222,9 @@ signals:
     void rangefinderComplete(const ChannelId& channelId, float distance);
     void positionComplete(double lat, double lon, uint32_t date, uint32_t time);
     void positionCompleteRTK(Position position);
+    void gnssAltitudeMslComplete(double altitudeMsl);
+    void gnssAltitudeEllipsoidComplete(double altitudeEllipsoid);
+    void gnssUtcComplete(qint64 unixUs);
     void depthComplete(float depth);
     void gnssVelocityComplete(double hSpeed, double course);
     void simpleNavV2Complete(uint8_t gnssFixType,
@@ -243,11 +249,6 @@ signals:
     // logger
     void sendProtoFrame(Parsers::ProtoBinOut protoOut);
 
-#ifdef SEPARATE_READING
-    void fileStartOpening();
-    void fileBreaked(bool);
-    void onFileReadEnough();
-#endif
     void fileOpened();
 
 private:
@@ -275,6 +276,8 @@ private:
     void resetAutopilot();
 
     /*data*/
+    QVector<qint64> epochFileOffsets_;
+
     struct VruData {
         VruData() :
             voltage(NAN),
@@ -353,14 +356,15 @@ private:
     QUuid lastUuid_;
     QUuid proxyLinkUuid_;
     QUuid mavlinUuid_;
+    int64_t mavlinkUnixOffsetUs_ = 0;
+    bool mavlinkUnixOffsetValid_ = false;
+    uint8_t mavlinkUnixOffsetSysId_ = 0;
+    uint32_t mavlinkLastPositionBootMs_ = 0;
     int lastAddress_;
     int progress_;
     bool isConsoled_;
     bool nmeaConsoled_;
-    volatile bool break_;
-#ifdef SEPARATE_READING
-    bool onOpen_{ false };
-#endif
+    bool mavlinkConsoled_;
 
     bool isUSBLBeaconDirectAsk = false;
     bool proxyTraffic_ = false;

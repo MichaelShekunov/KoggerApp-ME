@@ -58,6 +58,7 @@ public Q_SLOTS:
     void clearData() override;
     void isEpochsChanged(int lEpoch, int rEpoch, bool manual, bool redrawAll);
     void resetVertexSelection();
+    void clearVertexHighlight();
     void selectEpoch(int epochIndex, const ChannelId& channelId);
     void setVisibleState(bool state);
 

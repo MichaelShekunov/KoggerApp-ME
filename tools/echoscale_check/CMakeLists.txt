@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.22)
 
-# Standalone check of src/scene2d/plot2D_columns.h -- which ping each screen column of the echogram shows at
-# a horizontal scale, and where the echogram's ring cache keeps it. No Qt: the header has none.
+# Standalone check of src/scene2d/plot2D_columns.h -- the steps of the echogram's horizontal scale over
+# develop's timeline zoom. No Qt: the header has none.
 # Not part of the application build; tools/echoscale_check/run.ps1 builds and runs it.
 project(echoscale_check LANGUAGES CXX)
 

@@ -22,6 +22,9 @@
 #include <QStyleHints>
 #include <QLoggingCategory>
 #include <QFontDatabase>
+#include <QHostAddress>
+#include <QDebug>
+#include <algorithm>
 #if defined(Q_OS_WIN)
 #include <windows.h>
 #endif
@@ -51,6 +54,9 @@
 #include "app_log.h"
 #include "settings_migration.h"
 #include "video_stream_pool.h"
+#include "link_discovery.h"
+#include "control_server.h"
+#include "tutorial.h"
 
 
 // NOLINTBEGIN(bugprone-throwing-static-initialization): application-lifetime singletons; a throw here is a fatal startup failure with nothing to catch
@@ -62,11 +68,11 @@ EchogramStateSerializer echogramStateSerializer;
 Notifications notifications;
 VideoStreamPool videoStreams;
 QTranslator translator;
-// NOLINTEND(bugprone-throwing-static-initialization)
 
 #ifndef Q_OS_ANDROID
 InstanceLock instanceLock;
 #endif
+// NOLINTEND(bugprone-throwing-static-initialization)
 
 
 // The language chosen, or the system's when the app has it (LanguageController: the languages, the setting).
@@ -294,6 +300,101 @@ void bringWindowToFront(QWindow* window)
 #endif
 
 
+struct ControlEndpoint {
+    QHostAddress address = QHostAddress::LocalHost;
+    quint16      port = 0;
+    QString      token;
+    QString      artifactRoot;
+};
+
+static bool resolveControlEndpoint(const QStringList& args, int instanceIndex, ControlEndpoint& out)
+{
+    static const QString kTcpFlag       = QStringLiteral("--control-tcp");
+    static const QString kTokenFlag     = QStringLiteral("--control-token=");
+    static const QString kArtifactsFlag = QStringLiteral("--control-artifacts=");
+    static const QStringList kOff       = {QStringLiteral("0"), QStringLiteral("false"), QStringLiteral("off"), QStringLiteral("no")};
+
+    QString spec;
+    bool enabled = false;
+    for (const QString& a : args) {
+        if (a == kTcpFlag) {
+            enabled = true;
+        } else if (a.startsWith(kTcpFlag + QLatin1Char('='))) {
+            enabled = true;
+            spec = a.mid(kTcpFlag.size() + 1);
+        } else if (a.startsWith(kTokenFlag)) {
+            out.token = a.mid(kTokenFlag.size());
+        } else if (a.startsWith(kArtifactsFlag)) {
+            out.artifactRoot = a.mid(kArtifactsFlag.size());
+        }
+    }
+    if (!enabled) {
+        const QString env = qEnvironmentVariable("KOGGER_CONTROL_TCP");
+        if (!env.isEmpty() && !kOff.contains(env, Qt::CaseInsensitive)) {
+            enabled = true;
+            if (env != QLatin1String("1")) {
+                spec = env;
+            }
+        }
+    }
+    if (out.token.isEmpty()) {
+        out.token = qEnvironmentVariable("KOGGER_CONTROL_TOKEN");
+    }
+    if (out.artifactRoot.isEmpty()) {
+        out.artifactRoot = qEnvironmentVariable("KOGGER_CONTROL_ARTIFACTS");
+    }
+    if (!enabled || kOff.contains(spec, Qt::CaseInsensitive)) {
+        return false;
+    }
+
+    out.port = static_cast<quint16>(ControlServer::kBasePort + instanceIndex);
+    if (spec.isEmpty()) {
+        return true;
+    }
+
+    QString host;
+    QString portStr;
+    const bool digitsOnly = std::all_of(spec.cbegin(), spec.cend(), [](QChar c) { return c.isDigit(); });
+    if (digitsOnly) {
+        portStr = spec;
+    } else if (spec.count(QLatin1Char(':')) > 1 && !spec.startsWith(QLatin1Char('['))) {
+        host = spec;
+    } else if (spec.startsWith(QLatin1Char('['))) {
+        const int close = spec.indexOf(QLatin1Char(']'));
+        if (close < 0) {
+            qWarning().noquote() << QStringLiteral("control: malformed endpoint \"%1\"").arg(spec);
+            return false;
+        }
+        host = spec.mid(1, close - 1);
+        if (spec.size() > close + 1 && spec.at(close + 1) == QLatin1Char(':')) {
+            portStr = spec.mid(close + 2);
+        }
+    } else {
+        const int colon = spec.lastIndexOf(QLatin1Char(':'));
+        host = colon >= 0 ? spec.left(colon) : spec;
+        portStr = colon >= 0 ? spec.mid(colon + 1) : QString();
+    }
+
+    if (!host.isEmpty()) {
+        const QHostAddress addr(host);
+        if (addr.isNull()) {
+            qWarning().noquote() << QStringLiteral("control: bad host \"%1\"").arg(host);
+            return false;
+        }
+        out.address = addr;
+    }
+    if (!portStr.isEmpty()) {
+        bool ok = false;
+        const uint p = portStr.toUInt(&ok);
+        if (!ok || p == 0 || p > 65535) {
+            qWarning().noquote() << QStringLiteral("control: bad port \"%1\"").arg(portStr);
+            return false;
+        }
+        out.port = static_cast<quint16>(p);
+    }
+    return true;
+}
+
 int main(int argc, char *argv[])
 {
 #ifdef Q_OS_ANDROID
@@ -343,9 +444,9 @@ int main(int argc, char *argv[])
     QLoggingCategory::setFilterRules(loggingRules);
 
 #if defined(Q_OS_ANDROID)
-    AppLog::instance().start(AppLog::fallbackDirectory(), QStringLiteral("kogger"), 4 * 1024 * 1024, 3);
+    AppLog::instance().start(AppLog::fallbackDirectory(), QStringLiteral("kogger"), 4LL * 1024 * 1024, 3);
 #else
-    AppLog::instance().start(AppLog::defaultDirectory(), QStringLiteral("kogger"), 8 * 1024 * 1024, 5);
+    AppLog::instance().start(AppLog::defaultDirectory(), QStringLiteral("kogger"), 8LL * 1024 * 1024, 5);
 #endif
 
     previousMessageHandler = qInstallMessageHandler(videoLogHandler);
@@ -389,6 +490,9 @@ int main(int argc, char *argv[])
     SystemBattery systemBattery;
     SystemMonitor systemMonitor;   // the "System" widget: CPU, temperatures, memory, volumes
     core.initAfterApp();
+    LinkDiscovery linkDiscovery(core.getLinkManagerWrapperPtr());
+    Tutorial tutorial;
+    tutorial.loadFromDirectory(QStringLiteral(":/tutorial"));
 
     //qDebug() << "Lib paths:" << QCoreApplication::libraryPaths();
     //qDebug() << "SQL drivers:" << QSqlDatabase::drivers();
@@ -403,6 +507,9 @@ int main(int argc, char *argv[])
 
     setApplicationDisplayName(app);
     UdpDiscovery udpDiscovery;   // поиск приборов в сети, кнопка Discover
+    UiProbe uiProbe;
+    ControlServer controlServer;
+
     QQmlApplicationEngine engine;
     engine.addImportPath("qrc:/");
     engine.addImportPath("qrc:/qml");
@@ -438,7 +545,10 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("missionPlan", core.getMissionPlanControllerPtr());
     engine.rootContext()->setContextProperty("missionRun", core.getMissionRunTrackerPtr());
     videoStreams.setSourceModel(core.getLinkManagerWrapperPtr()->getModelPtr());
+    QObject::connect(&videoStreams, &VideoStreamPool::streamingChanged,
+                     core.getLinkManagerWrapperPtr(), &LinkManagerWrapper::setVideoStreaming);
     engine.rootContext()->setContextProperty("videoStreams", &videoStreams);
+    engine.rootContext()->setContextProperty("linkDiscovery", &linkDiscovery);
     engine.rootContext()->setContextProperty("logViewer", core.getConsolePtr());
     engine.rootContext()->setContextProperty("usbTap", core.getUsbTapPtr());
     engine.rootContext()->setContextProperty("udpDiscovery", &udpDiscovery);
@@ -469,12 +579,10 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("systemMonitor", &systemMonitor);
     engine.rootContext()->setContextProperty("langController", &langController);
     engine.rootContext()->setContextProperty("appUtils", &appUtils);
+    engine.rootContext()->setContextProperty("tutorial", &tutorial);
 
-    // Machine-readable UI verification. Costs nothing unless KOGGER_UI_PROBE names an
-    // output directory; exposed to QML so an interaction test can dump at a chosen
-    // moment instead of on a timer.
-    UiProbe uiProbe;
     engine.rootContext()->setContextProperty("uiProbe", &uiProbe);
+    engine.rootContext()->setContextProperty("controlServer", &controlServer);
 
     // KOGGER_ECHOEDIT_SCRIPT: echogram edits made by a script on an opened recording
     // (tools/perf/echoedit_e2e.ps1). Nothing happens unless it is set.
@@ -492,6 +600,9 @@ int main(int argc, char *argv[])
 #endif
 
     uiStateSerializer.setLinkManagerWrapper(core.getLinkManagerWrapperPtr());
+    QObject::connect(&uiStateSerializer, &UIStateSerializer::settingsImported, &langController, &LanguageController::reloadFromSettings);
+    QObject::connect(&uiStateSerializer, &UIStateSerializer::settingsImported, &theme,          &Themes::reloadFromSettings);
+    QObject::connect(&uiStateSerializer, &UIStateSerializer::settingsImported, &core,           &Core::reloadStartupSettings);
 
     QObject::connect(&langController, &LanguageController::currentIndexChanged, &engine, [&engine, &app, &langController, &inputDeviceTracker]() {
         emit langController.aboutToRetranslate();
@@ -501,6 +612,8 @@ int main(int argc, char *argv[])
         emit inputDeviceTracker.currentModeChanged();
         emit langController.retranslated();
     });
+    QObject::connect(&langController, &LanguageController::retranslated, &tutorial, &Tutorial::retranslate);
+    QObject::connect(&uiStateSerializer, &UIStateSerializer::settingsImported, &tutorial, &Tutorial::reloadProgress);
 
     QObject::connect(&theme, &Themes::interfaceChanged, &core, []() {
         core.setConsoleOutputEnabled(theme.consoleVisible());
@@ -528,8 +641,14 @@ int main(int argc, char *argv[])
 #ifndef Q_OS_ANDROID
     {
         const QStringList appArgs = app.arguments();
-        if (appArgs.size() > 1) {
-            const QString& startupFilePath = appArgs.at(1);
+        QString startupFilePath;
+        for (int i = 1; i < appArgs.size(); ++i) {
+            if (!appArgs.at(i).startsWith(QLatin1String("--"))) {
+                startupFilePath = appArgs.at(i);
+                break;
+            }
+        }
+        if (!startupFilePath.isEmpty()) {
             auto* startupConn = new QMetaObject::Connection;
             *startupConn = QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
                                             &core, [startupFilePath, startupConn, url](QObject* obj, const QUrl& objUrl) {
@@ -549,9 +668,58 @@ int main(int argc, char *argv[])
         mainWindow = qobject_cast<QQuickWindow*>(rootObject);
         // What the GUI and render threads do when the UI stops (the head unit's hangs): kogger.log and stall.log.
         StallMonitor::instance().start(mainWindow, AppLog::instance().directory());
-        if (mainWindow && UiProbe::isEnabled()) {
+        if (mainWindow) {
             uiProbe.setWindow(mainWindow);
+            tutorial.setWindow(mainWindow);
+        }
+        if (mainWindow && UiProbe::isEnabled()) {
             uiProbe.armFromEnvironment();
+        }
+
+        {
+            ControlEndpoint endpoint;
+            if (resolveControlEndpoint(app.arguments(), appUtils.instanceIndex(), endpoint)) {
+                controlServer.registerObject(QStringLiteral("core"),                 &core);
+                controlServer.registerObject(QStringLiteral("dataset"),              core.getDatasetPtr());
+                controlServer.registerObject(QStringLiteral("theme"),                &theme);
+                controlServer.registerObject(QStringLiteral("linkManagerWrapper"),   core.getLinkManagerWrapperPtr());
+                controlServer.registerObject(QStringLiteral("deviceManagerWrapper"), core.getDeviceManagerWrapperPtr());
+                controlServer.registerObject(QStringLiteral("deviceTopology"),       core.getDeviceTopologyModelPtr());
+                controlServer.registerObject(QStringLiteral("missionPlan"),            core.getMissionPlanControllerPtr());
+                controlServer.registerObject(QStringLiteral("videoStreams"),         &videoStreams);
+                controlServer.registerObject(QStringLiteral("linkDiscovery"),        &linkDiscovery);
+                controlServer.registerObject(QStringLiteral("logViewer"),            core.getConsolePtr());
+                controlServer.registerObject(QStringLiteral("uiStateSerializer"),    &uiStateSerializer);
+                controlServer.registerObject(QStringLiteral("echogramStateSerializer"), &echogramStateSerializer);
+                controlServer.registerObject(QStringLiteral("notifications"),        &notifications);
+                controlServer.registerObject(QStringLiteral("inputDeviceTracker"),   &inputDeviceTracker);
+                controlServer.registerObject(QStringLiteral("systemBattery"),        &systemBattery);
+                controlServer.registerObject(QStringLiteral("langController"),       &langController);
+                controlServer.registerObject(QStringLiteral("appUtils"),             &appUtils);
+                controlServer.registerObject(QStringLiteral("uiProbe"),              &uiProbe);
+                controlServer.registerObject(QStringLiteral("tutorial"),             &tutorial);
+                controlServer.registerObject(QStringLiteral("root"),                 rootObject);
+                if (auto* store = rootObject->findChild<QObject*>(QStringLiteral("workspaceStore"))) {
+                    controlServer.registerObject(QStringLiteral("workspaceStore"), store);
+                }
+                static const char* const kSceneControllerRoots[] = {
+                    "BoatTrackControlMenuController", "NavigationArrowControlMenuController",
+                    "BottomTrackControlMenuController", "IsobathsViewControlMenuController",
+                    "MosaicViewControlMenuController", "ImageViewControlMenuController",
+                    "MapViewControlMenuController", "PointGroupControlMenuController",
+                    "PolygonGroupControlMenuController", "MpcFilterControlMenuController",
+                    "NpdFilterControlMenuController", "Scene3DControlMenuController",
+                    "Scene3dToolBarController", "hotkeysController", "contacts"};
+                for (const char* name : kSceneControllerRoots) {
+                    const QString key = QString::fromLatin1(name);
+                    if (auto* obj = engine.rootContext()->contextProperty(key).value<QObject*>()) {
+                        controlServer.registerObject(key, obj);
+                    }
+                }
+                controlServer.setUiProbe(&uiProbe);
+                controlServer.setArtifactRoot(endpoint.artifactRoot);
+                controlServer.start(endpoint.address, endpoint.port, endpoint.token);
+            }
         }
 #if defined(Q_OS_WIN)
         if (auto* window = qobject_cast<QWindow*>(rootObject)) {
@@ -584,12 +752,10 @@ int main(int argc, char *argv[])
     const int retCode = app.exec();
 
     core.getEchogramEditorPtr()->flush();   // before anything is torn down
+    controlServer.stop();
     core.shutdownBackgroundWorkers();
     core.saveLLARefToSettings();
     core.removeLinkManagerConnections();
-#ifdef SEPARATE_READING
-    core.stopDeviceManagerThread();
-#endif
 
     AppLog::instance().stop();
 

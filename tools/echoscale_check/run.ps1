@@ -2,7 +2,7 @@
 <#
 .SYNOPSIS
     Builds and runs tools/echoscale_check, the offline check of the echogram's horizontal scale
-    (src/scene2d/plot2D_columns.h), with the toolchain of scripts\win_build_release.ps1.
+    (src/scene2d/plot2D_columns.h: the horizontal scale's steps), with the toolchain of scripts\win_build_release.ps1.
 
 .DESCRIPTION
     Exit code 0 when every check passes. With -Mutants it also builds the check against copies of the
@@ -64,22 +64,12 @@ if ($code -ne 0 -or -not $Mutants) { exit $code }
 # One fault each, in a copy of the header. The text to replace must be there: a mutant that changes
 # nothing would pass and look like a gap in the check.
 $faults = @(
-    @{ Name = 'a compressed column shows the group''s first'; From = 'std::min<long long>(v * n + n - 1, shown - 1)'; To = 'std::min<long long>(v * n, shown - 1)' },
-    @{ Name = 'the partial group shows pings not come';  From = 'std::min<long long>(v * n + n - 1, shown - 1)'; To = '(v * n + n - 1)' },
-    @{ Name = 'stretched columns one off';               From = 'v0 = (long long)shown * k - width;'; To = 'v0 = (long long)shown * k - width + 1;' },
-    @{ Name = 'the partial group left out';              From = 'const long long groups = shown > 0 ? (shown + n - 1) / n : 0;'; To = 'const long long groups = shown > 0 ? shown / n : 0;' },
-    @{ Name = 'a stretched ping a column late';          From = 'e = (n == 1) ? v / k :'; To = 'e = (n == 1) ? (v + 1) / k :' },
-    @{ Name = 'the ring position below zero';            From = 'return int(r < 0 ? r + width : r);'; To = 'return int(r);' },
-    @{ Name = 'the ring does not turn';                  From = '    return v0;'; To = '    return 0;' },
-    @{ Name = 'nearest by difference';                   From = 'std::fabs(std::log(scale / kScales[i]))'; To = 'std::fabs(scale - kScales[i])' },
-    @{ Name = 'a bad scale is the smallest';             From = "        return 4;`n    }"; To = "        return 0;`n    }" },
-    @{ Name = 'the most compressed step out of reach';   From = 'std::clamp(scaleIndex(scale) + steps, 0, kScaleCount - 1)'; To = 'std::clamp(scaleIndex(scale) + steps, 1, kScaleCount - 1)' },
-    @{ Name = 'a column reaches its own ping only';      From = 'return (n > 1 && shownPing >= 0) ? (shownPing / n) * n : shownPing;'; To = 'return shownPing;' },
-    @{ Name = 'a ping found only where it is shown';     From = 'return (e == ping || (n > 1 && e / n == ping / n)) ? column : -1;'; To = 'return (e == ping) ? column : -1;' },
-    @{ Name = 'a step keeps the ping a run left';        From = ': anchorPing + (right + k) / k;'; To = ': anchorPing + right / k;' },
-    @{ Name = 'a step keeps the group a group left';     From = 'anchorPing + right * n + 1'; To = 'anchorPing + right * n' },
-    @{ Name = 'the oldest shown a group late';           From = 'return int(std::max<long long>(groups - width, 0) * n);'; To = 'return int(std::max<long long>(groups - width + 1, 0) * n);' },
-    @{ Name = 'the oldest stretched shown a ping early';  From = 'return int(std::max<long long>(v0, 0) / k);'; To = 'return int(std::max<long long>(v0 - k, 0) / k);' }
+    @{ Name = 'nearest by difference';                 From = 'std::fabs(std::log(scale / kScales[i]))'; To = 'std::fabs(scale - kScales[i])' },
+    @{ Name = 'a bad scale is the smallest';           From = "        return kScaleOne;`n    }`n    int best"; To = "        return 0;`n    }`n    int best" },
+    @{ Name = 'the most compressed step out of reach'; From = 'std::clamp(scaleIndex(scale) + steps, 0, kScaleCount - 1)'; To = 'std::clamp(scaleIndex(scale) + steps, 1, kScaleCount - 1)' },
+    @{ Name = 'a step develop''s snap moves';          From = '{ 0.1f, 0.2f, 0.5f,'; To = '{ 0.1f, 0.25f, 0.5f,' },
+    @{ Name = 'one is not at kScaleOne';               From = 'kScaleOne = 3;'; To = 'kScaleOne = 4;' },
+    @{ Name = 'the steps stop at 8';                   From = '6.0f, 8.0f, 10.0f }'; To = '6.0f, 8.0f, 8.0f }' }
 )
 
 $utf8 = New-Object System.Text.UTF8Encoding $false

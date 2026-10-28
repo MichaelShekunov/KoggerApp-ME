@@ -40,6 +40,7 @@ public slots:
     void onLinkIsReceivesDataChanged(QUuid uuid);
     void onLinkDataFlowNotify(QUuid uuid);
     void onLinkAvailabilityNotify(QUuid uuid);
+    void onLinkOpenFailed(QUuid uuid, QString reason);
     void createAndStartTimer();
     void stopTimer();
     void onExpiredTimer();
@@ -56,6 +57,7 @@ public slots:
     void setParity(QUuid uuid, bool parity);
     void setAttribute(QUuid uuid, LinkAttribute attribute);
     void updateAddress(QUuid uuid, const QString& address);
+    void updateCustomName(QUuid uuid, const QString& customName);
     void updateAutoSpeedSelection(QUuid uuid, bool state);
     void updateSourcePort(QUuid uuid,int sourcePort);
     void updateDestinationPort(QUuid uuid,int destinationPort);
@@ -64,9 +66,11 @@ public slots:
     void frameInput(Link* link, Parsers::FrameParser frame);
     void createAsUdp(QString address, int sourcePort, int destinationPort);
     void createAndOpenAsUdp(QString address, int sourcePort, int destinationPort);
+    void adoptDiscoveredUdp(QString address, int sourcePort, int destinationPort, QString customName, bool open);
     void createAsTcp(QString address, int sourcePort, int destinationPort);
-    void createAsRtsp(QString address);
-    void openAsRtsp(QUuid uuid, QString address);
+    void createAsVideo(QString address);
+    void openAsVideo(QUuid uuid, QString address);
+    void setVideoStreaming(QUuid uuid, bool streaming);
     void importPinnedLinksFromXML();
     void openFLinks();
     void createAndOpenAsUdpProxy(QString address, int sourcePort, int destinationPort);
@@ -76,7 +80,7 @@ public slots:
 signals:
     void appendModifyModel(QUuid uuid, bool connectionStatus, bool receivesData, ControlType controlType, QString portName, int baudrate, bool parity,
                         LinkType linkType, QString address, int sourcePort, int destinationPort, bool isPinned, bool isHided, bool isNotAvailable,
-                        bool autoSpeedSelection, bool isUpgradingState);
+                        bool autoSpeedSelection, bool isUpgradingState, QString customName);
     void deleteModel(QUuid uuid);
     void linkCreatedInteractively(QUuid uuid);
     void frameReady(QUuid uuid, Link* link, Parsers::FrameParser frame);
@@ -114,6 +118,7 @@ private:
         bool isHided = false;
         bool isNotAvailable = false;
         bool autoSpeedSelection = false;
+        QString customName;
     };
 
     /*methods*/

@@ -4,6 +4,7 @@ qt_add_qml_module(kogger_scene3d
     QML_FILES
         BoatMissionLayer.qml
         BoatMissionPanel.qml
+        Scene3DDepthLegend.qml
         Scene3DGeometryPanel.qml
         Scene3DLayerControl.qml
         Scene3DRightToolbar.qml

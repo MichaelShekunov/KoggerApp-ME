@@ -13,8 +13,51 @@ WaterFall {
     id: plot
 
     property bool is3dVisible: false
+    property rect controlsAvoidRect: Qt.rect(0, 0, 0, 0)
+    readonly property real controlsTopClearance: {
+        const r = controlsAvoidRect
+        if (r.width <= 0 || r.height <= 0 || width <= 0 || height <= 0)
+            return 0
+        const origin = plot.mapToItem(null, 0, 0)
+        const columnLeft = origin.x + Math.round(10 * AppPalette.scale) + edgeSafetyMargin
+        const columnRight = columnLeft + controlButtonSize
+        if (r.x >= columnRight || r.x + r.width <= columnLeft || r.y + r.height <= origin.y)
+            return 0
+        return r.y + r.height - origin.y
+    }
     property bool scrollBarsShown: true
     property bool isLiveMode: core.openedFilePath.length === 0
+    property bool pointerHeld: false
+    property bool _holdBeforeTap: false
+    property real _lastPressMs: 0
+    liveHoldEnabled: isLiveMode
+    liveHoldPaused: pointerHeld || pinchActive || scrollMouseH.pressed || scrollMouseV.pressed || contactDialog.visible
+                    || (typeof core !== "undefined" && core && core.contactPlacementArmed)
+    onLiveReturnRequested: {
+        cancelSmoothScroll()
+        if (plot.horizontal)
+            snapToEndH.start()
+        else
+            snapToEndV.start()
+    }
+    onSmoothScrollStepped: function(horizontal, sync) {
+        if (horizontal) {
+            updateOtherPlot(indx)
+            if (sync)
+                syncTimeToOthers()
+        }
+        else {
+            plotCursorChanged(indx, cursorFrom(), cursorTo())
+            if (sync)
+                syncVerticalToOthers()
+        }
+    }
+    onLiveHoldChanged: {
+        if (liveHoldActive) {
+            snapToEndH.stop()
+            snapToEndV.stop()
+        }
+    }
     onIsLiveModeChanged: {
         if (isLiveMode) {
             timelinePosition = 1.0
@@ -26,6 +69,7 @@ WaterFall {
         target: core
         function onChannelListUpdated() {
             if (plot.isLiveMode) {
+                plot.cancelLiveHold()
                 plot.timelinePosition = 1.0
                 updateOtherPlot(plot.indx)
             }
@@ -52,7 +96,7 @@ WaterFall {
                               : ((instrumentsGradeList && typeof instrumentsGradeList.currentIndex === "number")
                                  ? instrumentsGradeList.currentIndex : 0)
     property bool settingsOpen: plotCheckButton.checked
-    property bool hasTransientUi: menuBlock.visible || contactDialog.visible
+    property bool hasTransientUi: contactDialog.visible
     property bool loupeZoomAdjusting: false
     property bool loupeZoomWasVisibleBeforeAdjust: false
     property int loupeZoomSavedAimEpoch: -1
@@ -62,6 +106,7 @@ WaterFall {
     // touch near the pane border drags the split instead of jabbing a button.
     readonly property real edgeSafetyMargin: AppPalette.splitHitSizePx / 2
     readonly property int  scrollEdgeMargin: Math.round(6 * AppPalette.scale) + plot.edgeSafetyMargin
+    readonly property int  liveEdgeGap: Math.round(6 * AppPalette.scale)
     readonly property color scrollThumbColor: theme.controlBorderColor   // цвет темы
     readonly property real scrollThumbOpacity: 0.7                        // resting; pressed → 1.0 (opaque)
     property alias viewState: echoViewState
@@ -71,17 +116,14 @@ WaterFall {
     property bool externalInputRouting: false
     property int pointerLastMouseX: -1
     property int pointerLastMouseY: -1
-    property bool pointerWasMoved: false
-    property point pointerStartMousePos: Qt.point(-1, -1)
-    property real pointerMouseThreshold: 15
-    property int pointerContactMouseX: -1
-    property int pointerContactMouseY: -1
     property int pinchThresholdXAxis: 15
     property int pinchThresholdYAxis: 15
     property double pinchZoomThreshold: 0.1
     property bool pinchMovementX: false
     property bool pinchMovementY: false
     property bool pinchZoomY: false
+    property bool pinchZoomX: false
+    property bool pinchAlongTime: false
     property point pinchStartPos: Qt.point(-1, -1)
     property bool pinchActive: false
 
@@ -267,11 +309,6 @@ WaterFall {
     function closeTransientUi() {
         let handled = false
 
-        if (menuBlock.visible) {
-            menuBlock.visible = false
-            handled = true
-        }
-
         if (contactDialog.visible) {
             contactDialog.visible = false
             handled = true
@@ -307,6 +344,7 @@ WaterFall {
         pinchMovementX = false
         pinchMovementY = false
         pinchZoomY = false
+        pinchZoomX = false
     }
 
     function handlePointerClick(mouseButton, buttons, x, y, keyboardKey) {
@@ -314,34 +352,32 @@ WaterFall {
         pointerLastMouseY = y
         forceActiveFocus()
 
-        if (mouseButton === Qt.RightButton) {
-            pointerContactMouseX = x
-            pointerContactMouseY = y
+        if (mouseButton === Qt.LeftButton && typeof core !== "undefined" && core && core.contactPlacementArmed) {
             plot.simplePlotMousePosition(x, y)
-
-            if (theme.instrumentsGrade !== 0) {
-                menuBlock.position(x, y)
-            }
+            contactDialog.x = x
+            contactDialog.y = y
+            contactDialog.indx = -1
+            contactDialog.isActive = false
+            contactDialog.visible = true
         }
-
-        pointerWasMoved = false
     }
 
     function handlePointerPress(mouseButton, buttons, x, y, keyboardKey) {
         markMouseKeyboardInput()
+        pointerHeld = true
+        cancelSmoothScroll()
+        const now = Date.now()
+        if (now - _lastPressMs > 500)
+            _holdBeforeTap = liveHoldActive
+        _lastPressMs = now
+        holdLiveView()
         scrollBarsShown = true
         scrollHideTimer.restart()
         pointerLastMouseX = x
         pointerLastMouseY = y
         forceActiveFocus()
 
-        if (Qt.platform.os === "android") {
-            pointerStartMousePos = Qt.point(x, y)
-            longPressTimer.start()
-        }
-
         if (mouseButton === Qt.LeftButton) {
-            menuBlock.visible = false
             if (_touchScrollAllowed()) {
                 _touchReset()
                 _touchState = 1
@@ -357,14 +393,6 @@ WaterFall {
             }
             if (typeof core !== "undefined" && core) core.requestDismissTransientUi()
         }
-
-        if (mouseButton === Qt.RightButton) {
-            pointerContactMouseX = x
-            pointerContactMouseY = y
-            plot.simplePlotMousePosition(x, y)
-        }
-
-        pointerWasMoved = false
     }
 
     function handlePointerMove(buttons, x, y, keyboardKey) {
@@ -377,15 +405,6 @@ WaterFall {
         }
         plot.onCursorMoved(x, y)
 
-        if (Qt.platform.os === "android") {
-            if (!pointerWasMoved) {
-                var currDelta = Math.sqrt(Math.pow((x - pointerStartMousePos.x), 2) + Math.pow((y - pointerStartMousePos.y), 2))
-                if (currDelta > pointerMouseThreshold) {
-                    pointerWasMoved = true
-                }
-            }
-        }
-
         pointerLastMouseX = x
         pointerLastMouseY = y
 
@@ -393,22 +412,13 @@ WaterFall {
             plot.plotMousePosition(x, y)
             plotPressed(indx, x, y)
         }
-
-        if (buttons & Qt.RightButton) {
-            pointerContactMouseX = x
-            pointerContactMouseY = y
-            plot.simplePlotMousePosition(x, y)
-        }
     }
 
     function handlePointerRelease(mouseButton, buttons, x, y, keyboardKey) {
         markMouseKeyboardInput()
+        pointerHeld = false
         pointerLastMouseX = -1
         pointerLastMouseY = -1
-
-        if (Qt.platform.os === "android") {
-            longPressTimer.stop()
-        }
 
         if (mouseButton === Qt.LeftButton) {
             // a tap: what a mouse press and release there did
@@ -418,14 +428,6 @@ WaterFall {
             plot.plotMousePosition(-1, -1)
         }
 
-        if (mouseButton === Qt.RightButton) {
-            pointerContactMouseX = x
-            pointerContactMouseY = y
-            plot.simplePlotMousePosition(x, y)
-        }
-
-        pointerWasMoved = false
-        pointerStartMousePos = Qt.point(-1, -1)
         plotReleased(indx)
     }
 
@@ -433,15 +435,10 @@ WaterFall {
         markMouseKeyboardInput()
         _touchReset()
         plot.plotMousePosition(-1, -1)   // ends a stroke of an edit tool as a release does
+        pointerHeld = false
         pointerLastMouseX = -1
         pointerLastMouseY = -1
 
-        if (Qt.platform.os === "android") {
-            longPressTimer.stop()
-        }
-
-        pointerWasMoved = false
-        pointerStartMousePos = Qt.point(-1, -1)
         plotReleased(indx)
     }
 
@@ -449,32 +446,51 @@ WaterFall {
         markMouseKeyboardInput()
 
         if (modifiers & Qt.AltModifier) {
-            // The horizontal scale: up stretches the pings, down compresses the history. Windows turns the
-            // wheel horizontal while Alt is held, so the turn comes in x.
-            plot.horZoomEvent(angleDelta.y !== 0 ? angleDelta.y : angleDelta.x, x, y)
-            updateOtherPlot(indx)
-            syncTimeToOthers()   // the ping under the pointer stays, so the newest one shown may move
-            return
+            snapToEndH.stop()
+            snapToEndV.stop()
+            plot.smoothTimeZoom(angleDelta.y !== 0 ? angleDelta.y : angleDelta.x, x, y, true)
         }
-
-        if (modifiers & Qt.ControlModifier) {
-            let val = -angleDelta.y
-            plot.verZoomEvent(val)
-            plotCursorChanged(indx, cursorFrom(), cursorTo())
-            syncVerticalToOthers()
+        else if (modifiers & Qt.ControlModifier) {
+            plot.smoothVerZoom(-angleDelta.y, true)
         }
         else if (modifiers & Qt.ShiftModifier) {
-            let val = -angleDelta.y
-            plot.verScrollEvent(val)
-            plotCursorChanged(indx, cursorFrom(), cursorTo())
-            syncVerticalToOthers()
+            plot.smoothVerScroll(-angleDelta.y, true)
         }
         else {
-            let val = angleDelta.y
-            plot.horScrollEvent(val)
-            updateOtherPlot(indx)
-            syncTimeToOthers()
+            snapToEndH.stop()
+            snapToEndV.stop()
+            plot.smoothHorScroll(angleDelta.y, true)
         }
+    }
+
+    function resetVerticalScaleFromUi() {
+        resetVerticalScale()
+        plotCursorChanged(indx, cursorFrom(), cursorTo())
+        if (typeof core !== "undefined" && core)
+            core.broadcastEchogramVerticalReset(plot)
+    }
+
+    function resetHorizontalScaleFromUi() {
+        resetHorizontalScale()
+        updateOtherPlot(indx)
+        syncTimeToOthers()
+    }
+
+    function endScrollbarDrag(nearLiveEnd) {
+        endTimelineDrag()
+        finishScrollDrag(nearLiveEnd)
+    }
+
+    function releaseTapHold() {
+        if (!_holdBeforeTap && liveHoldActive)
+            resumeLiveScroll()
+    }
+
+    function finishScrollDrag(nearLiveEnd) {
+        if (nearLiveEnd)
+            returnToLiveNow()
+        else
+            holdLiveView()
     }
 
     function syncTimeToOthers() {
@@ -487,14 +503,15 @@ WaterFall {
             core.broadcastEchogramVertical(plot, cursorFrom(), cursorTo())
     }
 
-    function handlePinchStarted(centerX, centerY) {
+    function handlePinchStarted(centerX, centerY, fingersHorizontal) {
         markTouchInput()
         _touchReset()
         pinchActive = true
-        menuBlock.visible = false
+        cancelSmoothScroll()
         plot.plotMousePosition(-1, -1)
         clearPinchMovementState()
         pinchStartPos = Qt.point(centerX, centerY)
+        pinchAlongTime = fingersHorizontal === true ? plot.horizontal : (fingersHorizontal === false && !plot.horizontal)
     }
 
     function handlePinchUpdated(prevCenterX, prevCenterY, currCenterX, currCenterY, prevScale, scale, prevAngle, angle) {
@@ -517,6 +534,12 @@ WaterFall {
             plotCursorChanged(indx, cursorFrom(), cursorTo())
             syncVerticalToOthers()
         }
+        else if (pinchZoomX) {
+            if (prevScale > 0)
+                plot.pinchTimeZoom(prevCenterX, prevCenterY, currCenterX, currCenterY, scale / prevScale)
+            updateOtherPlot(indx)
+            syncTimeToOthers()
+        }
         else {
             if (Math.abs(pinchStartPos.x - currCenterX) > pinchThresholdXAxis) {
                 pinchMovementX = true
@@ -525,13 +548,21 @@ WaterFall {
                 pinchMovementY = true
             }
             else if (scale > (1.0 + pinchZoomThreshold) || scale < (1.0 - pinchZoomThreshold)) {
-                pinchZoomY = true
+                if (pinchAlongTime)
+                    pinchZoomX = true
+                else
+                    pinchZoomY = true
             }
         }
     }
 
     function handlePinchFinished() {
         markTouchInput()
+        if (pinchZoomX) {
+            plot.settleTimeZoom()
+            updateOtherPlot(indx)
+            syncTimeToOthers()
+        }
         pinchActive = false
         plot.plotMousePosition(-1, -1)
         clearPinchMovementState()
@@ -543,7 +574,12 @@ WaterFall {
         if (enabled) {
             update();
         }
+        else {
+            pointerHeld = false
+        }
     }
+
+    onVisibleChanged: if (!visible) pointerHeld = false
 
     Component.onCompleted: {
         setPlotEnabled(enabled)
@@ -579,6 +615,7 @@ WaterFall {
         function onActiveTransientUiChanged(who) {
             if (who !== themeSwitcher) themeSwitcher.menuOpen = false
             if (who !== levelPill) levelPill.close()
+            if (who !== scalePill) scalePill.close()
         }
     }
 
@@ -587,7 +624,8 @@ WaterFall {
         anchors.fill: parent
         enabled: !plot.externalInputRouting
 
-        onPinchStarted: plot.handlePinchStarted(pinch.center.x, pinch.center.y)
+        onPinchStarted: plot.handlePinchStarted(pinch.center.x, pinch.center.y,
+                                                Math.abs(pinch.point1.x - pinch.point2.x) >= Math.abs(pinch.point1.y - pinch.point2.y))
 
         onPinchUpdated: plot.handlePinchUpdated(pinch.previousCenter.x, pinch.previousCenter.y,
                                                  pinch.center.x, pinch.center.y,
@@ -604,41 +642,19 @@ WaterFall {
 
             hoverEnabled: true
 
-            Timer {
-                id: longPressTimer
-                interval: 500
-                repeat: false
-                onTriggered: {
-                    if (Qt.platform.os === "android" && theme.instrumentsGrade !== 0 && !plot.pointerWasMoved) {
-                        plot.onCursorMoved(plot.pointerLastMouseX, plot.pointerLastMouseY)
-                        plot.pointerContactMouseX = plot.pointerLastMouseX
-                        plot.pointerContactMouseY = plot.pointerLastMouseY
-                        plot.simplePlotMousePosition(plot.pointerLastMouseX, plot.pointerLastMouseY)
-
-                        menuBlock.position(plot.pointerLastMouseX, plot.pointerLastMouseY)
-                    }
-                }
-            }
-
             onClicked: function(mouse) {
                 plot.handlePointerClick(mouse.button, mouse.buttons, mouse.x, mouse.y, Qt.Key_unknown)
             }
 
             onPressed: function(mouse) {
                 plot.handlePointerPress(mouse.button, mouse.buttons, mouse.x, mouse.y, Qt.Key_unknown)
-                if (Qt.platform.os === "android")
-                    longPressTimer.start()
             }
 
             onReleased: function(mouse) {
-                if (Qt.platform.os === "android")
-                    longPressTimer.stop()
                 plot.handlePointerRelease(mouse.button, mouse.buttons, mouse.x, mouse.y, Qt.Key_unknown)
             }
 
             onCanceled: {
-                if (Qt.platform.os === "android")
-                    longPressTimer.stop()
                 plot.handlePointerCancel()
             }
 
@@ -744,29 +760,17 @@ WaterFall {
         }
     }
 
-    onHeightChanged: {
-        if(menuBlock.visible) {
-            menuBlock.position(menuBlock.x, menuBlock.y)
-        }
-    }
-
-    onWidthChanged: {
-        if(menuBlock.visible) {
-            menuBlock.position(menuBlock.x, menuBlock.y)
-        }
-    }
-
     ColumnLayout {
         id: settingsRow
 
-        readonly property bool _shiftRight: indx === 1 && !is3dVisible
-                                            && height > plot.height - 170 * theme.resCoeff
         readonly property int _scrollClearance: Math.round(44 * AppPalette.scale)
 
         property int levelStart: 10
         property int levelStop: 100
         readonly property int  _levelReserve: 2 * plot.controlButtonSize + 2 * plot.edgeSafetyMargin
                                               + Math.round(122 * AppPalette.scale)
+                                              + (scaleSlot.shown ? plot.controlButtonSize + spacing : 0)
+                                              + Math.max(0, plot.controlsTopClearance - plot.edgeSafetyMargin)
         readonly property real _levelCtrlH: theme ? theme.controlHeight : 26
         readonly property int  _rawCoeff: Math.floor((plot.height - _levelReserve) / _levelCtrlH)
         readonly property bool sliderFits: _rawCoeff >= 3
@@ -794,14 +798,132 @@ WaterFall {
         anchors.left: parent.left
         anchors.bottom: parent.bottom
         anchors.leftMargin: Math.round(10 * AppPalette.scale) + plot.edgeSafetyMargin
-                            + (_shiftRight ? width + Math.round(12 * AppPalette.scale) : 0)
         anchors.bottomMargin: plot.edgeSafetyMargin + _scrollClearance
         spacing: Math.round(6 * AppPalette.scale)
 
         opacity: settingsFade.value
         Behavior on opacity { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
         HoverHandler { id: settingsHover }
-        IdleFade { id: settingsFade; hovered: settingsHover.hovered || themeSwitcher.menuHovered || levelPill.open }
+        IdleFade { id: settingsFade; hovered: settingsHover.hovered || themeSwitcher.menuHovered || levelPill.open || scalePill.open }
+
+        Item {
+            id: scaleSlot
+            readonly property bool vModified: plot.verticalScaleModified
+            readonly property bool hModified: plot.horizontalScaleModified
+            readonly property bool shown: plot.hasData && (vModified || hModified)
+            readonly property int chipPad: Math.round(12 * AppPalette.scale)
+            readonly property int chipFontSize: Math.round(14 * AppPalette.scale)
+
+            function formatScale(value) {
+                return value.toFixed(value < 10 ? 1 : 0) + "×"
+            }
+
+            function formatVertical() {
+                const zoom = plot.verticalScale
+                const shift = plot.verticalShift
+                const nearOne = Math.abs(zoom - 1.0) < 0.05
+                if (nearOne && Math.abs(shift) >= 0.05)
+                    return (shift >= 0 ? "+" : "−") + Math.abs(shift).toFixed(1) + qsTr(" m")
+                return nearOne ? zoom.toFixed(2) + "×" : formatScale(zoom)
+            }
+
+            Layout.alignment: Qt.AlignHCenter
+            Layout.preferredWidth: plot.controlButtonSize
+            Layout.preferredHeight: plot.controlButtonSize
+            visible: shown
+            onShownChanged: if (!shown) scalePill.close()
+
+            KCircleIconButton {
+                id: scaleBtn
+                anchors.centerIn: parent
+                width: plot.controlButtonSize
+                height: plot.controlButtonSize
+                glyph: (scaleSlot.vModified ? "V" : "") + (scaleSlot.hModified ? "H" : "")
+                glyphPixelSize: Math.round((glyph.length > 1 ? 13 : 16) * AppPalette.scale)
+                glyphColor: AppPalette.text
+                fillColor: AppPalette.card
+                fillHoverColor: AppPalette.cardHover
+                borderWidth: 0
+                z: 16
+                toolTipText: qsTr("Echogram scale changed")
+                toolTipSuppressed: scalePill.open
+                onClicked: scalePill.open ? scalePill.close() : scalePill.openPill()
+            }
+
+            Rectangle {
+                id: scalePill
+                property bool open: false
+                readonly property int pad: Math.round(5 * AppPalette.scale)
+                readonly property real fullW: pad + plot.controlButtonSize + Math.round(6 * AppPalette.scale)
+                                              + scaleChips.implicitWidth + pad
+                anchors.left: scaleBtn.left
+                anchors.leftMargin: -pad
+                anchors.verticalCenter: scaleBtn.verticalCenter
+                height: plot.controlButtonSize + 2 * pad
+                width: open ? fullW : 0
+                radius: height / 2
+                clip: true
+                color: AppPalette.bg
+                border.width: 0
+                opacity: open ? 1 : 0
+                z: 15
+
+                Behavior on width   { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
+                Behavior on opacity { NumberAnimation { duration: 170; easing.type: Easing.OutCubic } }
+
+                function openPill() { open = true; if (typeof core !== "undefined" && core) core.setActiveTransientUi(scalePill) }
+                function close() { open = false }
+
+                TextMetrics { id: vChipMetrics; font.pixelSize: scaleSlot.chipFontSize; font.bold: true; text: vChip.glyph }
+                TextMetrics { id: hChipMetrics; font.pixelSize: scaleSlot.chipFontSize; font.bold: true; text: hChip.glyph }
+
+                MouseArea {
+                    anchors.fill: parent
+                    enabled: scalePill.open
+                    acceptedButtons: Qt.AllButtons
+                    onPressed: function(m) { m.accepted = true }
+                    onWheel: function(w) { w.accepted = true }
+                }
+
+                Row {
+                    id: scaleChips
+                    anchors.left: parent.left
+                    anchors.leftMargin: scalePill.pad + plot.controlButtonSize + Math.round(6 * AppPalette.scale)
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: Math.round(6 * AppPalette.scale)
+
+                    KCircleIconButton {
+                        id: vChip
+                        visible: scaleSlot.vModified
+                        width: vChipMetrics.width + 2 * scaleSlot.chipPad
+                        height: plot.controlButtonSize
+                        glyph: "V  " + scaleSlot.formatVertical()
+                        glyphPixelSize: scaleSlot.chipFontSize
+                        glyphColor: AppPalette.text
+                        fillColor: AppPalette.card
+                        fillHoverColor: AppPalette.cardHover
+                        borderWidth: 0
+                        toolTipText: qsTr("Reset vertical scale")
+                        onClicked: { plot.resetVerticalScaleFromUi(); scalePill.close() }
+                    }
+
+                    KCircleIconButton {
+                        id: hChip
+                        visible: scaleSlot.hModified
+                        width: hChipMetrics.width + 2 * scaleSlot.chipPad
+                        height: plot.controlButtonSize
+                        glyph: "H  " + scaleSlot.formatScale(plot.horizontalScale)
+                        glyphPixelSize: scaleSlot.chipFontSize
+                        glyphColor: AppPalette.text
+                        fillColor: AppPalette.card
+                        fillHoverColor: AppPalette.cardHover
+                        borderWidth: 0
+                        toolTipText: qsTr("Reset horizontal scale")
+                        onClicked: { plot.resetHorizontalScaleFromUi(); scalePill.close() }
+                    }
+                }
+            }
+        }
 
         KThemeSwitcher {
             id: themeSwitcher
@@ -1026,6 +1148,7 @@ WaterFall {
         property alias gridVisible:        gridVisible.checked
         property alias gridFill:           fillWidthGrid.checked
         property alias gridInvert:         invertGrid.checked
+        property alias gridLabelCasing:    labelCasingGrid.checked
         property alias gridNumber:         gridNumber.value
         property alias angleVisible:       angleVisible.checked
         property alias angleRange:         angleRange.value
@@ -1051,7 +1174,7 @@ WaterFall {
             dopplerInstrumentVisible, dopplerInstrumentX, dopplerInstrumentY,
             dopplerInstrumentZ, dopplerInstrumentA, dopplerInstrumentDst,
             dvlLegendVisible, dvlLegendPosition, acousticAngleVisible, gnssVisible,
-            gridVisible, gridFill, gridInvert, gridNumber,
+            gridVisible, gridFill, gridInvert, gridLabelCasing, gridNumber,
             angleVisible, angleRange, velocityVisible, velocityRange,
             distanceAutoRange, distanceAutoRangeIndex, horizontalMode,
             settingsRow.levelStart, settingsRow.levelStop, plot.horizontalScale
@@ -1129,6 +1252,7 @@ WaterFall {
                 if (gn > 0) gridNumber.value = gn
                 fillWidthGrid.checked = plot.getGridFillWidth()
                 invertGrid.checked    = plot.getGridInvert()
+                labelCasingGrid.checked = plot.getGridLabelCasing()
 
                 angleVisible.checked    = plot.getAngleVisibility()
                 angleRange.value        = plot.getAngleRange()
@@ -1743,6 +1867,22 @@ WaterFall {
                                     property alias invertGrid: invertGrid.checked
                                 }
                             }
+                            CCheck {
+                                id: labelCasingGrid
+                                Layout.fillWidth: true
+                                checked: true
+                                visible: false
+
+                                onCheckedChanged: plotGridLabelCasing(checked)
+
+                                Component.onCompleted: {
+                                    plotGridLabelCasing(checked)
+                                }
+                                Settings {
+                                    category: "scene2d/plot2d/" + plot.indx
+                                    property alias labelCasingGrid: labelCasingGrid.checked
+                                }
+                            }
                         }
 
                         SpinBoxCustom {
@@ -2033,6 +2173,8 @@ WaterFall {
                 }
                 contactDialog.info = ""
                 contactDialog.inputFieldText = ""
+                if (contactDialog.indx === -1 && typeof core !== "undefined" && core && core.contactPlacementArmed)
+                    core.setContactPlacementArmed(false)
             }
         }
 
@@ -2093,6 +2235,7 @@ WaterFall {
         readonly property bool scrolledBackLive: plot.isLiveMode && scrollThumbH.progress < 0.999
         readonly property real thumbW: Math.round(((scrollMouseH.pressed || isScrolling) ? 96 : 68) * AppPalette.scale)
         readonly property real thumbH: Math.round(((scrollMouseH.pressed || isScrolling) ? 28 : 20) * AppPalette.scale)
+        readonly property bool nearLiveEnd: plot.isLiveMode && scrollThumbH.x + scrollThumbH.width > width - thumbW * 0.5
 
         visible: plot.horizontal && plot.hasData
         opacity: (plot.scrollBarsShown || trackVisible || scrolledBackLive) ? 1.0 : 0.0
@@ -2108,11 +2251,12 @@ WaterFall {
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         anchors.leftMargin: plot.scrollEdgeMargin
-        anchors.rightMargin: plot.scrollEdgeMargin
+        anchors.rightMargin: plot.scrollEdgeMargin + liveEdgeControls.extent
         anchors.bottomMargin: plot.scrollEdgeMargin
         height: thumbH
         z: 10
 
+        Behavior on anchors.rightMargin { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
         Behavior on height   { NumberAnimation { duration: 120; easing.type: Easing.OutCubic } }
         Behavior on opacity  { NumberAnimation { duration: 400 } }
 
@@ -2126,7 +2270,13 @@ WaterFall {
         Connections {
             target: plot
             function onTimelinePositionChanged() {
-                if (scrollMouseH.pressed) return
+                if (scrollMouseH.pressed) {
+                    if (plot.timelinePosition !== echoScrollBarH.prevTimelinePos) {
+                        echoScrollBarH.prevTimelinePos = plot.timelinePosition
+                        syncTimeToOthers()
+                    }
+                    return
+                }
                 const pos = plot.timelinePosition
                 if (echoScrollBarH.scrolledBackLive) {
                     echoScrollBarH.prevTimelinePos = pos
@@ -2155,7 +2305,7 @@ WaterFall {
             height: parent.height
             radius: height / 2
             color: theme.controlBorderColor
-            opacity: (scrollMouseH.pressed && plot.isLiveMode && scrollThumbH.progress > 0.85) ? 1.0 : 0.0
+            opacity: (scrollMouseH.pressed && echoScrollBarH.nearLiveEnd) ? 1.0 : 0.0
             Behavior on opacity { NumberAnimation { duration: 150 } }
         }
 
@@ -2168,18 +2318,14 @@ WaterFall {
             color: "transparent"
             border.color: theme.controlBorderColor
             border.width: 2
-            opacity: (scrollMouseH.pressed && plot.isLiveMode && scrollThumbH.progress > 0.85) ? 0.65 : 0.0
+            opacity: (scrollMouseH.pressed && echoScrollBarH.nearLiveEnd) ? 0.65 : 0.0
             Behavior on opacity { NumberAnimation { duration: 150 } }
         }
 
         Rectangle {
             id: scrollThumbH
 
-            readonly property real scrollRange: 1.0 - plot.viewportRatio
-            readonly property real progress: {
-                if (scrollRange <= 0.0001) return 1.0
-                return Math.max(0, Math.min(1, (plot.timelinePosition - plot.viewportRatio) / scrollRange))
-            }
+            readonly property real progress: plot.timelineProgress
 
             x: {
                 const restingW = Math.round(68 * AppPalette.scale)
@@ -2213,24 +2359,23 @@ WaterFall {
 
             onPressed: function(mouse) {
                 snapToEndH.stop()
+                plot.cancelSmoothScroll()
+                plot.beginTimelineDrag()
                 echoScrollBarH.grabOffsetX = mouse.x - scrollThumbH.x
                 if (echoScrollBarH.grabOffsetX < 0 || echoScrollBarH.grabOffsetX > echoScrollBarH.thumbW)
                     echoScrollBarH.grabOffsetX = echoScrollBarH.thumbW / 2
+                plot.holdLiveView()
+                syncTimeToOthers()
             }
-            onReleased: {
-                if (plot.isLiveMode && scrollThumbH.progress > 0.85)
-                    snapToEndH.start()
-            }
-            onCanceled: {
-                if (plot.isLiveMode && scrollThumbH.progress > 0.85)
-                    snapToEndH.start()
-            }
+            onReleased: plot.endScrollbarDrag(echoScrollBarH.nearLiveEnd)
+            onCanceled: plot.endScrollbarDrag(echoScrollBarH.nearLiveEnd)
             onPositionChanged: function(mouse) {
                 if (!pressed) return
                 const trackPx = echoScrollBarH.width - echoScrollBarH.thumbW
                 if (trackPx <= 0) return
                 const prog = Math.max(0, Math.min(1, (mouse.x - echoScrollBarH.grabOffsetX) / trackPx))
-                plot.timelinePosition = prog * (1.0 - plot.viewportRatio) + plot.viewportRatio
+                plot.setTimelineProgress(prog)
+                plot.holdLiveView()
                 updateOtherPlot(indx)
                 syncTimeToOthers()
             }
@@ -2249,6 +2394,7 @@ WaterFall {
         readonly property bool scrolledBackLive: plot.isLiveMode && scrollThumbV.progress < 0.999
         readonly property real thumbH: Math.round(((scrollMouseV.pressed || isScrolling) ? 96 : 68) * AppPalette.scale)
         readonly property real thumbW: Math.round(((scrollMouseV.pressed || isScrolling) ? 28 : 20) * AppPalette.scale)
+        readonly property bool nearLiveEnd: plot.isLiveMode && scrollThumbV.y < thumbH * 0.5
 
         visible: !plot.horizontal && plot.hasData
         opacity: (plot.scrollBarsShown || trackVisible || scrolledBackLive) ? 1.0 : 0.0
@@ -2263,12 +2409,13 @@ WaterFall {
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         anchors.right: parent.right
-        anchors.topMargin: plot.scrollEdgeMargin
+        anchors.topMargin: plot.scrollEdgeMargin + liveEdgeControls.extent
         anchors.bottomMargin: plot.scrollEdgeMargin
         anchors.rightMargin: plot.scrollEdgeMargin
         width: thumbW
         z: 10
 
+        Behavior on anchors.topMargin { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
         Behavior on width    { NumberAnimation { duration: 120; easing.type: Easing.OutCubic } }
         Behavior on opacity  { NumberAnimation { duration: 400 } }
 
@@ -2282,7 +2429,13 @@ WaterFall {
         Connections {
             target: plot
             function onTimelinePositionChanged() {
-                if (scrollMouseV.pressed) return
+                if (scrollMouseV.pressed) {
+                    if (plot.timelinePosition !== echoScrollBarV.prevTimelinePos) {
+                        echoScrollBarV.prevTimelinePos = plot.timelinePosition
+                        syncTimeToOthers()
+                    }
+                    return
+                }
                 const pos = plot.timelinePosition
                 if (echoScrollBarV.scrolledBackLive) {
                     echoScrollBarV.prevTimelinePos = pos
@@ -2311,7 +2464,7 @@ WaterFall {
             width: parent.width
             radius: width / 2
             color: theme.controlBorderColor
-            opacity: (scrollMouseV.pressed && plot.isLiveMode && scrollThumbV.progress > 0.85) ? 1.0 : 0.0
+            opacity: (scrollMouseV.pressed && echoScrollBarV.nearLiveEnd) ? 1.0 : 0.0
             Behavior on opacity { NumberAnimation { duration: 150 } }
         }
 
@@ -2324,18 +2477,14 @@ WaterFall {
             color: "transparent"
             border.color: theme.controlBorderColor
             border.width: 2
-            opacity: (scrollMouseV.pressed && plot.isLiveMode && scrollThumbV.progress > 0.85) ? 0.65 : 0.0
+            opacity: (scrollMouseV.pressed && echoScrollBarV.nearLiveEnd) ? 0.65 : 0.0
             Behavior on opacity { NumberAnimation { duration: 150 } }
         }
 
         Rectangle {
             id: scrollThumbV
 
-            readonly property real scrollRange: 1.0 - plot.viewportRatio
-            readonly property real progress: {
-                if (scrollRange <= 0.0001) return 1.0
-                return Math.max(0, Math.min(1, (plot.timelinePosition - plot.viewportRatio) / scrollRange))
-            }
+            readonly property real progress: plot.timelineProgress
 
             y: {
                 const restingH = Math.round(68 * AppPalette.scale)
@@ -2370,101 +2519,113 @@ WaterFall {
 
             onPressed: function(mouse) {
                 snapToEndV.stop()
+                plot.cancelSmoothScroll()
+                plot.beginTimelineDrag()
                 echoScrollBarV.grabOffsetY = mouse.y - scrollThumbV.y
                 if (echoScrollBarV.grabOffsetY < 0 || echoScrollBarV.grabOffsetY > echoScrollBarV.thumbH)
                     echoScrollBarV.grabOffsetY = echoScrollBarV.thumbH / 2
+                plot.holdLiveView()
+                syncTimeToOthers()
             }
-            onReleased: {
-                if (plot.isLiveMode && scrollThumbV.progress > 0.85)
-                    snapToEndV.start()
-            }
-            onCanceled: {
-                if (plot.isLiveMode && scrollThumbV.progress > 0.85)
-                    snapToEndV.start()
-            }
+            onReleased: plot.endScrollbarDrag(echoScrollBarV.nearLiveEnd)
+            onCanceled: plot.endScrollbarDrag(echoScrollBarV.nearLiveEnd)
             onPositionChanged: function(mouse) {
                 if (!pressed) return
                 const trackPx = echoScrollBarV.height - echoScrollBarV.thumbH
                 if (trackPx <= 0) return
                 const visualProg = Math.max(0, Math.min(1, (mouse.y - echoScrollBarV.grabOffsetY) / trackPx))
                 const prog = 1.0 - visualProg
-                plot.timelinePosition = prog * (1.0 - plot.viewportRatio) + plot.viewportRatio
+                plot.setTimelineProgress(prog)
+                plot.holdLiveView()
                 updateOtherPlot(indx)
                 syncTimeToOthers()
             }
         }
     }
 
-    Rectangle {
-        id: menuBlock
-        visible: false
-        z: 60
-        width: menuRow.implicitWidth + 2 * Tokens.spaceXs
-        height: menuRow.implicitHeight + 2 * Tokens.spaceXs
-        radius: height / 2
-        color: AppPalette.bg
-        border.width: 0
+    Item {
+        id: liveEdgeControls
 
-        function position(mx, my) {
-            var oy = plot.height - (my + height)
-            if (oy < 0)
-                my = my + oy
-            if (my < 0)
-                my = 0
+        readonly property int size: Tokens.controlHMd
+        readonly property bool dragging: scrollMouseH.pressed || scrollMouseV.pressed
+        readonly property bool endWanted: plot.hasData && plot.isLiveMode
+                                          && (plot.liveHoldActive
+                                              || (plot.horizontal ? echoScrollBarH.scrolledBackLive : echoScrollBarV.scrolledBackLive))
+        readonly property bool countWanted: plot.hasData && plot.liveHoldActive
+        property bool endShown: false
+        property bool countShown: false
+        readonly property real endExtent: endShown ? size + plot.liveEdgeGap : 0
+        readonly property real extent: endExtent + (countShown ? size + plot.liveEdgeGap : 0)
 
-            var ox = plot.width - (mx + width)
-            if (ox < 0)
-                mx = mx + ox
-            if (mx < 0)
-                mx = 0
-
-            x = mx
-            y = my
-            visible = true
+        function syncShown() {
+            if (dragging)
+                return
+            endShown = endWanted
+            countShown = countWanted
         }
 
-        MouseArea {
-            anchors.fill: parent
-            hoverEnabled: true
-            acceptedButtons: Qt.AllButtons
-            onPressed: function(mouse) { mouse.accepted = true }
-            onWheel: function(wheel) { wheel.accepted = true }
+        onEndWantedChanged: syncShown()
+        onCountWantedChanged: syncShown()
+        onDraggingChanged: syncShown()
+        Component.onCompleted: syncShown()
+
+        function edgeX(offset) {
+            return plot.horizontal ? plot.width - plot.scrollEdgeMargin - offset - size
+                                   : echoScrollBarV.x + (echoScrollBarV.width - size) / 2
+        }
+        function edgeY(offset) {
+            return plot.horizontal ? echoScrollBarH.y + (echoScrollBarH.height - size) / 2
+                                   : plot.scrollEdgeMargin + offset
         }
 
-        RowLayout {
-            id: menuRow
-            anchors.centerIn: parent
-            spacing: Tokens.spaceXs
+        anchors.fill: parent
+        z: 11
 
-            KCircleIconButton {
-                Layout.preferredWidth: Tokens.controlHMd
-                Layout.preferredHeight: Tokens.controlHMd
-                iconSource: "qrc:/icons/ui/anchor.svg"
-                iconTintColor: AppPalette.text
-                fillColor: AppPalette.card
-                fillHoverColor: AppPalette.cardHover
-                borderColor: AppPalette.border
-                toolTipText: qsTr("Set point of interest")
-                onClicked: {
-                    contactDialog.x = plot.pointerContactMouseX
-                    contactDialog.y = plot.pointerContactMouseY
-                    contactDialog.indx = -1
-                    contactDialog.isActive = false
-                    contactDialog.visible = true
-                    menuBlock.visible = false
-                }
-            }
+        KCountdownButton {
+            id: liveHoldCountButton
+            objectName: "echogramLiveHoldCount"
+            width: liveEdgeControls.size
+            height: liveEdgeControls.size
+            x: Math.round(liveEdgeControls.edgeX(liveEdgeControls.endExtent))
+            y: Math.round(liveEdgeControls.edgeY(liveEdgeControls.endExtent))
+            hitPadding: plot.liveEdgeGap / 2
+            deadlineMs: plot.liveHoldDeadlineMs
+            remainingMs: plot.liveHoldRemainingMs
+            running: plot.liveHoldRunning
+            toolTipText: qsTr("Resume scrolling now")
+            opacity: liveEdgeControls.countShown ? 1.0 : 0.0
+            scale: liveEdgeControls.countShown ? 1.0 : 0.6
+            visible: opacity > 0.01
+            onClicked: if (liveEdgeControls.countShown) plot.resumeLiveScroll()
 
-            KCircleIconButton {
-                Layout.preferredWidth: Tokens.controlHMd
-                Layout.preferredHeight: Tokens.controlHMd
-                iconSource: "qrc:/icons/ui/x.svg"
-                iconTintColor: AppPalette.text
-                fillColor: AppPalette.card
-                fillHoverColor: AppPalette.cardHover
-                borderColor: AppPalette.border
-                onClicked: menuBlock.visible = false
-            }
+            Behavior on x       { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
+            Behavior on y       { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
+            Behavior on opacity { NumberAnimation { duration: 170; easing.type: Easing.OutCubic } }
+            Behavior on scale   { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
+        }
+
+        KCircleIconButton {
+            id: liveEndButton
+            objectName: "echogramLiveEndButton"
+            width: liveEdgeControls.size
+            height: liveEdgeControls.size
+            x: liveEdgeControls.edgeX(0)
+            y: liveEdgeControls.edgeY(0)
+            hitPadding: plot.liveEdgeGap / 2
+            iconSource: "qrc:/icons/ui/arrow_bar_to_up.svg"
+            iconRotation: plot.horizontal ? 90 : 0
+            iconTintColor: AppPalette.text
+            fillColor: AppPalette.card
+            fillHoverColor: AppPalette.cardHover
+            borderWidth: 0
+            toolTipText: qsTr("Scroll to the newest data")
+            opacity: liveEdgeControls.endShown ? 1.0 : 0.0
+            scale: liveEdgeControls.endShown ? 1.0 : 0.6
+            visible: opacity > 0.01
+            onClicked: if (liveEdgeControls.endShown) plot.returnToLiveNow()
+
+            Behavior on opacity { NumberAnimation { duration: 170; easing.type: Easing.OutCubic } }
+            Behavior on scale   { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
         }
     }
 }

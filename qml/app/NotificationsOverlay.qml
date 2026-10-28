@@ -14,11 +14,18 @@ Item {
     readonly property real maxCardWidth: Math.min(480 * AppPalette.scale, width - 2 * Tokens.spaceXl)
     property int nextNotificationId: 0
 
+    property bool hideImportant: false
+    property bool suppressed: false
+
+    visible: !root.suppressed
+
     signal tagDismissRequested(string tag)
 
     readonly property int burstSlack: 2
 
     function push(kind, text, tag, actionPath) {
+        if (root.suppressed)
+            return
         for (var i = 0; i < notificationsModel.count; ++i) {
             var same = notificationsModel.get(i)
             if (same.kind === kind && same.text === text && !same.closing)
@@ -41,6 +48,8 @@ Item {
                 return
             }
         }
+        if (root.suppressed)
+            return
         if (notificationsModel.count >= maxVisible)
             evictOldestInfo()
         notificationsModel.insert(0, { notificationId: nextNotificationId++, kind: 2, text: text,

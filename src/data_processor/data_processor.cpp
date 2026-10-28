@@ -6,6 +6,7 @@
 #include <QtConcurrent/QtConcurrentRun>
 #include <QMetaObject>
 #include <QEventLoop>
+#include <QScopeGuard>
 #include <QDebug>
 #include <QDataStream>
 #include <QFile>
@@ -244,8 +245,36 @@ void DataProcessor::setSuppressResults(bool state) noexcept
     }
 }
 
+void DataProcessor::updateIdle()
+{
+    const bool job   = jobRunning_.load();
+    const bool timer = pendingWorkTimer_.isActive();
+    const bool idle  = !job && !btBusy_ && !timer;
+
+    QVariantMap activity;
+    activity[QStringLiteral("idle")]            = idle;
+    activity[QStringLiteral("jobRunning")]      = job;
+    activity[QStringLiteral("btBusy")]          = btBusy_;
+    activity[QStringLiteral("timerActive")]     = timer;
+    activity[QStringLiteral("nextRunPending")]  = nextRunPending_.load();
+    activity[QStringLiteral("suppressResults")] = suppressResults_.load();
+    activity[QStringLiteral("resetInProgress")] = resetInProgress_.load();
+    activity[QStringLiteral("state")]           = static_cast<int>(state_);
+    if (activity != lastActivity_) {
+        lastActivity_ = activity;
+        emit activityChanged(activity);
+    }
+
+    if (idle == lastIdle_) {
+        return;
+    }
+    lastIdle_ = idle;
+    emit idleChanged(idle);
+}
+
 void DataProcessor::prepareForFileClose(int timeoutMs)
 {
+    auto idleGuard = qScopeGuard([this] { updateIdle(); });
     if (timeoutMs < 0) {
         timeoutMs = 0;
     }
@@ -320,6 +349,7 @@ void DataProcessor::clearProcessing(DataProcessorType procType)
 
 void DataProcessor::resetProcessingPipeline()
 {
+    auto idleGuard = qScopeGuard([this] { updateIdle(); });
     if (resetInProgress_.exchange(true)) {
         return;
     }
@@ -338,6 +368,7 @@ void DataProcessor::resetProcessingPipeline()
 
 void DataProcessor::tryFinalizeResetProcessing()
 {
+    auto idleGuard = qScopeGuard([this] { updateIdle(); });
     if (!resetInProgress_.load()) {
         return;
     }
@@ -751,6 +782,48 @@ void DataProcessor::onPrecomputeFinished(quint64 generation)
     precomputeTimer_.start();   // the next level, or the view it has moved to
 }
 
+void DataProcessor::setRealtimePaused(bool paused)
+{
+    if (realtimePaused_ == paused) {
+        return;
+    }
+    realtimePaused_ = paused;
+    applyUpdateBottomTrackSourceState(wantedBottomTrackScene3d_ && !paused, false);
+    applyUpdateBottomTrackSourceState(wantedBottomTrackSettings_ && !paused, true);
+    applyUpdateSurface(wantedSurface_ && !paused);
+    applyUpdateIsobaths(wantedIsobaths_ && !paused);
+    applyUpdateMosaic(wantedMosaic_ && !paused);
+}
+
+void DataProcessor::setUpdateBottomTrackSourceState(bool state, bool fromSettings)
+{
+    if (fromSettings) {
+        wantedBottomTrackSettings_ = state;
+    }
+    else {
+        wantedBottomTrackScene3d_ = state;
+    }
+    applyUpdateBottomTrackSourceState(state && !realtimePaused_, fromSettings);
+}
+
+void DataProcessor::setUpdateSurface(bool state)
+{
+    wantedSurface_ = state;
+    applyUpdateSurface(state && !realtimePaused_);
+}
+
+void DataProcessor::setUpdateIsobaths(bool state)
+{
+    wantedIsobaths_ = state;
+    applyUpdateIsobaths(state && !realtimePaused_);
+}
+
+void DataProcessor::setUpdateMosaic(bool state)
+{
+    wantedMosaic_ = state;
+    applyUpdateMosaic(state && !realtimePaused_);
+}
+
 void DataProcessor::setUpdateBottomTrack(bool state)
 {
     setUpdateBottomTrackSourceState(state, false);
@@ -761,7 +834,7 @@ void DataProcessor::setUpdateBottomTrackFromSettings(bool state)
     setUpdateBottomTrackSourceState(state, true);
 }
 
-void DataProcessor::setUpdateBottomTrackSourceState(bool state, bool fromSettings)
+void DataProcessor::applyUpdateBottomTrackSourceState(bool state, bool fromSettings)
 {
     if (fromSettings) {
         updateBottomTrackFromSettings_ = state;
@@ -782,7 +855,7 @@ void DataProcessor::setUpdateBottomTrackSourceState(bool state, bool fromSetting
     }
 }
 
-void DataProcessor::setUpdateSurface(bool state)
+void DataProcessor::applyUpdateSurface(bool state)
 {
     const bool wasSurface = updateSurface_;
     updateSurface_ = state;
@@ -844,7 +917,7 @@ void DataProcessor::setUpdateSurface(bool state)
     }
 }
 
-void DataProcessor::setUpdateIsobaths(bool state)
+void DataProcessor::applyUpdateIsobaths(bool state)
 {
     updateIsobaths_ = state;
     updateDatasetSpatialIndexingState();
@@ -858,7 +931,7 @@ void DataProcessor::setUpdateIsobaths(bool state)
     }
 }
 
-void DataProcessor::setUpdateMosaic(bool state)
+void DataProcessor::applyUpdateMosaic(bool state)
 {
     const bool wasMosaic = updateMosaic_;
     updateMosaic_ = state;
@@ -1024,11 +1097,9 @@ void DataProcessor::tryScheduleAutoBottomTrack(uint64_t indx)
         return;
     }
 
-#ifndef SEPARATE_READING
     if (isOpeningFile_) {
         return;
     }
-#endif
 
     if (!(updateMosaic_ || updateSurface_ || updateBottomTrack_)) {
         return;
@@ -1075,6 +1146,7 @@ void DataProcessor::tryScheduleAutoBottomTrack(uint64_t indx)
 
     btBusy_ = true;
     btAutoFrom_ = btP.indexFrom;   // the precompute stays before it while data streams
+    updateIdle();
 
     QMetaObject::invokeMethod(btWorker_, "bottomTrackProcessing", Qt::QueuedConnection,
                               Q_ARG(DatasetChannel, ch1),
@@ -1183,7 +1255,7 @@ void DataProcessor::onBottomTrack3DAdded(const QVector<int>& epIndxs, const QVec
     }
 
     for (int itm : vertIndxs) {
-        // '2' = triangulation-only update (no immediate raster write).
+        // '2' = realtime update: raster only the triangles triangulation actually changed.
         pendingSurfaceIndxs_.insert(qMakePair(isManual ? '1' : '2', itm));
     }
 
@@ -2066,7 +2138,7 @@ void DataProcessor::onMosaicEpochsProcessed(const QVector<int>& indxs, int zoom)
 
 void DataProcessor::runCoalescedWork()
 {
-    //qDebug() << "DataProcessor::runCoalescedWork";
+    auto idleGuard = qScopeGuard([this] { updateIdle(); });
 
     if (resetInProgress_.load()) {
         return;
@@ -2310,6 +2382,7 @@ void DataProcessor::startTimerIfNeeded()
         auto startOrRestart = [this]() {
             pendingWorkTimer_.stop();
             pendingWorkTimer_.start();
+            updateIdle();
         };
 
         if (QThread::currentThread() == this->thread()) {
@@ -2322,10 +2395,12 @@ void DataProcessor::startTimerIfNeeded()
     else {
         if (QThread::currentThread() == this->thread()) {
             if (!pendingWorkTimer_.isActive()) pendingWorkTimer_.start();
+            updateIdle();
         }
         else {
             QMetaObject::invokeMethod(this, [this](){
                 if (!pendingWorkTimer_.isActive()) pendingWorkTimer_.start();
+                updateIdle();
             }, Qt::QueuedConnection);
         }
     }
@@ -2333,6 +2408,7 @@ void DataProcessor::startTimerIfNeeded()
 
 void DataProcessor::onWorkerFinished()
 {
+    auto idleGuard = qScopeGuard([this] { updateIdle(); });
     dropRunningMosaicJob_ = false;   // all it sent came before this (one thread, in order)
     const bool wasCanceled = cancelRequested_.load();
 
@@ -2768,10 +2844,12 @@ void DataProcessor::postMosaicStats(const QVariantMap& stats)
 void DataProcessor::onBottomTrackStarted()
 {
     btBusy_ = true;
+    updateIdle();
 }
 
 void DataProcessor::onBottomTrackFinished()
 {
+    auto idleGuard = qScopeGuard([this] { updateIdle(); });
     btBusy_ = false;
     bottomTrackChanged_.start();   // its depths reach the 3D bottom track after this (runEditRebuild)
 
@@ -2973,17 +3051,33 @@ void DataProcessor::postMaxZ(float val)
 
 void DataProcessor::postSurfaceColorTable(const std::vector<uint8_t> &t)
 {
+    lastSurfaceColorTable_ = t;
     emit sendSurfaceTextureTask(t);
 }
 
 void DataProcessor::postSurfaceColorIntervalsSize(int size)
 {
+    lastSurfaceColorIntervalsSize_ = size;
     emit sendSurfaceColorIntervalsSize(size);
 }
 
 void DataProcessor::postSurfaceStepSize(float lineStepSize)
 {
+    lastSurfaceStepSize_ = lineStepSize;
     emit sendSurfaceStepSize(lineStepSize);
+}
+
+void DataProcessor::resendSurfaceColorTable()
+{
+    if (!lastSurfaceColorTable_.empty()) {
+        emit sendSurfaceTextureTask(lastSurfaceColorTable_);
+    }
+    if (lastSurfaceColorIntervalsSize_ > 0) {
+        emit sendSurfaceColorIntervalsSize(lastSurfaceColorIntervalsSize_);
+    }
+    if (lastSurfaceStepSize_ > 0.0f) {
+        emit sendSurfaceStepSize(lastSurfaceStepSize_);
+    }
 }
 
 void DataProcessor::changeState(const DataProcessorType& state)
@@ -2998,6 +3092,7 @@ void DataProcessor::clearBottomTrackProcessing()
     btBusy_ = false;
     pendingManualBt_.clear();
     forceVisibleRefreshAfterBottomTrack_ = false;
+    updateIdle();
 
     QMetaObject::invokeMethod(btWorker_, "clearBottomTrack", Qt::QueuedConnection);
 }
@@ -3033,6 +3128,7 @@ void DataProcessor::clearSurfaceProcessing()
 
 void DataProcessor::clearAllProcessings()
 {
+    auto idleGuard = qScopeGuard([this] { updateIdle(); });
     closeDB();
     pendingWorkTimer_.stop();
     cameraRectCoalesceTimer_.stop();
@@ -3786,14 +3882,7 @@ void DataProcessor::onSendTilesByZoom(int epochIndx, const QMap<int, QSet<TileKe
 {
     //qDebug() << "DataProcessor::onSendDimRects" << epochIndx;
 
-    bool optimizeForNonSeparateFileMode = true;
-#ifdef SEPARATE_READING
-    optimizeForNonSeparateFileMode = false;
-#else
-    optimizeForNonSeparateFileMode = (datasetState_ != 2); // 2 == connection
-#endif
-
-    const bool skipSchedulingForDisabledLayers = optimizeForNonSeparateFileMode && !updateMosaic_ && !updateSurface_;
+    const bool skipSchedulingForDisabledLayers = datasetState_ != 2 && !updateMosaic_ && !updateSurface_;
 
     const int minZoom = 7;
     if (tileEpochIndxsByZoom_.size() < minZoom) {
@@ -3930,18 +4019,11 @@ void DataProcessor::updateDatasetSpatialIndexingState()
         return;
     }
 
-    bool optimizeForNonSeparateFileMode = true;
-#ifdef SEPARATE_READING
-    optimizeForNonSeparateFileMode = false;
-#else
-    optimizeForNonSeparateFileMode = (datasetState_ != 2); // 2 == connection
-#endif
-
     bool sonarEnabled = true;
     bool dimRectEnabled = true;
     bool chunkedCatchup = false;
 
-    if (optimizeForNonSeparateFileMode) {
+    if (datasetState_ != 2) {
         sonarEnabled = updateBottomTrack_ || updateSurface_ || updateIsobaths_ || updateMosaic_;
         dimRectEnabled = updateSurface_ || updateIsobaths_ || updateMosaic_;
         chunkedCatchup = true;
@@ -4150,16 +4232,12 @@ QSet<int> DataProcessor::collectVisibleSurfaceEpochsSet(int zoom) const
 
 void DataProcessor::updateDataProcType()
 {
-#ifdef SEPARATE_READING
-    defProcType_ = isOpeningFile_ ? false : true;
-#else
     if (datasetState_ == 0 || datasetState_ == 1) {
         defProcType_ = true;
     }
     if (datasetState_ == 2) {
         defProcType_ = false;
     }
-#endif
 
     pendingWorkTimer_.setInterval(defProcType_ ? 333 : 10);
 }

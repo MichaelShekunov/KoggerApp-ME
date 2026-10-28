@@ -60,7 +60,6 @@ qt_standard_project_setup(REQUIRES 6.8)
 set(CMAKE_AUTOUIC OFF)
 
 option(KOGGER_FLASHER          "Build device flasher"                OFF)
-option(KOGGER_SEPARATE_READING "Data reception in a separate thread" OFF)
 option(KOGGER_SCENE_TESTING    "3D scene testing"                    OFF)
 option(KOGGER_MANUAL_TESTING   "Manual testing hooks"                OFF)
 
@@ -100,6 +99,7 @@ qt_add_executable(KoggerApp
     src/ui_state_serializer.h      src/ui_state_serializer.cpp
     src/echogram_state_serializer.h src/echogram_state_serializer.cpp
     src/notifications.h            src/notifications.cpp
+    src/firmware_upgrade_session.h src/firmware_upgrade_session.cpp
     src/input_device_tracker.h     src/input_device_tracker.cpp
     src/screen_keyboard.h          src/screen_keyboard.cpp
     src/vehicle/mav_vehicle.h      src/vehicle/mav_vehicle.cpp
@@ -161,7 +161,9 @@ add_subdirectory(src/autopilot)
 add_subdirectory(src/link)
 add_subdirectory(src/tile_engine)
 add_subdirectory(src/video)
+add_subdirectory(src/control)
 add_subdirectory(src/mission)
+add_subdirectory(src/tutorial)
 
 # Optional build flags (off by default)
 if(KOGGER_FLASHER)
@@ -169,9 +171,6 @@ if(KOGGER_FLASHER)
     target_sources(KoggerApp PRIVATE
         src/flasher/flasher.h        src/flasher/flasher.cpp
         src/flasher/deviceflasher.h  src/flasher/deviceflasher.cpp)
-endif()
-if(KOGGER_SEPARATE_READING)
-    target_compile_definitions(KoggerApp PRIVATE SEPARATE_READING)
 endif()
 if(KOGGER_SCENE_TESTING)
     target_compile_definitions(KoggerApp PRIVATE SCENE_TESTING)

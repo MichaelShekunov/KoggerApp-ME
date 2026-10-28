@@ -22,6 +22,8 @@ public:
     Q_PROPERTY(bool standAvailable READ standAvailable NOTIFY standAvailableChanged)
     Q_PROPERTY(bool protoBinConsoled READ getProtoBinConsoled WRITE setProtoBinConsoled NOTIFY protoBinConsoledChanged)
     Q_PROPERTY(bool nmeaConsoled READ getNmeaConsoled WRITE setNmeaConsoled NOTIFY nmeaConsoledChanged)
+    Q_PROPERTY(bool mavlinkConsoled READ getMavlinkConsoled WRITE setMavlinkConsoled NOTIFY mavlinkConsoledChanged)
+    Q_PROPERTY(bool usblConsoled READ getUsblConsoled WRITE setUsblConsoled NOTIFY usblConsoledChanged)
     Q_PROPERTY(StreamListModel* streamsList READ streamsList NOTIFY streamChanged)
     Q_PROPERTY(float vruVoltage READ vruVoltage NOTIFY vruChanged)
     Q_PROPERTY(float vruCurrent READ vruCurrent NOTIFY vruChanged)
@@ -122,12 +124,15 @@ public:
     Q_INVOKABLE void autopilotStartMission();
     /** Makes vehicle mission item @p seq current (skip ahead or back); see DeviceManager::autopilotSetMissionCurrent. */
     Q_INVOKABLE void autopilotSetMissionCurrent(int seq);
+    /** Sets the vehicle's ground speed in m/s; see DeviceManager::autopilotSetSpeed. */
+    void autopilotSetSpeed(double speed);
 
-    void startWorkerThread();
     void initStreamList();
 
     bool getProtoBinConsoled() const { return protoBinConsoledState_; };
     bool getNmeaConsoled() const { return nmeaConsoledState_; };
+    bool getMavlinkConsoled() const { return mavlinkConsoledState_; };
+    bool getUsblConsoled() const { return usblConsoledState_; };
     bool getUSBLBeaconDirectAsk() const { return USBLBeaconDirectAskState_; };
     int getAverageChartLosses() const {
         return averageChartLosses_;
@@ -179,6 +184,24 @@ public slots:
         }
     }
 
+    void setMavlinkConsoled(bool state) {
+        const bool changed = (mavlinkConsoledState_ != state);
+        mavlinkConsoledState_ = state;
+        getWorker()->setMavlinkConsoled(mavlinkConsoledState_);
+        if (changed) {
+            emit mavlinkConsoledChanged();
+        }
+    }
+
+    void setUsblConsoled(bool state) {
+        const bool changed = (usblConsoledState_ != state);
+        usblConsoledState_ = state;
+        getWorker()->setUsblConsoled(usblConsoledState_);
+        if (changed) {
+            emit usblConsoledChanged();
+        }
+    }
+
     void setUSBLBeaconDirectAsk(bool is_ask) {
         const bool changed = (USBLBeaconDirectAskState_ != is_ask);
         USBLBeaconDirectAskState_ = is_ask;
@@ -190,11 +213,7 @@ public slots:
 
 signals:
     void sendOpenFile(QString path);
-#ifdef SEPARATE_READING
-    void sendCloseFile(bool);
-#else
     void sendCloseFile();
-#endif
 
     void devChanged();
     void standAvailableChanged();
@@ -213,6 +232,8 @@ signals:
     void chartLossesChanged();
     void protoBinConsoledChanged();
     void nmeaConsoledChanged();
+    void mavlinkConsoledChanged();
+    void usblConsoledChanged();
     void USBLBeaconDirectAskChanged();
     void airChanged();
 
@@ -239,10 +260,6 @@ private:
     bool restartMissionAfterUpload_ = true;
     int swallowSilentFinishes_ = 0;
     qreal missionTransferProgress_ = 0.0;
-#ifdef SEPARATE_READING
-    std::unique_ptr<QThread> workerThread_;
-    QList<QMetaObject::Connection> deviceManagerConnections_;
-#endif
 
     int averageChartLosses_;
     double airEchogram_ = 0.0, airTelemetry_ = 0.0, airService_ = 0.0;
@@ -251,5 +268,7 @@ private:
     void onAir(double echogramKBs, double telemetryKBs, double serviceKBs, int rssiDbm);
     bool protoBinConsoledState_;
     bool nmeaConsoledState_;
+    bool mavlinkConsoledState_;
+    bool usblConsoledState_ = false;
     bool USBLBeaconDirectAskState_;
 }; // class DeviceWrapper

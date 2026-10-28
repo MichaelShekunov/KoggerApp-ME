@@ -15,7 +15,10 @@ qt_add_qml_module(kogger_kqml_types
         KCheckBox.qml
         KCircleIconButton.qml
         KCloseBadge.qml
+        KCoachArrow.qml
+        KCoachBubble.qml
         KCombo.qml
+        KCountdownButton.qml
         KDragBar.qml
         KFocusRing.qml
         KIsland.qml
@@ -28,6 +31,7 @@ qt_add_qml_module(kogger_kqml_types
         KScrollBar.qml
         KSlider.qml
         KSpinBox.qml
+        KSpotlight.qml
         KSwitch.qml
         KTabBar.qml
         KScrollStrip.qml

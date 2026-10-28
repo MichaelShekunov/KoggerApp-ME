@@ -66,6 +66,19 @@ public:
 
     void setAimEpochEventState(bool state);
     void setTimelinePosition(float position);
+    void adoptTimelinePosition(float position, int datasetSize);
+    int timelineDatasetSize() const { return cursor_.last_dataset_size; }
+    float timelineEpochAt(float column) const;
+    void zoomTimeline(float steps, float anchorColumn, float anchorEpoch);
+    void setTimelineZoom(float zoom, float anchorColumn, float anchorEpoch);
+    void clampTimelineStart(float viewEpochs);
+    void snapTimelineZoom(float anchorColumn, float anchorEpoch);
+    bool timelineZoomModified() const { return cursor_.horZoom != 1.0f; }
+    float timelineZoom() const { return cursor_.horZoom; }
+    bool distanceModified() const { return distanceOverride_; }
+    float distanceZoom() const;
+    float distanceShift() const;
+    void restoreDistance();
     void resetAim();
 
     void setTimelinePositionSec(float position);
@@ -83,9 +96,10 @@ public:
     /// Scrolls the history by `columns` screen columns (pings at the horizontal scale).
     void scrollPosition(float columns);
 
-    /// Screen columns a ping takes: 2, 3, 4, 6 or 8 stretch the history, 1/2..1/16 compress it (a column
-    /// shows every n-th ping, the newest of its group), 1 is a column a ping. Snapped to those steps.
-    float horizontalScale() const { return horScale_; }
+    /// Screen columns a ping takes: develop's timeline zoom (cursor_.horZoom, 0.1 .. 10). Above 1 a ping takes
+    /// several columns, below 1 a column shows one ping of several. The setter snaps to plot2d_columns::kScales;
+    /// before the data comes it only stores the value (a restored layout).
+    float horizontalScale() const { return cursor_.horZoom; }
     void setHorizontalScale(float scale);
     /// One step finer (steps > 0) or coarser, keeping the ping under `anchorColumn` (-1: the newest) in
     /// place. Returns whether the scale changed.
@@ -165,6 +179,7 @@ public:
 
     void setGridVetricalNumber(int grids);
     void setGridFillWidth(bool state);
+    void setGridLabelCasing(bool state);
     void setGridInvert(bool state);
     void setAngleVisibility(bool state);
     void setAngleRange(int angleRange);
@@ -188,6 +203,7 @@ public:
     int  getDVLLegendPosition() const { return dvlLegendPosIndex_; }
     int  getGridVerticalNumber() const { return grid_.getVetricalNumber(); }
     bool getGridFillWidth() const { return grid_.isFillWidth(); }
+    bool getGridLabelCasing() const { return grid_.isLabelCasing(); }
     bool getGridInvert() const { return grid_.isInvert(); }
     bool getAngleVisibility() const { return grid_.getAngleVisibility(); }
     bool getVelocityVisible() const { return grid_.getVelocityVisible(); }
@@ -198,6 +214,7 @@ public:
     void setDistance(float from, float to);
     void zoomDistance(float ratio);
     void scrollDistance(float ratio);
+    void offsetDistance(float offset);
 
     void setMousePosition(int x, int y, bool isSync = false);
     void simpleSetMousePosition(int x, int y);
@@ -254,12 +271,20 @@ protected:
     int aimFieldsMask_ = 0xFF;
     QPointer<EchogramEditor> editor_;
     bool strokeOpen_ = false;         // a press of an edit tool is under way (setMousePosition)
-    float horScale_ = 1.0f;           // screen columns a ping takes (horizontalScale)
 
     // The pencil's magnet: the bottom track's bottom looked for within a few pixels of dist, else dist.
     float magnetDistance(int epochIndex, float dist, float metersPerPixel) const;
     // Pings marked bad, and trimmed off, shaded over the echogram.
     void drawEditShading();
+    bool liveHold_ = false;
+    float timelineDragProgress_ = -1.0f;
+    bool distanceOverride_ = false;
+    float distanceBaseFrom_ = NAN;
+    float distanceBaseTo_ = NAN;
+    AutoRangeMode distanceBaseMode_ = AutoRangeNone;
+
+    void beginDistanceOverride();
+    void settleDistanceOverride();
 
 private:
     bool isEnabled_;

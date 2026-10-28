@@ -4,6 +4,7 @@ import QtQuick.Dialogs
 import QtCore
 import kqml_types 1.0
 import "RecorderStatus.js" as RecorderStatus
+import "StatusSeverity.js" as Sev
 
 Column {
     id: root
@@ -16,6 +17,8 @@ Column {
     // as properties. See UsblEngine.qml.
     property var usblPlan: null
     property var usblEngine: null
+    property var nodesStore: null
+    property var nodesEngine: null
     property real scrollTopInset: 0
 
     property bool favEditMode: false
@@ -253,6 +256,26 @@ Column {
     readonly property var baudrateOptions: [9600, 19200, 38400, 57600, 115200,
                                             230400, 460800, 921600, 1000000, 1200000, 1500000, 2000000, 3000000, 4000000]
     property int baudrateIndex: baudrateOptions.indexOf(115200)
+    property bool baudratePicked: false
+
+    function setBaudrateIndex(index) {
+        baudrateIndex = index
+        baudratePicked = true
+    }
+
+    function _syncBaudrateIndex(devObj) {
+        var i = baudrateOptions.indexOf(devObj ? devObj.baudrate : 0)
+        baudrateIndex = i >= 0 ? i : baudrateOptions.indexOf(115200)
+    }
+
+    Connections {
+        target: root.dev
+        ignoreUnknownSignals: true
+        function onUARTChanged() {
+            if (!root.baudratePicked)
+                root._syncBaudrateIndex(root.dev)
+        }
+    }
 
     function applyBaudrate() {
         if (!dev)
@@ -364,11 +387,17 @@ Column {
         }
         _pruneGroupStates()
         _applyForCurrentDev()
+        baudratePicked = false
+        _syncBaudrateIndex(dev)
         favEditMode = false
         _prevDev = dev
     }
 
-    Component.onCompleted: { _applyForCurrentDev(); _registerWithStore() }
+    Component.onCompleted: {
+        _applyForCurrentDev()
+        _syncBaudrateIndex(dev)
+        _registerWithStore()
+    }
 
     function _applyForCurrentDev() {
         var cur = dev ? _groupStateFor(dev) : null
@@ -951,20 +980,7 @@ Column {
         }
 
         // Semantic severity accent (from the app palette; distinct from the blue accent).
-        function _sevColor(s) {
-            if (s === "good")  return AppPalette.linkOkBorder
-            if (s === "warn")  return AppPalette.linkIdleBorder
-            if (s === "crit")  return AppPalette.linkDownBorder
-            if (s === "stale") return AppPalette.textMuted
-            return AppPalette.accentBar
-        }
-        function _sevText(s) {
-            if (s === "good")  return AppPalette.linkOkText
-            if (s === "warn")  return AppPalette.linkIdleText
-            if (s === "crit")  return AppPalette.linkDownText
-            if (s === "stale") return AppPalette.textMuted
-            return AppPalette.accentBar
-        }
+        function _sevColor(s) { return Sev.color(AppPalette, s) }
 
         // Worst-state-wins hero: { sev, word, sub, pulse }. Mirrors the UX concept: the one
         // line that answers "is my data being saved right now, and if not, what broke?".
@@ -1047,53 +1063,11 @@ Column {
             return out
         }
 
-        // Severity tint for the banner background (low-alpha sev colour; idle = none).
-        function _sevBg(s) {
-            if (s === "idle") return "transparent"
-            var c = _sevColor(s)
-            return Qt.rgba(c.r, c.g, c.b, 0.12)
-        }
         // Free-space "error" (blink): storage fault, or free space critically low (<2 GB).
         function _freeError() {
             if (!dev || !dev.recorderStatusValid) return false
             if (dev.recorderCriticalFlags) return true
             return recorderGroup.freeBytes > 0 && recorderGroup.freeBytes < 2000000000
-        }
-
-        // A vital-number tile for the banner: label + value. keyBox = green (good), errorBox
-        // = red border + blink, alertBox = red static (e.g. dropping frames).
-        component StatBox: Rectangle {
-            property string blabel: ""
-            property string bvalue: ""
-            property bool keyBox: false
-            property bool errorBox: false
-            property bool alertBox: false
-            height: Math.round(42 * AppPalette.scale); radius: Tokens.radiusMd
-            implicitWidth: sbCol.implicitWidth + Tokens.spaceMd * 2; width: implicitWidth
-            color: AppPalette.card
-            border.width: 1
-            border.color: (errorBox || alertBox) ? AppPalette.linkDownBorder
-                        : keyBox ? Qt.rgba(AppPalette.linkOkBorder.r, AppPalette.linkOkBorder.g, AppPalette.linkOkBorder.b, 0.45)
-                        : AppPalette.border
-            Column {
-                id: sbCol
-                anchors.centerIn: parent; spacing: Math.round(1 * AppPalette.scale)
-                Text { visible: blabel.length > 0; text: blabel; color: AppPalette.textMuted
-                       font.pixelSize: Tokens.fontXs }
-                Text { text: bvalue; font.pixelSize: Tokens.fontSm; font.bold: true
-                       color: (errorBox || alertBox) ? AppPalette.linkDownText
-                            : keyBox ? AppPalette.linkOkText : AppPalette.text }
-            }
-            Rectangle {   // blink glow when errorBox
-                anchors.fill: parent; radius: parent.radius; color: "transparent"
-                border.width: Math.round(2 * AppPalette.scale); border.color: AppPalette.linkDownBorder
-                visible: errorBox
-                SequentialAnimation on opacity {
-                    running: errorBox; loops: Animation.Infinite
-                    NumberAnimation { from: 1.0; to: 0.12; duration: 560; easing.type: Easing.InOutSine }
-                    NumberAnimation { from: 0.12; to: 1.0; duration: 560; easing.type: Easing.InOutSine }
-                }
-            }
         }
 
         // Freshness: recorderStatusChanged fires every poll (~3s). If it stops (e.g. the
@@ -1113,133 +1087,62 @@ Column {
         }
 
         // ── Banner: severity-tinted; hero + vital boxes. Ports are in the header. ──
-        Rectangle {
+        StatusBanner {
             id: banner
-            width: parent.width; radius: Tokens.radiusMd
-            color: recorderGroup._sevBg(recorderGroup.hero.sev)
-            border.width: recorderGroup.hero.sev === "idle" ? 1 : 0
-            border.color: AppPalette.border
-            implicitHeight: bannerCol.implicitHeight + Tokens.spaceMd * 2; height: implicitHeight
-            opacity: recorderGroup.stale ? 0.6 : 1.0
-
-            Rectangle {   // left severity stripe
-                anchors.left: parent.left; anchors.leftMargin: Math.round(2 * AppPalette.scale)
-                anchors.top: parent.top; anchors.bottom: parent.bottom
-                anchors.topMargin: parent.radius; anchors.bottomMargin: parent.radius
-                width: Math.round(3 * AppPalette.scale); radius: width / 2
-                color: recorderGroup._sevColor(recorderGroup.hero.sev)
-                visible: recorderGroup.hero.sev !== "idle"
-            }
-
-            Column {
-                id: bannerCol
-                anchors.left: parent.left; anchors.right: parent.right
-                anchors.leftMargin: Tokens.spaceMd + Math.round(4 * AppPalette.scale)
-                anchors.rightMargin: Tokens.spaceMd
-                anchors.verticalCenter: parent.verticalCenter
-                spacing: Tokens.spaceMd
-
-                Row {
-                    id: heroRow
-                    width: parent.width; spacing: Tokens.spaceMd
-
+            width: parent.width
+            sev: recorderGroup.hero.sev
+            word: recorderGroup.hero.word
+            sub: recorderGroup.hero.sub
+            pulse: recorderGroup.hero.pulse
+            dimmed: recorderGroup.stale
+            aside: Component {
+                Rectangle {
+                    id: freeBadge
+                    visible: !!(dev && dev.recorderStatusValid)
+                    radius: Tokens.radiusMd
+                    implicitWidth: freeBadgeCol.implicitWidth + Tokens.spaceMd * 2; width: implicitWidth
+                    color: AppPalette.card
+                    border.width: 1
+                    border.color: recorderGroup._freeError() ? AppPalette.linkDownBorder
+                                : (recorderGroup.hero.sev === "good" || recorderGroup.hero.sev === "idle")
+                                  ? Qt.rgba(AppPalette.linkOkBorder.r, AppPalette.linkOkBorder.g, AppPalette.linkOkBorder.b, 0.45)
+                                  : AppPalette.border
                     Column {
-                        id: heroTextBlock
-                        anchors.verticalCenter: parent.verticalCenter
-                        width: heroRow.width - (freeBadge.visible ? freeBadge.width + heroRow.spacing : 0)
-                        spacing: Math.round(2 * AppPalette.scale)
-
-                        Row {
-                            width: parent.width; spacing: Tokens.spaceMd
-                            Item {
-                                id: heroDisc
-                                width: Math.round(16 * AppPalette.scale); height: width
-                                anchors.verticalCenter: parent.verticalCenter
-                                Rectangle {   // pulse ring while actively writing
-                                    id: pulseRing
-                                    anchors.centerIn: parent; width: parent.width; height: parent.height; radius: width / 2
-                                    color: "transparent"; border.width: Math.max(1, Math.round(1.5 * AppPalette.scale))
-                                    border.color: recorderGroup._sevColor(recorderGroup.hero.sev)
-                                    visible: recorderGroup.hero.pulse
-                                    ParallelAnimation {
-                                        running: recorderGroup.hero.pulse; loops: Animation.Infinite
-                                        NumberAnimation { target: pulseRing; property: "scale"; from: 1.0; to: 2.4; duration: 1500; easing.type: Easing.OutQuad }
-                                        NumberAnimation { target: pulseRing; property: "opacity"; from: 0.5; to: 0.0; duration: 1500; easing.type: Easing.OutQuad }
-                                    }
-                                }
-                                Rectangle {   // the severity disc
-                                    anchors.centerIn: parent; width: parent.width; height: parent.height; radius: width / 2
-                                    color: recorderGroup._sevColor(recorderGroup.hero.sev)
-                                }
-                            }
-                            Text {
-                                id: heroWord
-                                anchors.verticalCenter: parent.verticalCenter
-                                width: parent.width - heroDisc.width - parent.spacing
-                                text: recorderGroup.hero.word; color: recorderGroup._sevText(recorderGroup.hero.sev)
-                                font.pixelSize: Tokens.fontXxl; font.bold: true
-                                elide: Text.ElideRight
-                            }
-                        }
-
+                        id: freeBadgeCol
+                        anchors.centerIn: parent; spacing: Math.round(2 * AppPalette.scale)
                         Text {
-                            width: parent.width
-                            visible: recorderGroup.hero.sub.length > 0
-                            text: recorderGroup.hero.sub; color: AppPalette.textSecond; font.pixelSize: Tokens.fontSm
-                            wrapMode: Text.WordWrap
+                            text: qsTr("Free space"); color: AppPalette.textMuted; font.pixelSize: Tokens.fontXs
+                            anchors.horizontalCenter: parent.horizontalCenter
+                        }
+                        Text {
+                            text: (dev && (dev.recorderCriticalFlags & 1)) ? "—" : recorderGroup._fmtSize(recorderGroup.freeBytes)
+                            color: recorderGroup._freeError() ? AppPalette.linkDownText
+                                 : (recorderGroup.hero.sev === "good" || recorderGroup.hero.sev === "idle") ? AppPalette.linkOkText
+                                 : AppPalette.text
+                            font.pixelSize: Tokens.fontSm; font.bold: true
+                            anchors.horizontalCenter: parent.horizontalCenter
                         }
                     }
-
                     Rectangle {
-                        id: freeBadge
-                        anchors.verticalCenter: parent.verticalCenter
-                        visible: !!(dev && dev.recorderStatusValid)
-                        radius: Tokens.radiusMd
-                        implicitWidth: freeBadgeCol.implicitWidth + Tokens.spaceMd * 2; width: implicitWidth
-                        height: heroTextBlock.implicitHeight
-                        color: AppPalette.card
-                        border.width: 1
-                        border.color: recorderGroup._freeError() ? AppPalette.linkDownBorder
-                                    : (recorderGroup.hero.sev === "good" || recorderGroup.hero.sev === "idle")
-                                      ? Qt.rgba(AppPalette.linkOkBorder.r, AppPalette.linkOkBorder.g, AppPalette.linkOkBorder.b, 0.45)
-                                      : AppPalette.border
-                        Column {
-                            id: freeBadgeCol
-                            anchors.centerIn: parent; spacing: Math.round(2 * AppPalette.scale)
-                            Text {
-                                text: qsTr("Free space"); color: AppPalette.textMuted; font.pixelSize: Tokens.fontXs
-                                anchors.horizontalCenter: parent.horizontalCenter
-                            }
-                            Text {
-                                text: (dev && (dev.recorderCriticalFlags & 1)) ? "—" : recorderGroup._fmtSize(recorderGroup.freeBytes)
-                                color: recorderGroup._freeError() ? AppPalette.linkDownText
-                                     : (recorderGroup.hero.sev === "good" || recorderGroup.hero.sev === "idle") ? AppPalette.linkOkText
-                                     : AppPalette.text
-                                font.pixelSize: Tokens.fontSm; font.bold: true
-                                anchors.horizontalCenter: parent.horizontalCenter
-                            }
-                        }
-                        Rectangle {   // blink glow when free space is critical
-                            anchors.fill: parent; radius: parent.radius; color: "transparent"
-                            border.width: Math.round(2 * AppPalette.scale); border.color: AppPalette.linkDownBorder
-                            visible: recorderGroup._freeError()
-                            SequentialAnimation on opacity {
-                                running: recorderGroup._freeError(); loops: Animation.Infinite
-                                NumberAnimation { from: 1.0; to: 0.12; duration: 560; easing.type: Easing.InOutSine }
-                                NumberAnimation { from: 0.12; to: 1.0; duration: 560; easing.type: Easing.InOutSine }
-                            }
+                        anchors.fill: parent; radius: parent.radius; color: "transparent"
+                        border.width: Math.round(2 * AppPalette.scale); border.color: AppPalette.linkDownBorder
+                        visible: recorderGroup._freeError()
+                        SequentialAnimation on opacity {
+                            running: recorderGroup._freeError(); loops: Animation.Infinite
+                            NumberAnimation { from: 1.0; to: 0.12; duration: 560; easing.type: Easing.InOutSine }
+                            NumberAnimation { from: 0.12; to: 1.0; duration: 560; easing.type: Easing.InOutSine }
                         }
                     }
                 }
+            }
 
-                Flow {
-                    width: parent.width; spacing: Tokens.spaceSm
+            Flow {
+                width: parent.width; spacing: Tokens.spaceSm
+                visible: !!(dev && dev.recorderStatusValid && (dev.recorderDegradedFlags & 0x8))
+                StatusStatBox {
                     visible: !!(dev && dev.recorderStatusValid && (dev.recorderDegradedFlags & 0x8))
-                    StatBox {
-                        visible: !!(dev && dev.recorderStatusValid && (dev.recorderDegradedFlags & 0x8))
-                        alertBox: true
-                        bvalue: qsTr("⚠ Dropping frames")
-                    }
+                    alertBox: true
+                    bvalue: qsTr("⚠ Dropping frames")
                 }
             }
         }
@@ -1826,10 +1729,23 @@ Column {
         }
     }
 
+    ImuStatusGroup {
+        width: root.groupWidth; preferredWidth: root.groupWidth
+        dev: root.dev
+    }
+
     // ── USBL ──────────────────────────────────────────────────────────────
     // Three groups ordered by how often they are touched: operating (nodes + schedule)
     // stays open, the command plan and the response gating start collapsed. The plan model
     // is shared by the first two and persists independently of the device.
+    UsblNetworkCard {
+        width: root.groupWidth; preferredWidth: root.groupWidth
+        dev: root.dev
+        store: root.store
+        network: root.nodesStore
+        engine: root.nodesEngine
+    }
+
     UsblGroup {
         width: root.groupWidth; preferredWidth: root.groupWidth
         dev: root.dev
@@ -5360,21 +5276,23 @@ Column {
             upgradePathInput.text = devUpgradeGroup._disp(devUpgradeGroup.selectedUpgradePathSource)
         }
 
-        readonly property int _fwOk: 101
-        property string _activeTag: ""
-        property string _activeLabel: ""
-        property string _activeFw: ""
-        function _devLabel() {
-            if (!dev) return ""
-            var n = dev.devName ? dev.devName : ""
-            return dev.devSN ? (n + " (SN " + dev.devSN + ")") : n
+        property var pathByDevName: ({})
+        readonly property string devKey: root.devTypeKey
+        property string _prevDevKey: ""
+
+        onDevKeyChanged: {
+            if (devUpgradeGroup._prevDevKey.length > 0) {
+                var map = devUpgradeGroup.pathByDevName
+                map[devUpgradeGroup._prevDevKey] = devUpgradeGroup.currentUpgradePath()
+                devUpgradeGroup.pathByDevName = map
+            }
+            devUpgradeGroup.setUpgradePath(devUpgradeGroup.devKey.length > 0
+                                           ? (devUpgradeGroup.pathByDevName[devUpgradeGroup.devKey] || "")
+                                           : "")
+            devUpgradeGroup._prevDevKey = devUpgradeGroup.devKey
         }
-        function _baseName(p) {
-            if (!p) return ""
-            var s = String(p).replace(/\\/g, "/")
-            var i = s.lastIndexOf("/")
-            return i >= 0 ? s.slice(i + 1) : s
-        }
+
+        Component.onCompleted: devUpgradeGroup._prevDevKey = devUpgradeGroup.devKey
 
         FileDialog {
             id: upgradeFileDialog
@@ -5387,23 +5305,6 @@ Column {
             onAccepted: {
                 devUpgradeGroup.upgradeFolder = upgradeFileDialog.currentFolder
                 devUpgradeGroup.setUpgradePath(upgradeFileDialog.selectedFile)
-            }
-        }
-
-        KIslandRow {
-            stacked: true
-            minHeight: 0
-            open: upgradeProgress.pct > 0 && upgradeProgress.pct < 100
-            Rectangle {
-                id: upgradeProgress
-                width: parent.width; height: Math.round(4 * AppPalette.scale); radius: height / 2
-                color: AppPalette.trackOff
-                readonly property int pct: dev && dev.upgradeFWStatus !== undefined
-                                           ? Math.max(0, Math.min(100, dev.upgradeFWStatus)) : 0
-                Rectangle {
-                    height: parent.height; radius: parent.radius; color: AppPalette.accentBar
-                    width: parent.width * upgradeProgress.pct / 100
-                }
             }
         }
 
@@ -5448,18 +5349,7 @@ Column {
                 text: qsTr("UPGRADE")
                 onClicked: {
                     if (!dev) return
-                    var path = devUpgradeGroup.currentUpgradePath()
-                    var fw = devUpgradeGroup._baseName(path)
-                    var label = devUpgradeGroup._devLabel()
-                    var tag = "fw-upgrade-" + (dev.devSN || 0)
-                    if (core.upgradeFW(path, dev)) {
-                        devUpgradeGroup._activeTag = tag
-                        devUpgradeGroup._activeLabel = label
-                        devUpgradeGroup._activeFw = fw
-                        notifications.warning(qsTr("Flashing device %1 with file %2").arg(label).arg(fw), tag)
-                    } else {
-                        notifications.warning(qsTr("Failed to open firmware file: %1").arg(fw))
-                    }
+                    core.upgradeFW(devUpgradeGroup.currentUpgradePath(), dev)
                 }
             }
         }
@@ -5475,35 +5365,9 @@ Column {
                 onClicked: {
                     if (!dev) return
                     var path = devUpgradeGroup.currentUpgradePath()
-                    var fw = devUpgradeGroup._baseName(path)
-                    var label = devUpgradeGroup._devLabel()
-                    var tag = "fw-upgrade-" + (dev.devSN || 0)
-                    if (core.upgradeFWAll(path, dev)) {
-                        devUpgradeGroup._activeTag = tag
-                        devUpgradeGroup._activeLabel = label
-                        devUpgradeGroup._activeFw = fw
-                        notifications.warning(qsTr("Flashing every sonar on the line of %1 with file %2").arg(label).arg(fw), tag)
-                    } else {
-                        notifications.warning(qsTr("Failed to open firmware file: %1").arg(fw))
-                    }
+                    if (!core.upgradeFWAll(path, dev))
+                        notifications.warning(qsTr("Failed to open firmware file: %1").arg(String(path).split(/[\\/]/).pop()))
                 }
-            }
-        }
-
-        Connections {
-            target: dev
-            ignoreUnknownSignals: true
-            function onUpgradingFirmwareDone() {
-                if (!devUpgradeGroup._activeTag.length) return
-                notifications.dismiss(devUpgradeGroup._activeTag)
-                if (dev && dev.upgradeFWStatus === devUpgradeGroup._fwOk)
-                    notifications.info(qsTr("Device %1 successfully flashed with file %2")
-                                       .arg(devUpgradeGroup._activeLabel).arg(devUpgradeGroup._activeFw))
-                else
-                    notifications.warning(qsTr("Failed to flash device %1 with file %2 (error code %3)")
-                                          .arg(devUpgradeGroup._activeLabel).arg(devUpgradeGroup._activeFw)
-                                          .arg(dev ? dev.upgradeFWStatus : -1))
-                devUpgradeGroup._activeTag = ""
             }
         }
     }
@@ -5761,13 +5625,16 @@ Column {
             var m = devInfoGroup.linkMeta
             if (!m)
                 return ""
+            var detail = ""
             switch (m.linkType) {
-            case 1: return m.baudrate > 0 ? (m.portName + " · " + m.baudrate) : m.portName
-            case 2: return "UDP " + m.address + ":" + m.destinationPort
-            case 3: return "TCP " + m.address + ":" + m.destinationPort
-            case 4: return "RTSP " + m.address
+            case 1: detail = m.baudrate > 0 ? (m.portName + " · " + m.baudrate) : m.portName; break
+            case 2: detail = "UDP " + m.address + ":" + m.destinationPort; break
+            case 3: detail = "TCP " + m.address + ":" + m.destinationPort; break
+            case 4: detail = "Video " + m.address; break
             }
-            return ""
+            if (!m.customName || !m.customName.length)
+                return detail
+            return detail.length ? m.customName + " · " + detail : m.customName
         }
 
         function infoText() {

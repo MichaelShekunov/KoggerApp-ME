@@ -278,7 +278,7 @@ void MissionPlanController::setDirectoryOverride(const QString& dir)
         return;
     }
     directoryOverride_ = clean;
-    QSettings settings(QStringLiteral("KOGGER"), koggerAppName());
+    QSettings settings(QStringLiteral("KOGGER"), koggerAppName());   // the profile's settings (app_profile.h)
     settings.setValue(QLatin1String(kSettingsDirectory), directoryOverride_);
     emit directoryChanged();
 }
@@ -1224,7 +1224,7 @@ void MissionPlanController::rememberLastFile(const QString& path)
         return;
     }
     lastFile_ = path;
-    QSettings settings(QStringLiteral("KOGGER"), koggerAppName());
+    QSettings settings(QStringLiteral("KOGGER"), koggerAppName());   // the profile's settings (app_profile.h)
     settings.setValue(QLatin1String(kSettingsLastFile), lastFile_);
     emit lastFileChanged();
 }

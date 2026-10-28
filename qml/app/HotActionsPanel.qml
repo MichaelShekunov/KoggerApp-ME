@@ -56,9 +56,23 @@ Item {
     property bool autopilotEnabled: true
     readonly property bool _autopilotRevealOverride: _revealActiveKey === "autopilot"
     readonly property bool showAutopilot: autopilotEnabled || _autopilotRevealOverride
+    property bool contactEnabled: true
+    readonly property bool _contactRevealOverride: _revealActiveKey === "contact"
+    readonly property bool showContact: contactEnabled || _contactRevealOverride
+    readonly property bool contactArmed: (typeof core !== "undefined" && core) ? core.contactPlacementArmed : false
+    readonly property bool contactAvailable: _hasConnectedDevice
+                                             || (typeof core !== "undefined" && core && core.fileOpened)
+    onContactAvailableChanged: {
+        if (!contactAvailable && contactArmed && typeof core !== "undefined" && core)
+            core.setContactPlacementArmed(false)
+    }
     property bool profilesEnabled: true
     readonly property bool _profilesRevealOverride: _revealActiveKey === "profiles"
     readonly property bool showProfiles: profilesEnabled || _profilesRevealOverride
+    property bool nodesEnabled: true
+    property bool nodesRunning: false
+    readonly property bool _nodesRevealOverride: _revealActiveKey === "nodes"
+    readonly property bool showNodes: nodesEnabled || _nodesRevealOverride
     property bool widgetsEnabled: true
     readonly property bool _widgetsRevealOverride: _revealActiveKey === "widgets"
     readonly property bool showWidgets: widgetsEnabled || _widgetsRevealOverride
@@ -207,11 +221,14 @@ Item {
 
     function _linkLabelOf(g) {
         if (!g) return ""
+        var detail = ""
         if (g.portName && g.portName.length > 0)
-            return g.baudrate > 0 ? g.portName + " " + g.baudrate : g.portName
-        if (g.address && g.address.length > 0)
-            return g.address
-        return ""
+            detail = g.baudrate > 0 ? g.portName + " " + g.baudrate : g.portName
+        else if (g.address && g.address.length > 0)
+            detail = g.address
+        if (!g.customName || !g.customName.length)
+            return detail
+        return detail.length > 0 ? g.customName + " · " + detail : g.customName
     }
 
     function _devIndex(dev) {
@@ -549,6 +566,8 @@ Item {
                     : root.panelPaddingX + 2 * root.toggleButtonSize + Math.round(8 * root._s)
                       + (collapsedDeviceRow.visible ? Math.round(8 * root._s) + collapsedDeviceRow.width : 0))
     height: Math.max(leadingClusterHeight, panel.height, layoutsCombo.y + backing.height, btEditCombo.y + btEditCombo.height, widgetsCombo.y + widgetsBacking.height)
+    // The button bar alone, without open dropdowns: what a window docked under the bar must clear.
+    readonly property real barHeight: Math.max(leadingClusterHeight, panel.height)
 
     component LayoutsTriggerButton: Rectangle {
         id: button
@@ -1501,6 +1520,7 @@ Item {
             required property int index
             readonly property var _dev: modelData ? modelData.device : null
             spacing: 0
+            z: -index
 
             Item {
                 visible: devCell.index > 0
@@ -1510,11 +1530,25 @@ Item {
                 height: root.controlHeight
 
                 Rectangle {
+                    id: connBar
+                    readonly property int hairline: Math.max(1, Math.round(root._s))
+                    readonly property int over: Math.max(2, Math.round(2 * root._s))
                     visible: !!(devCell.modelData && !devCell.modelData.groupFirst)
                     anchors.centerIn: parent
-                    width: parent.width
+                    width: parent.width + 2 * over
                     height: Math.max(2, Math.round(2 * root._s))
                     color: AppPalette.textMuted
+
+                    Rectangle {
+                        anchors { left: parent.left; right: parent.right; bottom: parent.top }
+                        height: connBar.hairline
+                        color: "#000000"
+                    }
+                    Rectangle {
+                        anchors { left: parent.left; right: parent.right; top: parent.bottom }
+                        height: connBar.hairline
+                        color: "#000000"
+                    }
                 }
             }
 
@@ -1553,6 +1587,8 @@ Item {
                         if (lbl && lbl.length > 0)
                             t += " · " + lbl
                     }
+                    if (RecorderStatus.imuDegraded(_dev))
+                        t += " · " + qsTr("IMU fault")
                     return t
                 }
 
@@ -1908,6 +1944,31 @@ Item {
     }
 
     Component {
+        id: qaContactComp
+        KCircleIconButton {
+            id: contactBtn
+            readonly property bool _armed: root.contactArmed
+            width: root.controlHeight
+            height: root.controlHeight
+            iconSource: "qrc:/icons/ui/map-pin-plus.svg"
+            iconTintColor: AppPalette.text
+            enabled: _armed || root.contactAvailable
+            toolTipText: _armed ? qsTr("Cancel contact") : qsTr("Set contact")
+            fillColor:        _armed ? AppPalette.accentBgStrong : root.buttonFillColor
+            fillHoverColor:   _armed ? AppPalette.accentBorder : root.buttonHoverColor
+            fillPressedColor: root.buttonPressedColor
+            borderColor:      _armed ? AppPalette.accentBorder : root.buttonBorderColor
+            borderHoverColor: _armed ? AppPalette.accentBorder : root.buttonHoverBorderColor
+            highlighted: root.highlightedQuickActionKey === "contact"
+            flashToken: root.highlightPulseToken
+            highlightHold: root.draggingKey === "contact"
+            onClicked: if (typeof core !== "undefined" && core) core.setContactPlacementArmed(!core.contactPlacementArmed)
+
+            KCloseBadge { visible: contactBtn._armed }
+        }
+    }
+
+    Component {
         id: qaMissionComp
         KCircleIconButton {
             width: root.controlHeight
@@ -1973,6 +2034,39 @@ Item {
             onClicked: if (root.store) root.store.profilesPopupOpen = !root.store.profilesPopupOpen
 
             KCloseBadge { visible: profilesBtn._open }
+        }
+    }
+
+    Component {
+        id: qaNodesComp
+        KCircleIconButton {
+            id: nodesBtn
+            readonly property bool _open: root.store && root.store.nodesConfiguratorOpen
+            width: root.controlHeight
+            height: root.controlHeight
+            iconSource: "qrc:/icons/ui/device-usbl.svg"
+            iconTintColor: AppPalette.text
+            toolTipText: _open ? qsTr("Close Nodes-Configurator") : qsTr("Nodes-Configurator")
+            fillColor:        _open ? AppPalette.accentBgStrong : root.buttonFillColor
+            fillHoverColor:   _open ? AppPalette.accentBorder : root.buttonHoverColor
+            fillPressedColor: root.buttonPressedColor
+            borderColor:      _open ? AppPalette.accentBorder : root.buttonBorderColor
+            borderHoverColor: _open ? AppPalette.accentBorder : root.buttonHoverBorderColor
+            highlighted: root.highlightedQuickActionKey === "nodes"
+            flashToken: root.highlightPulseToken
+            highlightHold: root.draggingKey === "nodes"
+            onClicked: if (root.store) root.store.nodesConfiguratorOpen = !root.store.nodesConfiguratorOpen
+
+            KCloseBadge { visible: nodesBtn._open }
+            Rectangle {
+                visible: root.nodesRunning
+                anchors.top: parent.top
+                anchors.right: parent.right
+                width: Math.round(9 * AppPalette.scale); height: width; radius: width / 2
+                color: AppPalette.linkOkBorder
+                border.width: 1
+                border.color: AppPalette.bg
+            }
         }
     }
 
@@ -2232,11 +2326,13 @@ Item {
                            : key === "logging"     ? root._loggingBadgeVisibleExpanded
                            : key === "layouts"   ? root.hasFavoriteLayouts
                            : key === "bottomTrack" ? root.showBtEdit
+                           : key === "contact"     ? root.showContact
                            : key === "mission"     ? root.showMission
                            : key === "autopilot"   ? root.showAutopilot
                            : key === "widgets"     ? root.showWidgets
                            : key === "console"      ? root.showConsole
                            : key === "profiles"     ? root.showProfiles
+                           : key === "nodes"        ? root.showNodes
                            : key === "inputLock"    ? root._showInputLock
                            : key === "secondWindow" ? root._showSecondWindow
                            : key === "powerOff"     ? root._showPowerOff
@@ -2246,11 +2342,13 @@ Item {
                                    : key === "logging"      ? qaLoggingComp
                                    : key === "layouts"    ? qaFavoritesComp
                                    : key === "bottomTrack"  ? qaBottomTrackComp
+                                   : key === "contact"      ? qaContactComp
                                    : key === "mission"      ? qaMissionComp
                                    : key === "autopilot"    ? qaAutopilotComp
                                    : key === "widgets"      ? qaWidgetsComp
                                    : key === "console"      ? qaConsoleComp
                                    : key === "profiles"     ? qaProfilesComp
+                                   : key === "nodes"        ? qaNodesComp
                                    : key === "inputLock"    ? qaInputLockComp
                                    : key === "secondWindow" ? qaSecondWindowComp
                                    : key === "powerOff"     ? qaPowerOffComp

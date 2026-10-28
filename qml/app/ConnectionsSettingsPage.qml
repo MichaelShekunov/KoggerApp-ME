@@ -58,6 +58,34 @@ Column {
 
         headerActions: [
             KCircleIconButton {
+                id: discoverBtn
+                readonly property bool _busy: typeof linkDiscovery !== "undefined" && linkDiscovery && linkDiscovery.running
+                property real pulse: 0
+                readonly property color _accent: AppPalette.accentBorder
+                width: connGroup.headerActionSize
+                height: connGroup.headerActionSize
+                cornerRadius: Tokens.radiusLg
+                borderWidth: 0
+                scaleOnHover: false
+                iconSource: "qrc:/icons/ui/radar.svg"
+                iconTintColor: _busy ? Qt.rgba(AppPalette.text.r, AppPalette.text.g, AppPalette.text.b, 0.35 + 0.65 * pulse)
+                                     : AppPalette.text
+                iconPixelSize: Math.round(connGroup.headerActionSize * 0.5)
+                toolTipText: _busy ? qsTr("Searching the local network…") : qsTr("Find KOGGER devices in the local network (UDP)")
+                fillColor:      _busy ? Qt.tint(AppPalette.chipRaised, Qt.rgba(_accent.r, _accent.g, _accent.b, 0.45 * pulse))
+                                      : AppPalette.chipRaised
+                fillHoverColor: _busy ? fillColor : AppPalette.chipRaisedHover
+                onClicked: if (root.store) root.store.discoverLanDevices()
+
+                SequentialAnimation {
+                    running: discoverBtn._busy
+                    loops: Animation.Infinite
+                    NumberAnimation { target: discoverBtn; property: "pulse"; to: 1; duration: 650; easing.type: Easing.InOutSine }
+                    NumberAnimation { target: discoverBtn; property: "pulse"; to: 0; duration: 650; easing.type: Easing.InOutSine }
+                    onRunningChanged: if (!running) discoverBtn.pulse = 0
+                }
+            },
+            KCircleIconButton {
                 readonly property bool _rec: typeof core !== "undefined" && core && (core.loggingKlf || core.loggingCsv)
                 width: connGroup.headerActionSize
                 height: connGroup.headerActionSize

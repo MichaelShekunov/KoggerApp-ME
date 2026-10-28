@@ -480,6 +480,30 @@ Item {
                     }
                 }
 
+                Toggle {
+                    id: mavlinkConsoled
+                    visible: root.protoTogglesVisible
+                    label: qsTr("MAVLink")
+                    checked: !!root.store && root.store.consoleMavlink
+                    onToggled: function(value) {
+                        if (root.store)
+                            root.store.consoleMavlink = value
+                        checked = Qt.binding(function() { return !!root.store && root.store.consoleMavlink })
+                    }
+                }
+
+                Toggle {
+                    id: usblConsoled
+                    visible: root.protoTogglesVisible
+                    label: qsTr("USBL")
+                    checked: !!root.store && root.store.consoleUsbl
+                    onToggled: function(value) {
+                        if (root.store)
+                            root.store.consoleUsbl = value
+                        checked = Qt.binding(function() { return !!root.store && root.store.consoleUsbl })
+                    }
+                }
+
                 Item { Layout.fillWidth: true }
 
                 KCircleIconButton {

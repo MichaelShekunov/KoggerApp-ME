@@ -4,6 +4,8 @@
 #include <time.h>
 #include <core.h>
 #include <QDateTime>
+#include <QDebug>
+#include <limits>
 #include <QFile>
 #include <QThread>
 #include <type_traits>
@@ -89,10 +91,12 @@ DevDriver::DevDriver(QObject *parent)
     regID(idNav = new IDBinNav(), &DevDriver::receivedNav);
     regID(idBoatStatus = new IDBinBoatStatus(), &DevDriver::receivedBoatStatus);
     regID(idRecorderStatus = new IDBinRecorderStatus(), &DevDriver::receivedRecorderStatus);
+    regID(idNavSensorStatus = new IDBinNavSensorStatus(), &DevDriver::receivedNavSensorStatus);
     regID(idDVL = new IDBinDVL(), &DevDriver::receivedDVL);
     regID(idDVLMode = new IDBinDVLMode(), &DevDriver::receivedDVLMode);
 
     regID(idUSBL = new IDBinUsblSolution(), &DevDriver::receivedUSBL);
+    regID(idUsblDiag = new IDBinUsblDiag(), &DevDriver::receivedUsblDiag);
 
     regID(idUSBLControl = new IDBinUsblControl(), &DevDriver::receivedUSBLControl);
 
@@ -105,9 +109,7 @@ DevDriver::DevDriver(QObject *parent)
     regID(idPwmRoute = new IDBinPwmRoute(), &DevDriver::receivedPwmRoute, true);
     regID(idDevSync = new IDBinDevSync(), &DevDriver::receivedDevSync, true);
 
-#ifndef SEPARATE_READING
     connect(&m_processTimer, &QTimer::timeout, this, &DevDriver::process);
-#endif
 
     QObject::connect(idDataset, &IDBin::notifyDevDriver, this, &DevDriver::setDatasetState);
     QObject::connect(idDistSetup, &IDBin::notifyDevDriver, this, &DevDriver::setDistSetupState);
@@ -280,18 +282,6 @@ DevDriver::DevDriver(QObject *parent)
 
 DevDriver::~DevDriver()
 {
-#ifdef SEPARATE_READING
-    QList<QTimer*> timers = getChildTimers();
-    foreach (QTimer* timer, timers) {
-        if (timer->isActive()) {
-            timer->stop();
-        }
-    }
-
-    if (m_processTimer.isActive()) {
-        m_processTimer.stop();
-    }
-#endif
     m_processTimer.stop();
 }
 
@@ -299,117 +289,6 @@ ChannelId DevDriver::getChannelId() const
 {
     return ChannelId(linkUuid_, lastAddress_);
 }
-
-#ifdef SEPARATE_READING
-QTimer *DevDriver::getProcessTimer()
-{
-    return &m_processTimer;
-}
-
-QList<QTimer *> DevDriver::getChildTimers()
-{
-    QList<QTimer*> timers;
-
-    if (idTimestamp) {
-        timers.append(idTimestamp->getSetTimer());
-        timers.append(idTimestamp->getColdStartTimer());
-    }
-    if (idDist) {
-        timers.append(idDist->getSetTimer());
-        timers.append(idDist->getColdStartTimer());
-    }
-    if (idChart) {
-        timers.append(idChart->getSetTimer());
-        timers.append(idChart->getColdStartTimer());
-    }
-    if (idAtt) {
-        timers.append(idAtt->getSetTimer());
-        timers.append(idAtt->getColdStartTimer());
-    }
-    if (idTemp) {
-        timers.append(idTemp->getSetTimer());
-        timers.append(idTemp->getColdStartTimer());
-    }
-    if (idDataset) {
-        timers.append(idDataset->getSetTimer());
-        timers.append(idDataset->getColdStartTimer());
-    }
-    if (idDistSetup) {
-        timers.append(idDistSetup->getSetTimer());
-        timers.append(idDistSetup->getColdStartTimer());
-    }
-    if (idChartSetup) {
-        timers.append(idChartSetup->getSetTimer());
-        timers.append(idChartSetup->getColdStartTimer());
-    }
-    if (idDSPSetup) {
-        timers.append(idDSPSetup->getSetTimer());
-        timers.append(idDSPSetup->getColdStartTimer());
-    }
-    if (idTransc) {
-        timers.append(idTransc->getSetTimer());
-        timers.append(idTransc->getColdStartTimer());
-    }
-    if (idSoundSpeed) {
-        timers.append(idSoundSpeed->getSetTimer());
-        timers.append(idSoundSpeed->getColdStartTimer());
-    }
-    if (idUART) {
-        timers.append(idUART->getSetTimer());
-        timers.append(idUART->getColdStartTimer());
-    }
-    if (idWifi) {
-        timers.append(idWifi->getSetTimer());
-        timers.append(idWifi->getColdStartTimer());
-    }
-    if (idWifiNet) {
-        timers.append(idWifiNet->getSetTimer());
-        timers.append(idWifiNet->getColdStartTimer());
-    }
-    if (idVersion) {
-        timers.append(idVersion->getSetTimer());
-        timers.append(idVersion->getColdStartTimer());
-    }
-    if (idMark) {
-        timers.append(idMark->getSetTimer());
-        timers.append(idMark->getColdStartTimer());
-    }
-    if (idFlash) {
-        timers.append(idFlash->getSetTimer());
-        timers.append(idFlash->getColdStartTimer());
-    }
-    if (idBoot) {
-        timers.append(idBoot->getSetTimer());
-        timers.append(idBoot->getColdStartTimer());
-    }
-    if (idUpdate) {
-        timers.append(idUpdate->getSetTimer());
-        timers.append(idUpdate->getColdStartTimer());
-    }
-    if (idNav) {
-        timers.append(idNav->getSetTimer());
-        timers.append(idNav->getColdStartTimer());
-    }
-    if (idBoatStatus) {
-        timers.append(idBoatStatus->getSetTimer());
-        timers.append(idBoatStatus->getColdStartTimer());
-    }
-    if (idDVL) {
-        timers.append(idDVL->getSetTimer());
-        timers.append(idDVL->getColdStartTimer());
-    }
-    if (idDVLMode) {
-        timers.append(idDVLMode->getSetTimer());
-        timers.append(idDVLMode->getColdStartTimer());
-    }
-    if (idUSBL) {
-        timers.append(idUSBL->getSetTimer());
-        timers.append(idUSBL->getColdStartTimer());
-    }
-
-    return timers;
-}
-#endif
 
 void DevDriver::regID(IDBin* id_bin, ParseCallback method, bool is_setup) {
 //    hashIDParsing[id_bin->id()] = id_bin;
@@ -896,49 +775,163 @@ void DevDriver::enableBeaconOnce(float timeout)
 
 void DevDriver::acousticPingRequest(uint8_t address, uint32_t timeout_us) {
     if(!m_state.connect) return;
-    idUSBLControl->pingRequest(timeout_us, address);
+    trackUsblFrame(v1, idUSBLControl->pingRequest(timeout_us, address));
 }
 
 void DevDriver::acousticPingRequestEx(uint8_t address, uint32_t timeout_us, uint8_t cmdId, uint32_t replyDistanceMm, const QByteArray& payload) {
     if(!m_state.connect) return;
-    idUSBLControl->pingRequest(timeout_us, address, cmdId, replyDistanceMm, payload);
+    trackUsblFrame(v1, idUSBLControl->pingRequest(timeout_us, address, cmdId, replyDistanceMm, payload));
+}
+
+void DevDriver::acousticPingRequestHex(int address, double timeoutUs, int cmdId, double replyDistanceMm,
+                                       const QString& hexPayload, int payloadBits) {
+    if(!m_state.connect) return;
+    const uint32_t timeout = (uint32_t)qBound(0.0, timeoutUs, 4294967295.0);
+    const uint32_t reply = (uint32_t)qBound(0.0, replyDistanceMm, 4294967295.0);
+    trackUsblFrame(v1, idUSBLControl->pingRequest(timeout, (uint8_t)qBound(0, address, 255),
+                                                  (uint8_t)qBound(0, cmdId, 255), reply,
+                                                  parseHexPayload(hexPayload), payloadBits));
+}
+
+void DevDriver::trackUsblFrame(int ver, uint16_t checksum) {
+    UsblPendingFrame f;
+    f.ver = ver;
+    f.sentMs = QDateTime::currentMSecsSinceEpoch();
+    f.relayed = (int)idUSBLControl->lastRelayedChecksum();
+    usblPending_[(int)checksum] = f;
+    logUsblControl(ver, QStringLiteral("sent ck %1").arg(checksum, 4, 16, QLatin1Char('0')));
+    emit usblControlFrameSent(ver, (int)checksum);
+}
+
+void DevDriver::logUsblControl(int ver, const QString& what) {
+    // Pings go out every step; only configuration frames are rare enough to log unconditionally.
+    if(ver == (int)v1 && !usblConsoled_) return;
+    qInfo().noquote() << QStringLiteral("USBL ctl v%1 %2 [%3 SN %4 route %5]")
+                             .arg(ver).arg(what, m_devName)
+                             .arg(devSerialNumber())
+                             .arg(getBusAddress());
 }
 
 void DevDriver::acousticResponceFilter(uint8_t address) {
-    if(!m_state.connect) return;
-    idUSBLControl->setResponseAddressFilter(address);
+    std::array<uint8_t, 8> filter;
+    filter.fill(0xFF);
+    filter[0] = address;
+    usblMem_.hasFilter = true;
+    usblMem_.filter = filter;
+    sendUsblFilter();
 }
 
 void DevDriver::acousticResponceFilterSlots(const QVector<int>& addresses) {
-    if(!m_state.connect) return;
-
     std::array<uint8_t, 8> filter;
     filter.fill(0xFF);
     const int count = qMin((int)filter.size(), (int)addresses.size());
     for(int i = 0; i < count; ++i) {
         filter[i] = (uint8_t)addresses[i];
     }
-    idUSBLControl->setResponseAddressFilter(filter);
+    usblMem_.hasFilter = true;
+    usblMem_.filter = filter;
+    sendUsblFilter();
 }
 
 void DevDriver::acousticResponceTimeout(uint32_t timeout_us) {
-    if(!m_state.connect) return;
-    idUSBLControl->setResponseTimeout(timeout_us);
+    usblMem_.hasTransponder = true;
+    usblMem_.transponderTimeoutUs = timeout_us;
+    sendUsblTransponder();
 }
 
 void DevDriver::setUsblTransponderEnable(bool enabled) {
-    if(!m_state.connect) return;
-    idUSBLControl->setTransponderEnable(enabled ? 0xFFFFFFFF : 0);
+    acousticResponceTimeout(enabled ? 0xFFFFFFFF : 0);
 }
 
 void DevDriver::setUsblMonitorConfig(uint32_t suppressSelfResponseUs, uint32_t suppressSelfRequestUs, bool receiveResponseInIdle) {
-    if(!m_state.connect) return;
+    usblMem_.hasMonitor = true;
+    usblMem_.suppressSelfResponseUs = suppressSelfResponseUs;
+    usblMem_.suppressSelfRequestUs = suppressSelfRequestUs;
+    usblMem_.receiveResponseInIdle = receiveResponseInIdle;
+    sendUsblMonitor();
+}
 
-    IDBinUsblControl::USBLMonitorConfig cfg;
-    cfg.suppressSelfResponse_us = suppressSelfResponseUs;
-    cfg.suppressSelfRequest_us = suppressSelfRequestUs;
-    cfg.receiveResponseInIdle = receiveResponseInIdle;
-    idUSBLControl->setMonitorConfig(cfg);
+QVariantList DevDriver::usblRespAcceptedAddresses() const {
+    QVariantList out;
+    if(!usblMem_.hasFilter) return out;
+    for(uint8_t a : usblMem_.filter) {
+        if(a != 0xFF) out.append((int)a);
+    }
+    return out;
+}
+
+int DevDriver::usblRespApplyState() const {
+    bool any = false, pending = false, queued = false, noAnswer = false, confirmed = false;
+    for(int ver : { (int)v3, (int)v4, (int)v7 }) {
+        switch(usblAck_[ver]) {
+        case UsblApplyRejected:  return UsblApplyRejected;
+        case UsblApplyPending:   pending = true; any = true; break;
+        case UsblApplyQueued:    queued = true; any = true; break;
+        case UsblApplyNoAnswer:  noAnswer = true; any = true; break;
+        case UsblApplyConfirmed: confirmed = true; any = true; break;
+        default: break;
+        }
+    }
+    if(!any) return UsblApplyNone;
+    if(pending) return UsblApplyPending;
+    if(queued) return UsblApplyQueued;
+    if(noAnswer) return UsblApplyNoAnswer;
+    return confirmed ? UsblApplyConfirmed : UsblApplyNone;
+}
+
+void DevDriver::markUsblSent(int ver) {
+    if(ver < 0 || ver >= (int)usblAck_.size()) return;
+    usblAck_[ver] = UsblApplyPending;
+    usblAckSentMs_[ver] = QDateTime::currentMSecsSinceEpoch();
+}
+
+void DevDriver::sendUsblTransponder() {
+    if(m_state.connect) {
+        trackUsblFrame(v3, idUSBLControl->setTransponderEnable(usblMem_.transponderTimeoutUs));
+        markUsblSent(v3);
+    } else {
+        usblAck_[v3] = UsblApplyQueued;
+    }
+    emit usblResponseConfigChanged();
+}
+
+void DevDriver::sendUsblFilter() {
+    if(m_state.connect) {
+        trackUsblFrame(v4, idUSBLControl->setResponseAddressFilter(usblMem_.filter));
+        markUsblSent(v4);
+    } else {
+        usblAck_[v4] = UsblApplyQueued;
+    }
+    emit usblResponseConfigChanged();
+}
+
+void DevDriver::sendUsblMonitor() {
+    if(m_state.connect) {
+        IDBinUsblControl::USBLMonitorConfig cfg;
+        cfg.suppressSelfResponse_us = usblMem_.suppressSelfResponseUs;
+        cfg.suppressSelfRequest_us = usblMem_.suppressSelfRequestUs;
+        cfg.receiveResponseInIdle = usblMem_.receiveResponseInIdle;
+        trackUsblFrame(v7, idUSBLControl->setMonitorConfig(cfg));
+        markUsblSent(v7);
+    } else {
+        usblAck_[v7] = UsblApplyQueued;
+    }
+    emit usblResponseConfigChanged();
+}
+
+void DevDriver::resendUsblControl() {
+    const bool any = usblMem_.hasTransponder || usblMem_.hasFilter || usblMem_.hasMonitor
+                     || !usblMem_.cmdSlots.isEmpty();
+    if(!any) return;
+
+    for(auto it = usblMem_.cmdSlots.cbegin(); it != usblMem_.cmdSlots.cend(); ++it) {
+        sendUsblSlot(it.value());
+    }
+    if(usblMem_.hasMonitor) sendUsblMonitor();
+    if(usblMem_.hasFilter) sendUsblFilter();
+    if(usblMem_.hasTransponder) sendUsblTransponder();
+
+    core.consoleInfo(QString("USBL: configuration re-sent to %1 after (re)connect").arg(m_devName));
 }
 
 QByteArray DevDriver::parseHexPayload(const QString& text) {
@@ -958,9 +951,30 @@ void DevDriver::setUsblCmdConfig(int cmdId, int event,
                                  int senderFunction, const QString& sendHexPayload,
                                  int eventAction,
                                  int cmdIdAction, int cmdIdReplacement,
-                                 int addressAction, int addressReplacement) {
-    if(!m_state.connect) return;
+                                 int addressAction, int addressReplacement,
+                                 int sendBitLength) {
+    UsblSlotArgs a;
+    a.cmdId = cmdId;
+    a.event = event;
+    a.receiverFunction = receiverFunction;
+    a.receiveBitLength = receiveBitLength;
+    a.senderFunction = senderFunction;
+    a.sendHexPayload = sendHexPayload;
+    a.eventAction = eventAction;
+    a.cmdIdAction = cmdIdAction;
+    a.cmdIdReplacement = cmdIdReplacement;
+    a.addressAction = addressAction;
+    a.addressReplacement = addressReplacement;
+    a.sendBitLength = sendBitLength;
 
+    typedef IDBinUsblControl::USBLCmdConfig Cfg;
+    const int eventKey = event == Cfg::EventOnReceiveResponse ? 1 : 0;
+    usblMem_.cmdSlots[eventKey * 256 + qBound(0, cmdId, 255)] = a;
+
+    if(m_state.connect) sendUsblSlot(a);
+}
+
+void DevDriver::sendUsblSlot(const UsblSlotArgs& a) {
     typedef IDBinUsblControl::USBLCmdConfig Cfg;
 
     // Every enum here is narrow, and the values arrive from QML as plain ints — clamp
@@ -974,24 +988,24 @@ void DevDriver::setUsblCmdConfig(int cmdId, int event,
     };
 
     Cfg cfg;
-    cfg.cmd_id = (uint8_t)qBound(0, cmdId, 255);
-    cfg.eventFilter = event == Cfg::EventOnReceiveResponse ? Cfg::EventOnReceiveResponse
-                                                           : Cfg::EventOnReceiveRequest;
-    cfg.cmdIdAction = cmdIdAction == Cfg::SendBackCmdIdReplacement ? Cfg::SendBackCmdIdReplacement
-                                                                  : Cfg::SendBackCmdIdIncoming;
-    cfg.cmd_id_replacement = (uint8_t)qBound(0, cmdIdReplacement, 255);
-    cfg.addressAction = addressAction == Cfg::SendBackAddressReplacement ? Cfg::SendBackAddressReplacement
-                                                                        : Cfg::SendBackAddressIncoming;
-    cfg.address_replacement = (uint8_t)qBound(0, addressReplacement, 255);
-    cfg.eventAction = eventAction == Cfg::SendBackEventSame ? Cfg::SendBackEventSame
-                                                           : Cfg::SendBackEventSwaping;
-    cfg.receiver_function = fn(receiverFunction);
-    cfg.receive_bit_length = (uint16_t)qBound(0, receiveBitLength, 65535);
-    cfg.sender_function = fn(senderFunction);
+    cfg.cmd_id = (uint8_t)qBound(0, a.cmdId, 255);
+    cfg.eventFilter = a.event == Cfg::EventOnReceiveResponse ? Cfg::EventOnReceiveResponse
+                                                             : Cfg::EventOnReceiveRequest;
+    cfg.cmdIdAction = a.cmdIdAction == Cfg::SendBackCmdIdReplacement ? Cfg::SendBackCmdIdReplacement
+                                                                    : Cfg::SendBackCmdIdIncoming;
+    cfg.cmd_id_replacement = (uint8_t)qBound(0, a.cmdIdReplacement, 255);
+    cfg.addressAction = a.addressAction == Cfg::SendBackAddressReplacement ? Cfg::SendBackAddressReplacement
+                                                                          : Cfg::SendBackAddressIncoming;
+    cfg.address_replacement = (uint8_t)qBound(0, a.addressReplacement, 255);
+    cfg.eventAction = a.eventAction == Cfg::SendBackEventSame ? Cfg::SendBackEventSame
+                                                             : Cfg::SendBackEventSwaping;
+    cfg.receiver_function = fn(a.receiverFunction);
+    cfg.receive_bit_length = (uint16_t)qBound(0, a.receiveBitLength, 65535);
+    cfg.sender_function = fn(a.senderFunction);
     // sending_bit_length is derived from the payload actually written, inside setCmdConfig.
 
-    const QByteArray payload = parseHexPayload(sendHexPayload);
-    idUSBLControl->setCmdConfig(cfg, payload);
+    const QByteArray payload = parseHexPayload(a.sendHexPayload);
+    trackUsblFrame(v6, idUSBLControl->setCmdConfig(cfg, payload, a.sendBitLength));
 }
 
 QString DevDriver::modemLastPayload() const {
@@ -1005,89 +1019,6 @@ void DevDriver::doRequestAll()
         idVersion->requestAll();
     }
 }
-
-#ifdef SEPARATE_READING
-void DevDriver::initProcessTimerConnects()
-{
-    connect(&m_processTimer, &QTimer::timeout, this, &DevDriver::process, Qt::QueuedConnection);
-}
-
-void DevDriver::initChildsTimersConnects()
-{
-    if (idTimestamp) {
-        idTimestamp->initTimersConnects();
-    }
-    if (idDist) {
-        idDist->initTimersConnects();
-    }
-    if (idChart) {
-        idChart->initTimersConnects();
-    }
-    if (idAtt) {
-        idAtt->initTimersConnects();
-    }
-    if (idTemp) {
-        idTemp->initTimersConnects();
-    }
-    if (idDataset) {
-        idDataset->initTimersConnects();
-    }
-    if (idDistSetup) {
-        idDistSetup->initTimersConnects();
-    }
-    if (idChartSetup) {
-        idChartSetup->initTimersConnects();
-    }
-    if (idDSPSetup) {
-        idDSPSetup->initTimersConnects();
-    }
-    if (idTransc) {
-        idTransc->initTimersConnects();
-    }
-    if (idSoundSpeed) {
-        idSoundSpeed->initTimersConnects();
-    }
-    if (idUART) {
-        idUART->initTimersConnects();
-    }
-    if (idWifi) {
-        idWifi->initTimersConnects();
-    }
-    if (idWifiNet) {
-        idWifiNet->initTimersConnects();
-    }
-    if (idVersion) {
-        idVersion->initTimersConnects();
-    }
-    if (idMark) {
-        idMark->initTimersConnects();
-    }
-    if (idFlash) {
-        idFlash->initTimersConnects();
-    }
-    if (idBoot) {
-        idBoot->initTimersConnects();
-    }
-    if (idUpdate) {
-        idUpdate->initTimersConnects();
-    }
-    if (idNav) {
-        idNav->initTimersConnects();
-    }
-    if (idBoatStatus) {
-        idBoatStatus->initTimersConnects();
-    }
-    if (idDVL) {
-        idDVL->initTimersConnects();
-    }
-    if (idDVLMode) {
-        idDVLMode->initTimersConnects();
-    }
-    if (idUSBL) {
-        idUSBL->initTimersConnects();
-    }
-}
-#endif
 
 uint32_t DevDriver::devSerialNumber() {
     return idVersion->serialNumber();
@@ -1143,6 +1074,9 @@ void DevDriver::protoComplete(Parsers::FrameParser& proto)
             IDBin* parse_instance = _hashID[proto.id()].instance;
             parse_instance->parse(proto);
             lastAddress_ = proto.route();
+            if(parse_instance == idUSBLControl) {
+                usblAckEcho_ = (proto.resp() && proto.readAvailable() >= 2) ? (int)proto.read<uint16_t>() : -1;
+            }
 
             if(_hashID[proto.id()].callback != nullptr) {
                 ParseCallback& callback = _hashID[proto.id()].callback;
@@ -1202,6 +1136,11 @@ void DevDriver::restartState() {
     m_processTimer.stop();
     nodeProbeDone_ = false;
     nodeMode_ = NodeProbe::Mode::Unknown;
+    if(idNavSensorStatus && idNavSensorStatus->isValid()) {
+        idNavSensorStatus->invalidate();
+        navSensorStatusStale_ = false;
+        emit navSensorStatusChanged();
+    }
     //qDebug() << "restart";
     m_state.resetState();
     updateDataStale(QDateTime::currentMSecsSinceEpoch());
@@ -1304,9 +1243,7 @@ void DevDriver::receivedRecorderStatus(Parsers::Type type, Parsers::Version ver,
 //                           .arg(idRecorderStatus->degradedFlags(), 0, 16)
 //                           .arg(idRecorderStatus->criticalFlags(), 0, 16);
 //         qInfo("%s", qUtf8Printable(s));
-// #ifndef SEPARATE_READING
 //         core.consoleInfo(s);
-// #endif
         emit recorderStatusChanged();
     }
 }
@@ -1375,6 +1312,15 @@ void DevDriver::setRingRateResult(bool ok, int rate, const QString& detail) {
     emit ringRateDone(ok, rate, detail);
 }
 
+void DevDriver::receivedNavSensorStatus(Parsers::Type type, Parsers::Version ver, Parsers::Resp resp) {
+    Q_UNUSED(type);
+    if (resp == respNone && ver == v0 && idNavSensorStatus->isValid()) {
+        lastNavSensorStatusMs_ = QDateTime::currentMSecsSinceEpoch();
+        navSensorStatusStale_ = false;
+        emit navSensorStatusChanged();
+    }
+}
+
 void DevDriver::sendUpdateFW(QByteArray update_data) {
     if (isBehindRecorder()) {
         if (!isRecorderUpgradeSupported()) {
@@ -1429,9 +1375,7 @@ void DevDriver::recorderLog(const QString& line)
 {
     const QString s = QStringLiteral("recorder-upgrade: ") + line;
     qInfo().noquote() << QStringLiteral("[%1] %2").arg(m_busAddress).arg(s);
-#ifndef SEPARATE_READING
     core.consoleInfo(QStringLiteral("Upgrade: ") + s);
-#endif
 }
 
 void DevDriver::beginRecorderUpgrade(const QByteArray& image)
@@ -3416,7 +3360,6 @@ void DevDriver::receivedVoltage(Parsers::Type type, Parsers::Version ver, Parser
         emit supplyVoltageComplete(raw / 1000.0f);
     }
 
-#ifndef SEPARATE_READING
     QString line;
     switch (ch) {
     case 0: line = QString("Supply: %1 V").arg(raw / 1000.0, 0, 'f', 3); break;
@@ -3437,7 +3380,6 @@ void DevDriver::receivedVoltage(Parsers::Type type, Parsers::Version ver, Parser
         if (ch == 0) lastSupplyLogged_ = raw;
         core.consoleInfo(line);
     }
-#endif
 }
 
 void DevDriver::receivedEncoder(Parsers::Type type, Parsers::Version ver, Parsers::Resp resp) {
@@ -4211,9 +4153,7 @@ void DevDriver::fwUpgradeProcess() {
         emit upgradingFirmwareDone();
         emit upgradingFirmwareDoneDM();
 
-#ifndef SEPARATE_READING
         core.consoleInfo("Upgrade: done");
-#endif
         restartState();
     }
 }
@@ -4244,9 +4184,7 @@ bool DevDriver::checkUpgradeTimeouts(int64_t curr_time) {
     ++upgradeResendCount_;
     _lastUpgradeAnswerTime = curr_time;
 
-#ifndef SEPARATE_READING
     core.consoleInfo(QString("Upgrade: timeout, resend %1/%2").arg(upgradeResendCount_).arg(upgradeResendLimit));
-#endif
 
     if (fwTraceEnabled()) {
         qInfo("FWTRACE %lld retransmit packet=%u offset=%d resend %d/%d",
@@ -4260,11 +4198,7 @@ bool DevDriver::checkUpgradeTimeouts(int64_t curr_time) {
 
 void DevDriver::abortUpgrade(const QString& reason) {
     endRecorderRoute();
-#ifndef SEPARATE_READING
     core.consoleInfo(QString("Upgrade: aborted -- %1").arg(reason));
-#else
-    Q_UNUSED(reason);
-#endif
 
     m_upgrade_status = failUpgrade;
     m_state.in_boot = false;
@@ -4306,14 +4240,10 @@ void DevDriver::receivedUpdate(Parsers::Type type, Parsers::Version ver, Parsers
                 upgradeResendCount_ = 0;
 
                 if(prog.type == 1) {
-#ifndef SEPARATE_READING
                     core.consoleInfo(QString("Upgrade: back offset condition error with device msg/offset %1 %2, host msg/offset %3 %4").arg(prog.lastNumMsg).arg(prog.lastOffset).arg(idUpdate->currentNumPacket()).arg(idUpdate->currentFwOffset()));
-#endif
                 }
                 else if(prog.type == 2) {
-#ifndef SEPARATE_READING
                     core.consoleInfo(QString("Upgrade: forward offset condition error with device msg/offset %1 %2, host msg/offset %3 %4").arg(prog.lastNumMsg).arg(prog.lastOffset).arg(idUpdate->currentNumPacket()).arg(idUpdate->currentFwOffset()));
-#endif
                     idUpdate->setUpgradeNewPoint(prog.lastNumMsg, prog.lastOffset);
                 }
 
@@ -4367,7 +4297,6 @@ void DevDriver::receivedNav(Parsers::Type type, Parsers::Version ver, Parsers::R
         const float pitchDeg = idNav->pitchV2();
         const float rollDeg = idNav->rollV2();
 
-#ifndef SEPARATE_READING
         core.consoleInfo(QString("SimpleNavV2: fix %1 sats %2 lat %3 lon %4 course %5 speed %6 yaw %7 pitch %8 roll %9")
                              .arg(gnssFixType)
                              .arg(numSats)
@@ -4378,7 +4307,6 @@ void DevDriver::receivedNav(Parsers::Type type, Parsers::Version ver, Parsers::R
                              .arg(yawDeg, 0, 'f', 2)
                              .arg(pitchDeg, 0, 'f', 2)
                              .arg(rollDeg, 0, 'f', 2));
-#endif
 
         emit simpleNavV2Complete(gnssFixType, numSats, unixTime, unixOffsetMs,
                                  latitude, longitude, courseDeg, velocityMps,
@@ -4409,7 +4337,6 @@ void DevDriver::receivedNav(Parsers::Type type, Parsers::Version ver, Parsers::R
         const float rollDeg = idNav->roll();
         const float depthM = idNav->depth();
 
-#ifndef SEPARATE_READING
         core.consoleInfo(QString("ROV: yaw: %1, pitch: %2, roll: %3, lat: %4, lon: %5, depth: %6")
                              .arg(yawDeg)
                              .arg(pitchDeg)
@@ -4417,7 +4344,6 @@ void DevDriver::receivedNav(Parsers::Type type, Parsers::Version ver, Parsers::R
                              .arg(latitude)
                              .arg(longitude)
                              .arg(depthM));
-#endif
 
         emit positionComplete(latitude, longitude, 0, 0);
         emit attitudeComplete(yawDeg, pitchDeg, rollDeg, AttitudeArbiter::KindNav, attitudeSource());
@@ -4467,6 +4393,41 @@ void DevDriver::receivedDVLMode(Parsers::Type type, Parsers::Version ver, Parser
     Q_UNUSED(resp);
 }
 
+namespace {
+
+// NAN is ordinary in a USBL solution rather than a fault: v1/v2 payloads carry
+// no SNR at all, and a beacon that has not been located yet has no position.
+// Printing "nan" for those makes a healthy line read as a broken one.
+QString usblNum(double v, int prec)
+{
+    return qIsFinite(v) ? QString::number(v, 'f', prec) : QStringLiteral("--");
+}
+
+// One decoded line per acoustic fix, at the rate the fixes arrive.
+//
+// The hex frame dump lives behind the console's "Binary" toggle. With that
+// toggle off -- which is the default and the readable way to watch a run --
+// nothing from the device reached the console at all, so a working link was
+// indistinguishable from a dead one. This is the text form of the same data.
+QString usblConsoleLine(const char* kind, const IDBinUsblSolution::UsblSolution& s)
+{
+    return QString("USBL %1: addr %2, dist %3 m, az %4, el %5, snr %6"
+                   ", head %7 %8, yaw %9, beacon %10 %11")
+        .arg(QString::fromLatin1(kind),
+             QString::number(static_cast<int>(s.id)),
+             usblNum(s.distance_m, 2),
+             usblNum(s.azimuth_deg, 1),
+             usblNum(s.elevation_deg, 1),
+             usblNum(s.snr, 1),
+             usblNum(s.usbl_latitude, 7),
+             usblNum(s.usbl_longitude, 7),
+             usblNum(s.usbl_yaw, 1),
+             usblNum(s.beacon_latitude, 7),
+             usblNum(s.beacon_longitude, 7));
+}
+
+} // namespace
+
 void DevDriver::receivedUSBL(Parsers::Type type, Parsers::Version ver, Parsers::Resp resp)
 {
     Q_UNUSED(type);
@@ -4480,17 +4441,21 @@ void DevDriver::receivedUSBL(Parsers::Type type, Parsers::Version ver, Parsers::
     // a beacon activation response, so the version is not enough.
     switch(idUSBL->lastPayloadKind()) {
     case IDBinUsblSolution::PayloadKind::Solution:
+        if (usblConsoled_) core.consoleInfo(usblConsoleLine("solution", idUSBL->usblSolution()));
         emit usblSolutionComplete(idUSBL->usblSolution());
         break;
     case IDBinUsblSolution::PayloadKind::AcousticNav:
+        if (usblConsoled_) core.consoleInfo(usblConsoleLine("acoustic-nav", idUSBL->usblSolution()));
         emit acousticNavSolutionComplete(idUSBL->acousticNavSolution());
         emit usblSolutionComplete(idUSBL->usblSolution());
         break;
     case IDBinUsblSolution::PayloadKind::BaseToBeacon:
+        if (usblConsoled_) core.consoleInfo(usblConsoleLine("base-to-beacon", idUSBL->usblSolution()));
         emit baseToBeaconComplete(idUSBL->baseToBeacon());
         emit usblSolutionComplete(idUSBL->usblSolution());
         break;
     case IDBinUsblSolution::PayloadKind::BeaconActivation:
+        if (usblConsoled_) core.consoleInfo(QStringLiteral("USBL beacon-activation"));
         emit beaconActivationComplete(0);
         break;
     case IDBinUsblSolution::PayloadKind::None:
@@ -4498,11 +4463,68 @@ void DevDriver::receivedUSBL(Parsers::Type type, Parsers::Version ver, Parsers::
     }
 }
 
+void DevDriver::receivedUsblDiag(Parsers::Type type, Parsers::Version ver, Parsers::Resp resp)
+{
+    Q_UNUSED(type);
+
+    if (resp != respNone || ver != v0 || !idUsblDiag->isValid()) {
+        return;
+    }
+
+    emit usblDiagComplete(idUsblDiag->diag());
+}
+
 void DevDriver::receivedUSBLControl(Parsers::Type type, Parsers::Version ver, Parsers::Resp resp)
 {
     Q_UNUSED(type)
-    Q_UNUSED(ver)
-    Q_UNUSED(resp)
+    if(resp != respNone) {
+        const int echo = usblAckEcho_;
+        int matched = -1;
+        QString how;
+        const int64_t now = QDateTime::currentMSecsSinceEpoch();
+        for(auto it = usblAnswered_.begin(); it != usblAnswered_.end();)
+            it = (now - it.value()) > 10000 ? usblAnswered_.erase(it) : std::next(it);
+        if(echo >= 0) {
+            for(auto it = usblPending_.cbegin(); it != usblPending_.cend() && matched < 0; ++it) {
+                if(it.key() == echo || it.value().relayed == echo) matched = it.key();
+            }
+        }
+        if(matched >= 0) {
+            how = matched == echo ? QStringLiteral("echo matched") : QStringLiteral("relayed echo matched");
+        } else if(echo >= 0 && usblAnswered_.contains(echo)) {
+            // A second RESP to a frame that was sent twice: answered already, and matching it by
+            // version would confirm the next frame before it was answered.
+            logUsblControl((int)ver, QStringLiteral("duplicate ack code %1 ck %2 ignored")
+                                         .arg((int)resp).arg(echo, 4, 16, QLatin1Char('0')));
+            return;
+        } else {
+            // The echo names neither a frame we sent nor its relayed form. The oldest frame still
+            // waiting on this version is the one a device answering in order answers.
+            int64_t oldest = std::numeric_limits<int64_t>::max();
+            for(auto it = usblPending_.cbegin(); it != usblPending_.cend(); ++it) {
+                if(it.value().ver == (int)ver && it.value().sentMs < oldest) {
+                    oldest = it.value().sentMs;
+                    matched = it.key();
+                }
+            }
+            how = matched >= 0 ? QStringLiteral("matched by version, echo %1").arg(echo, 4, 16, QLatin1Char('0'))
+                               : QStringLiteral("unmatched, echo %1").arg(echo, 4, 16, QLatin1Char('0'));
+        }
+        int ackVer = (int)ver;
+        if(matched >= 0) {
+            const UsblPendingFrame answered = usblPending_.take(matched);
+            ackVer = answered.ver;
+            usblAnswered_[matched] = now;
+            if(answered.relayed >= 0) usblAnswered_[answered.relayed] = now;
+        }
+        logUsblControl(ackVer, QStringLiteral("ack code %1 ck %2 %3")
+                                   .arg((int)resp).arg(matched >= 0 ? matched : echo, 4, 16, QLatin1Char('0')).arg(how));
+        emit usblControlAck(ackVer, matched >= 0 ? matched : echo, (int)resp);
+    }
+    if(resp == respNone || (int)ver >= (int)usblAck_.size()) return;
+    if(usblAck_[ver] != UsblApplyPending && usblAck_[ver] != UsblApplyNoAnswer) return;
+    usblAck_[ver] = resp == respOk ? UsblApplyConfirmed : UsblApplyRejected;
+    emit usblResponseConfigChanged();
 }
 
 void DevDriver::receivedModemSolution(Parsers::Type type, Parsers::Version ver, Parsers::Resp resp)
@@ -4514,13 +4536,28 @@ void DevDriver::receivedModemSolution(Parsers::Type type, Parsers::Version ver, 
         return;
     }
 
-    emit modemSolutionComplete(idModemSolution->header(), idModemSolution->payload());
+    const auto header = idModemSolution->header();
+    QVariantMap entry;
+    entry["payload"]   = modemLastPayload();
+    entry["bits"]      = static_cast<int>(header.bit_length);
+    entry["cmdId"]     = static_cast<int>(header.cmd_id_from);
+    entry["addressTo"] = static_cast<int>(header.address_to);
+    entry["event"]     = static_cast<int>(header.event);
+    entry["atMs"]      = static_cast<double>(QDateTime::currentMSecsSinceEpoch());
+    modemByAddr_[QString::number(static_cast<int>(header.address_from))] = entry;
+
+    emit modemSolutionComplete(header, idModemSolution->payload());
     emit modemPayloadChanged();
 }
 
 void DevDriver::process() {
     int64_t curr_time = QDateTime::currentMSecsSinceEpoch();
 
+    const int64_t processGap = lastProcessAtMs_ != 0 ? curr_time - lastProcessAtMs_ : 0;
+    lastProcessAtMs_ = curr_time;
+    if((m_state.in_boot || m_state.in_update) && processGap > processStallLogMsec) {
+        core.consoleInfo(QString("Upgrade: event loop blocked for %1 ms").arg(processGap));
+    }
     if (nodeProbeRunning())
         nodeProbe_->tick();
     stepRecorderUpgrade(curr_time);
@@ -4529,6 +4566,35 @@ void DevDriver::process() {
 
     if(checkUpgradeTimeouts(curr_time)) {
         return;
+    }
+
+    bool usblAckExpired = false;
+    for(int ver : { (int)v3, (int)v4, (int)v7 }) {
+        if(usblAck_[ver] == UsblApplyPending && (curr_time - usblAckSentMs_[ver]) > usblAckTimeoutMsec) {
+            usblAck_[ver] = UsblApplyNoAnswer;
+            usblAckExpired = true;
+        }
+    }
+    if(usblAckExpired) {
+        emit usblResponseConfigChanged();
+    }
+
+    for(auto it = usblPending_.begin(); it != usblPending_.end();) {
+        if((curr_time - it.value().sentMs) > usblAckTimeoutMsec) {
+            const int ver = it.value().ver;
+            const int checksum = it.key();
+            it = usblPending_.erase(it);
+            logUsblControl(ver, QStringLiteral("no answer ck %1").arg(checksum, 4, 16, QLatin1Char('0')));
+            emit usblControlAck(ver, checksum, 0);
+        } else {
+            ++it;
+        }
+    }
+
+    if(idNavSensorStatus && idNavSensorStatus->isValid() && !navSensorStatusStale_
+       && (curr_time - lastNavSensorStatusMs_) > navSensorStatusStaleMsec) {
+        navSensorStatusStale_ = true;
+        emit navSensorStatusChanged();
     }
 
     if(m_state.duplex) {
@@ -4543,6 +4609,7 @@ void DevDriver::process() {
                 if(!m_state.connect) {
                     //qDebug() << "connect = true";
                     m_state.connect = true;
+                    resendUsblControl();
                 }
 
                 // A quiet device (a stopped sonar) is asked for its mark, so only a silent one goes stale.

@@ -22,10 +22,14 @@ QString linkNotAvailableTag(const QUuid& uuid)
     return QStringLiteral("link-not-available:") + uuid.toString();
 }
 
-QString rtspLinkName(const Link* link)
+QString videoLinkName(const Link* link)
 {
+    QString customName = link ? link->getCustomName() : QString();
+    if (!customName.isEmpty())
+        return customName;
+
     const QString address = link ? link->getAddress().trimmed() : QString();
-    return address.isEmpty() ? QStringLiteral("RTSP") : QStringLiteral("RTSP(%1)").arg(address);
+    return address.isEmpty() ? QStringLiteral("Video") : QStringLiteral("Video(%1)").arg(address);
 }
 
 bool xmlBoolValue(const QString& value)
@@ -39,7 +43,7 @@ bool shouldPersist(const Link* link)
     if (!link || link->getIsHided())
         return false;
     const LinkType t = link->getLinkType();
-    if (t == LinkType::kLinkIPUDP || t == LinkType::kLinkIPTCP || t == LinkType::kLinkRtsp)
+    if (t == LinkType::kLinkIPUDP || t == LinkType::kLinkIPTCP || t == LinkType::kLinkVideo)
         return true;
     return link->getIsPinned();
 }
@@ -66,6 +70,7 @@ QByteArray buildPinnedLinksXmlData(const QList<Link*>& links)
         xmlWriter.writeTextElement("uuid", link->getUuid().toString());
         xmlWriter.writeTextElement("control_type", QString::number(static_cast<int>(link->getControlType())));
         xmlWriter.writeTextElement("port_name", link->getPortName());
+        xmlWriter.writeTextElement("custom_name", link->getCustomName());
         xmlWriter.writeTextElement("baudrate", QString::number(link->getBaudrate()));
         xmlWriter.writeTextElement("parity", QVariant(static_cast<bool>(link->getParity())).toString());
         xmlWriter.writeTextElement("link_type", QString::number(static_cast<int>(link->getLinkType())));
@@ -322,7 +327,7 @@ void LinkManager::openAutoConnections()
                     case LinkType::kLinkSerial: { link->openAsSerial(); break; }
                     case LinkType::kLinkIPUDP:  { link->openAsUdp(); break; }
                     case LinkType::kLinkIPTCP:  { link->openAsTcp(); break; }
-                    case LinkType::kLinkRtsp:   { link->openAsRtsp(); break; }
+                    case LinkType::kLinkVideo:  { link->openAsVideo(); break; }
                     default:                   { break; }
                 }
 
@@ -381,7 +386,8 @@ void LinkManager::doEmitAppendModifyModel(Link* linkPtr)
                            linkPtr->getIsHided(),
                            linkPtr->getIsNotAvailable(),
                            linkPtr->getAutoSpeedSelection(),
-                           linkPtr->getIsUpgradingState());
+                           linkPtr->getIsUpgradingState(),
+                           linkPtr->getCustomName());
 }
 
 void LinkManager::exportPinnedLinksToXML()
@@ -474,6 +480,9 @@ bool LinkManager::parsePinnedLinksXmlData(const QByteArray& xmlData, QList<Pinne
             else if (tag == QStringLiteral("port_name")) {
                 record.portName = xmlReader.readElementText();
             }
+            else if (tag == QStringLiteral("custom_name")) {
+                record.customName = xmlReader.readElementText().trimmed();
+            }
             else if (tag == QStringLiteral("baudrate")) {
                 record.baudrate = xmlReader.readElementText().toInt();
             }
@@ -550,6 +559,7 @@ void LinkManager::appendPinnedLinkRecords(const QList<PinnedLinkRecord>& records
         link->setUuid(record.uuid);
         link->setControlType(record.controlType);
         link->setPortName(record.portName);
+        link->setCustomName(record.customName);
         link->setBaudrate(record.baudrate);
         link->setParity(record.parity);
         link->setLinkType(record.linkType);
@@ -660,6 +670,7 @@ Link *LinkManager::createNewLink() const
     QObject::connect(retVal, &Link::frameReady, this, &LinkManager::frameReady);
     QObject::connect(retVal, &Link::closed, this, &LinkManager::linkClosed);
     QObject::connect(retVal, &Link::opened, this, &LinkManager::linkOpened);
+    QObject::connect(retVal, &Link::openFailed, this, &LinkManager::onLinkOpenFailed);
     QObject::connect(retVal, &Link::baudrateChanged, this, &LinkManager::onLinkIsReceivesDataChanged);
     QObject::connect(retVal, &Link::isReceivesDataChanged, this, &LinkManager::onLinkIsReceivesDataChanged);
     QObject::connect(retVal, &Link::isReceivesDataChanged, this, &LinkManager::onLinkDataFlowNotify);
@@ -709,8 +720,8 @@ void LinkManager::onLinkConnectionStatusChanged(QUuid uuid)
     if (const auto linkPtr = getLinkPtr(uuid); linkPtr) {
         doEmitAppendModifyModel(linkPtr);
 
-        if (linkPtr->getLinkType() == LinkType::kLinkRtsp) {
-            const QString name = rtspLinkName(linkPtr);
+        if (linkPtr->getLinkType() == LinkType::kLinkVideo) {
+            const QString name = videoLinkName(linkPtr);
             if (linkPtr->getConnectionStatus()) {
                 notifications.info(tr("Connected: %1").arg(name));
             }
@@ -762,6 +773,9 @@ void LinkManager::onLinkDataFlowNotify(QUuid uuid)
     if (!linkPtr || !linkPtr->getConnectionStatus()) {
         return;
     }
+    if (linkPtr->getLinkType() == LinkType::kLinkVideo) {
+        return;
+    }
 
     const QString name = linkPtr->getPortName();
     if (linkPtr->getIsRecievesData()) {
@@ -793,6 +807,22 @@ void LinkManager::onLinkAvailabilityNotify(QUuid uuid)
         notifications.info(name.isEmpty() ? tr("Link available")
                                           : tr("Link available: %1").arg(name));
     }
+}
+
+void LinkManager::onLinkOpenFailed(QUuid uuid, QString reason)
+{
+    const auto linkPtr = getLinkPtr(uuid);
+    if (!linkPtr) {
+        return;
+    }
+
+    QString name = linkPtr->getCustomName();
+    if (name.isEmpty()) {
+        name = QStringLiteral("%1:%2").arg(linkPtr->getAddress().trimmed()).arg(linkPtr->getDestinationPort());
+    }
+
+    notifications.warning(tr("Link \"%1\" not opened: %2").arg(name, reason),
+                          QStringLiteral("link-open-failed:") + uuid.toString());
 }
 
 void LinkManager::createAndStartTimer()
@@ -916,7 +946,8 @@ void LinkManager::deleteLink(QUuid uuid)
 
         // manual deleting
         if (linkType == LinkType::kLinkIPTCP ||
-            linkType == LinkType::kLinkIPUDP)
+            linkType == LinkType::kLinkIPUDP ||
+            linkType == LinkType::kLinkVideo)
             exportPinnedLinksToXML();
     }
 }
@@ -965,6 +996,22 @@ void LinkManager::updateAddress(QUuid uuid, const QString &address)
 
     if (const auto linkPtr = getLinkPtr(uuid); linkPtr) {
         linkPtr->setAddress(address);
+
+        doEmitAppendModifyModel(linkPtr);
+        if (shouldPersist(linkPtr))
+            exportPinnedLinksToXML();
+    }
+}
+
+void LinkManager::updateCustomName(QUuid uuid, const QString& customName)
+{
+    const TimerController timerGuard(timer_.get());
+
+    if (const auto linkPtr = getLinkPtr(uuid); linkPtr) {
+        if (linkPtr->getCustomName() == customName.trimmed())
+            return;
+
+        linkPtr->setCustomName(customName);
 
         doEmitAppendModifyModel(linkPtr);
         if (shouldPersist(linkPtr))
@@ -1081,6 +1128,50 @@ void LinkManager::createAndOpenAsUdp(QString address, int sourcePort, int destin
     newLinkPtr->openAsUdp();
 }
 
+void LinkManager::adoptDiscoveredUdp(QString address, int sourcePort, int destinationPort, QString customName, bool open)
+{
+    const TimerController timerGuard(timer_.get());
+
+    const QHostAddress wanted(address.trimmed());
+    Link* linkPtr = nullptr;
+    for (auto& itm : list_) {
+        if (itm->getLinkType() != LinkType::kLinkIPUDP || itm->getIsProxy() || itm->getIsHided())
+            continue;
+        if (QHostAddress(itm->getAddress().trimmed()) != wanted)
+            continue;
+        const bool exact = itm->getDestinationPort() == destinationPort && itm->getSourcePort() == sourcePort;
+        if (exact) {
+            linkPtr = itm;
+            break;
+        }
+        if (!linkPtr)
+            linkPtr = itm;
+    }
+
+    bool wantOpen = open;
+    if (!linkPtr) {
+        linkPtr = createNewLink();
+        linkPtr->createAsUdp(address, sourcePort, destinationPort);
+        list_.append(linkPtr);
+    } else if (linkPtr->getDestinationPort() != destinationPort || linkPtr->getSourcePort() != sourcePort) {
+        wantOpen = open || linkPtr->isOpen();
+        if (linkPtr->isOpen())
+            linkPtr->close();
+        linkPtr->updateUdpParameters(address, sourcePort, destinationPort);
+    }
+
+    if (linkPtr->getCustomName().isEmpty())
+        linkPtr->setCustomName(customName);
+
+    if (wantOpen && !linkPtr->isOpen()) {
+        linkPtr->setIsForceStopped(false);
+        linkPtr->openAsUdp();
+    }
+
+    doEmitAppendModifyModel(linkPtr);
+    exportPinnedLinksToXML();
+}
+
 void LinkManager::createAsTcp(QString address, int sourcePort, int destinationPort)
 {
     const TimerController timerGuard(timer_.get());
@@ -1094,12 +1185,12 @@ void LinkManager::createAsTcp(QString address, int sourcePort, int destinationPo
     emit linkCreatedInteractively(newLinkPtr->getUuid());
 }
 
-void LinkManager::createAsRtsp(QString address)
+void LinkManager::createAsVideo(QString address)
 {
     const TimerController timerGuard(timer_.get());
 
     Link* newLinkPtr = createNewLink();
-    newLinkPtr->createAsRtsp(address);
+    newLinkPtr->createAsVideo(address);
     list_.append(newLinkPtr);
 
     doEmitAppendModifyModel(newLinkPtr);
@@ -1107,17 +1198,26 @@ void LinkManager::createAsRtsp(QString address)
     emit linkCreatedInteractively(newLinkPtr->getUuid());
 }
 
-void LinkManager::openAsRtsp(QUuid uuid, QString address)
+void LinkManager::openAsVideo(QUuid uuid, QString address)
 {
     const TimerController timerGuard(timer_.get());
 
     if (const auto linkPtr = getLinkPtr(uuid); linkPtr) {
         linkPtr->setIsForceStopped(false);
         linkPtr->setAddress(address);
-        linkPtr->openAsRtsp();
+        linkPtr->openAsVideo();
 
         doEmitAppendModifyModel(linkPtr);
         exportPinnedLinksToXML();
+    }
+}
+
+void LinkManager::setVideoStreaming(QUuid uuid, bool streaming)
+{
+    const TimerController timerGuard(timer_.get());
+
+    if (const auto linkPtr = getLinkPtr(uuid); linkPtr) {
+        linkPtr->setVideoStreaming(streaming);
     }
 }
 
@@ -1140,6 +1240,10 @@ void LinkManager::openFLinks()
             }
             case LinkType::kLinkIPUDP: {
                 itm->openAsUdp();
+                break;
+            }
+            case LinkType::kLinkVideo: {
+                itm->openAsVideo();
                 break;
             }
             default:

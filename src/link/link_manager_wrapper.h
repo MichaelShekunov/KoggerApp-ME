@@ -42,11 +42,13 @@ public slots:
     void openAsSerial(QUuid uuid, LinkAttribute attribute = LinkAttribute::kLinkAttributeNone);
     void createAsUdp(QString address, int sourcePort, int destinationPort);
     Q_INVOKABLE void createAndOpenAsUdp(QString address, int sourcePort, int destinationPort);
+    void adoptDiscoveredUdp(QString address, int sourcePort, int destinationPort, QString customName, bool open);
     void openAsUdp(QUuid uuid, QString address, int sourcePort, int destinationPort, LinkAttribute attribute = LinkAttribute::kLinkAttributeNone);
     void createAsTcp(QString address, int sourcePort, int destinationPort);
     void openAsTcp(QUuid uuid, QString address, int sourcePort, int destinationPort, LinkAttribute attribute = LinkAttribute::kLinkAttributeNone);
-    void createAsRtsp(QString address);
-    void openAsRtsp(QUuid uuid, QString address);
+    void createAsVideo(QString address);
+    void openAsVideo(QUuid uuid, QString address);
+    void setVideoStreaming(QString uuidStr, bool streaming);
     void closeLink(QUuid uuid);
     void closeFLink(QUuid uuid);
     void deleteLink(QUuid uuid);
@@ -57,15 +59,16 @@ public slots:
     void setAttribute(QUuid uuid, LinkAttribute attribute);
     void appendModifyModelData(QUuid uuid, bool connectionStatus, bool receivesData, ControlType controlType, QString portName, int baudrate, bool parity,
                                LinkType linkType, QString address, int sourcePort, int destinationPort, bool isPinned, bool isHided, bool isNotAvailable,
-                               bool autoSpeedSelection, bool isUpgradingState);
+                               bool autoSpeedSelection, bool isUpgradingState, QString customName);
     void deleteModelData(QUuid uuid);
     QUuid getFirstOpened() { return getWorker()->getFirstOpend(); }
 
     Q_INVOKABLE int  linkState(const QString& uuidStr) const; // -1 absent, 0 closed, 1 ok, 2 idle, 3 unavailable
+    Q_INVOKABLE int  linkTypeOf(const QString& uuidStr) const; // LinkType as int, -1 when absent
     Q_INVOKABLE void reopenLink(const QString& uuidStr);
     Q_INVOKABLE void updateBaudrateFor(const QString& uuidStr, int baudrate); // callers holding a uuid string (topology meta), not a model QUuid
-    Q_INVOKABLE QStringList pinnedUuids() const; // uuids of pinned links present in the model
     Q_INVOKABLE QStringList serialUuids() const; // uuids of serial links present in the model
+    Q_INVOKABLE QStringList rememberableUuids() const; // uuids whose link is restored on the next run, so a remembered entry stays valid
 
 public:
     Link* getLinkPtr(QUuid uuid) { return getWorker()->getLinkPtr(uuid); }
@@ -78,10 +81,12 @@ signals:
     void sendOpenAsSerial(QUuid uuid, LinkAttribute attribute = LinkAttribute::kLinkAttributeNone);
     void sendCreateAsUdp(QString address, int sourcePort, int destinationPort);
     void sendCreateAndOpenAsUdp(QString address, int sourcePort, int destinationPort);
+    void sendAdoptDiscoveredUdp(QString address, int sourcePort, int destinationPort, QString customName, bool open);
     void sendOpenAsUdp(QUuid uuid, QString address, int sourcePort, int destinationPort, LinkAttribute attribute = LinkAttribute::kLinkAttributeNone);
     void sendCreateAsTcp(QString address, int sourcePort, int destinationPort);
-    void sendCreateAsRtsp(QString address);
-    void sendOpenAsRtsp(QUuid uuid, QString address);
+    void sendCreateAsVideo(QString address);
+    void sendOpenAsVideo(QUuid uuid, QString address);
+    void sendSetVideoStreaming(QUuid uuid, bool streaming);
     void sendOpenAsTcp(QUuid uuid, QString address, int sourcePort, int destinationPort, LinkAttribute attribute = LinkAttribute::kLinkAttributeNone);
     void sendCloseLink(QUuid uuid);
     void sendFCloseLink(QUuid uuid);
@@ -92,6 +97,7 @@ signals:
     void sendSetPatity(QUuid uuid, bool parity);
     void sendSetAttribut(QUuid uuid, LinkAttribute attribute);
     void sendUpdateAddress(QUuid uuid, QString address);
+    void sendUpdateCustomName(QUuid uuid, QString customName);
     void sendAutoSpeedSelection(QUuid uuid, bool state);
     void sendUpdateSourcePort(QUuid uuid, int sourcePort);
     void sendUpdateDestinationPort(QUuid uuid, int destinationPort);

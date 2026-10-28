@@ -791,7 +791,6 @@ Rectangle {
                 }
 
                 KCircleIconButton {
-                    visible: typeof tutorial !== "undefined" && !!tutorial   // the help is a tutorial; ME has none (2026-10-23)
                     Layout.preferredWidth: root.headerBtn; Layout.preferredHeight: root.headerBtn; Layout.minimumWidth: root.headerBtn; Layout.minimumHeight: root.headerBtn; iconPixelSize: Tokens.iconLg
                     iconSource: "qrc:/icons/ui/question-mark.svg"; iconTintColor: AppPalette.text
                     fillColor: AppPalette.card; fillHoverColor: AppPalette.cardHover; borderColor: AppPalette.border; borderWidth: 1

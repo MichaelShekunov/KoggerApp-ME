@@ -2,6 +2,7 @@
 
 #include <atomic>
 #include <math.h>
+#include <memory>
 #include <stdint.h>
 #include <time.h>
 #include <QMap>
@@ -19,15 +20,20 @@ class Epoch
 {
 public:
     struct Contact {
+        enum class Source : uint8_t {
+            None = 0,
+            Echogram2D = 1,
+            Scene3D = 2,
+        };
+
         bool isValid() const {
             return !info.isEmpty() &&
-                   cursorX != -1 &&
-                   cursorY != -1;
+                   source != Source::None;
         }
         void clear() {
             info.clear();
-            lat      = 0.0f;
-            lon      = 0.0f;
+            lat      = 0.0;
+            lon      = 0.0;
             echogramDistance = 0.0f;
             depth    = 0.0f;
             nedX     = 0.0f;
@@ -35,11 +41,13 @@ public:
             cursorX  = -1;
             cursorY  = -1;
             rectEcho = QRectF();
+            source   = Source::None;
         }        
 
         QString info;
-        float   lat = 0.0f;
-        float   lon = 0.0f;
+        Source  source = Source::None;
+        double  lat = 0.0;
+        double  lon = 0.0;
         float   echogramDistance = 0.0f;
         float   depth = 0.0f;
         float   nedX = 0.0f;
@@ -235,6 +243,9 @@ public:
     void setPositionLLA(const LLA& lla);
     void setPositionNED(const NED& ned);
     void setExternalPosition(Position position);
+    void setGnssAltitudeMsl(double altitudeMsl);
+    void setGnssAltitudeEllipsoid(double altitudeEllipsoid);
+    void setGnssUtc(qint64 unixUs);
     void setPositionRef(LLARef* ref);
 
     void setDepth(float depth);
@@ -253,6 +264,7 @@ public:
     bool isComplexSignalAvail() { return !_complex.empty(); }
 
     void set(IDBinUsblSolution::UsblSolution data) { _usblSolution = data;  _isUsblSolutionAvailable = true; }
+    void setUsblDiag(const IDBinUsblDiag::UsblSignalDiag& data) { usblDiag_ = std::make_shared<const IDBinUsblDiag::UsblSignalDiag>(data); }
 
     void setGnssVelocity(double h_speed, double course);
 
@@ -513,6 +525,8 @@ public:
 
     bool isUsblSolutionAvailable() { return _isUsblSolutionAvailable; }
     IDBinUsblSolution::UsblSolution usblSolution() { return _usblSolution; }
+    bool isUsblDiagAvailable() const { return usblDiag_ != nullptr; }
+    std::shared_ptr<const IDBinUsblDiag::UsblSignalDiag> usblDiag() const { return usblDiag_; }
 
 
     double lat() { return _positionGNSS.lla.latitude; }
@@ -521,6 +535,9 @@ public:
     Position getPositionGNSS() { return _positionGNSS; }
     const Position& getPositionGNSSCRef() const { return _positionGNSS; }
     Position getExternalPosition() { return _positionExternal; }
+    double gnssAltitudeMsl() const { return gnssAltitudeMsl_; }
+    double gnssAltitudeEllipsoid() const { return gnssAltitudeEllipsoid_; }
+    qint64 gnssUtcUs() const { return gnssUtcUs_; }
     Position getSonarPosition() { return sonarPosition_; }
     const Position& getSonarPositionCRef() const { return sonarPosition_; }
 
@@ -741,6 +758,7 @@ protected:
 
     IDBinUsblSolution::UsblSolution _usblSolution;
     bool _isUsblSolutionAvailable = false;
+    std::shared_ptr<const IDBinUsblDiag::UsblSignalDiag> usblDiag_;
 
     Position _positionGNSS;
     Position _positionExternal;
@@ -748,6 +766,9 @@ protected:
     LLA trackLla_;               // setTrackPosition()
     NED trackNed_;
     bool trackPosAvail_ = false;
+    double gnssAltitudeMsl_ = NAN;
+    double gnssAltitudeEllipsoid_ = NAN;
+    qint64 gnssUtcUs_ = 0;
 
     struct {
         double hspeed = NAN;

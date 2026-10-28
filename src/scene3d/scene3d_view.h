@@ -58,8 +58,12 @@ class GraphicsScene3dView : public QQuickFramebufferObject
     Q_PROPERTY(bool cameraPerspective READ cameraPerspective NOTIFY cameraPerspectiveChanged)
     Q_PROPERTY(bool updateSurface READ updateSurface NOTIFY updateSurfaceChanged)
     Q_PROPERTY(int dataZoom READ dataZoom NOTIFY sendDataZoom)
+    Q_PROPERTY(bool sceneContentVisible READ sceneContentVisible NOTIFY sceneContentVisibleChanged)
     Q_PROPERTY(bool followReturnPending READ followReturnPending NOTIFY followReturnStateChanged)
     Q_PROPERTY(int followReturnSeconds READ followReturnSeconds NOTIFY followReturnStateChanged)
+    Q_PROPERTY(int followReturnRemainingMs READ followReturnRemainingMs NOTIFY followReturnStateChanged)
+    Q_PROPERTY(double followReturnDeadlineMs READ followReturnDeadlineMs NOTIFY followReturnStateChanged)
+    Q_PROPERTY(int syncEpochIndex READ syncEpochIndex NOTIFY syncEpochIndexChanged)
     Q_PROPERTY(bool syncLoupeOverlayVisible READ syncLoupeOverlayVisible NOTIFY syncLoupeStateChanged)
     Q_PROPERTY(int syncLoupeEpochIndex READ syncLoupeEpochIndex NOTIFY syncLoupeStateChanged)
     Q_PROPERTY(float syncLoupeDepthFrom READ syncLoupeDepthFrom NOTIFY syncLoupeStateChanged)
@@ -264,13 +268,17 @@ public:
     bool cameraPerspective() const;
     bool updateSurface() const;
     int dataZoom() const { return dataZoomIndx_; }
+    bool sceneContentVisible() const { return sceneContentVisible_; }
     bool followReturnPending() const;
     int followReturnSeconds() const;
+    int followReturnRemainingMs() const;
+    double followReturnDeadlineMs() const;
     Dataset* dataset() const;
     void clear(bool cleanMap = false);
     void clearSurfaceViewRender();
     QVector3D calculateIntersectionPoint(const QVector3D &rayOrigin, const QVector3D &rayDirection, float planeZ) const;
     void updateProjection();
+    void refreshSceneContentVisible();
     void setNeedToResetStartPos(bool state);
     void forceUpdateDatasetLlaRef();
 
@@ -351,6 +359,8 @@ public:
     void setCompassSize(int val);
     void setScaleBarState(bool state);
     void setUsblLayerVisible(bool state);
+    void setUsblBeaconTrackDots(bool state);
+    void setUsblHeadTrackDots(bool state);
     void setShadowsEnabled(bool state);
     void setShadowVectorX(float value);
     void setShadowVectorY(float value);
@@ -372,8 +382,11 @@ public:
     void setSyncLoupeZoom(int val);
     void setSyncLoupeZoomAdjusting(bool adjusting);
     void setSyncEpochIndex(int epochIndex);
+    int syncEpochIndex() const;
+    Q_INVOKABLE void clearEpochSync();
     void setEpochSyncEnabled(bool state);
     bool isEpochSyncEnabled() const { return epochSyncEnabled_; }
+    void setContactPlacementArmed(bool armed);
 
     void setActiveZeroing(bool state);
 
@@ -384,6 +397,7 @@ public Q_SLOTS:
     void setSceneBoundingBoxVisible(bool visible);
     void fitAllInView();
     void setIsometricView();
+    void setCameraAngles(qreal yawDeg, qreal pitchDeg);
     void setCancelZoomView();
     void setMapView();
     void setMapViewAnimated();
@@ -423,12 +437,14 @@ signals:
     void sendDataRectRequest(float minX, float minY, float maxX, float maxY);
     void sendLlaRef(LLARef viewLlaRef);
     void sendDataZoom(int zoom);
+    void sceneContentVisibleChanged();
     void sendMapTextureIdByTileIndx(const map::TileIndex& tileIndx, GLuint textureId);
     void geoJsonEnabledChanged();
     void sendCameraEpIndxs(const QVector<QPair<int, QSet<TileKey>>>& epIndxs);
     void sendVisibleTileKeys(int zoomIndx, const QSet<TileKey>& tileKeys);
     void forceSingleZoomAutoStateChanged(bool active);
     void syncLoupeStateChanged();
+    void syncEpochIndexChanged();
     void verticalScaleChanged();
     void followReturnStateChanged();
     void mapTapEnabledChanged();
@@ -452,14 +468,19 @@ private:
     void updateForceSingleZoomAutoState();
     void refreshSyncLoupePreview();
     bool tryProjectScreenToPlane(qreal x, qreal y, float planeZ, QVector3D& outPoint) const;
+    bool placeContactAt(qreal x, qreal y);
     void zoomAroundScreenAnchor(qreal delta, const QPointF& anchorPos);
     void queueWheelZoom(qreal steps, const QPointF& anchorPos);
     void stepWheelZoom();
     void cancelWheelZoom();
+    void stepKeyNudge();
+    void cancelKeyNudge();
     void resetHeadingToNorth();
     void notifyManualCameraInteraction();
     void beginFollowReturn();
     void cancelFollowReturn();
+    void holdFollowForContact();
+    void releaseFollowAfterContact();
     void cancelCameraPoseAnim();
     void cancelVScaleAnim();
 
@@ -515,6 +536,7 @@ private:
     ActiveMode lastMode_ = ActiveMode::BottomTrackVertexSelectionMode;
     QRect m_comboSelectionRect = { 0, 0, 0, 0 };
     Ray m_ray;
+    bool contactPlacementArmed_ = false;
     float m_verticalScale = 1.0f;
     bool mapTapEnabled_ = false;
     bool m_isSceneBoundingBoxVisible = true;
@@ -558,7 +580,14 @@ private:
     QTimer* wheelZoomTimer_ = nullptr;
     qreal wheelZoomResidual_ = 0.0;
     QPointF wheelZoomAnchor_;
+    QTimer* keyNudgeTimer_ = nullptr;
+    Smoother keyPanXSmoother_;
+    Smoother keyPanYSmoother_;
+    Smoother keyVScaleSmoother_;
+    QPointF keyPanResidual_;
+    qreal keyVScaleResidual_ = 0.0;
     bool followSuspended_ = false;
+    bool contactFollowPending_ = false;
     bool positionsLive_ = false;
     QTimer* followResumeTimer_ = nullptr;
     QTimer* followTickTimer_ = nullptr;
@@ -603,6 +632,7 @@ private:
     int datasetState_ = -1;
 
     int dataZoomIndx_;
+    bool sceneContentVisible_ = true;
     bool cameraIsMoveUp_;
     float lastMinX_;
     float lastMaxX_;

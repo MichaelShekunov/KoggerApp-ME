@@ -18,6 +18,7 @@ public:
     Q_INVOKABLE void onFitAllInViewButtonClicked();
     Q_INVOKABLE void onSetCameraIsometricViewButtonClicked();
     Q_INVOKABLE void onSetCameraMapViewButtonClicked();
+    Q_INVOKABLE void onSetCameraAngles(qreal yawDeg, qreal pitchDeg);
     Q_INVOKABLE void onBottomTrackVertexEditingModeButtonChecked(bool checked);
     Q_INVOKABLE void onResetProcessingButtonClicked();
     Q_INVOKABLE void onCancelZoomButtonClicked();
@@ -33,6 +34,8 @@ public:
     Q_INVOKABLE void onScaleBarButtonChanged(bool state);
     Q_INVOKABLE void onShadowsEnabledChanged(bool state);
     Q_INVOKABLE void onUsblLayerVisibilityChanged(bool state);
+    Q_INVOKABLE void onUsblBeaconTrackDotsChanged(bool state);
+    Q_INVOKABLE void onUsblHeadTrackDotsChanged(bool state);
     Q_INVOKABLE void onShadowVectorXChanged(float value);
     Q_INVOKABLE void onShadowVectorYChanged(float value);
     Q_INVOKABLE void onShadowVectorZChanged(float value);
@@ -82,6 +85,8 @@ private:
     bool scaleBar_;
     bool shadowsEnabled_;
     bool usblLayerVisible_;
+    bool usblBeaconTrackDots_;
+    bool usblHeadTrackDots_;
     float shadowVectorX_;
     float shadowVectorY_;
     float shadowVectorZ_;

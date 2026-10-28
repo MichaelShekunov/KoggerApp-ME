@@ -8,6 +8,7 @@
 #include <QThread>
 #include <QVariantList>
 #include <QHash>
+#include <atomic>
 #ifdef FLASHER
 #include "flasher/deviceflasher.h"
 #endif
@@ -35,6 +36,7 @@
 #include <QElapsedTimer>
 #include <QTimer>
 
+#include "firmware_upgrade_session.h"
 #include "link_manager_wrapper.h"
 #include "device_topology_model.h"
 #include "tile_manager.h"
@@ -78,10 +80,12 @@ public:
     Q_PROPERTY(QString           fileTitle                    READ getFileTitle                    NOTIFY fileTitleChanged)
     Q_PROPERTY(bool              isFileOpening                READ getIsFileOpening                NOTIFY sendIsFileOpening)
     Q_PROPERTY(bool              trackReprocessing            READ getTrackReprocessing            NOTIFY trackReprocessingChanged)
-    Q_PROPERTY(bool              isSeparateReading            READ getIsSeparateReading            CONSTANT)
     Q_PROPERTY(QString           ch1Name                      READ getChannel1Name                 NOTIFY channelListUpdated FINAL)
     Q_PROPERTY(QString           ch2Name                      READ getChannel2Name                 NOTIFY channelListUpdated FINAL)
     Q_PROPERTY(int               dataProcessorState           READ getDataProcessorState           NOTIFY dataProcessorStateChanged)
+    Q_PROPERTY(bool              processingIdle               READ getProcessingIdle               NOTIFY processingIdleChanged)
+    Q_PROPERTY(QVariantMap       processingActivity           READ getProcessingActivity           NOTIFY processingActivityChanged)
+    Q_PROPERTY(bool              fileOpened                   READ getIsFileOpened                 NOTIFY fileOpenedChanged)
     Q_PROPERTY(int               mapTileProviderId            READ getMapTileProviderId            NOTIFY mapTileProviderChanged)
     Q_PROPERTY(QString           mapTileProviderName          READ getMapTileProviderName          NOTIFY mapTileProviderChanged)
     Q_PROPERTY(QVariantList      mapTileProviders             READ getMapTileProviders             CONSTANT)
@@ -91,6 +95,8 @@ public:
     Q_PROPERTY(bool              needForceZooming             READ getNeedForceZooming             WRITE setNeedForceZooming NOTIFY needForceZoomingChanged)
     Q_PROPERTY(bool              posZeroing                   READ getPosZeroing                   NOTIFY posZeroingChanged)
     Q_PROPERTY(int               bottomTrackEditTool          READ getBottomTrackEditTool          WRITE setBottomTrackEditTool          NOTIFY bottomTrackEditToolChanged)
+    Q_PROPERTY(bool              contactPlacementArmed        READ getContactPlacementArmed        WRITE setContactPlacementArmed        NOTIFY contactPlacementArmedChanged)
+    Q_PROPERTY(int               klfEpochIndexSize            READ klfEpochIndexSize                                                     NOTIFY klfEpochIndexSizeChanged)
     Q_PROPERTY(bool              missionEditorActive          READ getMissionEditorActive          WRITE setMissionEditorActive          NOTIFY missionEditorActiveChanged)
 
     MosaicIndexProvider* getMosaicIndexProviderPtr();
@@ -106,10 +112,6 @@ public:
     DeviceTopologyModel* getDeviceTopologyModelPtr() const;
     mission::MissionPlanController* getMissionPlanControllerPtr() const;
     mission::MissionRunTracker* getMissionRunTrackerPtr() const;
-#ifdef SEPARATE_READING
-    QString getTryOpenedfilePath() const;
-    void stopDeviceManagerThread() const;
-#endif
     void setConsoleOutputEnabled(bool enabled);
     bool isConsoleOutputEnabled() const { return consoleOutputEnabled_; }
     Q_INVOKABLE void consoleInfo(QString msg);
@@ -130,9 +132,6 @@ public:
     Q_INVOKABLE void setMosaicMultiThreaded(bool on);
     Q_INVOKABLE void setZoomFallbackEnabled(bool on);
     void removeLinkManagerConnections();
-#ifdef SEPARATE_READING
-    void removeDeviceManagerConnections();
-#endif
     QHash<QUuid, QString> getLinkNames() const;
     void shutdownBackgroundWorkers();
     bool getIsGPSAlive() const { return isGPSAlive_; };
@@ -168,16 +167,8 @@ public:
 public slots:
     void setIsGPSAlive(bool state) { qDebug() << "Core::setIsGPSAlive" << state; isGPSAlive_ = state; emit isGPSAliveChanged(); }
 
-#ifdef SEPARATE_READING
-    void openLogFile(const QString& filePath, bool isAppend = false, bool onCustomEvent = false);
-    bool closeLogFile(bool onOpen = false);
-    void onFileStartOpening();
-    void onFileReadEnough();
-    void onFileOpenBreaked(bool onOpen);
-#else
     void openLogFile(const QString& filePath, bool isAppend = false, bool onCustomEvent = false);
     bool closeLogFile();
-#endif
     void onRequestClearing();
 
     void onFileOpened();
@@ -199,6 +190,7 @@ public slots:
     void setUseGPS(bool state);
     bool exportComplexToCSV(QString filePath);
     bool exportUSBLToCSV(QString filePath);
+    bool exportUsblDiagToCSV(QString filePath);
     bool exportPlotAsCVS(QString filePath, const ChannelId& channelId, float decimation = 0);
     bool exportPlotAsXTF(QString filePath);
     Q_INVOKABLE bool csvExportFieldEnabled(const QString& key) const;
@@ -244,14 +236,21 @@ public slots:
     bool getPosZeroing() const { return isActiveZeroing_; }
     int  getBottomTrackEditTool() const { return bottomTrackEditTool_; }
     Q_INVOKABLE void setBottomTrackEditTool(int tool);
+    bool getContactPlacementArmed() const { return contactPlacementArmed_; }
+    Q_INVOKABLE void setContactPlacementArmed(bool armed);
     bool getMissionEditorActive() const { return missionEditorActive_; }
     Q_INVOKABLE void setMissionEditorActive(bool active);
     QString missionDirectoryFor(const QString& logDir) const;
+
+    int klfEpochIndexSize() const;
+    Q_INVOKABLE bool exportKlfFragment(int firstEpoch, int lastEpoch, QString filePath);
     Q_INVOKABLE bool getIsFileOpening() const;
     Q_INVOKABLE bool getIsAppendMode() const;
     Q_INVOKABLE QString getFileTitle() const;
-    Q_INVOKABLE bool getIsSeparateReading() const;
     Q_INVOKABLE int getDataProcessorState() const;
+    bool getProcessingIdle() const { return processingIdle_.load(); }
+    QVariantMap getProcessingActivity() const { return processingActivity_; }
+    bool getIsFileOpened() const;
     Q_INVOKABLE QString getChannel1Name() const;
     Q_INVOKABLE QString getChannel2Name() const;
     Q_INVOKABLE void registerPlot2D(QObject* plotObj);
@@ -269,8 +268,13 @@ public slots:
      * this when the panes change, and a live source sends its cursor again on its next move.
      */
     Q_INVOKABLE void clearEchogramSyncCursors();
+    void broadcastLiveHold(qPlot2D* source);
+    void broadcastLiveHoldEnd(qPlot2D* source, bool toLiveEnd);
+    void updateLiveHoldPause();
+    void clearEpochCursors();
     Q_INVOKABLE void broadcastEchogramTime(QObject* source, double timelinePos);        // time/scroll → gated by echogramSyncCursor_
     Q_INVOKABLE void broadcastEchogramVertical(QObject* source, double from, double to); // vertical zoom+offset → gated by echogramSyncView_
+    Q_INVOKABLE void broadcastEchogramVerticalReset(QObject* source);
     Q_INVOKABLE void registerSyncLoupePlot(QObject* plotObj);
     Q_INVOKABLE QVariant getConvertedMousePos(int indx, int mouseX, int mouseY);
 
@@ -289,6 +293,7 @@ public slots:
     Q_INVOKABLE void setMapTileLoadingEnabled(bool enabled);
     Q_INVOKABLE bool getBringWindowToFrontEnabled() const;
     Q_INVOKABLE void setBringWindowToFrontEnabled(bool enabled);
+    Q_INVOKABLE void reloadStartupSettings();
     Q_INVOKABLE void moveAppToBackground();
     Q_INVOKABLE void requestDismissTransientUi();
     Q_INVOKABLE void setActiveTransientUi(QObject* who);
@@ -310,6 +315,9 @@ signals:
     void trackReprocessingChanged();
     void channelListUpdated();
     void dataProcessorStateChanged();
+    void processingIdleChanged();
+    void processingActivityChanged();
+    void fileOpenedChanged();
     void needForceZoomingChanged();
     void isGPSAliveChanged();
     void loggingKlfChanged();
@@ -324,17 +332,17 @@ signals:
     void mapTileLoadingEnabledChanged();
     void posZeroingChanged();
     void bottomTrackEditToolChanged();
+    void contactPlacementArmedChanged();
+    void klfEpochIndexSizeChanged();
     void missionEditorActiveChanged();
     void languageChanged();
-
-#ifdef SEPARATE_READING
-    void sendCloseLogFile(bool onOpen = false);
-#endif
 
 private slots:
     void onFileStopsOpening();
     void onSendMapTextureIdByTileIndx(const map::TileIndex& tileIndx, GLuint textureId); // TODO: maybe store map texture id in mapView
     void onDataProcesstorStateChanged(const DataProcessorType& state);
+    void onProcessingIdleChanged(bool idle);
+    void onProcessingActivityChanged(const QVariantMap& activity);
     void onSendFrameInputToLogger(QUuid uuid, Link* link, const Parsers::FrameParser& frame);
     void pushMissionRunTelemetry();
 
@@ -431,12 +439,6 @@ private:
     std::unique_ptr<MapLayer> mapLayer_;       // My maps in the 3D scene
     bool mapLayerConnected_ = false;   // UILoad's lambdas for My maps, made once
 
-#ifdef SEPARATE_READING
-    QString tryOpenedfilePath_;
-    bool fileIsCompleteOpened_ = false;
-    QList<QMetaObject::Connection> deviceManagerWrapperConnections_;
-#endif
-
     QQmlApplicationEngine* qmlAppEnginePtr_;
     Dataset* datasetPtr_;
     QPointer<GraphicsScene3dView> scene3dViewPtr_;
@@ -501,6 +503,7 @@ private:
     qint64        rateLastEpochMs_ = 0;
     double        rateKbps_ = 0.0;
     bool          rateShown_ = false;
+    QString lastFileTitle_; // guards fileTitleChanged against the link model's periodic row touches
     QSet<QUuid> receivingLinks_; // links currently receiving data; window is raised on the empty→non-empty edge
 
     bool isGPSAlive_;
@@ -520,6 +523,7 @@ private:
     bool isActiveZeroing_;
     bool isBottomTrackZeroing_;
     int  bottomTrackEditTool_ = 0;
+    bool contactPlacementArmed_ = false;
     bool missionEditorActive_ = false;
     int  previousMapTileProviderId_ = -1;
 
@@ -546,10 +550,14 @@ signals:
 #endif
 
 private:   // reset access after the (signals-terminated) FLASHER block — else these leak into signals: under -DFLASHER
+    FirmwareUpgradeSession upgradeSession_;
+
     QVector<QMetaObject::Connection> dataProcessorConnections_;
     QVector<QMetaObject::Connection> dataHorizonConnections_;
 
     DataProcessorType dataProcessorState_ = DataProcessorType::kUndefined;
+    std::atomic<bool> processingIdle_{true};
+    QVariantMap processingActivity_;
 
     ChannelId lastCh1_;
     uint8_t   lastSub1_;

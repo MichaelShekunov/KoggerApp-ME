@@ -1,6 +1,8 @@
 #include "isobaths_view_control_menu_controller.h"
 #include "scene3d_view.h"
 #include "isobaths_defs.h"
+#include <cmath>
+#include <limits>
 #include <QColor>
 #include <QVariantMap>
 
@@ -17,12 +19,15 @@ IsobathsViewControlMenuController::IsobathsViewControlMenuController(QObject* pa
     graphicsSceneViewPtr_(nullptr),
     dataProcessorPtr_(nullptr),
     pendingLambda_(nullptr),
+    surfaceDepthMin_(std::numeric_limits<float>::quiet_NaN()),
+    surfaceDepthMax_(std::numeric_limits<float>::quiet_NaN()),
     surfaceLineStepSize_(3.0f),
     themeId_(0),
     labelStepSize_(100),
     edgeLimit_(100),
     extraWidth_(10),
     visibility_(false),
+    bandedColors_(false),
     edgesVisible_(false),
     trianglesVisible_(false),
     debugModeView_(false),
@@ -57,7 +62,111 @@ void IsobathsViewControlMenuController::setDataProcessorPtr(DataProcessor *dataP
         QObject::connect(dataProcessorPtr_, &DataProcessor::pipelineStats,
                          this, &IsobathsViewControlMenuController::onPipelineStats,
                          Qt::UniqueConnection);
+        QObject::connect(dataProcessorPtr_, &DataProcessor::sendSurfaceMinZ,
+                         this, &IsobathsViewControlMenuController::onSurfaceMinZ,
+                         Qt::UniqueConnection);
+        QObject::connect(dataProcessorPtr_, &DataProcessor::sendSurfaceMaxZ,
+                         this, &IsobathsViewControlMenuController::onSurfaceMaxZ,
+                         Qt::UniqueConnection);
+        QObject::connect(dataProcessorPtr_, &DataProcessor::allProcessingCleared,
+                         this, &IsobathsViewControlMenuController::onSurfaceCleared,
+                         Qt::UniqueConnection);
     }
+}
+
+float IsobathsViewControlMenuController::isobathStep() const
+{
+    return surfaceLineStepSize_;
+}
+
+bool IsobathsViewControlMenuController::bandedColors() const
+{
+    return bandedColors_;
+}
+
+void IsobathsViewControlMenuController::setBandedColors(bool state)
+{
+    const bool changed = bandedColors_ != state;
+    bandedColors_ = state;
+
+    if (graphicsSceneViewPtr_) {
+        if (auto surfacePtr = graphicsSceneViewPtr_->getSurfaceViewPtr(); surfacePtr) {
+            surfacePtr->setBandedColors(bandedColors_);
+        }
+    }
+    else {
+        tryInitPendingLambda();
+    }
+
+    if (changed) {
+        emit bandedColorsChanged();
+    }
+}
+
+QVariantList IsobathsViewControlMenuController::surfacePaletteColors() const
+{
+    const QVector<QVector3D> palette = IsobathUtils::surfacePalette(themeId_);
+    QVariantList colors;
+    colors.reserve(palette.size());
+    for (const QVector3D& c : palette) {
+        colors.append(QColor::fromRgbF(c.x(), c.y(), c.z()).name());
+    }
+    return colors;
+}
+
+float IsobathsViewControlMenuController::surfaceDepthMin() const
+{
+    return surfaceDepthMin_;
+}
+
+float IsobathsViewControlMenuController::surfaceDepthMax() const
+{
+    return surfaceDepthMax_;
+}
+
+namespace {
+
+bool sameDepth(float a, float b)
+{
+    if (std::isnan(a) || std::isnan(b)) {
+        return std::isnan(a) && std::isnan(b);
+    }
+    return qFuzzyCompare(1.0f + a, 1.0f + b);
+}
+
+} // namespace
+
+void IsobathsViewControlMenuController::onSurfaceMinZ(float minZ)
+{
+    const float depthMax = std::isfinite(minZ) ? -minZ : std::numeric_limits<float>::quiet_NaN();
+    if (sameDepth(depthMax, surfaceDepthMax_)) {
+        return;
+    }
+
+    surfaceDepthMax_ = depthMax;
+    emit surfaceDepthRangeChanged();
+}
+
+void IsobathsViewControlMenuController::onSurfaceMaxZ(float maxZ)
+{
+    const float depthMin = std::isfinite(maxZ) ? -maxZ : std::numeric_limits<float>::quiet_NaN();
+    if (sameDepth(depthMin, surfaceDepthMin_)) {
+        return;
+    }
+
+    surfaceDepthMin_ = depthMin;
+    emit surfaceDepthRangeChanged();
+}
+
+void IsobathsViewControlMenuController::onSurfaceCleared()
+{
+    if (std::isnan(surfaceDepthMin_) && std::isnan(surfaceDepthMax_)) {
+        return;
+    }
+
+    surfaceDepthMin_ = std::numeric_limits<float>::quiet_NaN();
+    surfaceDepthMax_ = std::numeric_limits<float>::quiet_NaN();
+    emit surfaceDepthRangeChanged();
 }
 
 QVariantMap IsobathsViewControlMenuController::pipelineStatus() const
@@ -130,6 +239,8 @@ void IsobathsViewControlMenuController::refreshPipelineStatus()
 void IsobathsViewControlMenuController::onPipelineStats(const QVariantMap& stats)
 {
     statusRequestPending_ = false;
+    ++pipelineStatusSeq_;
+    emit pipelineStatusSeqChanged();
 
     if (!statusMonitorEnabled_) {
         return;
@@ -182,6 +293,7 @@ void IsobathsViewControlMenuController::tryInitPendingLambda()
 
                 if (auto surfacePtr = graphicsSceneViewPtr_->getSurfaceViewPtr(); surfacePtr) {
                     surfacePtr->setIVisible(visibility_);
+                    surfacePtr->setBandedColors(bandedColors_);
                     surfacePtr->setIsobathsLabelStepSize(labelStepSize_);
                 }
                 //if (auto isobathsViewPtr = graphicsSceneViewPtr_->getIsobathsViewPtr(); isobathsViewPtr) {
@@ -250,19 +362,27 @@ void IsobathsViewControlMenuController::onEdgesVisible(bool state)
 
 void IsobathsViewControlMenuController::onSetSurfaceLineStepSize(float val)
 {
-    const bool changedStep = surfaceLineStepSize_ != val;
+    const bool changed = !qFuzzyCompare(1.0f + val, 1.0f + surfaceLineStepSize_);
+    if (surfaceLineStepApplied_ && !changed) {
+        return;
+    }
     surfaceLineStepSize_ = val;
-    if (changedStep) {
+    if (changed) {
         emit styleChanged();
     }
 
     if (graphicsSceneViewPtr_) {
         if (dataProcessorPtr_) {
             QMetaObject::invokeMethod(dataProcessorPtr_, "setSurfaceIsobathsStepSize", Qt::QueuedConnection, Q_ARG(float, surfaceLineStepSize_));
+            surfaceLineStepApplied_ = true;
         }
     }
     else {
         tryInitPendingLambda();
+    }
+
+    if (changed) {
+        emit isobathStepChanged();
     }
 }
 
@@ -285,9 +405,9 @@ void IsobathsViewControlMenuController::onSetLabelStepSize(int val)
 
 void IsobathsViewControlMenuController::onThemeChanged(int val)
 {
-    const bool changedTheme = themeId_ != val;
+    const bool changed = themeId_ != val;
     themeId_ = val;
-    if (changedTheme) {
+    if (changed) {
         emit styleChanged();
     }
 
@@ -298,6 +418,10 @@ void IsobathsViewControlMenuController::onThemeChanged(int val)
     }
     else {
         tryInitPendingLambda();
+    }
+
+    if (changed) {
+        emit surfacePaletteColorsChanged();
     }
 }
 
@@ -346,11 +470,15 @@ void IsobathsViewControlMenuController::onResetIsobathsButtonClicked()
 
 void IsobathsViewControlMenuController::onEdgeLimitChanged(int val)
 {
+    if (edgeLimitApplied_ && edgeLimit_ == val) {
+        return;
+    }
     edgeLimit_ = val;
 
     if (graphicsSceneViewPtr_) {
         if (dataProcessorPtr_) {
             QMetaObject::invokeMethod(dataProcessorPtr_, "setSurfaceEdgeLimit", Qt::QueuedConnection, Q_ARG(int, edgeLimit_));
+            edgeLimitApplied_ = true;
         }
     }
     else {
@@ -360,11 +488,15 @@ void IsobathsViewControlMenuController::onEdgeLimitChanged(int val)
 
 void IsobathsViewControlMenuController::onSetExtraWidth(int val)
 {
+    if (extraWidthApplied_ && extraWidth_ == val) {
+        return;
+    }
     extraWidth_ = val;
 
     if (graphicsSceneViewPtr_) {
         if (dataProcessorPtr_) {
             QMetaObject::invokeMethod(dataProcessorPtr_, "setExtraWidth", Qt::QueuedConnection, Q_ARG(int, extraWidth_));
+            extraWidthApplied_ = true;
         }
     }
     else {

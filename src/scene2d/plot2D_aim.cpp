@@ -1,7 +1,12 @@
 #include "plot2D_aim.h"
 #include "plot2D.h"
 #include "themes.h"
+#include <algorithm>
 #include <cmath>
+#include <iterator>
+#include <QBrush>
+#include <QPainterPath>
+#include <QTransform>
 
 
 Plot2DAim::Plot2DAim()
@@ -26,11 +31,11 @@ bool Plot2DAim::draw(Plot2D* parent, Dataset* dataset)
     if (cursor.selectEpochIndx != -1) {
         auto* ep = dataset->fromIndex(cursor.selectEpochIndx);
         int offsetX = 0;
-        int halfCanvas = canvas.width() / 2;
+        int halfCanvas = static_cast<int>(static_cast<float>(canvas.width()) / (2.0f * cursor.horZoom));
         int withoutHalf = dataset->size() - halfCanvas;
 
         if (cursor.selectEpochIndx >= withoutHalf) {
-            offsetX = cursor.selectEpochIndx - withoutHalf;
+            offsetX = qRound((cursor.selectEpochIndx - withoutHalf) * cursor.horZoom);
         }
 
         if (ep) {
@@ -50,7 +55,12 @@ bool Plot2DAim::draw(Plot2D* parent, Dataset* dataset)
             }
 
             if (chartPtr) {
-                const int x = canvas.width() / 2 + offsetX;
+                int x = canvas.width() / 2 + offsetX;
+                const auto& indexes = cursor.indexes;
+                const auto it = std::find(indexes.begin(), indexes.end(), cursor.selectEpochIndx);
+                if (it != indexes.end()) {
+                    x = static_cast<int>(std::distance(indexes.begin(), it));
+                }
                 float depthVal = parent->hasSyncDepth() ? parent->getSyncDepth() : chartPtr->bottomProcessing.distance;
                 if (!std::isfinite(depthVal)) {
                     depthVal = 0.0f;
@@ -252,7 +262,11 @@ bool Plot2DAim::draw(Plot2D* parent, Dataset* dataset)
     textRect = textBackgroundRect.adjusted(textMargin, textMargin, -textMargin, -textMargin);
 
     if (!text.isEmpty()) {
+        const bool prevAntialias = p->testRenderHint(QPainter::Antialiasing);
+        const qreal plateRadius = qMax(2.0, 6.0 * scaleFactor_);
+
         p->save();
+        p->setRenderHint(QPainter::Antialiasing, true);
         if (vertical) {
             const QPointF c = textBackgroundRect.center();
             p->translate(c);
@@ -261,29 +275,55 @@ bool Plot2DAim::draw(Plot2D* parent, Dataset* dataset)
         }
         p->setPen(Qt::NoPen);
         p->setBrush(QColor(45, 45, 45));
-        p->drawRect(textBackgroundRect);
+        p->drawRoundedRect(textBackgroundRect, plateRadius, plateRadius);
 
         p->setPen(QColor(255, 255, 255));
         p->drawText(textRect, Qt::AlignLeft | Qt::AlignTop, text);
         p->restore();
+        p->setRenderHint(QPainter::Antialiasing, prevAntialias);
     }
 
     if (hasPreview) {
         QRect previewRect(previewX, previewY, previewSize, previewSize);
-        QRect previewInnerRect = previewRect.adjusted(3, 3, -3, -3);
+        const bool prevAntialias = p->testRenderHint(QPainter::Antialiasing);
+        const qreal loupeRadius = qMax(3.0, 8.0 * scaleFactor_);
+        const int previewMatting = qMax(3, qRound(3.0 * scaleFactor_));
+        const qreal previewRadius = qMax(1.0, loupeRadius - previewMatting);
+        QRect previewInnerRect = previewRect.adjusted(previewMatting, previewMatting,
+                                                      -previewMatting, -previewMatting);
         QPoint sourceCenter(qBound(0, cursor.mouseX, canvas.width() - 1),
                             qBound(0, cursor.mouseY, canvas.height() - 1));
 
         p->save();
+        p->setRenderHint(QPainter::Antialiasing, true);
         p->setPen(Qt::NoPen);
         p->setBrush(QColor(30, 30, 30, 220));
-        p->drawRect(previewRect);
+        p->drawRoundedRect(previewRect, loupeRadius, loupeRadius);
+
         QPointF previewFocus(0.5, 0.5);
-        parent->drawEchogramZoomPreview(p, previewInnerRect, sourceCenter, previewSourceSize, &previewFocus);
+        if (loupeBuffer_.size() != previewInnerRect.size()) {
+            loupeBuffer_ = QImage(previewInnerRect.size(), QImage::Format_ARGB32_Premultiplied);
+        }
+        loupeBuffer_.fill(Qt::transparent);
+        QPainter loupePainter(&loupeBuffer_);
+        const bool previewRendered = parent->drawEchogramZoomPreview(
+            &loupePainter, QRect(QPoint(0, 0), previewInnerRect.size()),
+            sourceCenter, previewSourceSize, &previewFocus);
+        loupePainter.end();
+
+        if (previewRendered) {
+            QBrush previewBrush(loupeBuffer_);
+            previewBrush.setTransform(QTransform::fromTranslate(previewInnerRect.left(),
+                                                                previewInnerRect.top()));
+            p->setBrush(previewBrush);
+            QPainterPath previewClip;
+            previewClip.addRoundedRect(previewInnerRect, previewRadius, previewRadius);
+            p->drawPath(previewClip);
+        }
 
         p->setPen(QPen(QColor(94, 101, 132, 255), 2));
         p->setBrush(Qt::NoBrush);
-        p->drawRect(previewRect.adjusted(1, 1, -1, -1));
+        p->drawRoundedRect(previewRect.adjusted(1, 1, -1, -1), loupeRadius - 1, loupeRadius - 1);
 
         const qreal focusX = qBound<qreal>(0.0, previewFocus.x(), 1.0);
         const qreal focusY = qBound<qreal>(0.0, previewFocus.y(), 1.0);
@@ -300,6 +340,7 @@ bool Plot2DAim::draw(Plot2D* parent, Dataset* dataset)
         p->drawLine(zoomCenterX - leftArm, zoomCenterY, zoomCenterX + rightArm, zoomCenterY);
         p->drawLine(zoomCenterX, zoomCenterY - topArm, zoomCenterX, zoomCenterY + bottomArm);
         p->restore();
+        p->setRenderHint(QPainter::Antialiasing, prevAntialias);
     }
 
     return true;

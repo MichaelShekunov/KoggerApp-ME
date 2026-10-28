@@ -41,6 +41,9 @@ public:
         QVector<QVector3D> buildTileNormalSums(const SurfaceTile& tile) const;
         QVector<QVector3D> normalizeNormals(const QVector<QVector3D>& normalSums) const;
         QVector<QVector3D> buildTileNormals(const SurfaceTile& tile) const;
+        float depthRangeMin() const;
+        float depthRangeMax() const;
+        QVector3D samplePalette(float norm) const;
         void rebuildSeamlessTileNormals(const QHash<TileKey, SurfaceTile>& tiles,
                                         QHash<TileKey, QVector<QVector3D>>& outNormals) const;
         // The same for the tiles about `changed` (new content or gone) only: their 3x3 neighbourhood,
@@ -67,8 +70,10 @@ public:
         float maxZ_; // from dataprocessor
         float surfaceStep_; // from dataprocessor
         int colorIntervalsSize_; // from dataprocessor
+        std::vector<uint8_t> isoPalette_;
         bool iVis_;
         bool mVis_;
+        bool bandedColors_;
         QHash<TileKey, QVector<QVector3D>> tileNormals_;
         mutable QHash<TileKey, QVector<QVector3D>> tileNormalSums_;   // buildTileNormalSums per tile, for updateSeamlessTileNormals
         QVector<IsoLabel> isoLabels_;
@@ -91,6 +96,7 @@ public:
     void   setSurfaceColorTableTextureId(GLuint textureId);
     void   setIVisible(bool state);
     void   setMVisible(bool state);
+    void   setBandedColors(bool state);
     void   setIsobathsLabelStepSize(float val);
     void   setCameraDistToFocusPoint(float val);
     GLuint getMosaicTextureIdByTileId(const TileKey& tileId) const;
@@ -162,7 +168,7 @@ private:
 private:
     QMutex mosaicTexTasksMutex_;
 
-    const float kLabelZShift = 0.03f;
+    static constexpr float kLabelZShift = 0.03f;
 
     std::vector<uint8_t>                            mosaicColorTableToAppend_;
     GLuint                                          mosaicColorTableToDelete_;

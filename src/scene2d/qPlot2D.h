@@ -7,8 +7,12 @@
 #include <dataset.h>
 #include <QTimer>
 #include <QElapsedTimer>
+#include <array>
 #include "plot2D.h"
 #include "echogram_sonifier.h"
+#include "smoother.h"
+
+class Animator;
 
 //#define USE_PIXMAP
 
@@ -21,8 +25,14 @@ public:
     Q_PROPERTY(bool horizontal READ isHorizontal() WRITE setHorizontal NOTIFY plotHorizontalChanged)
     Q_PROPERTY(float timelinePosition READ timelinePosition WRITE setTimelinePosition NOTIFY timelinePositionChanged)
     Q_PROPERTY(float viewportRatio READ viewportRatio NOTIFY timelinePositionChanged)
-    Q_PROPERTY(float horizontalScale READ horizontalScale WRITE setHorizontalScaleProp NOTIFY horizontalScaleChanged)
-    Q_PROPERTY(int horizontalScaleIndex READ horizontalScaleIndex NOTIFY horizontalScaleChanged)
+    Q_PROPERTY(float timelineProgress READ timelineProgress NOTIFY timelinePositionChanged)
+    Q_PROPERTY(bool horizontalScaleModified READ timelineZoomModified NOTIFY timelinePositionChanged)
+    // develop's timeline zoom (screen columns a ping); ME writes it from the settings row and a restored layout
+    Q_PROPERTY(float horizontalScale READ timelineZoom WRITE setHorizontalScaleProp NOTIFY timelinePositionChanged)
+    Q_PROPERTY(int horizontalScaleIndex READ horizontalScaleIndex NOTIFY timelinePositionChanged)
+    Q_PROPERTY(bool verticalScaleModified READ distanceModified NOTIFY timelinePositionChanged)
+    Q_PROPERTY(float verticalScale READ distanceZoom NOTIFY timelinePositionChanged)
+    Q_PROPERTY(float verticalShift READ distanceShift NOTIFY timelinePositionChanged)
     Q_PROPERTY(bool hasData READ hasData NOTIFY timelinePositionChanged)
     Q_PROPERTY(bool isEnabled READ getPlotEnabled WRITE setPlotEnabled NOTIFY plotEnabledChanged)
     Q_PROPERTY(QString contactInfo      READ getContactInfo      WRITE setContactInfo     NOTIFY contactChanged)
@@ -35,6 +45,13 @@ public:
     Q_PROPERTY(double  contactDepth     READ getContactDepth /*WRITE setContactLon*/ NOTIFY contactChanged)
     Q_PROPERTY(bool    contactIsActive  READ getContactIsActive NOTIFY contactChanged)
     Q_PROPERTY(bool    soundEnabled     READ soundEnabled        WRITE setSoundEnabled    NOTIFY soundEnabledChanged)
+    Q_PROPERTY(bool liveHoldEnabled READ liveHoldEnabled WRITE setLiveHoldEnabled NOTIFY liveHoldChanged)
+    Q_PROPERTY(bool liveHoldPaused  READ liveHoldPaused  WRITE setLiveHoldPaused  NOTIFY liveHoldChanged)
+    Q_PROPERTY(bool liveHoldActive  READ liveHoldActive  NOTIFY liveHoldChanged)
+    Q_PROPERTY(int  liveHoldSeconds READ liveHoldSeconds NOTIFY liveHoldChanged)
+    Q_PROPERTY(bool liveHoldRunning READ liveHoldRunning NOTIFY liveHoldChanged)
+    Q_PROPERTY(int  liveHoldRemainingMs READ liveHoldRemainingMs NOTIFY liveHoldChanged)
+    Q_PROPERTY(double liveHoldDeadlineMs READ liveHoldDeadlineMs NOTIFY liveHoldChanged)
 
     qPlot2D(QQuickItem* parent = nullptr);
     void paint(QPainter *painter) override;
@@ -55,11 +72,13 @@ public:
 
     float viewportRatio() const {
         if (!datasetPtr_ || datasetPtr_->size() <= 0) return 1.0f;
-        const float dim = (_isHorizontal ? static_cast<float>(width()) : static_cast<float>(height())) * static_cast<float>(deviceScale_);
-        return qBound(0.0f, dim / horizontalScale() / static_cast<float>(datasetPtr_->size()), 1.0f);   // pings on screen
+        const float dim = (_isHorizontal ? static_cast<float>(width()) : static_cast<float>(height())) * static_cast<float>(deviceScale_) / cursor_.horZoom;
+        return qBound(0.0f, dim / static_cast<float>(datasetPtr_->size()), 1.0f);
     }
 
-    /// Screen columns a ping takes (Plot2D::horizontalScale); a change keeps the newest ping at the right edge.
+    /// Screen columns a ping takes (Plot2D::horizontalScale, develop's zoom); a change keeps the newest ping at the
+    /// right edge. The settings row, a restored layout and the edit script set it; the wheel and the pinch go through
+    /// develop's smoothTimeZoom / pinchTimeZoom.
     void setHorizontalScaleProp(float scale) {
         const float before = horizontalScale();
         Plot2D::setHorizontalScale(scale);
@@ -67,19 +86,11 @@ public:
             horizontalScaleApplied();
         }
     }
-    /// The mouse wheel with Alt over the echogram: a notch is a step of the horizontal scale, up stretching
-    /// the pings, down compressing them, the ping under (x, y) kept in place.
-    Q_INVOKABLE void horZoomEvent(int delta, int x, int y);
     /// Steps of the horizontal scale from the echogram's menu, the newest ping kept at the right edge.
     Q_INVOKABLE void stepHorizontalScaleBy(int steps) {
         if (Plot2D::stepHorizontalScale(steps, -1)) {
             horizontalScaleApplied();
         }
-        Q_EMIT zoomedByUser(true);
-    }
-    /// The menu's "1:1": a column a ping.
-    Q_INVOKABLE void resetHorizontalScale() {
-        setHorizontalScaleProp(1.0f);
         Q_EMIT zoomedByUser(true);
     }
     /// What the screen holds across: "pings" (the oldest shown to the newest, a compressed column's whole group
@@ -114,8 +125,32 @@ public:
 
     Q_INVOKABLE float cursorFrom() const { return Plot2D::cursor_.distance.from; }
     Q_INVOKABLE float cursorTo() const { return Plot2D::cursor_.distance.to; }
-    Q_INVOKABLE void setCursorFromTo(float from, float to) { cursor_.distance.mode = AutoRangeNone; Plot2D::cursor_.distance.from = from; Plot2D::cursor_.distance.to = to; }
+    Q_INVOKABLE void setCursorFromTo(float from, float to) {
+        cancelDistanceAnimation();
+        beginDistanceOverride();
+        cursor_.distance.mode = AutoRangeNone;
+        Plot2D::cursor_.distance.from = from;
+        Plot2D::cursor_.distance.to = to;
+        settleDistanceOverride();
+        Q_EMIT timelinePositionChanged();
+    }
     Q_INVOKABLE int getAimEpochIndex() const { return cursor_.selectEpochIndx; }
+    Q_INVOKABLE int firstVisibleEpochIndex() const {
+        for (int i = 0; i < static_cast<int>(cursor_.indexes.size()); ++i) {
+            if (cursor_.indexes[i] >= 0) {
+                return cursor_.indexes[i];
+            }
+        }
+        return -1;
+    }
+    Q_INVOKABLE int lastVisibleEpochIndex() const {
+        for (int i = static_cast<int>(cursor_.indexes.size()) - 1; i >= 0; --i) {
+            if (cursor_.indexes[i] >= 0) {
+                return cursor_.indexes[i];
+            }
+        }
+        return -1;
+    }
     Q_INVOKABLE void setAimEpochIndex(int epochIndx) {
         if (!datasetPtr_ || datasetPtr_->size() <= 0 || epochIndx < 0) {
             cursor_.selectEpochIndx = -1;
@@ -134,7 +169,7 @@ public:
             cursor_.selectEpochIndx = -1;
             return;
         }
-        const float halfWidth = static_cast<float>(qRound(width() * deviceScale_ * 0.5)) / horizontalScale();   // pings
+        const float halfWidth = static_cast<float>(qRound(width() * deviceScale_ * 0.5 / cursor_.horZoom));
         const float timelinePos = static_cast<float>(epochIndx + halfWidth) / static_cast<float>(datasetPtr_->size());
         Plot2D::setTimelinePosition(qBound(0.0f, timelinePos, 1.0f));
         cursor_.selectEpochIndx = epochIndx;
@@ -183,6 +218,22 @@ public:
     void setSoundEnabled(bool state);
     Q_INVOKABLE void setSoundFrequencyScale(int scale);
     Q_INVOKABLE int getSoundFrequencyScale() const { return soundScale_; }
+    bool liveHoldEnabled() const { return liveHoldEnabled_; }
+    void setLiveHoldEnabled(bool enabled);
+    bool liveHoldPaused() const { return liveHoldPaused_; }
+    void setLiveHoldPaused(bool paused);
+    bool liveHoldActive() const { return liveHold_; }
+    int liveHoldSeconds() const;
+    int liveHoldRemainingMs() const;
+    double liveHoldDeadlineMs() const;
+    bool liveHoldRunning() const { return liveHold_ && !liveHoldPausedNow(); }
+    Q_INVOKABLE void holdLiveView();
+    Q_INVOKABLE void cancelLiveHold();
+    Q_INVOKABLE void resumeLiveScroll();
+    Q_INVOKABLE void returnToLiveNow();
+    void joinLiveHold(bool followsSource);
+    void releaseLiveHold(bool toLiveEnd);
+    void setLiveHoldSyncPaused(bool paused);
 
 protected:
     Dataset* m_plot = nullptr;
@@ -190,7 +241,6 @@ protected:
     bool m_needUpdate = true;
     bool _isHorizontal = true;
     qreal deviceScale_ = 1.0;
-    int horZoomWheel_ = 0;   // wheel units toward the next step of the horizontal scale (touchpads send less than a notch)
 
     // After the horizontal scale changed: the view is held from going past the oldest ping, as horScrollEvent
     // holds it, and QML hears of the scale and of the window it gives.
@@ -206,6 +256,9 @@ signals:
     void plotHorizontalChanged();
     void plotEnabledChanged();
     void soundEnabledChanged();
+    void liveHoldChanged();
+    void liveReturnRequested();
+    void smoothScrollStepped(bool horizontal, bool sync);
 
 protected slots:
     void timerUpdater();
@@ -217,6 +270,18 @@ public slots:
     void horScrollEvent(int delta);
     void verZoomEvent(int delta);
     void verScrollEvent(int delta);
+    Q_INVOKABLE void smoothHorScroll(qreal delta, bool sync);
+    Q_INVOKABLE void smoothVerScroll(qreal delta, bool sync);
+    Q_INVOKABLE void smoothVerZoom(qreal delta, bool sync);
+    Q_INVOKABLE void smoothTimeZoom(qreal delta, qreal x, qreal y, bool sync);
+    Q_INVOKABLE void resetHorizontalScale();
+    Q_INVOKABLE void pinchTimeZoom(qreal prevX, qreal prevY, qreal x, qreal y, qreal factor);
+    Q_INVOKABLE void settleTimeZoom();
+    Q_INVOKABLE void resetVerticalScale();
+    Q_INVOKABLE void cancelSmoothScroll();
+    Q_INVOKABLE void beginTimelineDrag();
+    Q_INVOKABLE void endTimelineDrag();
+    Q_INVOKABLE void setTimelineProgress(float progress);
     Q_INVOKABLE void plotMousePosition(int x, int y, bool isSync = false);
     Q_INVOKABLE void simplePlotMousePosition(int x, int y);
     Q_INVOKABLE void onCursorMoved(int x, int y);
@@ -285,12 +350,13 @@ public slots:
     void plotGridVerticalNumber(int grids) { setGridVetricalNumber(grids); }
     void plotGridFillWidth(bool state) { setGridFillWidth(state); };
     void plotGridInvert(bool state) { setGridInvert(state); };
+    void plotGridLabelCasing(bool state) { setGridLabelCasing(state); };
     void plotAngleVisibility(bool state)   { setAngleVisibility(state); }
     void plotAngleRange(int angleRange) { setAngleRange(angleRange); }
     void plotVelocityVisible(bool visible) { setVelocityVisible(visible); }
     void plotVelocityRange(float velocity) { setVelocityRange(velocity); }
 
-    void plotDistanceAutoRange(int auto_range_type) { setDistanceAutoRange(auto_range_type); }
+    void plotDistanceAutoRange(int auto_range_type) { setDistanceAutoRange(auto_range_type); Q_EMIT timelinePositionChanged(); }
     void plotLoupeVisible(bool state) { setLoupeVisible(state); }
     void plotLoupeSize(int size) { setLoupeSize(size); }
     void plotLoupeZoom(int zoom) { setLoupeZoom(zoom); }
@@ -328,6 +394,7 @@ public slots:
     Q_INVOKABLE int getGridVerticalNumber() const { return Plot2D::getGridVerticalNumber(); }
     Q_INVOKABLE bool getGridFillWidth() const { return Plot2D::getGridFillWidth(); }
     Q_INVOKABLE bool getGridInvert() const { return Plot2D::getGridInvert(); }
+    Q_INVOKABLE bool getGridLabelCasing() const { return Plot2D::getGridLabelCasing(); }
     Q_INVOKABLE bool getAngleVisibility() const { return Plot2D::getAngleVisibility(); }
     Q_INVOKABLE int getAngleRange() const { return Plot2D::getAngleRange(); }
     Q_INVOKABLE bool getVelocityVisible() const { return Plot2D::getVelocityVisible(); }
@@ -367,6 +434,42 @@ private:
     int sonifiedColumn_ = -1;
     int soundScale_ = 0;
 
+    bool atLiveEnd() const;
+    bool liveHoldPausedNow() const;
+    void applyLiveHoldPause(bool wasPaused);
+    void startLiveHold();
+
+    struct SmoothScrollAxis {
+        qreal residual = 0.0;
+        qreal carry = 0.0;
+        Smoother smoother;
+    };
+    using SmoothScrollSources = std::array<SmoothScrollAxis, 2>;
+    void queueSmoothScroll(SmoothScrollSources& sources, qreal delta, bool sync);
+    qreal drainSmoothScroll(SmoothScrollAxis& axis);
+    bool stepSmoothHor(SmoothScrollAxis& axis, bool sync);
+    bool stepSmoothVer(SmoothScrollAxis& axis, bool sync);
+    bool stepSmoothZoom(SmoothScrollAxis& axis, bool sync);
+    bool stepSmoothTimeZoom(SmoothScrollAxis& axis, bool sync);
+    void stepSmoothScroll();
+
+    float timelineProgress() const;
+    void cancelDistanceAnimation();
+
+    QTimer* smoothScrollTimer_ = nullptr;
+    Animator* scaleAnimator_ = nullptr;
+    SmoothScrollSources smoothHor_;
+    SmoothScrollSources smoothVer_;
+    SmoothScrollSources smoothZoom_;
+    SmoothScrollSources smoothTimeZoom_;
+    float timeZoomAnchorColumn_ = 0.0f;
+    float timeZoomAnchorEpoch_ = 0.0f;
+    QTimer* liveHoldTimer_ = nullptr;
+    QTimer* liveHoldTickTimer_ = nullptr;
+    bool liveHoldEnabled_ = false;
+    bool liveHoldPaused_ = false;
+    bool liveHoldSyncPaused_ = false;
+    bool liveHoldFromEnd_ = false;
     int indx_ = -1;
     bool zoomPreviewMode_ = false;
     int zoomPreviewSourceSize_ = 44;

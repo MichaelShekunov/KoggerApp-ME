@@ -16,8 +16,14 @@ class IsobathsViewControlMenuController : public QmlComponentController
     Q_OBJECT
 
     Q_PROPERTY(QVariantMap pipelineStatus READ pipelineStatus NOTIFY pipelineStatusChanged)
+    Q_PROPERTY(int pipelineStatusSeq READ pipelineStatusSeq NOTIFY pipelineStatusSeqChanged)
     Q_PROPERTY(bool statusMonitorEnabled READ statusMonitorEnabled WRITE setStatusMonitorEnabled NOTIFY statusMonitorEnabledChanged)
     Q_PROPERTY(bool statusDetailedPolling READ statusDetailedPolling WRITE setStatusDetailedPolling NOTIFY statusDetailedPollingChanged)
+    Q_PROPERTY(float isobathStep READ isobathStep NOTIFY isobathStepChanged)
+    Q_PROPERTY(bool bandedColors READ bandedColors NOTIFY bandedColorsChanged)
+    Q_PROPERTY(QVariantList surfacePaletteColors READ surfacePaletteColors NOTIFY surfacePaletteColorsChanged)
+    Q_PROPERTY(float surfaceDepthMin READ surfaceDepthMin NOTIFY surfaceDepthRangeChanged)
+    Q_PROPERTY(float surfaceDepthMax READ surfaceDepthMax NOTIFY surfaceDepthRangeChanged)
 
 public:
     explicit IsobathsViewControlMenuController(QObject* parent = nullptr);
@@ -37,6 +43,7 @@ public:
     Q_INVOKABLE void onResetIsobathsButtonClicked();
     Q_INVOKABLE void onEdgeLimitChanged(int val);
     Q_INVOKABLE void onSetExtraWidth(int val);
+    Q_INVOKABLE void setBandedColors(bool state);
     // Colormap gradient stops [{pos, color}] for the theme swatch (QML picker).
     Q_INVOKABLE QVariantList themeStops(int index) const;
 
@@ -46,6 +53,13 @@ public:
     bool statusDetailedPolling() const;
     void setStatusDetailedPolling(bool state);
     Q_INVOKABLE void refreshPipelineStatus();
+    int pipelineStatusSeq() const { return pipelineStatusSeq_; }
+
+    float isobathStep() const;
+    bool bandedColors() const;
+    QVariantList surfacePaletteColors() const;
+    float surfaceDepthMin() const;
+    float surfaceDepthMax() const;
 
     /// The colour theme and the isobath step (m) as set in the tool; the loaded maps follow them too.
     int themeId() const { return themeId_; }
@@ -53,15 +67,23 @@ public:
 
 signals:
     void pipelineStatusChanged();
+    void pipelineStatusSeqChanged();
     void statusMonitorEnabledChanged();
     void statusDetailedPollingChanged();
     void styleChanged();   // themeId or surfaceLineStepSize
+    void isobathStepChanged();
+    void bandedColorsChanged();
+    void surfacePaletteColorsChanged();
+    void surfaceDepthRangeChanged();
 
 protected:
     void findComponent() override;
 
 private slots:
     void onPipelineStats(const QVariantMap& stats);
+    void onSurfaceMinZ(float minZ);
+    void onSurfaceMaxZ(float maxZ);
+    void onSurfaceCleared();
 
 private:
     void tryInitPendingLambda();
@@ -73,12 +95,19 @@ private:
     QThread thread_;
     QTimer statusTimer_;
     QVariantMap pipelineStatus_;
+    int pipelineStatusSeq_ = 0;
+    bool edgeLimitApplied_ = false;
+    bool surfaceLineStepApplied_ = false;
+    bool extraWidthApplied_ = false;
+    float surfaceDepthMin_;
+    float surfaceDepthMax_;
     float surfaceLineStepSize_;
     int themeId_;
     int labelStepSize_;
     int edgeLimit_;
     int extraWidth_;
     bool visibility_;
+    bool bandedColors_;
     bool edgesVisible_;
     bool trianglesVisible_;
     bool debugModeView_;

@@ -15,6 +15,7 @@
 #include <QUrl>
 #include <QStandardPaths>
 #include <QDateTime>
+#include <QTimeZone>
 #include <QProcess>
 #include <QDesktopServices>
 #include <QClipboard>
@@ -106,6 +107,9 @@ Core::Core() :
     createControllers();
     createDatasetConnections();
     createDataHorizonConnections();
+
+    connect(this, &Core::sendIsFileOpening,     this, &Core::fileOpenedChanged);
+    connect(this, &Core::openedFilePathChanged, this, &Core::fileOpenedChanged);
 
 #ifdef FLASHER
     connect(&dev_flasher_, &DeviceFlasher::sendStepInfo, this, &Core::dev_flasher_rcv);
@@ -310,6 +314,8 @@ void Core::setEngine(QQmlApplicationEngine *engine)
             missionRunTrackerPtr_.get(), &mission::MissionRunTracker::onVehicleMissionRead);
     connect(missionRunTrackerPtr_.get(), &mission::MissionRunTracker::readRequested,
             deviceManagerWrapperPtr_.get(), &DeviceManagerWrapper::readMissionSilently);
+    connect(missionRunTrackerPtr_.get(), &mission::MissionRunTracker::legSpeedRequested,
+            deviceManagerWrapperPtr_.get(), &DeviceManagerWrapper::autopilotSetSpeed, Qt::QueuedConnection);
     connect(deviceManagerWrapperPtr_.get(), &DeviceManagerWrapper::vruChanged, this, &Core::pushMissionRunTelemetry);
     connect(deviceManagerWrapperPtr_.get(), &DeviceManagerWrapper::missionTransferChanged, this, &Core::pushMissionRunTelemetry);
 }
@@ -602,188 +608,6 @@ void Core::flushStartupFileOpen()
 }
 
 
-#ifdef SEPARATE_READING
-void Core::openLogFile(const QString &filePath, bool isAppend, bool onCustomEvent)
-{
-    if (openMapFileInstead(filePath)) {
-        return;
-    }
-    stopMapExport();   // it reads the dataset, which is about to be cleared
-    QString localfilePath = filePath;
-
-    if (onCustomEvent) {
-        fixFilePathString(localfilePath);
-        filePath_ = localfilePath;
-        emit filePathChanged();
-    }
-
-    linkManagerWrapperPtr_->closeOpenedLinks();
-    removeLinkManagerConnections();
-
-    QCoreApplication::processEvents(QEventLoop::AllEvents);
-
-    echogramEditor_->fileOpening(QUrl(localfilePath).isLocalFile() ? QUrl(localfilePath).toLocalFile() : localfilePath, isAppend);
-
-    if (!isAppend) {
-        QMetaObject::invokeMethod(dataProcessor_, "setSuppressResults", Qt::QueuedConnection, Q_ARG(bool, true));
-        resetDataProcessorConnections();
-        datasetPtr_->resetDataset();
-        dataHorizon_->clear();
-        releasePlotCaches();
-        QMetaObject::invokeMethod(dataProcessor_, "clearProcessing", Qt::QueuedConnection);
-        QMetaObject::invokeMethod(dataProcessor_, "setFilePath", Qt::QueuedConnection, Q_ARG(QString, localfilePath));
-        setDataProcessorConnections();
-    }
-
-    if (scene3dViewPtr_) {
-        if (!isAppend) {
-            scene3dViewPtr_->clear();
-        }
-    }
-
-    QStringList splitname = localfilePath.split(QLatin1Char('.'), Qt::SkipEmptyParts);
-    if (splitname.size() > 1) {
-        const QString& format = splitname.last();
-        if (format.contains("xtf", Qt::CaseInsensitive)) {
-            QFile file;
-            QUrl url(localfilePath);
-            url.isLocalFile() ? file.setFileName(url.toLocalFile()) : file.setFileName(url.toString());
-            if (file.open(QIODevice::ReadOnly)) {
-                openXTF(file.readAll());
-                notifyFileOpened(localfilePath);
-            }
-            return;
-        }
-    }
-
-    tryOpenedfilePath_ = filePath;
-    if (closeLogFile(true) && !fileIsCompleteOpened_) {
-        return;
-    }
-
-    fileIsCompleteOpened_ = false;
-    openedfilePath_ = filePath;
-
-    datasetPtr_->setState(Dataset::DatasetState::kFile);
-    QMetaObject::invokeMethod(dataProcessor_, "setIsOpeningFile", Qt::QueuedConnection, Q_ARG(bool, true));
-    if (scene3dViewPtr_) {
-        scene3dViewPtr_->setIsOpeningFile(true);
-    }
-
-    emit deviceManagerWrapperPtr_->sendOpenFile(localfilePath);
-}
-
-bool Core::closeLogFile(bool onOpen)
-{
-    stopMapExport();   // it reads the dataset, which is about to be cleared
-    if (!onOpen) {
-        echogramEditor_->fileClosed();   // on an open, fileOpening has saved them already
-    }
-    if (isOpenedFile()) {
-        const QString closedFileName = QFileInfo(openedfilePath_).fileName();
-        QMetaObject::invokeMethod(dataProcessor_, "prepareForFileClose", Qt::BlockingQueuedConnection, Q_ARG(int, 1500));
-        if (!onOpen) {
-            resetDataProcessorConnections();
-        }
-        emit sendCloseLogFile(onOpen ? !tryOpenedfilePath_.isEmpty() : false);
-        openedfilePath_.clear();
-
-        resetRealtimeSessionState();
-
-        if (!onOpen) {
-            setDataProcessorConnections();
-            createLinkManagerConnections();
-            linkManagerWrapperPtr_->openClosedLinks();
-            restoreRealtimeProcessingFlags();
-            notifications.info(closedFileName.isEmpty() ? tr("File closed")
-                                                        : tr("File closed: %1").arg(closedFileName));
-        }
-
-        return true;
-    }
-
-    if (!onOpen) {
-        // This branch is used by connection UI before opening a link:
-        // reconnect must start from a clean runtime state even when no file was open.
-        // qDebug() << "Core::closeLogFile: prepare reconnect without opened file";
-        resetRealtimeSessionState();
-        restoreRealtimeProcessingFlags();
-    }
-
-    return false;
-}
-
-void Core::onFileStartOpening()
-{
-    qDebug() << "file start opening!";
-    isFileOpening_ = true;
-    emit sendIsFileOpening();
-    dataHorizon_->setIsFileOpening(isFileOpening_);
-
-    if (scene3dViewPtr_) {
-        scene3dViewPtr_->forceUpdateDatasetLlaRef();
-    }
-}
-
-void Core::onFileOpened()
-{
-    qDebug() << "file opened!";
-    notifyFileOpened(openedfilePath_);
-    QMetaObject::invokeMethod(dataProcessor_, "setSuppressResults", Qt::QueuedConnection, Q_ARG(bool, false));
-    QMetaObject::invokeMethod(dataProcessor_, "setIsOpeningFile", Qt::QueuedConnection, Q_ARG(bool, false));
-    setTimelinePosition(1.0);
-    if (scene3dViewPtr_) {
-        scene3dViewPtr_->setIsOpeningFile(false);
-    }
-
-    tryOpenedfilePath_.clear();
-    fileIsCompleteOpened_ = true;
-
-    if (scene3dViewPtr_) {
-        scene3dViewPtr_->forceUpdateDatasetLlaRef();
-    };
-
-    bringWindowToFront();
-}
-
-void Core::onFileReadEnough()
-{
-    QMetaObject::invokeMethod(dataProcessor_, "setSuppressResults", Qt::QueuedConnection, Q_ARG(bool, false));
-    datasetPtr_->setRefPositionByFirstValid();
-    if (scene3dViewPtr_) {
-        scene3dViewPtr_->forceUpdateDatasetLlaRef();
-    }
-
-    onChannelsUpdated();
-}
-
-void Core::onFileOpenBreaked(bool onOpen)
-{
-    stopMapExport();   // it reads the dataset, which is about to be cleared
-    fileIsCompleteOpened_ = false;
-    if (datasetPtr_) {
-        datasetPtr_->resetDataset();
-        dataHorizon_->clear();
-    }
-    releasePlotCaches();
-
-    QMetaObject::invokeMethod(dataProcessor_, "clearProcessing", Qt::QueuedConnection);
-    QMetaObject::invokeMethod(dataProcessor_, "setSuppressResults", Qt::QueuedConnection, Q_ARG(bool, false));
-    QMetaObject::invokeMethod(dataProcessor_, "setIsOpeningFile", Qt::QueuedConnection, Q_ARG(bool, false));
-    if (scene3dViewPtr_) {
-        scene3dViewPtr_->setIsOpeningFile(false);
-    }
-
-    if (scene3dViewPtr_) {
-        scene3dViewPtr_->clear();
-        scene3dViewPtr_->getNavigationArrowPtr()->resetPositionAndAngle();
-    }
-    if (onOpen && !tryOpenedfilePath_.isEmpty()) {
-        openLogFile(tryOpenedfilePath_, false, false);
-        tryOpenedfilePath_.clear();
-    }
-}
-#else
 void Core::openLogFile(const QString& filePath, bool isAppend, bool onCustomEvent)
 {
     if (openMapFileInstead(filePath)) {
@@ -892,6 +716,7 @@ void Core::openLogFile(const QString& filePath, bool isAppend, bool onCustomEven
 
         openedfilePath_ = fileOpenedOk ? localfilePath : "";
         emit openedFilePathChanged();
+        emit klfEpochIndexSizeChanged();
         if (fileOpenedOk) {
             if (!isAppend) appendedFiles_.clear();
             appendedFiles_.append(localfilePath);
@@ -958,6 +783,7 @@ bool Core::closeLogFile()
     createLinkManagerConnections();
     openedfilePath_.clear();
     emit openedFilePathChanged();
+    emit klfEpochIndexSizeChanged();
     appendedFiles_.clear();
     if (isAppendMode_) {
         isAppendMode_ = false;
@@ -987,7 +813,6 @@ void Core::onFileOpened()
     }
     bringWindowToFront();
 }
-#endif
 
 void Core::setTrackSmoothing(bool enabled, int mode, bool reprocess)
 {
@@ -997,9 +822,6 @@ void Core::setTrackSmoothing(bool enabled, int mode, bool reprocess)
     if (!reprocess) {
         return;
     }
-#ifdef SEPARATE_READING
-    return;   // that openLogFile has no hook to read a recording again: the change applies to new data
-#endif
     if (isFileOpening_ || trackReprocessing_) {
         reprocessPending_ = true;   // once what is being read is in
         return;
@@ -1204,19 +1026,12 @@ bool Core::closeProxy()
 
 bool Core::upgradeFW(const QString& name, QObject* dev)
 {
-    QUrl url(name);
-    QFile file(url.isLocalFile() ? url.toLocalFile() : name);
-
-    if (!file.open(QIODevice::ReadOnly)) {
-        return false;
-    }
-
     if (auto* devQProp = dynamic_cast<DevQProperty*>(dev); devQProp) {
-        devQProp->setUpgradeExpect(RingUpgrade::versionFromFileName(file.fileName()));
-        devQProp->sendUpdateFW(file.readAll());
+        // the version the ring's boards must report after the update, from the file's name (RingUpgrade)
+        const QUrl url(name);
+        devQProp->setUpgradeExpect(RingUpgrade::versionFromFileName(url.isLocalFile() ? url.toLocalFile() : name));
     }
-
-    return true;
+    return upgradeSession_.start(name, dynamic_cast<DevQProperty*>(dev));
 }
 
 bool Core::upgradeFWAll(const QString& name, QObject* dev)
@@ -1239,8 +1054,9 @@ bool Core::upgradeFWAll(const QString& name, QObject* dev)
 
 void Core::upgradeChanged(int progressStatus)
 {
-    if(progressStatus == DevDriver::successUpgrade) {
-        //        restoreBaudrate();
+    upgradeSession_.handleStatus(progressStatus);
+
+    if (progressStatus == DevDriver::successUpgrade) {
         bringWindowToFront();
     }
 }
@@ -1754,6 +1570,122 @@ bool Core::exportComplexToCSV(QString file_path) {
     return true;
 }
 
+namespace {
+
+using UsblDiagCsv = IDBinUsblDiag::UsblSignalDiag;
+using UsblChannelCsv = IDBinUsblDiag::UsblChannelDiag;
+
+QString usblDiagCsvNum(double v)
+{
+    return std::isfinite(v) ? QString("%1").arg(v) : QString();
+}
+
+const char* const kUsblChannelCsvFields[] = {
+    "peak_amp", "mf_noise_rms", "in_rms", "phase_deg", "phase_resid_deg", "peak_offset_smp", "flags"
+};
+constexpr int kUsblChannelCsvFieldCount = sizeof(kUsblChannelCsvFields) / sizeof(kUsblChannelCsvFields[0]);
+
+QString usblChannelCsvCell(const UsblChannelCsv& c, int field)
+{
+    switch (field) {
+    case 0: return usblDiagCsvNum(c.peak_amp);
+    case 1: return usblDiagCsvNum(c.mf_noise_rms);
+    case 2: return usblDiagCsvNum(c.in_rms);
+    case 3: return c.phase_cdeg == UsblChannelCsv::PhaseNone ? QString() : usblDiagCsvNum(c.phase_cdeg / 100.0);
+    case 4: return c.phase_resid_cdeg == UsblChannelCsv::PhaseNone ? QString() : usblDiagCsvNum(c.phase_resid_cdeg / 100.0);
+    case 5: return c.peak_offset == UsblChannelCsv::OffsetNone ? QString() : usblDiagCsvNum(c.peak_offset / 8.0);
+    default: return QString::number(static_cast<int>(c.flags));
+    }
+}
+
+QStringList usblDiagCsvHeader()
+{
+    QStringList header = {
+        "epoch", "id", "role", "cmd_id", "ch_count", "timestamp_us", "ping_counter", "carrier_counter",
+        "distance_m", "azimuth_deg", "elevation_deg",
+        "sync_val", "sync_snr", "sync_first_val", "sync_first_snr", "sync_rms", "sync_first_main_max_msec",
+        "dir_az_array_deg", "dir_el_array_deg", "dir_flags", "geometry_id", "peak_frac_offset_smp",
+        "fit_misfit", "amp_nonuniformity", "phase_nonplanarity", "dir_width_az_deg", "dir_width_el_deg",
+        "alt_margin_db", "mirror_margin_db", "array_coherence"
+    };
+    for (int field = 0; field < kUsblChannelCsvFieldCount; ++field) {
+        for (int i = 0; i < UsblDiagCsv::ChannelCapacity; ++i) {
+            header << QStringLiteral("ch%1_%2").arg(i).arg(QLatin1String(kUsblChannelCsvFields[field]));
+        }
+    }
+    return header;
+}
+
+QStringList usblDiagCsvRow(int epoch, const UsblDiagCsv& d)
+{
+    QStringList row;
+    row << QString::number(epoch)
+        << QString::number(static_cast<int>(d.id))
+        << QString::number(static_cast<int>(d.role))
+        << QString::number(static_cast<int>(d.cmd_id))
+        << QString::number(static_cast<int>(d.ch_count))
+        << QString::number(static_cast<qlonglong>(d.timestamp_us))
+        << QString::number(static_cast<qulonglong>(d.ping_counter))
+        << QString::number(static_cast<qlonglong>(d.carrier_counter))
+        << usblDiagCsvNum(d.distance_m) << usblDiagCsvNum(d.azimuth_deg) << usblDiagCsvNum(d.elevation_deg)
+        << usblDiagCsvNum(d.sync_val) << usblDiagCsvNum(d.sync_snr)
+        << usblDiagCsvNum(d.sync_first_val) << usblDiagCsvNum(d.sync_first_snr)
+        << usblDiagCsvNum(d.sync_rms) << usblDiagCsvNum(d.sync_first_main_max_msec)
+        << usblDiagCsvNum(d.dir_az_array_deg) << usblDiagCsvNum(d.dir_el_array_deg)
+        << QString::number(static_cast<int>(d.dir_flags))
+        << QString::number(static_cast<int>(d.geometry_id))
+        << (d.peak_frac_offset == UsblChannelCsv::OffsetNone ? QString() : usblDiagCsvNum(d.peak_frac_offset / 8.0))
+        << usblDiagCsvNum(d.fit_misfit) << usblDiagCsvNum(d.amp_nonuniformity) << usblDiagCsvNum(d.phase_nonplanarity)
+        << usblDiagCsvNum(d.dir_width_az_deg) << usblDiagCsvNum(d.dir_width_el_deg)
+        << usblDiagCsvNum(d.alt_margin_db) << usblDiagCsvNum(d.mirror_margin_db) << usblDiagCsvNum(d.array_coherence);
+
+    const bool channelsValid = d.dir_flags & UsblDiagCsv::DirChannelsValid;
+    const int channels = d.channelCount();
+    for (int field = 0; field < kUsblChannelCsvFieldCount; ++field) {
+        for (int i = 0; i < UsblDiagCsv::ChannelCapacity; ++i) {
+            row << ((channelsValid && i < channels) ? usblChannelCsvCell(d.ch[i], field) : QString());
+        }
+    }
+    return row;
+}
+
+}
+
+bool Core::exportUsblDiagToCSV(QString filePath)
+{
+    const QString resolvedBasePath = this->resolveExportBasePath(filePath);
+    const QString export_file_name = buildExportFileStem(openedfilePath_);
+    const QString exportPath = resolvedBasePath + "/" + export_file_name + "_export_usbl_diag_csv.csv";
+    if (!logger_.creatExportStream(exportPath)) {
+        notifications.warning(tr("Export failed: %1").arg(exportPath));
+        return false;
+    }
+
+    logger_.dataExport(usblDiagCsvHeader().join(QLatin1Char(',')) + QLatin1Char('\n'));
+
+    int reports = 0;
+    for (int i = 0; i < datasetPtr_->size(); ++i) {
+        Epoch* epoch = datasetPtr_->fromIndex(i);
+        if (epoch == nullptr) {
+            continue;
+        }
+        const auto diag = epoch->usblDiag();
+        if (!diag) {
+            continue;
+        }
+        logger_.dataExport(usblDiagCsvRow(i, *diag).join(QLatin1Char(',')) + QLatin1Char('\n'));
+        ++reports;
+    }
+
+    if (!logger_.endExportStream()) {
+        notifications.warning(tr("Export failed: %1").arg(exportPath));
+        return false;
+    }
+    notifications.info(tr("USBL diagnostics exported to CSV (%1 reports): %2").arg(reports).arg(exportPath), exportPath);
+
+    return true;
+}
+
 bool Core::exportUSBLToCSV(QString filePath)
 {
     const QString resolvedBasePath = this->resolveExportBasePath(filePath);
@@ -1766,6 +1698,10 @@ bool Core::exportUSBLToCSV(QString filePath)
 
     logger_.dataExport("epoch,yaw,pitch,roll,north,east,ping_counter,carrier_counter,snr,azimuth_deg,elevation_deg,distance_m\n");
 
+    const auto finiteOrEmpty = [](double value) {
+        return std::isfinite(value) ? QString("%1").arg(value) : QString();
+    };
+
     for (int i = 0; i < datasetPtr_->size(); i += 1) {
         Epoch* epoch = datasetPtr_->fromIndex(i);
 
@@ -1776,16 +1712,15 @@ bool Core::exportUSBLToCSV(QString filePath)
 
         // pos.ned.isCoordinatesValid() && epoch->isAttAvail() &&
         if( epoch->isUsblSolutionAvailable()) {
-            QString row_data;
+            const auto usbl = epoch->usblSolution();
+            QStringList cells;
+            cells << QString::number(i)
+                  << finiteOrEmpty(epoch->yaw()) << finiteOrEmpty(epoch->pitch()) << finiteOrEmpty(epoch->roll())
+                  << finiteOrEmpty(boatPosNed.n) << finiteOrEmpty(boatPosNed.e)
+                  << QString::number(usbl.ping_counter) << QString::number(usbl.carrier_counter) << finiteOrEmpty(usbl.snr)
+                  << finiteOrEmpty(usbl.azimuth_deg) << finiteOrEmpty(usbl.elevation_deg) << finiteOrEmpty(usbl.distance_m);
 
-            row_data.append(QString("%1").arg(i));
-            row_data.append(QString(",%1,%2,%3").arg(epoch->yaw()).arg(epoch->pitch()).arg(epoch->roll()));
-            row_data.append(QString(",%1,%2").arg(boatPosNed.n).arg(boatPosNed.e));
-            row_data.append(QString(",%1,%2,%3").arg(epoch->usblSolution().ping_counter).arg(epoch->usblSolution().carrier_counter).arg(epoch->usblSolution().snr));
-            row_data.append(QString(",%1,%2,%3").arg(epoch->usblSolution().azimuth_deg).arg(epoch->usblSolution().elevation_deg).arg(epoch->usblSolution().distance_m));
-
-            row_data.append("\n");
-            logger_.dataExport(row_data);
+            logger_.dataExport(cells.join(QLatin1Char(',')) + QLatin1Char('\n'));
         }
     }
 
@@ -1812,7 +1747,9 @@ static const CsvFieldDef kCsvFieldDefs[] = {
     {"sonar_height",     true},
     {"bottom_height",    true},
     {"contact_info",     true},
-    {"contact_distance", true},
+    {"gnss_altitude_msl", true},
+    {"gnss_utc_datetime", true},
+    {"gnss_altitude_ellipsoid", true},
 };
 }
 
@@ -1899,25 +1836,16 @@ bool Core::exportPlotAsCVS(QString filePath, const ChannelId& channelId, float d
     bool sonar_height     = csvExportFieldEnabled("sonar_height");
     bool bottom_height    = csvExportFieldEnabled("bottom_height");
 
-    bool ext_pos_lla_find = false;
-    bool ext_pos_ned_find = false;
-
     bool contactInfo     = csvExportFieldEnabled("contact_info");
-    bool contactDistance = csvExportFieldEnabled("contact_distance");
+    bool gnssAltitudeMsl = csvExportFieldEnabled("gnss_altitude_msl");
+    bool gnssUtc         = csvExportFieldEnabled("gnss_utc_datetime");
+    bool gnssAltitudeEll = csvExportFieldEnabled("gnss_altitude_ellipsoid");
 
     int row_cnt = datasetPtr_->size();
 
     auto btP = datasetPtr_->getBottomTrackParam();
     datasetPtr_->setChannelOffset(channelId, btP.offset.x, btP.offset.y, btP.offset.z);
     datasetPtr_->spatialProcessing();
-
-    for (int i = 0; i < row_cnt; i++) {
-        Epoch* epoch = datasetPtr_->fromIndex(i);
-
-        Position position = epoch->getExternalPosition();
-        ext_pos_lla_find |= position.lla.isValid();
-        ext_pos_ned_find |= position.ned.isValid();
-    }
 
     if (meas_nbr)
         logger_.dataExport("Number,");
@@ -1941,13 +1869,13 @@ bool Core::exportPlotAsCVS(QString filePath, const ChannelId& channelId, float d
         }
     }
 
-    if (external_pos_lla && ext_pos_lla_find) {
+    if (external_pos_lla) {
         logger_.dataExport("ExtLatitude,");
         logger_.dataExport("ExtLongitude,");
         logger_.dataExport("ExtAltitude,");
     }
 
-    if (external_pos_neu && ext_pos_ned_find) {
+    if (external_pos_neu) {
         logger_.dataExport("ExtNorth,");
         logger_.dataExport("ExtEast,");
         logger_.dataExport("ExtHeight,");
@@ -1959,23 +1887,38 @@ bool Core::exportPlotAsCVS(QString filePath, const ChannelId& channelId, float d
     if (bottom_height)
         logger_.dataExport("BottomHeight,");
 
+    QStringList tailHeader;
     if (contactInfo) {
-        logger_.dataExport("ContactTitle,");
-    }
-    if (contactDistance) {
-        logger_.dataExport(rangefinder ? "ContactDistance," : "ContactDistance");
+        tailHeader << QStringLiteral("ContactTitle")
+                   << QStringLiteral("ContactLatitude") << QStringLiteral("ContactLongitude")
+                   << QStringLiteral("ContactDepth") << QStringLiteral("ContactSource");
     }
     if (rangefinder) {
-        logger_.dataExport("Rangefinder");
+        tailHeader << QStringLiteral("Rangefinder");
+    }
+    if (gnssAltitudeMsl) {
+        tailHeader << QStringLiteral("GNSS Altitude MSL");
+    }
+    if (gnssUtc) {
+        tailHeader << QStringLiteral("GNSS UTC DateTime");
+    }
+    if (gnssAltitudeEll) {
+        tailHeader << QStringLiteral("GNSS Altitude Ellipsoid");
     }
 
+    logger_.dataExport(tailHeader.join(QLatin1Char(',')));
     logger_.dataExport("\n");
+
+    const auto finiteOrEmpty = [](double value, int precision) {
+        return std::isfinite(value) ? QString::number(value, 'f', precision) : QString();
+    };
 
     int prev_timestamp = 0;
     int prev_unix = 0;
     int prev_event_id = 0;
+    bool eventSeen = false;
     float prev_dist_proc = 0;
-    double prev_lat = 0, prev_lon = 0;
+    double prev_lat = NAN, prev_lon = NAN;
 
     float decimation_m = decimation;
     float decimation_path = 0;
@@ -2029,13 +1972,14 @@ bool Core::exportPlotAsCVS(QString filePath, const ChannelId& channelId, float d
                 prev_timestamp = epoch->eventTimestamp();
                 prev_event_id = epoch->eventID();
                 prev_unix = epoch->eventUnix();
+                eventSeen = true;
             }
-            row_data.append(QString("%1,%2,%3,").arg(prev_unix).arg(prev_timestamp).arg(prev_event_id));
+            row_data.append(eventSeen ? QString("%1,%2,%3,").arg(prev_unix).arg(prev_timestamp).arg(prev_event_id) : QStringLiteral(",,,"));
         }
 
         if (bottom_depth) {
             prev_dist_proc = epoch->distProccesing(channelId);
-            row_data.append(QString("%1,").arg((float)(prev_dist_proc)));
+            row_data.append(std::isfinite(prev_dist_proc) ? QString("%1,").arg((float)(prev_dist_proc)) : QStringLiteral(","));
         }
 
         if (pos_lat_lon) {
@@ -2044,13 +1988,13 @@ bool Core::exportPlotAsCVS(QString filePath, const ChannelId& channelId, float d
                 prev_lon = epoch->lon();
             }
 
-            row_data.append(QString::number(prev_lat, 'f', 8));
+            row_data.append(finiteOrEmpty(prev_lat, 8));
             row_data.append(",");
-            row_data.append(QString::number(prev_lon, 'f', 8));
+            row_data.append(finiteOrEmpty(prev_lon, 8));
             row_data.append(",");
 
             if (pos_time) {
-                if (epoch->isPosAvail() && epoch->positionTimeUnix() != 0) {
+                if (epoch->isPosAvail() && epoch->positionTimeUnix() != 0 && epoch->time()->sec > 0) {
                     DateTime time_epoch = *epoch->time();
 
                     DateTime* dt = epoch->time();
@@ -2077,21 +2021,21 @@ bool Core::exportPlotAsCVS(QString filePath, const ChannelId& channelId, float d
 
         Position position = epoch->getExternalPosition();
 
-        if (external_pos_lla && ext_pos_lla_find) {
-            row_data.append(QString::number(position.lla.latitude, 'f', 10));
+        if (external_pos_lla) {
+            row_data.append(finiteOrEmpty(position.lla.latitude, 10));
             row_data.append(",");
-            row_data.append(QString::number(position.lla.longitude, 'f', 10));
+            row_data.append(finiteOrEmpty(position.lla.longitude, 10));
             row_data.append(",");
-            row_data.append(QString::number(position.lla.altitude, 'f', 3));
+            row_data.append(finiteOrEmpty(position.lla.altitude, 3));
             row_data.append(",");
         }
 
-        if (external_pos_neu && ext_pos_ned_find) {
-            row_data.append(QString::number(position.ned.n, 'f', 10));
+        if (external_pos_neu) {
+            row_data.append(finiteOrEmpty(position.ned.n, 10));
             row_data.append(",");
-            row_data.append(QString::number(position.ned.e, 'f', 10));
+            row_data.append(finiteOrEmpty(position.ned.e, 10));
             row_data.append(",");
-            row_data.append(QString::number(-position.ned.d, 'f', 3));
+            row_data.append(finiteOrEmpty(-position.ned.d, 3));
             row_data.append(",");
         }
 
@@ -2117,30 +2061,35 @@ bool Core::exportPlotAsCVS(QString filePath, const ChannelId& channelId, float d
             row_data.append(",");
         }
 
-        auto& contact = epoch->contact_;
-        if (contact.isValid()) {
-            if (contactInfo) {
-                row_data.append(contact.info);
-                row_data.append(",");
-            }
-            if (contactDistance) {
-                row_data.append(QString::number(contact.echogramDistance, 'f', 4));
-                if (rangefinder) {
-                    row_data.append(",");
-                }
-            }
-        } else if (rangefinder) {
-            if (contactInfo) row_data.append(",");
-            if (contactDistance) row_data.append(",");
-        }
-
-        if (rangefinder) {
-            if (epoch->distAvail()) {
-                row_data.append(QString::number((float)epoch->rangeFinder()));
+        const auto& contact = epoch->contact_;
+        const bool hasContact = contact.isValid();
+        QStringList tailRow;
+        if (contactInfo) {
+            if (hasContact) {
+                tailRow << contact.info
+                        << finiteOrEmpty(contact.lat, 8)
+                        << finiteOrEmpty(contact.lon, 8)
+                        << finiteOrEmpty(contact.depth, 3)
+                        << (contact.source == Epoch::Contact::Source::Scene3D ? QStringLiteral("3D") : QStringLiteral("2D"));
             } else {
-                row_data.append("0");
+                tailRow << QString() << QString() << QString() << QString() << QString();
             }
         }
+        if (rangefinder) {
+            tailRow << (epoch->distAvail() && std::isfinite(epoch->rangeFinder()) ? QString::number((float)epoch->rangeFinder()) : QString());
+        }
+        if (gnssAltitudeMsl) {
+            tailRow << finiteOrEmpty(epoch->gnssAltitudeMsl(), 3);
+        }
+        if (gnssUtc) {
+            tailRow << (epoch->gnssUtcUs() != 0
+                            ? QDateTime::fromMSecsSinceEpoch(epoch->gnssUtcUs() / 1000, QTimeZone::utc()).toString(QStringLiteral("yyyy-MM-dd'T'HH:mm:ss.zzz'Z'"))
+                            : QString());
+        }
+        if (gnssAltitudeEll) {
+            tailRow << finiteOrEmpty(epoch->gnssAltitudeEllipsoid(), 3);
+        }
+        row_data.append(tailRow.join(QLatin1Char(',')));
 
         row_data.append("\n");
         logger_.dataExport(row_data);
@@ -2151,6 +2100,179 @@ bool Core::exportPlotAsCVS(QString filePath, const ChannelId& channelId, float d
         return false;
     }
     notifications.info(tr("Exported to CSV: %1").arg(exportPath), exportPath);
+
+    return true;
+}
+
+namespace {
+
+bool isKlfPrologueId(int id)
+{
+    switch (id) {
+    case Parsers::ID_VERSION:
+    case Parsers::ID_DATASET:
+    case Parsers::ID_DIST_SETUP:
+    case Parsers::ID_CHART_SETUP:
+    case Parsers::ID_DSP:
+    case Parsers::ID_TRANSC:
+    case Parsers::ID_SND_SPEED:
+    case Parsers::ID_UART:
+    case Parsers::ID_DEV_SYNC:
+        return true;
+    default:
+        return false;
+    }
+}
+
+QByteArray klfPrologue(QFile& src, qint64 limit)
+{
+    constexpr qint64 kBlock = static_cast<qint64>(1) << 20;
+
+    QMap<quint32, QByteArray> newest;
+    QVector<quint32> order;
+
+    Parsers::FrameParser parser;
+
+    for (qint64 left = limit; left > 0; ) {
+        QByteArray block = src.read(qMin(left, kBlock));
+        if (block.isEmpty()) {
+            break;
+        }
+        left -= block.size();
+
+        parser.setContext(reinterpret_cast<uint8_t*>(block.data()),
+                          static_cast<uint32_t>(block.size()));
+
+        while (parser.availContext() > 0) {
+            parser.process();
+
+            if (!parser.isComplete() || parser.isNested() || parser.isProxy()) {
+                continue;
+            }
+            if (!parser.completeAsKBP() && !parser.completeAsKBP2()) {
+                continue;
+            }
+            if (!isKlfPrologueId(static_cast<int>(parser.id()))) {
+                continue;
+            }
+
+            if ((parser.type() != Parsers::CONTENT || parser.resp())
+                && parser.type() != Parsers::SETTING) {
+                continue;
+            }
+
+            const quint32 key = (static_cast<quint32>(parser.completeAsKBP2() ? 1 : 0) << 24)
+                              | (static_cast<quint32>(parser.route()) << 16)
+                              | (static_cast<quint32>(parser.id()) << 3)
+                              | (static_cast<quint32>(parser.ver()) & 0x7u);
+
+            if (!newest.contains(key)) {
+                order.append(key);
+            }
+            newest.insert(key, QByteArray(reinterpret_cast<const char*>(parser.frame()),
+                                          static_cast<int>(parser.frameLen())));
+        }
+    }
+
+    QByteArray out;
+    for (const quint32 key : std::as_const(order)) {
+        out.append(newest.value(key));
+    }
+
+    return out;
+}
+
+}
+
+int Core::klfEpochIndexSize() const
+{
+    DeviceManager* worker = deviceManagerWrapperPtr_ ? deviceManagerWrapperPtr_->getWorker()
+                                                     : nullptr;
+    return worker ? worker->epochFileOffsets().size() : 0;
+}
+
+bool Core::exportKlfFragment(int firstEpoch, int lastEpoch, QString filePath)
+{
+    if (openedfilePath_.isEmpty()) {
+        notifications.warning(tr("Export failed: no log file is open"));
+        return false;
+    }
+
+    DeviceManager* worker = deviceManagerWrapperPtr_ ? deviceManagerWrapperPtr_->getWorker()
+                                                     : nullptr;
+    if (!worker) {
+        notifications.warning(tr("Export failed"));
+        return false;
+    }
+
+    const QVector<qint64>& offsets = worker->epochFileOffsets();
+    if (offsets.isEmpty()) {
+        notifications.warning(tr("Export failed: this file has no epoch index"));
+        return false;
+    }
+
+    const int lastIndex = offsets.size() - 1;
+    const int from = qBound(0, firstEpoch, lastIndex);
+    const int to   = qBound(from, lastEpoch, lastIndex);
+
+    QFile src;
+    const QUrl srcUrl(openedfilePath_);
+    srcUrl.isLocalFile() ? src.setFileName(srcUrl.toLocalFile())
+                         : src.setFileName(srcUrl.toString());
+
+    if (!src.open(QIODevice::ReadOnly)) {
+        notifications.warning(tr("Export failed: cannot read %1").arg(openedfilePath_));
+        return false;
+    }
+
+    const qint64 total = src.size();
+    const qint64 fromByte = qBound<qint64>(0, offsets.at(from), total);
+    const qint64 toByte = (to + 1 <= lastIndex) ? qBound<qint64>(fromByte, offsets.at(to + 1), total)
+                                                : total;
+
+    const QByteArray prologue = klfPrologue(src, fromByte);
+    if (src.pos() != fromByte && !src.seek(fromByte)) {
+        notifications.warning(tr("Export failed: cannot read %1").arg(openedfilePath_));
+        return false;
+    }
+
+    const QString resolvedBasePath = this->resolveExportBasePath(filePath);
+    const QString exportPath = QString("%1/%2_epochs_%3-%4.klf")
+                                   .arg(resolvedBasePath, buildExportFileStem(openedfilePath_))
+                                   .arg(from)
+                                   .arg(to);
+
+    if (!logger_.creatExportStream(exportPath)) {
+        notifications.warning(tr("Export failed: %1").arg(exportPath));
+        return false;
+    }
+
+    bool writeOk = logger_.dataByteExport(prologue);
+
+    constexpr qint64 kBlock = static_cast<qint64>(1) << 20;
+    qint64 copied = 0;
+    for (qint64 left = toByte - fromByte; writeOk && left > 0; ) {
+        const QByteArray block = src.read(qMin(left, kBlock));
+        if (block.isEmpty()) {
+            break;
+        }
+        left -= block.size();
+        copied += block.size();
+        writeOk = logger_.dataByteExport(block);
+    }
+
+    const bool closedOk = logger_.endExportStream();
+
+    if (!writeOk || !closedOk || copied == 0) {
+        notifications.warning(tr("Export failed: %1").arg(exportPath));
+        return false;
+    }
+
+    notifications.info(tr("KLF fragment saved: %1 (%2 epochs, %3 MB)")
+                           .arg(exportPath)
+                           .arg(to - from + 1)
+                           .arg(QString::number((prologue.size() + copied) / 1048576.0, 'f', 1)),
+                       exportPath);
 
     return true;
 }
@@ -2219,6 +2341,7 @@ void Core::setTimelinePosition(double position)
 void Core::setEchogramSyncCursor(bool state)
 {
     echogramSyncCursor_ = state;
+    updateLiveHoldPause();
 }
 
 void Core::setEchogramSyncView(bool state)
@@ -2247,6 +2370,15 @@ void Core::broadcastEpochCursor(qPlot2D* source, int epoch, float depth, int cha
         auto* plot = plot2dList_.at(i);
         if (plot != nullptr && plot != source) {
             plot->setSyncCursor(epoch, depth, channel);
+        }
+    }
+}
+
+void Core::clearEpochCursors()
+{
+    for (int i = 0; i < plot2dList_.size(); i++) {
+        if (auto* plot = plot2dList_.at(i); plot != nullptr) {
+            plot->clearSyncCursor();
         }
     }
 }
@@ -2283,8 +2415,59 @@ void Core::broadcastEchogramTime(QObject* source, double timelinePos)
     for (int i = 0; i < plot2dList_.size(); i++) {
         auto* plot = plot2dList_.at(i);
         if (plot != nullptr && plot != src && plot->getPlotEnabled()) {
-            plot->setTimelinePosition(static_cast<float>(timelinePos));
+            plot->adoptTimelinePosition(static_cast<float>(timelinePos), src ? src->timelineDatasetSize() : 0);
+            if (src && src->liveHoldActive()) {
+                plot->joinLiveHold(true);
+            }
+            else {
+                plot->cancelLiveHold();
+            }
             plot->update();
+        }
+    }
+}
+
+void Core::broadcastLiveHold(qPlot2D* source)
+{
+    if (!echogramSyncCursor_) {
+        return;
+    }
+    for (int i = 0; i < plot2dList_.size(); i++) {
+        auto* plot = plot2dList_.at(i);
+        if (plot != nullptr && plot != source && plot->getPlotEnabled()) {
+            plot->joinLiveHold(true);
+        }
+    }
+}
+
+void Core::broadcastLiveHoldEnd(qPlot2D* source, bool toLiveEnd)
+{
+    if (!echogramSyncCursor_) {
+        return;
+    }
+    for (int i = 0; i < plot2dList_.size(); i++) {
+        auto* plot = plot2dList_.at(i);
+        if (plot != nullptr && plot != source && plot->getPlotEnabled()) {
+            plot->releaseLiveHold(toLiveEnd);
+        }
+    }
+}
+
+void Core::updateLiveHoldPause()
+{
+    bool paused = false;
+    if (echogramSyncCursor_) {
+        for (int i = 0; i < plot2dList_.size(); i++) {
+            auto* plot = plot2dList_.at(i);
+            if (plot != nullptr && plot->getPlotEnabled() && plot->liveHoldPaused()) {
+                paused = true;
+                break;
+            }
+        }
+    }
+    for (int i = 0; i < plot2dList_.size(); i++) {
+        if (auto* plot = plot2dList_.at(i); plot != nullptr) {
+            plot->setLiveHoldSyncPaused(paused);
         }
     }
 }
@@ -2300,6 +2483,20 @@ void Core::broadcastEchogramVertical(QObject* source, double from, double to)
         if (plot != nullptr && plot != src && plot->getPlotEnabled()) {
             plot->setCursorFromTo(static_cast<float>(from), static_cast<float>(to));
             plot->update();
+        }
+    }
+}
+
+void Core::broadcastEchogramVerticalReset(QObject* source)
+{
+    if (!echogramSyncView_) {
+        return;
+    }
+    auto* src = qobject_cast<qPlot2D*>(source);
+    for (int i = 0; i < plot2dList_.size(); i++) {
+        auto* plot = plot2dList_.at(i);
+        if (plot != nullptr && plot != src && plot->getPlotEnabled()) {
+            plot->resetVerticalScale();
         }
     }
 }
@@ -2442,6 +2639,7 @@ void Core::UILoad(QObject* object, const QUrl& url)
 
     createMapTileManagerConnections();
     createScene3dConnections();
+    QMetaObject::invokeMethod(dataProcessor_, "resendSurfaceColorTable", Qt::QueuedConnection);
 
     scene3dViewPtr_->forceRefresh();
 
@@ -2470,6 +2668,7 @@ void Core::registerPlot2D(QObject* plotObj)
 
     bindPlot2D(plot);
     plot->setAimFieldsMask(aimFieldsMask_);
+    updateLiveHoldPause();
 
     if (!alreadyRegistered && datasetPtr_ && !datasetPtr_->channelsList().isEmpty()) {
         onChannelsUpdated();
@@ -2521,30 +2720,9 @@ void Core::refreshMosaicProcessing()
     lastSub2_ = sub2;
 }
 
-#ifdef SEPARATE_READING
-QString Core::getTryOpenedfilePath() const
-{
-    return tryOpenedfilePath_;
-}
-
-void Core::stopDeviceManagerThread() const
-{
-    emit deviceManagerWrapperPtr_->sendCloseFile(false);
-}
-#endif
-
 bool Core::getIsFileOpening() const
 {
     return isFileOpening_;
-}
-
-bool Core::getIsSeparateReading() const
-{
-#ifdef SEPARATE_READING
-    return true;
-#else
-    return false;
-#endif
 }
 
 void Core::onChannelsUpdated()
@@ -2942,6 +3120,12 @@ bool Core::getBringWindowToFrontEnabled() const
     return bringWindowToFrontEnabled_;
 }
 
+void Core::reloadStartupSettings()
+{
+    QSettings settings("KOGGER", "KoggerApp");
+    setBringWindowToFrontEnabled(settings.value("main/bringWindowToFrontEnabled", bringWindowToFrontEnabled_).toBool());
+}
+
 void Core::setBringWindowToFrontEnabled(bool enabled)
 {
     if (bringWindowToFrontEnabled_ == enabled) {
@@ -3036,6 +3220,33 @@ void Core::setBottomTrackEditTool(int tool)
     emit bottomTrackEditToolChanged();
 }
 
+void Core::setContactPlacementArmed(bool armed)
+{
+    if (contactPlacementArmed_ == armed) {
+        return;
+    }
+    contactPlacementArmed_ = armed;
+
+    if (armed) {
+        setBottomTrackEditTool(0);
+        if (scene3dViewPtr_) {
+            scene3dViewPtr_->setRulerEnabled(false);
+        }
+        for (int i = 0; i < plot2dList_.size(); i++) {
+            auto* plot = plot2dList_.at(i);
+            if (plot != nullptr && plot->getPlotEnabled()) {
+                plot->joinLiveHold(false);
+            }
+        }
+    }
+
+    if (scene3dViewPtr_) {
+        scene3dViewPtr_->setContactPlacementArmed(armed);
+    }
+
+    emit contactPlacementArmedChanged();
+}
+
 void Core::setMissionEditorActive(bool active)
 {
     if (missionEditorActive_ == active) {
@@ -3044,6 +3255,7 @@ void Core::setMissionEditorActive(bool active)
     missionEditorActive_ = active;
 
     if (active) {
+        setContactPlacementArmed(false);
         setBottomTrackEditTool(0);
         if (scene3dViewPtr_) {
             scene3dViewPtr_->setRulerEnabled(false);
@@ -3059,6 +3271,9 @@ void Core::setMissionEditorActive(bool active)
 
     if (scene3dViewPtr_) {
         scene3dViewPtr_->setMissionEditorActive(active);
+    }
+    if (dataProcessor_) {
+        QMetaObject::invokeMethod(dataProcessor_, "setRealtimePaused", Qt::QueuedConnection, Q_ARG(bool, active));
     }
 
     emit missionEditorActiveChanged();
@@ -3166,57 +3381,6 @@ void Core::createControllers()
     mapLayer_                             = std::make_unique<MapLayer>();
 }
 
-#ifdef SEPARATE_READING
-void Core::createDeviceManagerConnections()
-{
-    Qt::ConnectionType deviceManagerConnection = Qt::ConnectionType::AutoConnection;
-
-    deviceManagerWrapperConnections_.append(QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::sendFrameInputToLogger, this, &Core::onSendFrameInputToLogger,  deviceManagerConnection));
-
-    //
-    deviceManagerWrapperConnections_.append(QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::sendChartSetup,         datasetPtr_, &Dataset::setChartSetup,   deviceManagerConnection));
-    deviceManagerWrapperConnections_.append(QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::sendTranscSetup,        datasetPtr_, &Dataset::setTranscSetup,  deviceManagerConnection));
-    deviceManagerWrapperConnections_.append(QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::sendSoundSpeeed,        datasetPtr_, &Dataset::setSoundSpeed,   deviceManagerConnection));
-
-    deviceManagerWrapperConnections_.append(QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::chartComplete,          datasetPtr_, &Dataset::addChart,        deviceManagerConnection));
-    deviceManagerWrapperConnections_.append(QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::rawDataRecieved,        datasetPtr_, &Dataset::rawDataRecieved, deviceManagerConnection));
-    deviceManagerWrapperConnections_.append(QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::distComplete,           datasetPtr_, &Dataset::addDist,         deviceManagerConnection));
-    deviceManagerWrapperConnections_.append(QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::usblSolutionComplete,   datasetPtr_, &Dataset::addUsblSolution, deviceManagerConnection));
-    deviceManagerWrapperConnections_.append(QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::dopplerBeamComlete,     datasetPtr_, &Dataset::addDopplerBeam,  deviceManagerConnection));
-    deviceManagerWrapperConnections_.append(QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::dvlSolutionComplete,    datasetPtr_, &Dataset::addDVLSolution,  deviceManagerConnection));
-    deviceManagerWrapperConnections_.append(QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::upgradeProgressChanged, this,        &Core::upgradeChanged,     deviceManagerConnection));
-    deviceManagerWrapperConnections_.append(QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::eventComplete,          datasetPtr_, &Dataset::addEvent,        deviceManagerConnection));
-    deviceManagerWrapperConnections_.append(QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::rangefinderComplete,    datasetPtr_, &Dataset::addRangefinder,  deviceManagerConnection));
-    deviceManagerWrapperConnections_.append(QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::positionComplete,       datasetPtr_, &Dataset::addPosition,     deviceManagerConnection));
-    deviceManagerWrapperConnections_.append(QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::gnssVelocityComplete,   datasetPtr_, &Dataset::addGnssVelocity, deviceManagerConnection));
-    deviceManagerWrapperConnections_.append(QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::simpleNavV2Complete,   datasetPtr_, &Dataset::addSimpleNavV2,  deviceManagerConnection));
-    deviceManagerWrapperConnections_.append(QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::boatStatusComplete,     datasetPtr_, &Dataset::addBoatStatus,   deviceManagerConnection));
-    deviceManagerWrapperConnections_.append(QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::attitudeComplete,       datasetPtr_, &Dataset::addAtt,          deviceManagerConnection));
-    deviceManagerWrapperConnections_.append(QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::tempComplete,           datasetPtr_, &Dataset::addTemp,         deviceManagerConnection));
-    deviceManagerWrapperConnections_.append(QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::supplyVoltageComplete,  datasetPtr_, &Dataset::addSupplyVoltage, deviceManagerConnection));
-    deviceManagerWrapperConnections_.append(QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::fileOpened,             this,        &Core::onFileOpened,       deviceManagerConnection));
-    deviceManagerWrapperConnections_.append(QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::fileBreaked,            this,        &Core::onFileOpenBreaked,  deviceManagerConnection));
-    deviceManagerWrapperConnections_.append(QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::onFileReadEnough,       this,        &Core::onFileReadEnough,   deviceManagerConnection));
-    deviceManagerWrapperConnections_.append(QObject::connect(this, &Core::sendCloseLogFile,                       deviceManagerWrapperPtr_->getWorker(), &DeviceManager::closeFile, deviceManagerConnection));
-    deviceManagerWrapperConnections_.append(QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::fileStartOpening,       this,        &Core::onFileStartOpening, deviceManagerConnection));
-    deviceManagerWrapperConnections_.append(QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::encoderComplete,        datasetPtr_, &Dataset::addEncoder,      deviceManagerConnection));
-    deviceManagerWrapperConnections_.append(QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::fileStopsOpening,       this, [this]() {
-                                                                                                                                                      datasetPtr_->flushInterpolation();   // as in onFileStopsOpening
-                                                                                                                                                      echogramEditor_->fileRead(true);     // read while the processing ran
-                                                                                                                                                      isFileOpening_ = false;
-                                                                                                                                                      emit sendIsFileOpening();
-                                                                                                                                                  }, deviceManagerConnection));
-    deviceManagerWrapperConnections_.append(QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::sendProtoFrame,        &logger_, &Logger::receiveProtoFrame,    deviceManagerConnection));
-    deviceManagerWrapperConnections_.append(QObject::connect(&logger_, &Logger::loggingKlfStarted,  deviceManagerWrapperPtr_->getWorker(), &DeviceManager::onLoggingKlfStarted,     deviceManagerConnection));
-}
-
-void Core::removeDeviceManagerConnections()
-{
-    for (auto& itm : deviceManagerWrapperConnections_)
-        disconnect(itm);
-    deviceManagerWrapperConnections_.clear();
-}
-#else
 void Core::createDeviceManagerConnections()
 {
     Qt::ConnectionType deviceManagerConnection = Qt::ConnectionType::DirectConnection;
@@ -3232,6 +3396,7 @@ void Core::createDeviceManagerConnections()
     QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::rawDataRecieved,        datasetPtr_, &Dataset::rawDataRecieved, deviceManagerConnection);
     QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::distComplete,           datasetPtr_, &Dataset::addDist,         deviceManagerConnection);
     QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::usblSolutionComplete,   datasetPtr_, &Dataset::addUsblSolution, deviceManagerConnection);
+    QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::usblDiagComplete,       datasetPtr_, &Dataset::addUsblDiag,     deviceManagerConnection);
     QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::dopplerBeamComlete,     datasetPtr_, &Dataset::addDopplerBeam,  deviceManagerConnection);
     QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::dvlSolutionComplete,    datasetPtr_, &Dataset::addDVLSolution,  deviceManagerConnection);
     QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::upgradeProgressChanged, this,        &Core::upgradeChanged,     deviceManagerConnection);
@@ -3239,6 +3404,9 @@ void Core::createDeviceManagerConnections()
     QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::rangefinderComplete,    datasetPtr_, &Dataset::addRangefinder,  deviceManagerConnection);
     QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::positionComplete,       datasetPtr_, &Dataset::addPosition,     deviceManagerConnection);
     QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::positionCompleteRTK,    datasetPtr_, &Dataset::addPositionRTK,  deviceManagerConnection);
+    QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::gnssAltitudeMslComplete, datasetPtr_, &Dataset::addGnssAltitudeMsl, deviceManagerConnection);
+    QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::gnssUtcComplete,     datasetPtr_, &Dataset::addGnssUtc,   deviceManagerConnection);
+    QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::gnssAltitudeEllipsoidComplete, datasetPtr_, &Dataset::addGnssAltitudeEllipsoid, deviceManagerConnection);
 
     QObject::connect(deviceManagerWrapperPtr_->getWorker(), &DeviceManager::depthComplete,          datasetPtr_, &Dataset::addDepth,        deviceManagerConnection);
 
@@ -3255,7 +3423,6 @@ void Core::createDeviceManagerConnections()
     QObject::connect(&logger_, &Logger::loggingKlfStarted, deviceManagerWrapperPtr_->getWorker(), &DeviceManager::onLoggingKlfStarted, deviceManagerConnection);
 
 }
-#endif
 
 void Core::createLinkManagerConnections()
 {
@@ -3266,9 +3433,6 @@ void Core::createLinkManagerConnections()
     linkManagerWrapperConnections_.append(QObject::connect(linkManagerWrapperPtr_->getWorker(), &LinkManager::linkDeleted, deviceManagerWrapperPtr_->getWorker(), &DeviceManager::onLinkDeleted,  linkManagerConnection));
 
     linkManagerWrapperConnections_.append(QObject::connect(linkManagerWrapperPtr_->getWorker(), &LinkManager::linkOpened,  this, [this](QUuid uuid) {
-#ifdef SEPARATE_READING
-                                                                                                                                     tryOpenedfilePath_.clear();
-#endif
                                                                                                                                      datasetPtr_->setState(Dataset::DatasetState::kConnection);
 
                                                                                                                                      if (!openLinkOrder_.contains(uuid)) openLinkOrder_.append(uuid);
@@ -3299,8 +3463,12 @@ void Core::createLinkManagerConnections()
                                                                                                                                  }, linkManagerConnection));
 
     linkManagerWrapperConnections_.append(QObject::connect(linkManagerWrapperPtr_->getWorker(), &LinkManager::appendModifyModel, this,
-                                          [this](QUuid uuid, bool connectionStatus, bool receivesData) {
-        // global trigger: when data starts flowing from ANY link
+                                          [this](QUuid uuid, bool connectionStatus, bool receivesData, ControlType,
+                                                 QString, int, bool, LinkType linkType) {
+        // global trigger: when data starts flowing from ANY link; a video stream is not data
+        if (linkType == LinkType::kLinkVideo) {
+            return;
+        }
         if (connectionStatus && receivesData) {
             const bool wasAnyReceiving = !receivingLinks_.isEmpty();
             receivingLinks_.insert(uuid);
@@ -3320,6 +3488,16 @@ void Core::createLinkManagerConnections()
                                                                                                                                  }, linkManagerConnection));
 
     linkManagerWrapperConnections_.append(QObject::connect(linkManagerWrapperPtr_->getWorker(), &LinkManager::sendDoRequestAll, deviceManagerWrapperPtr_->getWorker(), &DeviceManager::onSendRequestAll, linkManagerConnection));
+
+    if (LinkListModel* linkModel = linkManagerWrapperPtr_->getModelPtr()) {
+        lastFileTitle_ = getFileTitle();
+        linkManagerWrapperConnections_.append(QObject::connect(linkModel, &QAbstractItemModel::dataChanged, this, [this]() {
+                                                                                                                     const QString title = getFileTitle();
+                                                                                                                     if (title == lastFileTitle_) return;
+                                                                                                                     lastFileTitle_ = title;
+                                                                                                                     emit fileTitleChanged();
+                                                                                                                 }));
+    }
 }
 
 void Core::removeLinkManagerConnections()
@@ -3696,6 +3874,25 @@ void Core::onDataProcesstorStateChanged(const DataProcessorType& state)
     emit dataProcessorStateChanged();
 }
 
+void Core::onProcessingIdleChanged(bool idle)
+{
+    if (processingIdle_.exchange(idle) == idle) {
+        return;
+    }
+    emit processingIdleChanged();
+}
+
+void Core::onProcessingActivityChanged(const QVariantMap& activity)
+{
+    processingActivity_ = activity;
+    emit processingActivityChanged();
+}
+
+bool Core::getIsFileOpened() const
+{
+    return !isFileOpening_ && !openedfilePath_.isEmpty();
+}
+
 void Core::onSendFrameInputToLogger(QUuid uuid, Link *link, const Parsers::FrameParser& frame)
 {
     // qDebug() << "Core::onSendFrameInputToLogger" << frame.availContext();
@@ -3813,10 +4010,6 @@ void Core::initAfterApp()
         linkManagerWrapperPtr_->startWorkerThread();
     }
 
-    if (deviceManagerWrapperPtr_) {
-        deviceManagerWrapperPtr_->startWorkerThread();
-    }
-
     createDataProcessor();
 }
 
@@ -3868,6 +4061,7 @@ void Core::createDataProcessor()
     dataProcThread_ = new QThread(this);
     dataProcessor_  = new DataProcessor(nullptr, datasetPtr_);
     echogramEditor_->setDataProcessor(dataProcessor_);
+    onProcessingIdleChanged(true);
 
     dataProcessor_->moveToThread(dataProcThread_);
 
@@ -3885,6 +4079,7 @@ void Core::destroyDataProcessor()
     }
 
     resetDataProcessorConnections();
+    onProcessingIdleChanged(true);
 
     if (dataProcessor_) {
         if (dataProcThread_ && dataProcThread_->isRunning()) {
@@ -3988,6 +4183,8 @@ void Core::setDataProcessorConnections()
     dataProcessorConnections_.append(QObject::connect(dataProcessor_,     &DataProcessor::distCompletedByProcessingBatch, datasetPtr_,    &Dataset::onDistCompletedBatch,          connType));
     dataProcessorConnections_.append(QObject::connect(dataProcessor_,     &DataProcessor::lastBottomTrackEpochChanged, datasetPtr_,    &Dataset::onLastBottomTrackEpochChanged, connType));
     dataProcessorConnections_.append(QObject::connect(dataProcessor_,     &DataProcessor::sendState,                   this,           &Core::onDataProcesstorStateChanged,     connType));
+    dataProcessorConnections_.append(QObject::connect(dataProcessor_,     &DataProcessor::idleChanged,                 this,           &Core::onProcessingIdleChanged,          connType));
+    dataProcessorConnections_.append(QObject::connect(dataProcessor_,     &DataProcessor::activityChanged,             this,           &Core::onProcessingActivityChanged,      connType));
 }
 
 void Core::resetDataProcessorConnections()

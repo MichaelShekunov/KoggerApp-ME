@@ -19,11 +19,13 @@ Column {
              : key === "logging"     ? qsTr("Logging")
              : key === "layouts"   ? qsTr("Layouts")
              : key === "bottomTrack" ? qsTr("Bottom track editing")
+             : key === "contact"     ? qsTr("Contact")
              : key === "mission"     ? qsTr("Mission planner")
              : key === "autopilot"   ? qsTr("Autopilot")
              : key === "widgets"     ? qsTr("Widget panels")
              : key === "console"     ? qsTr("Console")
              : key === "profiles"    ? qsTr("Profiles")
+             : key === "nodes"       ? qsTr("Nodes-Configurator")
              : key === "inputLock"   ? qsTr("Lock input")
              : key === "secondWindow" ? qsTr("Second window")
              : key === "powerOff"    ? qsTr("Power off")
@@ -35,11 +37,13 @@ Column {
              : key === "logging"     ? store.quickActionLoggingEnabled
              : key === "layouts"   ? store.quickActionLayoutsEnabled
              : key === "bottomTrack" ? store.quickActionBottomTrackEnabled
+             : key === "contact"     ? store.quickActionContactEnabled
              : key === "mission"     ? store.quickActionMissionEnabled
              : key === "autopilot"   ? store.quickActionAutopilotEnabled
              : key === "widgets"     ? store.quickActionWidgetsEnabled
              : key === "console"     ? store.quickActionConsoleEnabled
              : key === "profiles"    ? store.quickActionProfilesEnabled
+             : key === "nodes"       ? store.quickActionNodesEnabled
              : key === "inputLock"   ? store.quickActionInputLockEnabled
              : key === "secondWindow" ? store.quickActionSecondWindowEnabled
              : key === "powerOff"    ? store.quickActionPowerOffEnabled
@@ -60,6 +64,9 @@ Column {
         } else if (key === "bottomTrack") {
             store.quickActionBottomTrackEnabled = v
             store.requestHotkeysReveal("bottomTrack")
+        } else if (key === "contact") {
+            store.quickActionContactEnabled = v
+            store.requestHotkeysReveal("contact")
         } else if (key === "mission") {
             store.quickActionMissionEnabled = v
             store.requestHotkeysReveal("mission")
@@ -75,6 +82,9 @@ Column {
         } else if (key === "profiles") {
             store.quickActionProfilesEnabled = v
             store.requestHotkeysReveal("profiles")
+        } else if (key === "nodes") {
+            store.quickActionNodesEnabled = v
+            store.requestHotkeysReveal("nodes")
         } else if (key === "inputLock") {
             store.quickActionInputLockEnabled = v
             store.requestHotkeysReveal("inputLock")
