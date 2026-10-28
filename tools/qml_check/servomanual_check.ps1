@@ -86,6 +86,7 @@ Item {
         property bool servoReverse: false
         property int servoPwmMinUs: 500
         property int servoPwmMaxUs: 2500
+        property int servoPwmHz: 50
         property real servoAngleRangeDeg: 90
         property real servoStepDeg: 4.5
         property real servoRangeDeg: 60
@@ -245,6 +246,32 @@ Item {
             fakeDev.servoManualSet(25)
             wait(400)
             grabImage(root).save(shotPath)   // void in Qt 6; the script looks for the file
+        }
+        // The PWM frequency row (ID_SERVO_CONTROL v1): a pulse must be shorter than the period, 1e6 / Hz us.
+        function test_09_pwm_frequency() {
+            body._advanced = true
+            var row = item("servoPwmHzRow"), hz = item("servoPwmHzSpin"), max = item("servoPwmMaxSpin")
+            fakeDev.servoPwmMaxUs = 2500
+            fakeDev.servoPwmHz = 50
+            verify(row.visible)
+            compare(hz.devValue, 50)
+            compare(hz.to, 399)                                     // 1e6 / (2500 + 1)
+            compare(max.to, 2500)
+            compare(row.caption, "Period 20000 µs, the pulse must be shorter. With PWM max 2500 µs: up to 399 Hz.")
+            fakeDev.servoPwmMaxUs = 900
+            compare(hz.to, 1000)
+            hz.writeBack(1000)
+            compare(fakeDev.servoPwmHz, 1000)
+            compare(max.to, 999)                                    // period 1000 us
+            compare(row.caption, "Period 1000 µs, the pulse must be shorter. With PWM max 900 µs: up to 1000 Hz.")
+            fakeDev.servoPwmHz = 333
+            compare(max.to, 2500)                                   // period 3003 us
+            fakeDev.servoPwmHz = 0                                  // a firmware without the setting: 50 Hz, no row
+            verify(!row.visible)
+            compare(max.to, 2500)
+            fakeDev.servoPwmHz = 50
+            fakeDev.servoPwmMaxUs = 2500
+            body._advanced = false
         }
         function test_07_refused() {
             enterManual()

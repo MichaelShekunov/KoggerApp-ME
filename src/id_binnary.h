@@ -809,7 +809,22 @@ public:
     /// Leaves manual mode here without sending anything: the device refused it and never entered it.
     void dropManual();
 
-    void requestAll() override { simpleRequest(v0); }
+    /// PWM frequency of the servo outputs, Hz (ID_SERVO_CONTROL v1, Recorder firmware from 2026-10-28). 0 until
+    /// the device answers v1: a firmware without it never does, and its outputs run at 50 Hz.
+    U2 pwmHz() const { return m_pwmHz; }
+    static constexpr int PwmHzMin = 50;
+    static constexpr int PwmHzMax = 1000;
+    /// The PWM period at `hz` as the firmware counts it: a 1 MHz tick, 1e6 / hz us, integer division. A pulse
+    /// must be shorter: the firmware refuses a frequency the current pwm_max_us does not fit, and a pwm_max_us
+    /// the current frequency does not fit.
+    static int periodUs(int hz) { return hz > 0 ? 1000000 / hz : 0; }
+    /// Sends the frequency, then reads it back. Not tracked: the read-back shows whether the device took it.
+    void setPwmHz(U2 hz);
+
+    void requestAll() override {
+        simpleRequest(v0);
+        simpleRequest(v1);
+    }
 
 protected:
     void send(bool tracked);
@@ -826,6 +841,7 @@ protected:
     S2 m_stepDeg       = 450;
     S2 m_rangeDeg      = 18000;
     S2 m_centerDeg     = 0;
+    U2 m_pwmHz         = 0;
 };
 
 

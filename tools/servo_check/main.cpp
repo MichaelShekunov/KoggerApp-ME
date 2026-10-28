@@ -7,6 +7,9 @@
 //  3. The frames of manual mode are not tracked by the acknowledgement check (a drag sends tens a second); the
 //     other settings stay tracked and, in manual mode, carry bit 1 and the angle held.
 //  4. The device's own frames: in manual mode center_deg is read as the angle held and the scan's center is kept.
+//  5. The PWM frequency (ID_SERVO_CONTROL v1 [U2 hz], Recorder firmware from 2026-10-28): read with v0 at the start,
+//     sent as SETTING v1 and read back; unknown (0) until the device answers v1; the period is 1e6 / hz us, as the
+//     firmware counts it.
 // Exit 0 = pass, 1 = fail.
 #include <QCoreApplication>
 #include <QElapsedTimer>
@@ -265,6 +268,44 @@ int main(int argc, char** argv)
     sv.dropManual();
     ok("dropped: nothing sent, scanning around 100.00 as before", out.isEmpty() && !sv.manual() && sv.centerDeg() == 10000
        && sv.scanCenterDeg() == 10000, QString("center %1, %2 frames").arg(sv.centerDeg()).arg(out.size()));
+
+    std::printf("\nthe PWM frequency (v1)\n");
+    {
+        Servo sv3;
+        QVector<QByteArray> out3;
+        QObject::connect(&sv3, &IDBin::binFrameOut, [&out3](Parsers::ProtoBinOut f) {
+            out3.append(QByteArray(reinterpret_cast<const char*>(f.frame()), f.frameLen()));
+        });
+        ok("unknown before the device answers v1: 0", sv3.pwmHz() == 0);
+        sv3.requestAll();
+        const Sent g0 = sentFrame(out3.value(0)), g1 = sentFrame(out3.value(1));
+        ok("the start reads v0 and v1: two GETTING to 0x27", out3.size() == 2 && g0.type == Parsers::GETTING
+           && g0.ver == 0 && g0.id == 0x27 && g1.type == Parsers::GETTING && g1.ver == 1 && g1.id == 0x27 && g1.sum,
+           QString("%1 frames, v%2 v%3").arg(out3.size()).arg(g0.ver).arg(g1.ver));
+        feed(sv3, kp1(Parsers::CONTENT, 0, 0x27, statePayload(dev)));
+        ok("a v0 answer leaves the frequency unknown", sv3.pwmHz() == 0, QString("%1").arg(sv3.pwmHz()));
+        QByteArray p;
+        le16(p, 1000);
+        feed(sv3, kp1(Parsers::CONTENT, 1, 0x27, p));
+        ok("a v1 answer: 1000 Hz", sv3.pwmHz() == 1000, QString("%1").arg(sv3.pwmHz()));
+        ok("the v1 answer leaves the v0 fields", sv3.pwmMaxUs() == 2400 && sv3.enabled() && sv3.centerDeg() == 1500);
+
+        out3.clear();
+        sv3.setPwmHz(333);
+        const auto* b = reinterpret_cast<const uint8_t*>(out3.value(0).constData());
+        const Sent s = sentFrame(out3.value(0)), r = sentFrame(out3.value(1));
+        ok("sent: SETTING v1 to 0x27, 2 bytes, 333, checksum right", out3.size() == 2 && s.type == Parsers::SETTING
+           && s.ver == 1 && s.id == 0x27 && s.len == 2 && s.sum && u16(b + 6) == 333,
+           QString("%1 frames, type %2 v%3 len %4").arg(out3.size()).arg(s.type).arg(s.ver).arg(s.len));
+        ok("then read back: GETTING v1", r.type == Parsers::GETTING && r.ver == 1 && r.id == 0x27,
+           QString("type %1 v%2").arg(r.type).arg(r.ver));
+        ok("shown as the device has it until the read-back: 1000", sv3.pwmHz() == 1000);
+        ok("not tracked", !reportedLost(sv3));
+        ok("period: 50 Hz 20000 us, 333 Hz 3003 us, 1000 Hz 1000 us", Servo::periodUs(50) == 20000
+           && Servo::periodUs(333) == 3003 && Servo::periodUs(1000) == 1000,
+           QString("%1 %2 %3").arg(Servo::periodUs(50)).arg(Servo::periodUs(333)).arg(Servo::periodUs(1000)));
+        ok("range 50..1000 Hz", Servo::PwmHzMin == 50 && Servo::PwmHzMax == 1000);
+    }
 
     std::printf("\nservo_check: %s\n", fails ? "FAILED" : "PASS");
     return fails ? 1 : 0;

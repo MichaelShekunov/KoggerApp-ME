@@ -221,6 +221,7 @@ public:
     Q_PROPERTY(bool servoReverse READ servoReverse WRITE setServoReverse NOTIFY servoControlChanged)
     Q_PROPERTY(int servoPwmMinUs READ servoPwmMinUs WRITE setServoPwmMinUs NOTIFY servoControlChanged)
     Q_PROPERTY(int servoPwmMaxUs READ servoPwmMaxUs WRITE setServoPwmMaxUs NOTIFY servoControlChanged)
+    Q_PROPERTY(int servoPwmHz READ servoPwmHz WRITE setServoPwmHz NOTIFY servoControlChanged)
     Q_PROPERTY(double servoAngleRangeDeg READ servoAngleRangeDeg WRITE setServoAngleRangeDeg NOTIFY servoControlChanged)
     Q_PROPERTY(double servoStepDeg READ servoStepDeg WRITE setServoStepDeg NOTIFY servoControlChanged)
     Q_PROPERTY(double servoRangeDeg READ servoRangeDeg WRITE setServoRangeDeg NOTIFY servoControlChanged)
@@ -332,6 +333,10 @@ public:
 
     int servoPwmMaxUs() const { return idServoControl ? idServoControl->pwmMaxUs() : 0; }
     void setServoPwmMaxUs(int v) { if (idServoControl) idServoControl->setPwmMaxUs(static_cast<U2>(v)); }
+
+    // 0: the firmware has no frequency setting (ID_SERVO_CONTROL v1) and runs the servo at 50 Hz.
+    int servoPwmHz() const { return idServoControl ? idServoControl->pwmHz() : 0; }
+    void setServoPwmHz(int hz) { if (idServoControl) idServoControl->setPwmHz(static_cast<U2>(hz)); }
 
     double servoAngleRangeDeg() const {
         return idServoControl ? double(idServoControl->angleRangeDeg()) / IDBinServoControl::AngleScale : 0.0;

@@ -3407,7 +3407,16 @@ void DevDriver::receivedDistSetup(Parsers::Type type, Parsers::Version ver, Pars
 
 void DevDriver::receivedServoControl(Parsers::Type type, Parsers::Version ver, Parsers::Resp resp) {
     Q_UNUSED(type);
-    Q_UNUSED(ver);
+
+    if (ver == v1) {   // the PWM frequency
+        if (resp == respNone) {
+            qInfo().noquote() << wifiTag() << QStringLiteral("servo: PWM %1 Hz").arg(idServoControl->pwmHz());
+            emit servoControlChanged();
+        } else if (resp != respOk) {
+            qInfo().noquote() << wifiTag() << QStringLiteral("servo: ID_SERVO_CONTROL v1 (PWM frequency) answered %1").arg(int(resp));
+        }
+        return;
+    }
 
     if (resp == respNone) {
         if (idServoControl->manual() && servoManualSupport_ != 1) {

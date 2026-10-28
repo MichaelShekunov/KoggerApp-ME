@@ -4269,23 +4269,23 @@ udp://@:1234
         <translation>código %1</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3880"/>
+        <location filename="../src/device/dev_driver.cpp" line="3889"/>
         <source>This firmware has no ring counters</source>
         <translation>Este firmware no tiene contadores de anillo</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3881"/>
+        <location filename="../src/device/dev_driver.cpp" line="3890"/>
         <source>Refused by the board (code %1)</source>
         <translation>La placa lo rechazó (código %1)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3986"/>
+        <location filename="../src/device/dev_driver.cpp" line="3995"/>
         <source>Sync config rejected by device</source>
         <translation>El dispositivo rechazó la configuración de sincronización</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="4700"/>
-        <location filename="../src/device/dev_driver.cpp" line="4713"/>
+        <location filename="../src/device/dev_driver.cpp" line="4709"/>
+        <location filename="../src/device/dev_driver.cpp" line="4722"/>
         <source>no answer from the module</source>
         <translation>sin respuesta del módulo</translation>
     </message>
@@ -17713,142 +17713,157 @@ udp://@:1234
 <context>
     <name>ServoPanelBody</name>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="105"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="106"/>
         <source>Off</source>
         <translation>Desactivado</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="105"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="106"/>
         <source>ServoScan</source>
         <translation>ServoScan</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="288"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="298"/>
         <source>No servo device</source>
         <translation>Ningún dispositivo con servo</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="290"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="300"/>
         <source>On link %1</source>
         <translation>En el enlace %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="309"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="319"/>
         <source>Device</source>
         <translation>Dispositivo</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="324"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="334"/>
         <source>Control</source>
         <translation>Control</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="327"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="337"/>
         <source>Enabled</source>
         <translation>Activado</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="344"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="354"/>
         <source>Manual</source>
         <translation>Modo manual</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="345"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="355"/>
         <source>The firmware does not support manual mode</source>
         <translation>El firmware no admite el modo manual</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="347"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="357"/>
         <source>The servo holds the angle set with the knob; the scan waits until this is off.</source>
         <translation>El servo mantiene el ángulo fijado con la perilla; el escaneo espera hasta que esto se desactive.</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="362"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="372"/>
         <source>Current angle</source>
         <translation>Ángulo actual</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="411"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="421"/>
         <source>Angle, °</source>
         <translation>Ángulo, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="435"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="445"/>
         <source>Shift while dragging: finer. Wheel: 1°, with Ctrl: 0.1°.</source>
         <translation>Shift al arrastrar: más fino. Rueda: 1°, con Ctrl: 0,1°.</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="444"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="454"/>
         <source>Reverse mapping</source>
         <translation>Mapeo inverso</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="460"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="470"/>
         <source>Scan</source>
         <translation>Escaneo</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="464"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="474"/>
         <source>Waits while the servo is in manual mode.</source>
         <translation>En espera mientras el servo está en modo manual.</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="467"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="477"/>
         <source>Step, °</source>
         <translation>Paso, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="485"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="495"/>
         <source>Scan range, °</source>
         <translation>Rango de escaneo, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="500"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="510"/>
         <source>Center, °</source>
         <translation>Centro, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="519"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="529"/>
         <source>More settings</source>
         <translation>Más ajustes</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="531"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="541"/>
         <source>Calibration</source>
         <translation>Calibración</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="537"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="547"/>
         <source>PWM min, µs</source>
         <translation>PWM mín., µs</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="553"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="563"/>
         <source>PWM max, µs</source>
         <translation>PWM máx., µs</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="569"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="582"/>
+        <source>PWM frequency, Hz</source>
+        <translation>Frecuencia PWM, Hz</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ServoPanelBody.qml" line="583"/>
+        <source>Period %1 µs, the pulse must be shorter. With PWM max %2 µs: up to %3 Hz.</source>
+        <translation>Periodo %1 µs, el pulso debe ser más corto. Con PWM máx. %2 µs: hasta %3 Hz.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ServoPanelBody.qml" line="585"/>
+        <source>Analog servos run at 50 Hz, digital ones usually up to 333 Hz. Higher frequencies suit only servos with a narrow pulse, shorter than the period.</source>
+        <translation>Los servos analógicos funcionan a 50 Hz, los digitales normalmente hasta 333 Hz. Las frecuencias más altas solo sirven para servos de pulso estrecho, más corto que el periodo.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/ServoPanelBody.qml" line="602"/>
         <source>Servo angle range, °</source>
         <translation>Rango de ángulo del servo, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="584"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="617"/>
         <source>PWM routing</source>
         <translation>Enrutamiento PWM</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="590"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="623"/>
         <source>OUT1 (wired)</source>
         <translation>OUT1 (cableado)</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="606"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="639"/>
         <source>OUT2</source>
         <translation>OUT2</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="622"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="655"/>
         <source>OUT3</source>
         <translation>OUT3</translation>
     </message>
@@ -18062,107 +18077,107 @@ udp://@:1234
         <translation>El sonar se desconectó</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="264"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="268"/>
         <source>A run is going on</source>
         <translation>Hay una prueba en curso</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="267"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="271"/>
         <source>No sonar selected</source>
         <translation>No hay sonar seleccionado</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="273"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="277"/>
         <source>The sonar has not answered yet</source>
         <translation>El sonar aún no ha respondido</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="273"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="277"/>
         <source>Not a nanoSSS (board %1)</source>
         <translation>No es un nanoSSS (placa %1)</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="276"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="280"/>
         <source>The sonar has not reported its serial number</source>
         <translation>El sonar no ha informado su número de serie</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="282"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="286"/>
         <source>No reference yet: make the baseline on the reference sonar first</source>
         <translation>Aún no hay referencia: primero haga la base con el sonar de referencia</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="286"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="290"/>
         <source>This is not the reference sonar (that is serial %1)</source>
         <translation>Este no es el sonar de referencia (la referencia es el número de serie %1)</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="290"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="294"/>
         <source>Unknown run</source>
         <translation>Prueba desconocida</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="293"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="297"/>
         <source>This is the reference sonar: run its check instead</source>
         <translation>Este es el sonar de referencia: ejecute su verificación</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="296"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="300"/>
         <source>The reference&apos;s last check moved away from its baseline: look at the stand, check the reference again or accept the check</source>
         <translation>La última verificación de la referencia se alejó de su base: revise el banco, verifique la referencia de nuevo o acepte la verificación</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="300"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="304"/>
         <source>%1 sonars tested since the reference&apos;s check: check the reference again</source>
         <translation>%1 sonares probados desde la verificación de la referencia: verifique la referencia de nuevo</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="306"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="310"/>
         <source>The reference&apos;s check cannot be read: %1</source>
         <translation>No se puede leer la verificación de la referencia: %1</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="310"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="314"/>
         <source>Firmware %1, the reference has %2: load the same firmware</source>
         <translation>Firmware %1, la referencia tiene %2: cargue el mismo firmware</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="345"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="349"/>
         <source>The reference run cannot be read: %1</source>
         <translation>No se puede leer la prueba de referencia: %1</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="373"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="377"/>
         <source>Setting the sonar up</source>
         <translation>Configurando el sonar</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="382"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="386"/>
         <source>Stopped</source>
         <translation>Detenido</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="414"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="418"/>
         <source>The sonar gives %1 samples a side, the reference %2</source>
         <translation>El sonar da %1 muestras por lado, la referencia %2</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="489"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="493"/>
         <source>%1 kHz, %2 pulses</source>
         <translation>%1 kHz, %2 pulsos</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="490"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="494"/>
         <source>%1 kHz, transmitter off</source>
         <translation>%1 kHz, transmisor apagado</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="569"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="573"/>
         <source>Saved: %1</source>
         <translation>Guardado: %1</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="569"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="573"/>
         <source>Not saved: %1</source>
         <translation>No guardado: %1</translation>
     </message>

@@ -1177,13 +1177,14 @@ void EchoEditScript::runStep(const QJsonObject& s)
                 continue;
             }
             qInfo().noquote() << QStringLiteral("echoedit script: servo of %1: supported %2, enabled %3, manual %4 at %5, "
-                                                "manual support %6, center %7, angle range %8")
+                                                "manual support %6, center %7, angle range %8, pwm %9 Hz")
                                  .arg(d->property("devName").toString()).arg(d->property("isServoSupport").toBool())
                                  .arg(d->property("servoEnabled").toBool()).arg(d->property("servoManual").toBool())
                                  .arg(d->property("servoManualDeg").toDouble(), 0, 'f', 2)
                                  .arg(d->property("servoManualSupport").toInt())
                                  .arg(d->property("servoCenterDeg").toDouble(), 0, 'f', 2)
-                                 .arg(d->property("servoAngleRangeDeg").toDouble(), 0, 'f', 2);
+                                 .arg(d->property("servoAngleRangeDeg").toDouble(), 0, 'f', 2)
+                                 .arg(d->property("servoPwmHz").toInt());
         }
     }
     else if (op == QLatin1String("portFunction") || op == QLatin1String("portBaud") || op == QLatin1String("portState")) {
@@ -1338,6 +1339,13 @@ void EchoEditScript::runStep(const QJsonObject& s)
         qInfo().noquote() << QStringLiteral("echoedit script: %1 %2: %3").arg(op)
                              .arg(op == QLatin1String("servoManual") ? QString::number(s.value(QStringLiteral("on")).toBool())
                                                                      : QString::number(s.value(QStringLiteral("deg")).toDouble()))
+                             .arg(sent ? QStringLiteral("sent") : QStringLiteral("no servo device"));
+    }
+    else if (op == QLatin1String("servoPwmHz")) {
+        QObject* dev = firstServoDevice();
+        const int hz = s.value(QStringLiteral("hz")).toInt();
+        const bool sent = dev && dev->setProperty("servoPwmHz", hz);
+        qInfo().noquote() << QStringLiteral("echoedit script: servoPwmHz %1: %2").arg(hz)
                              .arg(sent ? QStringLiteral("sent") : QStringLiteral("no servo device"));
     }
     else if (op == QLatin1String("presetRecall") || op == QLatin1String("presetSave") || op == QLatin1String("presetDelete")) {

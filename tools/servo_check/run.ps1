@@ -75,7 +75,12 @@ $faults = @(
     @{ Name = 'the angle not cut to the range';           File = 'id_binnary.cpp'; From = 'return static_cast<S2>(qBound(-half, int(deg), half));'; To = 'return deg;' },
     @{ Name = 'manual frames tracked';                    File = 'id_binnary.cpp'; From = "if (tracked) {`n        hashBinFrameOut(id_out);"; To = "if (true) {`n        hashBinFrameOut(id_out);" },
     @{ Name = 'the read-back angle not taken';            File = 'id_binnary.cpp'; From = "if (manual()) {`n            m_manualDeg = m_centerDeg;`n        }"; To = '' },
-    @{ Name = 'a refusal leaves the angle as center';     File = 'id_binnary.cpp'; From = "    m_general &= ~GenManual;`n    m_centerDeg = m_scanCenterDeg;`n}"; To = "    m_general &= ~GenManual;`n}" }
+    @{ Name = 'a refusal leaves the angle as center';     File = 'id_binnary.cpp'; From = "    m_general &= ~GenManual;`n    m_centerDeg = m_scanCenterDeg;`n}"; To = "    m_general &= ~GenManual;`n}" },
+    @{ Name = 'the frequency answer not taken';           File = 'id_binnary.cpp'; From = 'm_pwmHz = proto.read<U2>();'; To = 'proto.read<U2>();' },
+    @{ Name = 'the frequency sent as v0';                 File = 'id_binnary.cpp'; From = "id_out.create(SETTING, v1, id(), m_address);`n    id_out.write<U2>(hz);"; To = "id_out.create(SETTING, v0, id(), m_address);`n    id_out.write<U2>(hz);" },
+    @{ Name = 'the frequency not read back';              File = 'id_binnary.cpp'; From = "emit binFrameOut(id_out);`n`n    simpleRequest(v1);"; To = 'emit binFrameOut(id_out);' },
+    @{ Name = 'the frequency not read at the start';      File = 'id_binnary.h';   From = "simpleRequest(v0);`n        simpleRequest(v1);"; To = 'simpleRequest(v0);' },
+    @{ Name = 'the period one microsecond long';          File = 'id_binnary.h';   From = 'return hz > 0 ? 1000000 / hz : 0;'; To = 'return hz > 0 ? 1000000 / hz + 1 : 0;' }
 )
 
 $utf8 = New-Object System.Text.UTF8Encoding $false

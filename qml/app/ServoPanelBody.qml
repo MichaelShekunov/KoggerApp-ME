@@ -19,6 +19,7 @@ Column {
         property bool servoReverse: false
         property int servoPwmMinUs: 500
         property int servoPwmMaxUs: 2500
+        property int servoPwmHz: 50
         property real servoAngleRangeDeg: 180
         property real servoStepDeg: 4.5
         property real servoRangeDeg: 180
@@ -105,6 +106,14 @@ Column {
     readonly property var _pwmTargets: [qsTr("Off"), qsTr("ServoScan")]
 
     property bool _advanced: false
+
+    // The PWM frequency the outputs run at: the device's answer, or 50 Hz from a firmware without the setting.
+    readonly property int _pwmHz: (body.dev && body.dev.servoPwmHz > 0) ? body.dev.servoPwmHz : 50
+    // A pulse must be shorter than the period (1e6 / Hz µs, whole µs, as the firmware counts it), else the
+    // firmware refuses the setting: the longest PWM max at this frequency, the highest frequency for this PWM max.
+    readonly property int _periodUs: Math.floor(1000000 / body._pwmHz)
+    readonly property int _pwmMaxFitUs: Math.min(2500, body._periodUs - 1)
+    readonly property int _pwmHzFit: body.dev ? Math.min(1000, Math.floor(1000000 / (body.dev.servoPwmMaxUs + 1))) : 1000
 
     // "OUT1: O1, IN3, IN1": the contacts that carry each logical output, from a Recorder's port table when it has one.
     function _outLabel(i, fallback) {
@@ -202,7 +211,8 @@ Column {
                       + "° step=" + d.servoStepDeg.toFixed(2) + "° range=" + d.servoRangeDeg.toFixed(0)
                       + "° center=" + d.servoCenterDeg.toFixed(0)
                       + "° angleRange=" + d.servoAngleRangeDeg.toFixed(0)
-                      + "° pwm=" + d.servoPwmMinUs + ".." + d.servoPwmMaxUs + "µs")
+                      + "° pwm=" + d.servoPwmMinUs + ".." + d.servoPwmMaxUs + "µs"
+                      + (d.servoPwmHz > 0 ? " " + d.servoPwmHz + "Hz" : ""))
         }
 
         function onPwmRouteChanged() {
@@ -537,7 +547,7 @@ Column {
             label: qsTr("PWM min, µs")
 
             DevSpin {
-                from: 500; to: 2500; stepSize: 10
+                from: 500; to: body._pwmMaxFitUs; stepSize: 10
                 devValue: body.dev ? body.dev.servoPwmMinUs : 500
                 writeBack: function(v) {
                     if (body.dev && body.dev.servoPwmMinUs !== v) {
@@ -553,12 +563,35 @@ Column {
             label: qsTr("PWM max, µs")
 
             DevSpin {
-                from: 500; to: 2500; stepSize: 10
+                objectName: "servoPwmMaxSpin"
+                from: 500; to: body._pwmMaxFitUs; stepSize: 10
                 devValue: body.dev ? body.dev.servoPwmMaxUs : 2500
                 writeBack: function(v) {
                     if (body.dev && body.dev.servoPwmMaxUs !== v) {
                         body._log("write pwm max = " + v + "µs")
                         body.dev.servoPwmMaxUs = v
+                    }
+                }
+            }
+        }
+
+        KIslandRow {
+            objectName: "servoPwmHzRow"
+            open: body._advanced
+            visible: !!(body.dev && body.dev.servoPwmHz > 0)
+            label: qsTr("PWM frequency, Hz")
+            caption: qsTr("Period %1 µs, the pulse must be shorter. With PWM max %2 µs: up to %3 Hz.")
+                     .arg(body._periodUs).arg(body.dev ? body.dev.servoPwmMaxUs : 0).arg(body._pwmHzFit)
+            toolTipText: qsTr("Analog servos run at 50 Hz, digital ones usually up to 333 Hz. Higher frequencies suit only servos with a narrow pulse, shorter than the period.")
+
+            DevSpin {
+                objectName: "servoPwmHzSpin"
+                from: 50; to: body._pwmHzFit; stepSize: 10
+                devValue: body._pwmHz
+                writeBack: function(v) {
+                    if (body.dev && body.dev.servoPwmHz !== v) {
+                        body._log("write pwm frequency = " + v + "Hz")
+                        body.dev.servoPwmHz = v
                     }
                 }
             }

@@ -1036,10 +1036,22 @@ Resp IDBinServoControl::parsePayload(FrameParser &proto) {
         if (manual()) {
             m_manualDeg = m_centerDeg;
         }
+    } else if (proto.ver() == v1) {
+        m_pwmHz = proto.read<U2>();
     } else {
         return respErrorVersion;
     }
     return respOk;
+}
+
+void IDBinServoControl::setPwmHz(U2 hz) {
+    ProtoBinOut id_out;
+    id_out.create(SETTING, v1, id(), m_address);
+    id_out.write<U2>(hz);
+    id_out.end();
+    emit binFrameOut(id_out);
+
+    simpleRequest(v1);
 }
 
 void IDBinServoControl::startColdStartTimer()
