@@ -35,8 +35,10 @@ public:
     } DatasetChannel;
 
     enum UpgradeStatus : qint8 {
+        bootloaderUpgrade = -3,   // the image went in, but the board stayed in its bootloader
+        noAnswerUpgrade = -2,     // the image went in, but the board did not answer afterwards
         failUpgrade = -1,
-        successUpgrade = 101
+        successUpgrade = 101      // the board answers from its firmware after the update
     };
 
     ChannelId getChannelId() const;
@@ -1050,6 +1052,15 @@ protected:
     int64_t upgradeStartedTime_ = 0;
     int64_t rebootAtTime_ = 0;
     int upgradeResendCount_ = 0;
+    // After the image (ID_BOOT v1 sent): flashed only once the board answers from its firmware (ID_VERSION v2).
+    // 2026-10-29: a USBL behind the logger acknowledged every packet, was told to start, stayed in its bootloader,
+    // and the app had said "successfully flashed".
+    static constexpr int64_t kUpgradeStartAskMs = 700;       // its boot mode asked this often meanwhile
+    static constexpr int64_t kUpgradeStartGraceMs = 3000;    // a bootloader's answer before this is not a verdict yet
+    static constexpr int64_t kUpgradeStartTimeoutMs = 30000; // nothing from it this long: no answer
+    QTimer upgradeStartTimer_;
+    int64_t upgradeStartAt_ = 0;   // when it was told to start, 0: no update waiting for it
+    void finishUpgradeStart(int status, const QString& line);
     int64_t lastProcessAtMs_ = 0;
 
     static constexpr int64_t staleVersionGuardMsec = 400;

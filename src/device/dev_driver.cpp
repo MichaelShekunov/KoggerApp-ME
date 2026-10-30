@@ -226,6 +226,21 @@ DevDriver::DevDriver(QObject *parent)
     m_devSyncDebounceTimer.setInterval(300);
     connect(&m_devSyncDebounceTimer, &QTimer::timeout, this, &DevDriver::onDevSyncDebounceFired);
 
+    upgradeStartTimer_.setInterval(int(kUpgradeStartAskMs));
+    connect(&upgradeStartTimer_, &QTimer::timeout, this, [this]() {
+        if (upgradeStartAt_ == 0) {
+            upgradeStartTimer_.stop();
+            return;
+        }
+        if (QDateTime::currentMSecsSinceEpoch() - upgradeStartAt_ >= kUpgradeStartTimeoutMs) {
+            finishUpgradeStart(noAnswerUpgrade, QStringLiteral("failed: the board has not answered for %1 s since it was "
+                                                               "told to start; whether its firmware runs is not known")
+                                                    .arg(kUpgradeStartTimeoutMs / 1000));
+            return;
+        }
+        idVersion->simpleRequest(v2);   // its boot mode
+    });
+
     portsAnswerTimer_.setSingleShot(true);
     portsAnswerTimer_.setInterval(2000);
     connect(&portsAnswerTimer_, &QTimer::timeout, this, [this]() {
@@ -1343,6 +1358,8 @@ void DevDriver::startStockUpgrade(const QByteArray& update_data) {
         qInfo("FWTRACE %lld start size=%lld bytes packet=%d",
               fwTraceNow(), (long long)update_data.size(), 96);
     }
+    upgradeStartTimer_.stop();   // a new update ends the wait for the last one's board
+    upgradeStartAt_ = 0;
     reboot();
     if (recorderUpgrade_ != RecorderUpgrade::Idle) {
         // The bootloader takes route 0, not the port's (docs/RING_UPDATE.md). The recorder hands route 0 to its
@@ -4070,6 +4087,21 @@ void DevDriver::receivedVersion(Parsers::Type type, Parsers::Version ver, Parser
         return;
     }
 
+    // An update waiting for the board to start its firmware (fwUpgradeProcess): the boot mode it answers with.
+    if(resp == respNone && ver == v2 && upgradeStartAt_ != 0) {
+        const int64_t since = QDateTime::currentMSecsSinceEpoch() - upgradeStartAt_;
+        if(idVersion->bootMode() == IDBinVersion::BootModeFirmware) {
+            finishUpgradeStart(successUpgrade, QStringLiteral("done: the board answers from its firmware %1.%2, %3 s after "
+                                                              "it was told to start")
+                                                   .arg(idVersion->fwVersion()).arg(idVersion->fwVersionMinor())
+                                                   .arg(double(since) / 1000.0, 0, 'f', 1));
+        } else if(idVersion->bootMode() == IDBinVersion::BootModeBootloader && since >= kUpgradeStartGraceMs) {
+            finishUpgradeStart(bootloaderUpgrade, QStringLiteral("failed: the board is still in its bootloader %1 s after "
+                                                                 "it was told to start; its firmware did not start")
+                                                      .arg(double(since) / 1000.0, 0, 'f', 1));
+        }
+    }
+
     if(resp == respNone) {
         if(ver == v0) {
             // The board names live in knownBoardName(), which the Wi-Fi module's port list uses as well.
@@ -4161,19 +4193,33 @@ void DevDriver::fwUpgradeProcess() {
             qInfo("FWTRACE %lld runFW (ID_BOOT v1) - body complete", fwTraceNow());
         }
         idBoot->runFW();
-        endRecorderRoute();
         m_state.in_boot = false;
         m_state.in_update = false;
-        m_upgrade_status = successUpgrade;
         upgradeStartedTime_ = 0;
         upgradeResendCount_ = 0;
+        // Not flashed yet: that is when the board answers from its firmware (finishUpgradeStart). Behind a recorder
+        // the route stays the bootloader's (0) till then, so a board that stayed in its bootloader answers too.
+        m_upgrade_status = 100;
+        upgradeStartAt_ = QDateTime::currentMSecsSinceEpoch();
+        upgradeStartTimer_.start();
 
         emit upgradingFirmwareDone();
         emit upgradingFirmwareDoneDM();
 
-        core.consoleInfo("Upgrade: done");
+        core.consoleInfo("Upgrade: the image is written and the board is told to start it; waiting for it to answer "
+                         "from its firmware");
         restartState();
     }
+}
+
+void DevDriver::finishUpgradeStart(int status, const QString& line) {
+    upgradeStartTimer_.stop();
+    upgradeStartAt_ = 0;
+    endRecorderRoute();
+    m_upgrade_status = status;
+    core.consoleInfo(QStringLiteral("Upgrade: ") + line);
+    emit upgradeProgressChanged(m_upgrade_status);
+    emit upgradeChanged();
 }
 
 bool DevDriver::checkUpgradeTimeouts(int64_t curr_time) {
@@ -4237,6 +4283,12 @@ void DevDriver::abortUpgrade(const QString& reason) {
 void DevDriver::receivedUpdate(Parsers::Type type, Parsers::Version ver, Parsers::Resp resp)
 {
     Q_UNUSED(type);
+
+    // Another device's update, answered here too: the logger takes the bootloader's route 0 as its own and refuses
+    // each packet (2026-10-29), and the progress shown, one for all devices, fell back to 0 % on each refusal.
+    if (!m_state.in_boot && !m_state.in_update) {
+        return;
+    }
 
     if(resp == respNone) {
         if(ver == v0) {

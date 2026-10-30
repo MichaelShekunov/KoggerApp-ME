@@ -4177,119 +4177,119 @@ udp://@:1234
         <translation>Радио: %1</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="266"/>
+        <location filename="../src/device/dev_driver.cpp" line="281"/>
         <source>No answer from the board</source>
         <translation>Плата не отвечает</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="1994"/>
+        <location filename="../src/device/dev_driver.cpp" line="2011"/>
         <source>the radio is switched off</source>
         <translation>радио выключено</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2012"/>
+        <location filename="../src/device/dev_driver.cpp" line="2029"/>
         <source>the module is busy (a window, a survey, a scan or joining runs, or the last window was under 1 s ago)</source>
         <translation>модуль занят (идёт окно, обзор, сканирование или подключение к сети, либо прошлое окно было меньше 1 с назад)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2013"/>
+        <location filename="../src/device/dev_driver.cpp" line="2030"/>
         <source>the module refused the report (code %1)</source>
         <translation>модуль отказал в отчёте (код %1)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2050"/>
+        <location filename="../src/device/dev_driver.cpp" line="2067"/>
         <source>the module is busy (a survey, a scan or joining a network runs)</source>
         <translation>модуль занят (идёт обзор, сканирование или подключение к сети)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2051"/>
-        <location filename="../src/device/dev_driver.cpp" line="2146"/>
+        <location filename="../src/device/dev_driver.cpp" line="2068"/>
+        <location filename="../src/device/dev_driver.cpp" line="2163"/>
         <source>the module refused the key</source>
         <translation>модуль отказал в ключе</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2052"/>
+        <location filename="../src/device/dev_driver.cpp" line="2069"/>
         <source>the module refused the survey (code %1)</source>
         <translation>модуль отказал в обзоре (код %1)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2142"/>
+        <location filename="../src/device/dev_driver.cpp" line="2159"/>
         <source>the radio is busy: a channel survey or a link speed window, a scan, or a firmware update (or the first minute after one) runs; try again in a moment</source>
         <translation>радио занято: идёт обзор каналов, окно скорости связи, сканирование или обновление прошивки (или первая минута после него); повторите чуть позже</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2144"/>
+        <location filename="../src/device/dev_driver.cpp" line="2161"/>
         <source>the module refused the request (ERR_PAYLOAD)</source>
         <translation>модуль отклонил запрос (ERR_PAYLOAD)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2145"/>
+        <location filename="../src/device/dev_driver.cpp" line="2162"/>
         <source>over the network the module switches its radio off only for 1 s to 10 min</source>
         <translation>по сети модуль выключает радио только на время от 1 с до 10 мин</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2148"/>
+        <location filename="../src/device/dev_driver.cpp" line="2165"/>
         <source>this firmware cannot switch the radio off (that came with 0.20)</source>
         <translation>эта прошивка не умеет выключать радио (это появилось в 0.20)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2149"/>
+        <location filename="../src/device/dev_driver.cpp" line="2166"/>
         <source>the module refused the request (code %1)</source>
         <translation>модуль отклонил запрос (код %1)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3262"/>
+        <location filename="../src/device/dev_driver.cpp" line="3279"/>
         <source>The preset was not saved</source>
         <translation>Пресет не записан</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3263"/>
+        <location filename="../src/device/dev_driver.cpp" line="3280"/>
         <source>The preset was not deleted</source>
         <translation>Пресет не удалён</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3264"/>
+        <location filename="../src/device/dev_driver.cpp" line="3281"/>
         <source>The preset was not applied</source>
         <translation>Пресет не применён</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3265"/>
+        <location filename="../src/device/dev_driver.cpp" line="3282"/>
         <source>the sonar&apos;s flash did not take it</source>
         <translation>флеш-память сонара не приняла запись</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3266"/>
+        <location filename="../src/device/dev_driver.cpp" line="3283"/>
         <source>there is no such preset in the sonar</source>
         <translation>в сонаре нет такого пресета</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3267"/>
+        <location filename="../src/device/dev_driver.cpp" line="3284"/>
         <source>the sonar asked for the key</source>
         <translation>сонар требует ключ</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3268"/>
+        <location filename="../src/device/dev_driver.cpp" line="3285"/>
         <source>code %1</source>
         <translation>код %1</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3898"/>
+        <location filename="../src/device/dev_driver.cpp" line="3915"/>
         <source>This firmware has no ring counters</source>
         <translation>В этой прошивке нет счётчиков кольца</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3899"/>
+        <location filename="../src/device/dev_driver.cpp" line="3916"/>
         <source>Refused by the board (code %1)</source>
         <translation>Плата отказала (код %1)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="4004"/>
+        <location filename="../src/device/dev_driver.cpp" line="4021"/>
         <source>Sync config rejected by device</source>
         <translation>Конфигурация синхронизации отклонена устройством</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="4718"/>
-        <location filename="../src/device/dev_driver.cpp" line="4731"/>
+        <location filename="../src/device/dev_driver.cpp" line="4770"/>
+        <location filename="../src/device/dev_driver.cpp" line="4783"/>
         <source>no answer from the module</source>
         <translation>модуль не отвечает</translation>
     </message>
@@ -8955,27 +8955,32 @@ udp://@:1234
         <translation>Нет устройства для прошивки файлом %1</translation>
     </message>
     <message>
-        <location filename="../src/firmware_upgrade_session.cpp" line="112"/>
+        <location filename="../src/firmware_upgrade_session.cpp" line="116"/>
         <source>Flashing %1 with %2: waiting for the device</source>
         <translation>Прошивка %1 файлом %2: ожидание устройства</translation>
     </message>
     <message>
-        <location filename="../src/firmware_upgrade_session.cpp" line="117"/>
+        <location filename="../src/firmware_upgrade_session.cpp" line="121"/>
         <source>Flashing %1 with %2: %3%</source>
         <translation>Прошивка %1 файлом %2: %3%</translation>
     </message>
     <message>
-        <location filename="../src/firmware_upgrade_session.cpp" line="135"/>
+        <location filename="../src/firmware_upgrade_session.cpp" line="139"/>
         <source>Device %1 successfully flashed with file %2</source>
         <translation>Устройство %1 успешно прошито файлом %2</translation>
     </message>
     <message>
-        <location filename="../src/firmware_upgrade_session.cpp" line="139"/>
+        <location filename="../src/firmware_upgrade_session.cpp" line="143"/>
         <source>Flashing device %1 with file %2 interrupted: the device did not come back</source>
         <translation>Прошивка устройства %1 файлом %2 прервана: устройство не вернулось на связь</translation>
     </message>
     <message>
-        <location filename="../src/firmware_upgrade_session.cpp" line="143"/>
+        <location filename="../src/firmware_upgrade_session.cpp" line="147"/>
+        <source>Device %1 did not start the firmware from file %2: it stayed in its bootloader</source>
+        <translation>Устройство %1 не запустило прошивку из файла %2: оно осталось в загрузчике</translation>
+    </message>
+    <message>
+        <location filename="../src/firmware_upgrade_session.cpp" line="151"/>
         <source>Failed to flash device %1 with file %2 (error code %3)</source>
         <translation>Не удалось прошить устройство %1 файлом %2 (код ошибки: %3)</translation>
     </message>
@@ -18102,198 +18107,198 @@ udp://@:1234
 <context>
     <name>SonarQaCheck</name>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="381"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="381"/>
         <source>with 0 pulses the ringing drops by %1 dB (it must drop by %2 dB or more)</source>
         <translation>при 0 импульсов «звон» падает на %1 дБ (должен падать на %2 дБ и больше)</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="383"/>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="702"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="383"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="702"/>
         <source>: the transmitter keeps sending, the noise is not measured</source>
         <translation>: передатчик продолжает излучать, шум не измерен</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="390"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="390"/>
         <source>a clear reflection (%1 dB over the floor) at %2 of %3 frequencies: only these are compared</source>
         <translation>ясное отражение (на %1 дБ над фоном) на %2 из %3 частот: сравниваются только они</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="393"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="393"/>
         <source>no reflection %1 dB over the floor at any frequency: the target is not seen, reflections will not be compared</source>
         <translation>ни на одной частоте нет отражения на %1 дБ над фоном: цель не видна, отражения сравниваться не будут</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="398"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="398"/>
         <source>%1 V (from %2 to %3 V during the run)</source>
         <translation>%1 В (за прогон от %2 до %3 В)</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="400"/>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="854"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="400"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="854"/>
         <source>the sonar sent no supply readings</source>
         <translation>сонар не присылал напряжение питания</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="404"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="404"/>
         <source>%1 °C (from %2 to %3 °C during the run)</source>
         <translation>%1 °C (за прогон от %2 до %3 °C)</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="407"/>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="871"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="407"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="871"/>
         <source>the sonar sent no temperature readings</source>
         <translation>сонар не присылал температуру</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="665"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="665"/>
         <source>now</source>
         <translation>сейчас</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="665"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="665"/>
         <source>this sonar</source>
         <translation>этот сонар</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="666"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="666"/>
         <source>baseline</source>
         <translation>база</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="666"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="666"/>
         <source>reference</source>
         <translation>эталон</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="668"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="668"/>
         <source>%1 %2, %3 %4</source>
         <translation>%1 — %2, %3 — %4</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="680"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="680"/>
         <source>frequencies: %1; sides: %2</source>
         <translation>частот: %1; бортов: %2</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="698"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="698"/>
         <source>with 0 pulses the ringing drops by: %1 (it must drop by %2 dB or more)</source>
         <translation>при 0 импульсов «звон» падает: %1 (должен падать на %2 дБ и больше)</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="699"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="699"/>
         <source>%1 dB</source>
         <translation>%1 дБ</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="701"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="701"/>
         <source>: this sonar keeps transmitting at 0 pulses</source>
         <translation>: этот сонар продолжает излучать при 0 импульсов</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="730"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="730"/>
         <source>how much the reflection differs on average over %1 frequencies, %2 to %3 kHz (where the reflection is strongest); allowed %4 dB</source>
         <translation>насколько отражение отличается в среднем по %1 частотам от %2 до %3 кГц (где отражение сильнее всего); допуск %4 дБ</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="735"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="735"/>
         <source>the largest difference, at %1 kHz: %2 (2.5 codes = 1 dB); allowed %3 dB</source>
         <translation>наибольшее отличие, на %1 кГц: %2 (2,5 кода = 1 дБ); допуск %3 дБ</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="737"/>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="738"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="737"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="738"/>
         <source>%1 codes</source>
         <translation>%1 кодов</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="747"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="747"/>
         <source>the response (reflection against frequency) matches the %1&apos;s best when shifted by %2 kHz; allowed ±%3 kHz. Strongest reflection: %4</source>
         <translation>кривая отклика (отражение по частоте) лучше всего совпадает с кривой «%1» при сдвиге на %2 кГц; допуск ±%3 кГц. Сильнейшее отражение: %4</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="750"/>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="758"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="750"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="758"/>
         <source>%1 kHz</source>
         <translation>%1 кГц</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="756"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="756"/>
         <source>frequencies within %1 dB of the strongest reflection: %2; allowed %3 to %4 times the %5&apos;s</source>
         <translation>частоты в пределах %1 дБ от сильнейшего отражения: %2; допуск от %3 до %4 от значения «%5»</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="762"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="762"/>
         <source>the %1 shows no reflection %2 dB over the floor: reflections are not compared (the target is not seen: too close, too small or inside the ringing)</source>
         <translation>«%1»: нет отражения на %2 дБ над фоном, отражения не сравниваются (цель не видна: слишком близко, слишком мала или внутри «звона»)</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="774"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="774"/>
         <source>noise with the transmitter off, mean over %1 frequencies: %2 louder than the %3 by %4 dB (minus: quieter); allowed up to %5 dB louder</source>
         <translation>шум с выключенным передатчиком, в среднем по %1 частотам: «%2» громче, чем «%3», на %4 дБ (минус — тише); допуск до %5 дБ громче</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="779"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="779"/>
         <source>not measured: with 0 pulses the transmitter keeps sending</source>
         <translation>не измерен: при 0 импульсов передатчик продолжает излучать</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="804"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="804"/>
         <source>length of the ringing after the burst: %1; allowed up to %2 samples</source>
         <translation>длина «звона» после посылки: %1; допуск до %2 сэмплов</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="805"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="805"/>
         <source>%1 samples</source>
         <translation>%1 сэмплов</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="811"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="811"/>
         <source>the reflection is where the %1&apos;s is (off by %2 samples, allowed %3)</source>
         <translation>отражение на том же месте, что у «%1» (сдвиг %2 сэмплов, допуск %3)</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="813"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="813"/>
         <source>the reflection is %1 samples off the %2&apos;s: the sonar sits otherwise on the stand</source>
         <translation>отражение сдвинуто на %1 сэмплов против «%2»: сонар стоит на стенде иначе</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="817"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="817"/>
         <source>the reflection at full scale (255) at %1 of %2 frequencies</source>
         <translation>отражение в насыщении (255) на %1 из %2 частот</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="839"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="839"/>
         <source>side 1 against side 2: the difference between them changed by %1 dB against the %2&apos;s, over %3 frequencies; allowed %4 dB</source>
         <translation>борт 1 против борта 2: разница между ними изменилась на %1 дБ против «%2», по %3 частотам; допуск %4 дБ</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="847"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="847"/>
         <source>supply: %1 (from %2 to %3 V during the run); allowed ±%4 V</source>
         <translation>питание: %1 (за прогон от %2 до %3 В); допуск ±%4 В</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="848"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="848"/>
         <source>%1 V</source>
         <translation>%1 В</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="852"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="852"/>
         <source>%1 V; the %2 has no supply readings to compare with</source>
         <translation>%1 В; у «%2» нет напряжения питания для сравнения</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="859"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="859"/>
         <source>%1 °C (from %2 to %3 °C during the run); allowed %4 to %5 °C</source>
         <translation>%1 °C (за прогон от %2 до %3 °C); допуск от %4 до %5 °C</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="865"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="865"/>
         <source>%1; more than %2 °C apart is a warning</source>
         <translation>%1; разница больше %2 °C — предупреждение</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="866"/>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="867"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="866"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="867"/>
         <source>%1 °C</source>
         <translation>%1 °C</translation>
     </message>
@@ -18301,130 +18306,122 @@ udp://@:1234
 <context>
     <name>SonarQaRunner</name>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="52"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="52"/>
         <source>No echogram from the sonar for %1 s</source>
         <translation>Эхограмма от сонара не приходит %1 с</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="104"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="104"/>
         <source>The sonar went away</source>
         <translation>Сонар отключился</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="292"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="292"/>
         <source>A run is going on</source>
         <translation>Идёт прогон</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="295"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="295"/>
         <source>No sonar selected</source>
         <translation>Сонар не выбран</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="300"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="300"/>
         <source>The sonar has not answered yet</source>
         <translation>Сонар ещё не ответил</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="300"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="300"/>
         <source>Not a nanoSSS (board %1)</source>
         <translation>Это не nanoSSS (плата %1)</translation>
     </message>
     <message>
-        <source>The sonar has not reported its serial number</source>
-        <translation type="vanished">Сонар не сообщил серийный номер</translation>
-    </message>
-    <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="310"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="310"/>
         <source>No reference yet: make the baseline on the reference sonar first</source>
         <translation>Эталона ещё нет: сначала сделайте базу на эталонном сонаре</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="314"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="314"/>
         <source>This is not the reference sonar (that is serial %1)</source>
         <translation>Это не эталонный сонар (эталон — серийный %1)</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="318"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="318"/>
         <source>Unknown run</source>
         <translation>Неизвестный прогон</translation>
     </message>
     <message>
-        <source>This is the reference sonar: run its check instead</source>
-        <translation type="vanished">Это эталонный сонар: запустите его поверку</translation>
-    </message>
-    <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="304"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="304"/>
         <source>The sonar has not reported its serial number: type the one from its sticker</source>
         <translation>Сонар не сообщил серийный номер: впишите номер с его наклейки</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="321"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="321"/>
         <source>This is the reference sonar&apos;s number: run its check, or type this sonar&apos;s number from its sticker</source>
         <translation>Это номер эталонного сонара: запустите его поверку или впишите номер этого сонара с его наклейки</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="324"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="324"/>
         <source>The sonar reports the same number as the reference (%1): type the number from its sticker</source>
         <translation>Сонар сообщает тот же номер, что эталон (%1): впишите номер с его наклейки</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="328"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="328"/>
         <source>The reference&apos;s last check moved away from its baseline: look at the stand, check the reference again or accept the check</source>
         <translation>Последняя поверка эталона отошла от его базы: проверьте стенд, поверьте эталон снова или примите поверку</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="332"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="332"/>
         <source>%1 sonars tested since the reference&apos;s check: check the reference again</source>
         <translation>После поверки эталона проверено сонаров: %1 — поверьте эталон снова</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="338"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="338"/>
         <source>The reference&apos;s check cannot be read: %1</source>
         <translation>Поверку эталона не прочитать: %1</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="342"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="342"/>
         <source>Firmware %1, the reference has %2: load the same firmware</source>
         <translation>Прошивка %1, у эталона %2: залейте ту же прошивку</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="379"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="379"/>
         <source>The reference run cannot be read: %1</source>
         <translation>Прогон эталона не прочитать: %1</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="410"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="410"/>
         <source>Setting the sonar up</source>
         <translation>Настройка сонара</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="419"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="419"/>
         <source>Stopped</source>
         <translation>Остановлено</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="451"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="451"/>
         <source>The sonar gives %1 samples a side, the reference %2</source>
         <translation>Сонар даёт %1 сэмплов на борт, эталон — %2</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="535"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="535"/>
         <source>%1 kHz, %2 pulses</source>
         <translation>%1 кГц, %2 импульсов</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="536"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="536"/>
         <source>%1 kHz, transmitter off</source>
         <translation>%1 кГц, передатчик выключен</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="627"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="627"/>
         <source>Saved: %1</source>
         <translation>Сохранено: %1</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="627"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="627"/>
         <source>Not saved: %1</source>
         <translation>Не сохранено: %1</translation>
     </message>
@@ -18432,536 +18429,532 @@ udp://@:1234
 <context>
     <name>SonarQaWindow</name>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="11"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="11"/>
         <source>Sonar acceptance: nanoSSS</source>
         <translation>Проверка сонаров: nanoSSS</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="40"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="40"/>
         <source>%1 min %2 s</source>
         <translation>%1 мин %2 с</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="40"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="40"/>
         <source>%1 s</source>
         <translation>%1 с</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="43"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="43"/>
         <source>Same sweep as the reference</source>
         <translation>Та же развёртка, что у эталона</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="44"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="44"/>
         <source>Reflection in the band, mean</source>
         <translation>Отражение в полосе, среднее</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="45"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="45"/>
         <source>Reflection in the band, worst</source>
         <translation>Отражение в полосе, худшее</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="46"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="46"/>
         <source>Resonance</source>
         <translation>Резонанс</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="47"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="47"/>
         <source>Bandwidth</source>
         <translation>Полоса</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="48"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="48"/>
         <source>Noise, transmitter off</source>
         <translation>Шум, передатчик выключен</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="49"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="49"/>
         <source>Ringing after the burst</source>
         <translation>Звон после посылки</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="50"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="50"/>
         <source>Target position (placement)</source>
         <translation>Положение цели (установка)</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="51"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="51"/>
         <source>Saturation</source>
         <translation>Насыщение</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="52"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="52"/>
         <source>Balance of the sides</source>
         <translation>Баланс бортов</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="53"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="53"/>
         <source>Supply</source>
         <translation>Питание</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="54"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="54"/>
         <source>Temperature</source>
         <translation>Температура</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="55"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="55"/>
         <source>Temperature against the reference</source>
         <translation>Температура против эталона</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="56"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="56"/>
         <source>Transmitter off at 0 pulses</source>
         <translation>Передатчик выключен при 0 импульсов</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="57"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="57"/>
         <source>Reflection seen</source>
         <translation>Отражение видно</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="63"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="63"/>
         <source>PASSED</source>
         <translation>ГОДЕН</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="64"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="64"/>
         <source>FAILED</source>
         <translation>БРАК</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="65"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="65"/>
         <source>REFERENCE SET</source>
         <translation>ЭТАЛОН ЗАДАН</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="66"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="66"/>
         <source>REFERENCE CHECKED</source>
         <translation>ЭТАЛОН ПОВЕРЕН</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="67"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="67"/>
         <source>REFERENCE MOVED AWAY FROM ITS BASELINE</source>
         <translation>ЭТАЛОН ОТОШЁЛ ОТ СВОЕЙ БАЗЫ</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="137"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="137"/>
         <source>Sonar on the stand</source>
         <translation>Сонар на стенде</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="139"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="139"/>
         <source>Sonar</source>
         <translation>Сонар</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="141"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="141"/>
         <source>serial %1 · firmware %2 · board %3</source>
         <translation>серийный %1 · прошивка %2 · плата %3</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="142"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="142"/>
         <source> · the reference</source>
         <translation> · эталон</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="143"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="143"/>
         <source>No nanoSSS connected</source>
         <translation>nanoSSS не подключён</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="155"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="155"/>
         <source>Number from the sticker</source>
         <translation>Номер с наклейки</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="156"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="156"/>
         <source>Empty: the number the sonar reports. Some firmware reports one number for every sonar: then type each sonar&apos;s own.</source>
         <translation>Пусто — номер, который сообщает сонар. Некоторые прошивки сообщают один номер для всех сонаров: тогда впишите собственный номер каждого.</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="169"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="169"/>
         <source>Simulated sonar</source>
         <translation>Имитатор сонара</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="170"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="170"/>
         <source>KOGGER_SONARQA_DEMO: a sonar in a tank, to try the window without a stand</source>
         <translation>KOGGER_SONARQA_DEMO: сонар в баке, чтобы опробовать окно без стенда</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="174"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="174"/>
         <source>Reference 1001</source>
         <translation>Эталон 1001</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="175"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="175"/>
         <source>Good 2001</source>
         <translation>Исправный 2001</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="176"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="176"/>
         <source>Weak 2002</source>
         <translation>Слабый 2002</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="183"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="183"/>
         <source>Test</source>
         <translation>Проверка</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="185"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="185"/>
         <source>Sonar under test</source>
         <translation>Проверяемый сонар</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="187"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="187"/>
         <source>The same sweep and settings as the reference&apos;s check; the result is saved by serial number</source>
         <translation>Та же развёртка и настройки, что у поверки эталона; результат сохраняется по серийному номеру</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="192"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="192"/>
         <source>Test this sonar</source>
         <translation>Проверить этот сонар</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="202"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="202"/>
         <source>Run in progress</source>
         <translation>Идёт прогон</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="202"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="202"/>
         <source>Last run</source>
         <translation>Последний прогон</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="218"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="218"/>
         <source>about %1 left</source>
         <translation>осталось около %1</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="222"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="222"/>
         <source>Stop</source>
         <translation>Стоп</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="236"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="236"/>
         <source>Supply %1 V · temperature %2 °C</source>
         <translation>Питание %1 В · температура %2 °C</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="280"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="280"/>
         <source>Result</source>
         <translation>Итог</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="298"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="298"/>
         <source>warnings: %1</source>
         <translation>предупреждений: %1</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="304"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="304"/>
         <source>Serial %1 · firmware %2 · %3</source>
         <translation>Серийный %1 · прошивка %2 · %3</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="305"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="305"/>
         <source>Saved: %1</source>
         <translation>Сохранено: %1</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="305"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="305"/>
         <source>Not saved: %1</source>
         <translation>Не сохранено: %1</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="310"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="310"/>
         <source>Each line: what is checked · the figure (how far from the baseline) · the numbers behind it: &quot;now&quot; is this run of the reference, &quot;baseline&quot; its first run.</source>
         <translation>В каждой строке: что проверяется · число (насколько отличается от базы) · откуда оно: «сейчас» — этот прогон эталона, «база» — его первый прогон.</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="312"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="312"/>
         <source>Each line: what the reference&apos;s own run shows. Warnings here do not stop anything, but say what will not be compared.</source>
         <translation>В каждой строке — что показал сам прогон эталона. Предупреждения здесь ничего не останавливают, но говорят, что не будет сравниваться.</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="313"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="313"/>
         <source>Each line: what is checked · the figure (how far from the reference) · the numbers behind it: &quot;this sonar&quot; against &quot;reference&quot; (its latest check).</source>
         <translation>В каждой строке: что проверяется · число (насколько отличается от эталона) · откуда оно: «этот сонар» против «эталон» (его последняя поверка).</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="319"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="319"/>
         <source>Check</source>
         <translation>Проверка</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="321"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="321"/>
         <source>Difference</source>
         <translation>Отличие</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="323"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="323"/>
         <source>What the numbers are</source>
         <translation>Что означают числа</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="346"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="346"/>
         <source>, side %1</source>
         <translation>, борт %1</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="368"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="368"/>
         <source>Side 1</source>
         <translation>Борт 1</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="369"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="369"/>
         <source>Side 2</source>
         <translation>Борт 2</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="372"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="372"/>
         <source>Reflection where the reference has it, codes (2.5 a dB)</source>
         <translation>Отражение там, где оно у эталона, коды (2,5 на дБ)</translation>
     </message>
     <message>
-        <source>First reflection, codes (2.5 a dB)</source>
-        <translation type="vanished">Первое отражение, коды (2,5 на дБ)</translation>
-    </message>
-    <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="373"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="373"/>
         <source>Noise with the transmitter off, codes</source>
         <translation>Шум без излучения, коды</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="374"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="374"/>
         <source>Ringing after the burst, samples</source>
         <translation>Звон после посылки, сэмплы</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="379"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="379"/>
         <source>this sonar</source>
         <translation>этот сонар</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="379"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="379"/>
         <source>reference (dashed)</source>
         <translation>эталон (пунктир)</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="447"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="447"/>
         <source>Reference sonar</source>
         <translation>Эталонный сонар</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="449"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="449"/>
         <source>Reference</source>
         <translation>Эталон</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="451"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="451"/>
         <source>serial %1 · baseline %2</source>
         <translation>серийный %1 · база %2</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="452"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="452"/>
         <source>Not set: connect the reference sonar and make its baseline</source>
         <translation>Не задан: подключите эталонный сонар и сделайте его базу</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="457"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="457"/>
         <source>Last check</source>
         <translation>Последняя поверка</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="459"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="459"/>
         <source>agrees with the baseline</source>
         <translation>совпадает с базой</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="459"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="459"/>
         <source>moved away from the baseline</source>
         <translation>отошла от базы</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="465"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="465"/>
         <source>Sonars left until the next check</source>
         <translation>Сонаров до следующей поверки</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="466"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="466"/>
         <source>%1 of %2</source>
         <translation>%1 из %2</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="470"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="470"/>
         <source>Runs of the reference</source>
         <translation>Прогоны эталона</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="479"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="479"/>
         <source>Check the reference</source>
         <translation>Поверить эталон</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="485"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="485"/>
         <source>Make the baseline</source>
         <translation>Сделать базу</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="497"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="497"/>
         <source>Accept the check</source>
         <translation>Принять поверку</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="506"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="506"/>
         <source>Replace the reference (serial %1) and its baseline with this sonar?</source>
         <translation>Заменить эталон (серийный %1) и его базу этим сонаром?</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="509"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="509"/>
         <source>Replace</source>
         <translation>Заменить</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="511"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="511"/>
         <source>Cancel</source>
         <translation>Отмена</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="520"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="520"/>
         <source>Sweep and limits</source>
         <translation>Развёртка и допуски</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="523"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="523"/>
         <source>Sweep</source>
         <translation>Развёртка</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="524"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="524"/>
         <source>Used by the next baseline; checks and tests take the baseline&apos;s. Samples count both sides of a nanoSSS (2000 = 1000 a side). Above 30 pulses the firmware switches to chirp.</source>
         <translation>Берётся при следующей базе; поверки и проверки берут развёртку базы. Сэмплы считают оба борта nanoSSS (2000 = по 1000 на борт). Свыше 30 импульсов прошивка переходит на ЛЧМ.</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="530"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="530"/>
         <source>From, kHz</source>
         <translation>От, кГц</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="531"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="531"/>
         <source>To, kHz</source>
         <translation>До, кГц</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="532"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="532"/>
         <source>Step, kHz</source>
         <translation>Шаг, кГц</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="533"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="533"/>
         <source>Pings a step</source>
         <translation>Пингов на шаг</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="534"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="534"/>
         <source>Dropped after a change</source>
         <translation>Отбросить после смены</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="535"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="535"/>
         <source>Period, ms</source>
         <translation>Период, мс</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="536"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="536"/>
         <source>Samples</source>
         <translation>Сэмплы</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="537"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="537"/>
         <source>Pulses</source>
         <translation>Импульсы</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="538"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="538"/>
         <source>Reflection over the floor, dB</source>
         <translation>Отражение над фоном, дБ</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="539"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="539"/>
         <source>Sonars a check</source>
         <translation>Сонаров на поверку</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="560"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="560"/>
         <source>Limits</source>
         <translation>Допуски</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="561"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="561"/>
         <source>Starting values: set them from the spread of the reference and of known-good sonars on this stand.</source>
         <translation>Стартовые значения: задайте их по разбросу эталона и заведомо исправных сонаров на этом стенде.</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="567"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="567"/>
         <source>Reflection mean, dB</source>
         <translation>Отражение, среднее, дБ</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="568"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="568"/>
         <source>Reflection worst, dB</source>
         <translation>Отражение, худшее, дБ</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="569"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="569"/>
         <source>Resonance shift, kHz</source>
         <translation>Сдвиг резонанса, кГц</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="570"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="570"/>
         <source>Noise above, dB</source>
         <translation>Шум выше, дБ</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="571"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="571"/>
         <source>Ringing, times</source>
         <translation>Звон, раз</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="572"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="572"/>
         <source>Balance, dB</source>
         <translation>Баланс, дБ</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="573"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="573"/>
         <source>Supply, V</source>
         <translation>Питание, В</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="595"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="595"/>
         <source>The owner&apos;s sweep and the starting limits</source>
         <translation>Развёртка владельца и стартовые допуски</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="596"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="596"/>
         <source>Reset</source>
         <translation>Сбросить</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="602"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="602"/>
         <source>Journal</source>
         <translation>Журнал</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="604"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="604"/>
         <source>Results folder</source>
         <translation>Папка результатов</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="607"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="607"/>
         <source>Open folder</source>
         <translation>Открыть папку</translation>
     </message>

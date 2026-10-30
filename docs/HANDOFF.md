@@ -3399,3 +3399,20 @@ chosen in the echogram's channel lists. docs/down-view.ru.md has it all.
 - **[verified]** downview_check 14/14, 9 of 9 mutants caught; downview_live PASS on 00014 (ping 24600, 2500 of 2500 samples of
   each as worked out from the sides; four different pictures); full check suite green; the echogram's two lists offer the three, the mosaic's none.
   Not with a live sonar; no mouse in the lists (the check reads them and sets the channel through the same slot).
+
+## An update called "flashed" only once the board answers from its firmware (2026-10-30, branch `upgrade-check`)
+
+The owner: a USBL behind the logger could not be flashed; on 2026-10-29 the app said "successfully flashed" and the board
+stayed in its bootloader, the progress jumping between 0 % and its value. docs/RING_UPDATE.md, "USBL за логгером".
+
+- **[verified]** from the log: about 8360 packets, each acknowledged (type 0), then ID_BOOT v1 and "done"; nothing checked
+  that the board started. The jumping bar: the logger takes route 0 as its own and refused each packet (ID_FW_UPDATE is
+  known to io's PayloadParser only in BOOTMODE), and the one bar for every device went back to 0 % on each refusal.
+- `DevDriver::finishUpgradeStart`: after ID_BOOT v1, ID_VERSION v2 every 0.7 s; firmware -> flashed (101); still the
+  bootloader after 3 s -> bootloaderUpgrade (-3), "stayed in its bootloader"; 30 s silent -> noAnswerUpgrade (-2).
+  Behind a recorder the route stays 0 till the verdict. `receivedUpdate` ignores answers unless this device is updating.
+  One new string (FirmwareUpgradeSession), ru/zh/es/hi.
+- **[verified]** `tools/qml_check/upgradestart_live.ps1` PASS (start / stay / silent, the bar never back); the installed
+  3867f8f7 says "flashed" in all three; a build without the guard sends the bar back 21 times of 21 packets.
+- Not found: why the USBL did not start. Next: the same file directly (control), then through the logger with
+  KOGGER_FW_TRACE=1.

@@ -14,7 +14,7 @@ namespace {
 constexpr int    kTickMs      = 500;
 constexpr qint64 kStallMs     = 3000;
 constexpr qint64 kAbandonMs   = 180000;
-constexpr int    kNoDevice    = -2;
+constexpr int    kNoDevice    = DevDriver::noAnswerUpgrade;   // the device did not come back
 
 QString fileLabelOf(const QString& path)
 {
@@ -74,12 +74,16 @@ void FirmwareUpgradeSession::handleStatus(int status)
         return;
     }
 
-    if (status == DevDriver::failUpgrade) {
+    if (status < 0) {   // failUpgrade, noAnswerUpgrade, bootloaderUpgrade
         finish(false, status);
         return;
     }
 
-    percent_ = qBound(0, status, 100);
+    const int percent = qBound(0, status, 100);
+    if (percent < percent_) {   // one bar for every device: another device's status once sent it back to 0 (2026-10-29)
+        qInfo().noquote() << QStringLiteral("fw-upgrade: progress back from %1 % to %2 %").arg(percent_).arg(percent);
+    }
+    percent_ = percent;
     publish();
 }
 
@@ -137,6 +141,10 @@ void FirmwareUpgradeSession::finish(bool success, int status)
     }
     else if (status == kNoDevice) {
         notifications.warning(tr("Flashing device %1 with file %2 interrupted: the device did not come back")
+                                  .arg(deviceLabel_, fileName_));
+    }
+    else if (status == DevDriver::bootloaderUpgrade) {
+        notifications.warning(tr("Device %1 did not start the firmware from file %2: it stayed in its bootloader")
                                   .arg(deviceLabel_, fileName_));
     }
     else {

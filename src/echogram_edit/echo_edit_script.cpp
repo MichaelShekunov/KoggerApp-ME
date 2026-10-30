@@ -286,8 +286,9 @@ void EchoEditScript::step()
     const QString op = s.value(QStringLiteral("op")).toString();
 
     if (op == QLatin1String("waitUpgrade")) {
-        // Until the update the "upgrade" step started ends: its device's upgradeFWStatus 101 (flashed) or -1
-        // (failed); the progress in steps of 10 %.
+        // Until the update the "upgrade" step started ends: its device's upgradeFWStatus 101 (flashed: the board
+        // answers from its firmware) or below 0 (-1 failed, -2 no answer after it, -3 stayed in its bootloader); the
+        // progress in steps of 10 %.
         if (!settleClock_.isValid()) {
             settleClock_.start();
             upgradeLogged_ = -10;
@@ -298,11 +299,11 @@ void EchoEditScript::step()
             qInfo().noquote() << QStringLiteral("echoedit script: waitUpgrade, %1 %, %2 ms").arg(st).arg(settleClock_.elapsed());
         }
         const bool timedOut = settleClock_.elapsed() >= s.value(QStringLiteral("timeoutMs")).toInt(180000);
-        if (!upgradeDev_ || st == 101 || st == -1 || timedOut) {
+        if (!upgradeDev_ || st == 101 || st < 0 || timedOut) {
             qInfo().noquote() << QStringLiteral("echoedit script: waitUpgrade, %1 ms: %2").arg(settleClock_.elapsed())
                                  .arg(!upgradeDev_ ? QStringLiteral("no update running")
                                       : st == 101 ? QStringLiteral("flashed")
-                                      : st == -1 ? QStringLiteral("failed")
+                                      : st < 0 ? QStringLiteral("failed (%1)").arg(st)
                                       : QStringLiteral("timed out at %1 %").arg(st));
             settleClock_.invalidate();
             ++next_;
