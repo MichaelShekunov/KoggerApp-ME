@@ -59,7 +59,7 @@ PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
 DisableProgramGroupPage=yes
 AllowNoIcons=yes
-; the .klf association ([Registry]): Explorer is told to reload it after install and uninstall
+; the file associations ([Registry]): Explorer is told to reload them after install and uninstall
 ChangesAssociations=yes
 LicenseFile={#SourcePath}\..\LICENSE
 
@@ -69,17 +69,39 @@ Name: "ru"; MessagesFile: "compiler:Languages\Russian.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; Flags: unchecked
+; One task per type the app opens from its first argument: an upgrade remembers a choice by the task's name, and a
+; task it has not seen yet starts at its default. u-blox logs are u-center's first, so .ubx only when asked.
 Name: "klfassoc"; Description: "{cm:AssocFileExtension,{#MyAppName},.klf}"
+Name: "kmapassoc"; Description: "{cm:AssocFileExtension,{#MyAppName},.kmap}"
+Name: "xtfassoc"; Description: "{cm:AssocFileExtension,{#MyAppName},.xtf}"
+Name: "ubxassoc"; Description: "{cm:AssocFileExtension,{#MyAppName},.ubx}"; Flags: unchecked
 
 [Registry]
-; A double-click on a .klf recording opens it here (the app opens its first argument). The ProgId is this app's
-; own, so the official KoggerApp's (KoggerApp.klf) is left alone; HKA is HKCU or HKLM by the install mode. A choice
-; the user made in Windows (UserChoice) still wins over the default set here: "Open with" picks this app then.
+; A double-click on a recording or a map opens it here (the app opens its first argument; a .kmap goes to My
+; maps). The ProgIds are this app's own, so the official KoggerApp's (KoggerApp.klf) are left alone; HKA is HKCU
+; or HKLM by the install mode. The ProgIds and the "Open with" entries are written whatever the tasks; a task
+; makes its type open here by default. A choice the user made in Windows (UserChoice) still wins over that
+; default: "Open with" picks this app then.
+Root: HKA; Subkey: "Software\Classes\KoggerAppME.klf"; ValueType: string; ValueName: ""; ValueData: "Kogger log file (KLF)"; Flags: uninsdeletekey
+Root: HKA; Subkey: "Software\Classes\KoggerAppME.klf\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\{#MyAppExe},0"
+Root: HKA; Subkey: "Software\Classes\KoggerAppME.klf\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExe}"" ""%1"""
+Root: HKA; Subkey: "Software\Classes\.klf\OpenWithProgids"; ValueType: string; ValueName: "KoggerAppME.klf"; ValueData: ""; Flags: uninsdeletevalue
 Root: HKA; Subkey: "Software\Classes\.klf"; ValueType: string; ValueName: ""; ValueData: "KoggerAppME.klf"; Flags: uninsdeletevalue; Tasks: klfassoc
-Root: HKA; Subkey: "Software\Classes\.klf\OpenWithProgids"; ValueType: string; ValueName: "KoggerAppME.klf"; ValueData: ""; Flags: uninsdeletevalue; Tasks: klfassoc
-Root: HKA; Subkey: "Software\Classes\KoggerAppME.klf"; ValueType: string; ValueName: ""; ValueData: "Kogger log file (KLF)"; Flags: uninsdeletekey; Tasks: klfassoc
-Root: HKA; Subkey: "Software\Classes\KoggerAppME.klf\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\{#MyAppExe},0"; Tasks: klfassoc
-Root: HKA; Subkey: "Software\Classes\KoggerAppME.klf\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExe}"" ""%1"""; Tasks: klfassoc
+Root: HKA; Subkey: "Software\Classes\KoggerAppME.kmap"; ValueType: string; ValueName: ""; ValueData: "KOGGER map (KMAP)"; Flags: uninsdeletekey
+Root: HKA; Subkey: "Software\Classes\KoggerAppME.kmap\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\{#MyAppExe},0"
+Root: HKA; Subkey: "Software\Classes\KoggerAppME.kmap\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExe}"" ""%1"""
+Root: HKA; Subkey: "Software\Classes\.kmap\OpenWithProgids"; ValueType: string; ValueName: "KoggerAppME.kmap"; ValueData: ""; Flags: uninsdeletevalue
+Root: HKA; Subkey: "Software\Classes\.kmap"; ValueType: string; ValueName: ""; ValueData: "KoggerAppME.kmap"; Flags: uninsdeletevalue; Tasks: kmapassoc
+Root: HKA; Subkey: "Software\Classes\KoggerAppME.xtf"; ValueType: string; ValueName: ""; ValueData: "Sonar recording (XTF)"; Flags: uninsdeletekey
+Root: HKA; Subkey: "Software\Classes\KoggerAppME.xtf\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\{#MyAppExe},0"
+Root: HKA; Subkey: "Software\Classes\KoggerAppME.xtf\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExe}"" ""%1"""
+Root: HKA; Subkey: "Software\Classes\.xtf\OpenWithProgids"; ValueType: string; ValueName: "KoggerAppME.xtf"; ValueData: ""; Flags: uninsdeletevalue
+Root: HKA; Subkey: "Software\Classes\.xtf"; ValueType: string; ValueName: ""; ValueData: "KoggerAppME.xtf"; Flags: uninsdeletevalue; Tasks: xtfassoc
+Root: HKA; Subkey: "Software\Classes\KoggerAppME.ubx"; ValueType: string; ValueName: ""; ValueData: "u-blox GNSS log (UBX)"; Flags: uninsdeletekey
+Root: HKA; Subkey: "Software\Classes\KoggerAppME.ubx\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\{#MyAppExe},0"
+Root: HKA; Subkey: "Software\Classes\KoggerAppME.ubx\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExe}"" ""%1"""
+Root: HKA; Subkey: "Software\Classes\.ubx\OpenWithProgids"; ValueType: string; ValueName: "KoggerAppME.ubx"; ValueData: ""; Flags: uninsdeletevalue
+Root: HKA; Subkey: "Software\Classes\.ubx"; ValueType: string; ValueName: ""; ValueData: "KoggerAppME.ubx"; Flags: uninsdeletevalue; Tasks: ubxassoc
 
 [InstallDelete]
 ; The same product (AppId) under its name until 2026-10-18: its default folder and shortcuts.

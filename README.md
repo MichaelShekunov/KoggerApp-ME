@@ -61,7 +61,7 @@ You can download the latest release from the [Releases page](https://github.com/
 🪟 Windows (x86_64):  
 Supported versions: Windows 10 (1809 or later), 11.  
 - Portable: Download .zip. Extract and run "KoggerApp.exe".  
-- Installer: Download and launch the installer (Optionally associates .klf files with the app during setup).
+- Installer: Download and launch the installer (Optionally associates .klf, .kmap and .xtf files with the app during setup; .ubx when asked).
 
 🤖 Android (universal APK: armeabi-v7a + arm64-v8a):  
 Supported versions: Android 9.0 (Pie, level 28) and above.  
