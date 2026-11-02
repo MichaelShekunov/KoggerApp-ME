@@ -3253,6 +3253,10 @@ rate in use) was replaced by this: V3 is now the telemetry function's setting, w
 - ts_check ru zh es hi is clean.
 - Installer: task `klfassoc` (on by default) registers its own ProgId `KoggerAppME.klf` in HKA: the .klf default,
   OpenWithProgids, the icon, and open = "{app}\KoggerApp.exe" "%1". `ChangesAssociations=yes`.
+  - 2026-11-02, the owner ("an installer with the file types"): the same for .kmap (`kmapassoc`) and .xtf
+    (`xtfassoc`), on by default, and .ubx (`ubxassoc`, off: u-center's). The ProgIds `KoggerAppME.<type>` and the
+    "Open with" entries are written whatever the tasks; a task sets its type's default. Branch `file-assoc` on me.
+    **[verified]** the built app given a .kmap opened it in My maps, given an .xtf (path with Cyrillic) "File opened".
 - A Windows "Open with" choice (UserChoice / UserChoiceLatest) still wins. On the first PC it was the official
   `KoggerApp.klf`, whose exe (Program Files\Kogger\KoggerApp) is gone since 2026-10-17. So that ProgId's command
   and icon in HKCU were pointed at `%LOCALAPPDATA%\Programs\KoggerApp ME\KoggerApp.exe`.
