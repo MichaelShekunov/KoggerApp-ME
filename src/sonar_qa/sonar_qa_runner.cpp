@@ -8,6 +8,8 @@
 #include <QDir>
 #include <QFile>
 #include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QUrl>
 
 #include <cmath>
@@ -203,7 +205,34 @@ QVariantMap SonarQaRunner::reference() const
     m[QStringLiteral("unitsSinceCheck")] = state_.unitsSinceCheck;
     m[QStringLiteral("unitsPerCheck")] = state_.unitsPerCheck;
     m[QStringLiteral("unitsLeft")] = qMax(0, state_.unitsPerCheck - state_.unitsSinceCheck);
+    m[QStringLiteral("checkFailures")] = checkFailures();
     return m;
+}
+
+QVariantList SonarQaRunner::checkFailures() const
+{
+    // What failed in the reference's last check, from its file: after a restart the result is not on screen, and
+    // the window should still say why sonars cannot be tested.
+    if (state_.checkPassed || state_.checkFile.isEmpty()) {
+        return {};
+    }
+    if (failuresOf_ != state_.checkFile) {
+        failuresOf_ = state_.checkFile;
+        failures_.clear();
+        QFile f(QDir(store_.root()).filePath(state_.checkFile));
+        if (f.open(QIODevice::ReadOnly)) {
+            const QJsonArray checks = QJsonDocument::fromJson(f.readAll()).object().value("comparison").toObject()
+                                          .value("checks").toArray();
+            for (const QJsonValue& v : checks) {
+                const QJsonObject c = v.toObject();
+                if (c.value("level").toString() == QLatin1String("fail")) {
+                    failures_.append(QVariantMap{ { "id", c.value("id").toString() }, { "side", c.value("side").toInt(-1) },
+                                                  { "detail", c.value("detail").toString() } });
+                }
+            }
+        }
+    }
+    return failures_;
 }
 
 QVariantMap SonarQaRunner::params() const
@@ -476,7 +505,7 @@ void SonarQaRunner::onPing(const QVector<QVector<uint8_t>>& sides, float resolut
             }
             raw_.write(freq, pulses, collected_, s, sides[s]);
         }
-        if (++collected_ >= run_.params.pingsPerStep) {
+        if (++collected_ >= (tx ? run_.params.pingsPerStep : run_.params.quietPings)) {
             if (!tx) {
                 setTransmitterState(1);
             } else {

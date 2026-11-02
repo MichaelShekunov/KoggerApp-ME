@@ -18102,198 +18102,203 @@ udp://@:1234
 <context>
     <name>SonarQaCheck</name>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="381"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="384"/>
         <source>with 0 pulses the ringing drops by %1 dB (it must drop by %2 dB or more)</source>
         <translation>0 पल्स पर गूँज %1 dB घटती है (कम से कम %2 dB घटनी चाहिए)</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="383"/>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="702"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="386"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="705"/>
         <source>: the transmitter keeps sending, the noise is not measured</source>
         <translation>: ट्रांसमीटर भेजता रहता है, शोर नहीं मापा गया</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="390"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="393"/>
         <source>a clear reflection (%1 dB over the floor) at %2 of %3 frequencies: only these are compared</source>
         <translation>%3 में से %2 आवृत्तियों पर साफ़ परावर्तन (फ़्लोर से %1 dB ऊपर): केवल इन्हीं की तुलना होती है</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="393"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="396"/>
         <source>no reflection %1 dB over the floor at any frequency: the target is not seen, reflections will not be compared</source>
         <translation>किसी भी आवृत्ति पर फ़्लोर से %1 dB ऊपर परावर्तन नहीं: लक्ष्य नहीं दिखता, परावर्तनों की तुलना नहीं होगी</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="398"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="401"/>
         <source>%1 V (from %2 to %3 V during the run)</source>
         <translation>%1 V (जाँच के दौरान %2 से %3 V)</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="400"/>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="854"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="403"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="865"/>
         <source>the sonar sent no supply readings</source>
         <translation>सोनार ने आपूर्ति के मान नहीं भेजे</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="404"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="407"/>
         <source>%1 °C (from %2 to %3 °C during the run)</source>
         <translation>%1 °C (जाँच के दौरान %2 से %3 °C)</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="407"/>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="871"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="410"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="882"/>
         <source>the sonar sent no temperature readings</source>
         <translation>सोनार ने तापमान के मान नहीं भेजे</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="665"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="668"/>
         <source>now</source>
         <translation>अभी</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="665"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="668"/>
         <source>this sonar</source>
         <translation>यह सोनार</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="666"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="669"/>
         <source>baseline</source>
         <translation>आधार</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="666"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="669"/>
         <source>reference</source>
         <translation>संदर्भ</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="668"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="671"/>
         <source>%1 %2, %3 %4</source>
         <translation>%1 %2, %3 %4</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="680"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="683"/>
         <source>frequencies: %1; sides: %2</source>
         <translation>आवृत्तियाँ: %1; पक्ष: %2</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="698"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="701"/>
         <source>with 0 pulses the ringing drops by: %1 (it must drop by %2 dB or more)</source>
         <translation>0 पल्स पर गूँज घटती है: %1 (कम से कम %2 dB घटनी चाहिए)</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="699"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="702"/>
         <source>%1 dB</source>
         <translation>%1 dB</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="701"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="704"/>
         <source>: this sonar keeps transmitting at 0 pulses</source>
         <translation>: यह सोनार 0 पल्स पर भी भेजता रहता है</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="730"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="733"/>
         <source>how much the reflection differs on average over %1 frequencies, %2 to %3 kHz (where the reflection is strongest); allowed %4 dB</source>
         <translation>%2 से %3 kHz तक की %1 आवृत्तियों पर (जहाँ परावर्तन सबसे तेज़ है) परावर्तन औसतन कितना अलग है; अनुमत %4 dB</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="735"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="738"/>
         <source>the largest difference, at %1 kHz: %2 (2.5 codes = 1 dB); allowed %3 dB</source>
         <translation>सबसे बड़ा अंतर, %1 kHz पर: %2 (2.5 कोड = 1 dB); अनुमत %3 dB</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="737"/>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="738"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="740"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="741"/>
         <source>%1 codes</source>
         <translation>%1 कोड</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="747"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="750"/>
         <source>the response (reflection against frequency) matches the %1&apos;s best when shifted by %2 kHz; allowed ±%3 kHz. Strongest reflection: %4</source>
         <translation>प्रतिक्रिया (आवृत्ति के अनुसार परावर्तन) %2 kHz खिसकाने पर «%1» से सबसे अच्छी मेल खाती है; अनुमत ±%3 kHz। सबसे तेज़ परावर्तन: %4</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="750"/>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="758"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="753"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="761"/>
         <source>%1 kHz</source>
         <translation>%1 kHz</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="756"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="759"/>
         <source>frequencies within %1 dB of the strongest reflection: %2; allowed %3 to %4 times the %5&apos;s</source>
         <translation>सबसे तेज़ परावर्तन से %1 dB के भीतर की आवृत्तियाँ: %2; «%5» के %3 से %4 गुना तक अनुमत</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="762"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="765"/>
         <source>the %1 shows no reflection %2 dB over the floor: reflections are not compared (the target is not seen: too close, too small or inside the ringing)</source>
         <translation>«%1» में फ़्लोर से %2 dB ऊपर कोई परावर्तन नहीं: परावर्तनों की तुलना नहीं होती (लक्ष्य नहीं दिखता: बहुत पास, बहुत छोटा या गूँज के भीतर)</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="774"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="777"/>
         <source>noise with the transmitter off, mean over %1 frequencies: %2 louder than the %3 by %4 dB (minus: quieter); allowed up to %5 dB louder</source>
         <translation>ट्रांसमीटर बंद होने पर शोर, %1 आवृत्तियों का औसत: «%2», «%3» से %4 dB ज़्यादा (ऋण: कम); अधिकतम %5 dB ज़्यादा अनुमत</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="779"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="782"/>
         <source>not measured: with 0 pulses the transmitter keeps sending</source>
         <translation>नहीं मापा गया: 0 पल्स पर ट्रांसमीटर भेजता रहता है</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="804"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="807"/>
         <source>length of the ringing after the burst: %1; allowed up to %2 samples</source>
         <translation>बर्स्ट के बाद गूँज की लंबाई: %1; अधिकतम %2 सैंपल अनुमत</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="805"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="808"/>
         <source>%1 samples</source>
         <translation>%1 सैंपल</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="811"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="814"/>
         <source>the reflection is where the %1&apos;s is (off by %2 samples, allowed %3)</source>
         <translation>परावर्तन वहीं है जहाँ «%1» का है (%2 सैंपल का अंतर, अनुमत %3)</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="813"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="816"/>
         <source>the reflection is %1 samples off the %2&apos;s: the sonar sits otherwise on the stand</source>
         <translation>परावर्तन «%2» से %1 सैंपल खिसका है: सोनार स्टैंड पर अलग तरह से लगा है</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="817"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="820"/>
         <source>the reflection at full scale (255) at %1 of %2 frequencies</source>
         <translation>%2 में से %1 आवृत्तियों पर परावर्तन पूर्ण स्केल (255) पर</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="839"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="842"/>
         <source>side 1 against side 2: the difference between them changed by %1 dB against the %2&apos;s, over %3 frequencies; allowed %4 dB</source>
         <translation>पक्ष 1 बनाम पक्ष 2: दोनों का अंतर «%2» के मुकाबले %1 dB बदला, %3 आवृत्तियों पर; अनुमत %4 dB</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="847"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="853"/>
         <source>supply: %1 (from %2 to %3 V during the run); allowed ±%4 V</source>
         <translation>आपूर्ति: %1 (जाँच के दौरान %2 से %3 V); अनुमत ±%4 V</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="848"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="854"/>
         <source>%1 V</source>
         <translation>%1 V</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="852"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="857"/>
+        <source>. The reading itself moves by up to %1 V within a run, more than allowed: only a warning</source>
+        <translation>। जाँच के दौरान रीडिंग ख़ुद %1 V तक बदलती है, अनुमत से ज़्यादा: केवल चेतावनी</translation>
+    </message>
+    <message>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="863"/>
         <source>%1 V; the %2 has no supply readings to compare with</source>
         <translation>%1 V; «%2» के पास तुलना के लिए आपूर्ति के मान नहीं</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="859"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="870"/>
         <source>%1 °C (from %2 to %3 °C during the run); allowed %4 to %5 °C</source>
         <translation>%1 °C (जाँच के दौरान %2 से %3 °C); %4 से %5 °C तक अनुमत</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="865"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="876"/>
         <source>%1; more than %2 °C apart is a warning</source>
         <translation>%1; %2 °C से ज़्यादा अंतर पर चेतावनी</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="866"/>
-        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="867"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="877"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="878"/>
         <source>%1 °C</source>
         <translation>%1 °C</translation>
     </message>
@@ -18301,122 +18306,122 @@ udp://@:1234
 <context>
     <name>SonarQaRunner</name>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="52"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="54"/>
         <source>No echogram from the sonar for %1 s</source>
         <translation>%1 सेकंड से सोनार से इकोग्राम नहीं आया</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="104"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="106"/>
         <source>The sonar went away</source>
         <translation>सोनार डिस्कनेक्ट हो गया</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="292"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="321"/>
         <source>A run is going on</source>
         <translation>जाँच चल रही है</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="295"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="324"/>
         <source>No sonar selected</source>
         <translation>कोई सोनार चुना नहीं गया</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="300"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="329"/>
         <source>The sonar has not answered yet</source>
         <translation>सोनार ने अभी तक उत्तर नहीं दिया</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="300"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="329"/>
         <source>Not a nanoSSS (board %1)</source>
         <translation>यह nanoSSS नहीं है (बोर्ड %1)</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="310"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="339"/>
         <source>No reference yet: make the baseline on the reference sonar first</source>
         <translation>अभी संदर्भ नहीं है: पहले संदर्भ सोनार पर आधार बनाएँ</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="314"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="343"/>
         <source>This is not the reference sonar (that is serial %1)</source>
         <translation>यह संदर्भ सोनार नहीं है (संदर्भ का सीरियल %1 है)</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="318"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="347"/>
         <source>Unknown run</source>
         <translation>अज्ञात जाँच</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="304"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="333"/>
         <source>The sonar has not reported its serial number: type the one from its sticker</source>
         <translation>सोनार ने अपना सीरियल नंबर नहीं बताया: उसके स्टिकर का नंबर लिखें</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="321"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="350"/>
         <source>This is the reference sonar&apos;s number: run its check, or type this sonar&apos;s number from its sticker</source>
         <translation>यह संदर्भ सोनार का नंबर है: उसकी जाँच चलाएँ, या इस सोनार के स्टिकर से उसका नंबर लिखें</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="324"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="353"/>
         <source>The sonar reports the same number as the reference (%1): type the number from its sticker</source>
         <translation>सोनार संदर्भ जैसा ही नंबर बताता है (%1): उसके स्टिकर का नंबर लिखें</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="328"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="357"/>
         <source>The reference&apos;s last check moved away from its baseline: look at the stand, check the reference again or accept the check</source>
         <translation>संदर्भ की पिछली जाँच उसके आधार से हट गई: स्टैंड देखें, संदर्भ फिर से जाँचें या जाँच स्वीकार करें</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="332"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="361"/>
         <source>%1 sonars tested since the reference&apos;s check: check the reference again</source>
         <translation>संदर्भ की जाँच के बाद %1 सोनार जाँचे गए: संदर्भ फिर से जाँचें</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="338"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="367"/>
         <source>The reference&apos;s check cannot be read: %1</source>
         <translation>संदर्भ की जाँच पढ़ी नहीं जा सकती: %1</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="342"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="371"/>
         <source>Firmware %1, the reference has %2: load the same firmware</source>
         <translation>फ़र्मवेयर %1, संदर्भ में %2 है: वही फ़र्मवेयर डालें</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="379"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="408"/>
         <source>The reference run cannot be read: %1</source>
         <translation>संदर्भ की जाँच पढ़ी नहीं जा सकती: %1</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="410"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="439"/>
         <source>Setting the sonar up</source>
         <translation>सोनार सेट किया जा रहा है</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="419"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="448"/>
         <source>Stopped</source>
         <translation>रोक दिया गया</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="451"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="480"/>
         <source>The sonar gives %1 samples a side, the reference %2</source>
         <translation>सोनार हर तरफ़ %1 सैंपल देता है, संदर्भ %2</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="535"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="564"/>
         <source>%1 kHz, %2 pulses</source>
         <translation>%1 kHz, %2 पल्स</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="536"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="565"/>
         <source>%1 kHz, transmitter off</source>
         <translation>%1 kHz, ट्रांसमीटर बंद</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="627"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="656"/>
         <source>Saved: %1</source>
         <translation>सहेजा गया: %1</translation>
     </message>
     <message>
-        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="627"/>
+        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="656"/>
         <source>Not saved: %1</source>
         <translation>सहेजा नहीं गया: %1</translation>
     </message>
@@ -18424,532 +18429,538 @@ udp://@:1234
 <context>
     <name>SonarQaWindow</name>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="11"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="11"/>
         <source>Sonar acceptance: nanoSSS</source>
         <translation>सोनार जाँच: nanoSSS</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="40"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="40"/>
         <source>%1 min %2 s</source>
         <translation>%1 मिनट %2 सेकंड</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="40"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="40"/>
         <source>%1 s</source>
         <translation>%1 सेकंड</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="43"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="43"/>
         <source>Same sweep as the reference</source>
         <translation>संदर्भ जैसा ही स्वीप</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="44"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="44"/>
         <source>Reflection in the band, mean</source>
         <translation>बैंड में परावर्तन, औसत</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="45"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="45"/>
         <source>Reflection in the band, worst</source>
         <translation>बैंड में परावर्तन, सबसे खराब</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="46"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="46"/>
         <source>Resonance</source>
         <translation>अनुनाद</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="47"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="47"/>
         <source>Bandwidth</source>
         <translation>बैंडविड्थ</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="48"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="48"/>
         <source>Noise, transmitter off</source>
         <translation>शोर, ट्रांसमीटर बंद</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="49"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="49"/>
         <source>Ringing after the burst</source>
         <translation>पल्स के बाद की गूँज</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="50"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="50"/>
         <source>Target position (placement)</source>
         <translation>लक्ष्य की स्थिति (स्थापना)</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="51"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="51"/>
         <source>Saturation</source>
         <translation>संतृप्ति</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="52"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="52"/>
         <source>Balance of the sides</source>
         <translation>दोनों तरफ़ का संतुलन</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="53"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="53"/>
         <source>Supply</source>
         <translation>बिजली आपूर्ति</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="54"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="54"/>
         <source>Temperature</source>
         <translation>तापमान</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="55"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="55"/>
         <source>Temperature against the reference</source>
         <translation>संदर्भ की तुलना में तापमान</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="56"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="56"/>
         <source>Transmitter off at 0 pulses</source>
         <translation>0 पल्स पर ट्रांसमीटर बंद</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="57"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="57"/>
         <source>Reflection seen</source>
         <translation>परावर्तन दिखता है</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="63"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="63"/>
         <source>PASSED</source>
         <translation>पास</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="64"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="64"/>
         <source>FAILED</source>
         <translation>फ़ेल</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="65"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="65"/>
         <source>REFERENCE SET</source>
         <translation>संदर्भ तय हुआ</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="66"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="66"/>
         <source>REFERENCE CHECKED</source>
         <translation>संदर्भ जाँचा गया</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="67"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="67"/>
         <source>REFERENCE MOVED AWAY FROM ITS BASELINE</source>
         <translation>संदर्भ अपने आधार से हट गया</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="137"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="145"/>
         <source>Sonar on the stand</source>
         <translation>स्टैंड पर सोनार</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="139"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="147"/>
         <source>Sonar</source>
         <translation>सोनार</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="141"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="149"/>
         <source>serial %1 · firmware %2 · board %3</source>
         <translation>सीरियल %1 · फ़र्मवेयर %2 · बोर्ड %3</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="142"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="150"/>
         <source> · the reference</source>
         <translation> · संदर्भ</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="143"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="151"/>
         <source>No nanoSSS connected</source>
         <translation>कोई nanoSSS जुड़ा नहीं है</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="155"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="163"/>
         <source>Number from the sticker</source>
         <translation>स्टिकर का नंबर</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="156"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="164"/>
         <source>Empty: the number the sonar reports. Some firmware reports one number for every sonar: then type each sonar&apos;s own.</source>
         <translation>खाली: सोनार जो नंबर बताता है। कुछ फ़र्मवेयर हर सोनार के लिए एक ही नंबर बताते हैं: तब हर सोनार का अपना नंबर लिखें।</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="169"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="177"/>
         <source>Simulated sonar</source>
         <translation>नकली सोनार</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="170"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="178"/>
         <source>KOGGER_SONARQA_DEMO: a sonar in a tank, to try the window without a stand</source>
         <translation>KOGGER_SONARQA_DEMO: टैंक में सोनार, स्टैंड के बिना विंडो आज़माने के लिए</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="174"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="182"/>
         <source>Reference 1001</source>
         <translation>संदर्भ 1001</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="175"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="183"/>
         <source>Good 2001</source>
         <translation>ठीक 2001</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="176"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="184"/>
         <source>Weak 2002</source>
         <translation>कमज़ोर 2002</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="183"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="191"/>
         <source>Test</source>
         <translation>जाँच</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="185"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="193"/>
         <source>Sonar under test</source>
         <translation>जाँच वाला सोनार</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="187"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="195"/>
         <source>The same sweep and settings as the reference&apos;s check; the result is saved by serial number</source>
         <translation>संदर्भ की जाँच जैसा ही स्वीप और सेटिंग्स; परिणाम सीरियल नंबर के अनुसार सहेजा जाता है</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="192"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="200"/>
         <source>Test this sonar</source>
         <translation>इस सोनार को जाँचें</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="202"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="210"/>
         <source>Run in progress</source>
         <translation>जाँच चल रही है</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="202"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="210"/>
         <source>Last run</source>
         <translation>पिछली जाँच</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="218"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="226"/>
         <source>about %1 left</source>
         <translation>लगभग %1 बाकी</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="222"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="230"/>
         <source>Stop</source>
         <translation>रोकें</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="236"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="244"/>
         <source>Supply %1 V · temperature %2 °C</source>
         <translation>आपूर्ति %1 V · तापमान %2 °C</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="280"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="288"/>
         <source>Result</source>
         <translation>परिणाम</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="298"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="306"/>
         <source>warnings: %1</source>
         <translation>चेतावनियाँ: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="304"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="312"/>
         <source>Serial %1 · firmware %2 · %3</source>
         <translation>सीरियल %1 · फ़र्मवेयर %2 · %3</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="305"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="313"/>
         <source>Saved: %1</source>
         <translation>सहेजा गया: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="305"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="313"/>
         <source>Not saved: %1</source>
         <translation>सहेजा नहीं गया: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="310"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="318"/>
         <source>Each line: what is checked · the figure (how far from the baseline) · the numbers behind it: &quot;now&quot; is this run of the reference, &quot;baseline&quot; its first run.</source>
         <translation>हर पंक्ति: क्या जाँचा जाता है · संख्या (आधार से कितना अलग) · संख्याएँ किसकी हैं: «अभी» संदर्भ की यह जाँच है, «आधार» उसकी पहली जाँच।</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="312"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="320"/>
         <source>Each line: what the reference&apos;s own run shows. Warnings here do not stop anything, but say what will not be compared.</source>
         <translation>हर पंक्ति: संदर्भ की अपनी जाँच क्या दिखाती है। यहाँ की चेतावनियाँ कुछ नहीं रोकतीं, पर बताती हैं कि किसकी तुलना नहीं होगी।</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="313"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="321"/>
         <source>Each line: what is checked · the figure (how far from the reference) · the numbers behind it: &quot;this sonar&quot; against &quot;reference&quot; (its latest check).</source>
         <translation>हर पंक्ति: क्या जाँचा जाता है · संख्या (संदर्भ से कितना अलग) · संख्याएँ किसकी हैं: «यह सोनार» बनाम «संदर्भ» (उसकी पिछली जाँच)।</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="319"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="327"/>
         <source>Check</source>
         <translation>जाँच</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="321"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="329"/>
         <source>Difference</source>
         <translation>अंतर</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="323"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="331"/>
         <source>What the numbers are</source>
         <translation>संख्याओं का अर्थ</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="346"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="75"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="354"/>
         <source>, side %1</source>
         <translation>, तरफ़ %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="368"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="376"/>
         <source>Side 1</source>
         <translation>तरफ़ 1</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="369"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="377"/>
         <source>Side 2</source>
         <translation>तरफ़ 2</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="372"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="380"/>
         <source>Reflection where the reference has it, codes (2.5 a dB)</source>
         <translation>जहाँ संदर्भ में परावर्तन है वहाँ का परावर्तन, कोड (2.5 प्रति dB)</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="373"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="381"/>
         <source>Noise with the transmitter off, codes</source>
         <translation>ट्रांसमीटर बंद होने पर शोर, कोड</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="374"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="382"/>
         <source>Ringing after the burst, samples</source>
         <translation>पल्स के बाद की गूँज, सैंपल</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="379"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="387"/>
         <source>this sonar</source>
         <translation>यह सोनार</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="379"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="387"/>
         <source>reference (dashed)</source>
         <translation>संदर्भ (डैश रेखा)</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="447"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="455"/>
         <source>Reference sonar</source>
         <translation>संदर्भ सोनार</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="449"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="457"/>
         <source>Reference</source>
         <translation>संदर्भ</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="451"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="459"/>
         <source>serial %1 · baseline %2</source>
         <translation>सीरियल %1 · आधार %2</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="452"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="460"/>
         <source>Not set: connect the reference sonar and make its baseline</source>
         <translation>तय नहीं: संदर्भ सोनार जोड़ें और उसका आधार बनाएँ</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="457"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="465"/>
         <source>Last check</source>
         <translation>पिछली जाँच</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="459"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="467"/>
         <source>agrees with the baseline</source>
         <translation>आधार से मेल खाती है</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="459"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="467"/>
         <source>moved away from the baseline</source>
         <translation>आधार से हट गई</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="465"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="474"/>
         <source>Sonars left until the next check</source>
         <translation>अगली जाँच तक बचे सोनार</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="466"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="475"/>
         <source>%1 of %2</source>
         <translation>%2 में से %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="470"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="479"/>
         <source>Runs of the reference</source>
         <translation>संदर्भ की जाँचें</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="479"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="488"/>
         <source>Check the reference</source>
         <translation>संदर्भ जाँचें</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="485"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="494"/>
         <source>Make the baseline</source>
         <translation>आधार बनाएँ</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="497"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="506"/>
         <source>Accept the check</source>
         <translation>जाँच स्वीकार करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="506"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="515"/>
         <source>Replace the reference (serial %1) and its baseline with this sonar?</source>
         <translation>संदर्भ (सीरियल %1) और उसका आधार इस सोनार से बदलें?</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="509"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="518"/>
         <source>Replace</source>
         <translation>बदलें</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="511"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="520"/>
         <source>Cancel</source>
         <translation>रद्द करें</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="520"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="529"/>
         <source>Sweep and limits</source>
         <translation>स्वीप और सीमाएँ</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="523"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="531"/>
         <source>Sweep</source>
         <translation>स्वीप</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="524"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="532"/>
         <source>Used by the next baseline; checks and tests take the baseline&apos;s. Samples count both sides of a nanoSSS (2000 = 1000 a side). Above 30 pulses the firmware switches to chirp.</source>
         <translation>अगले आधार में उपयोग होता है; जाँचें आधार का स्वीप लेती हैं। सैंपल nanoSSS की दोनों तरफ़ गिनते हैं (2000 = हर तरफ़ 1000)। 30 से अधिक पल्स पर फ़र्मवेयर चर्प पर चला जाता है।</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="530"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="538"/>
         <source>From, kHz</source>
         <translation>से, kHz</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="531"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="539"/>
         <source>To, kHz</source>
         <translation>तक, kHz</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="532"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="540"/>
         <source>Step, kHz</source>
         <translation>चरण, kHz</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="533"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="541"/>
         <source>Pings a step</source>
         <translation>प्रति चरण पिंग</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="534"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="542"/>
+        <source>Quiet pings a step</source>
+        <translation>प्रति चरण शांत पिंग</translation>
+    </message>
+    <message>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="543"/>
         <source>Dropped after a change</source>
         <translation>बदलाव के बाद छोड़ें</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="535"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="544"/>
         <source>Period, ms</source>
         <translation>अवधि, ms</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="536"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="545"/>
         <source>Samples</source>
         <translation>सैंपल</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="537"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="546"/>
         <source>Pulses</source>
         <translation>पल्स</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="538"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="547"/>
         <source>Reflection over the floor, dB</source>
         <translation>फ़्लोर से ऊपर परावर्तन, dB</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="539"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="548"/>
         <source>Sonars a check</source>
         <translation>प्रति जाँच सोनार</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="560"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="569"/>
         <source>Limits</source>
         <translation>सीमाएँ</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="561"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="570"/>
         <source>Starting values: set them from the spread of the reference and of known-good sonars on this stand.</source>
         <translation>शुरुआती मान: इन्हें इस स्टैंड पर संदर्भ और ज्ञात ठीक सोनारों के फैलाव से तय करें।</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="567"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="576"/>
         <source>Reflection mean, dB</source>
         <translation>परावर्तन औसत, dB</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="568"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="577"/>
         <source>Reflection worst, dB</source>
         <translation>परावर्तन सबसे खराब, dB</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="569"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="578"/>
         <source>Resonance shift, kHz</source>
         <translation>अनुनाद खिसकाव, kHz</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="570"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="579"/>
         <source>Noise above, dB</source>
         <translation>शोर अधिक, dB</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="571"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="580"/>
         <source>Ringing, times</source>
         <translation>गूँज, गुना</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="572"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="581"/>
         <source>Balance, dB</source>
         <translation>संतुलन, dB</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="573"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="582"/>
         <source>Supply, V</source>
         <translation>आपूर्ति, V</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="595"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="604"/>
         <source>The owner&apos;s sweep and the starting limits</source>
         <translation>मालिक का स्वीप और शुरुआती सीमाएँ</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="596"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="605"/>
         <source>Reset</source>
         <translation>रीसेट</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="602"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="611"/>
         <source>Journal</source>
         <translation>जर्नल</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="604"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="613"/>
         <source>Results folder</source>
         <translation>परिणाम फ़ोल्डर</translation>
     </message>
     <message>
-        <location filename="../qml/app/SonarQaWindow.qml" line="607"/>
+        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="616"/>
         <source>Open folder</source>
         <translation>फ़ोल्डर खोलें</translation>
     </message>

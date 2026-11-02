@@ -68,6 +68,14 @@ Window {
         }
         return ""
     }
+    // "Supply: <what it says>; ..." for each failed check of the reference's last check
+    function failuresText(list) {
+        var out = []
+        for (var i = 0; i < (list || []).length; ++i)
+            out.push(checkTitle(list[i].id) + (list[i].side >= 0 ? qsTr(", side %1").arg(list[i].side + 1) : "")
+                     + (list[i].detail ? " — " + list[i].detail : ""))
+        return out.join("\n")
+    }
     function fmtValue(c) {
         var v = Number(c.value)
         if (c.id === "sweep" || (c.id === "reflection" && v === 0))
@@ -456,7 +464,8 @@ Window {
                     visible: win.ref.set
                     label: qsTr("Last check")
                     caption: win.fmtTime(win.ref.checkTime) + " · "
-                             + (win.ref.checkPassed ? qsTr("agrees with the baseline") : qsTr("moved away from the baseline"))
+                             + (win.ref.checkPassed ? qsTr("agrees with the baseline") : qsTr("moved away from the baseline")
+                                + ((win.ref.checkFailures || []).length > 0 ? ":\n" + win.failuresText(win.ref.checkFailures) : ""))
                     captionColor: win.ref.checkPassed ? AppPalette.textSecond : AppPalette.dangerText
                     stacked: true
                 }
@@ -518,7 +527,6 @@ Window {
             KIsland {
                 id: paramsIsland
                 title: qsTr("Sweep and limits")
-                folded: true
                 KIslandRow {
                     label: qsTr("Sweep")
                     caption: qsTr("Used by the next baseline; checks and tests take the baseline's. Samples count both sides of a nanoSSS (2000 = 1000 a side). Above 30 pulses the firmware switches to chirp.")
@@ -531,6 +539,7 @@ Window {
                                      { key: "freqToKhz", title: qsTr("To, kHz"), from: 40, to: 1000 },
                                      { key: "freqStepKhz", title: qsTr("Step, kHz"), from: 1, to: 100 },
                                      { key: "pingsPerStep", title: qsTr("Pings a step"), from: 1, to: 100 },
+                                     { key: "quietPings", title: qsTr("Quiet pings a step"), from: 1, to: 100 },
                                      { key: "discardPings", title: qsTr("Dropped after a change"), from: 0, to: 10 },
                                      { key: "periodMs", title: qsTr("Period, ms"), from: 10, to: 1000 },
                                      { key: "samples", title: qsTr("Samples"), from: 100, to: 5000 },

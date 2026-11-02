@@ -124,9 +124,13 @@ private:
     QVariantMap curvesOf(const sonarqa::Run& unit, const sonarqa::Run* ref) const;
     /// The number a run of this kind is filed under: typed, the reference's for its check, or as reported.
     QString serialFor(const QString& kind) const;
+    /// The failed checks of the reference's last check when it did not pass ({id, side, detail}), read once per file.
+    QVariantList checkFailures() const;
 
     sonarqa::Store store_;
     sonarqa::State state_;
+    mutable QString failuresOf_;
+    mutable QVariantList failures_;
     QPointer<QObject> deviceObject_;
     QPointer<QObject> window_;
     QPointer<SonarQaDevice> adapter_;

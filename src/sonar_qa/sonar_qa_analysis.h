@@ -23,7 +23,9 @@ struct Params {
     int freqFromKhz = 150;
     int freqToKhz = 900;
     int freqStepKhz = 5;
-    int pingsPerStep = 10;      ///< measured pings per frequency and per transmitter state
+    int pingsPerStep = 10;      ///< measured pings per frequency with the transmitter on
+    int quietPings = 2;         ///< ... and with it off (the noise): a fifth of those, the owner 2026-11-02 -- the
+                                ///< noise is a mean over the whole ping, a few pings of it are enough
     int discardPings = 2;       ///< pings dropped after each change, so none is from the previous setting
     int periodMs = 50;
     int samples = 2000;         ///< ID_CHART_SETUP count: both sides of a nanoSSS, so half per side
@@ -40,7 +42,7 @@ struct Params {
     int stepCount() const;
     int freqAt(int step) const { return freqFromKhz + step * freqStepKhz; }
     /// Pings a whole run takes, dropped ones included.
-    int totalPings() const { return stepCount() * 2 * (pingsPerStep + discardPings); }
+    int totalPings() const { return stepCount() * (quietPings + pingsPerStep + 2 * discardPings); }
     QJsonObject toJson() const;
     static Params fromJson(const QJsonObject& o);
 };

@@ -132,7 +132,8 @@ int Params::stepCount() const
 QJsonObject Params::toJson() const
 {
     return { { "freqFromKhz", freqFromKhz }, { "freqToKhz", freqToKhz }, { "freqStepKhz", freqStepKhz },
-             { "pingsPerStep", pingsPerStep }, { "discardPings", discardPings }, { "periodMs", periodMs },
+             { "pingsPerStep", pingsPerStep }, { "quietPings", quietPings }, { "discardPings", discardPings },
+             { "periodMs", periodMs },
              { "samples", samples }, { "txPulses", txPulses }, { "ringMarginCodes", ringMarginCodes },
              { "ringHoldSamples", ringHoldSamples }, { "echoMarginCodes", echoMarginCodes },
              { "echoMinGap", echoMinGap }, { "maxEchoes", maxEchoes }, { "echoWindow", echoWindow },
@@ -146,6 +147,8 @@ Params Params::fromJson(const QJsonObject& o)
     p.freqToKhz = o.value("freqToKhz").toInt(p.freqToKhz);
     p.freqStepKhz = o.value("freqStepKhz").toInt(p.freqStepKhz);
     p.pingsPerStep = o.value("pingsPerStep").toInt(p.pingsPerStep);
+    // before 2026-11-02 as many quiet pings as loud ones; a baseline of then is checked against with a fifth
+    p.quietPings = o.value("quietPings").toInt(qMax(1, (p.pingsPerStep + 4) / 5));
     p.discardPings = o.value("discardPings").toInt(p.discardPings);
     p.periodMs = o.value("periodMs").toInt(p.periodMs);
     p.samples = o.value("samples").toInt(p.samples);
@@ -843,10 +846,18 @@ Comparison compare(const Run& unit, const Run& ref, const Tolerances& t)
 
     if (unit.supply.valid() && ref.supply.valid()) {
         const double d = unit.supply.median - ref.supply.median;
-        add(make("supply", -1, d, t.supplyV, "V", std::fabs(d) <= t.supplyV, false,
-                 SonarQaCheck::tr("supply: %1 (from %2 to %3 V during the run); allowed ±%4 V")
-                     .arg(pair(SonarQaCheck::tr("%1 V").arg(num(unit.supply.median, 2)), SonarQaCheck::tr("%1 V").arg(num(ref.supply.median, 2))),
-                          num(unit.supply.min, 2), num(unit.supply.max, 2), num(t.supplyV, 2))));
+        // A reading that itself moves by more than the limit within a run cannot tell a supply apart by it: the
+        // owner's stand, 2026-10-28, 1.5 to 2.9 V in one run and the medians 0.5 V apart. Then only a warning.
+        const double swing = qMax(unit.supply.max - unit.supply.min, ref.supply.max - ref.supply.min);
+        const bool noisy = swing > t.supplyV;
+        QString detail = SonarQaCheck::tr("supply: %1 (from %2 to %3 V during the run); allowed ±%4 V")
+                             .arg(pair(SonarQaCheck::tr("%1 V").arg(num(unit.supply.median, 2)), SonarQaCheck::tr("%1 V").arg(num(ref.supply.median, 2))),
+                                  num(unit.supply.min, 2), num(unit.supply.max, 2), num(t.supplyV, 2));
+        if (noisy) {
+            detail += SonarQaCheck::tr(". The reading itself moves by up to %1 V within a run, more than allowed: only a "
+                                       "warning").arg(num(swing, 2));
+        }
+        add(make("supply", -1, d, t.supplyV, "V", std::fabs(d) <= t.supplyV, noisy, detail));
     } else {
         add(make("supply", -1, 0, t.supplyV, "V", false, true,
                  unit.supply.valid() ? SonarQaCheck::tr("%1 V; the %2 has no supply readings to compare with")

@@ -1,7 +1,7 @@
 // Standalone check of the sonar acceptance module (src/sonar_qa; docs/SONAR_QA.md) against a simulated nanoSSS.
 //
 //  1. analysePing on hand-made pings: the ringing's end, the reflections and their repeats, a plateau, saturation.
-//  2. Whole runs with the owner's sweep (150..900 kHz by 5, 10 pings, off and 25 pulses): the baseline of the
+//  2. Whole runs with the owner's sweep (150..900 kHz by 5, 2 pings off and 10 at 25 pulses): the baseline of the
 //     reference, sonars that pass and sonars with one fault each (weak, resonance moved, long ringing, noisy, low
 //     supply) that must fail on that fault; another firmware and the reference itself refused as units.
 //  3. The files: per serial number, the raw pings (every record carries the transmitter state the simulator had for
@@ -322,9 +322,23 @@ int main(int argc, char** argv)
     r.resetParams();
     r.setAdapter(&sonar);
     const Params defaults;
-    ok("the owner's sweep: 151 steps, 150..900 by 5, 10 pings, 25 pulses, 50 ms, 2000 samples",
+    ok("the owner's sweep: 151 steps, 150..900 by 5, 10 pings, 2 quiet ones, 25 pulses, 50 ms, 2000 samples",
        defaults.stepCount() == 151 && defaults.freqAt(150) == 900 && defaults.pingsPerStep == 10
-           && defaults.txPulses == 25 && defaults.periodMs == 50 && defaults.samples == 2000);
+           && defaults.quietPings == 2 && defaults.txPulses == 25 && defaults.periodMs == 50
+           && defaults.samples == 2000 && defaults.totalPings() == 151 * (2 + 10 + 2 * 2));
+    {
+        // a baseline from before the quiet pings were a fifth: checked against with a fifth of its pings
+        QJsonObject old;
+        old["pingsPerStep"] = 5;
+        const Params p5 = Params::fromJson(old);
+        old["pingsPerStep"] = 10;
+        const Params p10 = Params::fromJson(old);
+        old["quietPings"] = 7;
+        const Params p7 = Params::fromJson(old);
+        ok("no quietPings in a file: a fifth of the pings (5 -> 1, 10 -> 2), a written one kept",
+           p5.quietPings == 1 && p10.quietPings == 2 && p7.quietPings == 7,
+           QStringLiteral("%1 %2 %3").arg(p5.quietPings).arg(p10.quietPings).arg(p7.quietPings));
+    }
 
     QString why = r.canStart("unit");
     ok("no unit before a reference", !why.isEmpty(), why);
@@ -340,8 +354,8 @@ int main(int argc, char** argv)
     QString detail;
     QString raw = baseFile;
     raw.replace(".json", ".ksqa");
-    ok("raw pings: 151 steps x 2 states x 10 pings x 2 sides, none from another transmitter state",
-       rawConsistent(raw, &records, &detail) && records == 151 * 2 * 10 * 2, detail);
+    ok("raw pings: 151 steps x (2 quiet + 10) pings x 2 sides, none from another transmitter state",
+       rawConsistent(raw, &records, &detail) && records == 151 * (2 + 10) * 2, detail);
     ok("reference serial 1001, 10 units allowed", r.reference().value("serial").toString() == QLatin1String("1001")
                                                       && r.reference().value("unitsLeft").toInt() == 10);
     ok("the baseline's own checks: 0 pulses silence it, reflections seen, supply and temperature came",
@@ -355,6 +369,31 @@ int main(int argc, char** argv)
        QStringLiteral("%1 kHz, band %2 kHz").arg(res.freqKhz).arg(res.bandwidthKhz));
     ok("baseline supply and temperature kept", base.supply.valid() && std::fabs(base.supply.median - 12.0) < 0.1
                                                    && base.temperature.valid());
+    ok("each step: 2 pings with the transmitter off, 10 with it on",
+       !base.steps.isEmpty() && base.steps.first().sides.value(0).pingsOff == 2
+           && base.steps.first().sides.value(0).pingsOn == 10,
+       base.steps.isEmpty() ? QStringLiteral("no steps")
+                            : QStringLiteral("%1 off, %2 on").arg(base.steps.first().sides.value(0).pingsOff)
+                                  .arg(base.steps.first().sides.value(0).pingsOn));
+    {
+        // the supply 0.8 V off the reference's: a fault when the reading is steady, only a warning when it swings
+        auto supplyLevel = [&base](float lo, float mid, float hi) {
+            Run unit = base;
+            unit.supply.n = 100;
+            unit.supply.min = lo;
+            unit.supply.median = mid;
+            unit.supply.max = hi;
+            for (const Check& c : compare(unit, base, Tolerances()).checks) {
+                if (c.id == QLatin1String("supply")) {
+                    return c.level;
+                }
+            }
+            return QStringLiteral("none");
+        };
+        const QString steady = supplyLevel(12.7f, 12.8f, 12.9f), swinging = supplyLevel(11.5f, 12.8f, 13.4f);
+        ok("supply 0.8 V off: steady reading fails, one swinging 1.9 V in the run only warns",
+           steady == QLatin1String("fail") && swinging == QLatin1String("warn"), steady + " / " + swinging);
+    }
     ok("the reference as a unit is refused", !r.canStart("unit").isEmpty(), r.canStart("unit"));
 
     struct Case {
@@ -406,6 +445,13 @@ int main(int argc, char** argv)
 
     sonar.m.gainDb = -6;   // the stand changed (the target moved, water level...)
     ok("a drifted check is told so", runOnce(r, "check") && verdict(r) == QLatin1String("check_drift"), failedChecks(r));
+    {
+        const QVariantList why = r.reference().value("checkFailures").toList();
+        ok("the reference says what failed in its check (read from its file)",
+           !why.isEmpty() && why.first().toMap().value("id").toString().startsWith("echo_band")
+               && !why.first().toMap().value("detail").toString().isEmpty(),
+           why.isEmpty() ? QStringLiteral("nothing") : why.first().toMap().value("id").toString());
+    }
     sonar.m = tagged();
     sonar.m.serial = 2010;
     r.refreshDevice();
@@ -413,6 +459,7 @@ int main(int argc, char** argv)
     ok("units blocked after a drifted check", !why.isEmpty(), why);
     r.acceptCheck();
     ok("... and allowed once it is accepted", r.canStart("unit").isEmpty(), r.canStart("unit"));
+    ok("an accepted check has nothing failed to tell", r.reference().value("checkFailures").toList().isEmpty());
 
     std::printf("\nstopping\n");
     const int journalBefore = r.journal().size();
