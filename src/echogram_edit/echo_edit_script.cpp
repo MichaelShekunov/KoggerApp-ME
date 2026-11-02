@@ -1127,6 +1127,63 @@ void EchoEditScript::runStep(const QJsonObject& s)
         qInfo().noquote() << QStringLiteral("echoedit script: grabWindow %1 %2").arg(name, written ? QStringLiteral("written")
                                                                                                : QStringLiteral("failed"));
     }
+    else if (op == QLatin1String("windowState")) {
+        // Another top-level window maximized, minimized or back to its normal size, as its title bar's buttons do it.
+        const QString name = s.value(QStringLiteral("name")).toString();
+        const QString state = s.value(QStringLiteral("state")).toString();
+        bool done = false;
+        for (QWindow* w : QGuiApplication::topLevelWindows()) {
+            if (w->objectName() == name && w->isVisible()) {
+                if (state == QLatin1String("maximized")) {
+                    w->showMaximized();
+                }
+                else if (state == QLatin1String("minimized")) {
+                    w->showMinimized();
+                }
+                else {
+                    w->showNormal();
+                }
+                done = true;
+                break;
+            }
+        }
+        qInfo().noquote() << QStringLiteral("echoedit script: windowState %1 %2 %3").arg(name, state,
+                             done ? QStringLiteral("set") : QStringLiteral("no such window"));
+    }
+    else if (op == QLatin1String("windowItems")) {
+        // Where every visible item of a top-level window is, one line each in tree order, into "path": two dumps
+        // of the same window at the same size are compared line by line (the window's layout after a resize).
+        const QString name = s.value(QStringLiteral("name")).toString();
+        const QString path = s.value(QStringLiteral("path")).toString();
+        QStringList lines;
+        for (QWindow* w : QGuiApplication::topLevelWindows()) {
+            auto* qw = qobject_cast<QQuickWindow*>(w);
+            if (!qw || qw->objectName() != name || !qw->isVisible()) {
+                continue;
+            }
+            lines << QStringLiteral("window %1x%2").arg(qw->width()).arg(qw->height());
+            std::function<void(QQuickItem*, const QString&)> walk = [&](QQuickItem* it, const QString& at) {
+                if (!it->isVisible()) {
+                    return;
+                }
+                const QRectF r = it->mapRectToScene(QRectF(0, 0, it->width(), it->height()));
+                lines << QStringLiteral("%1 %2 %3 %4,%5 %6x%7").arg(at, QString::fromLatin1(it->metaObject()->className()),
+                                                                     it->objectName().isEmpty() ? QStringLiteral("-") : it->objectName())
+                             .arg(r.x(), 0, 'f', 1).arg(r.y(), 0, 'f', 1).arg(r.width(), 0, 'f', 1).arg(r.height(), 0, 'f', 1);
+                const QList<QQuickItem*> kids = it->childItems();
+                for (int i = 0; i < kids.size(); ++i) {
+                    walk(kids.at(i), at + QLatin1Char('.') + QString::number(i));
+                }
+            };
+            walk(qw->contentItem(), QStringLiteral("0"));
+            break;
+        }
+        QSaveFile f(path);
+        const bool written = !lines.isEmpty() && f.open(QIODevice::WriteOnly | QIODevice::Text)
+                             && f.write(lines.join(QLatin1Char('\n')).toUtf8() + '\n') > 0 && f.commit();
+        qInfo().noquote() << QStringLiteral("echoedit script: windowItems %1 %2 lines %3").arg(name).arg(lines.size())
+                             .arg(written ? QStringLiteral("written") : QStringLiteral("failed"));
+    }
     else if (op == QLatin1String("clickItem")) {
         // A tap on the "index"-th item (window order) whose objectName is "name": its clicked() as its MouseArea
         // emits it -- a device badge (devBadgeButton) opens its pill.

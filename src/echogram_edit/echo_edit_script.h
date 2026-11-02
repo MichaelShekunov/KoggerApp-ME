@@ -133,6 +133,8 @@
 //                                    holding it (for a grab of a page longer than the window)
 //   {"op": "storeCall", "method": name}   a store method without arguments, as a menu does ("openDeveloperSettings")
 //   {"op": "grabWindow", "name": objectName, "path": file}   a picture of another top-level window
+//   {"op": "windowState", "name": objectName, "state": "maximized"|"minimized"|"normal"}   that window so
+//   {"op": "windowItems", "name": objectName, "path": file}   where each of its visible items is, a line each
 //   {"op": "clickItem", "name": objectName, "index": n}   a tap on that item (its clicked()): "devBadgeButton" opens a
 //                                    device's pill
 //   {"op": "waitUpgrade", "timeoutMs": 180000}   until that update ends (flashed / failed), the progress every 10 %
