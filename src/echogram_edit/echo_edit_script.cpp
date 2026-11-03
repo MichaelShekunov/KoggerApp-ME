@@ -126,6 +126,55 @@ QQuickItem* findWithProperty(QQuickItem* item, const char* name)
     return nullptr;
 }
 
+// The main window: the one with the workspace (the item with "secondaryPlotItem").
+QQuickWindow* mainQuickWindow()
+{
+    for (QWindow* w : QGuiApplication::topLevelWindows()) {
+        auto* qw = qobject_cast<QQuickWindow*>(w);
+        if (qw && qw->isVisible() && findWithProperty(qw->contentItem(), "secondaryPlotItem")) {
+            return qw;
+        }
+    }
+    return nullptr;
+}
+
+void sendMouse(QQuickWindow* w, QEvent::Type type, const QPointF& p, Qt::MouseButton button, Qt::MouseButtons buttons, qint64 ms);
+
+// What an item shows as its text, one line: a label's or button's "text", a combo box's "displayText".
+QString shownText(QQuickItem* item)
+{
+    for (const char* name : { "text", "displayText" }) {
+        const QVariant v = item->property(name);
+        if (v.metaType().id() == QMetaType::QString && !v.toString().isEmpty()) {
+            return v.toString().simplified();
+        }
+    }
+    return QString();
+}
+
+// The "index"-th item (tree order) of the main window, its parents all visible, that shows exactly "text".
+QQuickItem* findShownText(QQuickWindow* w, const QString& text, int index)
+{
+    QQuickItem* found = nullptr;
+    int seen = 0;
+    std::function<void(QQuickItem*)> walk = [&](QQuickItem* it) {
+        if (found || !it->isVisible()) {
+            return;
+        }
+        if (shownText(it) == text && seen++ == index) {
+            found = it;
+            return;
+        }
+        for (QQuickItem* c : it->childItems()) {
+            walk(c);
+        }
+    };
+    if (w) {
+        walk(w->contentItem());
+    }
+    return found;
+}
+
 // The main window's WorkspaceStore: the store of the WorkspaceView (the item with "secondaryPlotItem").
 QObject* findWorkspaceStore(QQuickItem** workspace = nullptr)
 {
@@ -1123,9 +1172,14 @@ void EchoEditScript::runStep(const QJsonObject& s)
     }
     else if (op == QLatin1String("storeCall")) {
         // A method of the workspace store without arguments, as a menu does: "openDeveloperSettings".
+        // "set": properties of the store set as well, as its controls do ("settingsPanelOpen": false closes the settings).
         QObject* store = findObjectWithProperty("settingsPinTarget");
+        const QJsonObject set = s.value(QStringLiteral("set")).toObject();
+        for (auto it = set.begin(); store && it != set.end(); ++it) {
+            store->setProperty(it.key().toUtf8().constData(), it.value().toVariant());
+        }
         const QByteArray method = s.value(QStringLiteral("method")).toString().toUtf8();
-        const bool called = store && QMetaObject::invokeMethod(store, method.constData());
+        const bool called = store && (method.isEmpty() ? !set.isEmpty() : QMetaObject::invokeMethod(store, method.constData()));
         qInfo().noquote() << QStringLiteral("echoedit script: storeCall %1 %2")
                              .arg(QString::fromUtf8(method), called ? QStringLiteral("called") : QStringLiteral("failed"));
     }
@@ -1167,6 +1221,87 @@ void EchoEditScript::runStep(const QJsonObject& s)
         qInfo().noquote() << QStringLiteral("echoedit script: windowState %1 %2 %3").arg(name, state,
                              done ? QStringLiteral("set") : QStringLiteral("no such window"));
     }
+    else if (op == QLatin1String("windowSize")) {
+        // The main window resized to "w" x "h" (pictures of a known size: the customer's guide, 2026-11-03).
+        QQuickWindow* w = mainQuickWindow();
+        if (w) {
+            w->resize(s.value(QStringLiteral("w")).toInt(1600), s.value(QStringLiteral("h")).toInt(1000));
+        }
+        qInfo().noquote() << QStringLiteral("echoedit script: windowSize %1").arg(w ? QStringLiteral("%1x%2").arg(w->width()).arg(w->height())
+                                                                                   : QStringLiteral("no main window"));
+    }
+    else if (op == QLatin1String("showText") || op == QLatin1String("clickText")) {
+        // The "index"-th item of the main window showing exactly "text": scrolled into view in its Flickable, with
+        // "margin" px above it; clickText then presses and releases the mouse on its middle, as a click does.
+        QQuickWindow* w = mainQuickWindow();
+        const QString text = s.value(QStringLiteral("text")).toString();
+        QQuickItem* item = findShownText(w, text, s.value(QStringLiteral("index")).toInt(0));
+        QString did = item ? QStringLiteral("found") : QStringLiteral("not found");
+        if (item) {
+            for (QQuickItem* p = item->parentItem(); p; p = p->parentItem()) {
+                if (!p->inherits("QQuickFlickable")) {
+                    continue;
+                }
+                auto* content = p->property("contentItem").value<QQuickItem*>();
+                if (content) {
+                    const double y = item->mapToItem(content, QPointF(0, 0)).y() - s.value(QStringLiteral("margin")).toDouble(40);
+                    const double most = std::max(0.0, p->property("contentHeight").toDouble() - p->height());
+                    p->setProperty("contentY", std::clamp(y, 0.0, most));
+                    did += QStringLiteral(", scrolled");
+                }
+                break;
+            }
+            if (op == QLatin1String("clickText")) {
+                const QPointF c = item->mapToScene(QPointF(item->width() / 2, item->height() / 2));
+                sendMouse(w, QEvent::MouseButtonPress, c, Qt::LeftButton, Qt::LeftButton, 0);
+                sendMouse(w, QEvent::MouseButtonRelease, c, Qt::LeftButton, Qt::NoButton, 30);
+                did += QStringLiteral(", clicked at %1,%2").arg(c.x(), 0, 'f', 0).arg(c.y(), 0, 'f', 0);
+            }
+        }
+        qInfo().noquote() << QStringLiteral("echoedit script: %1 \"%2\": %3").arg(op, text, did);
+    }
+    else if (op == QLatin1String("itemSet")) {
+        // The first item of the main window with the property "has": properties of it set ("set"), as its bindings
+        // would: {"has": "maxCardWidth", "set": {"suppressed": true}} keeps the toasts out of pictures.
+        QQuickWindow* w = mainQuickWindow();
+        const QByteArray has = s.value(QStringLiteral("has")).toString().toUtf8();
+        QQuickItem* item = w ? findWithProperty(w->contentItem(), has.constData()) : nullptr;
+        const QJsonObject set = s.value(QStringLiteral("set")).toObject();
+        for (auto it = set.begin(); item && it != set.end(); ++it) {
+            item->setProperty(it.key().toUtf8().constData(), it.value().toVariant());
+        }
+        qInfo().noquote() << QStringLiteral("echoedit script: itemSet %1: %2").arg(QString::fromUtf8(has),
+                                                                                 item ? QStringLiteral("set") : QStringLiteral("no such item"));
+    }
+    else if (op == QLatin1String("typeInto")) {
+        // A text field found by the hint it shows while empty ("near", its placeholder), its text set to "text" as
+        // typing leaves it: the firmware path that shows the UPGRADE button (the customer's guide, 2026-11-03).
+        QQuickWindow* w = mainQuickWindow();
+        const QString near = s.value(QStringLiteral("near")).toString();
+        QQuickItem* hint = findShownText(w, near, s.value(QStringLiteral("index")).toInt(0));
+        QQuickItem* field = nullptr;
+        std::function<void(QQuickItem*)> find = [&](QQuickItem* it) {
+            if (field) {
+                return;
+            }
+            if (it->inherits("QQuickTextInput")) {
+                field = it;
+                return;
+            }
+            for (QQuickItem* c : it->childItems()) {
+                find(c);
+            }
+        };
+        QQuickItem* up = hint;
+        for (int level = 0; up && !field && level < 5; ++level, up = up->parentItem()) {
+            find(up);
+        }
+        if (field) {
+            field->setProperty("text", s.value(QStringLiteral("text")).toString());
+        }
+        qInfo().noquote() << QStringLiteral("echoedit script: typeInto \"%1\": %2").arg(near,
+            !hint ? QStringLiteral("no such hint") : field ? QStringLiteral("set") : QStringLiteral("no field near it"));
+    }
     else if (op == QLatin1String("windowItems")) {
         // Where every visible item of a top-level window is, one line each in tree order, into "path": two dumps
         // of the same window at the same size are compared line by line (the window's layout after a resize).
@@ -1175,7 +1310,8 @@ void EchoEditScript::runStep(const QJsonObject& s)
         QStringList lines;
         for (QWindow* w : QGuiApplication::topLevelWindows()) {
             auto* qw = qobject_cast<QQuickWindow*>(w);
-            if (!qw || qw->objectName() != name || !qw->isVisible()) {
+            const bool isMain = name == QLatin1String("main") && qw == mainQuickWindow();
+            if (!qw || (qw->objectName() != name && !isMain) || !qw->isVisible()) {
                 continue;
             }
             lines << QStringLiteral("window %1x%2").arg(qw->width()).arg(qw->height());
@@ -1184,9 +1320,11 @@ void EchoEditScript::runStep(const QJsonObject& s)
                     return;
                 }
                 const QRectF r = it->mapRectToScene(QRectF(0, 0, it->width(), it->height()));
+                const QString shown = shownText(it);
                 lines << QStringLiteral("%1 %2 %3 %4,%5 %6x%7").arg(at, QString::fromLatin1(it->metaObject()->className()),
                                                                      it->objectName().isEmpty() ? QStringLiteral("-") : it->objectName())
-                             .arg(r.x(), 0, 'f', 1).arg(r.y(), 0, 'f', 1).arg(r.width(), 0, 'f', 1).arg(r.height(), 0, 'f', 1);
+                             .arg(r.x(), 0, 'f', 1).arg(r.y(), 0, 'f', 1).arg(r.width(), 0, 'f', 1).arg(r.height(), 0, 'f', 1)
+                         + (shown.isEmpty() ? QString() : QStringLiteral(" \"%1\"").arg(shown));
                 const QList<QQuickItem*> kids = it->childItems();
                 for (int i = 0; i < kids.size(); ++i) {
                     walk(kids.at(i), at + QLatin1Char('.') + QString::number(i));
@@ -1630,6 +1768,33 @@ std::optional<QPointF> gesturePoint(const QJsonObject& s, const QString& key, QQ
     const QJsonArray xy = s.value(key).toArray();
     if (xy.size() == 2) {
         return QPointF(xy.at(0).toDouble(), xy.at(1).toDouble());
+    }
+    if (s.contains(key + QStringLiteral("Text")) || s.contains(key + QStringLiteral("Class"))) {   // an item's middle
+        const int index = s.value(key + QStringLiteral("Index")).toInt(0);
+        QQuickItem* it = nullptr;
+        if (s.contains(key + QStringLiteral("Text"))) {
+            it = findShownText(w, s.value(key + QStringLiteral("Text")).toString(), index);
+        } else {
+            const QByteArray cls = s.value(key + QStringLiteral("Class")).toString().toUtf8();
+            int seen = 0;
+            std::function<void(QQuickItem*)> walk = [&](QQuickItem* i) {
+                if (it || !i->isVisible()) {
+                    return;
+                }
+                if (QByteArray(i->metaObject()->className()).startsWith(cls) && seen++ == index) {
+                    it = i;
+                    return;
+                }
+                for (QQuickItem* c : i->childItems()) {
+                    walk(c);
+                }
+            };
+            walk(w->contentItem());
+        }
+        if (!it) {
+            return std::nullopt;
+        }
+        return it->mapToScene(QPointF(it->width() / 2, it->height() / 2));
     }
     const QJsonArray frac = s.value(key + QStringLiteral("Frac")).toArray();
     if (frac.size() == 2) {
