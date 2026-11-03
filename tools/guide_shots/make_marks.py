@@ -21,7 +21,7 @@ def load(shot):
                           'y': float(m.group(5)), 'w': float(m.group(6)), 'h': float(m.group(7)),
                           'text': re.sub('<[^>]+>', '', m.group(8)) if m.group(8) else None, 'tip': m.group(9)})
     # only the page on top: the device page (0.0.0.4.1.8...) over the settings page (0.0.0.4.1.3...)
-    under = '0.0.0.4.1.8.' if shot == 'connect' else '0.0.0.4.1.3.' if shot.startswith(('settings_', 'upgrade')) else None
+    under = '0.0.0.4.1.8.' if shot == 'connect' else '0.0.0.4.1.3.' if shot.startswith(('settings_', 'upgrade', 'field_')) else None
     items = [i for i in items if not (under and i['path'].startswith(under))]
     return items
 
@@ -90,8 +90,19 @@ def by_tip(items, tip):
     return union([hits[0]], pad=3)
 
 
+def spin_parts(items, text):
+    """A spin box showing text, on screen: its minus, its value and its plus (KSpinBox: the input and the two mouse
+    areas over the buttons share a parent)."""
+    inp = [i for i in items if i['text'] == text and 'TextInput' in i['cls'] and on_screen(i)][0]
+    parent = inp['path'].rsplit('.', 1)[0]
+    areas = sorted([i for i in items if i['cls'].startswith('QQuickMouseArea') and i['path'].rsplit('.', 1)[0] == parent],
+                   key=lambda i: i['x'])
+    return union([areas[0]], pad=1), union([inp], pad=1), union([areas[-1]], pad=1)
+
+
 I = {s: load(s) for s in ('settings_simple', 'connect', 'settings_freq', 'settings_dsp', 'settings_chart', 'settings_period', 'settings_soundspeed',
-                          'settings_dataset', 'settings_baud', 'settings_flash', 'upgrade', 'beam_menu', 'beam_save', 'beam_active')}
+                          'settings_dataset', 'settings_baud', 'settings_flash', 'upgrade', 'beam_menu', 'beam_save', 'beam_active',
+                          'field_typing')}
 shot('connect', [mk(1, item(I['connect'], text='COM3', cls='QQuickText', top=250, bottom=350), 'COM3'),
                  mk(2, item(I['connect'], text='921600', cls='QQuickText', top=250, bottom=350), '921600'),
                  mk(3, item(I['connect'], text='Открыть', top=250, bottom=350), 'Открыть'),
@@ -130,6 +141,8 @@ tip = [i for i in I['beam_active'] if i['text'] and 'Удерживайте' in 
 if tip:
     act.append(mk(3, union([tip[0]]), tip[0]['text']))
 shot('beam_active', act)
+minus, typed, plus = spin_parts(I['field_typing'], '450')
+shot('field_typing', [mk(1, minus, '−'), mk(2, typed, '450, ещё не отправлено (синее)'), mk(3, plus, '+')])
 
 json.dump({'app': build, 'lang': 'ru', 'shots': shots}, open(out_json, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
 

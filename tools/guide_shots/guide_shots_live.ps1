@@ -13,7 +13,8 @@
     and 1 "Wide beam" 450 kHz, the sonar at 600 kHz at first. Each state: raw/<id>.png and items/<id>.txt (windowItems:
     every visible item, its class, objectName, rectangle, the text it shows and its tooltip). make_marks.py then writes
     shots.json. Ids: connect, settings_simple, settings_freq, settings_dsp, settings_chart, settings_period,
-    settings_soundspeed, settings_dataset, settings_baud, settings_flash, upgrade, beam_menu, beam_save, beam_active.
+    settings_soundspeed, settings_dataset, settings_baud, settings_flash, upgrade, beam_menu, beam_save, beam_active,
+    field_typing.
     After the pictures, a click on the frequency's "+": transc.txt holds the TRANSC setting the stand got, and
     items/freq_before.txt, items/freq_plus.txt the field before and after.
     -Sweep: no pictures for the guide; the stand steps its frequency unasked (200..900 kHz by 10, every 250 ms from 12 s
@@ -156,6 +157,13 @@ $steps.Add(@{ op = 'drag'; fromClass = 'FreqPresetButton'; fromIndex = 0; by = @
 $steps.Add(@{ op = 'clickText'; text = [regex]::Unescape('\u041e\u0442\u043c\u0435\u043d\u0430') }); $steps.Add(@{ op = 'wait'; ms = 1200 })
 $steps.Add(@{ op = 'presetRecall'; slot = 0 }); $steps.Add(@{ op = 'wait'; ms = 1500 })
 $steps.Add(@{ op = 'clickItem'; name = 'devBadgeButton'; index = 0 }); $steps.Add(@{ op = 'wait'; ms = 1000 }); Shot 'beam_active'
+# A number typed into the advanced section's frequency and not sent yet (in the accent colour, field_typing), then Esc:
+# nothing goes to the sonar, the field shows 700 again
+$steps.Add(@{ op = 'devicePage'; addr = 0 }); $steps.Add(@{ op = 'wait'; ms = 1200 })
+$steps.Add(@{ op = 'showText'; text = [regex]::Unescape('\u041a\u043e\u043b\u0438\u0447\u0435\u0441\u0442\u0432\u043e \u0438\u043c\u043f\u0443\u043b\u044c\u0441\u043e\u0432'); margin = 120 }); $steps.Add(@{ op = 'wait'; ms = 600 })
+$steps.Add(@{ op = 'drag'; fromText = '700'; fromIndex = 1; by = @(0, 0); steps = 1; holdMs = 0 }); $steps.Add(@{ op = 'wait'; ms = 400 })
+$steps.Add(@{ op = 'keys'; press = @('End', 'Backspace*6', '450') }); $steps.Add(@{ op = 'wait'; ms = 1200 }); Shot 'field_typing'
+$steps.Add(@{ op = 'keys'; press = @('Escape') }); $steps.Add(@{ op = 'wait'; ms = 1000 })
 # Last, so that no picture shows it: a click on the frequency's "+" in the advanced section -- does the setting go to the
 # sonar at once? (transc.txt: what the stand got, freq_plus.txt: the field after it)
 $steps.Add(@{ op = 'devicePage'; addr = 0 }); $steps.Add(@{ op = 'wait'; ms = 1200 })
