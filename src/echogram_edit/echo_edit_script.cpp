@@ -32,6 +32,12 @@
 #include "vehicle/mav_vehicle.h"
 #include "ui_probe.h"
 
+#ifdef Q_OS_WIN
+#include <qt_windows.h>
+#undef near   // windows.h's, empty; a variable below has the name
+#undef far
+#endif
+
 namespace {
 
 QString hex64(quint64 v)
@@ -1272,6 +1278,59 @@ void EchoEditScript::runStep(const QJsonObject& s)
         }
         qInfo().noquote() << QStringLiteral("echoedit script: itemSet %1: %2").arg(QString::fromUtf8(has),
                                                                                  item ? QStringLiteral("set") : QStringLiteral("no such item"));
+    }
+    else if (op == QLatin1String("windowFocus")) {
+        // The main window given the keyboard focus as on activation (a FocusIn), when it does not hold it: on the
+        // test desktop it is never activated, and without it no item of it takes the keys.
+        QQuickWindow* w = mainQuickWindow();
+        const bool was = w && w->isActive();
+        if (w && !was) {
+            QFocusEvent in(QEvent::FocusIn, Qt::ActiveWindowFocusReason);
+            QCoreApplication::sendEvent(w, &in);
+        }
+        QQuickItem* f = w ? w->activeFocusItem() : nullptr;
+        qInfo().noquote() << QStringLiteral("echoedit script: windowFocus %1, focus item %2")
+                                 .arg(!w ? QStringLiteral("no window") : was ? QStringLiteral("active") : QStringLiteral("given"),
+                                      f ? QString::fromLatin1(f->metaObject()->className()) : QStringLiteral("none"));
+    }
+    else if (op == QLatin1String("keys")) {
+        // Keys pressed on the main window the way Windows hands it a keyboard's (WM_KEYDOWN and WM_KEYUP posted to
+        // it, its message loop making the characters), so the app's shortcuts see them too, Esc among them: "press"
+        // a list of key names (End, Home, Backspace, Delete, Return, Escape, Tab; "Backspace*6" six times) and of
+        // plain characters ("450"). Windows only. (A setting typed goes out on Enter, not per digit, 2026-11-03.)
+        QQuickWindow* w = mainQuickWindow();
+        QQuickItem* f = w ? w->activeFocusItem() : nullptr;
+        QStringList did;
+#ifdef Q_OS_WIN
+        const HWND hwnd = w ? reinterpret_cast<HWND>(w->winId()) : nullptr;
+        auto tap = [hwnd](UINT vk) {
+            const LPARAM scan = LPARAM(MapVirtualKeyW(vk, MAPVK_VK_TO_VSC)) << 16;
+            PostMessageW(hwnd, WM_KEYDOWN, vk, scan | 1);
+            PostMessageW(hwnd, WM_KEYUP, vk, scan | 1 | (LPARAM(1) << 30) | (LPARAM(1) << 31));
+        };
+        const QList<QPair<QString, UINT>> named = {{QStringLiteral("End"), VK_END}, {QStringLiteral("Home"), VK_HOME},
+                                                   {QStringLiteral("Backspace"), VK_BACK}, {QStringLiteral("Delete"), VK_DELETE},
+                                                   {QStringLiteral("Return"), VK_RETURN}, {QStringLiteral("Escape"), VK_ESCAPE},
+                                                   {QStringLiteral("Tab"), VK_TAB}};
+        for (const QJsonValue& v : s.value(QStringLiteral("press")).toArray()) {
+            const QString p = v.toString();
+            const QString name = p.section(QLatin1Char('*'), 0, 0);
+            const int times = std::max(1, p.section(QLatin1Char('*'), 1, 1).toInt());
+            const auto key = std::find_if(named.begin(), named.end(), [&](const auto& k) { return k.first == name; });
+            for (int i = 0; hwnd && key != named.end() && i < times; ++i) {
+                tap(key->second);
+            }
+            for (int i = 0; hwnd && key == named.end() && i < p.size(); ++i) {
+                const SHORT vk = VkKeyScanW(p.at(i).unicode());
+                if (vk != -1) {
+                    tap(UINT(vk & 0xFF));
+                }
+            }
+            did << p;
+        }
+#endif
+        qInfo().noquote() << QStringLiteral("echoedit script: keys %1 to %2").arg(did.join(QLatin1Char(' ')),
+            f ? QString::fromLatin1(f->metaObject()->className()) : QStringLiteral("no focus item"));
     }
     else if (op == QLatin1String("typeInto")) {
         // A text field found by the hint it shows while empty ("near", its placeholder), its text set to "text" as

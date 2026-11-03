@@ -3436,3 +3436,25 @@ link, and 3 minutes later the session said "did not come back" -- wrongly.
 - **[verified]** upgradestart_live.ps1: start / stay / silent / replug / gone PASS; a build without the hand-over fails
   replug ("did not come back"). Full suite green but servomanual test_02 (flaky, 2 of 4 reruns pass; no QML changed).
   Not on the real logger yet.
+
+## A device's setting typed goes out once, on Enter (2026-11-03, branch `upgrade-replug`)
+
+The owner ("делай"): typing a frequency over the old one sent the sonar every step of the text. **[verified]** on the
+UDP stand with the old code: typing 450 over 600 sent 60, 40 (the field's lower limit), 45, then 450; Esc after 800
+typed still sent 45, 40, 80, 800 -- the window's Esc shortcut takes the key first and, a text field focused, drops it.
+
+- `KSpinBox.applyWhileTyping` (default true, as before): false applies what is typed on Enter, Tab or the field losing
+  focus; until then the text is in the accent colour (`pending`) and Esc gives the value back (`Keys.onShortcutOverride`
+  takes Esc from the window's shortcut). The -/+ buttons apply at once either way. False for every field that writes to
+  a device: DeviceSettingsPage's DevSpin (the simple view), DeviceParamRow (the advanced section, through UsblSpin's new
+  alias), ServoPanelBody's DevSpin, SettingMirrorRow's pinned device parameters; a pinned app setting follows its row.
+  Fields of the app's own settings and of drafts (the stand panel, USBL plans) still apply as typed: their buttons read
+  the value without the field losing focus first.
+- A click on a place that takes no focus (a row's name) leaves the field holding it: the value stays pending, in the
+  accent colour, until Enter, Tab or a click on another field.
+- Script steps `keys` (WM_KEYDOWN/WM_KEYUP posted to the main window, so its shortcuts see them too; Windows only) and
+  `windowFocus`. The guide stand acknowledges each setting (respOk + the frame's checksum) as a sonar does; without it
+  the app marked the section unconfirmed (red).
+- **[verified]** `tools/qml_check/typed_setting_live.ps1` PASS: the advanced section's and the simple view's frequency
+  each go out once (Enter, Tab), Esc sends nothing, "+" at once; with both fields applying as typed (mutants, one run)
+  8 checks fail. pin_mirror, freqpreset, fold, devswitch, pin_coverage, servomanual checks pass. Not on a real sonar.

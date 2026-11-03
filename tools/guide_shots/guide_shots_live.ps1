@@ -19,6 +19,8 @@
     -Sweep: no pictures for the guide; the stand steps its frequency unasked (200..900 kHz by 10, every 250 ms from 12 s
     on, faster than a sonar's 20 pings a step) and sweep_page_1/2, sweep_badge_1/2 show whether the advanced section's
     field and the number under the sonar's icon follow.
+    -Typing: no pictures for the guide; the frequency fields typed over, for tools/qml_check/typed_setting_live.ps1.
+    The stand acknowledges each setting (respOk and the frame's checksum) as a sonar does.
 
 .EXAMPLE
     powershell -ExecutionPolicy Bypass -File tools\guide_shots\guide_shots_live.ps1 -Exe <build>\KoggerApp.exe -PathPrefix "D:\Qt\6.8.3\llvm-mingw_64\bin;D:\Qt\Tools\llvm-mingw1706_64\bin"
@@ -31,6 +33,7 @@ param(
     [string] $Out = "$env:TEMP\kogger_guide_shots",
     [int]    $Port = 47641,
     [int]    $TimeoutS = 240,
+    [switch] $Typing,  # a frequency typed over: what the stand gets, when (tools/qml_check/typed_setting_live.ps1 judges)
     [switch] $Sweep,   # the sonar sweeping (DSP mode 5): TRANSC unasked each step; the field and the badge read twice
     [string] $PerfReg = 'D:\YandexDisk\DelphiProjects\KoggerApp_myEdition_transfer\KoggerApp-perf.reg'
 )
@@ -173,6 +176,36 @@ if ($Sweep) {   # the advanced section's frequency, then the badge, each read tw
     Shot 'sweep_badge_1'; $steps.Add(@{ op = 'wait'; ms = 1500 }); Shot 'sweep_badge_2'
     $steps.Add(@{ op = 'quit' })
 }
+if ($Typing) {   # the advanced section's frequency typed over, each way of ending it, then its "+"; typing_<n>: a picture
+                 # and the items after each stage, the stand's TRANSC in transc.txt
+    $steps = New-Object System.Collections.Generic.List[object]
+    $steps.Add(@{ op = 'wait'; ms = 3000 }); $steps.Add(@{ op = 'tr'; apply = 'ru'; context = 'HotActionsPanel'; source = 'Save' })
+    $steps.Add(@{ op = 'windowSize'; w = 1600; h = 1000 }); $steps.Add(@{ op = 'itemSet'; has = 'maxCardWidth'; set = @{ suppressed = $true } })
+    $steps.Add(@{ op = 'windowFocus' })
+    $steps.Add(@{ op = 'devicePage'; addr = 0 }); $steps.Add(@{ op = 'wait'; ms = 1500 })
+    $steps.Add(@{ op = 'clickText'; text = [regex]::Unescape('\u0420\u0430\u0441\u0448\u0438\u0440\u0435\u043d\u043d\u044b\u0435 \u043d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438') }); $steps.Add(@{ op = 'wait'; ms = 1000 })
+    function Field([string] $shown, [string] $typed) {   # a click into the field showing $shown, its text replaced by $typed
+        $steps.Add(@{ op = 'showText'; text = [regex]::Unescape('\u041a\u043e\u043b\u0438\u0447\u0435\u0441\u0442\u0432\u043e \u0438\u043c\u043f\u0443\u043b\u044c\u0441\u043e\u0432'); margin = 120 }); $steps.Add(@{ op = 'wait'; ms = 600 })
+        $steps.Add(@{ op = 'drag'; fromText = $shown; fromIndex = 1; by = @(0, 0); steps = 1; holdMs = 0 }); $steps.Add(@{ op = 'wait'; ms = 400 })
+        $steps.Add(@{ op = 'keys'; press = @('End', 'Backspace*6', $typed) }); $steps.Add(@{ op = 'wait'; ms = 1200 })
+    }
+    Field '600' '450'; Shot 'typing_1_typed'                                                   # nothing sent yet
+    $steps.Add(@{ op = 'keys'; press = @('Return') }); $steps.Add(@{ op = 'wait'; ms = 1000 }); Shot 'typing_2_return'   # 450
+    Field '450' '800'; $steps.Add(@{ op = 'keys'; press = @('Escape') }); $steps.Add(@{ op = 'wait'; ms = 1000 }); Shot 'typing_3_escape'   # nothing, 450 back
+    Field '450' '700'; $steps.Add(@{ op = 'keys'; press = @('Tab') }); $steps.Add(@{ op = 'wait'; ms = 1000 }); Shot 'typing_4_tab'   # 700
+    Field '700' '650'                                                                         # a click beside the field: told, not judged
+    $steps.Add(@{ op = 'clickText'; text = [regex]::Unescape('\u0427\u0430\u0441\u0442\u043e\u0442\u0430, \u043a\u0413\u0446'); index = 1 }); $steps.Add(@{ op = 'wait'; ms = 1000 }); Shot 'typing_5_beside'
+    $steps.Add(@{ op = 'keys'; press = @('Return') }); $steps.Add(@{ op = 'wait'; ms = 1000 }); Shot 'typing_6_return'   # 650 by now
+    $steps.Add(@{ op = 'showText'; text = [regex]::Unescape('\u041a\u043e\u043b\u0438\u0447\u0435\u0441\u0442\u0432\u043e \u0438\u043c\u043f\u0443\u043b\u044c\u0441\u043e\u0432'); margin = 120 }); $steps.Add(@{ op = 'wait'; ms = 600 })
+    $steps.Add(@{ op = 'drag'; fromText = '650'; fromIndex = 1; fromOffset = @(55, 0); by = @(0, 0); steps = 1; holdMs = 0 })
+    $steps.Add(@{ op = 'wait'; ms = 1000 }); Shot 'typing_7_plus'                                 # 655 at once
+    # the simple view's frequency, the first row of that name (a field of its own, above the advanced section)
+    $steps.Add(@{ op = 'showText'; text = [regex]::Unescape('\u0427\u0430\u0441\u0442\u043e\u0442\u0430, \u043a\u0413\u0446'); index = 0; margin = 300 }); $steps.Add(@{ op = 'wait'; ms = 600 })
+    $steps.Add(@{ op = 'drag'; fromText = '655'; fromIndex = 0; by = @(0, 0); steps = 1; holdMs = 0 }); $steps.Add(@{ op = 'wait'; ms = 400 })
+    $steps.Add(@{ op = 'keys'; press = @('End', 'Backspace*6', '500') }); $steps.Add(@{ op = 'wait'; ms = 1200 }); Shot 'typing_8_simple_typed'   # nothing sent yet
+    $steps.Add(@{ op = 'keys'; press = @('Return') }); $steps.Add(@{ op = 'wait'; ms = 1000 }); Shot 'typing_9_simple_return'   # 500
+    $steps.Add(@{ op = 'quit' })
+}
 $scriptPath = Join-Path $Out 'script.json'
 [System.IO.File]::WriteAllText($scriptPath, (@{ live = $true; steps = $steps.ToArray() } | ConvertTo-Json -Depth 6), (New-Object System.Text.UTF8Encoding $false))
 
@@ -207,7 +240,7 @@ try {
             $nextStep = $clock.Elapsed.TotalMilliseconds + 250
             $st.Freq = if ($st.Freq -lt 200 -or $st.Freq -ge 900) { 200 } else { $st.Freq + 10 }
             Send (Transc)
-            $events.Add(('{0,8:F0} ms  sent TRANSC {1} kHz' -f $clock.Elapsed.TotalMilliseconds, $st.Freq))
+            $events.Add(('{0} {1,8:F0} ms  sent TRANSC {2} kHz' -f (Get-Date).ToString('HH:mm:ss.fff'), $clock.Elapsed.TotalMilliseconds, $st.Freq))
         }
         if ($udp.Available -le 0) { Start-Sleep -Milliseconds 15; continue }
         $remote = New-Object System.Net.IPEndPoint([System.Net.IPAddress]::Any, 0)
@@ -221,9 +254,12 @@ try {
             $payload = [byte[]]($d[($i + 6)..($i + 5 + [Math]::Max($len, 1))] | Select-Object -First $len)
             $seen["0x{0:x2} t{1} v{2}" -f $id, $type, $ver] = 1 + [int]$seen["0x{0:x2} t{1} v{2}" -f $id, $type, $ver]
             if ($type -eq 2) {   # a setting: taken, reported back
+                # acknowledged first, as a sonar does: respOk and the setting frame's checksum, its version and route --
+                # without it the app marks the setting's section unconfirmed (red)
+                Send (Kp1 1 $ver $id ([byte[]](1, $d[$i + $total - 2], $d[$i + $total - 1])) $true)
                 switch ($id) {
                     0x14 { if ($len -ge 4) { $st.Freq = [BitConverter]::ToUInt16($payload, 0); $st.Pulses = $payload[2]; $st.Boost = $payload[3] }; Send (Transc)
-                           $events.Add(('{0,8:F0} ms  got TRANSC setting {1} kHz, {2} pulses' -f $clock.Elapsed.TotalMilliseconds, $st.Freq, $st.Pulses)) }
+                           $events.Add(('{0} {1,8:F0} ms  got TRANSC setting {2} kHz, {3} pulses' -f (Get-Date).ToString('HH:mm:ss.fff'), $clock.Elapsed.TotalMilliseconds, $st.Freq, $st.Pulses)) }
                     0x13 { if ($len -ge 1) { $st.Smooth = $payload[0] }; Send (Dsp) }
                     0x12 { if ($len -ge 6) { $st.Count = [BitConverter]::ToUInt16($payload, 0); $st.Res = [BitConverter]::ToUInt16($payload, 2); $st.Offset = [BitConverter]::ToUInt16($payload, 4) }; Send (ChartSetup) }
                     0x10 { if ($len -ge 9 -and $payload[0] -eq 1) { $st.Period = [BitConverter]::ToUInt32($payload, 1); $st.Mask = [BitConverter]::ToUInt32($payload, 5) }; Send (Dataset 1) }
@@ -267,5 +303,5 @@ $text = (New-Object System.IO.StreamReader($fs, [Text.Encoding]::UTF8)).ReadToEn
 $text -split "`r?`n" | Set-Content -LiteralPath (Join-Path $Out 'kogger.log') -Encoding UTF8
 $events | Set-Content -LiteralPath (Join-Path $Out 'transc.txt') -Encoding ASCII
 $seen.GetEnumerator() | Sort-Object Name | ForEach-Object { '{0} x{1}' -f $_.Name, $_.Value } | Set-Content -LiteralPath (Join-Path $Out 'asked.txt') -Encoding ASCII
-@($text -split "`r?`n" | Where-Object { $_ -match 'echoedit script: (grab|windowItems|showText|clickText|clickItem|storeCall|devicePage|drag|tr|windowSize|presetRecall)' } |
+@($text -split "`r?`n" | Where-Object { $_ -match 'echoedit script: (grab|windowItems|windowFocus|keys|showText|clickText|clickItem|storeCall|devicePage|drag|tr|windowSize|presetRecall)' } |
     ForEach-Object { $_ -replace '^.*echoedit script: ', '' })

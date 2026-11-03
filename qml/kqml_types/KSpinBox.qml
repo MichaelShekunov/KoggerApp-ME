@@ -18,6 +18,10 @@ Item {
     property int fontPixelSize: Tokens.fontLg
     property color textColor: AppPalette.isDark ? "#FFFFFF" : AppPalette.text
     property string toolTipText: ""
+    // false: what is typed is applied on Enter, Tab or the field losing focus, not per character -- a device's
+    // setting, where typing 450 over 700 would otherwise send it 40 (the lower limit), 45, then 450. Until then
+    // the text is in the accent colour and Esc gives the value back. The -/+ buttons apply at once either way.
+    property bool applyWhileTyping: true
     // function(value) -> the text shown instead of the number; the box then steps only, typing is off.
     property var textFromValue: null
     readonly property bool _customText: typeof textFromValue === "function"
@@ -29,6 +33,8 @@ Item {
 
     readonly property int _btnW: Math.round(26 * AppPalette.scale)
     readonly property bool _focused: input.activeFocus
+    // Typed and not applied yet (applyWhileTyping false).
+    readonly property bool pending: !applyWhileTyping && input.activeFocus && input.text !== displayedText()
 
     // Guard: while we programmatically set input.text we must NOT re-parse it
     // (would re-enter onTextChanged and cause feedback loops).
@@ -217,7 +223,7 @@ Item {
             height: parent.height
             horizontalAlignment: TextInput.AlignHCenter
             verticalAlignment: TextInput.AlignVCenter
-            color: root.textColor
+            color: root.pending ? AppPalette.accent : root.textColor
             font.pixelSize: root.fontPixelSize
             selectByMouse: true
             selectionColor: AppPalette.accentBg
@@ -236,7 +242,7 @@ Item {
             onTextChanged: {
                 if (root._settingText) return     // ignore our own programmatic writes
                 if (!activeFocus) return          // ignore external rewrites
-                if (root._stepped) return         // stepped mode: apply on commit/step only
+                if (root._stepped || !root.applyWhileTyping) return   // apply on commit/step only
                 root._parseAndApply()
             }
 
@@ -248,6 +254,10 @@ Item {
             Keys.onReturnPressed:  { root.commitTyped(); focus = false }
             Keys.onEnterPressed:   { root.commitTyped(); focus = false }
             Keys.onEscapePressed:  { root._setText(root.displayedText()); focus = false }
+            // The window's Esc shortcut (closing panels) would take the key first and, a text field focused, drop it.
+            Keys.onShortcutOverride: function(event) {
+                if (event.key === Qt.Key_Escape && !root.applyWhileTyping) event.accepted = true
+            }
             Keys.onUpPressed:      root.increment()
             Keys.onDownPressed:    root.decrement()
         }

@@ -639,6 +639,7 @@ Column {
             anchors.fill: parent
             from: ds.from; to: ds.to; stepSize: ds.stepSize; stepValues: ds.stepValues
             divisor: ds.divisor; decimals: ds.decimals; trimZeros: ds.trimZeros
+            applyWhileTyping: false   // the device gets the number typed, not each digit of it
             onValueModified: function(v) { if (!ds._in && ds.writeBack) ds.writeBack(v) }
         }
     }

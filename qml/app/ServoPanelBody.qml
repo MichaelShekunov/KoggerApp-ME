@@ -308,6 +308,7 @@ Column {
             anchors.fill: parent
             from: sp.from; to: sp.to; stepSize: sp.stepSize
             divisor: sp.divisor; decimals: sp.decimals
+            applyWhileTyping: false   // the device gets the number typed, not each digit of it
             onValueModified: function(v) { if (!sp._in && sp.writeBack) sp.writeBack(v) }
         }
     }

@@ -80,6 +80,7 @@ KIslandRow {
             stepSize: paramRow.meta.step
             fontPixelSize: Tokens.fontLg
             devValue: paramRow.paramValue
+            applyWhileTyping: false   // the device gets the number typed, not each digit of it
             writeBack: function(v) { paramRow.writeParam(v) }
         }
     }

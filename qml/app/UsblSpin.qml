@@ -15,6 +15,7 @@ Item {
     property int decimals: 0
     property var writeBack: null
     property int fontPixelSize: Tokens.fontSm
+    property alias applyWhileTyping: spin.applyWhileTyping
 
     implicitWidth: Math.round(115 * AppPalette.scale)
     implicitHeight: Tokens.controlHMd

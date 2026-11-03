@@ -171,6 +171,7 @@ Item {
         trimZeros: t ? t.trimZeros : false
         textFromValue: t ? t.textFromValue : null
         editable: t ? t.editable : true
+        applyWhileTyping: t ? t.applyWhileTyping : true
         fontPixelSize: Tokens.fontBase
         width: t ? Math.max(Math.round(96 * mrow._s), Math.min(Math.round(140 * mrow._s), t.width)) : implicitWidth
         onWantChanged: _sync()
@@ -263,6 +264,7 @@ Item {
             from: mrow.meta && typeof mrow.meta.from === "number" ? mrow.meta.from : 0
             to: mrow.meta && typeof mrow.meta.to === "number" ? mrow.meta.to : 100
             stepSize: mrow.meta && typeof mrow.meta.step === "number" ? mrow.meta.step : 1
+            applyWhileTyping: false   // the device gets the number typed, not each digit of it
             fontPixelSize: Tokens.fontBase
             width: Math.round(120 * mrow._s)
             onWantChanged: _sync()
