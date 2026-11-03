@@ -148,7 +148,8 @@ chan = I['echogram_channels']
 lab = by_text(chan, 'Каналы:', top=0)
 combos = sorted([i for i in chan if i['cls'].startswith('KCombo') and on_screen(i, 0, 1000) and 0 < i['y'] - lab['y'] < 80], key=lambda i: i['x'])
 shot('echogram_channels', [mk(1, union([combos[0]], pad=3), 'левый список: верхняя половина эхограммы'),
-                           mk(2, union([combos[-1]], pad=3), 'правый список: нижняя половина эхограммы')])
+                           mk(2, union([combos[-1]], pad=3), 'правый список: нижняя половина эхограммы'),
+                           mk(3, by_tip(chan, 'Настройки эхограммы'), 'Настройки эхограммы')])
 minus, typed, plus = spin_parts(I['field_typing'], '450')
 shot('field_typing', [mk(1, minus, '−'), mk(2, typed, '450, ещё не отправлено (синее)'), mk(3, plus, '+')])
 
