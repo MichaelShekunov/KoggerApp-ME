@@ -40,6 +40,10 @@ public:
         failUpgrade = -1,
         successUpgrade = 101      // the board answers from its firmware after the update
     };
+    // After the image (ID_BOOT v1 sent): flashed only once the board answers from its firmware (ID_VERSION v2).
+    static constexpr int64_t kUpgradeStartAskMs = 700;       // its boot mode asked this often meanwhile
+    static constexpr int64_t kUpgradeStartGraceMs = 3000;    // a bootloader's answer before this is not a verdict yet
+    static constexpr int64_t kUpgradeStartTimeoutMs = 30000; // nothing from it this long: no answer
 
     ChannelId getChannelId() const;
 
@@ -648,6 +652,8 @@ public:
     int getAverageChartLosses() const { return averageChartLosses_; };
     QUuid getLinkUuid() const;
     void setFirmware(const QByteArray& data);
+    // In place of a device gone while it waited for its board to start its firmware (DeviceManager::createDev).
+    void continueUpgradeStart(qint64 toldAtMs);
 
     /** Nothing from this device for DeviceLiveness::kStaleMs on a live connection: it is shown as without data.
      *  The link's own state cannot say it, another device on the link (the head unit's Wi-Fi module) may keep it
@@ -672,6 +678,9 @@ signals:
     /// The host port's rate must not be searched or changed (an update through a recorder).
     void linkRatePinRequested(bool pinned);
     void upgradingFirmwareDoneDM();
+    /// The image is in and the board told to start it (toldAtMs); then whether it did is known (settled).
+    void upgradeAwaitingStart(QUuid linkUuid, uint8_t address, qint64 toldAtMs);
+    void upgradeStartSettled(QUuid linkUuid, uint8_t address);
     void ringUpgradeRequested(QUuid linkUuid, int address, QByteArray firmware, QString expect, bool everyBoard);
     void busAddressRequested(QUuid linkUuid, int fromAddress, int toAddress);
     void busAddressDone(bool ok, int address, QString detail);
@@ -1055,9 +1064,6 @@ protected:
     // After the image (ID_BOOT v1 sent): flashed only once the board answers from its firmware (ID_VERSION v2).
     // 2026-10-29: a USBL behind the logger acknowledged every packet, was told to start, stayed in its bootloader,
     // and the app had said "successfully flashed".
-    static constexpr int64_t kUpgradeStartAskMs = 700;       // its boot mode asked this often meanwhile
-    static constexpr int64_t kUpgradeStartGraceMs = 3000;    // a bootloader's answer before this is not a verdict yet
-    static constexpr int64_t kUpgradeStartTimeoutMs = 30000; // nothing from it this long: no answer
     QTimer upgradeStartTimer_;
     int64_t upgradeStartAt_ = 0;   // when it was told to start, 0: no update waiting for it
     void finishUpgradeStart(int status, const QString& line);

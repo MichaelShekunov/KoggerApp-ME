@@ -140,6 +140,9 @@ public slots:
 
     void onStartUpgradingFirmware(QUuid linkUuid, uint8_t address, const QByteArray& firmware);
     void onUpgradingFirmwareDone();
+    /// A board told to start its firmware after an update, and then whether it did (DevDriver::finishUpgradeStart).
+    void onUpgradeAwaitingStart(QUuid linkUuid, uint8_t address, qint64 toldAtMs);
+    void onUpgradeStartSettled(QUuid linkUuid, uint8_t address);
     /// A ring board asked for its update (or for every ring board of its line): RingUpgrade runs it.
     void onRingUpgradeRequested(QUuid linkUuid, int address, QByteArray firmware, QString expect, bool everyBoard);
     /// A sonar asked for its bus address to be set and saved: BusAddress runs it on the sonar's line.
@@ -398,6 +401,11 @@ private:
     QUuid upgradeUuid_;
     uint8_t upgradeAddr_;
     QByteArray upgradeData_;
+    // The board waited for after its update (onUpgradeAwaitingStart): a device created on its line and address in
+    // the meantime waits in its place; 0: none.
+    QUuid startWaitUuid_;
+    uint8_t startWaitAddr_ = 0;
+    qint64 startWaitAt_ = 0;
     // ring firmware update (src/device/ring_upgrade.h): one run at a time, on one line
     RingUpgrade* ringUp_{ nullptr };
     QUuid ringLink_;

@@ -27,7 +27,8 @@ QString deviceLabelOf(DevQProperty* dev)
 {
     const QString name = dev->devName();
     const uint32_t serialNumber = dev->devSerialNumber();
-    return serialNumber ? QStringLiteral("%1 (SN %2)").arg(name).arg(serialNumber) : name;
+    // 0xFFFFFFFF: erased flash, no number written (the logger, 2026-11-03: "Recorder (SN 4294967295)")
+    return serialNumber && serialNumber != 0xFFFFFFFFu ? QStringLiteral("%1 (SN %2)").arg(name).arg(serialNumber) : name;
 }
 
 } // namespace

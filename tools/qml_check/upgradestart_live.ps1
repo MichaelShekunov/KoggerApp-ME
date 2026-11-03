@@ -20,6 +20,11 @@
       start   the update ends "flashed" (101), the log says the board answers from its firmware
       stay    it ends "failed (-3)", the board still in its bootloader; the warning says it stayed there
       silent  it ends "failed (-2)" after the wait for an answer
+      replug  the link closed once the image is in, the board quiet for 2 s (a board on USB starting anew, the logger
+              2026-11-03); the app opens the link again by itself, and the new device waits in the old one's place:
+              it ends "flashed"
+      gone    the link deleted once the image is in: it ends "failed (-2)" after the wait, not after the session's
+              3 minutes
       bar     the progress shown never went back ("fw-upgrade: progress back" not logged)
     Exit code 0 when every check holds.
 
@@ -30,7 +35,7 @@
 param(
     [Parameter(Mandatory = $true)] [string] $Exe,
     [string] $PathPrefix,
-    [string[]] $Runs = @('start', 'stay', 'silent'),
+    [string[]] $Runs = @('start', 'stay', 'silent', 'replug', 'gone'),
     [string] $Profile = 'perf',
     [int]    $Port = 47635,
     [string] $Out = "$env:TEMP\kogger_upgradestart_live",
@@ -80,9 +85,14 @@ foreach ($run in $Runs) {
     $dir = Join-Path $Out $run
     New-Item -ItemType Directory -Force -Path $dir | Out-Null
     $scriptPath = Join-Path $dir 'script.json'
-    (@{ live = $true; steps = @(@{ op = 'wait'; ms = 3000 }, @{ op = 'upgrade'; path = $image; addr = 0 },
-        @{ op = 'waitUpgrade'; timeoutMs = 60000 }, @{ op = 'quit' }) } | ConvertTo-Json -Depth 5) |
-        Set-Content -LiteralPath $scriptPath -Encoding ASCII
+    $steps = @(@{ op = 'wait'; ms = 3000 }, @{ op = 'upgrade'; path = $image; addr = 0 })
+    if ($run -eq 'replug' -or $run -eq 'gone') {   # the link closed once the image is in, as USB does to a board starting anew
+        # replug: closed, and the app opens it again by itself; gone: deleted, never back
+        $steps += @{ op = 'waitUpgrade'; until = 100; timeoutMs = 30000 }
+        $steps += $(if ($run -eq 'replug') { @{ op = 'link'; of = 'upgrade'; close = $true } } else { @{ op = 'link'; of = 'upgrade'; delete = $true } })
+    }
+    $steps += @{ op = 'waitUpgrade'; timeoutMs = 60000 }, @{ op = 'quit' }
+    (@{ live = $true; steps = $steps } | ConvertTo-Json -Depth 5) | Set-Content -LiteralPath $scriptPath -Encoding ASCII
 
     $udp = New-Object System.Net.Sockets.UdpClient(New-Object System.Net.IPEndPoint([System.Net.IPAddress]::Loopback, ($Port + 1)))
     [void]$udp.Client.IOControl(-1744830452, [byte[]](0, 0, 0, 0), $null)   # SIO_UDP_CONNRESET off
@@ -99,6 +109,7 @@ foreach ($run in $Runs) {
 
     $boot = $false        # the board in its bootloader
     $silent = $false      # the board says nothing more
+    $quietUntil = 0.0     # replug: the board says nothing till then (s on the clock), starting anew
     $packets = 0; $refused = 0; $started = $false
     $clock = [System.Diagnostics.Stopwatch]::StartNew()
     try {
@@ -115,14 +126,15 @@ foreach ($run in $Runs) {
                 $type = $mode -band 3; $ver = ($mode -shr 3) -band 7
                 $payload = [byte[]]$d[($i + 6)..($i + 5 + [Math]::Max(1, $len))]
                 $replies = @()
-                if ($route -eq 0 -and -not $silent) {   # the board
+                if ($route -eq 0 -and -not $silent -and $clock.Elapsed.TotalSeconds -ge $quietUntil) {   # the board
                     if ($id -eq 0x20 -and $type -eq $GETTING -and $ver -eq 0) { $replies += , (VersionV0 0 1001) }
                     if ($id -eq 0x20 -and $type -eq $GETTING -and $ver -eq 2) { $replies += , (VersionV2 0 $(if ($boot) { 1 } else { 0 })) }
                     if ($id -eq 0x24 -and $type -eq $SETTING -and $ver -eq 0) { $boot = $true }
                     if ($id -eq 0x24 -and $type -eq $SETTING -and $ver -eq 1) {
                         $started = $true
-                        if ($run -eq 'start') { $boot = $false }
-                        if ($run -eq 'silent') { $silent = $true }
+                        if ($run -eq 'start' -or $run -eq 'replug') { $boot = $false }
+                        if ($run -eq 'replug') { $quietUntil = $clock.Elapsed.TotalSeconds + 2.0 }
+                        if ($run -eq 'silent' -or $run -eq 'gone') { $silent = $true }
                     }
                     if ($boot -and $id -eq 0x25 -and $type -eq $SETTING -and $ver -eq 0) {
                         $packets++
@@ -150,13 +162,15 @@ foreach ($run in $Runs) {
     $mine = @($text -split "`r?`n")
     $mine | Set-Content -LiteralPath (Join-Path $dir 'kogger.log') -Encoding UTF8
 
-    $end = @($mine | Where-Object { $_ -match 'echoedit script: waitUpgrade, \d+ ms: ' } | ForEach-Object { $_ -replace '^.*ms: ', '' }) -join ''
+    $end = @($mine | Where-Object { $_ -match 'echoedit script: waitUpgrade, \d+ ms: ' } | ForEach-Object { $_ -replace '^.*ms: ', '' } |
+        Select-Object -Last 1) -join ''
     $upgrade = @($mine | Where-Object { $_ -match 'Upgrade: ' } | ForEach-Object { $_ -replace '^.*Upgrade: ', '' })
     $back = @($mine | Where-Object { $_ -match 'fw-upgrade: progress back' })
     $notes = @($mine | Where-Object { $_ -match 'notify: ' } | ForEach-Object { $_ -replace '^.*notify: ', '' })
-    $want = @{ start = 'flashed'; stay = 'failed (-3)'; silent = 'failed (-2)' }[$run]
-    $line = @{ start = 'the board answers from its firmware'; stay = 'still in its bootloader'; silent = 'has not answered' }[$run]
-    Expect ($end -eq $want -and @($upgrade | Where-Object { $_ -match $line }).Count -eq 1) $run (
+    $want = @{ start = 'flashed'; stay = 'failed (-3)'; silent = 'failed (-2)'; replug = 'flashed'; gone = 'failed (-2)' }[$run]
+    $line = @{ start = 'the board answers from its firmware'; stay = 'still in its bootloader'; silent = 'has not answered'
+               replug = 'the board is back on the link'; gone = 'no device of the board came back' }[$run]
+    Expect ($end -eq $want -and @($mine | Where-Object { $_ -match $line }).Count -ge 1) $run (
         "{0} packets acknowledged, told to start {1}; ends '{2}'; {3}" -f $packets, $started, $end, (($upgrade | Select-Object -Last 2) -join ' | '))
     Expect ($back.Count -eq 0 -and $refused -gt 0) "$run bar" ("{0} packets refused by the other device, the bar back {1} times" -f $refused, $back.Count)
     "    notifications: {0}" -f (($notes | Select-Object -Last 2) -join ' | ')

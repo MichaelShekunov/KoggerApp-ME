@@ -293,15 +293,24 @@ void EchoEditScript::step()
             settleClock_.start();
             upgradeLogged_ = -10;
         }
-        const int st = upgradeDev_ ? upgradeDev_->property("upgradeFWStatus").toInt() : -1;
+        const int st = upgradeDev_ ? upgradeDev_->property("upgradeFWStatus").toInt() : upgradeLast_;
         if (st >= 0 && st <= 100 && st / 10 > upgradeLogged_ / 10) {
             upgradeLogged_ = st;
             qInfo().noquote() << QStringLiteral("echoedit script: waitUpgrade, %1 %, %2 ms").arg(st).arg(settleClock_.elapsed());
         }
         const bool timedOut = settleClock_.elapsed() >= s.value(QStringLiteral("timeoutMs")).toInt(180000);
-        if (!upgradeDev_ || st == 101 || st < 0 || timedOut) {
+        // "until": stop once the progress reaches it (100: the image written, the board told to start)
+        const int until = s.value(QStringLiteral("until")).toInt(101);
+        if (until <= 100 && st >= until && st <= 100) {
+            qInfo().noquote() << QStringLiteral("echoedit script: waitUpgrade, %1 ms: reached %2 %").arg(settleClock_.elapsed()).arg(st);
+            settleClock_.invalidate();
+            ++next_;
+            timer_.start(0);
+            return;
+        }
+        if ((!upgradeDev_ && upgradeLink_.isNull()) || st == 101 || st < 0 || timedOut) {
             qInfo().noquote() << QStringLiteral("echoedit script: waitUpgrade, %1 ms: %2").arg(settleClock_.elapsed())
-                                 .arg(!upgradeDev_ ? QStringLiteral("no update running")
+                                 .arg(!upgradeDev_ && upgradeLink_.isNull() ? QStringLiteral("no update running")
                                       : st == 101 ? QStringLiteral("flashed")
                                       : st < 0 ? QStringLiteral("failed (%1)").arg(st)
                                       : QStringLiteral("timed out at %1 %").arg(st));
@@ -1063,8 +1072,16 @@ void EchoEditScript::runStep(const QJsonObject& s)
                 recording = d->property("devName").toString();
             }
         }
+        if (!upgradeWatched_) {   // the device the update ends on may be another than the one it began on
+            upgradeWatched_ = true;
+            connect(core_->getDeviceManagerWrapperPtr()->getWorker(), &DeviceManager::upgradeProgressChanged, this,
+                    [this](int status) { upgradeLast_ = status; });
+        }
+        upgradeLast_ = 0;
         const bool started = dev && recording.isEmpty() && core_->upgradeFW(path, dev);
         upgradeDev_ = started ? dev : nullptr;
+        auto* drv = qobject_cast<DevDriver*>(dev);
+        upgradeLink_ = started && drv ? drv->getLinkUuid() : QUuid();
         qInfo().noquote() << QStringLiteral("echoedit script: upgrade %1: %2").arg(path,
             !dev ? QStringLiteral("no such sonar")
                  : who + (started ? QStringLiteral(": started")
@@ -1426,10 +1443,13 @@ void EchoEditScript::runStep(const QJsonObject& s)
         }
     }
     else if (op == QLatin1String("link")) {
-        const QString port = s.value(QStringLiteral("port")).toString();
+        // "port": a serial link by its port; "of": "upgrade": the link of the device the "upgrade" step began on
+        // (the stand's UDP link: a board leaving the link as it starts anew)
+        const bool ofUpgrade = s.value(QStringLiteral("of")).toString() == QLatin1String("upgrade");
+        const QString port = ofUpgrade ? QStringLiteral("of the update") : s.value(QStringLiteral("port")).toString();
         LinkManagerWrapper* links = core_->getLinkManagerWrapperPtr();
-        QUuid uuid;
-        for (const QString& u : links->serialUuids()) {
+        QUuid uuid = ofUpgrade ? upgradeLink_ : QUuid();
+        for (const QString& u : ofUpgrade ? QStringList() : links->serialUuids()) {
             Link* l = links->getLinkPtr(QUuid(u));
             if (l && l->getPortName() == port)
                 uuid = QUuid(u);
@@ -1453,6 +1473,10 @@ void EchoEditScript::runStep(const QJsonObject& s)
             if (s.value(QStringLiteral("open")).toBool()) {
                 links->reopenLink(uuid.toString());
                 did << QStringLiteral("opened");
+            }
+            if (s.value(QStringLiteral("delete")).toBool()) {   // gone for good: a closed link is opened again
+                links->deleteLink(uuid);
+                did << QStringLiteral("deleted");
             }
         }
         qInfo().noquote() << QStringLiteral("echoedit script: link %1: %2").arg(port, did.join(QStringLiteral(", ")));

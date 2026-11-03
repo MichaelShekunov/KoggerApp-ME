@@ -151,6 +151,7 @@
 #include <QObject>
 #include <QElapsedTimer>
 #include <QPointer>
+#include <QUuid>
 #include <QPointF>
 #include <QTimer>
 
@@ -204,6 +205,9 @@ private:
     int servoDragMoves_ = 0;           // the moves the running "servoDrag" step has made
     QPointer<QObject> upgradeDev_;     // the sonar the "upgrade" step started on
     int upgradeLogged_ = -10;          // the progress "waitUpgrade" last logged
+    QUuid upgradeLink_;                // its link (a "link" step with "of": "upgrade")
+    int upgradeLast_ = 0;              // the last update status of any device: the device may be gone, a new one went on
+    bool upgradeWatched_ = false;
     QJsonObject probe_;              // the last magnetProbe's numbers, for dump
     QJsonObject export_;             // the last exportCsv's
     QJsonObject results_;            // the last despike's and turns' counts of pings

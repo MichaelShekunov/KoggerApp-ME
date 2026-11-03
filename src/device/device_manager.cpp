@@ -1565,6 +1565,32 @@ void DeviceManager::onUpgradingFirmwareDone()
     upgradeData_.clear();
 }
 
+void DeviceManager::onUpgradeAwaitingStart(QUuid linkUuid, uint8_t address, qint64 toldAtMs)
+{
+    startWaitUuid_ = linkUuid;
+    startWaitAddr_ = address;
+    startWaitAt_ = toldAtMs;
+    // The board's device waits kUpgradeStartTimeoutMs; one gone with its link and never back cannot say so: this
+    // does, a moment later, unless the wait was settled meanwhile.
+    const qint64 left = DevDriver::kUpgradeStartTimeoutMs - (QDateTime::currentMSecsSinceEpoch() - toldAtMs);
+    QTimer::singleShot(int(std::max<qint64>(0, left) + 2000), this, [this, toldAtMs]() {
+        if (startWaitAt_ != toldAtMs) {
+            return;
+        }
+        startWaitAt_ = 0;
+        qInfo().noquote() << QStringLiteral("upgrade: no device of the board came back within %1 s after it was told to start")
+                                 .arg(DevDriver::kUpgradeStartTimeoutMs / 1000);
+        emit upgradeProgressChanged(DevDriver::noAnswerUpgrade);
+    });
+}
+
+void DeviceManager::onUpgradeStartSettled(QUuid linkUuid, uint8_t address)
+{
+    if (startWaitUuid_ == linkUuid && startWaitAddr_ == address) {
+        startWaitAt_ = 0;
+    }
+}
+
 void DeviceManager::onRingUpgradeRequested(QUuid linkUuid, int address, QByteArray firmware, QString expect, bool everyBoard)
 {
     DevQProperty* requester = devTree_.value(linkUuid).value(uint8_t(address), nullptr);
@@ -2079,6 +2105,8 @@ DevQProperty* DeviceManager::createDev(QUuid uuid, Link* link, uint8_t addr)
 
     connect(dev, &DevQProperty::startUpgradingFirmwareDM, this, &DeviceManager::onStartUpgradingFirmware);
     connect(dev, &DevQProperty::upgradingFirmwareDoneDM, this, &DeviceManager::onUpgradingFirmwareDone);
+    connect(dev, &DevQProperty::upgradeAwaitingStart, this, &DeviceManager::onUpgradeAwaitingStart);
+    connect(dev, &DevQProperty::upgradeStartSettled, this, &DeviceManager::onUpgradeStartSettled);
     connect(dev, &DevQProperty::ringUpgradeRequested, this, &DeviceManager::onRingUpgradeRequested);
     connect(dev, &DevQProperty::busAddressRequested, this, &DeviceManager::onBusAddressRequested);
     connect(dev, &DevQProperty::ringRateRequested, this, &DeviceManager::onRingRateRequested);
@@ -2128,6 +2156,11 @@ DevQProperty* DeviceManager::createDev(QUuid uuid, Link* link, uint8_t addr)
         upgradeUuid_ = QUuid();
         QMetaObject::invokeMethod(dev, [dev, firmware = upgradeData_]() {
             dev->setFirmware(firmware);
+        }, Qt::QueuedConnection);
+    }
+    if (startWaitAt_ != 0 && startWaitUuid_ == uuid && startWaitAddr_ == addr) {
+        QMetaObject::invokeMethod(dev, [dev, toldAt = startWaitAt_]() {
+            dev->continueUpgradeStart(toldAt);
         }, Qt::QueuedConnection);
     }
 

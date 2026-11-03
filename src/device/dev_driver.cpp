@@ -4205,6 +4205,7 @@ void DevDriver::fwUpgradeProcess() {
 
         emit upgradingFirmwareDone();
         emit upgradingFirmwareDoneDM();
+        emit upgradeAwaitingStart(linkUuid_, lastAddress_, upgradeStartAt_);
 
         core.consoleInfo("Upgrade: the image is written and the board is told to start it; waiting for it to answer "
                          "from its firmware");
@@ -4218,8 +4219,21 @@ void DevDriver::finishUpgradeStart(int status, const QString& line) {
     endRecorderRoute();
     m_upgrade_status = status;
     core.consoleInfo(QStringLiteral("Upgrade: ") + line);
+    emit upgradeStartSettled(linkUuid_, lastAddress_);
     emit upgradeProgressChanged(m_upgrade_status);
     emit upgradeChanged();
+}
+
+void DevDriver::continueUpgradeStart(qint64 toldAtMs) {
+    // A board on USB (the logger, 2026-11-03) leaves the link when it starts anew and comes back as a new device:
+    // the wait goes on here, its time counted from when the board was told to start.
+    upgradeStartAt_ = toldAtMs;
+    m_upgrade_status = 100;
+    upgradeStartTimer_.start();
+    core.consoleInfo(QStringLiteral("Upgrade: the board is back on the link %1 s after it was told to start; waiting for "
+                                    "it to answer from its firmware")
+                         .arg(double(QDateTime::currentMSecsSinceEpoch() - toldAtMs) / 1000.0, 0, 'f', 1));
+    emit upgradeAwaitingStart(linkUuid_, lastAddress_, upgradeStartAt_);
 }
 
 bool DevDriver::checkUpgradeTimeouts(int64_t curr_time) {

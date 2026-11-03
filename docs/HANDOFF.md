@@ -3420,3 +3420,19 @@ stayed in its bootloader, the progress jumping between 0 % and its value. docs/R
   3867f8f7 says "flashed" in all three; a build without the guard sends the bar back 21 times of 21 packets.
 - Not found: why the USBL did not start. Next: the same file directly (control), then through the logger with
   KOGGER_FW_TRACE=1.
+
+## The wait for the board's start survives the board leaving the link (2026-11-03, branch `upgrade-replug`)
+
+The owner, through the session "Проверка папки GitLab": after flashing the logger from the app, the notification
+"waiting for the device" stayed. **[verified]** from the log: the logger answered from its new firmware 5 s after it was
+told to start, but on USB it left the link as it started anew (COM6 gone and back), the waiting device went with the
+link, and 3 minutes later the session said "did not come back" -- wrongly.
+
+- `DevDriver::upgradeAwaitingStart` / `upgradeStartSettled` to `DeviceManager`; a device created meanwhile on the same
+  line and address goes on waiting (`continueUpgradeStart`, its time from the start command), as the update itself
+  goes on after the bootloader's re-enumeration (`setFirmware`); none within 30 s: `DeviceManager` says "did not come
+  back" at 32 s. SN 0xFFFFFFFF not shown. Script: `waitUpgrade` "until", `link` "of": "upgrade" and "delete", the
+  outcome followed when the device is gone (`upgradeLast_`).
+- **[verified]** upgradestart_live.ps1: start / stay / silent / replug / gone PASS; a build without the hand-over fails
+  replug ("did not come back"). Full suite green but servomanual test_02 (flaky, 2 of 4 reruns pass; no QML changed).
+  Not on the real logger yet.
