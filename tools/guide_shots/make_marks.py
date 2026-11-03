@@ -21,7 +21,8 @@ def load(shot):
                           'y': float(m.group(5)), 'w': float(m.group(6)), 'h': float(m.group(7)),
                           'text': re.sub('<[^>]+>', '', m.group(8)) if m.group(8) else None, 'tip': m.group(9)})
     # only the page on top: the device page (0.0.0.4.1.8...) over the settings page (0.0.0.4.1.3...)
-    under = '0.0.0.4.1.8.' if shot == 'connect' else '0.0.0.4.1.3.' if shot.startswith(('settings_', 'upgrade', 'field_')) else None
+    under = ('0.0.0.4.1.8.' if shot in ('connect', 'toolset') else
+             '0.0.0.4.1.3.' if shot.startswith(('settings_', 'upgrade', 'field_', 'echogram_')) else None)
     items = [i for i in items if not (under and i['path'].startswith(under))]
     return items
 
@@ -102,7 +103,7 @@ def spin_parts(items, text):
 
 I = {s: load(s) for s in ('settings_simple', 'connect', 'settings_freq', 'settings_dsp', 'settings_chart', 'settings_period', 'settings_soundspeed',
                           'settings_dataset', 'settings_baud', 'settings_flash', 'upgrade', 'beam_menu', 'beam_save', 'beam_active',
-                          'field_typing')}
+                          'toolset', 'echogram_channels', 'field_typing')}
 shot('connect', [mk(1, item(I['connect'], text='COM3', cls='QQuickText', top=250, bottom=350), 'COM3'),
                  mk(2, item(I['connect'], text='921600', cls='QQuickText', top=250, bottom=350), '921600'),
                  mk(3, item(I['connect'], text='Открыть', top=250, bottom=350), 'Открыть'),
@@ -141,6 +142,13 @@ tip = [i for i in I['beam_active'] if i['text'] and 'Удерживайте' in 
 if tip:
     act.append(mk(3, union([tip[0]]), tip[0]['text']))
 shot('beam_active', act)
+shot('toolset', [mk(n, item(I['toolset'], text=t, cls='TabButton', top=150, bottom=930), t)
+                  for n, t in ((1, 'Для Рыболова'), (2, 'Трек дна'), (3, 'Максимум'))])
+chan = I['echogram_channels']
+lab = by_text(chan, 'Каналы:', top=0)
+combos = sorted([i for i in chan if i['cls'].startswith('KCombo') and on_screen(i, 0, 1000) and 0 < i['y'] - lab['y'] < 80], key=lambda i: i['x'])
+shot('echogram_channels', [mk(1, union([combos[0]], pad=3), 'левый список: верхняя половина эхограммы'),
+                           mk(2, union([combos[-1]], pad=3), 'правый список: нижняя половина эхограммы')])
 minus, typed, plus = spin_parts(I['field_typing'], '450')
 shot('field_typing', [mk(1, minus, '−'), mk(2, typed, '450, ещё не отправлено (синее)'), mk(3, plus, '+')])
 

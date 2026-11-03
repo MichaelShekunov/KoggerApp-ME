@@ -14,12 +14,14 @@
     every visible item, its class, objectName, rectangle, the text it shows and its tooltip). make_marks.py then writes
     shots.json. Ids: connect, settings_simple, settings_freq, settings_dsp, settings_chart, settings_period,
     settings_soundspeed, settings_dataset, settings_baud, settings_flash, upgrade, beam_menu, beam_save, beam_active,
-    field_typing.
+    toolset, echogram_channels, field_typing.
     After the pictures, a click on the frequency's "+": transc.txt holds the TRANSC setting the stand got, and
     items/freq_before.txt, items/freq_plus.txt the field before and after.
     -Sweep: no pictures for the guide; the stand steps its frequency unasked (200..900 kHz by 10, every 250 ms from 12 s
     on, faster than a sonar's 20 pings a step) and sweep_page_1/2, sweep_badge_1/2 show whether the advanced section's
     field and the number under the sonar's icon follow.
+    -Chart: the stand sends a two-sided echogram too (port bright, starboard dim), for the echogram's channels.
+    -Toolset: no pictures for the guide; the toolset's levels, what each shows (items/groups_<n>, echo_<n>, device_<n>).
     -Typing: no pictures for the guide; the frequency fields typed over, for tools/qml_check/typed_setting_live.ps1.
     The stand acknowledges each setting (respOk and the frame's checksum) as a sonar does.
 
@@ -34,6 +36,8 @@ param(
     [string] $Out = "$env:TEMP\kogger_guide_shots",
     [int]    $Port = 47641,
     [int]    $TimeoutS = 240,
+    [switch] $Chart,   # the stand sends a two-sided echogram (ID_CHART v1): port bright, starboard dim
+    [switch] $Toolset, # the toolset's three levels: what each shows (items only, no pictures for the guide)
     [switch] $Typing,  # a frequency typed over: what the stand gets, when (tools/qml_check/typed_setting_live.ps1 judges)
     [switch] $Sweep,   # the sonar sweeping (DSP mode 5): TRANSC unasked each step; the field and the badge read twice
     [string] $PerfReg = 'D:\YandexDisk\DelphiProjects\KoggerApp_myEdition_transfer\KoggerApp-perf.reg'
@@ -171,6 +175,13 @@ $steps.Add(@{ op = 'showText'; text = [regex]::Unescape('\u041a\u043e\u043b\u043
 $steps.Add(@{ op = 'windowItems'; name = 'main'; path = (Join-Path $Out 'items\freq_before.txt') })
 $steps.Add(@{ op = 'drag'; fromText = '700'; fromIndex = 1; fromOffset = @(55, 0); by = @(0, 0); steps = 1; holdMs = 0 })
 $steps.Add(@{ op = 'wait'; ms = 800 }); $steps.Add(@{ op = 'windowItems'; name = 'main'; path = (Join-Path $Out 'items\freq_plus.txt') })
+# After the "+" check, as no other picture is taken after them: the toolset in the Interface group (the
+# profile's level, Maximum), then the echogram's settings by its gear, at its
+# channels (the two halves of the echogram)
+$steps.Add(@{ op = 'storeCall'; method = 'openAppSettingsAtGroup'; args = @('app.preference') }); $steps.Add(@{ op = 'wait'; ms = 1200 })
+$steps.Add(@{ op = 'showText'; text = [regex]::Unescape('\u041d\u0430\u0431\u043e\u0440 \u0438\u043d\u0441\u0442\u0440\u0443\u043c\u0435\u043d\u0442\u043e\u0432:'); margin = 200 }); Shot 'toolset'
+$steps.Add(@{ op = 'drag'; fromTip = [regex]::Unescape('\u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438 \u044d\u0445\u043e\u0433\u0440\u0430\u043c\u043c\u044b'); by = @(0, 0); steps = 1; holdMs = 0 }); $steps.Add(@{ op = 'wait'; ms = 1200 })
+$steps.Add(@{ op = 'showText'; text = [regex]::Unescape('\u041a\u0430\u043d\u0430\u043b\u044b:'); margin = 150 }); Shot 'echogram_channels'
 $steps.Add(@{ op = 'quit' })
 if ($Sweep) {   # the advanced section's frequency, then the badge, each read twice while the sonar sweeps
     $steps = New-Object System.Collections.Generic.List[object]
@@ -182,6 +193,29 @@ if ($Sweep) {   # the advanced section's frequency, then the badge, each read tw
     Shot 'sweep_page_1'; $steps.Add(@{ op = 'wait'; ms = 1500 }); Shot 'sweep_page_2'
     $steps.Add(@{ op = 'storeCall'; set = @{ settingsPanelOpen = $false; settingsSubPageActive = $false } }); $steps.Add(@{ op = 'wait'; ms = 1000 })
     Shot 'sweep_badge_1'; $steps.Add(@{ op = 'wait'; ms = 1500 }); Shot 'sweep_badge_2'
+    $steps.Add(@{ op = 'quit' })
+}
+if ($Toolset) {   # each level of the toolset: the app's settings groups (all folded), the echogram's settings and the
+                  # device page, as items (toolset_<n>.png: the Interface group at that level)
+    $steps = New-Object System.Collections.Generic.List[object]
+    $steps.Add(@{ op = 'wait'; ms = 3000 }); $steps.Add(@{ op = 'tr'; apply = 'ru'; context = 'HotActionsPanel'; source = 'Save' })
+    $steps.Add(@{ op = 'windowSize'; w = 1600; h = 1000 }); $steps.Add(@{ op = 'itemSet'; has = 'maxCardWidth'; set = @{ suppressed = $true } })
+    $steps.Add(@{ op = 'storeCall'; method = 'openAppSettingsAtGroup'; args = @('app.preference') }); $steps.Add(@{ op = 'wait'; ms = 1200 })
+    Shot 'toolset_start'   # the profile's own level
+    $steps.Add(@{ op = 'devicePage'; addr = 0 }); $steps.Add(@{ op = 'wait'; ms = 1500 })
+    $steps.Add(@{ op = 'clickText'; text = [regex]::Unescape('\u0420\u0430\u0441\u0448\u0438\u0440\u0435\u043d\u043d\u044b\u0435 \u043d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438') }); $steps.Add(@{ op = 'wait'; ms = 1000 })
+    foreach ($lv in @(@(0, [regex]::Unescape('\u0414\u043b\u044f \u0420\u044b\u0431\u043e\u043b\u043e\u0432\u0430')), @(1, [regex]::Unescape('\u0422\u0440\u0435\u043a \u0434\u043d\u0430')), @(2, [regex]::Unescape('\u041c\u0430\u043a\u0441\u0438\u043c\u0443\u043c')))) {
+        $n = $lv[0]
+        $steps.Add(@{ op = 'storeCall'; method = 'openAppSettingsAtGroup'; args = @('app.preference') }); $steps.Add(@{ op = 'wait'; ms = 1200 })
+        $steps.Add(@{ op = 'showText'; text = [regex]::Unescape('\u041d\u0430\u0431\u043e\u0440 \u0438\u043d\u0441\u0442\u0440\u0443\u043c\u0435\u043d\u0442\u043e\u0432:'); margin = 200 }); $steps.Add(@{ op = 'wait'; ms = 400 })
+        $steps.Add(@{ op = 'clickText'; text = $lv[1] }); $steps.Add(@{ op = 'wait'; ms = 1200 }); Shot "toolset_$n"
+        $steps.Add(@{ op = 'storeCall'; set = @{ settingsGroupExpandedMap = @{} } }); $steps.Add(@{ op = 'wait'; ms = 1000 })
+        $steps.Add(@{ op = 'windowItems'; name = 'main'; path = (Join-Path $Out "items\groups_$n.txt") })
+        $steps.Add(@{ op = 'drag'; fromTip = [regex]::Unescape('\u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438 \u044d\u0445\u043e\u0433\u0440\u0430\u043c\u043c\u044b'); by = @(0, 0); steps = 1; holdMs = 0 }); $steps.Add(@{ op = 'wait'; ms = 1200 })
+        Shot "echo_$n"
+        $steps.Add(@{ op = 'devicePage'; addr = 0 }); $steps.Add(@{ op = 'wait'; ms = 1500 })
+        $steps.Add(@{ op = 'windowItems'; name = 'main'; path = (Join-Path $Out "items\device_$n.txt") })
+    }
     $steps.Add(@{ op = 'quit' })
 }
 if ($Typing) {   # the advanced section's frequency typed over, each way of ending it, then its "+"; typing_<n>: a picture
@@ -230,6 +264,16 @@ $psi.EnvironmentVariables['KOGGER_UI_PROBE'] = $Out   # gives the probe its wind
 $before = if (Test-Path -LiteralPath $log) { (Get-Item -LiteralPath $log).Length } else { 0 }
 $proc = Start-TestDesktopProcess $psi
 $seen = @{}
+$pings = @(foreach ($k in 0..15) {
+    $b = 300 + [int](40 * [Math]::Sin($k / 16.0 * 2 * [Math]::PI))
+    $a = New-Object byte[] 1200
+    for ($i = 0; $i -lt 600; $i++) {
+        $a[2 * $i] = [byte]$(if ($i -lt $b) { 10 + ($i % 7) } else { [Math]::Max(40, 230 - ($i - $b)) })
+        $a[2 * $i + 1] = [byte]$(if ($i -lt $b + 30) { 10 + ($i % 5) } else { [Math]::Max(20, 110 - [int](($i - $b - 30) / 2)) })
+    }
+    , $a
+})
+$nextPing = 0.0; $pingNo = 0
 $events = New-Object System.Collections.Generic.List[string]   # the stand's TRANSC, sent and got, with times
 $clock = [System.Diagnostics.Stopwatch]::StartNew()
 $nextStep = 0.0
@@ -243,6 +287,17 @@ try {
             $beat = Get-Date
             Send (Kp1 1 0 0x20 ([byte[]](0, 17, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4)) $false)
             Send (Kp1 1 2 0x20 ([byte[]](0, 0, 17, 0, 1, 0, 0, 21, 11)) $false)
+        }
+        if ($Chart -and $clock.Elapsed.TotalMilliseconds -ge $nextPing) {   # a ping every 250 ms, in parts of 240 bytes:
+            $nextPing = $clock.Elapsed.TotalMilliseconds + 250                # [U2 offset][U2 resolution][U2 abs. offset][data]
+            $pg = $pings[$pingNo % $pings.Count]; $pingNo++
+            for ($off = 0; $off -lt $pg.Length; $off += 240) {
+                $n = [Math]::Min(240, $pg.Length - $off)
+                $pl = New-Object byte[] (6 + $n)
+                $pl[0] = [byte]($off -band 0xFF); $pl[1] = [byte]($off -shr 8); $pl[2] = [byte]($st.Res -band 0xFF); $pl[3] = [byte]($st.Res -shr 8)
+                [Array]::Copy($pg, $off, $pl, 6, $n)
+                Send (Kp1 1 1 0x03 $pl $false)
+            }
         }
         if ($Sweep -and $clock.Elapsed.TotalSeconds -ge 12 -and $clock.Elapsed.TotalMilliseconds -ge $nextStep) {
             $nextStep = $clock.Elapsed.TotalMilliseconds + 250
@@ -311,5 +366,5 @@ $text = (New-Object System.IO.StreamReader($fs, [Text.Encoding]::UTF8)).ReadToEn
 $text -split "`r?`n" | Set-Content -LiteralPath (Join-Path $Out 'kogger.log') -Encoding UTF8
 $events | Set-Content -LiteralPath (Join-Path $Out 'transc.txt') -Encoding ASCII
 $seen.GetEnumerator() | Sort-Object Name | ForEach-Object { '{0} x{1}' -f $_.Name, $_.Value } | Set-Content -LiteralPath (Join-Path $Out 'asked.txt') -Encoding ASCII
-@($text -split "`r?`n" | Where-Object { $_ -match 'echoedit script: (grab|windowItems|windowFocus|keys|showText|clickText|clickItem|storeCall|devicePage|drag|tr|windowSize|presetRecall)' } |
+@($text -split "`r?`n" | Where-Object { $_ -match 'echoedit script: (grab|windowItems|windowFocus|keys|storeCall|showText|clickText|clickItem|storeCall|devicePage|drag|tr|windowSize|presetRecall)' } |
     ForEach-Object { $_ -replace '^.*echoedit script: ', '' })

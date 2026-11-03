@@ -1177,7 +1177,8 @@ void EchoEditScript::runStep(const QJsonObject& s)
                                                                                   : QStringLiteral("no Flickable"));
     }
     else if (op == QLatin1String("storeCall")) {
-        // A method of the workspace store without arguments, as a menu does: "openDeveloperSettings".
+        // A method of the workspace store, as a menu does: "openDeveloperSettings"; "args" one argument of it
+        // ("openAppSettingsAtGroup", ["app.preference"]: the settings with that group open).
         // "set": properties of the store set as well, as its controls do ("settingsPanelOpen": false closes the settings).
         QObject* store = findObjectWithProperty("settingsPinTarget");
         const QJsonObject set = s.value(QStringLiteral("set")).toObject();
@@ -1185,7 +1186,11 @@ void EchoEditScript::runStep(const QJsonObject& s)
             store->setProperty(it.key().toUtf8().constData(), it.value().toVariant());
         }
         const QByteArray method = s.value(QStringLiteral("method")).toString().toUtf8();
-        const bool called = store && (method.isEmpty() ? !set.isEmpty() : QMetaObject::invokeMethod(store, method.constData()));
+        const QJsonArray args = s.value(QStringLiteral("args")).toArray();
+        const bool called = store && (method.isEmpty() ? !set.isEmpty()
+                                      : args.size() == 1 ? QMetaObject::invokeMethod(store, method.constData(),
+                                                                                     Q_ARG(QVariant, args.at(0).toVariant()))
+                                                         : QMetaObject::invokeMethod(store, method.constData()));
         qInfo().noquote() << QStringLiteral("echoedit script: storeCall %1 %2")
                              .arg(QString::fromUtf8(method), called ? QStringLiteral("called") : QStringLiteral("failed"));
     }
@@ -1831,19 +1836,23 @@ std::optional<QPointF> gesturePoint(const QJsonObject& s, const QString& key, QQ
     if (xy.size() == 2) {
         return QPointF(xy.at(0).toDouble(), xy.at(1).toDouble());
     }
-    if (s.contains(key + QStringLiteral("Text")) || s.contains(key + QStringLiteral("Class"))) {   // an item's middle
+    if (s.contains(key + QStringLiteral("Text")) || s.contains(key + QStringLiteral("Class"))
+        || s.contains(key + QStringLiteral("Tip"))) {   // an item's middle; "Tip": the button with that tooltip
         const int index = s.value(key + QStringLiteral("Index")).toInt(0);
         QQuickItem* it = nullptr;
         if (s.contains(key + QStringLiteral("Text"))) {
             it = findShownText(w, s.value(key + QStringLiteral("Text")).toString(), index);
         } else {
             const QByteArray cls = s.value(key + QStringLiteral("Class")).toString().toUtf8();
+            const QString tip = s.value(key + QStringLiteral("Tip")).toString();
             int seen = 0;
             std::function<void(QQuickItem*)> walk = [&](QQuickItem* i) {
                 if (it || !i->isVisible()) {
                     return;
                 }
-                if (QByteArray(i->metaObject()->className()).startsWith(cls) && seen++ == index) {
+                const bool hit = tip.isEmpty() ? QByteArray(i->metaObject()->className()).startsWith(cls)
+                                               : i->property("toolTipText").toString() == tip;
+                if (hit && seen++ == index) {
                     it = i;
                     return;
                 }
