@@ -8,7 +8,7 @@ import sys
 from PIL import Image, ImageDraw
 
 run, out_json, sheet, build = sys.argv[1:5]
-LINE = re.compile(r'^(\S+) (\S+) (\S+) ([\d.-]+),([\d.-]+) ([\d.]+)x([\d.]+)(?: "(.*)")?$')
+LINE = re.compile(r'^(\S+) (\S+) (\S+) ([\d.-]+),([\d.-]+) ([\d.]+)x([\d.]+)(?: "(.*?)")?(?: tip="(.*)")?$')
 PANEL_RIGHT = 600   # the settings panel's right edge at 1600x1000
 
 
@@ -19,7 +19,7 @@ def load(shot):
         if m:
             items.append({'path': m.group(1), 'cls': m.group(2), 'name': m.group(3), 'x': float(m.group(4)),
                           'y': float(m.group(5)), 'w': float(m.group(6)), 'h': float(m.group(7)),
-                          'text': re.sub('<[^>]+>', '', m.group(8)) if m.group(8) else None})
+                          'text': re.sub('<[^>]+>', '', m.group(8)) if m.group(8) else None, 'tip': m.group(9)})
     # only the page on top: the device page (0.0.0.4.1.8...) over the settings page (0.0.0.4.1.3...)
     under = '0.0.0.4.1.8.' if shot == 'connect' else '0.0.0.4.1.3.' if shot.startswith(('settings_', 'upgrade')) else None
     items = [i for i in items if not (under and i['path'].startswith(under))]
@@ -83,11 +83,20 @@ def mk(n, rect, label):
     return {'rect': rect, 'n': n, 'label': label}
 
 
-I = {s: load(s) for s in ('connect', 'settings_freq', 'settings_dsp', 'settings_chart', 'settings_period', 'settings_soundspeed',
+def by_tip(items, tip):
+    hits = [i for i in items if i['tip'] == tip and on_screen(i, 0, 1000)]
+    if not hits:
+        raise KeyError(tip)
+    return union([hits[0]], pad=3)
+
+
+I = {s: load(s) for s in ('settings_simple', 'connect', 'settings_freq', 'settings_dsp', 'settings_chart', 'settings_period', 'settings_soundspeed',
                           'settings_dataset', 'settings_baud', 'settings_flash', 'upgrade', 'beam_menu', 'beam_save', 'beam_active')}
 shot('connect', [mk(1, item(I['connect'], text='COM3', cls='QQuickText', top=250, bottom=350), 'COM3'),
                  mk(2, item(I['connect'], text='921600', cls='QQuickText', top=250, bottom=350), '921600'),
-                 mk(3, item(I['connect'], text='Открыть', top=250, bottom=350), 'Открыть')])
+                 mk(3, item(I['connect'], text='Открыть', top=250, bottom=350), 'Открыть'),
+                 mk(4, by_tip(I['connect'], 'Настройки подключения'), 'Настройки подключения')])
+shot('settings_simple', [mk(1, row(I['settings_simple'], 'Расширенные настройки'), 'Расширенные настройки')])
 shot('settings_freq', [mk(1, row(I['settings_freq'], 'Частота, кГц'), 'Частота, кГц'),
                        mk(2, row(I['settings_freq'], 'Количество импульсов'), 'Количество импульсов')])
 shot('settings_dsp', [mk(1, row(I['settings_dsp'], 'Гор. сглаживание'), 'Гор. сглаживание')])
@@ -112,7 +121,9 @@ shot('upgrade', [mk(1, union([path, dots]), 'файл прошивки и «...�
                  mk(2, item(up, text='ПРОШИТЬ', cls='DevButton', top=150, bottom=930), 'ПРОШИТЬ')])
 shot('beam_menu', [mk(1, item(I['beam_menu'], name='devBadgeButton'), 'значок сонара'),
                    mk(2, biggest(I['beam_menu'], 'FreqPresetButton', 0), 'узкий луч'),
-                   mk(3, biggest(I['beam_menu'], 'FreqPresetButton', 1), 'широкий луч')])
+                   mk(3, biggest(I['beam_menu'], 'FreqPresetButton', 1), 'широкий луч'),
+                   mk(4, by_tip(I['beam_menu'], 'Открыть настройки'), 'K'),
+                   mk(5, by_tip(I['beam_menu'], 'Настройки устройства'), 'Настройки устройства')])
 shot('beam_save', [mk(1, item(I['beam_save'], text='Записать'), 'Записать')])
 act = [mk(1, item(I['beam_active'], name='presetNameText'), 'Узкий луч'), mk(2, biggest(I['beam_active'], 'FreqPresetButton', 0), 'узкий луч')]
 tip = [i for i in I['beam_active'] if i['text'] and 'Удерживайте' in i['text'] and i['cls'].startswith('QQuickText')]

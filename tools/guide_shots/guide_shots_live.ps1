@@ -11,9 +11,14 @@
     Russian, the main window 1600x1000, toasts kept out, against a UDP stand playing a nanoSSS 11.21: its settings
     (TRANSC, DSP, CHART_SETUP, DATASET, SND_SPEED, DIST_SETUP, UART) answered and taken, presets 0 "Narrow beam" 700 kHz
     and 1 "Wide beam" 450 kHz, the sonar at 600 kHz at first. Each state: raw/<id>.png and items/<id>.txt (windowItems:
-    every visible item, its class, objectName, rectangle and the text it shows). make_marks.py then writes shots.json.
-    Ids: connect, settings_freq, settings_dsp, settings_chart, settings_period, settings_soundspeed, settings_dataset,
-    settings_baud, settings_flash, upgrade, beam_menu, beam_save, beam_active.
+    every visible item, its class, objectName, rectangle, the text it shows and its tooltip). make_marks.py then writes
+    shots.json. Ids: connect, settings_simple, settings_freq, settings_dsp, settings_chart, settings_period,
+    settings_soundspeed, settings_dataset, settings_baud, settings_flash, upgrade, beam_menu, beam_save, beam_active.
+    After the pictures, a click on the frequency's "+": transc.txt holds the TRANSC setting the stand got, and
+    items/freq_before.txt, items/freq_plus.txt the field before and after.
+    -Sweep: no pictures for the guide; the stand steps its frequency unasked (200..900 kHz by 10, every 250 ms from 12 s
+    on, faster than a sonar's 20 pings a step) and sweep_page_1/2, sweep_badge_1/2 show whether the advanced section's
+    field and the number under the sonar's icon follow.
 
 .EXAMPLE
     powershell -ExecutionPolicy Bypass -File tools\guide_shots\guide_shots_live.ps1 -Exe <build>\KoggerApp.exe -PathPrefix "D:\Qt\6.8.3\llvm-mingw_64\bin;D:\Qt\Tools\llvm-mingw1706_64\bin"
@@ -26,6 +31,7 @@ param(
     [string] $Out = "$env:TEMP\kogger_guide_shots",
     [int]    $Port = 47641,
     [int]    $TimeoutS = 240,
+    [switch] $Sweep,   # the sonar sweeping (DSP mode 5): TRANSC unasked each step; the field and the badge read twice
     [string] $PerfReg = 'D:\YandexDisk\DelphiProjects\KoggerApp_myEdition_transfer\KoggerApp-perf.reg'
 )
 $ErrorActionPreference = 'Stop'
@@ -127,6 +133,7 @@ $steps.Add(@{ op = 'itemSet'; has = 'maxCardWidth'; set = @{ suppressed = $true 
 $steps.Add(@{ op = 'wait'; ms = 1500 })
 $steps.Add(@{ op = 'storeCall'; method = 'openConnectionsSettings' }); $steps.Add(@{ op = 'wait'; ms = 1000 }); Shot 'connect'
 $steps.Add(@{ op = 'devicePage'; addr = 0 }); $steps.Add(@{ op = 'wait'; ms = 1500 })
+if (-not $Sweep) { $steps.Add(@{ op = 'showText'; text = [regex]::Unescape('\u0420\u0430\u0441\u0448\u0438\u0440\u0435\u043d\u043d\u044b\u0435 \u043d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438'); margin = 400 }); Shot 'settings_simple' }
 $steps.Add(@{ op = 'clickText'; text = [regex]::Unescape('\u0420\u0430\u0441\u0448\u0438\u0440\u0435\u043d\u043d\u044b\u0435 \u043d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438') }); $steps.Add(@{ op = 'wait'; ms = 1000 })
 foreach ($p in @(@('settings_freq', [regex]::Unescape('\u041a\u043e\u043b\u0438\u0447\u0435\u0441\u0442\u0432\u043e \u0438\u043c\u043f\u0443\u043b\u044c\u0441\u043e\u0432')),
                  @('settings_dsp', [regex]::Unescape('\u0413\u043e\u0440. \u0441\u0433\u043b\u0430\u0436\u0438\u0432\u0430\u043d\u0438\u0435')),
@@ -146,7 +153,26 @@ $steps.Add(@{ op = 'drag'; fromClass = 'FreqPresetButton'; fromIndex = 0; by = @
 $steps.Add(@{ op = 'clickText'; text = [regex]::Unescape('\u041e\u0442\u043c\u0435\u043d\u0430') }); $steps.Add(@{ op = 'wait'; ms = 1200 })
 $steps.Add(@{ op = 'presetRecall'; slot = 0 }); $steps.Add(@{ op = 'wait'; ms = 1500 })
 $steps.Add(@{ op = 'clickItem'; name = 'devBadgeButton'; index = 0 }); $steps.Add(@{ op = 'wait'; ms = 1000 }); Shot 'beam_active'
+# Last, so that no picture shows it: a click on the frequency's "+" in the advanced section -- does the setting go to the
+# sonar at once? (transc.txt: what the stand got, freq_plus.txt: the field after it)
+$steps.Add(@{ op = 'devicePage'; addr = 0 }); $steps.Add(@{ op = 'wait'; ms = 1200 })
+$steps.Add(@{ op = 'showText'; text = [regex]::Unescape('\u041a\u043e\u043b\u0438\u0447\u0435\u0441\u0442\u0432\u043e \u0438\u043c\u043f\u0443\u043b\u044c\u0441\u043e\u0432'); margin = 120 }); $steps.Add(@{ op = 'wait'; ms = 600 })
+$steps.Add(@{ op = 'windowItems'; name = 'main'; path = (Join-Path $Out 'items\freq_before.txt') })
+$steps.Add(@{ op = 'drag'; fromText = '700'; fromIndex = 1; fromOffset = @(55, 0); by = @(0, 0); steps = 1; holdMs = 0 })
+$steps.Add(@{ op = 'wait'; ms = 800 }); $steps.Add(@{ op = 'windowItems'; name = 'main'; path = (Join-Path $Out 'items\freq_plus.txt') })
 $steps.Add(@{ op = 'quit' })
+if ($Sweep) {   # the advanced section's frequency, then the badge, each read twice while the sonar sweeps
+    $steps = New-Object System.Collections.Generic.List[object]
+    $steps.Add(@{ op = 'wait'; ms = 3000 }); $steps.Add(@{ op = 'tr'; apply = 'ru'; context = 'HotActionsPanel'; source = 'Save' })
+    $steps.Add(@{ op = 'windowSize'; w = 1600; h = 1000 }); $steps.Add(@{ op = 'itemSet'; has = 'maxCardWidth'; set = @{ suppressed = $true } })
+    $steps.Add(@{ op = 'devicePage'; addr = 0 }); $steps.Add(@{ op = 'wait'; ms = 1500 })
+    $steps.Add(@{ op = 'clickText'; text = [regex]::Unescape('\u0420\u0430\u0441\u0448\u0438\u0440\u0435\u043d\u043d\u044b\u0435 \u043d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438') }); $steps.Add(@{ op = 'wait'; ms = 1000 })
+    $steps.Add(@{ op = 'showText'; text = [regex]::Unescape('\u041a\u043e\u043b\u0438\u0447\u0435\u0441\u0442\u0432\u043e \u0438\u043c\u043f\u0443\u043b\u044c\u0441\u043e\u0432'); margin = 120 }); $steps.Add(@{ op = 'wait'; ms = 6000 })
+    Shot 'sweep_page_1'; $steps.Add(@{ op = 'wait'; ms = 1500 }); Shot 'sweep_page_2'
+    $steps.Add(@{ op = 'storeCall'; set = @{ settingsPanelOpen = $false; settingsSubPageActive = $false } }); $steps.Add(@{ op = 'wait'; ms = 1000 })
+    Shot 'sweep_badge_1'; $steps.Add(@{ op = 'wait'; ms = 1500 }); Shot 'sweep_badge_2'
+    $steps.Add(@{ op = 'quit' })
+}
 $scriptPath = Join-Path $Out 'script.json'
 [System.IO.File]::WriteAllText($scriptPath, (@{ live = $true; steps = $steps.ToArray() } | ConvertTo-Json -Depth 6), (New-Object System.Text.UTF8Encoding $false))
 
@@ -163,6 +189,9 @@ $psi.EnvironmentVariables['KOGGER_UI_PROBE'] = $Out   # gives the probe its wind
 $before = if (Test-Path -LiteralPath $log) { (Get-Item -LiteralPath $log).Length } else { 0 }
 $proc = Start-TestDesktopProcess $psi
 $seen = @{}
+$events = New-Object System.Collections.Generic.List[string]   # the stand's TRANSC, sent and got, with times
+$clock = [System.Diagnostics.Stopwatch]::StartNew()
+$nextStep = 0.0
 $deadline = (Get-Date).AddSeconds($TimeoutS)
 $beat = [DateTime]::MinValue
 function Send([byte[]] $f) { [void]$udp.Send($f, $f.Length, $app) }
@@ -173,6 +202,12 @@ try {
             $beat = Get-Date
             Send (Kp1 1 0 0x20 ([byte[]](0, 17, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4)) $false)
             Send (Kp1 1 2 0x20 ([byte[]](0, 0, 17, 0, 1, 0, 0, 21, 11)) $false)
+        }
+        if ($Sweep -and $clock.Elapsed.TotalSeconds -ge 12 -and $clock.Elapsed.TotalMilliseconds -ge $nextStep) {
+            $nextStep = $clock.Elapsed.TotalMilliseconds + 250
+            $st.Freq = if ($st.Freq -lt 200 -or $st.Freq -ge 900) { 200 } else { $st.Freq + 10 }
+            Send (Transc)
+            $events.Add(('{0,8:F0} ms  sent TRANSC {1} kHz' -f $clock.Elapsed.TotalMilliseconds, $st.Freq))
         }
         if ($udp.Available -le 0) { Start-Sleep -Milliseconds 15; continue }
         $remote = New-Object System.Net.IPEndPoint([System.Net.IPAddress]::Any, 0)
@@ -187,7 +222,8 @@ try {
             $seen["0x{0:x2} t{1} v{2}" -f $id, $type, $ver] = 1 + [int]$seen["0x{0:x2} t{1} v{2}" -f $id, $type, $ver]
             if ($type -eq 2) {   # a setting: taken, reported back
                 switch ($id) {
-                    0x14 { if ($len -ge 4) { $st.Freq = [BitConverter]::ToUInt16($payload, 0); $st.Pulses = $payload[2]; $st.Boost = $payload[3] }; Send (Transc) }
+                    0x14 { if ($len -ge 4) { $st.Freq = [BitConverter]::ToUInt16($payload, 0); $st.Pulses = $payload[2]; $st.Boost = $payload[3] }; Send (Transc)
+                           $events.Add(('{0,8:F0} ms  got TRANSC setting {1} kHz, {2} pulses' -f $clock.Elapsed.TotalMilliseconds, $st.Freq, $st.Pulses)) }
                     0x13 { if ($len -ge 1) { $st.Smooth = $payload[0] }; Send (Dsp) }
                     0x12 { if ($len -ge 6) { $st.Count = [BitConverter]::ToUInt16($payload, 0); $st.Res = [BitConverter]::ToUInt16($payload, 2); $st.Offset = [BitConverter]::ToUInt16($payload, 4) }; Send (ChartSetup) }
                     0x10 { if ($len -ge 9 -and $payload[0] -eq 1) { $st.Period = [BitConverter]::ToUInt32($payload, 1); $st.Mask = [BitConverter]::ToUInt32($payload, 5) }; Send (Dataset 1) }
@@ -229,6 +265,7 @@ try {
 $fs = [System.IO.File]::Open($log, 'Open', 'Read', 'ReadWrite'); [void]$fs.Seek($before, 'Begin')
 $text = (New-Object System.IO.StreamReader($fs, [Text.Encoding]::UTF8)).ReadToEnd(); $fs.Close()
 $text -split "`r?`n" | Set-Content -LiteralPath (Join-Path $Out 'kogger.log') -Encoding UTF8
+$events | Set-Content -LiteralPath (Join-Path $Out 'transc.txt') -Encoding ASCII
 $seen.GetEnumerator() | Sort-Object Name | ForEach-Object { '{0} x{1}' -f $_.Name, $_.Value } | Set-Content -LiteralPath (Join-Path $Out 'asked.txt') -Encoding ASCII
 @($text -split "`r?`n" | Where-Object { $_ -match 'echoedit script: (grab|windowItems|showText|clickText|clickItem|storeCall|devicePage|drag|tr|windowSize|presetRecall)' } |
     ForEach-Object { $_ -replace '^.*echoedit script: ', '' })

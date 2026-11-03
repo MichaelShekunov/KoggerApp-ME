@@ -1321,10 +1321,13 @@ void EchoEditScript::runStep(const QJsonObject& s)
                 }
                 const QRectF r = it->mapRectToScene(QRectF(0, 0, it->width(), it->height()));
                 const QString shown = shownText(it);
+                const QVariant tipValue = it->property("toolTipText");
+                const QString tip = tipValue.metaType().id() == QMetaType::QString ? tipValue.toString().simplified() : QString();
                 lines << QStringLiteral("%1 %2 %3 %4,%5 %6x%7").arg(at, QString::fromLatin1(it->metaObject()->className()),
                                                                      it->objectName().isEmpty() ? QStringLiteral("-") : it->objectName())
                              .arg(r.x(), 0, 'f', 1).arg(r.y(), 0, 'f', 1).arg(r.width(), 0, 'f', 1).arg(r.height(), 0, 'f', 1)
-                         + (shown.isEmpty() ? QString() : QStringLiteral(" \"%1\"").arg(shown));
+                         + (shown.isEmpty() ? QString() : QStringLiteral(" \"%1\"").arg(shown))
+                         + (tip.isEmpty() ? QString() : QStringLiteral(" tip=\"%1\"").arg(tip));
                 const QList<QQuickItem*> kids = it->childItems();
                 for (int i = 0; i < kids.size(); ++i) {
                     walk(kids.at(i), at + QLatin1Char('.') + QString::number(i));
@@ -1794,7 +1797,9 @@ std::optional<QPointF> gesturePoint(const QJsonObject& s, const QString& key, QQ
         if (!it) {
             return std::nullopt;
         }
-        return it->mapToScene(QPointF(it->width() / 2, it->height() / 2));
+        const QJsonArray off = s.value(key + QStringLiteral("Offset")).toArray();
+        return it->mapToScene(QPointF(it->width() / 2, it->height() / 2))
+               + (off.size() == 2 ? QPointF(off.at(0).toDouble(), off.at(1).toDouble()) : QPointF());
     }
     const QJsonArray frac = s.value(key + QStringLiteral("Frac")).toArray();
     if (frac.size() == 2) {
