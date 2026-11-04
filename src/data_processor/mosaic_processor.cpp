@@ -1796,14 +1796,13 @@ int MosaicProcessor::sampleColor(Epoch::Echogram* charts, int side, float altitu
     // The cosine of the angle from straight down, compared and looked up as it is: an acos and a pow a
     // sample were half the painting (2026-10-18, a profile of 00017).
     const float cosA = (altitude > 0.0f && slantRange > altitude) ? altitude / slantRange : (altitude > 0.0f ? 1.0f : 0.0f);
-    if (rules_.cropped(cosA)) {
+    const mosaic_beam::SideModel* m = (beam_ && beam_->side[size_t(side)].valid) ? &beam_->side[size_t(side)] : nullptr;
+    const float gain = mosaic_beam::sampleGain(rules_, m, altitude, slantRange, cosA);
+    if (gain <= 0.0f) {
         return 0;
     }
-    if (beam_) {
-        const mosaic_beam::SideModel& m = beam_->side[size_t(side)];
-        if (m.valid) {
-            color = std::clamp(int(float(color) * m.gainFast(cosA, slantRange) + 0.5f), 1, colorTableSize_);
-        }
+    if (m) {
+        color = std::clamp(int(float(color) * gain + 0.5f), 1, colorTableSize_);
     }
     if (rules_.usesQuality()) {
         *quality = rules_.quality(side, cosA);   // else 0: the parallel painter keys pixels on it

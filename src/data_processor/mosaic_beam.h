@@ -35,7 +35,13 @@ constexpr int   kMinAngleCover = 30;       // a model's data must reach this far
                                            // (00014 at 20 m on 25 m, 2026-10-18), and a young model is
                                            // measured again as the data widens (DataProcessor)
 constexpr float kMaxCorrDb     = 12.0f;    // the correction never goes further either way
+constexpr float kNoAngleAltitudeM = 0.05f; // painting: an altitude under this tells no angle (angleKnown)
 constexpr float kPi            = 3.14159265358979323846f;
+
+/// Whether the depth under the sonar tells the angle a sample left it at. No sonar measures under
+/// kNoAngleAltitudeM: below it is the 1 cm "Bottom track zeroing" gives every ping
+/// (BottomTrackProcessor), or no depth at all, and every sample would sit at the horizon.
+inline bool angleKnown(float altitudeM) { return altitudeM >= kNoAngleAltitudeM; }
 
 /// Mean levels of one side, binned by angle from straight down and by slant range.
 struct Table {
@@ -145,6 +151,17 @@ struct SideModel {
         const float gb = gainByRange.empty() ? 1.0f
                                              : interp(gainByRange.data(), int(gainByRange.size()), rangeM / kRangeBinM - 0.5f);
         return std::clamp(gainC * ga * gb, gainMin, gainMax);
+    }
+
+    /// As gainFast with no angle known (angleKnown): B and C alone, the level as at the beam's best angle.
+    float gainRangeFast(float rangeM) const
+    {
+        if (!valid || gainByCos.empty()) {
+            return 1.0f;
+        }
+        const float gb = gainByRange.empty() ? 1.0f
+                                             : interp(gainByRange.data(), int(gainByRange.size()), rangeM / kRangeBinM - 0.5f);
+        return std::clamp(gainC * gb, gainMin, gainMax);
     }
 
     /// Builds the tables of gainFast from A, B and C.
@@ -469,5 +486,20 @@ struct PaintRules {
         return (cosA > cosEdgeNadir || cosA < cosEdgeFar[size_t(side & 1)]) ? 1 : 2;
     }
 };
+
+/// What the mosaic does with a sample (MosaicProcessor::sampleColor): 0 leaves it out, else its level is
+/// multiplied by the result -- 1 with no model (`m` null or not valid). `cosA` is altitude / slant range.
+/// With no angle known (angleKnown) neither the crop nor A applies: under a zeroed bottom a far crop of
+/// 82 deg left every sample past 7 cm out, and a sonar turned on the spot painted nothing (2026-11-04).
+inline float sampleGain(const PaintRules& rules, const SideModel* m, float altitude, float slantRange, float cosA)
+{
+    if (!angleKnown(altitude)) {
+        return m ? m->gainRangeFast(slantRange) : 1.0f;
+    }
+    if (rules.cropped(cosA)) {
+        return 0.0f;
+    }
+    return m ? m->gainFast(cosA, slantRange) : 1.0f;
+}
 
 } // namespace mosaic_beam

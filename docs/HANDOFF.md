@@ -3458,3 +3458,29 @@ typed still sent 45, 40, 80, 800 -- the window's Esc shortcut takes the key firs
 - **[verified]** `tools/qml_check/typed_setting_live.ps1` PASS: the advanced section's and the simple view's frequency
   each go out once (Enter, Tab), Esc sends nothing, "+" at once; with both fields applying as typed (mutants, one run)
   8 checks fail. pin_mirror, freqpreset, fold, devswitch, pin_coverage, servomanual checks pass. Not on a real sonar.
+
+## The circular mosaic under a zeroed bottom track and a far crop (2026-11-04, branch `upgrade-replug`)
+
+The owner: with Bottom track zeroing on, the circular mosaic (a sonar turned on the spot) is not built. Their settings
+had "Crop the far edge" at 82 deg (Settings, Mosaic). The crop and the brightness model take the angle below the
+sonar from the depth, as altitude / slant range; the zeroed depth is 1 cm (`BottomTrackProcessor`), so every sample
+past 7 cm sat beyond 82 deg and was left out. The pipeline ran and painted nothing.
+
+- `mosaic_beam::angleKnown` (altitude at least `kNoAngleAltitudeM`, 5 cm) and `sampleGain`, now the whole per-sample
+  decision of `MosaicProcessor::sampleColor`: with no angle known neither crop applies and the model gives its range
+  part with C alone (`SideModel::gainRangeFast`, the level as at the beam's best angle); from 5 cm down exactly as
+  before. The overlap qualities still take the cosine as it comes. A depth of 0 (none) falls under the same rule: in a
+  recording that would change only the brightness of such pings with the correction on (read from the code; real
+  bottom tracks give NaN for none, and those pairs are skipped before painting).
+- **[verified]** `tools/beam_check` 23/23 with section 6 (zeroed bottom: 1000 of 1000 samples of a 15 m ping painted
+  under 82 deg by the range part alone; the old rule as the control: 2 of 1000; from 5 cm down bit for bit as before);
+  8 of 8 mutants of `angleKnown`, the threshold, `gainRangeFast` and `sampleGain` fail it (the first round let a 10 cm
+  threshold through -- the check compared the threshold with itself; 5 cm is now pinned).
+- **[verified]** `tools/mosaic_bench/zeroed_crop_check.ps1 -Exe <KoggerApp.exe>`: a profile of its own from
+  KoggerApp-perf.reg (both zeroings on, far crop 82, the correction on, palette 1, the camera at 41 m over the sonar),
+  `ring_bench.ps1` live over UDP, the mosaic's pixels counted in the grab. 3dc063ad (installed): 5 px, FAIL. This
+  build: 303 884 px, PASS -- the whole 15 m ring.
+- Diagnosed first on a copy of the owner's own settings (a profile, deleted after): 82 deg -- nothing, 90 deg -- the
+  ring, zeroing off at 82 deg -- the near ring of a few metres (the bench's found depth under 1 m).
+
+Not verified: on the owner's board.

@@ -85,6 +85,12 @@ the samples outside the window unpainted -- a hole where no other line covers th
 recordings neighbouring lines do not reach each other's nadir, so a 10-degree crop leaves black strips
 along every track; it is off by default. The softer way is the overlap rule below.
 
+The angle comes from the depth under the sonar. Under `kNoAngleAltitudeM` (5 cm) there is none to take it
+from -- "Bottom track zeroing" gives every ping 1 cm, and a lost bottom 0 -- so neither crop applies there,
+and the correction takes the range part B and C alone, as at the beam's best angle (`sampleGain`). Before
+2026-11-04 such a sample sat at the horizon: the owner's far crop of 82 deg left everything past 7 cm
+unpainted, and a sonar turned on the spot on the bench drew no mosaic at all.
+
 ## Overlaps
 
 Per pixel, which ping's sample stays where pings overlap (`mosaic_beam::Overlap`):
@@ -163,7 +169,10 @@ out (these four are not on it); `beam_edit_check.ps1` turns the correction off a
   63.9 made up) and none where the data ends first; `maxDifferenceDb`; the per-sample paths (the acos
   table, `gainFast` against `gain`, the crop and the qualities by the cosine). Five mutants of the
   header -- bin edges one off, the sign of `A`, `C` inverted, no stop, no angle cover -- each fail it
-  (run before the per-sample paths were added; their own checks have no mutants yet).
+  (run before the per-sample paths were added; their own checks have no mutants yet). Since 2026-11-04
+  23/23 with section 6, a zeroed bottom: every sample of a 15 m ping painted under a far crop of 82 deg by
+  the range part alone, the old rule as the control (2 of 1000 painted), from 5 cm down as before; eight
+  mutants of `angleKnown`, `gainRangeFast` and `sampleGain` each fail it.
 - `tools/perf/beam_edit_check.ps1 -Exe <KoggerApp.exe> -File <recording> [-PathPrefix ...]` (three windows
   of the app, 20 to 60 s each, the background precompute off): a long stretch marked bad in the session; the
   recording reopened with its edits; the same edit with the correction turned off before it and on after it

@@ -16,6 +16,11 @@
 //  4. maxDifferenceDb: 0 for a model against itself, the shift for a model with B shifted.
 //  5. The per-sample paths of the mosaic: angleFromCos against acos, gainFast against gain, the crop and
 //     the overlap qualities by the cosine against the angles they stand for.
+//  6. A zeroed bottom ("Bottom track zeroing", 1 cm under every ping) or none tells no angle: sampleGain
+//     paints every sample of a 15 m ping under the far crop of 82 deg, by the range part of the model
+//     alone (as at the beam's best angle); from kNoAngleAltitudeM down the crop and the whole model apply
+//     as before. Control: the crop by altitude / slant range whatever the altitude (the rule before
+//     2026-11-04) must leave such a ping all but unpainted, or the check proves nothing.
 //
 //     beam_check            all checks, exit code 0 when they pass
 
@@ -422,6 +427,71 @@ void checkFastPaths()
     check(monotone, "5. nearest the track: 255 straight down, 1 at the horizon, never rising outward");
 }
 
+// The cosine as MosaicProcessor::sampleColor takes it.
+float cosAs(float altitude, float slantRange)
+{
+    return (altitude > 0.0f && slantRange > altitude) ? altitude / slantRange : (altitude > 0.0f ? 1.0f : 0.0f);
+}
+
+void checkZeroedBottom()
+{
+    const auto survey = makeSurvey(2000, 21);
+    mosaic_beam::Table t;
+    for (const Ping& p : survey) {
+        t.add(p.level.data(), int(p.level.size()), p.resolution, p.altitude);
+    }
+    const auto m = mosaic_beam::fit(t);
+    mosaic_beam::PaintRules rules;
+    rules.farCropDeg = 82.0f;   // the owner's
+    rules.prepare();
+
+    int samples = 0, paintedNow = 0, paintedBefore = 0;
+    bool rangeOnly = true;
+    for (float altitude : { 0.01f, 0.0f }) {
+        for (int k = 1; k <= 500; ++k) {   // 500 samples of 3 cm a side, as the ring bench
+            const float r = float(k) * 0.03f;
+            const float c = cosAs(altitude, r);
+            const float g = mosaic_beam::sampleGain(rules, &m, altitude, r, c);
+            ++samples;
+            paintedNow += g > 0.0f;
+            paintedBefore += !rules.cropped(c);
+            rangeOnly = rangeOnly && g == m.gainRangeFast(r);
+        }
+    }
+    std::printf("      zeroed bottom, far crop 82 deg: %d of %d samples painted (%d by the crop as before)\n",
+                paintedNow, samples, paintedBefore);
+    check(paintedNow == samples && rangeOnly, "6. under a zeroed bottom (1 cm, and none) every sample is painted, by the range part alone");
+    check(paintedBefore < samples / 100, "6. control: cropped by altitude / slant range as before, the same ping is all but unpainted");
+
+    int best = m.angleFrom;
+    for (int a = m.angleFrom; a <= m.angleTo; ++a) {
+        if (m.angleDb[size_t(a)] > m.angleDb[size_t(best)]) {
+            best = a;
+        }
+    }
+    double worstDb = 0.0;
+    for (int r = 4; r < 120; ++r) {
+        const float range = float(r) * 0.25f;
+        worstDb = std::max(worstDb, std::fabs(20.0 * std::log10(m.gainRangeFast(range) / m.gain(float(best) + 0.5f, range))));
+    }
+    check(m.valid && worstDb < 0.05, "6. gainRangeFast is gain at the beam's best angle within 0.05 dB");
+
+    bool asBefore = mosaic_beam::angleKnown(0.05f) && !mosaic_beam::angleKnown(0.049f)
+                    && !mosaic_beam::angleKnown(std::nanf(""));
+    for (float altitude : { 0.05f, 0.3f, 2.0f, 10.0f }) {
+        for (int k = 1; k <= 500; ++k) {
+            const float r = float(k) * 0.03f;
+            const float c = cosAs(altitude, r);
+            const float before = rules.cropped(c) ? 0.0f : m.gainFast(c, r);
+            asBefore = asBefore && mosaic_beam::sampleGain(rules, &m, altitude, r, c) == before;
+        }
+    }
+    check(asBefore, "6. from 5 cm down the crop and the whole model apply as before");
+    check(mosaic_beam::sampleGain(rules, nullptr, 0.01f, 5.0f, cosAs(0.01f, 5.0f)) == 1.0f
+              && mosaic_beam::sampleGain(rules, nullptr, 2.0f, 20.0f, cosAs(2.0f, 20.0f)) == 0.0f,
+          "6. no model: 1 under a zeroed bottom, 0 where a real depth is cropped");
+}
+
 } // namespace
 
 int main()
@@ -431,6 +501,7 @@ int main()
     checkRefusals();
     checkDifference();
     checkFastPaths();
+    checkZeroedBottom();
     std::printf("%d/%d\n", g_pass, g_pass + g_fail);
     return g_fail ? 1 : 0;
 }
