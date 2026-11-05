@@ -3510,4 +3510,7 @@ docs/APP_PROFILES_TASK.md; what was built, how it works and how it was checked i
   **[verified]** size and SHA-256 of all three as GitHub reports them = the local files; `ls-remote`: `me` and the tag
   = f4be15f7. The APK has not been on a device. Release notes: Russian, written outside the tree. The upload script
   needs `python -I -X utf8`: GitHub's answer holds UTF-8 and `-I` ignores `PYTHONUTF8`.
+- Owner's word through the module session (2026-11-05): 0.22 ran on a module and a profile loaded fine (which module,
+  profile and app build unknown; refusal and "changed" not seen). Both installs on this PC = f4be15f7 (the user's by
+  `win_install_user.ps1`, Program Files by the setup `/ALLUSERS` with the owner's UAC; exe = the stage's).
 - `docs/HANDOFF.md` has been LF since 3dc063ad (it was CRLF before); left so, nothing reads it by its line ends.

@@ -678,9 +678,12 @@ changed since. Contract: the module project's docs/SBP_WIFI.md 3г (contract 12;
   ("changed" shown), the section's texts, no QML warning; `-Shots <folder>` pictures the section in Russian.
   Translations: ru, zh, es and hi complete (`tools/ts_check`; zh, es and hi are this session's own, not read by a
   speaker).
-- **Not verified**: against a real module (0.22 is on none yet, 2026-11-05); the CP2105 rule and the port following the
-  new rate over a real serial link (the stand is UDP: it has neither); the head unit's kiosk; the Android build (the code
-  it uses is there in the vendored serial port classes, not compiled).
+- **On a real module, by the owner's word** (relayed by the module session, 2026-11-05): 0.22 started and "the profile
+  was loaded, all fine". Which module, which profile and which build of this app is not known; a refusal with its
+  reason and the "changed" flag were not seen on hardware.
+- **Not verified** by this app's session: the refusal and the "changed" flag on a real module; the CP2105 rule and the
+  port following the new rate over a real serial link (the stand is UDP: it has neither); the head unit's kiosk; the
+  Android build on a device (it compiles: release ME-1.0.3-2026-11-05).
 
 ## 2c. Port speed of the module (line 0)
 
