@@ -3502,3 +3502,12 @@ docs/APP_PROFILES_TASK.md; what was built, how it works and how it was checked i
   20 checks; ru, zh, es, hi complete. After the module session's answer: the status is asked 300 ms after each of this
   app's own settings a profile holds (the module will not push it). **Not verified**: a real module (0.22 is on none yet), a CP2105 adapter, the
   kiosk, Android.
+- **Released** on the owner's word ("собери под андроид. Запости на гитхаб"): `me` = f4be15f7 on GitHub `mine`, and the
+  release `ME-1.0.3-2026-11-05` (tag -> f4be15f7) with `KoggerApp-ME-1.0.3-setup-20261105-171309.exe`,
+  `KoggerApp-ME-1.0.3-portable-20261105-171309.zip` (zipped from the same `dist\stage`, the packaging had run with
+  `-NoZip`) and `KoggerApp-1.0.3-me-20261105-194038.apk` (`-AppIdSuffix .me`, this PC's test key `278d732e...`, so it
+  does not install over a phone's `.me` signed with `a4a81e47...`; `apk_deps_check` PASS, 97 libraries per ABI).
+  **[verified]** size and SHA-256 of all three as GitHub reports them = the local files; `ls-remote`: `me` and the tag
+  = f4be15f7. The APK has not been on a device. Release notes: Russian, written outside the tree. The upload script
+  needs `python -I -X utf8`: GitHub's answer holds UTF-8 and `-I` ignores `PYTHONUTF8`.
+- `docs/HANDOFF.md` has been LF since 3dc063ad (it was CRLF before); left so, nothing reads it by its line ends.
