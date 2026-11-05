@@ -3499,5 +3499,6 @@ docs/APP_PROFILES_TASK.md; what was built, how it works and how it was checked i
 - Translations: lupdate also pulled the generated tutorial strings (`src/tutorial/generated`, git-ignored) into the
   .ts files as 55 untranslated messages; they were taken out again (they were not in the .ts files before).
 - **[verified]** offline 92 checks, 18 of 18 mutants, the module project's presets byte for byte; live against a stand
-  19 checks; ru, zh, es, hi complete. **Not verified**: a real module (0.22 is on none yet), a CP2105 adapter, the
+  20 checks; ru, zh, es, hi complete. After the module session's answer: the status is asked 300 ms after each of this
+  app's own settings a profile holds (the module will not push it). **Not verified**: a real module (0.22 is on none yet), a CP2105 adapter, the
   kiosk, Android.

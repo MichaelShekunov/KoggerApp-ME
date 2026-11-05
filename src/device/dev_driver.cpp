@@ -235,6 +235,12 @@ DevDriver::DevDriver(QObject *parent)
         emit wifiProfileChanged();
     });
     connect(wifiProfileUpload_, &WifiProfileUpload::finished, this, &DevDriver::wifiProfileFinished);
+    wifiProfileAskTimer_.setSingleShot(true);
+    wifiProfileAskTimer_.setInterval(300);       // a few settings in a row: one question
+    connect(&wifiProfileAskTimer_, &QTimer::timeout, this, [this]() {
+        if (m_state.connect && wifiProfileSupport() == 1)
+            idWifiProfile->requestAll();
+    });
     wifiProfileBackTimer_.setInterval(1000);
     connect(&wifiProfileBackTimer_, &QTimer::timeout, this, [this]() {
         if (wifiProfileStep_ != 3) {
@@ -1572,6 +1578,9 @@ void DevDriver::receivedWifi(Parsers::Type type, Parsers::Version ver, Parsers::
     Q_UNUSED(type);
 
     if (resp != respNone) {
+        // Join and save (v3), saved networks (v4), the relay (v5), the radio (v7): settings a profile holds.
+        if (resp == respOk && (ver == v3 || ver == v4 || ver == v5 || ver == v7))
+            wifiProfileAfterSetting();
         // Confirmation of a SETTING, or the module refusing a request. A refused scan (the module
         // is busy joining) must not leave the island in its "scanning" state.
         if (ver == v2 && resp != respOk) {
@@ -1707,6 +1716,8 @@ void DevDriver::receivedWifiNet(Parsers::Type type, Parsers::Version ver, Parser
     Q_UNUSED(type);
 
     if (resp != respNone) {
+        if (resp == respOk && ver <= v6)          // role, access point, address and DHCP, lines, own address
+            wifiProfileAfterSetting();
         if (resp == respErrorID) {                // the module predates 0.10
             idWifiNet->markUnsupported();
             emit wifiNetChanged();
@@ -2645,6 +2656,13 @@ void DevDriver::wifiProfileFinished(int outcome) {
     }
     }
     emit wifiProfileChanged();
+}
+
+void DevDriver::wifiProfileAfterSetting() {
+    // The module does not push its profile status when a setting changes (the module session, 2026-11-05: the
+    // contract stays); the host asks right after each of its own settings a profile holds, the page every 5 s.
+    if (wifiProfileSupport() == 1)
+        wifiProfileAskTimer_.start();
 }
 
 void DevDriver::wifiProfileRefresh() {
@@ -4688,6 +4706,8 @@ void DevDriver::receivedUART(Parsers::Type type, Parsers::Version ver, Parsers::
     if (resp != respNone && resp != respOk && wifiPort_ && wifiPort_->active()) {
         wifiPort_->moduleRefused();
     }
+    if (resp == respOk && isWifi())                // a port rate: a setting a profile holds
+        wifiProfileAfterSetting();
     if(resp == respNone) { emit UARTChanged(); }
 }
 

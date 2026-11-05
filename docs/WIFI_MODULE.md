@@ -657,8 +657,10 @@ changed since. Contract: the module project's docs/SBP_WIFI.md 3г (contract 12;
 - **The page**: the "Profile" section (folds, `wifi.profile`) under "Antenna swap", on every Wi‑Fi module: what the module
   carries (name, changed since), a load's progress and how it ended, the profiles to load (built in and the user's, a
   user's file removed with two taps), the chosen one's changes, passwords, warnings and "Load into the module" (two taps),
-  "Save the module as a profile", "Add a file…". While open it asks the module's status every 5 s (the module does not
-  push it). Firmware before 0.22: "This module's firmware cannot take profiles".
+  "Save the module as a profile", "Add a file…". The module does not push its status when a setting changes (the module
+  session, 2026-11-05: the contract stays), so the driver asks for it 300 ms after the module confirmed any of this app's
+  own settings a profile holds (`ID_WIFI_NET` v0..v6, `ID_UART`, `ID_WIFI` v3/v4/v5/v7; once for a burst), and the open
+  section every 5 s for a change from another host. Firmware before 0.22: "This module's firmware cannot take profiles".
 - **Firmware 0.21's translator bytes** of `ID_WIFI_NET` v3 (bytes 18..20: saved, running, in the build) are read now
   (`IDBinWifiNet::Line::xlat*`, -1 before 0.21); nothing in the app sets the translator but a profile.
 - **Checks** **[verified, 2026-11-05]**: `tools/wifi022_check/run.ps1` offline, 92 checks: the block of a made-up profile
@@ -668,11 +670,12 @@ changed since. Contract: the module project's docs/SBP_WIFI.md 3г (contract 12;
   an apply whose answer was lost), the changes, the rules, the user's files; `-Mutants` 18 of 18 caught; `-ModuleRepo`:
   the module project's three presets, the app reading its files and the app's built-in ones with those passwords put
   back, give the module's own blocks (148, 103, 106 bytes). `tools/wifi022_check/profile_live.ps1` (the app against a
-  stand that plays a 0.22 module over UDP): 19 checks: the list, the preview without and with the password, the head
+  stand that plays a 0.22 module over UDP): 20 checks: the list, the preview without and with the password, the head
   unit's profile loaded (the block the stand got = the app's block of it, back after the reboot with its name), the same
   profile changing nothing afterwards (the settings read back as the profile left them), a refusal with its reason in
   words, the boat (GODIO) profile moving the module to 88 and found there carrying it, the module at 88 saved as a file
-  with the password typed, the section's texts, no QML warning; `-Shots <folder>` pictures the section in Russian.
+  with the password typed, the access point set on its own and the status asked 341 ms after the module's answer
+  ("changed" shown), the section's texts, no QML warning; `-Shots <folder>` pictures the section in Russian.
   Translations: ru, zh, es and hi complete (`tools/ts_check`; zh, es and hi are this session's own, not read by a
   speaker).
 - **Not verified**: against a real module (0.22 is on none yet, 2026-11-05); the CP2105 rule and the port following the

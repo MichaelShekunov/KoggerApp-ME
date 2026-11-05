@@ -292,6 +292,13 @@ function Run-App([string] $name, [string[]] $steps, [string] $code = 'en') {
                         Send (ProfileStatus)
                         $M.Pending = @{ At = $now.AddMilliseconds(200); Profile = $p }
                     }
+                } elseif ($id -eq 0x58 -and $type -eq 2 -and $ver -eq 1 -and $payload.Length -ge 9) {
+                    # the access point set on its own: a setting a profile holds, so "changed since" (bit1)
+                    $M.ApCh = $payload[4]; $M.ApHidden = $payload[5]; $M.ApMax = $payload[6]; $M.ApAuth = $payload[7]
+                    $M.ApSsid = $utf8.GetString($payload, 9, $payload[8])
+                    if ($M.Flags -band 1) { $M.Flags = $M.Flags -bor 2 }
+                    Ack 0x58 1 1 $ck
+                    $M.ApSetAt = $now
                 } elseif ($type -eq 2) {
                     Ack $id $ver 1 $ck                                     # any other setting: taken
                 }
@@ -354,7 +361,9 @@ $steps = @(
     '{"op": "wait", "ms": 9000}', '{"op": "wifiProfile", "addr": 87}', '{"op": "wifiProfile", "addr": 88}',
     '{"op": "wifiProfile", "addr": 88, "capture": true}', '{"op": "wait", "ms": 3500}',
     '{"op": "wifiProfile", "addr": 88, "save": "Test capture", "passwords": {"ap": "bridgepw1"}}',
-    '{"op": "wifiProfile", "list": true}', '{"op": "quit"}')
+    '{"op": "wifiProfile", "list": true}',
+    '{"op": "wifiProfile", "addr": 88, "setAp": {"channel": 11, "hidden": false, "max": 4, "auth": 1, "ssid": "KoggerBridge"}}',
+    '{"op": "wait", "ms": 1000}', '{"op": "wifiProfile", "addr": 88}', '{"op": "quit"}')
 
 $r = Run-App 'profiles' $steps
 $st = @(Lines $r 'state')
@@ -391,6 +400,14 @@ $cap = $null
 if (Test-Path -LiteralPath $file) { $cap = [System.IO.File]::ReadAllText($file, $utf8) | ConvertFrom-Json }
 Expect ($saved.Count -eq 1 -and $saved[0] -eq 'save: saved' -and $cap -and $cap.name -eq 'Test capture' -and $cap.role -eq 'ap' -and $cap.address -eq 88 -and $cap.x1_baud -eq 921600 -and $cap.ap.ssid -eq 'KoggerBridge' -and $cap.ap.password -eq 'bridgepw1' -and $cap.line1.xlat -eq 'telemetry' -and $cap.line1.baud -eq 9600 -and $cap.line1.tx_pin -eq 10 -and @($cap.networks).Count -eq 0) 'capture: the module at 88 kept as a file, with the password typed' ($saved -join '')
 Expect ($list.Count -ge 2 -and $list[1] -match 'file:Test capture\.json' -and $list[1] -match 'file:refuse-lines\.json') 'capture: listed' $(if ($list.Count -ge 2) { $list[1] } else { '' })
+# A setting a profile holds, sent on its own: the status asked right after the module's answer, not at the page's 5 s
+# (the page open is the module at 87's, so nothing else asks the one at 88).
+$asks = @()
+if ($r.Module.ApSetAt) {
+    $asks = @($r.Got | Where-Object { $_.Type -eq 3 -and $_.Ver -eq 0 -and $_.Route -eq 88 -and $_.At -gt $r.Module.ApSetAt } |
+              ForEach-Object { [int]($_.At - $r.Module.ApSetAt).TotalMilliseconds })
+}
+Expect ($asks.Count -ge 1 -and $asks[0] -ge 200 -and $asks[0] -le 900 -and $st.Count -ge 6 -and $st[5] -match 'loaded 1 modified 1 .*addr 88') 'a setting of the profile: the status asked 300 ms after it, "changed" shown' ("asked {0} ms after; {1}" -f $(if ($asks.Count) { $asks[0] } else { 'never' }), $(if ($st.Count -ge 6) { $st[5] } else { 'no state' }))
 
 $t = Texts (Join-Path $r.Dir 'ui-start.json')
 Expect ((HasText $t '^Profile$') -and (HasText $t '^In the module$') -and (HasText $t '^It was not loaded with a profile\.$') -and (HasText $t ('^' + $boshka + '$')) -and (HasText $t '^Save the module as a profile$')) 'page: the section, its rows, the built-in profiles' 'Profile, In the module, the list, Save the module as a profile'

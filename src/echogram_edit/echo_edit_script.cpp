@@ -1530,6 +1530,18 @@ void EchoEditScript::runStep(const QJsonObject& s)
                 QMetaObject::invokeMethod(dev, "wifiProfileSaveCaptured", Q_RETURN_ARG(QString, err),
                                           Q_ARG(QString, s.value(QStringLiteral("save")).toString()), Q_ARG(QVariantMap, passwords));
                 qInfo().noquote() << QStringLiteral("echoedit script: wifiProfile save: %1").arg(err.isEmpty() ? QStringLiteral("saved") : err);
+            } else if (s.contains(QStringLiteral("setAp"))) {
+                // A setting a profile holds, as the Role and access point section sends it (ID_WIFI_NET v1; an empty
+                // password keeps the module's).
+                const QJsonObject a = s.value(QStringLiteral("setAp")).toObject();
+                bool sent = false;
+                QMetaObject::invokeMethod(dev, "wifiNetSetAp", Q_RETURN_ARG(bool, sent),
+                                          Q_ARG(int, a.value(QStringLiteral("channel")).toInt()),
+                                          Q_ARG(bool, a.value(QStringLiteral("hidden")).toBool()),
+                                          Q_ARG(int, a.value(QStringLiteral("max")).toInt(4)),
+                                          Q_ARG(int, a.value(QStringLiteral("auth")).toInt(1)),
+                                          Q_ARG(QString, a.value(QStringLiteral("ssid")).toString()), Q_ARG(QString, QString()));
+                qInfo().noquote() << QStringLiteral("echoedit script: wifiProfile setAp: %1").arg(sent ? QStringLiteral("sent") : QStringLiteral("not sent"));
             } else if (s.contains(QStringLiteral("import"))) {
                 QString err;
                 QMetaObject::invokeMethod(dev, "wifiProfileImport", Q_RETURN_ARG(QString, err),

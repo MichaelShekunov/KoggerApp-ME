@@ -151,6 +151,8 @@
 //   {"op": "wifiProfile", "list": true} / {"op": "wifiProfile", "preview": id} / {"op": "wifiProfile", "load": id}
 //   {"op": "wifiProfile", "capture": true}, then {"op": "wifiProfile", "save": name}   the module kept as a file
 //   {"op": "wifiProfile", "import": path}
+//   {"op": "wifiProfile", "setAp": {"channel": c, "hidden": false, "max": 4, "auth": 1, "ssid": s}}   a setting a
+//                                    profile holds, sent as the Role and access point section does
 
 #include <QJsonArray>
 #include <QJsonObject>

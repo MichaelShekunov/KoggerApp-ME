@@ -1182,6 +1182,8 @@ protected slots:
     /** The fastest rate this app's serial adapter follows (WifiProfileRules::adapterMaxBaud); 0 not known. */
     int wifiProfileAdapterMax() const;
     void wifiProfileFinished(int outcome);
+    /** After the module confirmed a setting a profile holds: its profile status asked 300 ms later (once for a burst). */
+    void wifiProfileAfterSetting();
     void wifiProfileCaptureDone();
     /** Takes flag bit3 of a status (ID_WIFI v0) against the module's last ID_WIFI_RF state (wifiRadioOff()). */
     void wifiRfOnStatus(bool flagOff);
@@ -1315,6 +1317,7 @@ private:
     QString lastWifiPortLog_[WifiPorts::kPorts][3];   // last logged line per port and v7 page
     WifiRadioCheck* wifiRadioCheck_ = nullptr;
     WifiProfileUpload* wifiProfileUpload_ = nullptr;
+    QTimer wifiProfileAskTimer_;      // the profile status asked after a setting
     QTimer wifiProfileBackTimer_;     // after the module took a profile: its status asked until it is back
     WifiProfile wifiProfileLoading_;  // the profile being loaded (or last loaded)
     int wifiProfileStep_ = 0;
