@@ -167,6 +167,18 @@ public:
     Q_PROPERTY(bool wifiRadioOffUntilOn READ wifiRadioOffUntilOn NOTIFY wifiRfChanged)
     Q_PROPERTY(bool wifiRadioWired READ wifiRadioWired NOTIFY wifiNetPortsChanged)
     Q_PROPERTY(QString wifiRfError READ wifiRfError NOTIFY wifiRfChanged)
+    // Firmware 0.22: the module's whole profile (ID_WIFI_PROFILE; docs/WIFI_MODULE.md 2q). wifiProfileList(),
+    // wifiProfilePreview() and the rest are invokables of DevDriver.
+    Q_PROPERTY(int wifiProfileSupport READ wifiProfileSupport NOTIFY deviceVersionChanged)
+    Q_PROPERTY(bool wifiProfileKnown READ wifiProfileKnown NOTIFY wifiProfileChanged)
+    Q_PROPERTY(QString wifiProfileName READ wifiProfileName NOTIFY wifiProfileChanged)
+    Q_PROPERTY(bool wifiProfileLoaded READ wifiProfileLoaded NOTIFY wifiProfileChanged)
+    Q_PROPERTY(bool wifiProfileModified READ wifiProfileModified NOTIFY wifiProfileChanged)
+    Q_PROPERTY(int wifiProfileStep READ wifiProfileStep NOTIFY wifiProfileChanged)
+    Q_PROPERTY(int wifiProfileSent READ wifiProfileSent NOTIFY wifiProfileChanged)
+    Q_PROPERTY(int wifiProfileTotal READ wifiProfileTotal NOTIFY wifiProfileChanged)
+    Q_PROPERTY(QString wifiProfileResult READ wifiProfileResult NOTIFY wifiProfileChanged)
+    Q_PROPERTY(bool wifiProfileResultBad READ wifiProfileResultBad NOTIFY wifiProfileChanged)
     Q_PROPERTY(QStringList wifiSavedNetworks READ wifiSavedNetworks NOTIFY wifiSavedChanged)
     // Relay of the boat's stream through the module (v5 configuration, v6 counters).
     Q_PROPERTY(int wifiRelaySupport READ wifiRelaySupport NOTIFY wifiRelayChanged)

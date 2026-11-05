@@ -597,6 +597,88 @@ module session's two pages, proven and not (`tools/wifi020_check`, 4 more mutant
 on an LR link: both modules run b/g/n, and moving the boat link to LR only for this risks leaving the boat without
 it (the module session). 0.19's bounds themselves are still not read.
 
+## 2q. Profiles: every setting of the module as one block (firmware 0.22, 2026-11-05)
+
+The owner, through the module session: "the second option, profiles: Бошка, Лодка Kogger, Лодка GODIO". The module takes
+all its saved settings as one block, checks it whole by the rules of the single settings, and either refuses it with a
+reason (nothing changes) or saves everything and reboots into it; it keeps the profile's name and says whether a setting
+changed since. Contract: the module project's docs/SBP_WIFI.md 3г (contract 12; in English its public/docs/SBP_WIFI.md
+4c); the task: its docs/APP_PROFILES_TASK.md.
+
+- **Frames** (`IDBinWifiProfile`, `src/id_binnary.*`; `ID_WIFI_PROFILE` = 0x5B, checked free in this app): SETTING v1
+  `{KEY, U2 length, U4 CRC-32}` begins an upload, v2 `{U2 offset, bytes}` a piece (200 bytes, at most 253), v3 `{KEY}`
+  applies; GETTING v0 / CONTENT v0 `{U1 flags, U4 fingerprint, U2 received, U2 announced, U1 len, name}` (bit0 loaded with a
+  profile, bit1 changed since), GETTING v3 / CONTENT v3 `{U1 reason}`. Sent through `binFrameOut`: the upload paces and
+  repeats them itself. A SETTING seen on the link is not taken for the module's word.
+- **The block and the JSON** (`WifiProfile`, `src/device/wifi_profile.*`): format 1, field by field as the contract's
+  table; the JSON form is the module project's own (`profiles/<name>.json`, described in its `host/sbpframe.py` before
+  `PROFILE_FORMAT`), so its `tools/profile.py` files load here and the other way round. One key is this app's:
+  `"secure": true` on a station network whose password must be typed (an empty password is an open network to the
+  module); the module project's tools ignore it. Power goes to the quarter dB with a half to the even quarter, as
+  Python's `round()` there. `problems()` refuses before sending what the module would: the access point's password 8..63
+  bytes unless it is open (the profile does not keep the old one, unlike `ID_WIFI_NET` v1), a network's password empty,
+  8..63 bytes or 64 hex digits, a network name twice, more than 8 networks.
+- **Where profiles come from** (`WifiProfileStore`): three built in, the module project's presets (its commit 98857f8)
+  **without their passwords** ("Бошка": station, 87, X1 2 000 000, networks KoggerBoat and KoggerBridge marked secure;
+  "Лодка Kogger": access point KoggerBoat channel 10, 88, X1 5 000 000; "Лодка GODIO": access point KoggerBridge channel 6,
+  88, X1 921 600, X2 9600 into the GODIO telemetry translator). Passwords are never in the repository or the installer:
+  they are typed when loading, or kept in the user's own files (`<app data>/wifi_profiles/*.json`, on Windows
+  `%APPDATA%\KOGGER\KoggerApp\wifi_profiles`; plain text, as the module project keeps them). If the module project changes
+  its presets, the built-in ones are changed here by hand; `tools/wifi022_check/run.ps1 -ModuleRepo` says whether they
+  still match.
+- **The load** (`WifiProfileUpload`, run by `DevDriver::wifiProfileLoad`, so it ends when the page is left): begin, the
+  pieces each after the OK of the one before, apply. A piece without an answer within 1.5 s goes again (the module takes a
+  repeat of the same bytes with OK), three times at most; an OK that comes late for a copy of the piece before is not
+  taken for the next piece's. The apply is never sent again blindly (an OK lost on the way means the module saved and
+  reboots, and a second apply would come back "incomplete"): without its answer the status is asked; the upload still
+  held whole means the apply was lost and it goes once more; the profile's name with no change flag, or a pushed CONTENT
+  v3 `{0}`, means it was saved. Outcomes: saved; refused (ERR_PAYLOAD and the reason, in words: the contract's table);
+  busy (ERR_RUNTIME, reason 16: a firmware update runs); written halfway (ERR_RUNTIME without a reason); upload refused;
+  no answer. Log lines `wifi-profile:`.
+- **After the module took it.** It reboots 200 ms after its answer. When this app is on X1 or X2 of that module (the port
+  summary's flag b2) over a serial link, the link follows 300 ms later to the profile's rate of that port (X1: `x1_baud`,
+  X2: line 1's rate). At the same address the page says "reboots into it" and the status is asked every second until the
+  module answers with the profile's name (30 s at most); at another address it says that the module comes back there as
+  another device (that device's own page then shows its profile).
+- **Before the load the page shows** (`DevDriver::wifiProfilePreview`): what changes against the settings last read from
+  the module (`WifiProfileDiff`: role, the access point's network, the station's networks, own address and the port rates
+  first, then the lines, the X2 input, the radio, address and DHCP; what was not read is named and not compared; the
+  passwords never are), a field for every password (the access point's when it is not open, each network's), the
+  problems above, warnings (the reboot; the app's own port moving to another rate; another address; a firmware without
+  the translator a profile asks for; a pair changed in order: first the boat's module over the air, then the head unit's
+  by wire; a network without a password), and what blocks the load over this link: no connection, firmware before 0.22, a
+  load running, the module's ports not read yet, **this app on that port through a CP2105 (USB 10C4:EA70, 2 Mbaud) and the
+  profile above 2 000 000 there** (the module would be lost to this wire until its BOOT button resets the rates), this app
+  on X2 with a profile that makes X2 the translator's input (it only listens).
+- **Save the module as a profile** (`wifiProfileCapture`, `wifiProfileSaveCaptured`): the settings read afresh
+  (`ID_WIFI_NET` v0, v1, v2, v3 with 0.21's translator bytes, v6, v7; `ID_WIFI` v4 and v7), 2.5 s later all of them must be
+  there; a name of 1..32 bytes (the module's name if it carries a profile); passwords typed, or left empty and asked when
+  the file is loaded; the networks are saved "secure" (the module does not say which are open).
+- **The page**: the "Profile" section (folds, `wifi.profile`) under "Antenna swap", on every Wi‑Fi module: what the module
+  carries (name, changed since), a load's progress and how it ended, the profiles to load (built in and the user's, a
+  user's file removed with two taps), the chosen one's changes, passwords, warnings and "Load into the module" (two taps),
+  "Save the module as a profile", "Add a file…". While open it asks the module's status every 5 s (the module does not
+  push it). Firmware before 0.22: "This module's firmware cannot take profiles".
+- **Firmware 0.21's translator bytes** of `ID_WIFI_NET` v3 (bytes 18..20: saved, running, in the build) are read now
+  (`IDBinWifiNet::Line::xlat*`, -1 before 0.21); nothing in the app sets the translator but a profile.
+- **Checks** **[verified, 2026-11-05]**: `tools/wifi022_check/run.ps1` offline, 92 checks: the block of a made-up profile
+  (every field off its default, Cyrillic name, an open network, a 64-hex key) byte by byte against the module project's
+  `profile_blob`, its CRC-32, the begin and the pieces, the module's reasons for broken blocks, the frames against its
+  `sbpframe.encode`, the JSON form, the problems, the upload's outcomes on made-up answers (a lost piece answer, a late OK,
+  an apply whose answer was lost), the changes, the rules, the user's files; `-Mutants` 18 of 18 caught; `-ModuleRepo`:
+  the module project's three presets, the app reading its files and the app's built-in ones with those passwords put
+  back, give the module's own blocks (148, 103, 106 bytes). `tools/wifi022_check/profile_live.ps1` (the app against a
+  stand that plays a 0.22 module over UDP): 19 checks: the list, the preview without and with the password, the head
+  unit's profile loaded (the block the stand got = the app's block of it, back after the reboot with its name), the same
+  profile changing nothing afterwards (the settings read back as the profile left them), a refusal with its reason in
+  words, the boat (GODIO) profile moving the module to 88 and found there carrying it, the module at 88 saved as a file
+  with the password typed, the section's texts, no QML warning; `-Shots <folder>` pictures the section in Russian.
+  Translations: ru, zh, es and hi complete (`tools/ts_check`; zh, es and hi are this session's own, not read by a
+  speaker).
+- **Not verified**: against a real module (0.22 is on none yet, 2026-11-05); the CP2105 rule and the port following the
+  new rate over a real serial link (the stand is UDP: it has neither); the head unit's kiosk; the Android build (the code
+  it uses is there in the vendored serial port classes, not compiled).
+
 ## 2c. Port speed of the module (line 0)
 
 The module's line 0 runs at any speed from 9600 to 4 000 000 (`ID_UART` v0 `{KEY, 1, U4 baud}`, answered at the
@@ -611,6 +693,7 @@ Steps are `wifi-port:` lines in the log. The head unit runs at 2 000 000 since 2
 
 ## 3. Where it lives in the app
 
+- `src/device/wifi_profile.h/.cpp` — the module's profiles (firmware 0.22, section 2q).
 - `src/proto_binnary.h` — `ID_WIFI`; `src/id_binnary.h/.cpp` — `BoardWiFi = 87` and `IDBinWifi`
   (parsing of v0/v1/v2/v4, the v1/v3/v4 setters through `hashBinFrameOut()`, scan bookkeeping with
   an 8 s timeout for lost frames).

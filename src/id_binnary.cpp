@@ -1920,6 +1920,13 @@ Resp IDBinWifiNet::parsePayload(FrameParser &proto) {
         l.txPin = proto.read<S1>();
         l.rxPin = proto.read<S1>();
         l.uart = proto.read<U1>();
+        if (proto.readAvailable() >= 3) {         // 0.21: line 1's input translator
+            l.xlatSaved = proto.read<U1>();
+            l.xlatRunning = proto.read<U1>();
+            l.xlatBuild = proto.read<U1>();
+        } else {
+            l.xlatSaved = l.xlatRunning = l.xlatBuild = -1;
+        }
         l.valid = true;
         lastLine_ = i;
         break;
@@ -2257,6 +2264,46 @@ void IDBinWifiRf::switchOff(uint16_t seconds) {
 
 void IDBinWifiRf::switchOn() {
     send(1, 0);
+}
+
+Resp IDBinWifiProfile::parsePayload(FrameParser &proto) {
+    if (proto.type() != CONTENT)                  // a SETTING seen on the link is not the module's word
+        return respErrorType;
+    if (proto.ver() == v0) {
+        const int16_t n = proto.readAvailable();
+        if (n < 10)
+            return respErrorPayload;
+        QByteArray raw(n, 0);
+        proto.read(reinterpret_cast<uint8_t*>(raw.data()), n);
+        const uint8_t* d = reinterpret_cast<const uint8_t*>(raw.constData());
+        if (n < 10 + d[9])
+            return respErrorPayload;
+        Status s;
+        s.valid = true;
+        s.flags = d[0];
+        s.fingerprint = uint32_t(d[1]) | (uint32_t(d[2]) << 8) | (uint32_t(d[3]) << 16) | (uint32_t(d[4]) << 24);
+        s.received = uint16_t(d[5] | (d[6] << 8));
+        s.announced = uint16_t(d[7] | (d[8] << 8));
+        s.name = QString::fromUtf8(raw.mid(10, d[9]));
+        status_ = s;
+        return respOk;
+    }
+    if (proto.ver() == v3) {
+        if (proto.readAvailable() < 1)
+            return respErrorPayload;
+        lastReason_ = proto.read<U1>();
+        return respOk;
+    }
+    return respErrorVersion;
+}
+
+void IDBinWifiProfile::sendSetting(int ver, const QByteArray& payload) {
+    ProtoBinOut out;
+    out.create(SETTING, Version(ver), id(), m_address);
+    if (!payload.isEmpty())
+        out.write(const_cast<char*>(payload.constData()), uint16_t(payload.size()));
+    out.end();
+    emit binFrameOut(out);
 }
 
 Resp IDBinVersion::parsePayload(FrameParser &proto) {

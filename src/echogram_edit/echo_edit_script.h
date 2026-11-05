@@ -145,6 +145,12 @@
 //   {"op": "wifiRadio", "off": s} / {"op": "wifiRadio", "on": true}
 //                                    switched off for s seconds (0 = until on) or on, as the page does
 //   {"op": "wifiRadio"}              its radio state as the page reads it, logged
+// Its whole profile (ID_WIFI_PROFILE, firmware 0.22), as the page's Profile section does it ("passwords": {"ap": ..,
+// "net0": ..} where a step takes them):
+//   {"op": "wifiProfile"}            the state as the page reads it, logged
+//   {"op": "wifiProfile", "list": true} / {"op": "wifiProfile", "preview": id} / {"op": "wifiProfile", "load": id}
+//   {"op": "wifiProfile", "capture": true}, then {"op": "wifiProfile", "save": name}   the module kept as a file
+//   {"op": "wifiProfile", "import": path}
 
 #include <QJsonArray>
 #include <QJsonObject>

@@ -3484,3 +3484,20 @@ past 7 cm sat beyond 82 deg and was left out. The pipeline ran and painted nothi
   ring, zeroing off at 82 deg -- the near ring of a few metres (the bench's found depth under 1 m).
 
 Not verified: on the owner's board.
+
+## The Wi-Fi module's profiles (2026-11-05, branch `upgrade-replug`)
+
+The owner, through the Wi-Fi module session ("give the app session the task"): profiles "Бошка", "Лодка Kogger",
+"Лодка GODIO" for the module's firmware 0.22 (`ID_WIFI_PROFILE` 0x5B). The task is the module project's
+docs/APP_PROFILES_TASK.md; what was built, how it works and how it was checked is `docs/WIFI_MODULE.md` 2q.
+
+- New: `src/device/wifi_profile.*` (the block, the JSON form, the upload, what a load changes, the built-in profiles
+  and the user's files), `IDBinWifiProfile`, the 0.21 translator bytes of `ID_WIFI_NET` v3, the DevDriver profile API,
+  the page's "Profile" section, the `wifiProfile` script step, `tools/wifi022_check` (`run.ps1`, `profile_live.ps1`).
+- The built-in profiles are the module project's presets without their passwords; no password is in the repository.
+- Pitfall met: a struct field named `main` does not compile on Windows (Qt defines `main` as `qMain`): `primary`.
+- Translations: lupdate also pulled the generated tutorial strings (`src/tutorial/generated`, git-ignored) into the
+  .ts files as 55 untranslated messages; they were taken out again (they were not in the .ts files before).
+- **[verified]** offline 92 checks, 18 of 18 mutants, the module project's presets byte for byte; live against a stand
+  19 checks; ru, zh, es, hi complete. **Not verified**: a real module (0.22 is on none yet), a CP2105 adapter, the
+  kiosk, Android.

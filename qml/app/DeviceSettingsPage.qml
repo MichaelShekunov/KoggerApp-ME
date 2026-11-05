@@ -3491,6 +3491,404 @@ Column {
         }
     }
 
+    // ── Wi‑Fi module: its whole profile (firmware 0.22, ID_WIFI_PROFILE) ──
+    // Every setting the module saves, loaded as one block: the module checks it whole and either refuses it (nothing
+    // changes) or saves it and reboots into it. Built in: the module project's presets without their passwords; the
+    // user's own: JSON files in the app's data folder. The load runs in DevDriver (wifiProfileLoad), so it ends when the
+    // page is left (the page is unloaded then). docs/WIFI_MODULE.md 2q.
+    DevIsland {
+        id: profileIsland
+        objectName: "wifiProfileSection"
+        foldKey: "wifi.profile"
+        width: root.groupWidth
+        visible: root._isWifi
+        rowMinHeight: Tokens.controlHMd + Tokens.spaceXs
+
+        readonly property int support: root._isWifi ? dev.wifiProfileSupport : 0
+        readonly property int step: root._isWifi ? dev.wifiProfileStep : 0
+        readonly property bool known: root._isWifi && !!dev.wifiProfileKnown
+        readonly property bool loaded: root._isWifi && !!dev.wifiProfileLoaded
+        readonly property bool modified: root._isWifi && !!dev.wifiProfileModified
+        readonly property string current: root._isWifi && dev.wifiProfileName ? dev.wifiProfileName : ""
+        readonly property string result: root._isWifi && dev.wifiProfileResult ? dev.wifiProfileResult : ""
+        property var profiles: []
+        property string chosen: ""                // the profile looked at before loading
+        property var preview: ({})
+        property var slotsShown: []               // the password fields: set when a profile is chosen, not on each key
+        property var typed: ({})                  // {"ap": …, "net0": …}
+        property bool capturing: false
+        property var capture: null                // the module's settings read for "save as a profile"
+        property var captureTyped: ({})
+        property string captureName: ""
+        property string captureError: ""
+
+        function baudText(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " ") }
+        function reload() { profiles = root._isWifi ? dev.wifiProfileList() : [] }
+        function refreshPreview() {
+            preview = (chosen.length > 0 && root._isWifi) ? dev.wifiProfilePreview(chosen, typed) : ({})
+        }
+        function choose(id) {
+            capture = null
+            typed = ({})
+            chosen = chosen === id ? "" : id
+            refreshPreview()
+            slotsShown = preview.slots ? preview.slots : []
+        }
+        function setTyped(key, value) {
+            var t = Object.assign({}, typed)
+            t[key] = value
+            typed = t
+            refreshPreview()
+        }
+        function summary(p) {
+            if (p.error)
+                return qsTr("Cannot be used: %1").arg(p.error)
+            var who = p.role === 1 ? qsTr("access point %1").arg(p.apSsid)
+                    : p.networks.length > 0 ? qsTr("station for %1").arg(p.networks.join(", "))
+                    : qsTr("station without networks")
+            return (p.builtin ? qsTr("Built in") + " · " : "") + who + " · " + qsTr("address %1").arg(p.address)
+                   + " · X1 " + baudText(p.x1Baud)
+        }
+        function load() {
+            var name = preview.name
+            if (dev.wifiProfileLoad(chosen, typed)) {
+                notifications.info(qsTr("Loading \"%1\" into the module").arg(name))
+                chosen = ""
+                typed = ({})
+                preview = ({})
+                slotsShown = []
+            } else {
+                notifications.warning(dev.wifiProfileResult)
+                refreshPreview()
+            }
+        }
+        function startCapture() {
+            chosen = ""
+            preview = ({})
+            capture = null
+            captureError = ""
+            capturing = true
+            dev.wifiProfileCapture()
+        }
+        function saveCapture() {
+            var e = dev.wifiProfileSaveCaptured(captureName, captureTyped)
+            if (e.length > 0) {
+                captureError = e
+                return
+            }
+            notifications.info(qsTr("Saved as \"%1\"").arg(captureName))
+            capture = null
+            captureTyped = ({})
+            captureError = ""
+        }
+
+        Component.onCompleted: reload()
+        onVisibleChanged: if (visible) reload()
+        onFoldedChanged: if (!folded) { reload(); refreshPreview(); if (root._isWifi) dev.wifiProfileRefresh() }
+        Timer {
+            // Which profile the module carries and whether it changed since: it does not push that, so it is asked.
+            interval: 5000; repeat: true
+            running: profileIsland.visible && !profileIsland.folded && profileIsland.support === 1
+            onTriggered: { dev.wifiProfileRefresh(); profileIsland.refreshPreview() }
+        }
+        Connections {
+            target: root._isWifi ? root.dev : null
+            ignoreUnknownSignals: true
+            function onWifiProfileListChanged() { profileIsland.reload() }
+            function onWifiProfileCaptured(c) {
+                profileIsland.capturing = false
+                profileIsland.capture = c
+                profileIsland.captureName = c.name ? c.name : ""
+                profileIsland.captureTyped = ({})
+                profileIsland.captureError = c.error ? c.error : ""
+            }
+            function onWifiProfileChanged() { if (profileIsland.chosen.length > 0) profileIsland.refreshPreview() }
+        }
+
+        DevIslandTitle {
+            label: qsTr("Profile")
+            foldIsland: profileIsland
+            WifiBadge {
+                visible: profileIsland.loaded || profileIsland.step > 0
+                tone: profileIsland.step > 0 ? 2 : profileIsland.modified ? 2 : 1
+                text: profileIsland.step > 0 ? qsTr("Loading…")
+                      : profileIsland.modified ? qsTr("%1 · changed").arg(profileIsland.current) : profileIsland.current
+            }
+        }
+
+        KIslandRow {
+            open: profileIsland.support === 0
+            minHeight: 0
+            verticalPadding: Tokens.spaceSm
+            caption: qsTr("This module's firmware cannot take profiles: that came with 0.22.")
+        }
+        KIslandRow {
+            open: profileIsland.support === -1
+            minHeight: 0
+            verticalPadding: Tokens.spaceSm
+            caption: qsTr("Waiting for the module's firmware version…")
+        }
+
+        // What the module carries
+        KIslandRow {
+            id: profileNowRow
+            open: profileIsland.support === 1
+            label: qsTr("In the module")
+            caption: !profileIsland.known ? qsTr("Asking the module…")
+                     : !profileIsland.loaded ? qsTr("It was not loaded with a profile.")
+                     : profileIsland.modified ? qsTr("\"%1\", but a setting changed since it was loaded.").arg(profileIsland.current)
+                     : qsTr("\"%1\", its settings as the profile left them.").arg(profileIsland.current)
+            captionColor: profileIsland.loaded && profileIsland.modified ? AppPalette.linkIdleText : AppPalette.textSecond
+        }
+
+        // A load running
+        KIslandRow {
+            id: profileStepRow
+            open: profileIsland.step > 0
+            labelBold: true
+            label: profileIsland.step === 1 ? qsTr("Sending the profile: %1 of %2 bytes").arg(dev ? dev.wifiProfileSent : 0)
+                                                .arg(dev ? dev.wifiProfileTotal : 0)
+                   : profileIsland.step === 2 ? qsTr("The module checks the profile and saves it…")
+                   : qsTr("The module reboots into the profile; waiting for it…")
+            caption: qsTr("Its link drops for a few seconds.")
+            captionColor: AppPalette.linkIdleText
+        }
+        KIslandRow {
+            id: profileResultRow
+            open: profileIsland.step === 0 && profileIsland.result.length > 0
+            minHeight: 0
+            verticalPadding: Tokens.spaceSm
+            caption: profileIsland.result
+            captionColor: root._isWifi && dev.wifiProfileResultBad ? AppPalette.dangerText : AppPalette.linkOkText
+        }
+
+        // The profiles to choose from
+        KIslandSection {
+            open: profileIsland.support === 1
+            label: qsTr("Load a profile")
+        }
+        Repeater {
+            model: profileIsland.support === 1 ? profileIsland.profiles : []
+            delegate: KIslandRow {
+                required property var modelData
+                objectName: "wifiProfileRow"
+                label: modelData.name
+                labelBold: profileIsland.chosen === modelData.id
+                caption: profileIsland.summary(modelData)
+                captionColor: modelData.error ? AppPalette.dangerText : AppPalette.textSecond
+                interactive: !modelData.error && profileIsland.step === 0
+                chevron: !modelData.error
+                onClicked: profileIsland.choose(modelData.id)
+                ConfirmDevButton {
+                    visible: !modelData.builtin
+                    width: Math.round(110 * AppPalette.scale)
+                    label: qsTr("Remove")
+                    onConfirmed: {
+                        if (profileIsland.chosen === modelData.id)
+                            profileIsland.choose(modelData.id)
+                        dev.wifiProfileDelete(modelData.id)
+                    }
+                }
+            }
+        }
+
+        // The profile chosen: what it changes, its passwords, the button
+        KIslandRow {
+            open: profileIsland.chosen.length > 0
+            label: qsTr("Load \"%1\" into the module").arg(profileIsland.preview.name ? profileIsland.preview.name : "")
+            labelBold: true
+            caption: profileIsland.preview.error ? profileIsland.preview.error
+                     : (profileIsland.preview.changes && profileIsland.preview.changes.length === 0
+                        ? qsTr("Nothing changes in what was read from the module.") : qsTr("What changes:"))
+            captionColor: profileIsland.preview.error ? AppPalette.dangerText : AppPalette.textSecond
+        }
+        Repeater {
+            model: profileIsland.chosen.length > 0 && profileIsland.preview.changes ? profileIsland.preview.changes : []
+            delegate: KIslandRow {
+                required property var modelData
+                minHeight: 0
+                verticalPadding: Tokens.spaceSm
+                label: modelData.what
+                labelBold: modelData.main
+                caption: modelData.from + "  →  " + modelData.to
+            }
+        }
+        KIslandRow {
+            open: profileIsland.chosen.length > 0 && !!profileIsland.preview.unread && profileIsland.preview.unread.length > 0
+            minHeight: 0
+            verticalPadding: Tokens.spaceSm
+            caption: qsTr("Not read from the module yet, so not compared: %1.")
+                     .arg(profileIsland.preview.unread ? profileIsland.preview.unread.join(", ") : "")
+        }
+        Repeater {
+            model: profileIsland.chosen.length > 0 ? profileIsland.slotsShown : []
+            delegate: DevStackedRow {
+                id: slotRow
+                required property var modelData
+                label: modelData.kind === "ap" ? qsTr("Password of its access point \"%1\"").arg(modelData.ssid)
+                                               : qsTr("Password of the network \"%1\"").arg(modelData.ssid)
+                caption: modelData.kind === "ap" ? qsTr("8 to 63 characters. The module never gives a password back.")
+                         : modelData.required ? qsTr("Needed: the network is protected. 8 to 63 characters or 64 hex digits.")
+                         : qsTr("Empty: the module joins it as an open network.")
+                WifiField {
+                    width: parent.width
+                    password: true
+                    placeholder: qsTr("password")
+                    Component.onCompleted: text = slotRow.modelData.value
+                    onEdited: profileIsland.setTyped(slotRow.modelData.key, text)
+                }
+            }
+        }
+        Repeater {
+            model: profileIsland.chosen.length > 0 && profileIsland.preview.problems ? profileIsland.preview.problems : []
+            delegate: KIslandRow {
+                required property var modelData
+                minHeight: 0
+                verticalPadding: Tokens.spaceXs
+                caption: modelData
+                captionColor: AppPalette.dangerText
+            }
+        }
+        Repeater {
+            model: profileIsland.chosen.length > 0 && profileIsland.preview.warnings ? profileIsland.preview.warnings : []
+            delegate: KIslandRow {
+                required property var modelData
+                minHeight: 0
+                verticalPadding: Tokens.spaceXs
+                caption: modelData
+                captionColor: AppPalette.linkIdleText
+            }
+        }
+        KIslandRow {
+            id: profileBlockedRow
+            open: profileIsland.chosen.length > 0 && !!profileIsland.preview.blocked
+            minHeight: 0
+            verticalPadding: Tokens.spaceSm
+            caption: profileIsland.preview.blocked ? profileIsland.preview.blocked : ""
+            captionColor: AppPalette.dangerText
+        }
+        DevStackedRow {
+            open: profileIsland.chosen.length > 0
+            Row {
+                width: parent.width
+                spacing: Tokens.spaceSm
+                readonly property real bw: (width - spacing) / 2
+                ConfirmDevButton {
+                    id: profileLoadButton
+                    width: parent.bw
+                    enabled: !!profileIsland.preview.ready
+                    label: qsTr("Load into the module")
+                    onConfirmed: profileIsland.load()
+                }
+                DevButton {
+                    width: parent.bw; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
+                    text: qsTr("Cancel")
+                    onClicked: profileIsland.choose(profileIsland.chosen)
+                }
+            }
+        }
+
+        // The module's settings kept as a profile of the user's
+        KIslandSection {
+            open: profileIsland.support === 1
+            label: qsTr("Your profiles")
+        }
+        DevStackedRow {
+            open: profileIsland.support === 1 && profileIsland.capture === null
+            caption: profileIsland.capturing ? qsTr("Reading the module's settings…")
+                     : qsTr("Kept in %1").arg(root._isWifi ? dev.wifiProfileFolder() : "")
+            Row {
+                width: parent.width
+                spacing: Tokens.spaceSm
+                readonly property real bw: (width - spacing) / 2
+                DevButton {
+                    id: profileCaptureButton
+                    width: parent.bw; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
+                    enabled: !profileIsland.capturing && profileIsland.step === 0
+                    text: qsTr("Save the module as a profile")
+                    onClicked: profileIsland.startCapture()
+                }
+                DevButton {
+                    width: parent.bw; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
+                    text: qsTr("Add a file…")
+                    onClicked: profileImportDialog.open()
+                }
+            }
+        }
+        DevStackedRow {
+            id: profileCaptureNameRow
+            open: profileIsland.capture !== null && !profileIsland.capture.error
+            label: qsTr("Name of the profile")
+            caption: qsTr("Up to 32 bytes (a Cyrillic letter takes 2). The module keeps this name.")
+            WifiField {
+                width: parent.width
+                text: profileIsland.captureName
+                onEdited: profileIsland.captureName = text
+            }
+        }
+        Repeater {
+            model: profileIsland.capture !== null && profileIsland.capture.slots ? profileIsland.capture.slots : []
+            delegate: DevStackedRow {
+                id: captureSlotRow
+                required property var modelData
+                label: modelData.kind === "ap" ? qsTr("Password of its access point \"%1\"").arg(modelData.ssid)
+                                               : qsTr("Password of the network \"%1\"").arg(modelData.ssid)
+                caption: qsTr("The module never gives it back: type it to keep it in the file, or leave it empty and type it when loading.")
+                WifiField {
+                    width: parent.width
+                    password: true
+                    placeholder: qsTr("password")
+                    onEdited: {
+                        var t = Object.assign({}, profileIsland.captureTyped)
+                        t[captureSlotRow.modelData.key] = text
+                        profileIsland.captureTyped = t
+                    }
+                }
+            }
+        }
+        KIslandRow {
+            open: profileIsland.capture !== null && profileIsland.captureError.length > 0
+            minHeight: 0
+            verticalPadding: Tokens.spaceSm
+            caption: profileIsland.captureError
+            captionColor: AppPalette.dangerText
+        }
+        DevStackedRow {
+            open: profileIsland.capture !== null
+            caption: qsTr("The file keeps the passwords as plain text: keep it where only you can read it.")
+            Row {
+                width: parent.width
+                spacing: Tokens.spaceSm
+                readonly property real bw: (width - spacing) / 2
+                DevButton {
+                    width: parent.bw; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
+                    enabled: profileIsland.capture !== null && !profileIsland.capture.error
+                    text: qsTr("Save")
+                    onClicked: profileIsland.saveCapture()
+                }
+                DevButton {
+                    width: parent.bw; height: Tokens.controlHMd; fontPixelSize: Tokens.fontMd
+                    text: qsTr("Cancel")
+                    onClicked: { profileIsland.capture = null; profileIsland.captureError = "" }
+                }
+            }
+        }
+
+        FileDialog {
+            id: profileImportDialog
+            title: qsTr("Add a profile file")
+            fileMode: FileDialog.OpenFile
+            nameFilters: [qsTr("Profiles (*.json)")]
+            onAccepted: {
+                var e = dev.wifiProfileImport(String(profileImportDialog.selectedFile))
+                if (e.length > 0)
+                    notifications.warning(qsTr("Not added: %1").arg(e))
+                else
+                    notifications.info(qsTr("Profile added"))
+            }
+        }
+    }
+
     // ── Wi‑Fi module: speed of its port to this host (line 0, ID_UART + ID_FLASH), firmware before 0.12 ──
     // The sequence (module switches, link follows, the module must answer at the new speed, then the speed is
     // saved in it; no answer puts the link back) runs in DevDriver::wifiSetLineBaud, not here: this page is

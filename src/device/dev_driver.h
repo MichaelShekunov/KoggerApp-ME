@@ -15,6 +15,7 @@
 #include "proto_binnary.h"
 #include "id_binnary.h"
 #include "wifi_ops.h"
+#include "wifi_profile.h"
 #include "device_liveness.h"
 #include "node_probe.h"
 
@@ -381,6 +382,53 @@ public:
     Q_INVOKABLE bool wifiRadioSwitchOn();
     /** Asks the module for its radio state (ID_WIFI_RF GETTING v0). */
     Q_INVOKABLE void wifiRadioRefresh();
+
+    // Firmware 0.22: the module's whole profile (ID_WIFI_PROFILE 0x5B; the block, the sequence and the rules are
+    // WifiProfile*, device/wifi_profile.h; the page: docs/WIFI_MODULE.md 2q).
+    /** 1 from firmware 0.22, 0 before, -1 the version not known. */
+    int wifiProfileSupport();
+    /** The module said which profile it carries (its CONTENT v0 came). */
+    bool wifiProfileKnown() const { return idWifiProfile && idWifiProfile->status().valid; }
+    /** The profile the module was loaded with; empty when none (never, or its settings were cleared). */
+    QString wifiProfileName() const;
+    bool wifiProfileLoaded() const;
+    /** A setting changed since the profile was loaded. */
+    bool wifiProfileModified() const;
+    /** 0 nothing runs; 1 the pieces go; 2 the module checks and saves; 3 it reboots into the profile and the app waits
+     *  for it at the same address. */
+    int wifiProfileStep() const { return wifiProfileStep_; }
+    /** Bytes of the profile the module confirmed, of wifiProfileTotal(). */
+    int wifiProfileSent() const;
+    int wifiProfileTotal() const;
+    /** How the last load ended, in words (empty before one); bad = it was not loaded or is not known to be. */
+    QString wifiProfileResult() const { return wifiProfileResult_; }
+    bool wifiProfileResultBad() const { return wifiProfileResultBad_; }
+    /** The profiles to choose from: built in first, then the user's files. Each {id, builtin, error, file, name, role,
+     *  apSsid, networks, address, x1Baud, x2Baud}. */
+    Q_INVOKABLE QVariantList wifiProfileList();
+    /** The folder of the user's profile files. */
+    Q_INVOKABLE QString wifiProfileFolder() const;
+    /**
+     * What loading profile `id` would do, with `passwords` ({"ap": …, "net0": …}) over the profile's own: {id, name,
+     * builtin, error, slots [{key, label, value, required}], changes [{key, what, from, to, main}], unread [what was
+     * not read from the module], problems [what the module would refuse], warnings, blocked (why it must not be
+     * loaded over this link, empty when it may), ownPort (0 X1, 1 X2, -1 the network), newBaud (that port's rate
+     * after it; 0 the network), linkBaud (this app's serial link, 0 not serial), bytes, ready}.
+     */
+    Q_INVOKABLE QVariantMap wifiProfilePreview(const QString& id, const QVariantMap& passwords);
+    /** Starts loading profile `id` (wifiProfilePreview's ready); false and wifiProfileResult when not. */
+    Q_INVOKABLE bool wifiProfileLoad(const QString& id, const QVariantMap& passwords);
+    /** Asks the module which profile it carries (GETTING v0). */
+    Q_INVOKABLE void wifiProfileRefresh();
+    /** Reads the module's settings afresh; wifiProfileCaptured follows with {error, name, slots, unread}. */
+    Q_INVOKABLE void wifiProfileCapture();
+    /** Saves the settings wifiProfileCapture read as a file named `name`, with the passwords given (the module never
+     *  gives them; an empty one is asked when the profile is loaded). An empty string when saved, else why not. */
+    Q_INVOKABLE QString wifiProfileSaveCaptured(const QString& name, const QVariantMap& passwords);
+    /** Copies a JSON profile file (a path or a file: URL) into the folder; an empty string when done, else why not. */
+    Q_INVOKABLE QString wifiProfileImport(const QString& path);
+    /** Removes a user's profile file. */
+    Q_INVOKABLE bool wifiProfileDelete(const QString& id);
 
     // Relay of the boat's SBP stream through the module (ID_WIFI v5 / v6, firmware 0.6+).
     int wifiRelaySupport();
@@ -774,6 +822,9 @@ signals:
     // End of a line-record change (WifiLineChange::Outcome; resp = the module's code on a refusal); rate: it was a
     // port rate, otherwise the line's network settings.
     void wifiLineChangeFinished(int line, int outcome, int resp, bool rate);
+    void wifiProfileChanged();
+    void wifiProfileListChanged();
+    void wifiProfileCaptured(const QVariantMap& capture);
     // Answer to an ID_WIFI_NET SETTING (or a refusal): version and response code (Parsers::Resp).
     void wifiNetCommandResult(int version, int resp);
     // The module's answer to a Wi-Fi SETTING (or its refusal of a request): version of the frame
@@ -932,6 +983,7 @@ protected:
     IDBinFlash* idFlash = nullptr;
     IDBinWifiSurvey* idWifiSurvey = nullptr;
     IDBinWifiRf* idWifiRf = nullptr;
+    IDBinWifiProfile* idWifiProfile = nullptr;
     IDBinBoot* idBoot = nullptr;
     IDBinUpdate* idUpdate = nullptr;
 
@@ -1124,6 +1176,13 @@ protected slots:
     void receivedWifiNet    (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
     void receivedWifiSurvey (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
     void receivedWifiRf     (Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
+    void receivedWifiProfile(Parsers::Type type, Parsers::Version ver, Parsers::Resp resp);
+    /** The module's settings as last read, as a profile; `known` gets WifiProfileDiff::Known flags of what was read. */
+    WifiProfile wifiProfileNow(uint32_t* known);
+    /** The fastest rate this app's serial adapter follows (WifiProfileRules::adapterMaxBaud); 0 not known. */
+    int wifiProfileAdapterMax() const;
+    void wifiProfileFinished(int outcome);
+    void wifiProfileCaptureDone();
     /** Takes flag bit3 of a status (ID_WIFI v0) against the module's last ID_WIFI_RF state (wifiRadioOff()). */
     void wifiRfOnStatus(bool flagOff);
     void logWifiSurvey();
@@ -1255,6 +1314,20 @@ private:
     WifiLineChange* wifiLine_ = nullptr;
     QString lastWifiPortLog_[WifiPorts::kPorts][3];   // last logged line per port and v7 page
     WifiRadioCheck* wifiRadioCheck_ = nullptr;
+    WifiProfileUpload* wifiProfileUpload_ = nullptr;
+    QTimer wifiProfileBackTimer_;     // after the module took a profile: its status asked until it is back
+    WifiProfile wifiProfileLoading_;  // the profile being loaded (or last loaded)
+    int wifiProfileStep_ = 0;
+    int wifiProfileOwnPort_ = -1;     // this app's port of the module when the load started
+    int wifiProfileNewBaud_ = 0;      // that port's rate after the profile (0: the network)
+    int wifiProfileOldAddress_ = -1;
+    qint64 wifiProfileSavedAtMs_ = 0; // wifiClock_ time the module took it
+    QString wifiProfileResult_;
+    bool wifiProfileResultBad_ = false;
+    QString wifiProfileLogged_;       // the status last written to the log
+    WifiProfile wifiProfileCaptured_;
+    uint32_t wifiProfileCapturedKnown_ = 0;
+    bool wifiProfileCapturing_ = false;
     bool pwmRouteState_ = false;
     bool devSyncState_ = false;
     QTimer m_devSyncDebounceTimer;

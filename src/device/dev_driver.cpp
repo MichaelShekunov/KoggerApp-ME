@@ -7,11 +7,18 @@
 #include <QDebug>
 #include <limits>
 #include <QFile>
+#include <QFileInfo>
 #include <QThread>
 #include <type_traits>
 #include <cmath>
 #include <QVariant>
 #include <QXmlStreamWriter>
+#include <QUrl>
+#if defined(Q_OS_ANDROID)
+#include "qserialportinfo.h"   // vendored, platform/android/src/qtandroidserialport
+#else
+#include <QSerialPortInfo>
+#endif
 #include "notifications.h"
 #include "attitude_arbiter.h"
 
@@ -81,6 +88,7 @@ DevDriver::DevDriver(QObject *parent)
     regID(idWifiNet = new IDBinWifiNet(), &DevDriver::receivedWifiNet);
     regID(idWifiSurvey = new IDBinWifiSurvey(), &DevDriver::receivedWifiSurvey);
     regID(idWifiRf = new IDBinWifiRf(), &DevDriver::receivedWifiRf);
+    regID(idWifiProfile = new IDBinWifiProfile(), &DevDriver::receivedWifiProfile);
     regID(idVersion = new IDBinVersion(), &DevDriver::receivedVersion, true);
 
     regID(idMark = new IDBinMark(), &DevDriver::receivedMark);
@@ -214,6 +222,40 @@ DevDriver::DevDriver(QObject *parent)
         }
     }, WifiRadioCheck::Timing(), this);
     connect(wifiRadioCheck_, &WifiRadioCheck::activeChanged, this, &DevDriver::wifiRadioCheckChanged);
+    // A whole profile (firmware 0.22): the pieces, the apply, then the module's reboot.
+    wifiProfileUpload_ = new WifiProfileUpload({
+        [this](int ver, const QByteArray& payload) { if (m_state.connect) idWifiProfile->sendSetting(ver, payload); },
+        [this](int ver) { if (m_state.connect) idWifiProfile->ask(ver); }
+    }, WifiProfileUpload::Timing(), this);
+    connect(wifiProfileUpload_, &WifiProfileUpload::progressChanged, this, [this]() {
+        const int phase = wifiProfileUpload_->phase();
+        const int step = phase == WifiProfileUpload::Begin || phase == WifiProfileUpload::Pieces ? 1
+                         : phase == WifiProfileUpload::Idle ? wifiProfileStep_ : 2;
+        wifiProfileStep_ = step;
+        emit wifiProfileChanged();
+    });
+    connect(wifiProfileUpload_, &WifiProfileUpload::finished, this, &DevDriver::wifiProfileFinished);
+    wifiProfileBackTimer_.setInterval(1000);
+    connect(&wifiProfileBackTimer_, &QTimer::timeout, this, [this]() {
+        if (wifiProfileStep_ != 3) {
+            wifiProfileBackTimer_.stop();
+            return;
+        }
+        if (wifiClock_.elapsed() - wifiProfileSavedAtMs_ > 30000) {
+            wifiProfileBackTimer_.stop();
+            wifiProfileStep_ = 0;
+            wifiProfileResult_ = tr("The module took \"%1\" but has not answered here for 30 s since. It may run at another "
+                                    "rate or address now (X%2 %3 bit/s, address %4 by the profile): look for it in the device list.")
+                                     .arg(wifiProfileLoading_.name).arg(wifiProfileOwnPort_ + 1)
+                                     .arg(WifiProfileDiff::baudText(uint32_t(wifiProfileNewBaud_))).arg(wifiProfileLoading_.address);
+            wifiProfileResultBad_ = true;
+            qInfo().noquote() << wifiTag() << QStringLiteral("wifi-profile: \"%1\" taken, no answer here within 30 s since").arg(wifiProfileLoading_.name);
+            notifyWarning(wifiProfileResult_);
+            emit wifiProfileChanged();
+            return;
+        }
+        idWifiProfile->ask(0);                    // the same address: the module answers once it is up
+    });
     connect(wifiRadioCheck_, &WifiRadioCheck::finished, this, [this](int outcome, const QString& text) {
         qInfo().noquote() << wifiTag() << "wifi-radio:" << text;
         if (outcome == WifiRadioCheck::Corrected)
@@ -2189,6 +2231,577 @@ void DevDriver::wifiRfOnStatus(bool flagOff) {
     if ((step == WifiRf::StatusOffAsk || step == WifiRf::StatusAsk) && m_state.connect && wifiRfSupport() == 1)
         idWifiRf->requestAll();
     emit wifiRfChanged();
+}
+
+int DevDriver::wifiProfileSupport() {
+    return isWifi() ? WifiProfileRules::supportFor(idVersion->fwVersion(), idVersion->fwVersionMinor()) : 0;
+}
+
+QString DevDriver::wifiProfileName() const {
+    const IDBinWifiProfile::Status& s = idWifiProfile->status();
+    return s.valid && (s.flags & 1) ? s.name : QString();
+}
+
+bool DevDriver::wifiProfileLoaded() const {
+    const IDBinWifiProfile::Status& s = idWifiProfile->status();
+    return s.valid && (s.flags & 1);
+}
+
+bool DevDriver::wifiProfileModified() const {
+    const IDBinWifiProfile::Status& s = idWifiProfile->status();
+    return s.valid && (s.flags & 1) && (s.flags & 2);
+}
+
+int DevDriver::wifiProfileSent() const { return wifiProfileUpload_ ? wifiProfileUpload_->sent() : 0; }
+
+int DevDriver::wifiProfileTotal() const { return wifiProfileUpload_ ? wifiProfileUpload_->total() : 0; }
+
+QString DevDriver::wifiProfileFolder() const { return WifiProfileStore::folder(); }
+
+namespace {
+
+// The passwords typed on the page over the profile's own: "ap" and "net<index>".
+void applyProfilePasswords(WifiProfile* p, const QVariantMap& passwords)
+{
+    const auto ap = passwords.constFind(QStringLiteral("ap"));
+    if (ap != passwords.constEnd())
+        p->apPassword = ap.value().toString();
+    for (int i = 0; i < p->networks.size(); ++i) {
+        const auto n = passwords.constFind(QStringLiteral("net%1").arg(i));
+        if (n != passwords.constEnd())
+            p->networks[i].password = n.value().toString();
+    }
+}
+
+QVariantList profileSlots(const WifiProfile& p)
+{
+    QVariantList out;
+    if (p.apAuth != 0)
+        out << QVariantMap{ { QStringLiteral("key"), QStringLiteral("ap") }, { QStringLiteral("ssid"), p.apSsid },
+                            { QStringLiteral("kind"), QStringLiteral("ap") }, { QStringLiteral("value"), p.apPassword },
+                            { QStringLiteral("required"), true } };
+    for (int i = 0; i < p.networks.size(); ++i)
+        out << QVariantMap{ { QStringLiteral("key"), QStringLiteral("net%1").arg(i) },
+                            { QStringLiteral("ssid"), p.networks[i].ssid }, { QStringLiteral("kind"), QStringLiteral("net") },
+                            { QStringLiteral("value"), p.networks[i].password },
+                            { QStringLiteral("required"), p.networks[i].secure } };
+    return out;
+}
+
+} // namespace
+
+WifiProfile DevDriver::wifiProfileNow(uint32_t* known) {
+    WifiProfile p;
+    uint32_t k = 0;
+    const IDBinWifiNet::RoleInfo& role = idWifiNet->role();
+    if (role.valid) {
+        p.role = role.saved;                      // what the module boots into: the profile sets that
+        k |= WifiProfileDiff::KnownRole;
+    }
+    if (idWifiNet->ownAddress() > 0) {
+        p.address = uint8_t(idWifiNet->ownAddress());
+        k |= WifiProfileDiff::KnownAddress;
+    }
+    const WifiPorts& ports = idWifiNet->ports();
+    if (idWifiNet->portSupport() == 1 && ports.summary(0).valid) {
+        p.x1Baud = ports.summary(0).baudSaved;
+        k |= WifiProfileDiff::KnownX1;
+    }
+    if (idWifiNet->portSupport() == 1 && ports.summary(1).valid) {
+        p.x2Baud = ports.summary(1).baudSaved;
+        k |= WifiProfileDiff::KnownX2;
+    }
+    const IDBinWifi::Radio& r = idWifi->radio();
+    if (r.valid) {
+        p.powerQ = r.powerQ;
+        p.protocols = r.protocols;
+        p.bandwidth = r.bandwidth;
+        p.powerSave = r.powerSave;
+        k |= WifiProfileDiff::KnownRadio;
+    }
+    const IDBinWifiNet::Ap& ap = idWifiNet->ap();
+    if (ap.valid) {
+        p.apChannel = ap.channel;
+        p.apHidden = ap.hidden;
+        p.apMaxClients = ap.maxClients;
+        p.apAuth = ap.auth;
+        p.apSsid = ap.ssid;
+        k |= WifiProfileDiff::KnownAp;
+    }
+    const IDBinWifiNet::IpCfg& ip = idWifiNet->ipCfg();
+    if (ip.valid) {
+        p.ip = ip.ip;
+        p.mask = ip.mask;
+        p.dhcp = ip.dhcp ? 1 : 0;
+        p.poolStart = ip.poolStart;
+        p.poolEnd = ip.poolEnd;
+        p.leaseMin = ip.leaseMin;
+        p.offer = ip.offer;
+        k |= WifiProfileDiff::KnownIp;
+    }
+    for (int i = 0; i < IDBinWifiNet::kLines; ++i) {
+        const IDBinWifiNet::Line& l = idWifiNet->line(i);
+        if (!l.valid)
+            continue;
+        WifiProfile::Line& t = i == 0 ? p.line0 : p.line1;
+        t.mode = l.mode;
+        t.dest = l.dest;
+        t.ip = l.ip;
+        t.rport = l.rport;
+        t.lport = l.lport;
+        k |= i == 0 ? WifiProfileDiff::KnownLine0 : WifiProfileDiff::KnownLine1;
+        if (i == 1) {
+            p.txPin = l.txPin;
+            p.rxPin = l.rxPin;
+            if (!(k & WifiProfileDiff::KnownX2))
+                p.x2Baud = l.baud;                // the rate in effect; the port summary's saved one is preferred
+            if (l.xlatSaved >= 0) {
+                p.xlat = uint8_t(l.xlatSaved);
+                k |= WifiProfileDiff::KnownXlat;
+            }
+        }
+    }
+    const QStringList& saved = idWifi->savedNetworks();
+    if (idWifi->savedTotal() >= 0 && saved.size() == idWifi->savedTotal() && !saved.contains(QString())) {
+        for (const QString& s : saved)
+            p.networks.append({ s, QString(), true });
+        k |= WifiProfileDiff::KnownNets;
+    }
+    if (known)
+        *known = k;
+    return p;
+}
+
+int DevDriver::wifiProfileAdapterMax() const {
+    LinkManagerWrapper* links = core.getLinkManagerWrapperPtr();
+    if (!links || linkUuid_.isNull())
+        return 0;
+    const QUuid link = linkUuid_;
+    QString port;
+    const auto read = [links, link, &port]() {
+        LinkListModel* m = links->getModelPtr();
+        if (m && m->containsUuid(link)
+            && m->valueForUuid(link, LinkListModel::Roles::LinkType).toInt() == static_cast<int>(LinkType::kLinkSerial))
+            port = m->valueForUuid(link, LinkListModel::Roles::PortName).toString();
+    };
+    if (links->thread() == QThread::currentThread())
+        read();
+    else
+        QMetaObject::invokeMethod(links, read, Qt::BlockingQueuedConnection);
+    if (port.isEmpty())
+        return 0;
+    for (const QSerialPortInfo& info : QSerialPortInfo::availablePorts())
+        if ((info.portName() == port || info.systemLocation() == port) && info.hasVendorIdentifier() && info.hasProductIdentifier())
+            return WifiProfileRules::adapterMaxBaud(info.vendorIdentifier(), info.productIdentifier());
+    return 0;
+}
+
+QVariantList DevDriver::wifiProfileList() {
+    QVariantList out;
+    for (const WifiProfileStore::Entry& e : WifiProfileStore::list()) {
+        QStringList nets;
+        for (const WifiProfile::Net& n : e.profile.networks)
+            nets << n.ssid;
+        out << QVariantMap{ { QStringLiteral("id"), e.id }, { QStringLiteral("builtin"), e.builtin },
+                            { QStringLiteral("error"), e.error }, { QStringLiteral("file"), e.file },
+                            { QStringLiteral("name"), e.error.isEmpty() ? e.profile.name : QFileInfo(e.file).fileName() },
+                            { QStringLiteral("role"), int(e.profile.role) }, { QStringLiteral("apSsid"), e.profile.apSsid },
+                            { QStringLiteral("networks"), nets }, { QStringLiteral("address"), int(e.profile.address) },
+                            { QStringLiteral("x1Baud"), double(e.profile.x1Baud) },
+                            { QStringLiteral("x2Baud"), double(e.profile.x2Baud) } };
+    }
+    return out;
+}
+
+QVariantMap DevDriver::wifiProfilePreview(const QString& id, const QVariantMap& passwords) {
+    QVariantMap out;
+    out.insert(QStringLiteral("id"), id);
+    out.insert(QStringLiteral("ready"), false);
+    WifiProfileStore::Entry e;
+    if (!WifiProfileStore::find(id, &e)) {
+        out.insert(QStringLiteral("error"), tr("This profile is not there any more"));
+        return out;
+    }
+    if (!e.error.isEmpty()) {
+        out.insert(QStringLiteral("error"), tr("The file cannot be used: %1").arg(e.error));
+        return out;
+    }
+    WifiProfile p = e.profile;
+    applyProfilePasswords(&p, passwords);
+    out.insert(QStringLiteral("name"), p.name);
+    out.insert(QStringLiteral("builtin"), e.builtin);
+    out.insert(QStringLiteral("slots"), profileSlots(p));
+
+    uint32_t known = 0;
+    const WifiProfile now = wifiProfileNow(&known);
+    QVariantList changes;
+    for (const WifiProfileChange& c : WifiProfileDiff::changes(now, known, p))
+        changes << QVariantMap{ { QStringLiteral("key"), c.key }, { QStringLiteral("what"), c.what },
+                                { QStringLiteral("from"), c.from }, { QStringLiteral("to"), c.to },
+                                { QStringLiteral("main"), c.primary } };
+    out.insert(QStringLiteral("changes"), changes);
+    QStringList unread;
+    const auto miss = [&](uint32_t flag, const QString& what) { if (!(known & flag)) unread << what; };
+    miss(WifiProfileDiff::KnownRole, tr("role"));
+    miss(WifiProfileDiff::KnownAp, tr("access point"));
+    miss(WifiProfileDiff::KnownNets, tr("station networks"));
+    miss(WifiProfileDiff::KnownAddress, tr("address"));
+    miss(WifiProfileDiff::KnownX1 | WifiProfileDiff::KnownX2, tr("port rates"));
+    miss(WifiProfileDiff::KnownRadio, tr("radio"));
+    miss(WifiProfileDiff::KnownLine0 | WifiProfileDiff::KnownLine1, tr("lines"));
+    miss(WifiProfileDiff::KnownIp, tr("address and DHCP"));
+    out.insert(QStringLiteral("unread"), unread);
+
+    QString encodeError;
+    const QByteArray blob = p.encode(&encodeError);
+    QStringList problems = p.problems();
+    if (!encodeError.isEmpty())
+        problems << encodeError;
+    out.insert(QStringLiteral("problems"), problems);
+    out.insert(QStringLiteral("bytes"), int(blob.size()));
+
+    // Which port of the module this app is on decides what the reboot does to this app's link.
+    const WifiPorts& ports = idWifiNet->ports();
+    const bool portsKnown = idWifiNet->portSupport() == 1 && ports.summary(0).valid && ports.summary(1).valid;
+    const int own = portsKnown ? ports.askedPort() : -1;
+    const int newBaud = WifiProfileRules::portBaudAfter(p, own);
+    const int linkBaud = wifiLinkBaud();
+    out.insert(QStringLiteral("ownPort"), own);
+    out.insert(QStringLiteral("newBaud"), newBaud);
+    out.insert(QStringLiteral("linkBaud"), linkBaud);
+
+    QStringList warnings;
+    QString blocked;
+    warnings << tr("The module reboots into the profile: its link drops for a few seconds.");
+    if (!m_state.connect)
+        blocked = tr("No connection to the module.");
+    else if (wifiProfileSupport() != 1)
+        blocked = tr("The module's firmware cannot take profiles (that came with 0.22).");
+    else if (wifiProfileStep_ != 0)
+        blocked = tr("A profile is being loaded.");
+    else if (!portsKnown)
+        blocked = tr("The module's ports are not read yet (which one this app is on): wait a moment.");
+    else if (own >= 0 && linkBaud > 0 && wifiProfileAdapterMax() > 0 && newBaud > wifiProfileAdapterMax())
+        blocked = tr("This app is on the module's X%1 through an adapter that follows at most %2 bit/s (CP2105), and the "
+                     "profile sets X%1 to %3 bit/s: the module would be lost to this wire until its BOOT button resets "
+                     "the rates. Load this profile over the network or through another adapter.")
+                      .arg(own + 1).arg(WifiProfileDiff::baudText(uint32_t(wifiProfileAdapterMax())))
+                      .arg(WifiProfileDiff::baudText(uint32_t(newBaud)));
+    else if (own == 1 && p.xlat != 0)
+        blocked = tr("This app is on X2, and the profile makes X2 the input of the GODIO telemetry translator, which only "
+                     "listens: the module would be lost to this wire. Load it through X1 or over the network.");
+    if (own >= 0 && linkBaud > 0 && newBaud > 0 && newBaud != linkBaud)
+        warnings << tr("The profile sets this app's port X%1 to %2 bit/s: the app follows the module there after the reboot.")
+                        .arg(own + 1).arg(WifiProfileDiff::baudText(uint32_t(newBaud)));
+    if ((known & WifiProfileDiff::KnownAddress) && now.address != p.address)
+        warnings << tr("The module comes back at address %1: it shows in the device list as another device.").arg(p.address);
+    const IDBinWifiNet::Line& l1 = idWifiNet->line(1);
+    if (p.xlat != 0 && l1.valid && l1.xlatBuild >= 0 && !(l1.xlatBuild & 1))
+        warnings << tr("The module's firmware has no GODIO telemetry translator: it will refuse this profile.");
+    bool netChange = false;
+    for (const WifiProfileChange& c : WifiProfileDiff::changes(now, known, p))
+        netChange = netChange || c.key == QLatin1String("role") || c.key == QLatin1String("ap")
+                    || c.key == QLatin1String("networks") || c.key == QLatin1String("radio");
+    if (netChange)
+        warnings << (own < 0 && portsKnown
+                     ? tr("This app reaches the module over the network. A boat and head unit pair is changed in this "
+                          "order: first the boat's module over the air, then the head unit's by wire to the boat's new "
+                          "network; the other way round they lose each other.")
+                     : tr("If this module is one of a boat and head unit pair: change the boat's module first (over the "
+                          "air), then the head unit's (by wire), or they lose each other."));
+    for (const WifiProfile::Net& n : p.networks)
+        if (n.password.isEmpty() && !n.secure)
+            warnings << tr("The network \"%1\" has no password: the module joins it as an open network.").arg(n.ssid);
+    out.insert(QStringLiteral("warnings"), warnings);
+    out.insert(QStringLiteral("blocked"), blocked);
+    out.insert(QStringLiteral("ready"), blocked.isEmpty() && problems.isEmpty() && !blob.isEmpty());
+    return out;
+}
+
+bool DevDriver::wifiProfileLoad(const QString& id, const QVariantMap& passwords) {
+    const QVariantMap pv = wifiProfilePreview(id, passwords);
+    if (!pv.value(QStringLiteral("ready")).toBool()) {
+        QString why = pv.value(QStringLiteral("error")).toString();
+        if (why.isEmpty())
+            why = pv.value(QStringLiteral("blocked")).toString();
+        if (why.isEmpty())
+            why = pv.value(QStringLiteral("problems")).toStringList().join(QStringLiteral("; "));
+        wifiProfileResult_ = tr("Not loaded: %1").arg(why);
+        wifiProfileResultBad_ = true;
+        qInfo().noquote() << wifiTag() << QStringLiteral("wifi-profile: \"%1\" not sent: %2").arg(id, why);
+        emit wifiProfileChanged();
+        return false;
+    }
+    WifiProfileStore::Entry e;
+    WifiProfileStore::find(id, &e);
+    WifiProfile p = e.profile;
+    applyProfilePasswords(&p, passwords);
+    const QByteArray blob = p.encode();
+    wifiProfileLoading_ = p;
+    wifiProfileOwnPort_ = pv.value(QStringLiteral("ownPort")).toInt();
+    wifiProfileNewBaud_ = pv.value(QStringLiteral("newBaud")).toInt();
+    wifiProfileOldAddress_ = idWifiNet->ownAddress();
+    if (!wifiProfileUpload_->start(blob))
+        return false;
+    wifiProfileResult_.clear();
+    wifiProfileResultBad_ = false;
+    qInfo().noquote() << wifiTag() << QStringLiteral("wifi-profile: loading \"%1\": %2 bytes, crc %3, %4")
+                             .arg(p.name).arg(blob.size()).arg(WifiProfile::crc32(blob), 8, 16, QLatin1Char('0'))
+                             .arg(wifiProfileOwnPort_ >= 0 ? QStringLiteral("this app on X%1, %2 bit/s after it")
+                                                                 .arg(wifiProfileOwnPort_ + 1).arg(wifiProfileNewBaud_)
+                                                           : QStringLiteral("this app over the network"));
+    emit wifiProfileChanged();
+    return true;
+}
+
+void DevDriver::wifiProfileFinished(int outcome) {
+    const QString name = wifiProfileLoading_.name;
+    const int reason = wifiProfileUpload_->reason();
+    const int resp = wifiProfileUpload_->resp();
+    wifiProfileStep_ = 0;
+    wifiProfileResultBad_ = outcome != WifiProfileUpload::Saved;
+    switch (outcome) {
+    case WifiProfileUpload::Saved: {
+        wifiProfileSavedAtMs_ = wifiClock_.elapsed();
+        const bool moved = wifiProfileOldAddress_ > 0 && wifiProfileOldAddress_ != wifiProfileLoading_.address;
+        qInfo().noquote() << wifiTag() << QStringLiteral("wifi-profile: \"%1\" taken, the module reboots into it (address %2%3)")
+                                 .arg(name).arg(wifiProfileLoading_.address)
+                                 .arg(moved ? QStringLiteral(", was %1").arg(wifiProfileOldAddress_) : QString());
+        // This app's port follows the module's new rate once it reboots (it does 200 ms after its answer).
+        const int linkBaud = wifiLinkBaud();
+        if (wifiProfileOwnPort_ >= 0 && linkBaud > 0 && wifiProfileNewBaud_ > 0 && wifiProfileNewBaud_ != linkBaud) {
+            LinkManagerWrapper* links = core.getLinkManagerWrapperPtr();
+            const QUuid link = linkUuid_;
+            const int baud = wifiProfileNewBaud_;
+            QTimer::singleShot(300, this, [this, links, link, baud]() {
+                if (links)
+                    QMetaObject::invokeMethod(links, [links, link, baud]() { links->updateBaudrate(link, baud); }, Qt::QueuedConnection);
+                qInfo().noquote() << wifiTag() << QStringLiteral("wifi-profile: this app's link to %1 bit/s after the module").arg(baud);
+            });
+        }
+        if (moved) {
+            // Another address is another device in this app: this one will not hear it again.
+            wifiProfileResult_ = tr("The module took \"%1\" and reboots into it. It comes back at address %2, as another "
+                                    "device in the list.").arg(name).arg(wifiProfileLoading_.address);
+            wifiProfileResultBad_ = false;
+            notifyInfo(wifiProfileResult_);
+        } else {
+            wifiProfileStep_ = 3;
+            wifiProfileResult_ = tr("The module took \"%1\" and reboots into it…").arg(name);
+            wifiProfileBackTimer_.start();
+        }
+        break;
+    }
+    case WifiProfileUpload::Refused: {
+        const QString why = reason == WifiProfile::ReasonIncomplete ? tr("the upload did not arrive whole")
+            : reason == WifiProfile::ReasonCrc ? tr("the upload arrived damaged (its CRC)")
+            : reason == WifiProfile::ReasonFormat ? tr("the block's format or a length")
+            : reason == WifiProfile::ReasonName ? tr("the name (1 to 32 bytes)")
+            : reason == WifiProfile::ReasonRole ? tr("the role")
+            : reason == WifiProfile::ReasonAddress ? tr("the address (0 and 255 are not allowed)")
+            : reason == WifiProfile::ReasonX1Baud ? tr("the X1 rate (9600 to 5 000 000)")
+            : reason == WifiProfile::ReasonRadio ? tr("the radio settings")
+            : reason == WifiProfile::ReasonAp ? tr("the access point (channel 1 to 11, 1 to 10 clients, a password of 8 to 63 characters)")
+            : reason == WifiProfile::ReasonIp ? tr("the address and DHCP")
+            : reason == WifiProfile::ReasonLine0 ? tr("the X1 line")
+            : reason == WifiProfile::ReasonLine1 ? tr("the X2 line (its rate or pins)")
+            : reason == WifiProfile::ReasonLines ? tr("both UDP lines on one port")
+            : reason == WifiProfile::ReasonXlat ? tr("the input translator, which this firmware does not have")
+            : reason == WifiProfile::ReasonNets ? tr("the networks (more than 8, a length, a name twice or a password)")
+            : reason >= 0 ? tr("reason %1").arg(reason) : tr("the reason did not come");
+        wifiProfileResult_ = tr("The module refused \"%1\": %2. Nothing changed in it.").arg(name, why);
+        qInfo().noquote() << wifiTag() << QStringLiteral("wifi-profile: \"%1\" refused (code %2): %3")
+                                 .arg(name).arg(resp).arg(WifiProfile::reasonName(reason));
+        notifyWarning(wifiProfileResult_);
+        break;
+    }
+    case WifiProfileUpload::Busy:
+        wifiProfileResult_ = tr("The module is updating its firmware, or its new firmware has not confirmed itself yet: "
+                                "try again in a minute. Nothing changed.");
+        qInfo().noquote() << wifiTag() << QStringLiteral("wifi-profile: \"%1\" refused: busy (a firmware update)").arg(name);
+        notifyWarning(wifiProfileResult_);
+        break;
+    case WifiProfileUpload::WriteFailed:
+        wifiProfileResult_ = tr("The module's flash refused the write halfway: part of \"%1\" is saved and the module did "
+                                "not reboot (its profile shows as changed). Load it again.").arg(name);
+        qInfo().noquote() << wifiTag() << QStringLiteral("wifi-profile: \"%1\": ERR_RUNTIME without a reason, written halfway").arg(name);
+        notifyWarning(wifiProfileResult_);
+        break;
+    case WifiProfileUpload::Rejected:
+        wifiProfileResult_ = tr("The module refused the upload of \"%1\" (code %2). Nothing changed.").arg(name).arg(resp);
+        qInfo().noquote() << wifiTag() << QStringLiteral("wifi-profile: \"%1\": upload refused (code %2)").arg(name).arg(resp);
+        notifyWarning(wifiProfileResult_);
+        break;
+    default: {
+        const bool atApply = wifiProfileUpload_->sent() == wifiProfileUpload_->total();
+        wifiProfileResult_ = atApply
+            ? tr("No answer to \"apply\": the module may have rebooted into \"%1\". If it is gone, look for it in the device "
+                 "list (address %2).").arg(name).arg(wifiProfileLoading_.address)
+            : tr("No answer from the module while sending \"%1\". Nothing changed.").arg(name);
+        qInfo().noquote() << wifiTag() << QStringLiteral("wifi-profile: \"%1\": no answer (%2 of %3 bytes confirmed)")
+                                 .arg(name).arg(wifiProfileUpload_->sent()).arg(wifiProfileUpload_->total());
+        notifyWarning(wifiProfileResult_);
+        break;
+    }
+    }
+    emit wifiProfileChanged();
+}
+
+void DevDriver::wifiProfileRefresh() {
+    if (m_state.connect && wifiProfileSupport() != 0)
+        idWifiProfile->requestAll();
+}
+
+void DevDriver::receivedWifiProfile(Parsers::Type type, Parsers::Version ver, Parsers::Resp resp) {
+    Q_UNUSED(type);
+    if (resp != respNone) {
+        if (wifiProfileUpload_->active())
+            wifiProfileUpload_->onAnswer(int(ver), int(resp));
+        return;
+    }
+    if (ver == v3) {
+        if (wifiProfileUpload_->active())
+            wifiProfileUpload_->onReason(idWifiProfile->lastReason());
+        return;
+    }
+    if (ver != v0)
+        return;
+    const IDBinWifiProfile::Status& s = idWifiProfile->status();
+    WifiProfileStatus st;
+    st.valid = s.valid;
+    st.loaded = (s.flags & 1) != 0;
+    st.modified = (s.flags & 2) != 0;
+    st.fingerprint = s.fingerprint;
+    st.received = s.received;
+    st.announced = s.announced;
+    st.name = s.name;
+    if (wifiProfileUpload_->active())
+        wifiProfileUpload_->onStatus(st);
+    if (wifiProfileStep_ == 3 && wifiClock_.elapsed() - wifiProfileSavedAtMs_ > 500 && st.loaded
+        && st.name == wifiProfileLoading_.name && st.announced == 0) {
+        wifiProfileBackTimer_.stop();
+        wifiProfileStep_ = 0;
+        wifiProfileResultBad_ = st.modified;
+        wifiProfileResult_ = st.modified
+            ? tr("The module is back with \"%1\", but says a setting changed since.").arg(st.name)
+            : tr("Profile \"%1\" loaded: the module is back in %2 s.").arg(st.name)
+                  .arg(QString::number((wifiClock_.elapsed() - wifiProfileSavedAtMs_) / 1000.0, 'f', 1));
+        qInfo().noquote() << wifiTag() << QStringLiteral("wifi-profile: back with \"%1\" after %2 ms%3").arg(st.name)
+                                 .arg(wifiClock_.elapsed() - wifiProfileSavedAtMs_)
+                                 .arg(st.modified ? QStringLiteral(", changed since") : QString());
+        if (st.modified)
+            notifyWarning(wifiProfileResult_);
+        else
+            notifyInfo(wifiProfileResult_);
+    }
+    const QString logged = !st.loaded ? QStringLiteral("no profile") : QStringLiteral("\"%1\"%2").arg(st.name)
+                               .arg(st.modified ? QStringLiteral(", changed since") : QString());
+    if (logged != wifiProfileLogged_) {
+        wifiProfileLogged_ = logged;
+        qInfo().noquote() << wifiTag() << QStringLiteral("wifi-profile: the module carries %1").arg(logged);
+    }
+    emit wifiProfileChanged();
+}
+
+void DevDriver::wifiProfileCapture() {
+    if (!m_state.connect || wifiProfileSupport() == 0) {
+        emit wifiProfileCaptured({ { QStringLiteral("error"), tr("No connection to the module.") } });
+        return;
+    }
+    if (wifiProfileCapturing_)
+        return;
+    wifiProfileCapturing_ = true;
+    idWifi->requestAll();
+    idWifiNet->requestAll();
+    idWifiNet->requestPorts();
+    idWifiProfile->requestAll();
+    QTimer::singleShot(2500, this, &DevDriver::wifiProfileCaptureDone);
+}
+
+void DevDriver::wifiProfileCaptureDone() {
+    wifiProfileCapturing_ = false;
+    uint32_t known = 0;
+    WifiProfile p = wifiProfileNow(&known);
+    QStringList unread;
+    const auto miss = [&](uint32_t flag, const QString& what) { if ((known & flag) != flag) unread << what; };
+    miss(WifiProfileDiff::KnownRole, tr("role"));
+    miss(WifiProfileDiff::KnownAp, tr("access point"));
+    miss(WifiProfileDiff::KnownNets, tr("station networks"));
+    miss(WifiProfileDiff::KnownAddress, tr("address"));
+    miss(WifiProfileDiff::KnownX1 | WifiProfileDiff::KnownX2, tr("port rates"));
+    miss(WifiProfileDiff::KnownRadio, tr("radio"));
+    miss(WifiProfileDiff::KnownLine0 | WifiProfileDiff::KnownLine1, tr("lines"));
+    miss(WifiProfileDiff::KnownIp, tr("address and DHCP"));
+    QVariantMap out;
+    out.insert(QStringLiteral("unread"), unread);
+    if (!unread.isEmpty()) {
+        out.insert(QStringLiteral("error"), tr("Not every setting was read from the module: %1. Try again in a moment.")
+                                                .arg(unread.join(QStringLiteral(", "))));
+        qInfo().noquote() << wifiTag() << QStringLiteral("wifi-profile: capture: not read: %1").arg(unread.join(QStringLiteral(", ")));
+        emit wifiProfileCaptured(out);
+        return;
+    }
+    p.name = wifiProfileLoaded() ? wifiProfileName() : tr("Module %1").arg(p.address);
+    wifiProfileCaptured_ = p;
+    wifiProfileCapturedKnown_ = known;
+    out.insert(QStringLiteral("name"), p.name);
+    out.insert(QStringLiteral("slots"), profileSlots(p));
+    qInfo().noquote() << wifiTag() << QStringLiteral("wifi-profile: capture: the module's settings read (%1 networks)")
+                             .arg(p.networks.size());
+    emit wifiProfileCaptured(out);
+}
+
+QString DevDriver::wifiProfileSaveCaptured(const QString& name, const QVariantMap& passwords) {
+    if (wifiProfileCapturedKnown_ == 0)
+        return tr("Read the module's settings first.");
+    WifiProfile p = wifiProfileCaptured_;
+    p.name = name.trimmed();
+    const int bytes = int(p.name.toUtf8().size());
+    if (bytes < 1 || bytes > 32)
+        return tr("A name of 1 to 32 bytes is needed (a Cyrillic letter takes 2).");
+    applyProfilePasswords(&p, passwords);
+    // A password left empty is asked when the profile is loaded: every saved network stays "secure" (the module does
+    // not say which are open), the access point's is asked by its security.
+    QStringList bad;
+    const int apLen = int(p.apPassword.toUtf8().size());
+    if (p.apAuth != 0 && apLen > 0 && (apLen < 8 || apLen > 63))
+        bad << tr("the access point's password: 8 to 63 characters");
+    WifiProfile check = p;
+    for (WifiProfile::Net& n : check.networks)
+        if (n.password.isEmpty())
+            n.secure = false;                     // empty is allowed in the file
+    check.apAuth = 0;                             // checked above
+    bad << check.problems();
+    if (!bad.isEmpty())
+        return bad.join(QStringLiteral("; "));
+    QString id;
+    const QString err = WifiProfileStore::save(p, &id);
+    if (!err.isEmpty())
+        return err;
+    qInfo().noquote() << wifiTag() << QStringLiteral("wifi-profile: the module's settings saved as \"%1\" (%2)").arg(p.name, id);
+    emit wifiProfileListChanged();
+    return QString();
+}
+
+QString DevDriver::wifiProfileImport(const QString& path) {
+    const QUrl url(path);
+    const QString file = url.isLocalFile() ? url.toLocalFile() : path;
+    QString id;
+    const QString err = WifiProfileStore::import(file, &id);
+    if (err.isEmpty()) {
+        qInfo().noquote() << wifiTag() << QStringLiteral("wifi-profile: imported %1 as %2").arg(QFileInfo(file).fileName(), id);
+        emit wifiProfileListChanged();
+    }
+    return err;
+}
+
+bool DevDriver::wifiProfileDelete(const QString& id) {
+    const bool ok = WifiProfileStore::remove(id);
+    if (ok) {
+        qInfo().noquote() << wifiTag() << QStringLiteral("wifi-profile: %1 removed").arg(id);
+        emit wifiProfileListChanged();
+    }
+    return ok;
 }
 
 QStringList DevDriver::wifiSavedNetworks() {
@@ -4735,6 +5348,8 @@ void DevDriver::process() {
                     idWifi->requestAll();
                     idWifiNet->requestAll();
                     idWifiNet->requestPorts();        // 0.12 port information; 0.11 answers ERR_VERSION
+                    if (wifiProfileSupport() != 0)
+                        idWifiProfile->requestAll();  // 0.22: the profile it carries; older firmware stays silent
                     wifiNetAskedAt_ = curr_time;
                 }
 
@@ -4871,6 +5486,10 @@ void DevDriver::process() {
                 emit wifiSurveyChanged();
             }
             wifiRetries_.clear();
+            if(idWifiProfile->status().valid) {
+                idWifiProfile->reset();
+                emit wifiProfileChanged();
+            }
             // A restart switches the radio on (nothing of ID_WIFI_RF is saved)
             if(idWifiRf->state().valid || !wifiRfError_.isEmpty()) {
                 idWifiRf->reset();

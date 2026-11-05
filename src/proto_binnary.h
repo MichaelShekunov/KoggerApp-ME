@@ -103,6 +103,10 @@ enum ID : uint16_t {
     // Wi-Fi module radio off (firmware 0.20), to swap an antenna live. Contract: the module project's docs/SBP_WIFI.md,
     // ID_WIFI_RF (contract 10); 0x5A was checked free in this app and the firmware sources (2026-10-23).
     ID_WIFI_RF = 0x5A,
+    // Wi-Fi module profile (firmware 0.22): every saved setting as one block, checked whole, saved, rebooted into.
+    // Contract: the module project's docs/SBP_WIFI.md 3g (contract 12); 0x5B is not used elsewhere in this app (checked
+    // by search, 2026-11-05).
+    ID_WIFI_PROFILE = 0x5B,
 
     ID_DVL_BEAM = 120,
     ID_DVL_VEL = 121,

@@ -10,6 +10,7 @@ target_sources(KoggerApp PRIVATE
     ring_upgrade.h            ring_upgrade.cpp
     ring_rate.h               ring_rate.cpp
     usb_tap.h                 usb_tap.cpp
-    wifi_ops.h                wifi_ops.cpp)
+    wifi_ops.h                wifi_ops.cpp
+    wifi_profile.h            wifi_profile.cpp)
 
 target_include_directories(KoggerApp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

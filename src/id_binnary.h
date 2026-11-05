@@ -1299,6 +1299,8 @@ public:
     const QVector<Network>& networks() const { return networks_; }
     /** Saved SSIDs; an entry is empty when its frame was lost. */
     const QStringList& savedNetworks() const { return saved_; }
+    /** Saved networks the module announced: -1 before its list came. */
+    int savedTotal() const { return savedTotal_; }
     bool scanning() const { return scanPending_; }
     /** Networks the last scan reported: -1 no scan result yet, 0 it heard none. */
     int scanTotal() const { return scanTotal_; }
@@ -1485,6 +1487,9 @@ public:
         uint32_t baud = 0;
         int8_t txPin = -1, rxPin = -1;
         uint8_t uart = 0;             // 0 off, 1 running on these pins, 2 saved pins start after a reboot
+        // Firmware 0.21 (a 21-byte record): line 1's input translator, saved / running this boot / the build's
+        // translators (bit0 GODIO telemetry). -1 before 0.21.
+        int xlatSaved = -1, xlatRunning = -1, xlatBuild = -1;
     };
     struct LineStats {
         bool valid = false;
@@ -1594,6 +1599,45 @@ public:
 protected:
     void send(uint8_t on, uint16_t seconds);
     State state_;
+};
+
+/**
+ * @brief ID_WIFI_PROFILE (0x5B, Wi-Fi module firmware 0.22): the module's whole profile. SETTING v1 {key, U2 length,
+ * U4 CRC-32} begins an upload, v2 {U2 offset, bytes} carries a piece, v3 {key} applies (each confirmed); GETTING v0 /
+ * CONTENT v0 {U1 flags, U4 fingerprint, U2 received, U2 announced, U1 len, name} is the profile the module carries,
+ * GETTING v3 / CONTENT v3 {U1 reason} why its last apply was refused (0 none; pushed after every apply). The block, the
+ * sequence and the rules are WifiProfile* (device/wifi_profile.h). Contract: the module project's docs/SBP_WIFI.md 3g.
+ * Frames go out through binFrameOut: the upload paces and repeats them itself.
+ */
+class IDBinWifiProfile : public IDBin
+{
+    Q_OBJECT
+public:
+    explicit IDBinWifiProfile() : IDBin() {}
+
+    ID id() override { return ID_WIFI_PROFILE; }
+    Resp parsePayload(FrameParser &proto) override;
+    void requestAll() override { simpleRequest(v0); }
+
+    struct Status {
+        bool valid = false;
+        uint8_t flags = 0;                        // bit0 loaded with a profile, bit1 a setting changed since
+        uint32_t fingerprint = 0;
+        uint16_t received = 0, announced = 0;     // an upload in progress (0 of 0: none)
+        QString name;
+    };
+    const Status& status() const { return status_; }
+    /** The reason of the last CONTENT v3; -1 before one. */
+    int lastReason() const { return lastReason_; }
+    /** SETTING of version `ver` (1 begin, 2 piece, 3 apply) with the payload as WifiProfile builds it. */
+    void sendSetting(int ver, const QByteArray& payload);
+    /** GETTING of version `ver` (0 the status, 3 the last refusal's reason). */
+    void ask(int ver) { simpleRequest(Version(ver)); }
+    void reset() { status_ = Status(); lastReason_ = -1; }
+
+protected:
+    Status status_;
+    int lastReason_ = -1;
 };
 
 class IDBinVersion : public IDBin

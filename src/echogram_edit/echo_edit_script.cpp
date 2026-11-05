@@ -1467,7 +1467,7 @@ void EchoEditScript::runStep(const QJsonObject& s)
               + QStringLiteral("period %1/%2 ms; dsp smooth %3; sound %4; baud %5").arg(v("ch1Period")).arg(v("ch2Period"))
                   .arg(v("dspHorSmooth")).arg(v("soundSpeed")).arg(v("baudrate")));
     }
-    else if (op == QLatin1String("wifiPage") || op == QLatin1String("wifiRadio")) {
+    else if (op == QLatin1String("wifiPage") || op == QLatin1String("wifiRadio") || op == QLatin1String("wifiProfile")) {
         // The first Wi-Fi module, or the one at "addr" (its bus address: the head unit's 87, the boat's 88 behind it).
         // wifiPage: its device page opened, as a tap on it in the device list does. wifiRadio: its radio switched off
         // ({"off": seconds}) or on ({"on": true}) through DevDriver as the page does; with neither, its radio state as
@@ -1484,6 +1484,67 @@ void EchoEditScript::runStep(const QJsonObject& s)
         }
         if (!dev) {
             qInfo().noquote() << QStringLiteral("echoedit script: %1: no Wi-Fi module").arg(op);
+        }
+        else if (op == QLatin1String("wifiProfile")) {
+            // The module's whole profile (firmware 0.22), as the page's Profile section does it: "list", "preview" an
+            // id, "load" an id (both with "passwords"), "capture" the module's settings, "save" them under a name (with
+            // "passwords") or "import" a file; with none, the state as the page reads it.
+            const QVariantMap passwords = s.value(QStringLiteral("passwords")).toObject().toVariantMap();
+            const auto j = [](const QVariant& v) {
+                return QString::fromUtf8(QJsonDocument::fromVariant(v).toJson(QJsonDocument::Compact));
+            };
+            if (s.value(QStringLiteral("list")).toBool()) {
+                QVariantList list;
+                QMetaObject::invokeMethod(dev, "wifiProfileList", Q_RETURN_ARG(QVariantList, list));
+                QStringList ids;
+                for (const QVariant& v : list)
+                    ids << v.toMap().value(QStringLiteral("id")).toString();
+                qInfo().noquote() << QStringLiteral("echoedit script: wifiProfile list: %1").arg(ids.join(QLatin1Char(' ')));
+            } else if (s.contains(QStringLiteral("preview"))) {
+                QVariantMap pv;
+                QMetaObject::invokeMethod(dev, "wifiProfilePreview", Q_RETURN_ARG(QVariantMap, pv),
+                                          Q_ARG(QString, s.value(QStringLiteral("preview")).toString()), Q_ARG(QVariantMap, passwords));
+                QStringList keys;
+                for (const QVariant& c : pv.value(QStringLiteral("changes")).toList())
+                    keys << c.toMap().value(QStringLiteral("key")).toString();
+                qInfo().noquote() << QStringLiteral("echoedit script: wifiProfile preview %1: ready %2 own %3 newBaud %4 linkBaud %5 "
+                                                    "bytes %6 changes [%7] problems %8 blocked \"%9\" warnings %10 slots %11 error \"%12\"")
+                                         .arg(s.value(QStringLiteral("preview")).toString())
+                                         .arg(pv.value(QStringLiteral("ready")).toBool()).arg(pv.value(QStringLiteral("ownPort")).toInt())
+                                         .arg(pv.value(QStringLiteral("newBaud")).toInt()).arg(pv.value(QStringLiteral("linkBaud")).toInt())
+                                         .arg(pv.value(QStringLiteral("bytes")).toInt()).arg(keys.join(QLatin1Char(' ')))
+                                         .arg(j(pv.value(QStringLiteral("problems")))).arg(pv.value(QStringLiteral("blocked")).toString())
+                                         .arg(j(pv.value(QStringLiteral("warnings")))).arg(pv.value(QStringLiteral("slots")).toList().size())
+                                         .arg(pv.value(QStringLiteral("error")).toString());
+            } else if (s.contains(QStringLiteral("load"))) {
+                bool sent = false;
+                QMetaObject::invokeMethod(dev, "wifiProfileLoad", Q_RETURN_ARG(bool, sent),
+                                          Q_ARG(QString, s.value(QStringLiteral("load")).toString()), Q_ARG(QVariantMap, passwords));
+                qInfo().noquote() << QStringLiteral("echoedit script: wifiProfile load %1: %2").arg(s.value(QStringLiteral("load")).toString())
+                                         .arg(sent ? QStringLiteral("started") : QStringLiteral("not started: ") + dev->property("wifiProfileResult").toString());
+            } else if (s.value(QStringLiteral("capture")).toBool()) {
+                QMetaObject::invokeMethod(dev, "wifiProfileCapture");
+                qInfo().noquote() << QStringLiteral("echoedit script: wifiProfile capture asked");
+            } else if (s.contains(QStringLiteral("save"))) {
+                QString err;
+                QMetaObject::invokeMethod(dev, "wifiProfileSaveCaptured", Q_RETURN_ARG(QString, err),
+                                          Q_ARG(QString, s.value(QStringLiteral("save")).toString()), Q_ARG(QVariantMap, passwords));
+                qInfo().noquote() << QStringLiteral("echoedit script: wifiProfile save: %1").arg(err.isEmpty() ? QStringLiteral("saved") : err);
+            } else if (s.contains(QStringLiteral("import"))) {
+                QString err;
+                QMetaObject::invokeMethod(dev, "wifiProfileImport", Q_RETURN_ARG(QString, err),
+                                          Q_ARG(QString, s.value(QStringLiteral("import")).toString()));
+                qInfo().noquote() << QStringLiteral("echoedit script: wifiProfile import: %1").arg(err.isEmpty() ? QStringLiteral("added") : err);
+            } else {
+                qInfo().noquote() << QStringLiteral("echoedit script: wifiProfile state: support %1 known %2 name \"%3\" loaded %4 "
+                                                    "modified %5 step %6 sent %7/%8 bad %9 addr %10 result \"%11\"")
+                                         .arg(dev->property("wifiProfileSupport").toInt()).arg(dev->property("wifiProfileKnown").toBool())
+                                         .arg(dev->property("wifiProfileName").toString()).arg(dev->property("wifiProfileLoaded").toBool())
+                                         .arg(dev->property("wifiProfileModified").toBool()).arg(dev->property("wifiProfileStep").toInt())
+                                         .arg(dev->property("wifiProfileSent").toInt()).arg(dev->property("wifiProfileTotal").toInt())
+                                         .arg(dev->property("wifiProfileResultBad").toBool()).arg(dev->property("busAddress").toInt())
+                                         .arg(dev->property("wifiProfileResult").toString());
+            }
         }
         else if (op == QLatin1String("wifiPage")) {
             QObject* store = findObjectWithProperty("settingsPinTarget");

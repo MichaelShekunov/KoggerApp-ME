@@ -4116,180 +4116,474 @@ udp://@:1234
 <context>
     <name>DevDriver</name>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="142"/>
+        <location filename="../src/device/dev_driver.cpp" line="150"/>
         <source>Port speed %1 set, the module saved it</source>
         <translation>Скорость порта %1 установлена, модуль её сохранил</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="145"/>
+        <location filename="../src/device/dev_driver.cpp" line="153"/>
         <source>The module refused %1 bit/s: nothing changed, the port stays at %2</source>
         <translation>Модуль отказал в %1 бит/с: ничего не изменилось, порт остаётся на %2</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="148"/>
+        <location filename="../src/device/dev_driver.cpp" line="156"/>
         <source>No answer from the module at %1. It keeps that rate (firmware 0.15 saves it at once), so the link stays at %1. If this device cannot do %1, hold the module&apos;s BOOT button 5 s: both ports go back to 921600, then set this link to 921600.</source>
         <translation>Модуль не отвечает на %1. Он держит эту скорость (прошивка 0.15 сохраняет её сразу), поэтому подключение остаётся на %1. Если это устройство не умеет %1, подержите кнопку BOOT модуля 5 с: оба порта вернутся на 921600, затем выставьте это подключение на 921600.</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="153"/>
+        <location filename="../src/device/dev_driver.cpp" line="161"/>
         <source>No answer from the module at %1: the link is back at %2. An unsaved speed is gone after the module&apos;s next reboot.</source>
         <translation>Модуль не отвечает на %1: подключение вернулось на %2. Несохранённая скорость пропадёт после следующей перезагрузки модуля.</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="185"/>
+        <location filename="../src/device/dev_driver.cpp" line="193"/>
         <source>Port %1: %2 bit/s set, the module saved it</source>
         <translation>Порт %1: установлено %2 бит/с, модуль сохранил</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="186"/>
+        <location filename="../src/device/dev_driver.cpp" line="194"/>
         <source>Port %1: line settings applied</source>
         <translation>Порт %1: настройки линии применены</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="190"/>
+        <location filename="../src/device/dev_driver.cpp" line="198"/>
         <source>Port %1: the module did not send the line&apos;s settings, nothing changed</source>
         <translation>Порт %1: модуль не прислал настройки линии, ничего не изменилось</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="194"/>
+        <location filename="../src/device/dev_driver.cpp" line="202"/>
         <source>Port %1: the line&apos;s settings are not known, nothing changed</source>
         <translation>Порт %1: настройки линии неизвестны, ничего не изменилось</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="198"/>
+        <location filename="../src/device/dev_driver.cpp" line="206"/>
         <source>Port %1: the module refused %2 bit/s (code %3)</source>
         <translation>Порт %1: модуль отказал в %2 бит/с (код %3)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="199"/>
+        <location filename="../src/device/dev_driver.cpp" line="207"/>
         <source>Port %1: the module refused the line settings (code %2)</source>
         <translation>Порт %1: модуль отказал в настройках линии (код %2)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="203"/>
+        <location filename="../src/device/dev_driver.cpp" line="211"/>
         <source>Port %1: no answer from the module; what is shown is what it reports</source>
         <translation>Порт %1: модуль не отвечает; показано то, что он сообщает</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="220"/>
-        <location filename="../src/device/dev_driver.cpp" line="222"/>
+        <location filename="../src/device/dev_driver.cpp" line="247"/>
+        <source>The module took &quot;%1&quot; but has not answered here for 30 s since. It may run at another rate or address now (X%2 %3 bit/s, address %4 by the profile): look for it in the device list.</source>
+        <translation>Модуль принял «%1», но за 30 с так и не ответил здесь. Возможно, он теперь на другой скорости или другом адресе (по профилю X%2 — %3 бит/с, адрес %4): поищите его в списке устройств.</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="262"/>
+        <location filename="../src/device/dev_driver.cpp" line="264"/>
         <source>Radio: %1</source>
         <translation>Радио: %1</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="281"/>
+        <location filename="../src/device/dev_driver.cpp" line="323"/>
         <source>No answer from the board</source>
         <translation>Плата не отвечает</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2011"/>
+        <location filename="../src/device/dev_driver.cpp" line="2053"/>
         <source>the radio is switched off</source>
         <translation>радио выключено</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2029"/>
+        <location filename="../src/device/dev_driver.cpp" line="2071"/>
         <source>the module is busy (a window, a survey, a scan or joining runs, or the last window was under 1 s ago)</source>
         <translation>модуль занят (идёт окно, обзор, сканирование или подключение к сети, либо прошлое окно было меньше 1 с назад)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2030"/>
+        <location filename="../src/device/dev_driver.cpp" line="2072"/>
         <source>the module refused the report (code %1)</source>
         <translation>модуль отказал в отчёте (код %1)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2067"/>
+        <location filename="../src/device/dev_driver.cpp" line="2109"/>
         <source>the module is busy (a survey, a scan or joining a network runs)</source>
         <translation>модуль занят (идёт обзор, сканирование или подключение к сети)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2068"/>
-        <location filename="../src/device/dev_driver.cpp" line="2163"/>
+        <location filename="../src/device/dev_driver.cpp" line="2110"/>
+        <location filename="../src/device/dev_driver.cpp" line="2205"/>
         <source>the module refused the key</source>
         <translation>модуль отказал в ключе</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2069"/>
+        <location filename="../src/device/dev_driver.cpp" line="2111"/>
         <source>the module refused the survey (code %1)</source>
         <translation>модуль отказал в обзоре (код %1)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2159"/>
+        <location filename="../src/device/dev_driver.cpp" line="2201"/>
         <source>the radio is busy: a channel survey or a link speed window, a scan, or a firmware update (or the first minute after one) runs; try again in a moment</source>
         <translation>радио занято: идёт обзор каналов, окно скорости связи, сканирование или обновление прошивки (или первая минута после него); повторите чуть позже</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2161"/>
+        <location filename="../src/device/dev_driver.cpp" line="2203"/>
         <source>the module refused the request (ERR_PAYLOAD)</source>
         <translation>модуль отклонил запрос (ERR_PAYLOAD)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2162"/>
+        <location filename="../src/device/dev_driver.cpp" line="2204"/>
         <source>over the network the module switches its radio off only for 1 s to 10 min</source>
         <translation>по сети модуль выключает радио только на время от 1 с до 10 мин</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2165"/>
+        <location filename="../src/device/dev_driver.cpp" line="2207"/>
         <source>this firmware cannot switch the radio off (that came with 0.20)</source>
         <translation>эта прошивка не умеет выключать радио (это появилось в 0.20)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="2166"/>
+        <location filename="../src/device/dev_driver.cpp" line="2208"/>
         <source>the module refused the request (code %1)</source>
         <translation>модуль отклонил запрос (код %1)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3279"/>
+        <location filename="../src/device/dev_driver.cpp" line="2422"/>
+        <source>This profile is not there any more</source>
+        <translation>Этого профиля больше нет</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2426"/>
+        <source>The file cannot be used: %1</source>
+        <translation>Файлом нельзя воспользоваться: %1</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2445"/>
+        <location filename="../src/device/dev_driver.cpp" line="2727"/>
+        <source>role</source>
+        <translation>роль</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2446"/>
+        <location filename="../src/device/dev_driver.cpp" line="2728"/>
+        <source>access point</source>
+        <translation>точка доступа</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2447"/>
+        <location filename="../src/device/dev_driver.cpp" line="2729"/>
+        <source>station networks</source>
+        <translation>сети станции</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2448"/>
+        <location filename="../src/device/dev_driver.cpp" line="2730"/>
+        <source>address</source>
+        <translation>адрес</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2449"/>
+        <location filename="../src/device/dev_driver.cpp" line="2731"/>
+        <source>port rates</source>
+        <translation>скорости портов</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2450"/>
+        <location filename="../src/device/dev_driver.cpp" line="2732"/>
+        <source>radio</source>
+        <translation>радио</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2451"/>
+        <location filename="../src/device/dev_driver.cpp" line="2733"/>
+        <source>lines</source>
+        <translation>линии</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2452"/>
+        <location filename="../src/device/dev_driver.cpp" line="2734"/>
+        <source>address and DHCP</source>
+        <translation>адрес и DHCP</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2475"/>
+        <source>The module reboots into the profile: its link drops for a few seconds.</source>
+        <translation>Модуль перезагрузится в профиль: связь с ним пропадёт на несколько секунд.</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2477"/>
+        <location filename="../src/device/dev_driver.cpp" line="2708"/>
+        <source>No connection to the module.</source>
+        <translation>Нет связи с модулем.</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2479"/>
+        <source>The module&apos;s firmware cannot take profiles (that came with 0.22).</source>
+        <translation>Прошивка модуля не принимает профили (это появилось в 0.22).</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2481"/>
+        <source>A profile is being loaded.</source>
+        <translation>Профиль уже загружается.</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2483"/>
+        <source>The module&apos;s ports are not read yet (which one this app is on): wait a moment.</source>
+        <translation>Порты модуля ещё не прочитаны (через какой из них подключено приложение): подождите немного.</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2485"/>
+        <source>This app is on the module&apos;s X%1 through an adapter that follows at most %2 bit/s (CP2105), and the profile sets X%1 to %3 bit/s: the module would be lost to this wire until its BOOT button resets the rates. Load this profile over the network or through another adapter.</source>
+        <translation>Приложение подключено к X%1 модуля через переходник, который держит не больше %2 бит/с (CP2105), а профиль ставит на X%1 %3 бит/с: по этому проводу модуль пропадёт, пока его скорости не сбросят кнопкой BOOT. Загрузите этот профиль по сети или через другой переходник.</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2491"/>
+        <source>This app is on X2, and the profile makes X2 the input of the GODIO telemetry translator, which only listens: the module would be lost to this wire. Load it through X1 or over the network.</source>
+        <translation>Приложение подключено к X2, а профиль делает X2 входом переводчика телеметрии GODIO, который только слушает: по этому проводу модуль пропадёт. Загрузите профиль через X1 или по сети.</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2494"/>
+        <source>The profile sets this app&apos;s port X%1 to %2 bit/s: the app follows the module there after the reboot.</source>
+        <translation>Профиль ставит на порт X%1, через который подключено приложение, %2 бит/с: после перезагрузки приложение перейдёт на эту скорость вслед за модулем.</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2497"/>
+        <source>The module comes back at address %1: it shows in the device list as another device.</source>
+        <translation>Модуль вернётся с адресом %1: в списке устройств он появится как другое устройство.</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2500"/>
+        <source>The module&apos;s firmware has no GODIO telemetry translator: it will refuse this profile.</source>
+        <translation>В прошивке модуля нет переводчика телеметрии GODIO: модуль откажется от этого профиля.</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2507"/>
+        <source>This app reaches the module over the network. A boat and head unit pair is changed in this order: first the boat&apos;s module over the air, then the head unit&apos;s by wire to the boat&apos;s new network; the other way round they lose each other.</source>
+        <translation>Приложение достаёт до модуля по сети. Пару «лодка + головное устройство» меняют в таком порядке: сначала модуль лодки по воздуху, потом модуль головного устройства по проводу — на новую сеть лодки; в обратном порядке они потеряют друг друга.</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2510"/>
+        <source>If this module is one of a boat and head unit pair: change the boat&apos;s module first (over the air), then the head unit&apos;s (by wire), or they lose each other.</source>
+        <translation>Если этот модуль из пары «лодка + головное устройство»: сначала меняйте модуль лодки (по воздуху), потом модуль головного устройства (по проводу), иначе они потеряют друг друга.</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2514"/>
+        <source>The network &quot;%1&quot; has no password: the module joins it as an open network.</source>
+        <translation>У сети «%1» нет пароля: модуль будет подключаться к ней как к открытой.</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2529"/>
+        <source>Not loaded: %1</source>
+        <translation>Не загружено: %1</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2584"/>
+        <source>The module took &quot;%1&quot; and reboots into it. It comes back at address %2, as another device in the list.</source>
+        <translation>Модуль принял «%1» и перезагружается в него. Он вернётся с адресом %2 — другим устройством в списке.</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2590"/>
+        <source>The module took &quot;%1&quot; and reboots into it…</source>
+        <translation>Модуль принял «%1» и перезагружается в него…</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2596"/>
+        <source>the upload did not arrive whole</source>
+        <translation>профиль дошёл не целиком</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2597"/>
+        <source>the upload arrived damaged (its CRC)</source>
+        <translation>профиль дошёл повреждённым (не сошлась CRC)</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2598"/>
+        <source>the block&apos;s format or a length</source>
+        <translation>формат блока или длина поля</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2599"/>
+        <source>the name (1 to 32 bytes)</source>
+        <translation>имя (от 1 до 32 байт)</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2600"/>
+        <source>the role</source>
+        <translation>роль</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2601"/>
+        <source>the address (0 and 255 are not allowed)</source>
+        <translation>адрес (0 и 255 нельзя)</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2602"/>
+        <source>the X1 rate (9600 to 5 000 000)</source>
+        <translation>скорость X1 (от 9600 до 5 000 000)</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2603"/>
+        <source>the radio settings</source>
+        <translation>настройки радио</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2604"/>
+        <source>the access point (channel 1 to 11, 1 to 10 clients, a password of 8 to 63 characters)</source>
+        <translation>точка доступа (канал 1–11, клиентов 1–10, пароль 8–63 символа)</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2605"/>
+        <source>the address and DHCP</source>
+        <translation>адрес и DHCP</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2606"/>
+        <source>the X1 line</source>
+        <translation>линия X1</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2607"/>
+        <source>the X2 line (its rate or pins)</source>
+        <translation>линия X2 (её скорость или выводы)</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2608"/>
+        <source>both UDP lines on one port</source>
+        <translation>обе линии UDP на одном порту</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2609"/>
+        <source>the input translator, which this firmware does not have</source>
+        <translation>переводчик входа, которого нет в этой прошивке</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2610"/>
+        <source>the networks (more than 8, a length, a name twice or a password)</source>
+        <translation>сети (больше 8, длина, повтор имени или пароль)</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2611"/>
+        <source>reason %1</source>
+        <translation>причина %1</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2611"/>
+        <source>the reason did not come</source>
+        <translation>причина не пришла</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2612"/>
+        <source>The module refused &quot;%1&quot;: %2. Nothing changed in it.</source>
+        <translation>Модуль отказался от «%1»: %2. В нём ничего не изменилось.</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2619"/>
+        <source>The module is updating its firmware, or its new firmware has not confirmed itself yet: try again in a minute. Nothing changed.</source>
+        <translation>Модуль обновляет прошивку или новая прошивка ещё не подтвердила себя: повторите через минуту. Ничего не изменилось.</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2625"/>
+        <source>The module&apos;s flash refused the write halfway: part of &quot;%1&quot; is saved and the module did not reboot (its profile shows as changed). Load it again.</source>
+        <translation>Флеш модуля отказал в записи на полпути: часть «%1» записана, модуль не перезагрузился (профиль будет помечен как изменённый). Загрузите его ещё раз.</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2631"/>
+        <source>The module refused the upload of &quot;%1&quot; (code %2). Nothing changed.</source>
+        <translation>Модуль не принял загрузку «%1» (код %2). Ничего не изменилось.</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2638"/>
+        <source>No answer to &quot;apply&quot;: the module may have rebooted into &quot;%1&quot;. If it is gone, look for it in the device list (address %2).</source>
+        <translation>Нет ответа на «применить»: возможно, модуль уже перезагрузился в «%1». Если он пропал, поищите его в списке устройств (адрес %2).</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2640"/>
+        <source>No answer from the module while sending &quot;%1&quot;. Nothing changed.</source>
+        <translation>Модуль не ответил, пока шла отправка «%1». Ничего не изменилось.</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2686"/>
+        <source>The module is back with &quot;%1&quot;, but says a setting changed since.</source>
+        <translation>Модуль вернулся с «%1», но сообщает, что настройки с тех пор менялись.</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2687"/>
+        <source>Profile &quot;%1&quot; loaded: the module is back in %2 s.</source>
+        <translation>Профиль «%1» загружен: модуль вернулся через %2 с.</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2738"/>
+        <source>Not every setting was read from the module: %1. Try again in a moment.</source>
+        <translation>Прочитаны не все настройки модуля: нет %1. Повторите чуть позже.</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2744"/>
+        <source>Module %1</source>
+        <translation>Модуль %1</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2756"/>
+        <source>Read the module&apos;s settings first.</source>
+        <translation>Сначала прочитайте настройки модуля.</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2761"/>
+        <source>A name of 1 to 32 bytes is needed (a Cyrillic letter takes 2).</source>
+        <translation>Нужно имя от 1 до 32 байт (русская буква занимает 2).</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="2768"/>
+        <source>the access point&apos;s password: 8 to 63 characters</source>
+        <translation>пароль точки доступа: от 8 до 63 символов</translation>
+    </message>
+    <message>
+        <location filename="../src/device/dev_driver.cpp" line="3892"/>
         <source>The preset was not saved</source>
         <translation>Пресет не записан</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3280"/>
+        <location filename="../src/device/dev_driver.cpp" line="3893"/>
         <source>The preset was not deleted</source>
         <translation>Пресет не удалён</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3281"/>
+        <location filename="../src/device/dev_driver.cpp" line="3894"/>
         <source>The preset was not applied</source>
         <translation>Пресет не применён</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3282"/>
+        <location filename="../src/device/dev_driver.cpp" line="3895"/>
         <source>the sonar&apos;s flash did not take it</source>
         <translation>флеш-память сонара не приняла запись</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3283"/>
+        <location filename="../src/device/dev_driver.cpp" line="3896"/>
         <source>there is no such preset in the sonar</source>
         <translation>в сонаре нет такого пресета</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3284"/>
+        <location filename="../src/device/dev_driver.cpp" line="3897"/>
         <source>the sonar asked for the key</source>
         <translation>сонар требует ключ</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3285"/>
+        <location filename="../src/device/dev_driver.cpp" line="3898"/>
         <source>code %1</source>
         <translation>код %1</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3915"/>
+        <location filename="../src/device/dev_driver.cpp" line="4528"/>
         <source>This firmware has no ring counters</source>
         <translation>В этой прошивке нет счётчиков кольца</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="3916"/>
+        <location filename="../src/device/dev_driver.cpp" line="4529"/>
         <source>Refused by the board (code %1)</source>
         <translation>Плата отказала (код %1)</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="4021"/>
+        <location filename="../src/device/dev_driver.cpp" line="4634"/>
         <source>Sync config rejected by device</source>
         <translation>Конфигурация синхронизации отклонена устройством</translation>
     </message>
     <message>
-        <location filename="../src/device/dev_driver.cpp" line="4770"/>
-        <location filename="../src/device/dev_driver.cpp" line="4783"/>
+        <location filename="../src/device/dev_driver.cpp" line="5399"/>
+        <location filename="../src/device/dev_driver.cpp" line="5412"/>
         <source>no answer from the module</source>
         <translation>модуль не отвечает</translation>
     </message>
@@ -4647,32 +4941,32 @@ udp://@:1234
         <translation>Убрать из избранного</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceParamRow.qml" line="114"/>
+        <location filename="../qml/app/DeviceParamRow.qml" line="115"/>
         <source>Set baudrate</source>
         <translation>Задать</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceParamRow.qml" line="115"/>
+        <location filename="../qml/app/DeviceParamRow.qml" line="116"/>
         <source>Apply the selected baud rate</source>
         <translation>Установить выбранную скорость передачи</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceParamRow.qml" line="129"/>
+        <location filename="../qml/app/DeviceParamRow.qml" line="130"/>
         <source>Import</source>
         <translation>Импорт</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceParamRow.qml" line="135"/>
+        <location filename="../qml/app/DeviceParamRow.qml" line="136"/>
         <source>Export</source>
         <translation>Экспорт</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceParamRow.qml" line="130"/>
+        <location filename="../qml/app/DeviceParamRow.qml" line="131"/>
         <source>Load all device settings from an XML file</source>
         <translation>Загрузить все настройки устройства из XML-файла</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceParamRow.qml" line="136"/>
+        <location filename="../qml/app/DeviceParamRow.qml" line="137"/>
         <source>Save all device settings to an XML file</source>
         <translation>Сохранить все настройки устройства в XML-файл</translation>
     </message>
@@ -4680,2638 +4974,2886 @@ udp://@:1234
 <context>
     <name>DeviceSettingsPage</name>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5652"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="6049"/>
         <source>Information</source>
         <translation>Информация</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5681"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="6078"/>
         <source>Model</source>
         <translation>Модель</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5686"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="6083"/>
         <source>Board type</source>
         <translation>Тип платы</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5691"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="6088"/>
         <source>Serial number</source>
         <translation>Серийный номер</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5698"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="6095"/>
         <source>not set</source>
         <translation>не задан</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5703"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="6100"/>
         <source>Firmware version</source>
         <translation>Версия прошивки</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5708"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="6105"/>
         <source>Bootloader version</source>
         <translation>Версия загрузчика</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5713"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="6110"/>
         <source>Running</source>
         <translation>Режим</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5718"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="6115"/>
         <source>Bootloader</source>
         <translation>Загрузчик</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5719"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="6116"/>
         <source>Firmware</source>
         <translation>Прошивка</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5380"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5724"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5777"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="6121"/>
         <source>Bus address</source>
         <translation>Адрес на шине</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5390"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5787"/>
         <source>The number of this sonar on a line it shares. 0: alone on its line. 1: first in the ring, its RX on the host&apos;s TX (left). 2: last, its TX on the host&apos;s RX (right). Only this board may be on the line while the address is set.</source>
         <translation>Номер этого сонара на общей линии. 0 — один на своей линии. 1 — первый в кольце, его RX на TX хоста (слева). 2 — последний, его TX на RX хоста (справа). Пока задаётся адрес, на линии должна быть только эта плата.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5405"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5802"/>
         <source>Setting the address...</source>
         <translation>Установка адреса...</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5405"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5802"/>
         <source>Set and save address %1</source>
         <translation>Задать и сохранить адрес %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5406"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5803"/>
         <source>Checks that this board is alone on the line, sets the address, writes it to the board&apos;s memory and reads it back from there</source>
         <translation>Проверяет, что плата одна на линии, задаёт адрес, записывает его в память платы и считывает оттуда обратно</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5427"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5824"/>
         <source>Address %1 is set and saved in the board.</source>
         <translation>Адрес %1 задан и сохранён в плате.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5428"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5825"/>
         <source>Address not set: %1</source>
         <translation>Адрес не задан: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5430"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5827"/>
         <source>Bus address %1 is set and saved</source>
         <translation>Адрес на шине %1 задан и сохранён</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5432"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5829"/>
         <source>Bus address not set: %1</source>
         <translation>Адрес на шине не задан: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5442"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5839"/>
         <source>Line speed</source>
         <translation>Скорость линии</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5455"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5852"/>
         <source>In a ring every board passes the other&apos;s bytes on, so both sonars and this computer&apos;s port run at one rate: pick it for the longest wire. Estimate, not measured: 921600 up to about 5 m, 460800 about 10 m, 230400 about 20 m, 115200 about 40 m. A lower rate carries less: if a sonar&apos;s echogram drops out, raise Period. The new rate is checked on both sonars, then written to their memory.</source>
         <translation>В кольце каждая плата передаёт байты другой дальше, поэтому оба сонара и порт этого компьютера работают на одной скорости: выбирайте её по самому длинному проводу. Оценка, не замер: 921600 — до ~5 м, 460800 — ~10 м, 230400 — ~20 м, 115200 — ~40 м. Меньшая скорость переносит меньше: если эхограмма сонара пропадает, увеличьте Период. Новая скорость проверяется на обоих сонарах, затем записывается в их память.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5462"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5859"/>
         <source>Now: %1</source>
         <translation>Сейчас: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5479"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5876"/>
         <source>Changing the line speed...</source>
         <translation>Смена скорости линии...</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5479"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5876"/>
         <source>Set %1 for the whole line and save</source>
         <translation>Задать %1 для всей линии и сохранить</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5480"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5877"/>
         <source>Moves both sonars and this port to the new rate, checks that both answer on it, writes it to their memory and reads it back from there</source>
         <translation>Переводит оба сонара и этот порт на новую скорость, проверяет, что оба отвечают на ней, записывает её в их память и считывает оттуда обратно</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5501"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5898"/>
         <source>The line runs at %1; both sonars keep it.</source>
         <translation>Линия работает на %1; оба сонара её сохраняют.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5502"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5509"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5899"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5906"/>
         <source>Line speed: %1</source>
         <translation>Скорость линии: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5507"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5904"/>
         <source>Line speed %1 is set on both sonars and saved</source>
         <translation>Скорость линии %1 задана на обоих сонарах и сохранена</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5525"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5922"/>
         <source>Ring counters</source>
         <translation>Счётчики кольца</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5530"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5927"/>
         <source>How this board keeps step with the ring. Read them when a sonar&apos;s echogram has holes; reading is a request on the line, so do not keep pressing: on a ring with no time to spare it can cost the following board a ping itself.</source>
         <translation>Как эта плата держит шаг с кольцом. Читайте их, когда в эхограмме сонара дыры. Чтение — это запрос по линии, поэтому не нажимайте подряд: в кольце без запаса по времени он сам может стоить следующей плате пинга.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5536"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5933"/>
         <source>Follower: pings on the leader&apos;s sync</source>
         <translation>Ведомая: пингует по синхроимпульсу ведущей</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5537"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5934"/>
         <source>Leader: sets the pace</source>
         <translation>Ведущая: задаёт темп</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5538"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5935"/>
         <source>, a board before it</source>
         <translation>, перед ней есть плата</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5541"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5938"/>
         <source>Sync interval</source>
         <translation>Период синхроимпульса</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5544"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5548"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5941"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5945"/>
         <source>%1 ms</source>
         <translation>%1 мс</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5544"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5941"/>
         <source>not measured</source>
         <translation>не измеряется</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5547"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5944"/>
         <source>Guard before a sync</source>
         <translation>Защитное окно перед синхроимпульсом</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5551"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5948"/>
         <source>Pings skipped</source>
         <translation>Пропущено пингов</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5562"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5959"/>
         <source>Led after silence</source>
         <translation>Стала ведущей после тишины</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5564"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5961"/>
         <source>No sync from the board before it, so this one set the pace itself</source>
         <translation>От платы перед ней не было синхроимпульса, и эта задала темп сама</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5567"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5964"/>
         <source>Syncs heard</source>
         <translation>Синхроимпульсов принято</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5571"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5968"/>
         <source>Frames passed on</source>
         <translation>Кадров передано дальше</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5579"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5976"/>
         <source>Asking the board...</source>
         <translation>Запрос к плате...</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5579"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5976"/>
         <source>Read</source>
         <translation>Прочитать</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5586"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5983"/>
         <source>Reset the counters</source>
         <translation>Обнулить счётчики</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5587"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5984"/>
         <source>Zeroes the five counters on the board; it sends them back at once</source>
         <translation>Обнуляет пять счётчиков на плате; она сразу присылает их обратно</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5729"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="6126"/>
         <source>Connection</source>
         <translation>Подключение</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5734"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="6131"/>
         <source>Chip UID</source>
         <translation>UID чипа</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5669"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="6066"/>
         <source>Copy</source>
         <translation>Скопировать</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5554"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5951"/>
         <source>A sync came later than usual: the board skipped a ping, or the leader sent the sync late</source>
         <translation>Синхроимпульс пришёл позже обычного: плата пропустила пинг или ведущая выдала его с опозданием</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5557"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5954"/>
         <source>Frames lost passing on</source>
         <translation>Кадров потеряно при пересылке</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5559"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5956"/>
         <source>A frame of the board before it was lost on its way through this one</source>
         <translation>Кадр платы перед ней пропал по пути через эту</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5675"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="6072"/>
         <source>Device info copied to clipboard</source>
         <translation>Информация об устройстве скопирована в буфер обмена</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="851"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="852"/>
         <source>Write current settings to device memory</source>
         <translation>Записать текущие настройки в память устройства</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4975"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5372"/>
         <source>Erase device settings (reset)</source>
         <translation>Стереть настройки на устройстве (сброс)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4981"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5378"/>
         <source>Reboot the device</source>
         <translation>Перезагрузить устройство</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5339"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5736"/>
         <source>Choose firmware</source>
         <translation>Выбрать прошивку</translation>
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="541"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1641"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4863"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4919"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1642"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5260"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5316"/>
         <source>Echogram</source>
         <translation>Эхограмма</translation>
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="542"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1698"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4876"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1699"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5273"/>
         <source>Rangefinder</source>
         <translation>Глубиномер</translation>
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="543"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4889"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5286"/>
         <source>Transducer</source>
         <translation>Трансдьюсер</translation>
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="546"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4965"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5362"/>
         <source>Actions</source>
         <translation>Действия</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="850"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="851"/>
         <source>Flash settings</source>
         <translation>Сохранить в устройство</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1486"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1487"/>
         <source>Connectors</source>
         <translation>Разъёмы</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1655"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4930"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1656"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5327"/>
         <source>Compressed</source>
         <translation>Сжатая</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1655"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4930"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1656"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5327"/>
         <source>IQ</source>
         <translation>IQ</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1655"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4930"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1656"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5327"/>
         <source>RAW</source>
         <translation>RAW</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1901"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1902"/>
         <source>Wi‑Fi airtime: others %1 (mean %2)</source>
         <translation>Эфир Wi‑Fi: чужие %1 (в среднем %2)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1903"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1904"/>
         <source>, ours %1</source>
         <translation>, наш %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1904"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1905"/>
         <source>%1 frames/s</source>
         <translation>%1 кадров/с</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1905"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2681"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1906"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2682"/>
         <source>%1 transmitters</source>
         <translation>передатчиков: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1906"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1907"/>
         <source>the strongest %1 dBm</source>
         <translation>сильнейший %1 дБм</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1906"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2128"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1907"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2129"/>
         <source>nothing heard</source>
         <translation>ничего не слышно</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1911"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1912"/>
         <source>No network heard on it or up to 3 channels away (last scan).</source>
         <translation>На этом канале и в пределах 3 каналов от него сетей не слышно (последнее сканирование).</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1916"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1917"/>
         <source>Networks heard (last scan): %1 on it, %2 up to 3 channels away</source>
         <translation>Слышны сети (последнее сканирование): %1 на этом канале, %2 в пределах 3 каналов</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1952"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1953"/>
         <source>no data frames in the window</source>
         <translation>в окне нет кадров данных</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1953"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1954"/>
         <source>(and %1 more)</source>
         <translation>(и ещё %1)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1960"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1961"/>
         <source>%1 % (%2 of %3)</source>
         <translation>%1 % (%2 из %3)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1968"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1969"/>
         <source>%1 of %2 frames</source>
         <translation>%1 из %2 кадров</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1970"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1971"/>
         <source>%1 at %2</source>
         <translation>%1 на %2</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1972"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2313"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2536"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2730"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4370"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1973"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2314"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2537"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2731"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4767"/>
         <source>dBm</source>
         <translation>дБм</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2000"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3375"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2001"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3376"/>
         <source>%1 s</source>
         <translation>%1 с</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2002"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2197"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3377"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2003"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2198"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3378"/>
         <source>%1 min</source>
         <translation>%1 мин</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2003"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2197"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2004"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2198"/>
         <source>%1 h %2 min</source>
         <translation>%1 ч %2 мин</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2008"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2009"/>
         <source>the access point&apos;s beacons stopped: it went off or out of reach</source>
         <translation>маяки точки доступа пропали: она выключилась или вне досягаемости</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2009"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2010"/>
         <source>the network is not heard</source>
         <translation>сеть не слышна</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2010"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2011"/>
         <source>authentication failed</source>
         <translation>ошибка аутентификации</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2011"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2177"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2012"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2178"/>
         <source>association failed</source>
         <translation>ошибка ассоциации</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2013"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2014"/>
         <source>the key handshake timed out: a wrong password?</source>
         <translation>истекло время обмена ключами: неверный пароль?</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2017"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2018"/>
         <source>the access point let this module go</source>
         <translation>точка доступа отключила этот модуль</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2025"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3653"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4582"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2026"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4050"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4979"/>
         <source>code %1</source>
         <translation>код %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2030"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2031"/>
         <source>The module restarted</source>
         <translation>Модуль перезапустился</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2032"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2033"/>
         <source>A client joined</source>
         <translation>Подключился клиент</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2033"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2034"/>
         <source>The last client left</source>
         <translation>Последний клиент отключился</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2033"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2034"/>
         <source>A client left</source>
         <translation>Клиент отключился</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2035"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2036"/>
         <source>Connected to %1</source>
         <translation>Подключено к %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2036"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2037"/>
         <source>Access point %1 up</source>
         <translation>Точка доступа %1 поднята</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2037"/>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="2038"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2039"/>
         <source>Link lost</source>
         <translation>Связь потеряна</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2037"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2038"/>
         <source>Connecting to %1</source>
         <translation>Подключение к %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2038"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2039"/>
         <source>Looking for the network</source>
         <translation>Поиск сети</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2039"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2040"/>
         <source>Stopped</source>
         <translation>Остановлено</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2041"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2042"/>
         <source>State %1</source>
         <translation>Состояние %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2051"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2052"/>
         <source>%1 now, the weakest %2 dBm</source>
         <translation>сейчас %1, самый слабый %2 дБм</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2053"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2054"/>
         <source>ch %1 · %2 dBm</source>
         <translation>кан. %1 · %2 дБм</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2055"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2056"/>
         <source>ch %1 · clients: %2</source>
         <translation>кан. %1 · клиентов: %2</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2065"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2066"/>
         <source>%1 ago</source>
         <translation>%1 назад</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2067"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2068"/>
         <source>as the app found it</source>
         <translation>так было, когда приложение его застало</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2069"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2070"/>
         <source>the link had held %1</source>
         <translation>связь до этого держалась %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2071"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2072"/>
         <source>%1 after the previous</source>
         <translation>через %1 после предыдущего</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2095"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2096"/>
         <source>updating…</source>
         <translation>обновление…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2097"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2098"/>
         <source>From an earlier measurement.</source>
         <translation>По более раннему измерению.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2100"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2101"/>
         <source>updated just now</source>
         <translation>обновлено только что</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2102"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2103"/>
         <source>updated %1 s ago</source>
         <translation>обновлено %1 с назад</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2103"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2104"/>
         <source>updated %1 min ago</source>
         <translation>обновлено %1 мин назад</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2128"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2129"/>
         <source>%1 dBm</source>
         <translation>%1 дБм</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2153"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3928"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2154"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4325"/>
         <source>Connected</source>
         <translation>Подключено</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2155"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2156"/>
         <source>Searching…</source>
         <translation>Поиск…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2157"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2301"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2158"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2302"/>
         <source>Not connected</source>
         <translation>Не подключено</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2161"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4318"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2162"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4715"/>
         <source>Open</source>
         <translation>Открытая</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2168"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2169"/>
         <source>Enterprise</source>
         <translation>Enterprise</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2171"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2172"/>
         <source>Secured</source>
         <translation>Защищена</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2175"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2176"/>
         <source>network not found</source>
         <translation>сеть не найдена</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2176"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2177"/>
         <source>wrong password</source>
         <translation>неверный пароль</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2178"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2179"/>
         <source>connection lost</source>
         <translation>соединение потеряно</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2179"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2180"/>
         <source>disconnected</source>
         <translation>отключено</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2184"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2185"/>
         <source>MB/s</source>
         <translation>МБ/с</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2185"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2186"/>
         <source>KB/s</source>
         <translation>КБ/с</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2186"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2187"/>
         <source>B/s</source>
         <translation>Б/с</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2189"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2190"/>
         <source>GB</source>
         <translation>ГБ</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2190"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2191"/>
         <source>MB</source>
         <translation>МБ</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2191"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2192"/>
         <source>KB</source>
         <translation>КБ</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2192"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2193"/>
         <source>B</source>
         <translation>Б</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2223"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2224"/>
         <source>Enter the network name</source>
         <translation>Введите имя сети</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2229"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2230"/>
         <source>Connecting to %1…</source>
         <translation>Подключение к %1…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2232"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2233"/>
         <source>Network name or password is too long</source>
         <translation>Имя сети или пароль слишком длинные</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2245"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2246"/>
         <source>Wi‑Fi connected: %1</source>
         <translation>Wi‑Fi подключён: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2248"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2249"/>
         <source>Wi‑Fi: %1 (%2)</source>
         <translation>Wi‑Fi: %1 (%2)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2258"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2259"/>
         <source>the module is busy, try again in a moment</source>
         <translation>модуль занят, повторите чуть позже</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2259"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2260"/>
         <source>the module rejected the request</source>
         <translation>модуль отклонил запрос</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2260"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2261"/>
         <source>response code %1</source>
         <translation>код ответа %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2261"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2262"/>
         <source>Wi‑Fi command failed: %1</source>
         <translation>Команда Wi‑Fi не выполнена: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2290"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2926"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2291"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2927"/>
         <source>No data</source>
         <translation>Нет данных</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2291"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3416"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2292"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3417"/>
         <source>Radio off</source>
         <translation>Радио выкл.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2305"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2306"/>
         <source>Waiting for the module…</source>
         <translation>Ожидание модуля…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2307"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2308"/>
         <source>The radio is switched off to swap the antenna (Antenna swap below)</source>
         <translation>Радио выключено для замены антенны (раздел «Замена антенны» ниже)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2309"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2310"/>
         <source>Own access point · ch %1 · %2 · clients: %3</source>
         <translation>Своя точка доступа · кан. %1 · %2 · клиентов: %3</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2313"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2532"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2730"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2314"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2533"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2731"/>
         <source>ch %1</source>
         <translation>кан. %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2319"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2320"/>
         <source>Looking for a saved network…</source>
         <translation>Поиск сохранённой сети…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2322"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2323"/>
         <source>Last attempt: %1</source>
         <translation>Последняя попытка: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2323"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2324"/>
         <source>Auto-connect is off</source>
         <translation>Автоподключение выключено</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2323"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2324"/>
         <source>No saved networks yet</source>
         <translation>Сохранённых сетей пока нет</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2348"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3935"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2349"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4332"/>
         <source>Traffic</source>
         <translation>Трафик</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2350"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2351"/>
         <source>%1 received, %2 sent</source>
         <translation>принято %1, отправлено %2</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2352"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2353"/>
         <source>Module up %1</source>
         <translation>Модуль работает %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2353"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2354"/>
         <source> · last restart: %1</source>
         <translation> · последний перезапуск: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2354"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2355"/>
         <source> · requests lost: %1</source>
         <translation> · потеряно запросов: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2359"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2360"/>
         <source>Both ends</source>
         <translation>Оба конца</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2361"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2362"/>
         <source>%1 dBm here · %2 dBm there · %3 dB apart</source>
         <translation>здесь %1 дБм · там %2 дБм · разница %3 дБ</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2365"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2366"/>
         <source>Here: how this access point hears its weakest client; there: how the client&apos;s module hears this access point. A big gap points to one end: its antenna, its transmit power or the module.</source>
         <translation>Здесь — как эта точка доступа слышит самого слабого клиента; там — как модуль клиента слышит эту точку доступа. Большая разница указывает на один из концов: его антенну, мощность передачи или сам модуль.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2366"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2367"/>
         <source>Here: how this module hears its access point; there: how the access point hears it (its weakest client). A big gap points to one end: its antenna, its transmit power or the module.</source>
         <translation>Здесь — как этот модуль слышит свою точку доступа; там — как точка доступа слышит его (самого слабого клиента). Большая разница указывает на один из концов: его антенну, мощность передачи или сам модуль.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2370"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2371"/>
         <source>Link speed</source>
         <translation>Скорость связи</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2378"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2379"/>
         <source>not measured: %1</source>
         <translation>не измерено: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2378"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2379"/>
         <source>measuring…</source>
         <translation>измерение…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2379"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2401"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2380"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2402"/>
         <source>in: %1</source>
         <translation>вход: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2380"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2402"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2381"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2403"/>
         <source>out: %1</source>
         <translation>выход: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2387"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2388"/>
         <source>In: %1.</source>
         <translation>Вход: %1.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2388"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2389"/>
         <source>Out, as the other end hears it: %1.</source>
         <translation>Выход, как его слышит другой конец: %1.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2394"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2395"/>
         <source>Retransmissions</source>
         <translation>Повторы</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2404"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2405"/>
         <source>Of the other end&apos;s data frames, the share that came again: its earlier try or the acknowledgement was lost. Summed over the last 10 measurements (about 30 s). In: the other end&apos;s frames as this module hears them; out: this module&apos;s, as the other end hears them. A lower bound: a frame none of whose tries arrived is not seen.</source>
         <translation>Доля кадров данных другого конца, пришедших повторно: прежняя попытка или её подтверждение потерялись. Сумма за последние 10 измерений (около 30 с). Вход — кадры другого конца, как их слышит этот модуль; выход — кадры этого модуля, как их слышит другой конец. Оценка снизу: кадр, ни одна попытка которого не дошла, не виден.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2409"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2410"/>
         <source>Auto-connect</source>
         <translation>Автоподключение</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2410"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2411"/>
         <source>Join the strongest saved network at power-up and after a loss</source>
         <translation>Подключаться к самой сильной сохранённой сети при включении и после потери связи</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2423"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2424"/>
         <source>Auto-connect off: the module leaves the network</source>
         <translation>Автоподключение выключено: модуль покидает сеть</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2436"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2437"/>
         <source>Scanning…</source>
         <translation>Сканирование…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2436"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2437"/>
         <source>Scan</source>
         <translation>Сканировать</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2438"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2439"/>
         <source>Look for networks nearby (takes a few seconds)</source>
         <translation>Искать сети поблизости (занимает несколько секунд)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2443"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2444"/>
         <source>Disconnect</source>
         <translation>Отключить</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2445"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2446"/>
         <source>Leave the network and switch auto-connect off</source>
         <translation>Покинуть сеть и выключить автоподключение</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2450"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2451"/>
         <source>Wi‑Fi disconnected, auto-connect off</source>
         <translation>Wi‑Fi отключён, автоподключение выключено</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2455"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2456"/>
         <source>Other…</source>
         <translation>Другая…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2456"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2457"/>
         <source>Join a network that hides its name</source>
         <translation>Подключиться к сети со скрытым именем</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2465"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2466"/>
         <source>Join a hidden network</source>
         <translation>Подключиться к скрытой сети</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2465"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2466"/>
         <source>Join %1</source>
         <translation>Подключиться к %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2469"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4303"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2470"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4700"/>
         <source>Network name (SSID)</source>
         <translation>Имя сети (SSID)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2473"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2474"/>
         <source>SSID</source>
         <translation>SSID</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2479"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2486"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4308"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2480"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2487"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4705"/>
         <source>Password</source>
         <translation>Пароль</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2480"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2481"/>
         <source>Saved network: the module keeps its password to itself, type it once more</source>
         <translation>Сохранённая сеть: модуль не отдаёт её пароль, введите его ещё раз</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2481"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2482"/>
         <source>Leave empty for an open network</source>
         <translation>Для открытой сети оставьте пустым</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2492"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2493"/>
         <source>Remember this network</source>
         <translation>Запомнить эту сеть</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2493"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2494"/>
         <source>Stored in the module once an address is obtained</source>
         <translation>Сохраняется в модуле после получения адреса</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2504"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2505"/>
         <source>Connect</source>
         <translation>Подключить</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2523"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2524"/>
         <source>Networks nearby (searching…)</source>
         <translation>Сети поблизости (поиск…)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2523"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2524"/>
         <source>Networks nearby</source>
         <translation>Сети поблизости</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2530"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2531"/>
         <source>(hidden network)</source>
         <translation>(скрытая сеть)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2533"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2862"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2534"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2863"/>
         <source>connected</source>
         <translation>подключена</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2533"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2534"/>
         <source>saved</source>
         <translation>сохранена</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2548"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2549"/>
         <source>Nothing found yet. Tap Scan.</source>
         <translation>Пока ничего не найдено. Нажмите «Скан».</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2558"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2559"/>
         <source>Channels</source>
         <translation>Каналы</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2562"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2563"/>
         <source>Live</source>
         <translation>Непрерывно</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2564"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2565"/>
         <source>Measuring again and again while this page is open; each measurement takes about 4 s and pauses the boat link.</source>
         <translation>Измерение повторяется, пока открыта эта страница; каждое занимает около 4 с и приостанавливает связь с лодкой.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2565"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2566"/>
         <source>Scanning again and again while this page is open; each scan takes 2–4 s and may stall the boat link.</source>
         <translation>Сканирование повторяется, пока открыта эта страница; каждое занимает 2–4 с и может притормозить связь с лодкой.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2566"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2567"/>
         <source>Off: the picture is of one measurement.</source>
         <translation>Выкл: картина по одному измерению.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2566"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2567"/>
         <source>Off: the picture is of one scan.</source>
         <translation>Выкл: картина по одному сканированию.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2580"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2581"/>
         <source>Wi‑Fi airtime</source>
         <translation>Эфир Wi‑Fi</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2581"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2582"/>
         <source>Measured by the module: the share of the time the air carried Wi‑Fi frames on each channel, 0.3 s a channel (a lower bound: interference that is not Wi‑Fi is not seen). A bar is the other networks&apos; share in the last measurement, with our own link&apos;s on top in a lighter tone (it moves with us; neighbours of our channel • hear it too); the figure and the tick, the mean of the last measurements, are the others&apos; share, which the pick goes by. A measurement takes about 4 s and pauses the boat link. Tap a channel for its details.</source>
         <translation>Измерено модулем: доля времени, когда эфир занят кадрами Wi‑Fi на каждом канале, 0,3 с на канал (нижняя оценка: помехи не от Wi‑Fi не видны). Столбик — доля чужих сетей в последнем измерении, сверху более светлым — доля нашей связи (она переезжает вместе с нами; соседи нашего канала • тоже её слышат); число и риска — среднее последних измерений по чужим сетям, по нему и делается выбор. Измерение занимает около 4 с и приостанавливает связь с лодкой. Нажмите на канал, чтобы увидеть подробности.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2587"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2588"/>
         <source>Measuring…</source>
         <translation>Измерение…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2587"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2588"/>
         <source>Measure</source>
         <translation>Измерить</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2589"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2590"/>
         <source>Measure the Wi‑Fi airtime of every channel now (about 4 s)</source>
         <translation>Измерить эфир Wi‑Fi на каждом канале сейчас (около 4 с)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2676"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2677"/>
         <source>Least busy (mean of %1)</source>
         <translation>Наименее занятый (среднее по %1)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2677"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2678"/>
         <source>Least busy (Wi‑Fi airtime)</source>
         <translation>Наименее занятый (эфир Wi‑Fi)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2680"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2689"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2810"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2816"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2681"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2690"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2811"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2817"/>
         <source>channel %1</source>
         <translation>канал %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2686"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2687"/>
         <source>Our channel now (•)</source>
         <translation>Наш канал сейчас (•)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2689"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2690"/>
         <source>others %1</source>
         <translation>чужие %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2690"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2691"/>
         <source>ours %1</source>
         <translation>наш %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2697"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2698"/>
         <source>Not measured: %1</source>
         <translation>Не измерено: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2710"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2711"/>
         <source>Channel %1</source>
         <translation>Канал %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2710"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2711"/>
         <source>the pick</source>
         <translation>выбор</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2711"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2712"/>
         <source>ours now</source>
         <translation>наш сейчас</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2729"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2730"/>
         <source>(hidden)</source>
         <translation>(скрыта)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2731"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2732"/>
         <source>our link</source>
         <translation>наша связь</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2742"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2743"/>
         <source>Networks heard (scan)</source>
         <translation>Слышимые сети (скан)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2744"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2745"/>
         <source>By the last scan: the power of the other networks on and next to each channel, with how 2.4 GHz channels overlap; our own network is left out. Tap a channel for its details.</source>
         <translation>По последнему сканированию: мощность чужих сетей на каждом канале и рядом с ним, с учётом перекрытия каналов 2,4 ГГц; наша сеть не учитывается. Нажмите на канал, чтобы увидеть подробности.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2745"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2746"/>
         <source>By the networks heard: their power, counted with how 2.4 GHz channels overlap; our own network is left out. The traffic on a channel is not measured: that needs the module&apos;s firmware 0.16. Tap a channel for its details.</source>
         <translation>По слышимым сетям: их мощность с учётом перекрытия каналов 2,4 ГГц; наша сеть не учитывается. Трафик на канале не измеряется: для этого нужна прошивка модуля 0.16. Нажмите на канал, чтобы увидеть подробности.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2809"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2810"/>
         <source>Least busy</source>
         <translation>Наименее занятый</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2815"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2816"/>
         <source>The boat link now (•)</source>
         <translation>Связь с лодкой сейчас (•)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2826"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2827"/>
         <source>To move the link there, set channel %1 in Role and access point → Channel below, then Apply; the head unit&apos;s module follows by itself.</source>
         <translation>Чтобы перенести связь туда, задайте канал %1 ниже в «Роль и точка доступа → Канал» и нажмите «Применить»; модуль головного устройства перейдёт сам.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2827"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2828"/>
         <source>To move the link there, set channel %1 on the boat&apos;s module: Role and access point → Channel, then Apply; this module follows by itself.</source>
         <translation>Чтобы перенести связь туда, задайте канал %1 на модуле лодки: «Роль и точка доступа → Канал», затем «Применить»; этот модуль перейдёт сам.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2835"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2836"/>
         <source>Link events</source>
         <translation>События связи</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2855"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2856"/>
         <source>Saved networks</source>
         <translation>Сохранённые сети</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2876"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2877"/>
         <source>Forget</source>
         <translation>Забыть</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2881"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2882"/>
         <source>Forgotten: %1</source>
         <translation>Забыта: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2916"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2917"/>
         <source>Ready</source>
         <translation>Готов</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2917"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2918"/>
         <source>Waiting for the boat</source>
         <translation>Ожидание лодки</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2918"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2919"/>
         <source>No Wi‑Fi</source>
         <translation>Нет Wi‑Fi</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2924"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2925"/>
         <source>No relay in firmware</source>
         <translation>В прошивке нет ретрансляции</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2948"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2949"/>
         <source>Module address must be 0…255</source>
         <translation>Адрес модуля должен быть 0…255</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2952"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2953"/>
         <source>Boat port must be 1…65535</source>
         <translation>Порт лодки должен быть 1…65535</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2963"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2964"/>
         <source>Boat IP address must be four numbers 0…255</source>
         <translation>IP-адрес лодки — четыре числа 0…255</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2969"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2970"/>
         <source>Relay switched off; the module answers at address %1</source>
         <translation>Ретрансляция выключена; модуль отвечает по адресу %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2971"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2972"/>
         <source>Relay settings sent; the module now answers at address %1 and shows up as a new device</source>
         <translation>Настройки ретрансляции отправлены; модуль теперь отвечает по адресу %1 и появится как новое устройство</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3023"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3024"/>
         <source>Module firmware %1 has no relay. Update it to 0.6 or newer with Upgrade below.</source>
         <translation>В прошивке модуля %1 нет ретрансляции. Обновите её до 0.6 или новее кнопкой «Прошить» ниже.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3030"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4021"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4606"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3031"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4418"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5003"/>
         <source>Mode</source>
         <translation>Режим</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3045"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3046"/>
         <source>Module address on this port</source>
         <translation>Адрес модуля на этом порту</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3046"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3047"/>
         <source>Must differ from the boat device&apos;s address, which is usually 0</source>
         <translation>Должен отличаться от адреса устройства на лодке, обычно это 0</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3057"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3058"/>
         <source>Boat IP address</source>
         <translation>IP-адрес лодки</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3058"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3059"/>
         <source>0.0.0.0 with UDP: the module answers whoever sends to it first</source>
         <translation>0.0.0.0 при UDP: модуль отвечает тому, кто первым ему напишет</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3068"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3069"/>
         <source>Boat port</source>
         <translation>Порт лодки</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3069"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3070"/>
         <source>UDP or TCP port of the boat device</source>
         <translation>UDP- или TCP-порт устройства на лодке</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3080"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4056"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4641"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3081"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4453"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5038"/>
         <source>Own UDP port</source>
         <translation>Свой UDP-порт</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3081"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3082"/>
         <source>The port the boat sends to; 0 = same as the boat port</source>
         <translation>Порт, на который шлёт лодка; 0 — тот же, что порт лодки</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3098"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3336"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4081"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4140"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4349"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4479"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4671"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5145"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3099"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3337"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4478"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4537"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4746"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4876"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5068"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5542"/>
         <source>Apply</source>
         <translation>Применить</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3105"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3106"/>
         <source>Send the settings to the module; it stores and applies them at once</source>
         <translation>Отправить настройки в модуль; он сохраняет и применяет их сразу</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3110"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3342"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4087"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4355"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4485"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4677"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3111"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3343"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4484"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4752"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4882"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5074"/>
         <source>Read back</source>
         <translation>Считать</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3111"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3112"/>
         <source>Discard edits and show what the module has</source>
         <translation>Отменить правки и показать то, что в модуле</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3124"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3125"/>
         <source>Relay counters</source>
         <translation>Счётчики ретрансляции</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3127"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3128"/>
         <source>Peer</source>
         <translation>Узел</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3132"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3133"/>
         <source>To the boat</source>
         <translation>На лодку</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3134"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4012"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4694"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3135"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4409"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5091"/>
         <source>%1 frames · %2 packets · %3 dropped</source>
         <translation>%1 кадров · %2 пакетов · %3 отброшено</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3138"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3139"/>
         <source>From the boat</source>
         <translation>С лодки</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3140"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4017"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4699"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3141"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4414"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5096"/>
         <source>%1 packets · %2 frames · %3 dropped</source>
         <translation>%1 пакетов · %2 кадров · %3 отброшено</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3144"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3145"/>
         <source>For the module</source>
         <translation>Для модуля</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3145"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3977"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3146"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4374"/>
         <source>%1 frames</source>
         <translation>%1 кадров</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3181"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3382"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3390"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3182"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3383"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3391"/>
         <source>Not sent: no connection to the module</source>
         <translation>Не отправлено: нет связи с модулем</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3187"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3188"/>
         <source>Radio settings sent to the module</source>
         <translation>Настройки радио отправлены в модуль</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3196"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3197"/>
         <source>Firmware 0.11 refuses LR only for an access point; update the module to 0.12.</source>
         <translation>Прошивка 0.11 не принимает «только LR» для точки доступа; обновите модуль до 0.12.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3197"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3198"/>
         <source>The module refused these radio settings (ERR_PAYLOAD).</source>
         <translation>Модуль отказал в этих настройках радио (ERR_PAYLOAD).</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3199"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3200"/>
         <source>The module refused these radio settings: not possible now (ERR_RUNTIME).</source>
         <translation>Модуль отказал в этих настройках радио: сейчас невозможно (ERR_RUNTIME).</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3200"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3201"/>
         <source>The module refused these radio settings (code %1).</source>
         <translation>Модуль отказал в этих настройках радио (код %1).</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3227"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3228"/>
         <source>no link</source>
         <translation>нет связи</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3243"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3403"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3244"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3404"/>
         <source>Radio: %1</source>
         <translation>Радио: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3250"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3251"/>
         <source>Transmit power limit, dBm</source>
         <translation>Предел мощности передачи, дБм</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3254"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3255"/>
         <source>In use: %1 dBm</source>
         <translation>Используется: %1 дБм</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3256"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3257"/>
         <source> (saved %1 dBm; the driver works in steps)</source>
         <translation> (сохранено %1 дБм; драйвер работает ступенями)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3268"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3269"/>
         <source>Protocols</source>
         <translation>Протоколы</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3270"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3271"/>
         <source>Access point: each client negotiates its own mode.</source>
         <translation>Точка доступа: каждый клиент договаривается о своём режиме.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3271"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3272"/>
         <source>Link now: %1</source>
         <translation>Связь сейчас: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3272"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3273"/>
         <source>. LR needs an LR-capable access point: another Kogger module (Espressif) with LR or b/g/n+LR.</source>
         <translation>. Для LR нужна точка доступа с LR: другой модуль Kogger (Espressif) с LR или b/g/n+LR.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3287"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3288"/>
         <source>LR only: phones and laptops cannot join; only Espressif stations with LR (another Kogger module set to LR or b/g/n+LR) can.</source>
         <translation>Только LR: телефоны и ноутбуки подключиться не смогут; только станции Espressif с LR (другой модуль Kogger в режиме LR или b/g/n+LR).</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3298"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3299"/>
         <source>Channel width</source>
         <translation>Ширина канала</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3299"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3300"/>
         <source>20 MHz only: 40 MHz needs 802.11n (b/g/n or b/g/n+LR); LR, b and b/g run at 20 MHz.</source>
         <translation>Только 20 МГц: для 40 МГц нужен 802.11n (b/g/n или b/g/n+LR); LR, b и b/g работают на 20 МГц.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3301"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3302"/>
         <source>No link: the saved width is shown</source>
         <translation>Нет связи: показана сохранённая ширина</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3302"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3303"/>
         <source>In use: %1 MHz</source>
         <translation>Используется: %1 МГц</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3304"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3305"/>
         <source> (saved %1 MHz)</source>
         <translation> (сохранено %1 МГц)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3305"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3306"/>
         <source> (saved %1 MHz; the access point gives no 40 MHz)</source>
         <translation> (сохранено %1 МГц; точка доступа не даёт 40 МГц)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3309"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3310"/>
         <source>20 MHz</source>
         <translation>20 МГц</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3310"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3311"/>
         <source>40 MHz</source>
         <translation>40 МГц</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3311"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3312"/>
         <source>40 MHz needs 802.11n</source>
         <translation>Для 40 МГц нужен 802.11n</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3317"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3318"/>
         <source>Power save</source>
         <translation>Энергосбережение</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3321"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3322"/>
         <source>Min</source>
         <translation>Мин.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3321"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3322"/>
         <source>Max</source>
         <translation>Макс.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3327"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3328"/>
         <source>Checking what the module uses now… </source>
         <translation>Проверяю, что модуль использует сейчас… </translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3328"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3329"/>
         <source>Not applied yet: the menu differs from what the module uses. </source>
         <translation>Ещё не применено: меню отличается от того, что использует модуль. </translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3329"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3330"/>
         <source>Protocol and width changes make the module reconnect: the boat link drops for a few seconds. 40 MHz needs 802.11n and an access point that gives it.</source>
         <translation>Смена протокола и ширины заставляет модуль переподключиться: связь с лодкой пропадает на несколько секунд. Для 40 МГц нужен 802.11n и точка доступа, которая его даёт.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3378"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3379"/>
         <source>%1 min %2 s</source>
         <translation>%1 мин %2 с</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3385"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3386"/>
         <source>Switching the module&apos;s radio off for %1</source>
         <translation>Выключаю радио модуля на %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3386"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3387"/>
         <source>Switching the module&apos;s radio off until you switch it on</source>
         <translation>Выключаю радио модуля до включения вручную</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3409"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3410"/>
         <source>Antenna swap</source>
         <translation>Замена антенны</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3416"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3417"/>
         <source>Radio off · %1</source>
         <translation>Радио выкл. · %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3423"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3424"/>
         <source>Switch the radio off for</source>
         <translation>Выключить радио на</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3425"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3426"/>
         <source>Over the cable: the module stays in reach and may stay off until you switch it on (or it restarts).</source>
         <translation>По кабелю: модуль остаётся на связи и может быть выключен, пока вы не включите радио (или пока он не перезапустится).</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3426"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3427"/>
         <source>Over the network: the module is reached through this very radio, so it goes off only for a time (up to 10 min) and comes back by itself.</source>
         <translation>По сети: до модуля достают через это же радио, поэтому оно выключается только на время (до 10 мин) и включается само.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3432"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3433"/>
         <source>Until on</source>
         <translation>До включения</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3441"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3442"/>
         <source>The boat link drops for %1, and about 20 s more while the modules find each other again.</source>
         <translation>Связь с лодкой пропадёт на %1 и ещё примерно на 20 с, пока модули снова найдут друг друга.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3443"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3444"/>
         <source>The boat link drops until you switch the radio on, and about 20 s more while the modules find each other again.</source>
         <translation>Связь с лодкой пропадёт, пока вы не включите радио, и ещё примерно на 20 с, пока модули снова найдут друг друга.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3447"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3448"/>
         <source>Switch the radio off</source>
         <translation>Выключить радио</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3253"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3456"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3254"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3457"/>
         <source>The radio is off</source>
         <translation>Радио выключено</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2389"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2390"/>
         <source>The PHY rate of the other end&apos;s data frames in a 0.2 s window, every 3 s while this section is open.</source>
         <translation>PHY-скорость кадров данных другого конца в окне 0,2 с, каждые 3 с, пока этот раздел открыт.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3460"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3461"/>
         <source>On again in %1, by the module&apos;s timer.</source>
         <translation>Включится через %1 по таймеру модуля.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3461"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3462"/>
         <source>The time is up: the module switches its radio on; the boat link comes back in about 20 s.</source>
         <translation>Время вышло: модуль включает радио; связь с лодкой вернётся примерно через 20 с.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3462"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3463"/>
         <source>Until you switch it on, or until the module restarts.</source>
         <translation>Пока вы его не включите или пока модуль не перезапустится.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3463"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3464"/>
         <source>Asking the module for how long…</source>
         <translation>Узнаю у модуля, надолго ли…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3472"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3473"/>
         <source>Switch the radio on</source>
         <translation>Включить радио</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3481"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3482"/>
         <source>This module is reached through its radio, so it cannot be switched on from here: it comes back by itself when its time is up.</source>
         <translation>До этого модуля достают через его радио, поэтому включить его отсюда нельзя: оно включится само, когда выйдет время.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3512"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3544"/>
+        <source>Cannot be used: %1</source>
+        <translation>Нельзя использовать: %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3545"/>
+        <source>access point %1</source>
+        <translation>точка доступа %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3546"/>
+        <source>station for %1</source>
+        <translation>станция для %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3547"/>
+        <source>station without networks</source>
+        <translation>станция без сетей</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3548"/>
+        <source>Built in</source>
+        <translation>Встроенный</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3548"/>
+        <source>address %1</source>
+        <translation>адрес %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3554"/>
+        <source>Loading &quot;%1&quot; into the module</source>
+        <translation>Загружаю «%1» в модуль</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3578"/>
+        <source>Saved as &quot;%1&quot;</source>
+        <translation>Сохранено как «%1»</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3608"/>
+        <source>Profile</source>
+        <translation>Профиль</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3613"/>
+        <source>Loading…</source>
+        <translation>Загрузка…</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3614"/>
+        <source>%1 · changed</source>
+        <translation>%1 · изменён</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3622"/>
+        <source>This module&apos;s firmware cannot take profiles: that came with 0.22.</source>
+        <translation>Прошивка этого модуля не принимает профили: это появилось в 0.22.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3628"/>
+        <source>Waiting for the module&apos;s firmware version…</source>
+        <translation>Жду версию прошивки модуля…</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3635"/>
+        <source>In the module</source>
+        <translation>В модуле</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3636"/>
+        <source>Asking the module…</source>
+        <translation>Спрашиваю модуль…</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3637"/>
+        <source>It was not loaded with a profile.</source>
+        <translation>Модуль не загружали профилем.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3638"/>
+        <source>&quot;%1&quot;, but a setting changed since it was loaded.</source>
+        <translation>«%1», но с загрузки настройки менялись.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3639"/>
+        <source>&quot;%1&quot;, its settings as the profile left them.</source>
+        <translation>«%1», настройки такие, как их оставил профиль.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3648"/>
+        <source>Sending the profile: %1 of %2 bytes</source>
+        <translation>Отправляю профиль: %1 из %2 байт</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3650"/>
+        <source>The module checks the profile and saves it…</source>
+        <translation>Модуль проверяет профиль и записывает его…</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3651"/>
+        <source>The module reboots into the profile; waiting for it…</source>
+        <translation>Модуль перезагружается в профиль, жду его…</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3652"/>
+        <source>Its link drops for a few seconds.</source>
+        <translation>Связь с ним пропадёт на несколько секунд.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3667"/>
+        <source>Load a profile</source>
+        <translation>Загрузить профиль</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3683"/>
+        <source>Remove</source>
+        <translation>Удалить</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3696"/>
+        <source>Load &quot;%1&quot; into the module</source>
+        <translation>Загрузить «%1» в модуль</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3700"/>
+        <source>Nothing changes in what was read from the module.</source>
+        <translation>В том, что прочитано из модуля, ничего не изменится.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3700"/>
+        <source>What changes:</source>
+        <translation>Что изменится:</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3718"/>
+        <source>Not read from the module yet, so not compared: %1.</source>
+        <translation>Ещё не прочитано из модуля, поэтому не сравнивалось: %1.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3726"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3832"/>
+        <source>Password of its access point &quot;%1&quot;</source>
+        <translation>Пароль его точки доступа «%1»</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3727"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3833"/>
+        <source>Password of the network &quot;%1&quot;</source>
+        <translation>Пароль сети «%1»</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3728"/>
+        <source>8 to 63 characters. The module never gives a password back.</source>
+        <translation>От 8 до 63 символов. Модуль пароли никогда не отдаёт.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3729"/>
+        <source>Needed: the network is protected. 8 to 63 characters or 64 hex digits.</source>
+        <translation>Нужен: сеть защищённая. От 8 до 63 символов или 64 шестнадцатеричные цифры.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3730"/>
+        <source>Empty: the module joins it as an open network.</source>
+        <translation>Пусто — модуль подключится к ней как к открытой.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3734"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3838"/>
+        <source>password</source>
+        <translation>пароль</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3778"/>
+        <source>Load into the module</source>
+        <translation>Загрузить в модуль</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3792"/>
+        <source>Your profiles</source>
+        <translation>Ваши профили</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3796"/>
+        <source>Reading the module&apos;s settings…</source>
+        <translation>Читаю настройки модуля…</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3797"/>
+        <source>Kept in %1</source>
+        <translation>Хранятся в %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3806"/>
+        <source>Save the module as a profile</source>
+        <translation>Сохранить модуль как профиль</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3811"/>
+        <source>Add a file…</source>
+        <translation>Добавить файл…</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3819"/>
+        <source>Name of the profile</source>
+        <translation>Имя профиля</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3820"/>
+        <source>Up to 32 bytes (a Cyrillic letter takes 2). The module keeps this name.</source>
+        <translation>До 32 байт (русская буква занимает 2). Это имя модуль запомнит.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3834"/>
+        <source>The module never gives it back: type it to keep it in the file, or leave it empty and type it when loading.</source>
+        <translation>Модуль его никогда не отдаёт: введите, чтобы он сохранился в файле, или оставьте пустым и введите при загрузке.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3856"/>
+        <source>The file keeps the passwords as plain text: keep it where only you can read it.</source>
+        <translation>Пароли в файле хранятся открытым текстом: держите его там, где его можете читать только вы.</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3864"/>
+        <source>Save</source>
+        <translation>Сохранить</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3877"/>
+        <source>Add a profile file</source>
+        <translation>Добавить файл профиля</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3879"/>
+        <source>Profiles (*.json)</source>
+        <translation>Профили (*.json)</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3883"/>
+        <source>Not added: %1</source>
+        <translation>Не добавлено: %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3885"/>
+        <source>Profile added</source>
+        <translation>Профиль добавлен</translation>
+    </message>
+    <message>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3909"/>
         <source>The port speed could not be changed now: nothing changed</source>
         <translation>Скорость порта сейчас не изменить: ничего не изменилось</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3523"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3920"/>
         <source>Module port to this device, bit/s</source>
         <translation>Порт модуля к этому устройству, бит/с</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3525"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3922"/>
         <source>Now %1. The module keeps the speed it is given here; this device&apos;s port follows.</source>
         <translation>Сейчас %1. Модуль держит скорость, заданную здесь; порт этого устройства следует за ним.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3526"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4111"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3923"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4508"/>
         <source>Changing to %1… (it finishes even if this page is closed)</source>
         <translation>Переход на %1… (завершится, даже если закрыть эту страницу)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3538"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3935"/>
         <source>The boat stream is about 92 KB/s: 921k is full, 2M leaves half free. Both ends must do the speed (the head unit&apos;s UART6: up to 4M).</source>
         <translation>Поток с лодки около 92 КБ/с: 921k забит полностью, 2M оставляет половину свободной. Скорость должны поддерживать оба конца (UART6 головного устройства — до 4M).</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3541"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3938"/>
         <source>Apply %1</source>
         <translation>Применить %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3587"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3984"/>
         <source>Module address must be 1…254: 0 is where devices sit, 255 is refused</source>
         <translation>Адрес модуля должен быть 1…254: 0 занят устройствами, 255 не принимается</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3595"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3992"/>
         <source>line off</source>
         <translation>линия выкл</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3600"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3997"/>
         <source>senders</source>
         <translation>отправители</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3600"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3997"/>
         <source>broadcast :%1</source>
         <translation>широковещание :%1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3605"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4561"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4002"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4958"/>
         <source>ready</source>
         <translation>готов</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3606"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4562"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4003"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4959"/>
         <source>no peer</source>
         <translation>нет узла</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3607"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4563"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4004"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4960"/>
         <source>no Wi‑Fi</source>
         <translation>нет Wi‑Fi</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3609"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3997"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4565"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4006"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4394"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4962"/>
         <source>off</source>
         <translation>выкл</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3612"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4009"/>
         <source>Two UDP lines cannot share a local port: to swap the ports of X1 and X2, first move one line to a free port, then give the other line the freed one.</source>
         <translation>Две UDP-линии не могут делить один локальный порт: чтобы поменять порты X1 и X2, сначала переведите одну линию на свободный порт, затем отдайте освободившийся другой.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3617"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4014"/>
         <source>The module did not send the line&apos;s settings: nothing changed.</source>
         <translation>Модуль не прислал настройки линии: ничего не изменилось.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3618"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4015"/>
         <source>The line&apos;s settings are not known yet: nothing changed. Read back and try again.</source>
         <translation>Настройки линии пока неизвестны: ничего не изменилось. Считайте их и попробуйте снова.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3621"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4018"/>
         <source>The module refused the rate: invalid value.</source>
         <translation>Модуль отказал в скорости: недопустимое значение.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3622"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4019"/>
         <source>The module refused these settings: invalid values.</source>
         <translation>Модуль отказал в этих настройках: недопустимые значения.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3623"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4020"/>
         <source>The module refused: wrong key.</source>
         <translation>Модуль отказал: неверный ключ.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3624"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4021"/>
         <source>The module refused: not possible now or in this role.</source>
         <translation>Модуль отказал: сейчас или в этой роли невозможно.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3625"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4022"/>
         <source>The module refused (code %1).</source>
         <translation>Модуль отказал (код %1).</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3626"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4023"/>
         <source>No answer from the module: the fields show what it reports now.</source>
         <translation>Модуль не отвечает: в полях то, что он сообщает сейчас.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3644"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4041"/>
         <source>unreadable bytes (wrong rate?)</source>
         <translation>нечитаемые байты (не та скорость?)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3645"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4042"/>
         <source>SBP host</source>
         <translation>SBP-хост</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3646"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4043"/>
         <source>SBP device(s)</source>
         <translation>SBP-устройство(а)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3647"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4044"/>
         <source>SBP host and devices</source>
         <translation>SBP-хост и устройства</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3650"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4047"/>
         <source>IP bridge (SLIP)</source>
         <translation>IP-мост (SLIP)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3651"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4048"/>
         <source>other framed traffic</source>
         <translation>другой кадрированный трафик</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3656"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4053"/>
         <source>never</source>
         <translation>никогда</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3657"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4054"/>
         <source>%1 s ago</source>
         <translation>%1 с назад</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3658"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4055"/>
         <source>%1 min ago</source>
         <translation>%1 мин назад</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3659"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4056"/>
         <source>%1 h ago</source>
         <translation>%1 ч назад</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3664"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4061"/>
         <source>generic</source>
         <translation>общий</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3665"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4062"/>
         <source>fixed wing</source>
         <translation>самолёт</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3666"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4063"/>
         <source>quadrotor</source>
         <translation>квадрокоптер</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3667"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4064"/>
         <source>helicopter</source>
         <translation>вертолёт</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3668"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4065"/>
         <source>ground station</source>
         <translation>наземная станция</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3669"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4066"/>
         <source>rover</source>
         <translation>ровер</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3670"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4067"/>
         <source>boat</source>
         <translation>лодка</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3671"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4068"/>
         <source>submarine</source>
         <translation>подводный аппарат</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3672"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4069"/>
         <source>hexarotor</source>
         <translation>гексакоптер</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3673"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4070"/>
         <source>octorotor</source>
         <translation>октокоптер</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3674"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4071"/>
         <source>onboard computer</source>
         <translation>бортовой компьютер</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3675"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4072"/>
         <source>gimbal</source>
         <translation>подвес</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3677"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4074"/>
         <source>camera</source>
         <translation>камера</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3679"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4076"/>
         <source>type %1</source>
         <translation>тип %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3683"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4080"/>
         <source>generic autopilot</source>
         <translation>общий автопилот</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3685"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4082"/>
         <source>no autopilot</source>
         <translation>нет автопилота</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3688"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4085"/>
         <source>autopilot %1</source>
         <translation>автопилот %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3708"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4105"/>
         <source>Ports</source>
         <translation>Порты</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3713"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4110"/>
         <source>This device is connected through %1</source>
         <translation>Это устройство подключено через %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3714"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4111"/>
         <source>This device reaches the module over the network</source>
         <translation>Это устройство связывается с модулем по сети</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3715"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4112"/>
         <source>X1 and X2 are equal: the module answers on either, and each port has its own rate.</source>
         <translation>X1 и X2 равноправны: модуль отвечает на любом из них, и у каждого порта своя скорость.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3827"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4224"/>
         <source>%1 already listens on UDP %2.</source>
         <translation>%1 уже слушает UDP %2.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3832"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4229"/>
         <source>Not sent: check the fields (IP a.b.c.d, ports 0–65535, pins −1…127), or wait for the running change.</source>
         <translation>Не отправлено: проверьте поля (IP a.b.c.d, порты 0–65535, выводы −1…127) или дождитесь завершения идущего изменения.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3840"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4237"/>
         <source>The rate of %1 could not be changed now: nothing changed</source>
         <translation>Скорость %1 сейчас не изменить: ничего не изменилось</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3909"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4306"/>
         <source>this device</source>
         <translation>это устройство</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3910"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4307"/>
         <source>provisional</source>
         <translation>временно</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3913"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3919"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4310"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4316"/>
         <source>UART off</source>
         <translation>UART выкл</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3914"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4311"/>
         <source>no data</source>
         <translation>нет данных</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3918"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4315"/>
         <source>Rate</source>
         <translation>Скорость</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3919"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4316"/>
         <source>%1 bit/s</source>
         <translation>%1 бит/с</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3922"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4319"/>
         <source>Provisional: kept once a request for the module comes through this port, otherwise back to %1 in 10 s</source>
         <translation>Временно: сохранится, как только через этот порт придёт запрос к модулю, иначе через 10 с вернётся к %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3923"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4320"/>
         <source>Saved: %1 (in effect after a reboot)</source>
         <translation>Сохранено: %1 (действует после перезагрузки)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3931"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4328"/>
         <source>Gets the module&apos;s reports</source>
         <translation>Получает отчёты модуля</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3931"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4328"/>
         <source>Gets no reports from the module</source>
         <translation>Не получает отчёты модуля</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3936"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4333"/>
         <source>RX %1 · TX %2</source>
         <translation>RX %1 · TX %2</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3938"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4335"/>
         <source>%1 received, %2 sent · last RX %3</source>
         <translation>принято %1, отправлено %2 · последний RX %3</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3944"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4341"/>
         <source>Frames RX/TX</source>
         <translation>Кадры RX/TX</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3951"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4348"/>
         <source>From the port: %1 requests, %2 content · to it: %3 requests, %4 content</source>
         <translation>С порта: %1 запросов, %2 содержимого · в порт: %3 запросов, %4 содержимого</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3954"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4351"/>
         <source>for the module %1, its own frames %2</source>
         <translation>для модуля %1, его собственных кадров %2</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3957"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4354"/>
         <source>Losses</source>
         <translation>Потери</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3959"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4356"/>
         <source>%1 RX overflows · %2 TX drops</source>
         <translation>%1 переполнений RX · %2 сбросов TX</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3964"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4361"/>
         <source>Devices on this port</source>
         <translation>Устройства на этом порту</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3970"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4367"/>
         <source>MAVLink %1/%2 · %3</source>
         <translation>MAVLink %1/%2 · %3</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3971"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4368"/>
         <source>no heartbeat yet</source>
         <translation>heartbeat пока нет</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3972"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4369"/>
         <source>SBP %1</source>
         <translation>SBP %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3974"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4371"/>
         <source>board %1</source>
         <translation>плата %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3978"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4375"/>
         <source>fw %1</source>
         <translation>прошивка %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3979"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4376"/>
         <source>SN %1</source>
         <translation>SN %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3980"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4377"/>
         <source>heard %1</source>
         <translation>слышно %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3987"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4384"/>
         <source>None heard</source>
         <translation>Никого не слышно</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3993"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4390"/>
         <source>Network side (line %1)</source>
         <translation>Сетевая сторона (линия %1)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3995"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4685"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4392"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5082"/>
         <source>State</source>
         <translation>Состояние</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4006"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4403"/>
         <source>last data %1</source>
         <translation>последние данные %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4010"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4692"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4407"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5089"/>
         <source>To the network</source>
         <translation>В сеть</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4015"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4697"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4412"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5094"/>
         <source>From the network</source>
         <translation>Из сети</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4032"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4617"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4429"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5014"/>
         <source>Send to</source>
         <translation>Куда слать</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4033"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4618"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4430"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5015"/>
         <source>The peer below</source>
         <translation>Узел ниже</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4034"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4431"/>
         <source>Whoever sent to this UDP port (up to 4, forgotten after 60 s of silence)</source>
         <translation>Тем, кто писал на этот UDP-порт (до 4, забываются после 60 с тишины)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4035"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4620"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4432"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5017"/>
         <source>Broadcast in the subnet to the peer port</source>
         <translation>Широковещательно в подсети на порт узла</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4039"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4624"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4436"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5021"/>
         <source>Fixed</source>
         <translation>Фиксированный</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4039"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4624"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4436"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5021"/>
         <source>Senders</source>
         <translation>Отправители</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4039"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4624"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4436"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5021"/>
         <source>Broadcast</source>
         <translation>Широковещание</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4046"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4631"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4443"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5028"/>
         <source>Peer IP address</source>
         <translation>IP-адрес узла</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4051"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4636"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4448"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5033"/>
         <source>Peer port</source>
         <translation>Порт узла</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4057"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4454"/>
         <source>0 = the peer port. Each UDP line needs a port of its own: to swap the ports of X1 and X2, move one line to a free port first.</source>
         <translation>0 — порт узла. Каждой UDP-линии нужен свой порт: чтобы поменять порты X1 и X2, сначала переведите одну линию на свободный порт.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4062"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4653"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4459"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5050"/>
         <source>TX / RX pins</source>
         <translation>Выводы TX / RX</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4063"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4460"/>
         <source>Allowed 0, 1, 3, 4, 5, 6, 7, 10; −1 switches the UART off; new pins start after a reboot</source>
         <translation>Допустимы 0, 1, 3, 4, 5, 6, 7, 10; −1 выключает UART; новые выводы заработают после перезагрузки</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4072"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4469"/>
         <source>Applying… (it finishes even if this page is closed)</source>
         <translation>Применение… (завершится, даже если закрыть эту страницу)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4073"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4470"/>
         <source>This device&apos;s port: switching its line off ends the network (boat) link through it; the module keeps answering here.</source>
         <translation>Порт этого устройства: выключение его линии обрывает сетевую связь (с лодкой) через него; модуль продолжает отвечать здесь.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4074"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4471"/>
         <source>Only the fields changed here are sent; the module keeps the rest as it has them.</source>
         <translation>Отправляются только изменённые здесь поля; остальное модуль оставляет как есть.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4110"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4507"/>
         <source>Set the rate</source>
         <translation>Задать скорость</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4113"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4510"/>
         <source>This device&apos;s port: the module keeps the new rate at once (firmware 0.15) and the link here follows. If this device cannot do the rate, the link is lost until the module&apos;s BOOT button is held 5 s (both ports back to 921600).</source>
         <translation>Порт этого устройства: модуль сразу сохраняет новую скорость (прошивка 0.15), и подключение здесь следует за ней. Если это устройство не умеет такую скорость, связь пропадёт, пока не подержать кнопку BOOT модуля 5 с (оба порта вернутся на 921600).</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4114"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4511"/>
         <source>This device&apos;s port: the link here follows, the module has to answer at the new rate, then it is saved.</source>
         <translation>Порт этого устройства: подключение здесь следует за скоростью, модуль должен ответить на новой, после чего она сохраняется.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4115"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4512"/>
         <source>Not this device&apos;s port: saved in the module at once.</source>
         <translation>Не порт этого устройства: сохраняется в модуле сразу.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4118"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4515"/>
         <source> 5M: both ends must do it (the head unit&apos;s UART6 was tried up to 4M only; a USB adapter needs 5M in its data sheet).</source>
         <translation> 5M: должны уметь оба конца (UART6 головного устройства проверен только до 4M; у USB-адаптера 5M должен быть в документации).</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4119"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4516"/>
         <source> 5M: both ends must do it (the head unit&apos;s UART6 was tried up to 4M; a USB adapter needs 5M in its data sheet). Without an answer at 5M the link goes back by itself.</source>
         <translation> 5M: должны уметь оба конца (UART6 головного устройства проверен до 4M; у USB-адаптера 5M должен быть в документации). Без ответа на 5M подключение вернётся само.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4120"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4517"/>
         <source> 5M: the device on this port must do it too. The module keeps the rate: set it back here if that device stops answering.</source>
         <translation> 5M: устройство на этом порту тоже должно её уметь. Модуль сохраняет скорость: если то устройство перестанет отвечать, верните её здесь.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4162"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4559"/>
         <source>Must differ from the devices behind the ports (a sonar is usually 0); 1…254. The module then reappears as a new device.</source>
         <translation>Должен отличаться от устройств за портами (у сонара обычно 0); 1…254. После этого модуль появится как новое устройство.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4169"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4717"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4566"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5114"/>
         <source>Set</source>
         <translation>Задать</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4211"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4608"/>
         <source>Role saved: %1 after the next reboot</source>
         <translation>Роль сохранена: %1 после следующей перезагрузки</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4218"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4615"/>
         <source>Check the fields: name 1–32 bytes, password 8–63 characters (none for an open network), channel 1–11, clients 1–10</source>
         <translation>Проверьте поля: имя 1–32 байта, пароль 8–63 символа (для открытой сети без пароля), канал 1–11, клиентов 1–10</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4227"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4624"/>
         <source>access point</source>
         <translation>точка доступа</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4227"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4624"/>
         <source>station</source>
         <translation>станция</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4250"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4647"/>
         <source>Role and access point</source>
         <translation>Роль и точка доступа</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4254"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4651"/>
         <source>Running: %1</source>
         <translation>Работает: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4258"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4655"/>
         <source>Station</source>
         <translation>Станция</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4267"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4664"/>
         <source>Saved role: %1 — takes effect after a reboot</source>
         <translation>Сохранённая роль: %1 — действует после перезагрузки</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4274"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4671"/>
         <source>As an access point the module stops joining the boat&apos;s network, so this head unit loses the boat link until the role is switched back. It then answers at address 88 unless an own address is set.</source>
         <translation>В роли точки доступа модуль перестаёт подключаться к сети лодки, поэтому это головное устройство теряет связь с лодкой, пока роль не вернут. Тогда модуль отвечает по адресу 88, если не задан свой.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4275"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4672"/>
         <source>As an access point the module stops joining the boat&apos;s network, so this head unit loses the boat link until the role is switched back. With a relaying line it answers at its relay address (88 by default).</source>
         <translation>В роли точки доступа модуль перестаёт подключаться к сети лодки, поэтому это головное устройство теряет связь с лодкой, пока роль не вернут. При ретранслирующей линии он отвечает по своему адресу ретрансляции (по умолчанию 88).</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4276"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4673"/>
         <source>As a station the module joins saved networks, as before.</source>
         <translation>В роли станции модуль подключается к сохранённым сетям, как раньше.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4283"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4680"/>
         <source>Apply and reboot</source>
         <translation>Применить и перезагрузить</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4288"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4685"/>
         <source>Role sent; the module restarts</source>
         <translation>Роль отправлена; модуль перезапускается</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4293"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4690"/>
         <source>Save for next boot</source>
         <translation>Сохранить до следующего запуска</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4300"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4697"/>
         <source>Access point network</source>
         <translation>Сеть точки доступа</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4309"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4706"/>
         <source>8–63 characters. Leave it empty to keep the current password.</source>
         <translation>8–63 символа. Оставьте пустым, чтобы сохранить текущий пароль.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4310"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4707"/>
         <source>unchanged</source>
         <translation>без изменений</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4314"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4711"/>
         <source>Security</source>
         <translation>Защита</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4325"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4722"/>
         <source>Channel (1–11)</source>
         <translation>Канал (1–11)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4330"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4727"/>
         <source>Clients at most (1–10)</source>
         <translation>Клиентов не больше (1–10)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4335"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4732"/>
         <source>Hidden network</source>
         <translation>Скрытая сеть</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4341"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4738"/>
         <source>The access point restarts with the new settings; its clients reconnect.</source>
         <translation>Точка доступа перезапустится с новыми настройками; её клиенты переподключатся.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4342"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4739"/>
         <source>Stored now, used once the module runs as an access point.</source>
         <translation>Сохранено сейчас, применится, когда модуль заработает как точка доступа.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4363"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4760"/>
         <source>Clients: %1</source>
         <translation>Клиенты: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4377"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4774"/>
         <source>Refresh clients</source>
         <translation>Обновить клиентов</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4403"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4800"/>
         <source>Addresses must be four numbers a.b.c.d, the lease 1–2880 minutes</source>
         <translation>Адреса — четыре числа a.b.c.d, аренда — 1–2880 минут</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4430"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4827"/>
         <source>Access point address and DHCP</source>
         <translation>Адрес точки доступа и DHCP</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4436"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4833"/>
         <source>Mask</source>
         <translation>Маска</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4440"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4837"/>
         <source>DHCP server</source>
         <translation>DHCP-сервер</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4445"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4842"/>
         <source>Address pool</source>
         <translation>Пул адресов</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4446"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4843"/>
         <source>Inside the subnet, without the module&apos;s own address, at most 100 addresses</source>
         <translation>Внутри подсети, без собственного адреса модуля, не больше 100 адресов</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4457"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4854"/>
         <source>Lease, minutes (1–2880)</source>
         <translation>Аренда, минут (1–2880)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4462"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4859"/>
         <source>Offer a gateway</source>
         <translation>Раздавать шлюз</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4463"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4860"/>
         <source>Off by default: the module has no internet, a phone would route all traffic to it</source>
         <translation>По умолчанию выключено: у модуля нет интернета, а телефон пустил бы весь трафик через него</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4468"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4865"/>
         <source>Offer DNS</source>
         <translation>Раздавать DNS</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4472"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4869"/>
         <source>Used by the access point. In that role a change applies at once and every client takes a new lease.</source>
         <translation>Используется точкой доступа. В этой роли изменение применяется сразу, и каждый клиент берёт новую аренду.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4525"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4922"/>
         <source>Check the fields: IP a.b.c.d, ports 0–65535, line 1 speed 9600–4000000</source>
         <translation>Проверьте поля: IP a.b.c.d, порты 0–65535, скорость линии 1 — 9600–4000000</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4540"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4937"/>
         <source>Module address must be 1…255: 0 is where devices sit</source>
         <translation>Адрес модуля должен быть 1…255: 0 занят устройствами</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4576"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4973"/>
         <source>Wi‑Fi module: settings applied</source>
         <translation>Модуль Wi‑Fi: настройки применены</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4578"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4975"/>
         <source>Wi‑Fi module refused the settings: %1</source>
         <translation>Модуль Wi‑Fi отказал в настройках: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4579"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4976"/>
         <source>invalid values</source>
         <translation>недопустимые значения</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4580"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4977"/>
         <source>wrong key</source>
         <translation>неверный ключ</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4581"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4978"/>
         <source>not possible now or in this role</source>
         <translation>сейчас или в этой роли невозможно</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4596"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4993"/>
         <source>Line</source>
         <translation>Линия</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4600"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4997"/>
         <source>0 · X1, this port</source>
         <translation>0 · X1, этот порт</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4600"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4997"/>
         <source>1 · X2</source>
         <translation>1 · X2</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4619"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5016"/>
         <source>Whoever sent to this port (up to 4, forgotten after 60 s of silence)</source>
         <translation>Тем, кто писал на этот порт (до 4, забываются после 60 с тишины)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4642"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5039"/>
         <source>0 = the peer port</source>
         <translation>0 — порт узла</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4647"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5044"/>
         <source>Baud rate</source>
         <translation>Скорость передачи</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4648"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5045"/>
         <source>9600–4000000; line 0 uses the device baud rate below</source>
         <translation>9600–4000000; линия 0 использует скорость устройства ниже</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4654"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5051"/>
         <source>Allowed 0, 1, 3, 4, 5, 6, 7, 10; −1 switches UART1 off; new pins start after a reboot</source>
         <translation>Допустимы 0, 1, 3, 4, 5, 6, 7, 10; −1 выключает UART1; новые выводы заработают после перезагрузки</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4663"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5060"/>
         <source>Line 0 is this port: switching it off ends the boat link, and the module goes back to address 0.</source>
         <translation>Линия 0 — это этот порт: её выключение обрывает связь с лодкой, а модуль возвращается на адрес 0.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4683"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5080"/>
         <source>Line %1 counters</source>
         <translation>Счётчики линии %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4688"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5085"/>
         <source>senders: %1</source>
         <translation>отправителей: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4702"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5099"/>
         <source>UART</source>
         <translation>UART</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4704"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5101"/>
         <source>%1 receive overflows · %2 transmit drops · %3 frames for the module</source>
         <translation>%1 переполнений приёма · %2 сбросов передачи · %3 кадров для модуля</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4709"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5106"/>
         <source>Module address while relaying</source>
         <translation>Адрес модуля при ретрансляции</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4710"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5107"/>
         <source>Must differ from the devices behind the lines (a sonar is usually 0). The module then reappears as a new device.</source>
         <translation>Должен отличаться от устройств за линиями (у сонара обычно 0). После этого модуль появится как новое устройство.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4974"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5371"/>
         <source>Erase settings</source>
         <translation>Стереть</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4980"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5377"/>
         <source>Reboot</source>
         <translation>Перезагрузка</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5010"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5407"/>
         <source>Address, mask or host address is not four octets</source>
         <translation>Адрес, маска или адрес хоста — не четыре октета</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5013"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5410"/>
         <source>Network settings sent: %1</source>
         <translation>Сетевые настройки отправлены: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5040"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5437"/>
         <source>Device address</source>
         <translation>Адрес устройства</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5071"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5468"/>
         <source>Subnet mask</source>
         <translation>Маска подсети</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5102"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5499"/>
         <source>Host address</source>
         <translation>Адрес хоста</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5133"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5530"/>
         <source>Hand the host its address (DHCP)</source>
         <translation>Выдавать хосту адрес (DHCP)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5146"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5543"/>
         <source>Send the addresses to the device. They take effect at once; write them with Flash settings to survive a reboot.</source>
         <translation>Отправить адреса в устройство. Они действуют сразу; чтобы они пережили перезагрузку, запишите их кнопкой «Сохранить в устройство».</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5151"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5548"/>
         <source>Default</source>
         <translation>По умолчанию</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5152"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5549"/>
         <source>Put the factory addresses in the fields; Apply sends them</source>
         <translation>Подставить в поля заводские адреса; «Применить» отправит их</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5161"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5558"/>
         <source>Reading the device settings...</source>
         <translation>Чтение настроек устройства...</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5163"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5560"/>
         <source>Adapter MAC %1.</source>
         <translation>MAC адаптера %1.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5164"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5561"/>
         <source>The device answers a discovery request on UDP port 18020, broadcast included, so it can be found and put back even when the addresses do not match. That port is fixed.</source>
         <translation>Устройство отвечает на запрос поиска на UDP-порту 18020, в том числе широковещательный, поэтому его можно найти и вернуть, даже если адреса не совпадают. Этот порт фиксирован.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5165"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5562"/>
         <source>These settings are not in the device memory: a reboot brings back the stored ones.</source>
         <translation>Этих настроек нет в памяти устройства: после перезагрузки вернутся сохранённые.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5174"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5571"/>
         <source>Settings file</source>
         <translation>Файл настроек</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5233"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5630"/>
         <source>Upgrade</source>
         <translation>Прошить</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5241"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5638"/>
         <source>Behind a recorder: the sonar is moved to 115200 first and the recorder follows it. Keep the power on until the update ends.</source>
         <translation>За рекордером: сначала сонар переводится на 115200, рекордер подстраивается под него. Не выключайте питание до конца обновления.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5242"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5639"/>
         <source>This sonar is behind a recorder on a bus address. To update it, connect it to a computer directly.</source>
         <translation>Этот сонар стоит за рекордером на адресе шины. Чтобы обновить его, подключите его к компьютеру напрямую.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5329"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5726"/>
         <source>Enter path</source>
         <translation>Введите путь</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5349"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5746"/>
         <source>UPGRADE</source>
         <translation>ПРОШИТЬ</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5299"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5696"/>
         <source>Please choose a file</source>
         <translation>Выберите файл</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5369"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5766"/>
         <source>Failed to open firmware file: %1</source>
         <translation>Не удалось открыть файл прошивки: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5363"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5760"/>
         <source>UPGRADE ALL ON THIS LINE</source>
         <translation>ПРОШИТЬ ВСЕ НА ЭТОЙ ЛИНИИ</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5364"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5761"/>
         <source>Every sonar sharing this line, one after another</source>
         <translation>Все сонары на этой линии, один за другим</translation>
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="215"/>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="219"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="856"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="857"/>
         <source>Settings written to device: %1</source>
         <translation>Настройки записаны в устройство: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4976"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5373"/>
         <source>Settings erased on device: %1</source>
         <translation>Настройки стёрты: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4982"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5379"/>
         <source>Reboot command sent: %1</source>
         <translation>Команда перезагрузки отправлена: %1</translation>
     </message>
@@ -7321,198 +7863,200 @@ udp://@:1234
         <translation>Скорость передачи установлена: %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1704"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2929"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1705"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2930"/>
         <source>On</source>
         <translation>Вкл</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1655"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1704"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2920"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2928"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3035"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3321"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4025"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4610"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4930"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1656"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1705"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2921"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2929"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3036"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3322"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4422"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5007"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5327"/>
         <source>Off</source>
         <translation>Выкл</translation>
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="544"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4902"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5299"/>
         <source>DSP</source>
         <translation>ЦОС</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1704"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1705"/>
         <source>NMEA</source>
         <translation>NMEA</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1655"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4930"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1656"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5327"/>
         <source>8-bit</source>
         <translation>8-бит</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1635"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1636"/>
         <source>Frequency, kHz</source>
         <translation>Частота, кГц</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1719"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1720"/>
         <source>Confidence threshold, %</source>
         <translation>Порог уверенности, %</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1574"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1575"/>
         <source>Period, ms</source>
         <translation>Период, мс</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5201"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5598"/>
         <source>Open settings file</source>
         <translation>Открыть файл настроек</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5214"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5611"/>
         <source>Save settings file</source>
         <translation>Сохранить файл настроек</translation>
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="545"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4914"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5311"/>
         <source>Dataset</source>
         <translation>Набор данных</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="979"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="980"/>
         <source> &amp; </source>
         <translation> и </translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1047"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1048"/>
         <source>Armed — waiting for data.</source>
         <translation>Готов — ожидание данных.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1256"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1392"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2514"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1257"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1393"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2515"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3783"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3869"/>
         <source>Cancel</source>
         <translation>Отмена</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="993"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2154"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2317"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="994"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2155"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2318"/>
         <source>Connecting…</source>
         <translation>Подключение…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1256"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1392"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1257"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1393"/>
         <source>Download</source>
         <translation>Скачать</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1288"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1425"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1289"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1426"/>
         <source>Downloading… %1%</source>
         <translation>Скачивание… %1%</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1474"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1475"/>
         <source>Downloads are saved to &quot;%1&quot;</source>
         <translation>Загрузки сохраняются в «%1»</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1243"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1378"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1244"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1379"/>
         <source>Saved &quot;%1&quot; to &quot;%2&quot;</source>
         <translation>Файл «%1» сохранён в «%2»</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1114"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1115"/>
         <source>Free space</source>
         <translation>Свободно</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1047"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1048"/>
         <source>Idle</source>
         <translation>Ожидание</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1185"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1186"/>
         <source>Logs (%1)</source>
         <translation>Логи (%1)</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="977"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1020"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1058"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="978"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1021"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1059"/>
         <source>Nav</source>
         <translation>Nav</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1013"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1014"/>
         <source>No data from %1 · nothing recorded for %2</source>
         <translation>Нет данных от %1 · ничего не записано %2</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="945"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="946"/>
         <source>h</source>
         <translation>ч</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="945"/>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="946"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="947"/>
         <source>m</source>
         <translation>м</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="940"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="946"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="941"/>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="947"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="948"/>
         <source>s</source>
         <translation>с</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1201"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1202"/>
         <source>No logs listed yet — tap Refresh to enumerate the recorder&apos;s archive.</source>
         <translation>Список логов пуст — нажмите «Обновить», чтобы получить архив рекордера.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="995"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="996"/>
         <source>No response</source>
         <translation>Нет ответа</translation>
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="67"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2992"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2993"/>
         <source>Boat link</source>
         <translation>Связь с лодкой</translation>
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="68"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4593"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4990"/>
         <source>Lines</source>
         <translation>Линии</translation>
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="69"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4250"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4253"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="5534"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4647"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4650"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5931"/>
         <source>Role</source>
         <translation>Роль</translation>
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="70"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="2152"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4258"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="2153"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4655"/>
         <source>Access point</source>
         <translation>Точка доступа</translation>
     </message>
@@ -7523,7 +8067,7 @@ udp://@:1234
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="72"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4995"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5392"/>
         <source>Network (USB)</source>
         <translation>Сеть (USB)</translation>
     </message>
@@ -7539,21 +8083,21 @@ udp://@:1234
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="82"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3520"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3917"/>
         <source>Port speed</source>
         <translation>Скорость порта</translation>
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="83"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3247"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="3248"/>
         <source>Radio</source>
         <translation>Радио</translation>
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="84"/>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="85"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4161"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4432"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4558"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4829"/>
         <source>Module address</source>
         <translation>Адрес модуля</translation>
     </message>
@@ -7564,7 +8108,7 @@ udp://@:1234
     </message>
     <message>
         <location filename="../qml/app/DeviceSettingsPage.qml" line="108"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3643"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4040"/>
         <source>nothing</source>
         <translation>ничего</translation>
     </message>
@@ -7599,205 +8143,205 @@ udp://@:1234
         <translation>Применено: %1. Настройки записаны в устройство: %2</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="818"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="819"/>
         <source>Hide password</source>
         <translation>Скрыть пароль</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="818"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="819"/>
         <source>Show password</source>
         <translation>Показать пароль</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="831"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="832"/>
         <source>Tap again</source>
         <translation>Нажмите ещё раз</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="996"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="997"/>
         <source>No update for %1 — showing last known.</source>
         <translation>Нет обновлений %1 — показаны последние данные.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1012"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1013"/>
         <source>Recording stopped</source>
         <translation>Запись остановлена</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1024"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1025"/>
         <source>%1 connected</source>
         <translation>%1 подключен</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1024"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1025"/>
         <source>%1 disconnected</source>
         <translation>%1 отключился</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1028"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1029"/>
         <source>Saving to log #%1 — %2</source>
         <translation>Идёт запись в лог #%1 — %2</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1029"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1030"/>
         <source>Saving — %1</source>
         <translation>Идёт запись — %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1014"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1015"/>
         <source>Nothing recorded for %1 — source silent.</source>
         <translation>Ничего не записано %1 — источник молчит.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1256"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1392"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1257"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1393"/>
         <source>Re-download</source>
         <translation>Скачать снова</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="885"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="886"/>
         <source>Recorder</source>
         <translation>Рекордер</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1048"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1049"/>
         <source>Recorder is coming up.</source>
         <translation>Рекордер запускается.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1027"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1044"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1028"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1045"/>
         <source>Recording</source>
         <translation>Запись</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1000"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1001"/>
         <source>Recording failed</source>
         <translation>Сбой записи</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1003"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1004"/>
         <source>Recording is disabled.</source>
         <translation>Запись отключена.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1003"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1004"/>
         <source>Recording off</source>
         <translation>Запись выключена</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1001"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1002"/>
         <source>Recording stopped — check the recorder.</source>
         <translation>Запись остановлена — проверьте рекордер.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1193"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1194"/>
         <source>Refresh</source>
         <translation>Обновить</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1289"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1426"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="3924"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1290"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1427"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="4321"/>
         <source>Saved</source>
         <translation>Сохранено</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1038"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1039"/>
         <source>Saving to log #%1 — %2 connected.</source>
         <translation>Идёт запись в лог #%1 — %2 подключен.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1037"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1038"/>
         <source>Saving to log #%1 — %2 are connected.</source>
         <translation>Идёт запись в лог #%1 — %2 подключены.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1039"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1040"/>
         <source>Saving to log #%1.</source>
         <translation>Идёт запись в лог #%1.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1042"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1043"/>
         <source>Saving — %1 connected.</source>
         <translation>Идёт запись — %1 подключен.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1041"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1042"/>
         <source>Saving — %1 are connected.</source>
         <translation>Идёт запись — %1 подключены.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1043"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1044"/>
         <source>Saving.</source>
         <translation>Идёт запись.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1048"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1049"/>
         <source>Starting…</source>
         <translation>Запуск…</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1000"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1001"/>
         <source>Storage lost</source>
         <translation>Накопитель потерян</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1154"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1155"/>
         <source>Values may be outdated.</source>
         <translation>Данные могут быть устаревшими.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="993"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="994"/>
         <source>Waiting for the recorder.</source>
         <translation>Ожидание рекордера.</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1145"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1146"/>
         <source>⚠ Dropping frames</source>
         <translation>⚠ Потеря кадров</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1056"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1057"/>
         <source>S1</source>
         <translation>S1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1057"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1058"/>
         <source>S2</source>
         <translation>S2</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="975"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1020"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1056"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="976"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1021"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1057"/>
         <source>Sonar 1</source>
         <translation>Сонар 1</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="976"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1020"/>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1057"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="977"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1021"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1058"/>
         <source>Sonar 2</source>
         <translation>Сонар 2</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1621"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1622"/>
         <source>Distance, m</source>
         <translation>Дистанция, м</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1682"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1683"/>
         <source>Resolution, cm</source>
         <translation>Разрешение, см</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4793"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5190"/>
         <source>Advanced settings</source>
         <translation>Расширенные настройки</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1552"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1553"/>
         <source>Not applied to the device</source>
         <translation>Не применено на устройстве</translation>
     </message>
@@ -7807,7 +8351,7 @@ udp://@:1234
         <translation>настройки группы &quot;%1&quot; не применены</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1775"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1776"/>
         <source>Favourites:</source>
         <translation>Избранное:</translation>
     </message>
@@ -7817,17 +8361,17 @@ udp://@:1234
         <translation>В избранном не больше %1 настроек</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4817"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5214"/>
         <source>Finish pinning settings</source>
         <translation>Завершить закрепление</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="4818"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="5215"/>
         <source>Pin settings to favourites</source>
         <translation>Закрепить настройки в избранном</translation>
     </message>
     <message>
-        <location filename="../qml/app/DeviceSettingsPage.qml" line="1792"/>
+        <location filename="../qml/app/DeviceSettingsPage.qml" line="1793"/>
         <source>Tap a star next to a setting to pin it here</source>
         <translation>Нажмите звезду рядом с настройкой, чтобы закрепить её здесь</translation>
     </message>
@@ -8945,42 +9489,42 @@ udp://@:1234
 <context>
     <name>FirmwareUpgradeSession</name>
     <message>
-        <location filename="../src/firmware_upgrade_session.cpp" line="49"/>
+        <location filename="../src/firmware_upgrade_session.cpp" line="50"/>
         <source>Failed to open firmware file: %1</source>
         <translation>Не удалось открыть файл прошивки: %1</translation>
     </message>
     <message>
-        <location filename="../src/firmware_upgrade_session.cpp" line="54"/>
+        <location filename="../src/firmware_upgrade_session.cpp" line="55"/>
         <source>No device to flash with file %1</source>
         <translation>Нет устройства для прошивки файлом %1</translation>
     </message>
     <message>
-        <location filename="../src/firmware_upgrade_session.cpp" line="116"/>
+        <location filename="../src/firmware_upgrade_session.cpp" line="117"/>
         <source>Flashing %1 with %2: waiting for the device</source>
         <translation>Прошивка %1 файлом %2: ожидание устройства</translation>
     </message>
     <message>
-        <location filename="../src/firmware_upgrade_session.cpp" line="121"/>
+        <location filename="../src/firmware_upgrade_session.cpp" line="122"/>
         <source>Flashing %1 with %2: %3%</source>
         <translation>Прошивка %1 файлом %2: %3%</translation>
     </message>
     <message>
-        <location filename="../src/firmware_upgrade_session.cpp" line="139"/>
+        <location filename="../src/firmware_upgrade_session.cpp" line="140"/>
         <source>Device %1 successfully flashed with file %2</source>
         <translation>Устройство %1 успешно прошито файлом %2</translation>
     </message>
     <message>
-        <location filename="../src/firmware_upgrade_session.cpp" line="143"/>
+        <location filename="../src/firmware_upgrade_session.cpp" line="144"/>
         <source>Flashing device %1 with file %2 interrupted: the device did not come back</source>
         <translation>Прошивка устройства %1 файлом %2 прервана: устройство не вернулось на связь</translation>
     </message>
     <message>
-        <location filename="../src/firmware_upgrade_session.cpp" line="147"/>
+        <location filename="../src/firmware_upgrade_session.cpp" line="148"/>
         <source>Device %1 did not start the firmware from file %2: it stayed in its bootloader</source>
         <translation>Устройство %1 не запустило прошивку из файла %2: оно осталось в загрузчике</translation>
     </message>
     <message>
-        <location filename="../src/firmware_upgrade_session.cpp" line="151"/>
+        <location filename="../src/firmware_upgrade_session.cpp" line="152"/>
         <source>Failed to flash device %1 with file %2 (error code %3)</source>
         <translation>Не удалось прошить устройство %1 файлом %2 (код ошибки: %3)</translation>
     </message>
@@ -17753,157 +18297,157 @@ udp://@:1234
         <translation>Адрес %1 на входе «Сонар %2», сейчас не виден</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="344"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="345"/>
         <source>No servo device</source>
         <translation>Нет устройства с серво</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="346"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="347"/>
         <source>On link %1</source>
         <translation>На линке %1</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="365"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="366"/>
         <source>Device</source>
         <translation>Устройство</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="380"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="381"/>
         <source>Control</source>
         <translation>Управление</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="383"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="384"/>
         <source>Enabled</source>
         <translation>Включено</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="400"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="401"/>
         <source>Manual</source>
         <translation>Ручной режим</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="401"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="402"/>
         <source>The firmware does not support manual mode</source>
         <translation>Прошивка не поддерживает ручной режим</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="403"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="404"/>
         <source>The servo holds the angle set with the knob; the scan waits until this is off.</source>
         <translation>Серво держит угол, заданный ручкой; скан ждёт, пока режим не выключат.</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="418"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="419"/>
         <source>Current angle</source>
         <translation>Текущий угол</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="467"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="468"/>
         <source>Angle, °</source>
         <translation>Угол, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="491"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="492"/>
         <source>Shift while dragging: finer. Wheel: 1°, with Ctrl: 0.1°.</source>
         <translation>Shift при перетаскивании — точнее. Колесо: 1°, с Ctrl: 0,1°.</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="500"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="501"/>
         <source>Reverse mapping</source>
         <translation>Инверсия</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="516"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="517"/>
         <source>Scan</source>
         <translation>Скан</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="520"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="521"/>
         <source>Waits while the servo is in manual mode.</source>
         <translation>Ждёт, пока серво в ручном режиме.</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="525"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="526"/>
         <source>Steps on</source>
         <translation>Шаг по</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="527"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="528"/>
         <source>Whose pings move the scan one step: any sonar on a Sonar A or Sonar B input of the recorder, or one sonar.</source>
         <translation>Чьи пинги двигают скан на шаг: любой сонар на входе «Сонар A» или «Сонар B» логгера или один выбранный сонар.</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="545"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="546"/>
         <source>Step, °</source>
         <translation>Шаг, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="563"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="564"/>
         <source>Scan range, °</source>
         <translation>Диапазон скана, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="578"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="579"/>
         <source>Center, °</source>
         <translation>Центр, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="597"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="598"/>
         <source>More settings</source>
         <translation>Ещё настройки</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="609"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="610"/>
         <source>Calibration</source>
         <translation>Калибровка</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="615"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="616"/>
         <source>PWM min, µs</source>
         <translation>PWM min, мкс</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="631"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="632"/>
         <source>PWM max, µs</source>
         <translation>PWM max, мкс</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="650"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="651"/>
         <source>PWM frequency, Hz</source>
         <translation>Частота ШИМ, Гц</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="651"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="652"/>
         <source>Period %1 µs, the pulse must be shorter. With PWM max %2 µs: up to %3 Hz.</source>
         <translation>Период %1 мкс, импульс должен быть короче. При ШИМ макс. %2 мкс: до %3 Гц.</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="653"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="654"/>
         <source>Analog servos run at 50 Hz, digital ones usually up to 333 Hz. Higher frequencies suit only servos with a narrow pulse, shorter than the period.</source>
         <translation>Аналоговые сервоприводы работают на 50 Гц, цифровые обычно до 333 Гц. Более высокая частота подходит только сервоприводам с узким импульсом, короче периода.</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="670"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="671"/>
         <source>Servo angle range, °</source>
         <translation>Ход серво, °</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="685"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="686"/>
         <source>PWM routing</source>
         <translation>Маршрутизация PWM</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="691"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="692"/>
         <source>OUT1 (wired)</source>
         <translation>OUT1 (распаян)</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="707"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="708"/>
         <source>OUT2</source>
         <translation>OUT2</translation>
     </message>
     <message>
-        <location filename="../qml/app/ServoPanelBody.qml" line="723"/>
+        <location filename="../qml/app/ServoPanelBody.qml" line="724"/>
         <source>OUT3</source>
         <translation>OUT3</translation>
     </message>
@@ -18107,203 +18651,203 @@ udp://@:1234
 <context>
     <name>SonarQaCheck</name>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="384"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="384"/>
         <source>with 0 pulses the ringing drops by %1 dB (it must drop by %2 dB or more)</source>
         <translation>при 0 импульсов «звон» падает на %1 дБ (должен падать на %2 дБ и больше)</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="386"/>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="705"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="386"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="705"/>
         <source>: the transmitter keeps sending, the noise is not measured</source>
         <translation>: передатчик продолжает излучать, шум не измерен</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="393"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="393"/>
         <source>a clear reflection (%1 dB over the floor) at %2 of %3 frequencies: only these are compared</source>
         <translation>ясное отражение (на %1 дБ над фоном) на %2 из %3 частот: сравниваются только они</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="396"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="396"/>
         <source>no reflection %1 dB over the floor at any frequency: the target is not seen, reflections will not be compared</source>
         <translation>ни на одной частоте нет отражения на %1 дБ над фоном: цель не видна, отражения сравниваться не будут</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="401"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="401"/>
         <source>%1 V (from %2 to %3 V during the run)</source>
         <translation>%1 В (за прогон от %2 до %3 В)</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="403"/>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="865"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="403"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="865"/>
         <source>the sonar sent no supply readings</source>
         <translation>сонар не присылал напряжение питания</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="407"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="407"/>
         <source>%1 °C (from %2 to %3 °C during the run)</source>
         <translation>%1 °C (за прогон от %2 до %3 °C)</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="410"/>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="882"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="410"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="882"/>
         <source>the sonar sent no temperature readings</source>
         <translation>сонар не присылал температуру</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="668"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="668"/>
         <source>now</source>
         <translation>сейчас</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="668"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="668"/>
         <source>this sonar</source>
         <translation>этот сонар</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="669"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="669"/>
         <source>baseline</source>
         <translation>база</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="669"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="669"/>
         <source>reference</source>
         <translation>эталон</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="671"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="671"/>
         <source>%1 %2, %3 %4</source>
         <translation>%1 — %2, %3 — %4</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="683"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="683"/>
         <source>frequencies: %1; sides: %2</source>
         <translation>частот: %1; бортов: %2</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="701"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="701"/>
         <source>with 0 pulses the ringing drops by: %1 (it must drop by %2 dB or more)</source>
         <translation>при 0 импульсов «звон» падает: %1 (должен падать на %2 дБ и больше)</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="702"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="702"/>
         <source>%1 dB</source>
         <translation>%1 дБ</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="704"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="704"/>
         <source>: this sonar keeps transmitting at 0 pulses</source>
         <translation>: этот сонар продолжает излучать при 0 импульсов</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="733"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="733"/>
         <source>how much the reflection differs on average over %1 frequencies, %2 to %3 kHz (where the reflection is strongest); allowed %4 dB</source>
         <translation>насколько отражение отличается в среднем по %1 частотам от %2 до %3 кГц (где отражение сильнее всего); допуск %4 дБ</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="738"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="738"/>
         <source>the largest difference, at %1 kHz: %2 (2.5 codes = 1 dB); allowed %3 dB</source>
         <translation>наибольшее отличие, на %1 кГц: %2 (2,5 кода = 1 дБ); допуск %3 дБ</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="740"/>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="741"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="740"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="741"/>
         <source>%1 codes</source>
         <translation>%1 кодов</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="750"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="750"/>
         <source>the response (reflection against frequency) matches the %1&apos;s best when shifted by %2 kHz; allowed ±%3 kHz. Strongest reflection: %4</source>
         <translation>кривая отклика (отражение по частоте) лучше всего совпадает с кривой «%1» при сдвиге на %2 кГц; допуск ±%3 кГц. Сильнейшее отражение: %4</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="753"/>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="761"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="753"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="761"/>
         <source>%1 kHz</source>
         <translation>%1 кГц</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="759"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="759"/>
         <source>frequencies within %1 dB of the strongest reflection: %2; allowed %3 to %4 times the %5&apos;s</source>
         <translation>частоты в пределах %1 дБ от сильнейшего отражения: %2; допуск от %3 до %4 от значения «%5»</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="765"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="765"/>
         <source>the %1 shows no reflection %2 dB over the floor: reflections are not compared (the target is not seen: too close, too small or inside the ringing)</source>
         <translation>«%1»: нет отражения на %2 дБ над фоном, отражения не сравниваются (цель не видна: слишком близко, слишком мала или внутри «звона»)</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="777"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="777"/>
         <source>noise with the transmitter off, mean over %1 frequencies: %2 louder than the %3 by %4 dB (minus: quieter); allowed up to %5 dB louder</source>
         <translation>шум с выключенным передатчиком, в среднем по %1 частотам: «%2» громче, чем «%3», на %4 дБ (минус — тише); допуск до %5 дБ громче</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="782"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="782"/>
         <source>not measured: with 0 pulses the transmitter keeps sending</source>
         <translation>не измерен: при 0 импульсов передатчик продолжает излучать</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="807"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="807"/>
         <source>length of the ringing after the burst: %1; allowed up to %2 samples</source>
         <translation>длина «звона» после посылки: %1; допуск до %2 сэмплов</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="808"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="808"/>
         <source>%1 samples</source>
         <translation>%1 сэмплов</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="814"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="814"/>
         <source>the reflection is where the %1&apos;s is (off by %2 samples, allowed %3)</source>
         <translation>отражение на том же месте, что у «%1» (сдвиг %2 сэмплов, допуск %3)</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="816"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="816"/>
         <source>the reflection is %1 samples off the %2&apos;s: the sonar sits otherwise on the stand</source>
         <translation>отражение сдвинуто на %1 сэмплов против «%2»: сонар стоит на стенде иначе</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="820"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="820"/>
         <source>the reflection at full scale (255) at %1 of %2 frequencies</source>
         <translation>отражение в насыщении (255) на %1 из %2 частот</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="842"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="842"/>
         <source>side 1 against side 2: the difference between them changed by %1 dB against the %2&apos;s, over %3 frequencies; allowed %4 dB</source>
         <translation>борт 1 против борта 2: разница между ними изменилась на %1 дБ против «%2», по %3 частотам; допуск %4 дБ</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="853"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="853"/>
         <source>supply: %1 (from %2 to %3 V during the run); allowed ±%4 V</source>
         <translation>питание: %1 (за прогон от %2 до %3 В); допуск ±%4 В</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="854"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="854"/>
         <source>%1 V</source>
         <translation>%1 В</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="857"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="857"/>
         <source>. The reading itself moves by up to %1 V within a run, more than allowed: only a warning</source>
         <translation>. Само показание за прогон гуляет до %1 В, больше допуска: только предупреждение</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="863"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="863"/>
         <source>%1 V; the %2 has no supply readings to compare with</source>
         <translation>%1 В; у «%2» нет напряжения питания для сравнения</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="870"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="870"/>
         <source>%1 °C (from %2 to %3 °C during the run); allowed %4 to %5 °C</source>
         <translation>%1 °C (за прогон от %2 до %3 °C); допуск от %4 до %5 °C</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="876"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="876"/>
         <source>%1; more than %2 °C apart is a warning</source>
         <translation>%1; разница больше %2 °C — предупреждение</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="877"/>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_analysis.cpp" line="878"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="877"/>
+        <location filename="../src/sonar_qa/sonar_qa_analysis.cpp" line="878"/>
         <source>%1 °C</source>
         <translation>%1 °C</translation>
     </message>
@@ -18311,122 +18855,122 @@ udp://@:1234
 <context>
     <name>SonarQaRunner</name>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="54"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="54"/>
         <source>No echogram from the sonar for %1 s</source>
         <translation>Эхограмма от сонара не приходит %1 с</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="106"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="106"/>
         <source>The sonar went away</source>
         <translation>Сонар отключился</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="321"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="321"/>
         <source>A run is going on</source>
         <translation>Идёт прогон</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="324"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="324"/>
         <source>No sonar selected</source>
         <translation>Сонар не выбран</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="329"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="329"/>
         <source>The sonar has not answered yet</source>
         <translation>Сонар ещё не ответил</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="329"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="329"/>
         <source>Not a nanoSSS (board %1)</source>
         <translation>Это не nanoSSS (плата %1)</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="339"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="339"/>
         <source>No reference yet: make the baseline on the reference sonar first</source>
         <translation>Эталона ещё нет: сначала сделайте базу на эталонном сонаре</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="343"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="343"/>
         <source>This is not the reference sonar (that is serial %1)</source>
         <translation>Это не эталонный сонар (эталон — серийный %1)</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="347"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="347"/>
         <source>Unknown run</source>
         <translation>Неизвестный прогон</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="333"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="333"/>
         <source>The sonar has not reported its serial number: type the one from its sticker</source>
         <translation>Сонар не сообщил серийный номер: впишите номер с его наклейки</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="350"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="350"/>
         <source>This is the reference sonar&apos;s number: run its check, or type this sonar&apos;s number from its sticker</source>
         <translation>Это номер эталонного сонара: запустите его поверку или впишите номер этого сонара с его наклейки</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="353"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="353"/>
         <source>The sonar reports the same number as the reference (%1): type the number from its sticker</source>
         <translation>Сонар сообщает тот же номер, что эталон (%1): впишите номер с его наклейки</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="357"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="357"/>
         <source>The reference&apos;s last check moved away from its baseline: look at the stand, check the reference again or accept the check</source>
         <translation>Последняя поверка эталона отошла от его базы: проверьте стенд, поверьте эталон снова или примите поверку</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="361"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="361"/>
         <source>%1 sonars tested since the reference&apos;s check: check the reference again</source>
         <translation>После поверки эталона проверено сонаров: %1 — поверьте эталон снова</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="367"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="367"/>
         <source>The reference&apos;s check cannot be read: %1</source>
         <translation>Поверку эталона не прочитать: %1</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="371"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="371"/>
         <source>Firmware %1, the reference has %2: load the same firmware</source>
         <translation>Прошивка %1, у эталона %2: залейте ту же прошивку</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="408"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="408"/>
         <source>The reference run cannot be read: %1</source>
         <translation>Прогон эталона не прочитать: %1</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="439"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="439"/>
         <source>Setting the sonar up</source>
         <translation>Настройка сонара</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="448"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="448"/>
         <source>Stopped</source>
         <translation>Остановлено</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="480"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="480"/>
         <source>The sonar gives %1 samples a side, the reference %2</source>
         <translation>Сонар даёт %1 сэмплов на борт, эталон — %2</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="564"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="564"/>
         <source>%1 kHz, %2 pulses</source>
         <translation>%1 кГц, %2 импульсов</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="565"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="565"/>
         <source>%1 kHz, transmitter off</source>
         <translation>%1 кГц, передатчик выключен</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="656"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="656"/>
         <source>Saved: %1</source>
         <translation>Сохранено: %1</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/src/sonar_qa/sonar_qa_runner.cpp" line="656"/>
+        <location filename="../src/sonar_qa/sonar_qa_runner.cpp" line="656"/>
         <source>Not saved: %1</source>
         <translation>Не сохранено: %1</translation>
     </message>
@@ -18434,538 +18978,538 @@ udp://@:1234
 <context>
     <name>SonarQaWindow</name>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="11"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="11"/>
         <source>Sonar acceptance: nanoSSS</source>
         <translation>Проверка сонаров: nanoSSS</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="40"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="40"/>
         <source>%1 min %2 s</source>
         <translation>%1 мин %2 с</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="40"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="40"/>
         <source>%1 s</source>
         <translation>%1 с</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="43"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="43"/>
         <source>Same sweep as the reference</source>
         <translation>Та же развёртка, что у эталона</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="44"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="44"/>
         <source>Reflection in the band, mean</source>
         <translation>Отражение в полосе, среднее</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="45"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="45"/>
         <source>Reflection in the band, worst</source>
         <translation>Отражение в полосе, худшее</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="46"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="46"/>
         <source>Resonance</source>
         <translation>Резонанс</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="47"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="47"/>
         <source>Bandwidth</source>
         <translation>Полоса</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="48"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="48"/>
         <source>Noise, transmitter off</source>
         <translation>Шум, передатчик выключен</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="49"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="49"/>
         <source>Ringing after the burst</source>
         <translation>Звон после посылки</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="50"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="50"/>
         <source>Target position (placement)</source>
         <translation>Положение цели (установка)</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="51"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="51"/>
         <source>Saturation</source>
         <translation>Насыщение</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="52"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="52"/>
         <source>Balance of the sides</source>
         <translation>Баланс бортов</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="53"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="53"/>
         <source>Supply</source>
         <translation>Питание</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="54"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="54"/>
         <source>Temperature</source>
         <translation>Температура</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="55"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="55"/>
         <source>Temperature against the reference</source>
         <translation>Температура против эталона</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="56"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="56"/>
         <source>Transmitter off at 0 pulses</source>
         <translation>Передатчик выключен при 0 импульсов</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="57"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="57"/>
         <source>Reflection seen</source>
         <translation>Отражение видно</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="63"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="63"/>
         <source>PASSED</source>
         <translation>ГОДЕН</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="64"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="64"/>
         <source>FAILED</source>
         <translation>БРАК</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="65"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="65"/>
         <source>REFERENCE SET</source>
         <translation>ЭТАЛОН ЗАДАН</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="66"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="66"/>
         <source>REFERENCE CHECKED</source>
         <translation>ЭТАЛОН ПОВЕРЕН</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="67"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="67"/>
         <source>REFERENCE MOVED AWAY FROM ITS BASELINE</source>
         <translation>ЭТАЛОН ОТОШЁЛ ОТ СВОЕЙ БАЗЫ</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="145"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="145"/>
         <source>Sonar on the stand</source>
         <translation>Сонар на стенде</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="147"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="147"/>
         <source>Sonar</source>
         <translation>Сонар</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="149"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="149"/>
         <source>serial %1 · firmware %2 · board %3</source>
         <translation>серийный %1 · прошивка %2 · плата %3</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="150"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="150"/>
         <source> · the reference</source>
         <translation> · эталон</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="151"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="151"/>
         <source>No nanoSSS connected</source>
         <translation>nanoSSS не подключён</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="163"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="163"/>
         <source>Number from the sticker</source>
         <translation>Номер с наклейки</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="164"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="164"/>
         <source>Empty: the number the sonar reports. Some firmware reports one number for every sonar: then type each sonar&apos;s own.</source>
         <translation>Пусто — номер, который сообщает сонар. Некоторые прошивки сообщают один номер для всех сонаров: тогда впишите собственный номер каждого.</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="177"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="177"/>
         <source>Simulated sonar</source>
         <translation>Имитатор сонара</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="178"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="178"/>
         <source>KOGGER_SONARQA_DEMO: a sonar in a tank, to try the window without a stand</source>
         <translation>KOGGER_SONARQA_DEMO: сонар в баке, чтобы опробовать окно без стенда</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="182"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="182"/>
         <source>Reference 1001</source>
         <translation>Эталон 1001</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="183"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="183"/>
         <source>Good 2001</source>
         <translation>Исправный 2001</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="184"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="184"/>
         <source>Weak 2002</source>
         <translation>Слабый 2002</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="191"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="191"/>
         <source>Test</source>
         <translation>Проверка</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="193"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="193"/>
         <source>Sonar under test</source>
         <translation>Проверяемый сонар</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="195"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="195"/>
         <source>The same sweep and settings as the reference&apos;s check; the result is saved by serial number</source>
         <translation>Та же развёртка и настройки, что у поверки эталона; результат сохраняется по серийному номеру</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="200"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="200"/>
         <source>Test this sonar</source>
         <translation>Проверить этот сонар</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="210"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="210"/>
         <source>Run in progress</source>
         <translation>Идёт прогон</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="210"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="210"/>
         <source>Last run</source>
         <translation>Последний прогон</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="226"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="226"/>
         <source>about %1 left</source>
         <translation>осталось около %1</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="230"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="230"/>
         <source>Stop</source>
         <translation>Стоп</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="244"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="244"/>
         <source>Supply %1 V · temperature %2 °C</source>
         <translation>Питание %1 В · температура %2 °C</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="288"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="288"/>
         <source>Result</source>
         <translation>Итог</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="306"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="306"/>
         <source>warnings: %1</source>
         <translation>предупреждений: %1</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="312"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="312"/>
         <source>Serial %1 · firmware %2 · %3</source>
         <translation>Серийный %1 · прошивка %2 · %3</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="313"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="313"/>
         <source>Saved: %1</source>
         <translation>Сохранено: %1</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="313"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="313"/>
         <source>Not saved: %1</source>
         <translation>Не сохранено: %1</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="318"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="318"/>
         <source>Each line: what is checked · the figure (how far from the baseline) · the numbers behind it: &quot;now&quot; is this run of the reference, &quot;baseline&quot; its first run.</source>
         <translation>В каждой строке: что проверяется · число (насколько отличается от базы) · откуда оно: «сейчас» — этот прогон эталона, «база» — его первый прогон.</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="320"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="320"/>
         <source>Each line: what the reference&apos;s own run shows. Warnings here do not stop anything, but say what will not be compared.</source>
         <translation>В каждой строке — что показал сам прогон эталона. Предупреждения здесь ничего не останавливают, но говорят, что не будет сравниваться.</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="321"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="321"/>
         <source>Each line: what is checked · the figure (how far from the reference) · the numbers behind it: &quot;this sonar&quot; against &quot;reference&quot; (its latest check).</source>
         <translation>В каждой строке: что проверяется · число (насколько отличается от эталона) · откуда оно: «этот сонар» против «эталон» (его последняя поверка).</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="327"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="327"/>
         <source>Check</source>
         <translation>Проверка</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="329"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="329"/>
         <source>Difference</source>
         <translation>Отличие</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="331"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="331"/>
         <source>What the numbers are</source>
         <translation>Что означают числа</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="75"/>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="354"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="75"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="354"/>
         <source>, side %1</source>
         <translation>, борт %1</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="376"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="376"/>
         <source>Side 1</source>
         <translation>Борт 1</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="377"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="377"/>
         <source>Side 2</source>
         <translation>Борт 2</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="380"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="380"/>
         <source>Reflection where the reference has it, codes (2.5 a dB)</source>
         <translation>Отражение там, где оно у эталона, коды (2,5 на дБ)</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="381"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="381"/>
         <source>Noise with the transmitter off, codes</source>
         <translation>Шум без излучения, коды</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="382"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="382"/>
         <source>Ringing after the burst, samples</source>
         <translation>Звон после посылки, сэмплы</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="387"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="387"/>
         <source>this sonar</source>
         <translation>этот сонар</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="387"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="387"/>
         <source>reference (dashed)</source>
         <translation>эталон (пунктир)</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="455"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="455"/>
         <source>Reference sonar</source>
         <translation>Эталонный сонар</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="457"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="457"/>
         <source>Reference</source>
         <translation>Эталон</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="459"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="459"/>
         <source>serial %1 · baseline %2</source>
         <translation>серийный %1 · база %2</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="460"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="460"/>
         <source>Not set: connect the reference sonar and make its baseline</source>
         <translation>Не задан: подключите эталонный сонар и сделайте его базу</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="465"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="465"/>
         <source>Last check</source>
         <translation>Последняя поверка</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="467"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="467"/>
         <source>agrees with the baseline</source>
         <translation>совпадает с базой</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="467"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="467"/>
         <source>moved away from the baseline</source>
         <translation>отошла от базы</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="474"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="474"/>
         <source>Sonars left until the next check</source>
         <translation>Сонаров до следующей поверки</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="475"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="475"/>
         <source>%1 of %2</source>
         <translation>%1 из %2</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="479"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="479"/>
         <source>Runs of the reference</source>
         <translation>Прогоны эталона</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="488"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="488"/>
         <source>Check the reference</source>
         <translation>Поверить эталон</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="494"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="494"/>
         <source>Make the baseline</source>
         <translation>Сделать базу</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="506"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="506"/>
         <source>Accept the check</source>
         <translation>Принять поверку</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="515"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="515"/>
         <source>Replace the reference (serial %1) and its baseline with this sonar?</source>
         <translation>Заменить эталон (серийный %1) и его базу этим сонаром?</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="518"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="518"/>
         <source>Replace</source>
         <translation>Заменить</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="520"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="520"/>
         <source>Cancel</source>
         <translation>Отмена</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="529"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="529"/>
         <source>Sweep and limits</source>
         <translation>Развёртка и допуски</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="531"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="531"/>
         <source>Sweep</source>
         <translation>Развёртка</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="532"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="532"/>
         <source>Used by the next baseline; checks and tests take the baseline&apos;s. Samples count both sides of a nanoSSS (2000 = 1000 a side). Above 30 pulses the firmware switches to chirp.</source>
         <translation>Берётся при следующей базе; поверки и проверки берут развёртку базы. Сэмплы считают оба борта nanoSSS (2000 = по 1000 на борт). Свыше 30 импульсов прошивка переходит на ЛЧМ.</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="538"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="538"/>
         <source>From, kHz</source>
         <translation>От, кГц</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="539"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="539"/>
         <source>To, kHz</source>
         <translation>До, кГц</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="540"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="540"/>
         <source>Step, kHz</source>
         <translation>Шаг, кГц</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="541"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="541"/>
         <source>Pings a step</source>
         <translation>Пингов на шаг</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="542"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="542"/>
         <source>Quiet pings a step</source>
         <translation>Тихих пингов на шаг</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="543"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="543"/>
         <source>Dropped after a change</source>
         <translation>Отбросить после смены</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="544"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="544"/>
         <source>Period, ms</source>
         <translation>Период, мс</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="545"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="545"/>
         <source>Samples</source>
         <translation>Сэмплы</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="546"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="546"/>
         <source>Pulses</source>
         <translation>Импульсы</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="547"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="547"/>
         <source>Reflection over the floor, dB</source>
         <translation>Отражение над фоном, дБ</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="548"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="548"/>
         <source>Sonars a check</source>
         <translation>Сонаров на поверку</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="569"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="569"/>
         <source>Limits</source>
         <translation>Допуски</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="570"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="570"/>
         <source>Starting values: set them from the spread of the reference and of known-good sonars on this stand.</source>
         <translation>Стартовые значения: задайте их по разбросу эталона и заведомо исправных сонаров на этом стенде.</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="576"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="576"/>
         <source>Reflection mean, dB</source>
         <translation>Отражение, среднее, дБ</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="577"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="577"/>
         <source>Reflection worst, dB</source>
         <translation>Отражение, худшее, дБ</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="578"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="578"/>
         <source>Resonance shift, kHz</source>
         <translation>Сдвиг резонанса, кГц</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="579"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="579"/>
         <source>Noise above, dB</source>
         <translation>Шум выше, дБ</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="580"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="580"/>
         <source>Ringing, times</source>
         <translation>Звон, раз</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="581"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="581"/>
         <source>Balance, dB</source>
         <translation>Баланс, дБ</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="582"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="582"/>
         <source>Supply, V</source>
         <translation>Питание, В</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="604"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="604"/>
         <source>The owner&apos;s sweep and the starting limits</source>
         <translation>Развёртка владельца и стартовые допуски</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="605"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="605"/>
         <source>Reset</source>
         <translation>Сбросить</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="611"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="611"/>
         <source>Journal</source>
         <translation>Журнал</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="613"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="613"/>
         <source>Results folder</source>
         <translation>Папка результатов</translation>
     </message>
     <message>
-        <location filename="D:/Temp/ka_sonarqa/qml/app/SonarQaWindow.qml" line="616"/>
+        <location filename="../qml/app/SonarQaWindow.qml" line="616"/>
         <source>Open folder</source>
         <translation>Открыть папку</translation>
     </message>
@@ -21242,6 +21786,206 @@ udp://@:1234
         <location filename="../qml/app/WidgetSizeStep.qml" line="20"/>
         <source>Choose the panel grid size. You will place widgets on the next step.</source>
         <translation>Выберите размер сетки панели. Виджеты разместите на следующем шаге.</translation>
+    </message>
+</context>
+<context>
+    <name>WifiProfile</name>
+    <message>
+        <location filename="../src/device/wifi_profile.cpp" line="554"/>
+        <source>the access point&apos;s password: 8 to 63 characters</source>
+        <translation>пароль точки доступа: от 8 до 63 символов</translation>
+    </message>
+    <message>
+        <location filename="../src/device/wifi_profile.cpp" line="556"/>
+        <source>more than %1 networks</source>
+        <translation>сетей больше %1</translation>
+    </message>
+    <message>
+        <location filename="../src/device/wifi_profile.cpp" line="564"/>
+        <source>network &quot;%1&quot;: a password is needed</source>
+        <translation>сеть «%1»: нужен пароль</translation>
+    </message>
+    <message>
+        <location filename="../src/device/wifi_profile.cpp" line="566"/>
+        <source>network &quot;%1&quot;: a password is 8 to 63 characters or 64 hex digits</source>
+        <translation>сеть «%1»: пароль — от 8 до 63 символов или 64 шестнадцатеричные цифры</translation>
+    </message>
+    <message>
+        <location filename="../src/device/wifi_profile.cpp" line="569"/>
+        <source>network &quot;%1&quot; is listed twice</source>
+        <translation>сеть «%1» указана дважды</translation>
+    </message>
+    <message>
+        <location filename="../src/device/wifi_profile.cpp" line="888"/>
+        <source>access point</source>
+        <translation>точка доступа</translation>
+    </message>
+    <message>
+        <location filename="../src/device/wifi_profile.cpp" line="888"/>
+        <source>station</source>
+        <translation>станция</translation>
+    </message>
+    <message>
+        <location filename="../src/device/wifi_profile.cpp" line="893"/>
+        <source>open</source>
+        <translation>открытая</translation>
+    </message>
+    <message>
+        <location filename="../src/device/wifi_profile.cpp" line="895"/>
+        <source>%1 · channel %2 · %3 · up to %4 clients</source>
+        <translation>%1 · канал %2 · %3 · до %4 клиентов</translation>
+    </message>
+    <message>
+        <location filename="../src/device/wifi_profile.cpp" line="897"/>
+        <source> · hidden</source>
+        <translation> · скрытая</translation>
+    </message>
+    <message>
+        <location filename="../src/device/wifi_profile.cpp" line="906"/>
+        <source>none</source>
+        <translation>нет</translation>
+    </message>
+    <message>
+        <location filename="../src/device/wifi_profile.cpp" line="913"/>
+        <source>off</source>
+        <translation>выключена</translation>
+    </message>
+    <message>
+        <location filename="../src/device/wifi_profile.cpp" line="915"/>
+        <source>senders</source>
+        <translation>отправителям</translation>
+    </message>
+    <message>
+        <location filename="../src/device/wifi_profile.cpp" line="916"/>
+        <source>broadcast</source>
+        <translation>всем (широковещательно)</translation>
+    </message>
+    <message>
+        <location filename="../src/device/wifi_profile.cpp" line="917"/>
+        <source>UDP to %1:%2, own port %3</source>
+        <translation>UDP на %1:%2, свой порт %3</translation>
+    </message>
+    <message>
+        <location filename="../src/device/wifi_profile.cpp" line="920"/>
+        <source>TCP to %1:%2</source>
+        <translation>TCP на %1:%2</translation>
+    </message>
+    <message>
+        <location filename="../src/device/wifi_profile.cpp" line="922"/>
+        <source>mode %1</source>
+        <translation>режим %1</translation>
+    </message>
+    <message>
+        <location filename="../src/device/wifi_profile.cpp" line="928"/>
+        <source>%1 · TX %2, RX %3</source>
+        <translation>%1 · TX %2, RX %3</translation>
+    </message>
+    <message>
+        <location filename="../src/device/wifi_profile.cpp" line="942"/>
+        <source>power save off</source>
+        <translation>без энергосбережения</translation>
+    </message>
+    <message>
+        <location filename="../src/device/wifi_profile.cpp" line="942"/>
+        <source>power save min</source>
+        <translation>энергосбережение мин.</translation>
+    </message>
+    <message>
+        <location filename="../src/device/wifi_profile.cpp" line="943"/>
+        <source>power save max</source>
+        <translation>энергосбережение макс.</translation>
+    </message>
+    <message>
+        <location filename="../src/device/wifi_profile.cpp" line="946"/>
+        <source>%1 dBm · %2 · %3 MHz · %4</source>
+        <translation>%1 дБм · %2 · %3 МГц · %4</translation>
+    </message>
+    <message>
+        <location filename="../src/device/wifi_profile.cpp" line="956"/>
+        <source> · DHCP %1–%2, %3 min</source>
+        <translation> · DHCP %1–%2, %3 мин</translation>
+    </message>
+    <message>
+        <location filename="../src/device/wifi_profile.cpp" line="958"/>
+        <source> · no DHCP</source>
+        <translation> · без DHCP</translation>
+    </message>
+    <message>
+        <location filename="../src/device/wifi_profile.cpp" line="960"/>
+        <source> · offers a gateway</source>
+        <translation> · раздаёт шлюз</translation>
+    </message>
+    <message>
+        <location filename="../src/device/wifi_profile.cpp" line="962"/>
+        <source> · offers DNS</source>
+        <translation> · раздаёт DNS</translation>
+    </message>
+    <message>
+        <location filename="../src/device/wifi_profile.cpp" line="974"/>
+        <source>Role</source>
+        <translation>Роль</translation>
+    </message>
+    <message>
+        <location filename="../src/device/wifi_profile.cpp" line="976"/>
+        <source>Access point network</source>
+        <translation>Сеть точки доступа</translation>
+    </message>
+    <message>
+        <location filename="../src/device/wifi_profile.cpp" line="978"/>
+        <source>Station networks</source>
+        <translation>Сети станции</translation>
+    </message>
+    <message>
+        <location filename="../src/device/wifi_profile.cpp" line="980"/>
+        <source>Own address</source>
+        <translation>Свой адрес</translation>
+    </message>
+    <message>
+        <location filename="../src/device/wifi_profile.cpp" line="982"/>
+        <source>X1 rate</source>
+        <translation>Скорость X1</translation>
+    </message>
+    <message>
+        <location filename="../src/device/wifi_profile.cpp" line="984"/>
+        <source>X2 rate</source>
+        <translation>Скорость X2</translation>
+    </message>
+    <message>
+        <location filename="../src/device/wifi_profile.cpp" line="986"/>
+        <source>X1 line</source>
+        <translation>Линия X1</translation>
+    </message>
+    <message>
+        <location filename="../src/device/wifi_profile.cpp" line="988"/>
+        <source>X2 line</source>
+        <translation>Линия X2</translation>
+    </message>
+    <message>
+        <location filename="../src/device/wifi_profile.cpp" line="990"/>
+        <source>X2 input</source>
+        <translation>Вход X2</translation>
+    </message>
+    <message>
+        <location filename="../src/device/wifi_profile.cpp" line="990"/>
+        <location filename="../src/device/wifi_profile.cpp" line="991"/>
+        <source>GODIO telemetry translator</source>
+        <translation>переводчик телеметрии GODIO</translation>
+    </message>
+    <message>
+        <location filename="../src/device/wifi_profile.cpp" line="990"/>
+        <location filename="../src/device/wifi_profile.cpp" line="991"/>
+        <source>as received</source>
+        <translation>как есть</translation>
+    </message>
+    <message>
+        <location filename="../src/device/wifi_profile.cpp" line="993"/>
+        <source>Radio</source>
+        <translation>Радио</translation>
+    </message>
+    <message>
+        <location filename="../src/device/wifi_profile.cpp" line="995"/>
+        <source>Address and DHCP</source>
+        <translation>Адрес и DHCP</translation>
     </message>
 </context>
 <context>
