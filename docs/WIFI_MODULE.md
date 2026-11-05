@@ -618,8 +618,9 @@ changed since. Contract: the module project's docs/SBP_WIFI.md 3г (contract 12;
   Python's `round()` there. `problems()` refuses before sending what the module would: the access point's password 8..63
   bytes unless it is open (the profile does not keep the old one, unlike `ID_WIFI_NET` v1), a network's password empty,
   8..63 bytes or 64 hex digits, a network name twice, more than 8 networks.
-- **Where profiles come from** (`WifiProfileStore`): three built in, the module project's presets (its commit 98857f8)
-  **without their passwords** ("Бошка": station, 87, X1 2 000 000, networks KoggerBoat and KoggerBridge marked secure;
+- **Where profiles come from** (`WifiProfileStore`): three built in, the module project's presets (its commit 0a52275;
+  until 2026-11-05 98857f8, where "Бошка" had 15 dBm) **without their passwords** (all three 20 dBm; "Бошка": station,
+  87, X1 2 000 000, networks KoggerBoat and KoggerBridge marked secure;
   "Лодка Kogger": access point KoggerBoat channel 10, 88, X1 5 000 000; "Лодка GODIO": access point KoggerBridge channel 6,
   88, X1 921 600, X2 9600 into the GODIO telemetry translator). Passwords are never in the repository or the installer:
   they are typed when loading, or kept in the user's own files (`<app data>/wifi_profiles/*.json`, on Windows

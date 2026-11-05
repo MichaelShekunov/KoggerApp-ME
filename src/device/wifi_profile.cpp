@@ -1009,10 +1009,10 @@ QString& folderOverride()
     return path;
 }
 
-// The module project's presets (profiles/*.json, its commit 98857f8) without their passwords; "secure" marks the
+// The module project's presets (profiles/*.json, its commit 0a52275) without their passwords; "secure" marks the
 // networks whose password has to be typed. The names are Cyrillic: escaped for the JSON reader.
 const char kHeadUnit[] = R"({"name": "Бошка", "role": "sta", "address": 87, "x1_baud": 2000000,
- "radio": {"power_dbm": 15, "mode": "bgn", "bw": 20, "ps": "none"},
+ "radio": {"power_dbm": 20, "mode": "bgn", "bw": 20, "ps": "none"},
  "ap": {"ssid": "KoggerBridge", "password": "", "channel": 6, "auth": "wpa2", "hidden": false, "max_clients": 4},
  "ip": {"ip": "10.0.0.10", "mask": "255.255.255.0", "dhcp": true, "pool_start": "10.0.0.11", "pool_end": "10.0.0.30",
         "lease_min": 120, "offer_gw": false, "offer_dns": false},

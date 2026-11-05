@@ -3513,4 +3513,9 @@ docs/APP_PROFILES_TASK.md; what was built, how it works and how it was checked i
 - Owner's word through the module session (2026-11-05): 0.22 ran on a module and a profile loaded fine (which module,
   profile and app build unknown; refusal and "changed" not seen). Both installs on this PC = f4be15f7 (the user's by
   `win_install_user.ps1`, Program Files by the setup `/ALLUSERS` with the owner's UAC; exe = the stage's).
+- Owner's decisions through the module session (2026-11-05 evening): "Бошка" at 20 dBm ("мощность подними до 20"; the
+  module project's 0a52275, its block still 148 bytes) -- the built-in "Бошка" changed to match; the presets' passwords
+  stay as they are ("пароли оставь"). **[verified]** `run.ps1 -Mutants -ModuleRepo`: 93 checks, 18 of 18 mutants, the
+  three presets byte for byte; `profile_live.ps1` PASS. The release ME-1.0.3-2026-11-05 and both installs still carry
+  "Бошка" at 15 dBm.
 - `docs/HANDOFF.md` has been LF since 3dc063ad (it was CRLF before); left so, nothing reads it by its line ends.

@@ -498,8 +498,15 @@ int main(int argc, char** argv)
     QStringList keys;
     for (const WifiProfileChange& c : ch)
         keys << c.key + (c.primary ? QStringLiteral("*") : QString());
-    ok("head unit -> boat (Kogger): role, access point, networks, address, X1 first; then lines, radio",
-       keys.join(' ') == "role* ap* networks* address* x1* line0 line1 radio", keys.join(' '));
+    ok("head unit -> boat (Kogger): role, access point, networks, address, X1 first; then lines (both 20 dBm)",
+       keys.join(' ') == "role* ap* networks* address* x1* line0 line1", keys.join(' '));
+    WifiProfile head15 = head;
+    head15.powerQ = 60;                          // "Бошка" until 2026-11-05: 15 dBm
+    QStringList keys15;
+    for (const WifiProfileChange& c : WifiProfileDiff::changes(head15, all, boat))
+        keys15 << c.key + (c.primary ? QStringLiteral("*") : QString());
+    ok("the same from 15 dBm: the radio last",
+       keys15.join(' ') == "role* ap* networks* address* x1* line0 line1 radio", keys15.join(' '));
     ok("nothing changes against itself", WifiProfileDiff::changes(boat, all, boat).isEmpty());
     WifiProfile boat84 = boat;
     boat84.powerQ = 84;                          // the module saves 21 dBm as 20
