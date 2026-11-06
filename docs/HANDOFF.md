@@ -3518,4 +3518,16 @@ docs/APP_PROFILES_TASK.md; what was built, how it works and how it was checked i
   stay as they are ("пароли оставь"). **[verified]** `run.ps1 -Mutants -ModuleRepo`: 93 checks, 18 of 18 mutants, the
   three presets byte for byte; `profile_live.ps1` PASS. The release ME-1.0.3-2026-11-05 and both installs still carry
   "Бошка" at 15 dBm.
+- 2026-11-06, the module project's firmware 0.23.0 (one build for all; the GODIO translator in the public build, mask
+  bit 0 = 1) made `profiles/boat_godio.json` public and renamed it "GODIO boat" (its public tree is English only; every
+  other field the same, block 100 bytes). The owner: "GODIO boat, и да" -- the built-in preset renamed to match
+  (c2813678), then rebuilt, installed and released. 0.23 needs nothing in the app: the "no GODIO translator" warning
+  only shows for bit 0 = 0 of `ID_WIFI_NET` v3 byte 20 (not seen on a 0.23 module). **[verified]**
+  `run.ps1 -Mutants -ModuleRepo` (module tree 746ddec): 0 failed, 18 of 18 mutants, the three presets byte for byte;
+  `profile_live.ps1` PASS (the module at 88 reports "GODIO boat"). Both installs on this PC = c2813678 (exe
+  `B78DBBFB7CBAFC27...` = the stage's; Program Files with the owner's UAC). Release `ME-1.0.3-2026-11-06` (tag ->
+  c2813678, Latest) with `KoggerApp-ME-1.0.3-setup-20261106-185258.exe`, `KoggerApp-ME-1.0.3-portable-20261106-185258.zip`
+  and `KoggerApp-1.0.3-me-20261106-185823.apk` (test key `278d732e...`, `apk_deps_check` PASS, both ABIs' libraries
+  hold "GODIO boat" and no "Лодка GODIO"); size and SHA-256 as GitHub reports them = the local files. The APK has not
+  been on a device.
 - `docs/HANDOFF.md` has been LF since 3dc063ad (it was CRLF before); left so, nothing reads it by its line ends.
