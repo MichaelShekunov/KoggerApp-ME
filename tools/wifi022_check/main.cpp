@@ -254,7 +254,7 @@ int main(int argc, char** argv)
        && builtins[1].first == "boat_kogger" && builtins[2].first == "boat_godio");
     const QString names[] = { QString::fromUtf8("\xD0\x91\xD0\xBE\xD1\x88\xD0\xBA\xD0\xB0"),
                               QString::fromUtf8("\xD0\x9B\xD0\xBE\xD0\xB4\xD0\xBA\xD0\xB0 Kogger"),
-                              QString::fromUtf8("\xD0\x9B\xD0\xBE\xD0\xB4\xD0\xBA\xD0\xB0 GODIO") };
+                              QString::fromUtf8("GODIO boat") };     // until 2026-11-06 the Cyrillic "Lodka GODIO"
     for (int i = 0; i < builtins.size() && i < 3; ++i) {
         WifiProfile b;
         const QString e = WifiProfile::fromJson(json(builtins[i].second), &b);

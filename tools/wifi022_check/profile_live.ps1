@@ -57,7 +57,6 @@ $profDir = Join-Path $dataDir 'wifi_profiles'
 $keyBytes = [byte[]](0x4A, 0x5D, 0x6B, 0xC9)
 $failed = 0
 $boshka = -join [char[]](0x411, 0x43E, 0x448, 0x43A, 0x430)
-$lodka = -join [char[]](0x41B, 0x43E, 0x434, 0x43A, 0x430)
 
 Add-Type -TypeDefinition @'
 public static class StandCrc {
@@ -391,9 +390,9 @@ Expect ($pv.Count -ge 3 -and $pv[2] -match 'changes \[\] problems \[\]') 'previe
 $imp = @(Lines $r 'import')
 Expect ($imp.Count -eq 1 -and $imp[0] -match 'added$' -and $ld.Count -ge 2 -and $ld[1] -match 'started') 'refusal: the file added and loaded' ("{0} | {1}" -f ($imp -join ''), $(if ($ld.Count -ge 2) { $ld[1] } else { '' }))
 Expect ($st.Count -ge 3 -and $st[2] -match 'bad 1 .*result "The module refused "refuse-lines": both UDP lines on one port\. Nothing changed in it\."') 'refusal: its reason in words' $(if ($st.Count -ge 3) { $st[2] } else { '' })
-$moved = @($r.Log | Where-Object { $_ -match ('wifi-profile: "' + $lodka + ' GODIO" taken, the module reboots into it \(address 88, was 87\)') })
-Expect ($moved.Count -eq 1 -and $st.Count -ge 4 -and $st[3] -match 'result "The module took ".* GODIO" and reboots into it\. It comes back at address 88') 'address 88: the old device says where to look' $(if ($st.Count -ge 4) { $st[3] } else { '' })
-Expect ($st.Count -ge 5 -and $st[4] -match ('name "' + $lodka + ' GODIO" loaded 1 modified 0 .*addr 88')) 'address 88: found again, carrying the profile' $(if ($st.Count -ge 5) { $st[4] } else { '' })
+$moved = @($r.Log | Where-Object { $_ -match ('wifi-profile: "GODIO boat" taken, the module reboots into it \(address 88, was 87\)') })
+Expect ($moved.Count -eq 1 -and $st.Count -ge 4 -and $st[3] -match 'result "The module took "GODIO boat" and reboots into it\. It comes back at address 88') 'address 88: the old device says where to look' $(if ($st.Count -ge 4) { $st[3] } else { '' })
+Expect ($st.Count -ge 5 -and $st[4] -match ('name "GODIO boat" loaded 1 modified 0 .*addr 88')) 'address 88: found again, carrying the profile' $(if ($st.Count -ge 5) { $st[4] } else { '' })
 $saved = @(Lines $r 'save')
 $file = Join-Path $profDir 'Test capture.json'
 $cap = $null

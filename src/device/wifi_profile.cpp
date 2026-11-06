@@ -1009,8 +1009,8 @@ QString& folderOverride()
     return path;
 }
 
-// The module project's presets (profiles/*.json, its commit 0a52275) without their passwords; "secure" marks the
-// networks whose password has to be typed. The names are Cyrillic: escaped for the JSON reader.
+// The module project's presets (profiles/*.json, its commit 96e06de) without their passwords; "secure" marks the
+// networks whose password has to be typed. Two names are Cyrillic: escaped for the JSON reader.
 const char kHeadUnit[] = R"({"name": "Бошка", "role": "sta", "address": 87, "x1_baud": 2000000,
  "radio": {"power_dbm": 20, "mode": "bgn", "bw": 20, "ps": "none"},
  "ap": {"ssid": "KoggerBridge", "password": "", "channel": 6, "auth": "wpa2", "hidden": false, "max_clients": 4},
@@ -1031,7 +1031,7 @@ const char kBoatKogger[] = R"({"name": "Лодка Kogger", "role": "ap", "addre
            "tx_pin": 5, "rx_pin": 4, "xlat": "none"},
  "networks": []})";
 
-const char kBoatGodio[] = R"({"name": "Лодка GODIO", "role": "ap", "address": 88, "x1_baud": 921600,
+const char kBoatGodio[] = R"({"name": "GODIO boat", "role": "ap", "address": 88, "x1_baud": 921600,
  "radio": {"power_dbm": 20, "mode": "bgn", "bw": 20, "ps": "none"},
  "ap": {"ssid": "KoggerBridge", "password": "", "channel": 6, "auth": "wpa2", "hidden": false, "max_clients": 4},
  "ip": {"ip": "10.0.0.10", "mask": "255.255.255.0", "dhcp": true, "pool_start": "10.0.0.11", "pool_end": "10.0.0.30",

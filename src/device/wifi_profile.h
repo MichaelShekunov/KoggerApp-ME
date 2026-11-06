@@ -261,7 +261,7 @@ struct WifiProfileDiff
 
 /**
  * @brief Where the profiles come from: three built into the app (the module project's presets without their passwords:
- * "Бошка", "Лодка Kogger", "Лодка GODIO") and the user's own files, JSON in the app's data folder (wifi_profiles/).
+ * "Бошка", "Лодка Kogger", "GODIO boat") and the user's own files, JSON in the app's data folder (wifi_profiles/).
  * Passwords live only in the user's files: none is built in.
  */
 struct WifiProfileStore
